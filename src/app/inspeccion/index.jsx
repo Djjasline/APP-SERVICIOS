@@ -168,7 +168,7 @@ const InspeccionHidro = () => {
               />
               <div>
                 <h2 className="text-base md:text-lg font-semibold text-slate-900 tracking-wide uppercase">
-                  Hoja de inspección hidrosuccionadora
+                  Hoja de inspección hidrosuccionador
                 </h2>
                 <p className="text-[11px] text-slate-500">
                   Formato para registrar el estado del equipo, condiciones
