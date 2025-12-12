@@ -5,15 +5,18 @@ import ScrollToTop from "./components/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
 import NotFound from "./pages/NotFound";
 
-// 🔹 Módulo 1: Informe general de servicios
+import HomeDashboard from "./pages/home";
 import ServiceReportCreation from "./pages/service-report-creation";
 import EmailIntegrationInterface from "./pages/email-integration-interface";
 import DigitalSignatureCapture from "./pages/digital-signature-capture";
 import PDFReportPreview from "./pages/pdf-report-preview";
 import ReportHistoryManagement from "./pages/report-history-management";
 
-// 🔹 Módulo 2: Hoja de Inspección Hidráulica (nuevo)
-import InspeccionHidro from "./app/inspeccion"; // <- src/app/inspeccion/index.jsx
+// módulo de inspección (ya creado en src/app/inspeccion)
+import InspeccionHidro from "./app/inspeccion";
+
+// placeholder de mantenimiento
+import MaintenanceLanding from "./pages/maintenance";
 
 const Routes = () => {
   return (
@@ -21,16 +24,21 @@ const Routes = () => {
       <ErrorBoundary>
         <ScrollToTop />
         <RouterRoutes>
-          {/* Pantalla inicial (de momento dejamos el historial del informe general) */}
-          <Route path="/" element={<ReportHistoryManagement />} />
+          {/* Pantalla de inicio con las 3 familias */}
+          <Route path="/" element={<HomeDashboard />} />
 
-          {/* Alias extra por compatibilidad */}
+          {/* 1. INFORME GENERAL DE SERVICIOS */}
+          {/* Listado / historial */}
+          <Route
+            path="/informes-servicio"
+            element={<ReportHistoryManagement />}
+          />
+          {/* Alias para compatibilidad con enlaces antiguos */}
           <Route
             path="/report-history-management"
             element={<ReportHistoryManagement />}
           />
-
-          {/* Flujo del Informe general de servicios */}
+          {/* Flujo del informe */}
           <Route
             path="/service-report-creation"
             element={<ServiceReportCreation />}
@@ -45,8 +53,11 @@ const Routes = () => {
             element={<EmailIntegrationInterface />}
           />
 
-          {/* 🔹 Nueva ruta: Hoja de Inspección Hidráulica */}
-          <Route path="/inspeccion-hidro" element={<InspeccionHidro />} />
+          {/* 2. INSPECCIÓN Y VALORACIÓN DE EQUIPOS */}
+          <Route path="/inspeccion" element={<InspeccionHidro />} />
+
+          {/* 3. SERVICIO DE MANTENIMIENTOS */}
+          <Route path="/mantenimiento" element={<MaintenanceLanding />} />
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
