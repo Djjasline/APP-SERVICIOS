@@ -5,20 +5,15 @@ import ScrollToTop from "./components/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
 import NotFound from "./pages/NotFound";
 
+// 🔹 Módulo 1: Informe general de servicios
 import ServiceReportCreation from "./pages/service-report-creation";
 import EmailIntegrationInterface from "./pages/email-integration-interface";
 import DigitalSignatureCapture from "./pages/digital-signature-capture";
 import PDFReportPreview from "./pages/pdf-report-preview";
 import ReportHistoryManagement from "./pages/report-history-management";
 
-// Nueva pantalla de inicio general
-import Home from "./pages/home";
-
-// App de inspección hidráulica migrada
-import InspeccionHidro from "./app/inspeccion";
-
-// Placeholder para mantenimientos (cuando lo usemos)
-import MaintenanceMenu from "./pages/maintenance-menu";
+// 🔹 Módulo 2: Hoja de Inspección Hidráulica (nuevo)
+import InspeccionHidro from "./app/inspeccion"; // <- src/app/inspeccion/index.jsx
 
 const Routes = () => {
   return (
@@ -26,14 +21,16 @@ const Routes = () => {
       <ErrorBoundary>
         <ScrollToTop />
         <RouterRoutes>
-          {/* ✅ Pantalla inicial general */}
-          <Route path="/" element={<Home />} />
+          {/* Pantalla inicial (de momento dejamos el historial del informe general) */}
+          <Route path="/" element={<ReportHistoryManagement />} />
 
-          {/* 1. Informe general de servicios */}
+          {/* Alias extra por compatibilidad */}
           <Route
             path="/report-history-management"
             element={<ReportHistoryManagement />}
           />
+
+          {/* Flujo del Informe general de servicios */}
           <Route
             path="/service-report-creation"
             element={<ServiceReportCreation />}
@@ -48,11 +45,8 @@ const Routes = () => {
             element={<EmailIntegrationInterface />}
           />
 
-          {/* 2. Inspección y valoración de equipos */}
+          {/* 🔹 Nueva ruta: Hoja de Inspección Hidráulica */}
           <Route path="/inspeccion-hidro" element={<InspeccionHidro />} />
-
-          {/* 3. Servicio de mantenimientos (placeholder) */}
-          <Route path="/mantenimiento" element={<MaintenanceMenu />} />
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
