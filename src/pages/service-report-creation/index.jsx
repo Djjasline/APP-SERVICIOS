@@ -292,7 +292,7 @@ const ServiceReportCreation = () => {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-6">
       <div className="max-w-5xl mx-auto space-y-6">
-        {/* Encabezado superior */}
+        {/* Encabezado superior general de la página */}
         <header className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-slate-900">
@@ -306,15 +306,40 @@ const ServiceReportCreation = () => {
           </div>
         </header>
 
-        {/* 1. Información general del servicio */}
-        <section className="bg-white rounded-xl shadow border p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-slate-900">
-            1. Información general del servicio
-          </h2>
-          <p className="text-xs text-slate-500">
-            Datos del cliente, contacto, servicio y técnico responsable.
-          </p>
+        {/* ============================== */}
+        {/* Encabezado del informe + 1. Datos del reporte */}
+        {/* ============================== */}
+        <section className="bg-white rounded-xl shadow border p-6 space-y-6">
+          {/* Banda superior con logo + título + versión */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img
+                src="/astap-logo.jpg"
+                alt="ASTAP"
+                className="h-10 w-auto"
+              />
+              <h2 className="text-xl font-semibold tracking-wide text-slate-900">
+                REPORTE DE SERVICIO
+              </h2>
+            </div>
 
+            <div className="text-right text-[11px] leading-tight text-slate-500">
+              <div>Fecha de versión: 01-01-2026</div>
+              <div>Versión: 01</div>
+            </div>
+          </div>
+
+          {/* Título de la sección 1 */}
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900">
+              1. Datos del reporte
+            </h3>
+            <p className="text-xs text-slate-500">
+              Datos del cliente, contacto, servicio y técnico responsable.
+            </p>
+          </div>
+
+          {/* Formulario de datos del reporte */}
           <div className="space-y-4">
             {/* Cliente */}
             <div className="space-y-2">
@@ -413,7 +438,7 @@ const ServiceReportCreation = () => {
               </div>
             </div>
 
-            {/* Dirección + referencia */}
+            {/* Dirección */}
             <div className="space-y-2">
               <label className="text-xs font-medium text-slate-700">
                 Dirección
@@ -429,6 +454,7 @@ const ServiceReportCreation = () => {
               />
             </div>
 
+            {/* Referencia */}
             <div className="space-y-2">
               <label className="text-xs font-medium text-slate-700">
                 Referencia
@@ -454,7 +480,10 @@ const ServiceReportCreation = () => {
                   type="text"
                   value={generalInfo.technicalPersonnel}
                   onChange={(e) =>
-                    handleGeneralChange("technicalPersonnel", e.target.value)
+                    handleGeneralChange(
+                      "technicalPersonnel",
+                      e.target.value
+                    )
                   }
                   className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
                   placeholder="Nombre del técnico ASTAP"
@@ -469,7 +498,10 @@ const ServiceReportCreation = () => {
                   type="tel"
                   value={generalInfo.technicianPhone}
                   onChange={(e) =>
-                    handleGeneralChange("technicianPhone", e.target.value)
+                    handleGeneralChange(
+                      "technicianPhone",
+                      e.target.value
+                    )
                   }
                   className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
                   placeholder="+593 ..."
@@ -484,7 +516,10 @@ const ServiceReportCreation = () => {
                   type="email"
                   value={generalInfo.technicianEmail}
                   onChange={(e) =>
-                    handleGeneralChange("technicianEmail", e.target.value)
+                    handleGeneralChange(
+                      "technicianEmail",
+                      e.target.value
+                    )
                   }
                   className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
                   placeholder="tecnico@astap.com"
@@ -541,7 +576,11 @@ const ServiceReportCreation = () => {
                     type="text"
                     value={row.parameter}
                     onChange={(e) =>
-                      handleBeforeChange(index, "parameter", e.target.value)
+                      handleBeforeChange(
+                        index,
+                        "parameter",
+                        e.target.value
+                      )
                     }
                     className="border rounded-md px-2 py-1 text-xs w-full outline-none focus:ring-2 focus:ring-slate-900/20"
                     placeholder="Parámetro medido"
@@ -581,8 +620,8 @@ const ServiceReportCreation = () => {
                 3. Actividades
               </h2>
               <p className="text-xs text-slate-500">
-                Registre cada actividad realizada. Puede agregar tantas como sea
-                necesario.
+                Registre cada actividad realizada. Puede agregar tantas como
+                sea necesario.
               </p>
             </div>
             <Button
@@ -643,7 +682,11 @@ const ServiceReportCreation = () => {
                       type="text"
                       value={act.title}
                       onChange={(e) =>
-                        handleActivityRowChange(index, "title", e.target.value)
+                        handleActivityRowChange(
+                          index,
+                          "title",
+                          e.target.value
+                        )
                       }
                       className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
                       placeholder="Título de la actividad"
@@ -664,7 +707,11 @@ const ServiceReportCreation = () => {
                       rows={3}
                       value={act.detail}
                       onChange={(e) =>
-                        handleActivityRowChange(index, "detail", e.target.value)
+                        handleActivityRowChange(
+                          index,
+                          "detail",
+                          e.target.value
+                        )
                       }
                       className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20 resize-y"
                       placeholder="Describa el detalle de la actividad (pasos, ajustes realizados, observaciones, etc.)."
@@ -675,7 +722,7 @@ const ServiceReportCreation = () => {
             ))}
           </div>
 
-          {/* Incidentes (solo para registro, no va al PDF) */}
+          {/* Incidentes (solo registro interno) */}
           <div className="space-y-2 pt-4">
             <label className="text-xs font-medium text-slate-700">
               Incidentes
@@ -684,7 +731,10 @@ const ServiceReportCreation = () => {
               rows={3}
               value={activitiesIncidents.incidentsDescription}
               onChange={(e) =>
-                handleActivitiesChange("incidentsDescription", e.target.value)
+                handleActivitiesChange(
+                  "incidentsDescription",
+                  e.target.value
+                )
               }
               className="border rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/20 resize-y"
               placeholder="Registra cualquier incidente relevante (si no hubo, puede dejarlo en blanco)."
@@ -698,8 +748,8 @@ const ServiceReportCreation = () => {
                 Imagen de {actividadLabel}
               </span>
               <p className="text-[11px] text-slate-500 mb-2">
-                Esta imagen corresponde a la {actividadLabel} seleccionada en la
-                tabla.
+                Esta imagen corresponde a la {actividadLabel} seleccionada en
+                la tabla.
               </p>
 
               <button
@@ -716,7 +766,7 @@ const ServiceReportCreation = () => {
                   <img
                     src={selectedActivity.imageData}
                     alt={`Imagen de ${actividadLabel}`}
-                    className="w-full h-24 object-contain border rounded-md bg-white"
+                    className="w-full h-32 object-contain border rounded-md bg-white"
                   />
                   <p className="mt-1 text-[10px] text-emerald-700">
                     Imagen guardada para esta actividad.
@@ -937,7 +987,10 @@ const ServiceReportCreation = () => {
                   type="number"
                   value={equipment.manufactureYear}
                   onChange={(e) =>
-                    handleEquipmentChange("manufactureYear", e.target.value)
+                    handleEquipmentChange(
+                      "manufactureYear",
+                      e.target.value
+                    )
                   }
                   className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
                 />
