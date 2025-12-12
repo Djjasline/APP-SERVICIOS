@@ -1,14 +1,15 @@
+// src/app/inspeccion/index.jsx
 import React from "react";
-import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import App from "./App";        // El componente principal de la hoja de inspección
+import "./index.css";           // Los estilos propios de esa app
 
-import App from "./App";
-import "./index.css";
+/**
+ * Componente raíz de la app de inspección dentro de APP-SERVICIOS.
+ * OJO: aquí ya NO usamos ReactDOM.createRoot ni BrowserRouter,
+ * eso ya lo maneja la app principal.
+ */
+const InspeccionHidro = () => {
+  return <App />;
+};
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>
-);
+export default InspeccionHidro;
