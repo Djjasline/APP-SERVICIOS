@@ -142,7 +142,7 @@ const InspeccionHidro = () => {
               Reporte de inspección
             </h1>
             <p className="text-sm text-slate-600">
-              Inspección y valoración de equipos Vactor / hidrosuccionador.
+              Inspección y valoración de equipos / hidrosuccionador.
             </p>
           </div>
 
@@ -178,7 +178,7 @@ const InspeccionHidro = () => {
             </div>
 
             <div className="text-right text-[11px] text-slate-500">
-              <div>Fecha de versión: 25-11-2025</div>
+              <div>Fecha de versión: 1-1-2026</div>
               <div>Versión: 01</div>
             </div>
           </div>
