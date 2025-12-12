@@ -11,22 +11,29 @@ import DigitalSignatureCapture from "./pages/digital-signature-capture";
 import PDFReportPreview from "./pages/pdf-report-preview";
 import ReportHistoryManagement from "./pages/report-history-management";
 
+// Nueva pantalla de inicio general
+import Home from "./pages/home";
+
+// App de inspección hidráulica migrada
+import InspeccionHidro from "./app/inspeccion";
+
+// Placeholder para mantenimientos (cuando lo usemos)
+import MaintenanceMenu from "./pages/maintenance-menu";
+
 const Routes = () => {
   return (
     <BrowserRouter>
       <ErrorBoundary>
         <ScrollToTop />
         <RouterRoutes>
-          {/* ✅ Pantalla inicial: listado de informes */}
-          <Route path="/" element={<ReportHistoryManagement />} />
+          {/* ✅ Pantalla inicial general */}
+          <Route path="/" element={<Home />} />
 
-          {/* Alias extra por si hay enlaces viejos */}
+          {/* 1. Informe general de servicios */}
           <Route
             path="/report-history-management"
             element={<ReportHistoryManagement />}
           />
-
-          {/* Flujo del informe */}
           <Route
             path="/service-report-creation"
             element={<ServiceReportCreation />}
@@ -40,6 +47,12 @@ const Routes = () => {
             path="/email-integration-interface"
             element={<EmailIntegrationInterface />}
           />
+
+          {/* 2. Inspección y valoración de equipos */}
+          <Route path="/inspeccion-hidro" element={<InspeccionHidro />} />
+
+          {/* 3. Servicio de mantenimientos (placeholder) */}
+          <Route path="/mantenimiento" element={<MaintenanceMenu />} />
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
