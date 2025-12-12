@@ -4,127 +4,117 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import Icon from "../../components/AppIcon";
 
-const HomeDashboard = () => {
+const Home = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-5xl mx-auto space-y-8">
-        {/* Encabezado */}
+        {/* Encabezado principal */}
         <header className="space-y-2">
-          <h1 className="text-3xl font-semibold text-slate-900">
+          <h1 className="text-2xl md:text-3xl font-semibold text-slate-900">
             Panel de servicios ASTAP
           </h1>
           <p className="text-sm text-slate-600 max-w-2xl">
-            Selecciona el tipo de formulario que deseas completar. Cada familia
-            mantiene su propio historial de informes.
+            Selecciona el tipo de formato que deseas trabajar. Cada familia
+            tiene su propio historial independiente.
           </p>
         </header>
 
         {/* Tarjetas de familias */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <section className="grid gap-6 md:grid-cols-3">
           {/* 1. Informe general de servicios */}
-          <section className="bg-white rounded-xl shadow border p-5 flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-sky-100 text-sky-700 mb-1">
-                <Icon name="FileText" size={18} />
-              </div>
-              <h2 className="text-lg font-semibold text-slate-900">
-                Informe general de servicios
+          <article className="bg-white rounded-xl shadow border p-5 flex flex-col justify-between">
+            <div className="space-y-2">
+              <h2 className="text-base font-semibold text-slate-900">
+                1. Informe general de servicios
               </h2>
-              <p className="text-sm text-slate-600">
-                Formato completo para reportar cualquier servicio realizado:
-                datos del cliente, pruebas, actividades, equipo y firmas
-                digitales.
-              </p>
-              <p className="text-xs text-slate-500">
-                Formato único (flujo que ya tienes funcionando).
+              <p className="text-xs text-slate-600">
+                Formato único para registrar los informes técnicos de servicio.
               </p>
             </div>
-
             <div className="mt-4 flex flex-col gap-2">
               <Button
                 size="sm"
                 iconName="Plus"
                 onClick={() => navigate("/service-report-creation")}
               >
-                Crear nuevo informe
+                Nuevo informe
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 iconName="List"
-                onClick={() => navigate("/informes-servicio")}
+                onClick={() => navigate("/servicios")}
               >
-                Ver historial de informes
+                Ver historial
               </Button>
             </div>
-          </section>
+          </article>
 
           {/* 2. Inspección y valoración de equipos */}
-          <section className="bg-white rounded-xl shadow border p-5 flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 mb-1">
-                <Icon name="ClipboardCheck" size={18} />
-              </div>
-              <h2 className="text-lg font-semibold text-slate-900">
-                Inspección y valoración de equipos
+          <article className="bg-white rounded-xl shadow border p-5 flex flex-col justify-between">
+            <div className="space-y-2">
+              <h2 className="text-base font-semibold text-slate-900">
+                2. Inspección y valoración de equipos
               </h2>
-              <p className="text-sm text-slate-600">
-                Familia de formatos para inspeccionar equipos, registrar
-                condiciones y evaluar su estado operativo.
-              </p>
-              <p className="text-xs text-slate-500">
-                Tendrá 3 formatos (por definir). De momento se muestra una
-                pantalla de trabajo para la hoja de inspección hidráulica.
+              <p className="text-xs text-slate-600">
+                Aquí irán los 3 formatos de inspección hidráulica y demás
+                evaluaciones de equipos.
               </p>
             </div>
-
             <div className="mt-4 flex flex-col gap-2">
               <Button
                 size="sm"
-                iconName="FileSpreadsheet"
-                onClick={() => navigate("/inspeccion")}
+                iconName="ClipboardList"
+                onClick={() => navigate("/inspeccion-hidro")}
               >
-                Abrir formatos de inspección
+                Ir a inspecciones
               </Button>
+              <p className="text-[11px] text-slate-500">
+                * Por ahora se muestra un placeholder. Luego conectaremos los 3
+                formatos reales.
+              </p>
             </div>
-          </section>
+          </article>
 
           {/* 3. Servicio de mantenimientos */}
-          <section className="bg-white rounded-xl shadow border p-5 flex flex-col justify-between">
-            <div className="space-y-3">
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-amber-100 text-amber-700 mb-1">
-                <Icon name="Wrench" size={18} />
-              </div>
-              <h2 className="text-lg font-semibold text-slate-900">
-                Servicio de mantenimientos
+          <article className="bg-white rounded-xl shadow border p-5 flex flex-col justify-between">
+            <div className="space-y-2">
+              <h2 className="text-base font-semibold text-slate-900">
+                3. Servicio de mantenimientos
               </h2>
-              <p className="text-sm text-slate-600">
-                Para control de horas, kilómetros, mantenimientos preventivos y
-                correctivos de las unidades.
-              </p>
-              <p className="text-xs text-slate-500">
-                Tendrá 2 formatos. Por ahora verás una pantalla placeholder
-                mientras definimos el flujo.
+              <p className="text-xs text-slate-600">
+                Familia para los formatos de control de horas / km y órdenes de
+                mantenimiento.
               </p>
             </div>
-
             <div className="mt-4 flex flex-col gap-2">
               <Button
                 size="sm"
-                variant="outline"
-                iconName="Clock"
+                iconName="Wrench"
                 onClick={() => navigate("/mantenimiento")}
               >
-                Abrir módulos de mantenimiento
+                Abrir módulo de mantenimiento
               </Button>
+              <p className="text-[11px] text-slate-500">
+                * En esta primera versión verás solo una pantalla informativa.
+              </p>
             </div>
-          </section>
-        </div>
+          </article>
+        </section>
+
+        {/* Pie de página pequeño */}
+        <footer className="pt-4 border-t text-[11px] text-slate-400 flex items-center gap-1">
+          <Icon name="Info" size={12} />
+          <span>
+            Desde este panel solo agrupamos las familias. Cada módulo mantiene
+            su propio flujo y reportes.
+          </span>
+        </footer>
       </div>
     </div>
   );
 };
 
-export default HomeDashboard;
+export default Home;
