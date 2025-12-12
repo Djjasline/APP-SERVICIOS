@@ -10,18 +10,21 @@ import ScrollToTop from "./components/ScrollToTop";
 import ErrorBoundary from "./components/ErrorBoundary";
 import NotFound from "./pages/NotFound";
 
-// 🔹 Nueva pantalla de inicio
+// Pantalla de inicio
 import Home from "./pages/home";
 
-// 🔹 Módulo 1: Informe general de servicios
+// Módulo 1: Informe general de servicios
 import ServiceReportCreation from "./pages/service-report-creation";
 import EmailIntegrationInterface from "./pages/email-integration-interface";
 import DigitalSignatureCapture from "./pages/digital-signature-capture";
 import PDFReportPreview from "./pages/pdf-report-preview";
 import ReportHistoryManagement from "./pages/report-history-management";
 
-// 🔹 Módulo 2: Inspección hidráulica (placeholder actual)
+// Módulo 2: Inspección hidráulica (placeholder)
 import InspeccionHidro from "./app/inspeccion";
+
+// Módulo 3: Mantenimiento (placeholder nuevo)
+import Maintenance from "./pages/maintenance";
 
 const Routes = () => {
   return (
@@ -29,25 +32,15 @@ const Routes = () => {
       <ErrorBoundary>
         <ScrollToTop />
         <RouterRoutes>
-          {/* ======================= */}
-          {/* Pantalla inicial general */}
-          {/* ======================= */}
+          {/* Inicio general */}
           <Route path="/" element={<Home />} />
 
-          {/* ======================= */}
           {/* Familia 1: Informes de servicio */}
-          {/* ======================= */}
-
-          {/* Listado principal de informes de servicio */}
           <Route path="/servicios" element={<ReportHistoryManagement />} />
-
-          {/* Alias para compatibilidad con el proyecto antiguo */}
           <Route
             path="/report-history-management"
             element={<ReportHistoryManagement />}
           />
-
-          {/* Flujo de creación de informe */}
           <Route
             path="/service-report-creation"
             element={<ServiceReportCreation />}
@@ -62,14 +55,13 @@ const Routes = () => {
             element={<EmailIntegrationInterface />}
           />
 
-          {/* ======================= */}
-          {/* Familia 2: Inspección y valoración de equipos */}
-          {/* ======================= */}
+          {/* Familia 2: Inspección y valoración */}
           <Route path="/inspeccion-hidro" element={<InspeccionHidro />} />
 
-          {/* ======================= */}
+          {/* Familia 3: Mantenimientos */}
+          <Route path="/mantenimiento" element={<Maintenance />} />
+
           {/* 404 */}
-          {/* ======================= */}
           <Route path="*" element={<NotFound />} />
         </RouterRoutes>
       </ErrorBoundary>
