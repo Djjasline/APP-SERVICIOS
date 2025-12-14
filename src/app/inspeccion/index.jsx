@@ -50,7 +50,7 @@ const InspeccionHidro = () => {
               />
               <div>
                 <h1 className="text-lg font-semibold text-slate-900">
-                  HOJA DE INSPECCIÓN HIDROSUCCIONADORA
+                  HOJA DE INSPECCIÓN HIDROSUCCIONADOR
                 </h1>
                 <p className="text-xs text-slate-500">
                   Reporte de inspección de equipos Vactor / hidrosuccionadora.
