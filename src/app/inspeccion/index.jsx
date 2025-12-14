@@ -237,23 +237,16 @@ const HojaInspeccionHidro = () => {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Encabezado superior de la página */}
         <header className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-slate-900">
-              Hoja de inspección equipo hidrosuccionador
-            </h1>
-            <p className="text-sm text-slate-600">
-              Inspección y valoración de equipos / hidrosuccionador.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
-          >
-            ← Volver al panel
-          </button>
-        </header>
-
+  <div>
+    <h1 className="text-2xl font-semibold text-slate-900">
+      Hoja de inspección
+    </h1>
+    <p className="text-sm text-slate-600">
+      Inspección y valoración de equipos / hidrosuccionador.
+    </p>
+  </div>
+  ...
+</header>
         {/* FORMULARIO COMPLETO */}
         <form
           className="space-y-6"
