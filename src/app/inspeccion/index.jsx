@@ -69,111 +69,150 @@ const InspeccionHidro = () => {
           </div>
         </section>
 
-        {/* 1. DATOS DEL REPORTE */}
+        {/* 1. DATOS DEL REPORTE (mismo modelo que el general) */}
         <section className="bg-white rounded-xl shadow border p-6 space-y-4">
           <div>
             <h2 className="text-base font-semibold text-slate-900">
               1. Datos del reporte
             </h2>
             <p className="text-xs text-slate-500">
-              Información básica de la inspección: contrato, ubicación, cliente
-              y técnico ASTAP.
+              Datos del cliente, contacto, servicio y técnico responsable.
             </p>
           </div>
 
-          {/* Línea 1: contrato + descripción */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
+          <div className="space-y-4">
+            {/* Cliente (empresa) */}
+            <div className="space-y-2">
               <label className="text-xs font-medium text-slate-700">
-                Referencia de contrato
+                Cliente (empresa) *
               </label>
               <input
                 type="text"
-                className="w-full border rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
-                placeholder="Número o referencia del contrato"
+                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+                placeholder="Nombre de la empresa cliente"
               />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-700">
-                Descripción
-              </label>
-              <input
-                type="text"
-                className="w-full border rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
-                placeholder="Breve descripción de la inspección"
-              />
-            </div>
-          </div>
 
-          {/* Línea 2: Cód. INF */}
-          <div className="space-y-1.5 max-w-md">
-            <label className="text-xs font-medium text-slate-700">
-              Cód. INF.
-            </label>
-            <input
-              type="text"
-              className="w-full border rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
-              placeholder="Código interno del informe"
-            />
-          </div>
+            {/* Contacto + cargo del cliente */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-slate-700">
+                  Contacto del cliente
+                </label>
+                <input
+                  type="text"
+                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+                  placeholder="Nombre de la persona de contacto"
+                />
+              </div>
 
-          {/* Línea 3: Fecha + Ubicación */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-slate-700">
+                  Cargo del cliente
+                </label>
+                <input
+                  type="text"
+                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+                  placeholder="Cargo o rol de la persona de contacto"
+                />
+              </div>
+            </div>
+
+            {/* Correo del cliente */}
+            <div className="space-y-2">
               <label className="text-xs font-medium text-slate-700">
-                Fecha de inspección
+                Correo del cliente
               </label>
               <input
-                type="date"
-                className="w-full border rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
+                type="email"
+                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+                placeholder="correo@cliente.com"
               />
             </div>
-            <div className="space-y-1.5">
+
+            {/* Fecha de servicio + Código interno */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-slate-700">
+                  Fecha de servicio
+                </label>
+                <input
+                  type="date"
+                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-slate-700">
+                  Código interno
+                </label>
+                <input
+                  type="text"
+                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+                  placeholder="Identificador interno del servicio"
+                />
+              </div>
+            </div>
+
+            {/* Dirección */}
+            <div className="space-y-2">
               <label className="text-xs font-medium text-slate-700">
-                Ubicación
+                Dirección
               </label>
               <input
                 type="text"
-                className="w-full border rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
-                placeholder="Ciudad, planta, dirección, etc."
+                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+                placeholder="Dirección donde se realiza el servicio"
               />
             </div>
-          </div>
 
-          {/* Línea 4: Cliente + Técnico ASTAP */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
+            {/* Referencia */}
+            <div className="space-y-2">
               <label className="text-xs font-medium text-slate-700">
-                Cliente
+                Referencia
               </label>
-              <input
-                type="text"
-                className="w-full border rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
-                placeholder="Nombre del cliente"
+              <textarea
+                rows={2}
+                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20 resize-y"
+                placeholder="Puntos de referencia para llegar al sitio"
               />
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-700">
-                Técnico ASTAP
-              </label>
-              <input
-                type="text"
-                className="w-full border rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
-                placeholder="Nombre del técnico ASTAP"
-              />
-            </div>
-          </div>
 
-          {/* Línea 5: Cliente responsable */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-700">
-              Cliente responsable
-            </label>
-            <input
-              type="text"
-              className="w-full border rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/20"
-              placeholder="Persona responsable por parte del cliente"
-            />
+            {/* Datos del técnico */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-slate-700">
+                  Técnico responsable
+                </label>
+                <input
+                  type="text"
+                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+                  placeholder="Nombre del técnico ASTAP"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-slate-700">
+                  Teléfono del técnico
+                </label>
+                <input
+                  type="tel"
+                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+                  placeholder="+593..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-slate-700">
+                  Correo del técnico
+                </label>
+                <input
+                  type="email"
+                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+                  placeholder="tecnico@astap.com"
+                />
+              </div>
+            </div>
           </div>
         </section>
 
