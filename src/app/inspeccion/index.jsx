@@ -53,7 +53,7 @@ const InspeccionHidro = () => {
                   HOJA DE INSPECCIÓN HIDROSUCCIONADOR
                 </h1>
                 <p className="text-xs text-slate-500">
-                  Reporte de inspección de equipos Vactor / hidrosuccionadora.
+                  Reporte de inspección de equipos  / hidrosuccionador.
                 </p>
               </div>
             </div>
