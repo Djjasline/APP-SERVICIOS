@@ -27,7 +27,7 @@ const secciones = [
   {
     id: "secA",
     titulo:
-      "3. Evaluación del estado de los componentes o sistemas del módulo Vactor – A) Sistema hidráulico (aceites)",
+      "3. Evaluación del estado de los componentes o sistemas del módulo – A) Sistema hidráulico (aceites)",
     items: [
       {
         codigo: "A.1",
@@ -72,7 +72,7 @@ const secciones = [
   {
     id: "secB",
     titulo:
-      "4. Evaluación del estado de los componentes o sistemas del módulo Vactor – B) Sistema hidráulico (agua)",
+      "4. Evaluación del estado de los componentes o sistemas del módulo – B) Sistema hidráulico (agua)",
     items: [
       {
         codigo: "B.1",
@@ -222,10 +222,10 @@ const InspeccionHidro = () => {
         <header className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-slate-900">
-              Hoja de inspección hidrosuccionadora
+              Hoja de inspección hidrosuccionador
             </h1>
             <p className="text-sm text-slate-600">
-              Inspección y valoración de equipos Vactor / hidrosuccionadora.
+              Inspección y valoración de equipos / hidrosuccionador.
             </p>
           </div>
 
@@ -255,7 +255,7 @@ const InspeccionHidro = () => {
                 />
                 <div>
                   <h2 className="font-bold text-base md:text-lg text-slate-900">
-                    HOJA DE INSPECCIÓN HIDROSUCCIONADORA
+                    HOJA DE INSPECCIÓN HIDROSUCCIONADOR
                   </h2>
                   <p className="text-[11px] text-slate-500">
                     Formato para registrar el estado del equipo, condiciones
