@@ -239,7 +239,7 @@ const HojaInspeccionHidro = () => {
         <header className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-slate-900">
-              Hoja de inspección hidráulica
+              Hoja de inspección equipo hidrosuccionador
             </h1>
             <p className="text-sm text-slate-600">
               Inspección y valoración de equipos / hidrosuccionador.
