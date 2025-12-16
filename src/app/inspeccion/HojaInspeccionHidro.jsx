@@ -1,23 +1,20 @@
 // src/app/inspeccion/HojaInspeccionHidro.jsx
-import React, { useRef, useState } from "react";
+import React, { useState, useRef } from "react";
 import SignatureCanvas from "react-signature-canvas";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 
-// =======================
-// Definición de secciones
-// =======================
+// ======================================================================
+//  Definición de secciones de ítems (SI / NO + Observación)
+// ======================================================================
 const secciones = [
   {
     id: "sec1",
     titulo:
-      "2. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
+      "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
     items: [
       { codigo: "1.1", texto: "Prueba de encendido general del equipo" },
       {
         codigo: "1.2",
-        texto:
-          "Verificación de funcionamiento de controles principales",
+        texto: "Verificación de funcionamiento de controles principales",
       },
       {
         codigo: "1.3",
@@ -28,12 +25,11 @@ const secciones = [
   {
     id: "secA",
     titulo:
-      "3. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES DEL MÓDULO VACTOR – A) SISTEMA HIDRÁULICO (ACEITES)",
+      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS DEL MÓDULO VACTOR – A) SISTEMA HIDRÁULICO (ACEITES)",
     items: [
       {
         codigo: "A.1",
-        texto:
-          "Fugas de aceite hidráulico (mangueras - acoples - bancos)",
+        texto: "Fugas de aceite hidráulico (mangueras - acoples - bancos)",
       },
       { codigo: "A.2", texto: "Nivel de aceite del soplador" },
       { codigo: "A.3", texto: "Nivel de aceite hidráulico" },
@@ -55,35 +51,31 @@ const secciones = [
       },
       {
         codigo: "A.8",
-        texto:
-          "Estado de los cilindros hidráulicos, presenta fugas o daños",
+        texto: "Estado de los cilindros hidráulicos, presenta fugas o daños",
       },
       {
         codigo: "A.9",
-        texto:
-          "Evaluación del estado de los tapones de drenaje de lubricantes",
+        texto: "Evaluación del estado de los tapones de drenaje de lubricantes",
       },
       {
         codigo: "A.10",
-        texto:
-          "Evaluación de bancos hidráulicos, presentan fugas o daños",
+        texto: "Evaluación de bancos hidráulicos, presentan fugas o daños",
       },
     ],
   },
   {
     id: "secB",
     titulo:
-      "4. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES DEL MÓDULO VACTOR – B) SISTEMA HIDRÁULICO (AGUA)",
+      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS DEL MÓDULO VACTOR – B) SISTEMA HIDRÁULICO (AGUA)",
     items: [
       {
         codigo: "B.1",
-        texto:
-          "Estado de los empaques de la tapa de los filtros de agua",
+        texto: "Estado de los empaques de la tapa de los filtros de agua",
       },
       {
         codigo: "B.2",
         texto:
-          "Inspección del sistema de tapón de expansión de 2\" de tanques de agua",
+          'Inspección del sistema de tapón de expansión de 2" de tanques de agua',
       },
       {
         codigo: "B.3",
@@ -109,30 +101,37 @@ const secciones = [
   },
 ];
 
-// =======================
-// Componente principal
-// =======================
+// ======================================================================
+//  Componente principal
+// ======================================================================
 const HojaInspeccionHidro = () => {
-  // 1) Datos del reporte (cliente / técnico) – mismo modelo que informe general
-  const [generalInfo, setGeneralInfo] = useState({
-    client: "",
-    clientContact: "",
-    clientEmail: "",
-    clientRole: "",
-    serviceDate: "",
-    internalCode: "",
-    address: "",
-    reference: "",
-    technicalPersonnel: "",
-    technicianPhone: "",
-    technicianEmail: "",
-  });
-
-  // 2) Datos propios de la hoja de inspección
   const [formData, setFormData] = useState({
+    // 1. Datos del reporte
+    clienteEmpresa: "",
+    contactoCliente: "",
+    cargoCliente: "",
+    correoCliente: "",
+    fechaServicio: "",
+    codigoInterno: "",
+    direccion: "",
+    referencia: "",
+    tecnicoAstap: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
+
+    // Encabezado específico de la hoja
+    referenciaContrato: "",
+    descripcion: "",
+    codInf: "",
+    fechaInspeccion: "",
+    ubicacion: "",
+    cliente: "",
+    responsableCliente: "",
     estadoEquipo: "",
     observacionesGenerales: "",
-    // descripción del equipo
+
+    // 5. Datos del equipo
+    equipoUnidad: "",
     marca: "",
     modelo: "",
     numeroSerie: "",
@@ -142,32 +141,27 @@ const HojaInspeccionHidro = () => {
     anioModelo: "",
     vinChasis: "",
     kilometraje: "",
-    // ítems SI/NO + observación
+
+    // Ítems
     items: {},
+
+    // Firmas digitales
+    digitalSignatures: {
+      astap: null,
+      client: null,
+    },
   });
 
-  // 3) Puntos de daño sobre la imagen
-  const [damagePoints, setDamagePoints] = useState([]);
-  const imageRef = useRef(null);
+  // Puntos sobre la imagen de estado del equipo
+  const [equipmentMarks, setEquipmentMarks] = useState([]);
 
-  // 4) Firmas digitales
-  const sigAstapRef = useRef(null);
-  const sigClientRef = useRef(null);
-  const [signatures, setSignatures] = useState({
-    astap: null,
-    client: null,
-  });
+  // Refs para firmas
+  const astapSigRef = useRef(null);
+  const clientSigRef = useRef(null);
 
-  // 5) Exportación a PDF
-  const [isExporting, setIsExporting] = useState(false);
-
-  // =======================
-  // Handlers
-  // =======================
-  const handleGeneralChange = (field, value) => {
-    setGeneralInfo((prev) => ({ ...prev, [field]: value }));
-  };
-
+  // ================================================================
+  // Handlers generales
+  // ================================================================
   const handleHeaderChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -186,16 +180,68 @@ const HojaInspeccionHidro = () => {
     }));
   };
 
+  // ================================================================
+  // Estado del equipo: imagen con puntos numerados
+  // ================================================================
+  const handleEquipmentClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    setEquipmentMarks((prev) => [
+      ...prev,
+      { id: prev.length + 1, x, y },
+    ]);
+  };
+
+  const handleMarkerDoubleClick = (id) => {
+    setEquipmentMarks((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  // ================================================================
+  // Firmas digitales
+  // ================================================================
+  const handleClearSignature = (who) => {
+    if (who === "astap" && astapSigRef.current) {
+      astapSigRef.current.clear();
+    }
+    if (who === "client" && clientSigRef.current) {
+      clientSigRef.current.clear();
+    }
+  };
+
+  const handleSaveSignatures = () => {
+    const astapData =
+      astapSigRef.current && !astapSigRef.current.isEmpty()
+        ? astapSigRef.current.toDataURL("image/png")
+        : null;
+
+    const clientData =
+      clientSigRef.current && !clientSigRef.current.isEmpty()
+        ? clientSigRef.current.toDataURL("image/png")
+        : null;
+
+    setFormData((prev) => ({
+      ...prev,
+      digitalSignatures: {
+        astap: astapData,
+        client: clientData,
+      },
+    }));
+
+    alert("Firmas guardadas en el formulario (luego las conectamos al PDF).");
+  };
+
+  // ================================================================
+  // Envío del formulario
+  // ================================================================
   const handleSubmit = (e) => {
     e.preventDefault();
-    const payload = {
-      generalInfo,
-      formData,
-      damagePoints,
-      signatures,
-    };
-    console.log("Datos hoja inspección:", payload);
-    alert("Datos guardados en memoria (ver consola del navegador).");
+    console.log("Datos de inspección:", {
+      ...formData,
+      equipmentMarks,
+    });
+    alert("Datos del reporte guardados en memoria (PDF pendiente).");
   };
 
   const handleResetItems = () => {
@@ -205,179 +251,92 @@ const HojaInspeccionHidro = () => {
     }));
   };
 
-  // Imagen: click para agregar puntos numerados, doble clic en el número para eliminar
-  const handleImageClick = (e) => {
-    if (!imageRef.current) return;
-    const rect = imageRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-    setDamagePoints((prev) => [
-      ...prev,
-      { id: Date.now(), x, y },
-    ]);
-  };
-
-  const handlePointDoubleClick = (id) => {
-    setDamagePoints((prev) => prev.filter((p) => p.id !== id));
-  };
-
-  // Firmas
-  const handleSaveSignature = (who) => {
-    if (who === "astap" && sigAstapRef.current) {
-      const dataUrl = sigAstapRef.current.getTrimmedCanvas().toDataURL("image/png");
-      setSignatures((prev) => ({ ...prev, astap: dataUrl }));
-    }
-    if (who === "client" && sigClientRef.current) {
-      const dataUrl = sigClientRef.current.getTrimmedCanvas().toDataURL("image/png");
-      setSignatures((prev) => ({ ...prev, client: dataUrl }));
-    }
-    alert("Firma guardada.");
-  };
-
-  const handleClearSignature = (who) => {
-    if (who === "astap" && sigAstapRef.current) {
-      sigAstapRef.current.clear();
-      setSignatures((prev) => ({ ...prev, astap: null }));
-    }
-    if (who === "client" && sigClientRef.current) {
-      sigClientRef.current.clear();
-      setSignatures((prev) => ({ ...prev, client: null }));
-    }
-  };
-
-  // Generar PDF
-  const handleGeneratePdf = async () => {
-    try {
-      setIsExporting(true);
-
-      const element = document.getElementById("hoja-inspeccion-root");
-      if (!element) {
-        alert("No se encontró el contenido del formulario para generar el PDF.");
-        return;
-      }
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        scrollY: -window.scrollY,
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      let heightLeft = pdfHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - pdfHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save("hoja-inspeccion-hidrosuccionadora.pdf");
-    } catch (error) {
-      console.error(error);
-      alert("Ocurrió un error al generar el PDF.");
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  // =======================
+  // ==================================================================
   // Render
-  // =======================
-
+  // ==================================================================
   return (
     <form
-      id="hoja-inspeccion-root"
-      className="max-w-6xl mx-auto my-6 bg-white shadow-lg rounded-2xl p-6 space-y-6 text-xs md:text-sm"
       onSubmit={handleSubmit}
+      className="max-w-6xl mx-auto my-6 bg-white shadow-lg rounded-2xl p-6 space-y-6 text-xs md:text-sm"
     >
       {/* ENCABEZADO CON LOGO */}
       <section className="border rounded-xl p-4 space-y-3">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
           <div className="flex items-center gap-3">
             <img
               src="/astap-logo.jpg"
               alt="ASTAP"
-              className="h-10 w-auto"
+              className="w-10 h-10 object-contain"
             />
             <div>
-              <h1 className="font-bold text-base md:text-lg">
-                REPORTE DE INSPECCIÓN HIDROSUCCIONADORA
+              <h1 className="font-bold text-base md:text-lg text-slate-900">
+                HOJA DE INSPECCIÓN HIDROSUCCIONADORA
               </h1>
-              <p className="text-[11px] text-slate-600">
-                Formato para registrar el estado del equipo, condiciones generales y observaciones.
+              <p className="text-[11px] text-slate-500">
+                Inspección y valoración de equipos Vactor / hidrosuccionador.
               </p>
             </div>
           </div>
-          <div className="text-[10px] text-right">
+
+          <div className="text-[10px] text-right text-slate-600">
             <p>Fecha de versión: 01-01-2026</p>
             <p>Versión: 01</p>
           </div>
         </div>
       </section>
 
-      {/* 1. DATOS DEL REPORTE */}
-      <section className="border rounded-xl p-4 space-y-3">
-        <h2 className="font-semibold text-sm">1. Datos del reporte</h2>
-        <p className="text-[11px] text-slate-600">
-          Datos del cliente, contacto, servicio y técnico responsable.
-        </p>
+      {/* 1. DATOS DEL REPORTE (mismo modelo que el informe de servicio) */}
+      <section className="border rounded-xl p-4 space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold text-slate-900">
+            1. Datos del reporte
+          </h2>
+          <p className="text-[11px] text-slate-500">
+            Datos del cliente, contacto, servicio y técnico responsable.
+          </p>
+        </div>
 
         <div className="space-y-4">
-          {/* Cliente */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-slate-700">
+          {/* Cliente empresa */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-medium text-slate-700">
               Cliente (empresa) *
             </label>
             <input
               type="text"
-              value={generalInfo.client}
-              onChange={(e) =>
-                handleGeneralChange("client", e.target.value)
-              }
+              name="clienteEmpresa"
+              value={formData.clienteEmpresa}
+              onChange={handleHeaderChange}
               className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
               placeholder="Nombre de la empresa cliente"
             />
           </div>
 
-          {/* Contacto + cargo */}
+          {/* Contacto y cargo */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-slate-700">
                 Contacto del cliente
               </label>
               <input
                 type="text"
-                value={generalInfo.clientContact}
-                onChange={(e) =>
-                  handleGeneralChange("clientContact", e.target.value)
-                }
+                name="contactoCliente"
+                value={formData.contactoCliente}
+                onChange={handleHeaderChange}
                 className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
                 placeholder="Nombre de la persona de contacto"
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-slate-700">
                 Cargo del cliente
               </label>
               <input
                 type="text"
-                value={generalInfo.clientRole}
-                onChange={(e) =>
-                  handleGeneralChange("clientRole", e.target.value)
-                }
+                name="cargoCliente"
+                value={formData.cargoCliente}
+                onChange={handleHeaderChange}
                 className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
                 placeholder="Cargo o rol de la persona de contacto"
               />
@@ -385,79 +344,74 @@ const HojaInspeccionHidro = () => {
           </div>
 
           {/* Correo */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-slate-700">
+          <div className="space-y-1">
+            <label className="text-[11px] font-medium text-slate-700">
               Correo del cliente
             </label>
             <input
               type="email"
-              value={generalInfo.clientEmail}
-              onChange={(e) =>
-                handleGeneralChange("clientEmail", e.target.value)
-              }
+              name="correoCliente"
+              value={formData.correoCliente}
+              onChange={handleHeaderChange}
               className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
               placeholder="correo@cliente.com"
             />
           </div>
 
-          {/* Fecha + código interno */}
+          {/* Fecha y código interno */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
-                Fecha de inspección
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-slate-700">
+                Fecha de servicio
               </label>
               <input
                 type="date"
-                value={generalInfo.serviceDate}
-                onChange={(e) =>
-                  handleGeneralChange("serviceDate", e.target.value)
-                }
+                name="fechaServicio"
+                value={formData.fechaServicio}
+                onChange={handleHeaderChange}
                 className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
               />
             </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
-                Código interno / Cód. INF.
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-slate-700">
+                Código interno
               </label>
               <input
                 type="text"
-                value={generalInfo.internalCode}
-                onChange={(e) =>
-                  handleGeneralChange("internalCode", e.target.value)
-                }
+                name="codigoInterno"
+                value={formData.codigoInterno}
+                onChange={handleHeaderChange}
                 className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                placeholder="Identificador interno de la inspección"
+                placeholder="Identificador interno del servicio"
               />
             </div>
           </div>
 
-          {/* Dirección + referencia */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-slate-700">
+          {/* Dirección */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-medium text-slate-700">
               Dirección
             </label>
             <input
               type="text"
-              value={generalInfo.address}
-              onChange={(e) =>
-                handleGeneralChange("address", e.target.value)
-              }
+              name="direccion"
+              value={formData.direccion}
+              onChange={handleHeaderChange}
               className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-              placeholder="Dirección donde se realiza la inspección"
+              placeholder="Dirección donde se realiza el servicio"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-slate-700">
+          {/* Referencia */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-medium text-slate-700">
               Referencia
             </label>
             <textarea
+              name="referencia"
               rows={2}
-              value={generalInfo.reference}
-              onChange={(e) =>
-                handleGeneralChange("reference", e.target.value)
-              }
+              value={formData.referencia}
+              onChange={handleHeaderChange}
               className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20 resize-y"
               placeholder="Puntos de referencia para llegar al sitio"
             />
@@ -465,46 +419,41 @@ const HojaInspeccionHidro = () => {
 
           {/* Datos del técnico */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-slate-700">
                 Técnico responsable
               </label>
               <input
                 type="text"
-                value={generalInfo.technicalPersonnel}
-                onChange={(e) =>
-                  handleGeneralChange("technicalPersonnel", e.target.value)
-                }
+                name="tecnicoAstap"
+                value={formData.tecnicoAstap}
+                onChange={handleHeaderChange}
                 className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
                 placeholder="Nombre del técnico ASTAP"
               />
             </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-slate-700">
                 Teléfono del técnico
               </label>
               <input
                 type="tel"
-                value={generalInfo.technicianPhone}
-                onChange={(e) =>
-                  handleGeneralChange("technicianPhone", e.target.value)
-                }
+                name="telefonoTecnico"
+                value={formData.telefonoTecnico}
+                onChange={handleHeaderChange}
                 className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
                 placeholder="+593 ..."
               />
             </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-slate-700">
                 Correo del técnico
               </label>
               <input
                 type="email"
-                value={generalInfo.technicianEmail}
-                onChange={(e) =>
-                  handleGeneralChange("technicianEmail", e.target.value)
-                }
+                name="correoTecnico"
+                value={formData.correoTecnico}
+                onChange={handleHeaderChange}
                 className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
                 placeholder="tecnico@astap.com"
               />
@@ -513,66 +462,57 @@ const HojaInspeccionHidro = () => {
         </div>
       </section>
 
-      {/* 2. ESTADO DEL EQUIPO – IMAGEN CON PUNTOS */}
+      {/* ESTADO DEL EQUIPO CON IMAGEN ÚNICA */}
       <section className="border rounded-xl p-4 space-y-3">
-        <h2 className="font-semibold text-sm">2. Estado del equipo</h2>
-        <p className="text-[11px] text-slate-600">
-          Haga clic sobre la imagen para marcar puntos con daños o defectos. Haga doble clic sobre un número para eliminarlo.
+        <h2 className="font-semibold text-xs md:text-sm">2. Estado del equipo</h2>
+        <p className="text-[11px] text-slate-500">
+          Haga clic sobre la imagen para marcar puntos con daños o defectos. Haga
+          doble clic sobre un número para eliminarlo.
         </p>
 
         <div
-          className="relative border rounded-xl bg-slate-50 overflow-hidden cursor-crosshair"
-          onClick={handleImageClick}
+          className="relative w-full max-w-3xl mx-auto bg-slate-50 border rounded-xl overflow-hidden cursor-crosshair"
+          onClick={handleEquipmentClick}
         >
           <img
-            ref={imageRef}
             src="/estado-equipo.png"
-            alt="Estado del equipo"
-            className="w-full h-auto select-none"
+            alt="Esquema del equipo"
+            className="w-full h-auto select-none pointer-events-none"
           />
 
-          {damagePoints.map((p, index) => (
-            <button
-              key={p.id}
-              type="button"
+          {equipmentMarks.map((mark) => (
+            <div
+              key={mark.id}
               onDoubleClick={(e) => {
                 e.stopPropagation();
-                handlePointDoubleClick(p.id);
+                handleMarkerDoubleClick(mark.id);
               }}
-              className="absolute flex items-center justify-center w-6 h-6 rounded-full bg-red-600 text-white text-[10px] font-semibold shadow"
+              className="absolute w-6 h-6 bg-red-600 text-white text-[11px] rounded-full flex items-center justify-center shadow cursor-pointer"
               style={{
-                left: `${p.x}%`,
-                top: `${p.y}%`,
+                left: `${mark.x}%`,
+                top: `${mark.y}%`,
                 transform: "translate(-50%, -50%)",
               }}
             >
-              {index + 1}
-            </button>
+              {mark.id}
+            </div>
           ))}
         </div>
 
-        <label className="flex flex-col gap-1">
-          <span className="font-semibold text-xs">Resumen del estado del equipo</span>
-          <textarea
-            name="estadoEquipo"
-            value={formData.estadoEquipo}
-            onChange={handleHeaderChange}
-            className="border rounded px-2 py-1 min-h-[80px]"
-          />
-        </label>
-
-        <label className="flex flex-col gap-1">
-          <span className="font-semibold text-xs">Observaciones generales</span>
+        <label className="flex flex-col gap-1 pt-3">
+          <span className="font-semibold text-[11px] text-slate-700">
+            Observaciones generales
+          </span>
           <textarea
             name="observacionesGenerales"
             value={formData.observacionesGenerales}
             onChange={handleHeaderChange}
-            className="border rounded px-2 py-1 min-h-[80px]"
+            className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20 min-h-[80px] resize-y"
           />
         </label>
       </section>
 
-      {/* 3. TABLAS DE ÍTEMS */}
+      {/* TABLAS DE ÍTEMS */}
       {secciones.map((sec) => (
         <section key={sec.id} className="border rounded-xl p-4 space-y-3">
           <h2 className="font-semibold text-xs md:text-sm">{sec.titulo}</h2>
@@ -654,192 +594,234 @@ const HojaInspeccionHidro = () => {
         </section>
       ))}
 
-      {/* 4. DESCRIPCIÓN DEL EQUIPO */}
+      {/* 5. DATOS DEL EQUIPO – mismo modelo que el reporte de servicio */}
       <section className="border rounded-xl p-4 space-y-3">
-        <h2 className="font-semibold text-xs md:text-sm">
-          5. Descripción del equipo
-        </h2>
-        <div className="grid md:grid-cols-4 gap-3">
-          <label className="flex flex-col gap-1">
-            <span>Marca</span>
+        <h2 className="font-semibold text-xs md:text-sm">5. Datos del equipo</h2>
+        <p className="text-[11px] text-slate-500">
+          Información del equipo intervenido y sus datos principales.
+        </p>
+
+        <div className="space-y-4">
+          {/* Equipo / Unidad */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-medium text-slate-700">
+              Equipo / Unidad
+            </label>
             <input
-              name="marca"
-              value={formData.marca}
+              type="text"
+              name="equipoUnidad"
+              value={formData.equipoUnidad}
               onChange={handleHeaderChange}
-              className="border rounded px-2 py-1"
+              className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+              placeholder="Descripción del equipo o unidad"
             />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span>Modelo</span>
+          </div>
+
+          {/* Marca / Modelo / Serie */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-slate-700">
+                Marca
+              </label>
+              <input
+                type="text"
+                name="marca"
+                value={formData.marca}
+                onChange={handleHeaderChange}
+                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-slate-700">
+                Modelo
+              </label>
+              <input
+                type="text"
+                name="modelo"
+                value={formData.modelo}
+                onChange={handleHeaderChange}
+                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-slate-700">
+                Serie
+              </label>
+              <input
+                type="text"
+                name="numeroSerie"
+                value={formData.numeroSerie}
+                onChange={handleHeaderChange}
+                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+              />
+            </div>
+          </div>
+
+          {/* Placa / Código interno */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-medium text-slate-700">
+              Placa / Código interno
+            </label>
             <input
-              name="modelo"
-              value={formData.modelo}
-              onChange={handleHeaderChange}
-              className="border rounded px-2 py-1"
-            />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span>N° serie</span>
-            <input
-              name="numeroSerie"
-              value={formData.numeroSerie}
-              onChange={handleHeaderChange}
-              className="border rounded px-2 py-1"
-            />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span>Placa N°</span>
-            <input
+              type="text"
               name="placa"
               value={formData.placa}
               onChange={handleHeaderChange}
-              className="border rounded px-2 py-1"
+              className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
             />
-          </label>
+          </div>
 
-          <label className="flex flex-col gap-1">
-            <span>Horas trabajo módulo</span>
+          {/* Recorrido / Horas / Año de fabricación */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-slate-700">
+                Recorrido (km)
+              </label>
+              <input
+                type="number"
+                name="kilometraje"
+                value={formData.kilometraje}
+                onChange={handleHeaderChange}
+                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-slate-700">
+                Tiempo de vida útil (horas)
+              </label>
+              <input
+                type="number"
+                name="horasModulo"
+                value={formData.horasModulo}
+                onChange={handleHeaderChange}
+                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[11px] font-medium text-slate-700">
+                Año de fabricación
+              </label>
+              <input
+                type="number"
+                name="anioModelo"
+                value={formData.anioModelo}
+                onChange={handleHeaderChange}
+                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
+              />
+            </div>
+          </div>
+
+          {/* VIN */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-medium text-slate-700">
+              Número de identificación del vehículo (VIN)
+            </label>
             <input
-              name="horasModulo"
-              value={formData.horasModulo}
-              onChange={handleHeaderChange}
-              className="border rounded px-2 py-1"
-            />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span>Horas trabajo chasis</span>
-            <input
-              name="horasChasis"
-              value={formData.horasChasis}
-              onChange={handleHeaderChange}
-              className="border rounded px-2 py-1"
-            />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span>Año modelo</span>
-            <input
-              name="anioModelo"
-              value={formData.anioModelo}
-              onChange={handleHeaderChange}
-              className="border rounded px-2 py-1"
-            />
-          </label>
-          <label className="flex flex-col gap-1">
-            <span>VIN chasis</span>
-            <input
+              type="text"
               name="vinChasis"
               value={formData.vinChasis}
               onChange={handleHeaderChange}
-              className="border rounded px-2 py-1"
+              className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
             />
-          </label>
-          <label className="flex flex-col gap-1 md:col-span-2">
-            <span>Kilometraje</span>
-            <input
-              name="kilometraje"
-              value={formData.kilometraje}
-              onChange={handleHeaderChange}
-              className="border rounded px-2 py-1"
-            />
-          </label>
+          </div>
         </div>
       </section>
 
-      {/* 5. FIRMAS DIGITALES */}
+      {/* 6. FIRMAS DIGITALES DEL REPORTE */}
       <section className="border rounded-xl p-4 space-y-4">
-        <h2 className="font-semibold text-xs md:text-sm">
-          6. Firmas digitales
-        </h2>
-        <p className="text-[11px] text-slate-600">
-          Capture la firma del técnico de ASTAP y del cliente. Use mouse o toque para firmar.
-        </p>
+        <div>
+          <h2 className="text-sm font-semibold text-slate-900">
+            6. Firmas digitales del reporte
+          </h2>
+          <p className="text-[11px] text-slate-500">
+            Capture la firma del técnico de ASTAP y la del cliente para validar
+            el reporte.
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Firma ASTAP */}
-          <div className="space-y-2">
-            <p className="font-semibold text-xs">Firma Técnico ASTAP</p>
-            <div className="border border-dashed rounded-xl p-2 bg-slate-50">
+          <div className="border rounded-xl p-3 space-y-2">
+            <h3 className="font-semibold text-xs text-slate-900">
+              Firma Técnico ASTAP
+            </h3>
+            <p className="text-[11px] text-slate-500">
+              Responsable del servicio
+            </p>
+            <div className="border-2 border-dashed rounded-lg min-h-[160px] bg-slate-50">
               <SignatureCanvas
-                ref={sigAstapRef}
+                ref={astapSigRef}
                 canvasProps={{
-                  className: "w-full h-40 bg-white rounded-md",
+                  className: "w-full h-40 rounded-lg",
                 }}
               />
             </div>
-            <div className="flex justify-between text-[11px] text-slate-600">
+            <div className="flex justify-between items-center text-[11px] text-slate-600">
               <button
                 type="button"
                 onClick={() => handleClearSignature("astap")}
               >
                 ⟳ Limpiar
               </button>
-              <button
-                type="button"
-                onClick={() => handleSaveSignature("astap")}
-                className="px-3 py-1 rounded-md border text-xs"
-              >
-                Guardar firma
-              </button>
+              <span>Use mouse o toque para firmar</span>
             </div>
           </div>
 
           {/* Firma Cliente */}
-          <div className="space-y-2">
-            <p className="font-semibold text-xs">Firma del Cliente</p>
-            <div className="border border-dashed rounded-xl p-2 bg-slate-50">
+          <div className="border rounded-xl p-3 space-y-2">
+            <h3 className="font-semibold text-xs text-slate-900">
+              Firma del Cliente
+            </h3>
+            <p className="text-[11px] text-slate-500">
+              Confirmación de recepción del servicio
+            </p>
+            <div className="border-2 border-dashed rounded-lg min-h-[160px] bg-slate-50">
               <SignatureCanvas
-                ref={sigClientRef}
+                ref={clientSigRef}
                 canvasProps={{
-                  className: "w-full h-40 bg-white rounded-md",
+                  className: "w-full h-40 rounded-lg",
                 }}
               />
             </div>
-            <div className="flex justify-between text-[11px] text-slate-600">
+            <div className="flex justify-between items-center text-[11px] text-slate-600">
               <button
                 type="button"
                 onClick={() => handleClearSignature("client")}
               >
                 ⟳ Limpiar
               </button>
-              <button
-                type="button"
-                onClick={() => handleSaveSignature("client")}
-                className="px-3 py-1 rounded-md border text-xs"
-              >
-                Guardar firma
-              </button>
+              <span>Use mouse o toque para firmar</span>
             </div>
           </div>
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={handleSaveSignatures}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-xs md:text-sm"
+          >
+            💾 Guardar firmas
+          </button>
         </div>
       </section>
 
       {/* BOTONES FINALES */}
-      <div className="flex items-center justify-between pt-2">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-3 pt-2">
         <button
           type="button"
           onClick={handleResetItems}
           className="px-4 py-2 rounded-lg border text-xs md:text-sm"
         >
-          Limpiar artículos (SI/NO)
+          Limpiar artículos (Sí/No)
         </button>
 
-        <div className="flex gap-3">
-          <button
-            type="submit"
-            className="px-4 py-2 rounded-lg border text-xs md:text-sm"
-          >
-            Guardar datos
-          </button>
-
-          <button
-            type="button"
-            onClick={handleGeneratePdf}
-            disabled={isExporting}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white text-xs md:text-sm disabled:opacity-60"
-          >
-            {isExporting ? "Generando PDF..." : "Continuar a vista previa PDF"}
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="px-4 py-2 rounded-lg bg-blue-600 text-white text-xs md:text-sm"
+        >
+          Guardar / continuar
+        </button>
       </div>
     </form>
   );
