@@ -1,9 +1,77 @@
 // src/pages/service-report-creation/index.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import SignatureCanvas from "react-signature-canvas";
+
 import Button from "../../components/ui/Button";
 import Icon from "../../components/AppIcon";
 import { useReports } from "../../context/ReportContext";
+
+// ======================================================
+//   Sub-componente para un cuadro de firma reutilizable
+// ======================================================
+const SignatureBox = ({ title, subtitle, value, onChange }) => {
+  const sigRef = useRef(null);
+
+  // Cargar firma previa si existe
+  useEffect(() => {
+    if (!sigRef.current) return;
+    sigRef.current.clear();
+    if (value) {
+      try {
+        sigRef.current.fromDataURL(value);
+      } catch (e) {
+        console.error("Error al cargar firma previa:", e);
+      }
+    }
+  }, [value]);
+
+  const handleClear = () => {
+    if (!sigRef.current) return;
+    sigRef.current.clear();
+    onChange(null);
+  };
+
+  const handleEnd = () => {
+    if (!sigRef.current) return;
+    const dataUrl = sigRef.current.getTrimmedCanvas().toDataURL("image/png");
+    onChange(dataUrl);
+  };
+
+  return (
+    <div className="border rounded-xl p-4 space-y-3 bg-slate-50">
+      <div>
+        <h3 className="font-semibold text-sm text-slate-900">{title}</h3>
+        {subtitle && (
+          <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
+        )}
+      </div>
+
+      <div className="border-2 border-dashed rounded-lg bg-white">
+        <SignatureCanvas
+          ref={sigRef}
+          penColor="#111827"
+          onEnd={handleEnd}
+          canvasProps={{
+            className: "w-full h-40 md:h-48 cursor-crosshair",
+          }}
+        />
+      </div>
+
+      <div className="flex items-center justify-between text-[11px] text-slate-500">
+        <button
+          type="button"
+          onClick={handleClear}
+          className="inline-flex items-center gap-1 text-xs text-slate-600 hover:text-slate-900"
+        >
+          <Icon name="RotateCcw" size={12} />
+          Limpiar
+        </button>
+        <span>Use mouse o toque para firmar</span>
+      </div>
+    </div>
+  );
+};
 
 // =====================
 //  Objetos base
@@ -68,6 +136,12 @@ const ServiceReportCreation = () => {
   const [equipment, setEquipment] = useState(emptyEquipment);
   const [selectedActivityIndex, setSelectedActivityIndex] = useState(0);
 
+  // Firmas digitales del reporte
+  const [digitalSignatures, setDigitalSignatures] = useState({
+    astap: null,
+    client: null,
+  });
+
   const fileInputRef = useRef(null);
 
   // =====================
@@ -110,6 +184,13 @@ const ServiceReportCreation = () => {
       ...emptyEquipment,
       ...(r.equipment || {}),
     });
+
+    setDigitalSignatures(
+      r.digitalSignatures || {
+        astap: null,
+        client: null,
+      }
+    );
   }, [currentReport]);
 
   // =====================
@@ -208,6 +289,13 @@ const ServiceReportCreation = () => {
       prev.length === 1 ? prev : prev.filter((_, i) => i !== index)
     );
 
+  const handleSignatureChange = (who, dataUrl) => {
+    setDigitalSignatures((prev) => ({
+      ...prev,
+      [who]: dataUrl,
+    }));
+  };
+
   // =====================
   // Construir objeto reporte
   // =====================
@@ -236,9 +324,9 @@ const ServiceReportCreation = () => {
         activities: cleanedActivities,
       },
       equipment,
-      digitalSignatures: currentReport?.digitalSignatures || {
-        astap: null,
-        client: null,
+      digitalSignatures: {
+        astap: digitalSignatures.astap || null,
+        client: digitalSignatures.client || null,
       },
       createdAt: currentReport?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -260,10 +348,11 @@ const ServiceReportCreation = () => {
     }
   };
 
-  const handleNextToSignature = () => {
+  // Ir directo a vista previa PDF
+  const handleNextToPreview = () => {
     const report = buildReportObject();
     setCurrentReport && setCurrentReport(report);
-    navigate("/digital-signature-capture");
+    navigate("/pdf-report-preview");
   };
 
   const handleBack = () => {
@@ -292,35 +381,24 @@ const ServiceReportCreation = () => {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-6">
       <div className="max-w-5xl mx-auto space-y-6">
-        {/* Encabezado con logo y versión */}
-        <section className="bg-white rounded-xl shadow border px-6 py-4 space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img
-                src="/astap-logo.jpg"
-                alt="Logo ASTAP"
-                className="h-10 w-auto"
-              />
-              <h1 className="text-xl md:text-2xl font-semibold text-slate-900">
-                REPORTE DE SERVICIO
-              </h1>
-            </div>
-            <div className="text-right text-[11px] text-slate-500 leading-tight">
-              <div>Fecha de versión: 01-01-2026</div>
-              <div>Versión: 01</div>
-            </div>
+        {/* Encabezado superior */}
+        <header className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-900">
+              Crear Reporte de Servicio
+            </h1>
+            <p className="text-sm text-slate-600">
+              Complete la información general, las pruebas realizadas, las
+              actividades, los datos del equipo y las firmas digitales antes de
+              generar el PDF.
+            </p>
           </div>
-          <p className="text-xs text-slate-500">
-            Complete los datos del reporte, las pruebas realizadas, las
-            actividades y los datos del equipo antes de pasar a la firma
-            digital.
-          </p>
-        </section>
+        </header>
 
-        {/* 1. Datos del reporte */}
+        {/* 1. Información general del servicio */}
         <section className="bg-white rounded-xl shadow border p-6 space-y-4">
           <h2 className="text-lg font-semibold text-slate-900">
-            1. Datos del reporte
+            1. Información general del servicio
           </h2>
           <p className="text-xs text-slate-500">
             Datos del cliente, contacto, servicio y técnico responsable.
@@ -707,7 +785,7 @@ const ServiceReportCreation = () => {
             ))}
           </div>
 
-          {/* Incidentes (solo para registro, no va al PDF) */}
+          {/* Incidentes (opcional) */}
           <div className="space-y-2 pt-4">
             <label className="text-xs font-medium text-slate-700">
               Incidentes
@@ -728,13 +806,13 @@ const ServiceReportCreation = () => {
 
           {/* Cuadro de imagen + botón (actividad seleccionada) */}
           <div className="mt-4 flex justify-end">
-            <div className="w-56 border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 flex flex-col items-center justify-start px-3 py-3 text-center">
+            <div className="w-64 border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 flex flex-col items-center justify-start px-3 py-3 text-center">
               <span className="text-sm font-semibold text-slate-700 mb-1">
                 Imagen de {actividadLabel}
               </span>
               <p className="text-[11px] text-slate-500 mb-2">
-                Esta imagen corresponde a la {actividadLabel} seleccionada
-                en la tabla.
+                Esta imagen corresponde a la {actividadLabel} seleccionada en la
+                tabla.
               </p>
 
               <button
@@ -751,7 +829,7 @@ const ServiceReportCreation = () => {
                   <img
                     src={selectedActivity.imageData}
                     alt={`Imagen de ${actividadLabel}`}
-                    className="w-full h-24 object-contain border rounded-md bg-white"
+                    className="w-full h-28 object-contain border rounded-md bg-white"
                   />
                   <p className="mt-1 text-[10px] text-emerald-700">
                     Imagen guardada para esta actividad.
@@ -785,8 +863,7 @@ const ServiceReportCreation = () => {
                 4. Pruebas después del servicio
               </h2>
               <p className="text-xs text-slate-500">
-                Registre los parámetros medidos una vez finalizado el
-                servicio.
+                Registre los parámetros medidos una vez finalizado el servicio.
               </p>
             </div>
             <Button
@@ -825,7 +902,11 @@ const ServiceReportCreation = () => {
                     type="text"
                     value={row.parameter}
                     onChange={(e) =>
-                      handleAfterChange(index, "parameter", e.target.value)
+                      handleAfterChange(
+                        index,
+                        "parameter",
+                        e.target.value
+                      )
                     }
                     className="border rounded-md px-2 py-1 text-xs w-full outline-none focus:ring-2 focus:ring-slate-900/20"
                     placeholder="Parámetro medido"
@@ -999,6 +1080,44 @@ const ServiceReportCreation = () => {
           </div>
         </section>
 
+        {/* 6. Firmas digitales del reporte */}
+        <section className="bg-white rounded-xl shadow border p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">
+                6. Firmas digitales del reporte
+              </h2>
+              <p className="text-xs text-slate-500">
+                Capture la firma del técnico ASTAP y del responsable del cliente
+                para validar el reporte de servicio.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <SignatureBox
+              title="Firma técnico ASTAP"
+              subtitle={generalInfo.technicalPersonnel || "Técnico ASTAP"}
+              value={digitalSignatures.astap}
+              onChange={(dataUrl) =>
+                handleSignatureChange("astap", dataUrl)
+              }
+            />
+
+            <SignatureBox
+              title="Firma responsable del cliente"
+              subtitle={
+                generalInfo.clientContact ||
+                "Nombre del responsable del cliente"
+              }
+              value={digitalSignatures.client}
+              onChange={(dataUrl) =>
+                handleSignatureChange("client", dataUrl)
+              }
+            />
+          </div>
+        </section>
+
         {/* Barra inferior de acciones */}
         <section className="flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -1034,9 +1153,9 @@ const ServiceReportCreation = () => {
             size="sm"
             iconName="ArrowRight"
             iconPosition="right"
-            onClick={handleNextToSignature}
+            onClick={handleNextToPreview}
           >
-            Continuar en Firma Digital
+            Continuar a vista previa PDF
           </Button>
         </section>
       </div>
