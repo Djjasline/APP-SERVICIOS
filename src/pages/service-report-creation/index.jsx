@@ -619,4 +619,4 @@ const ServiceReportCreation = () => {
             <div className="grid grid-cols-12 bg-slate-100 border-b text-xs font-semibold text-slate-700">
               <div className="col-span-2 flex items-center justify-center border-r py-2">
                 Ítem
-              </di
+              </div>
