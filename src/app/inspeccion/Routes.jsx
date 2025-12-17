@@ -1,52 +1,34 @@
-// src/Routes.jsx
+// src/app/inspeccion/Routes.jsx
 import React from "react";
-import { BrowserRouter, Routes as RouterRoutes, Route } from "react-router-dom";
-import ScrollToTop from "./components/ScrollToTop";
-import ErrorBoundary from "./components/ErrorBoundary";
-import NotFound from "./pages/NotFound";
+import { Routes, Route } from "react-router-dom";
 
-import ServiceReportCreation from "./pages/service-report-creation";
-import EmailIntegrationInterface from "./pages/email-integration-interface";
-import DigitalSignatureCapture from "./pages/digital-signature-capture";
-import PDFReportPreview from "./pages/pdf-report-preview";
-import ReportHistoryManagement from "./pages/report-history-management";
+// Formularios de inspección
+import HojaInspeccionHidro from "../HojaInspeccionHidro";
+import HojaInspeccionBarredora from "../HojaInspeccionBarredora";
+import HojaInspeccionCamara from "../HojaInspeccionCamara";
 
-const Routes = () => {
+const InspeccionRoutes = () => {
   return (
-    <BrowserRouter>
-      <ErrorBoundary>
-        <ScrollToTop />
-        <RouterRoutes>
-          {/* ✅ Pantalla inicial: listado de informes */}
-          <Route path="/" element={<ReportHistoryManagement />} />
+    <Routes>
+      {/* Hidrosuccionador */}
+      <Route
+        path="hidrosuccionador"
+        element={<HojaInspeccionHidro />}
+      />
 
-          {/* Alias extra por si hay enlaces viejos */}
-          <Route
-            path="/report-history-management"
-            element={<ReportHistoryManagement />}
-          />
+      {/* Barredora */}
+      <Route
+        path="barredora"
+        element={<HojaInspeccionBarredora />}
+      />
 
-          {/* Flujo del informe */}
-          <Route
-            path="/service-report-creation"
-            element={<ServiceReportCreation />}
-          />
-          <Route
-            path="/digital-signature-capture"
-            element={<DigitalSignatureCapture />}
-          />
-          <Route path="/pdf-report-preview" element={<PDFReportPreview />} />
-          <Route
-            path="/email-integration-interface"
-            element={<EmailIntegrationInterface />}
-          />
-
-          {/* 404 */}
-          <Route path="*" element={<NotFound />} />
-        </RouterRoutes>
-      </ErrorBoundary>
-    </BrowserRouter>
+      {/* Cámara / VCam / Metrotech */}
+      <Route
+        path="camara"
+        element={<HojaInspeccionCamara />}
+      />
+    </Routes>
   );
 };
 
-export default Routes;
+export default InspeccionRoutes;
