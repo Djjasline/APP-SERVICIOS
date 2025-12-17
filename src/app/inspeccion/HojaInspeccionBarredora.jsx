@@ -827,4 +827,4 @@ const HojaInspeccionHidro = () => {
   );
 };
 
-export default HojaInspeccionHidro;
+export default HojaInspeccionBarredora;
