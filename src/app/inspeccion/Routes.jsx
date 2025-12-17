@@ -1,21 +1,21 @@
-// src/app/inspeccion/Routes.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-// Formularios de inspección
+import IndexInspeccion from "./pages/IndexInspeccion";
 import HojaInspeccionHidro from "./HojaInspeccionHidro";
 import HojaInspeccionBarredora from "./HojaInspeccionBarredora";
 
 const InspeccionRoutes = () => {
   return (
     <Routes>
-      {/* Hidrosuccionador */}
+      {/* Índice de inspecciones */}
+      <Route index element={<IndexInspeccion />} />
+
       <Route
         path="hidrosuccionador"
         element={<HojaInspeccionHidro />}
       />
 
-      {/* Barredora */}
       <Route
         path="barredora"
         element={<HojaInspeccionBarredora />}
