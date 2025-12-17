@@ -25,7 +25,7 @@ const secciones = [
   {
     id: "secA",
     titulo:
-      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS DEL MÓDULO VACTOR – A) SISTEMA HIDRÁULICO (ACEITES)",
+      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS DEL MÓDULO – A) SISTEMA HIDRÁULICO (ACEITES)",
     items: [
       {
         codigo: "A.1",
@@ -66,7 +66,7 @@ const secciones = [
   {
     id: "secB",
     titulo:
-      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS DEL MÓDULO VACTOR – B) SISTEMA HIDRÁULICO (AGUA)",
+      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS DEL MÓDULO – B) SISTEMA HIDRÁULICO (AGUA)",
     items: [
       {
         codigo: "B.1",
@@ -273,7 +273,7 @@ const HojaInspeccionHidro = () => {
                 HOJA DE INSPECCIÓN HIDROSUCCIONADOR
               </h1>
               <p className="text-[11px] text-slate-500">
-                Inspección y valoración de equipos Vactor / hidrosuccionador.
+                Inspección y valoración de equipos / hidrosuccionador.
               </p>
             </div>
           </div>
