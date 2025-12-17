@@ -1,14 +1,10 @@
-// src/App.jsx
 import React from "react";
-import Routes from "./Routes";
-import { ReportProvider } from "./context/ReportContext";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import "./index.css";
 
-const App = () => {
-  return (
-    <ReportProvider>
-      <Routes />
-    </ReportProvider>
-  );
-};
-
-export default App;
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
