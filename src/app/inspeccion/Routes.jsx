@@ -3,9 +3,8 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 
 // Formularios de inspección
-import HojaInspeccionHidro from "../HojaInspeccionHidro";
-import HojaInspeccionBarredora from "../HojaInspeccionBarredora";
-import HojaInspeccionCamara from "../HojaInspeccionCamara";
+import HojaInspeccionHidro from "./HojaInspeccionHidro";
+import HojaInspeccionBarredora from "./HojaInspeccionBarredora";
 
 const InspeccionRoutes = () => {
   return (
@@ -20,12 +19,6 @@ const InspeccionRoutes = () => {
       <Route
         path="barredora"
         element={<HojaInspeccionBarredora />}
-      />
-
-      {/* Cámara / VCam / Metrotech */}
-      <Route
-        path="camara"
-        element={<HojaInspeccionCamara />}
       />
     </Routes>
   );
