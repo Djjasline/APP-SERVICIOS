@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 
 import ReportHistoryManagement from "./pages/report-history-management";
-import HidroInspeccion from "./pages/hidro";
-import BarredoraInspeccion from "./pages/barredora";
+import HojaInspeccionHidro from "./HojaInspeccionHidro";
+import HojaInspeccionBarredora from "./pages/barredora";
 
 export default function InspeccionRoutes() {
   return (
