@@ -1,30 +1,51 @@
-// src/app/inspeccion/Routes.jsx
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-/* ===== Formularios de inspección ===== */
-import HojaInspeccionHidro from "./HojaInspeccionHidro";
-import HojaInspeccionBarredora from "./HojaInspeccionBarredora";
+const InspectionSelector = () => {
+  const navigate = useNavigate();
 
-const InspectionRoutes = () => {
   return (
-    <Routes>
-      {/* Ruta base: redirige a hidrosuccionador */}
-      <Route index element={<Navigate to="hidro" replace />} />
+    <div className="min-h-screen bg-slate-50 px-4 py-8">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <header>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            Inspección y valoración de equipos
+          </h1>
+          <p className="text-sm text-slate-600 mt-1">
+            Selecciona el tipo de equipo para iniciar la inspección.
+          </p>
+        </header>
 
-      {/* Inspección Hidrosuccionador */}
-      <Route
-        path="hidro"
-        element={<HojaInspeccionHidro />}
-      />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Hidrosuccionador */}
+          <button
+            onClick={() => navigate("/inspeccion/hidro")}
+            className="border rounded-xl p-6 text-left bg-white shadow hover:shadow-md transition"
+          >
+            <h2 className="text-lg font-semibold text-slate-900">
+              Hidrosuccionador
+            </h2>
+            <p className="text-sm text-slate-600 mt-2">
+              Inspección y valoración de equipos hidrosuccionadores.
+            </p>
+          </button>
 
-      {/* Inspección Barredora */}
-      <Route
-        path="barredora"
-        element={<HojaInspeccionBarredora />}
-      />
-    </Routes>
+          {/* Barredora */}
+          <button
+            onClick={() => navigate("/inspeccion/barredora")}
+            className="border rounded-xl p-6 text-left bg-white shadow hover:shadow-md transition"
+          >
+            <h2 className="text-lg font-semibold text-slate-900">
+              Barredora
+            </h2>
+            <p className="text-sm text-slate-600 mt-2">
+              Inspección y valoración de equipos barredores.
+            </p>
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default InspectionRoutes;
+export default InspectionSelector;
