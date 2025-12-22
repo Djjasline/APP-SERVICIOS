@@ -1,20 +1,10 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import "./index.css";
 
-import HojaInspeccionHidro from "./HojaInspeccionHidro";
-import HojaInspeccionBarredora from "./HojaInspeccionBarredora";
-
-const InspectionRoutes = () => {
-  return (
-    <Routes>
-      {/* Selector */}
-      <Route index element={<InspectionSelector />} />
-
-      {/* Formularios */}
-      <Route path="hidro" element={<HojaInspeccionHidro />} />
-      <Route path="barredora" element={<HojaInspeccionBarredora />} />
-    </Routes>
-  );
-};
-
-export default InspectionRoutes;
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
