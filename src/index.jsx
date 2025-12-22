@@ -1,7 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-import InspectionSelector from "./pages/InspectionSelector";
 import HojaInspeccionHidro from "./HojaInspeccionHidro";
 import HojaInspeccionBarredora from "./HojaInspeccionBarredora";
 
