@@ -1,15 +1,21 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import "./index.css";
+import { Routes, Route } from "react-router-dom";
 
-// 👉 IMPORTAR EL PROVIDER
-import { ReportProvider } from "./context/ReportContext";
+import InspectionSelector from "./pages/InspectionSelector";
+import HojaInspeccionHidro from "./HojaInspeccionHidro";
+import HojaInspeccionBarredora from "./HojaInspeccionBarredora";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <ReportProvider>
-      <App />
-    </ReportProvider>
-  </React.StrictMode>
-);
+const InspectionRoutes = () => {
+  return (
+    <Routes>
+      {/* Selector */}
+      <Route index element={<InspectionSelector />} />
+
+      {/* Formularios */}
+      <Route path="hidro" element={<HojaInspeccionHidro />} />
+      <Route path="barredora" element={<HojaInspeccionBarredora />} />
+    </Routes>
+  );
+};
+
+export default InspectionRoutes;
