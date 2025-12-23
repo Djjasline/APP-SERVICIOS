@@ -1,39 +1,35 @@
+import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import PanelServicios from "./pages/PanelServicios";
 import ReportHistoryManagement from "./pages/report-history-management";
 import ServiceReportCreation from "./pages/service-report-creation";
 import PDFReportPreview from "./pages/pdf-report-preview";
+import EmailIntegrationInterface from "./pages/email-integration-interface";
+import DigitalSignatureCapture from "./pages/digital-signature-capture";
+
+/* INSPECCIONES (rutas reales) */
+import HojaInspeccionHidro from "./app/inspeccion/pages/hidro";
+import HojaInspeccionBarredora from "./app/inspeccion/pages/barredora";
+import HojaInspeccionCamara from "./app/inspeccion/pages/camara/HojaInspeccionCamara";
+
 import NotFound from "./pages/NotFound";
 
-import HojaInspeccionHidro from "./app/inspeccion/Hidro";
-import HojaInspeccionBarredora from "./app/inspeccion/Barredora";
-import HojaInspeccionCamara from "./app/inspeccion/Camara";
-
-export default function RoutesApp() {
+export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
         {/* MENÚ PRINCIPAL */}
-        <Route path="/" element={<PanelServicios />} />
+        <Route path="/" element={<ReportHistoryManagement />} />
 
         {/* INFORMES */}
-        <Route
-          path="/report-history-management"
-          element={<ReportHistoryManagement />}
-        />
-        <Route
-          path="/service-report-creation"
-          element={<ServiceReportCreation />}
-        />
+        <Route path="/service-report-creation" element={<ServiceReportCreation />} />
         <Route path="/pdf-report-preview" element={<PDFReportPreview />} />
+        <Route path="/email-integration-interface" element={<EmailIntegrationInterface />} />
+        <Route path="/digital-signature-capture" element={<DigitalSignatureCapture />} />
 
         {/* INSPECCIONES */}
         <Route path="/inspeccion/hidro" element={<HojaInspeccionHidro />} />
-        <Route
-          path="/inspeccion/barredora"
-          element={<HojaInspeccionBarredora />}
-        />
+        <Route path="/inspeccion/barredora" element={<HojaInspeccionBarredora />} />
         <Route path="/inspeccion/camara" element={<HojaInspeccionCamara />} />
 
         {/* 404 */}
