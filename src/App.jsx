@@ -1,8 +1,5 @@
-// src/App.jsx
 import RoutesApp from "./Routes";
 
-function App() {
+export default function App() {
   return <RoutesApp />;
 }
-
-export default App;
