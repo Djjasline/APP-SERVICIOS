@@ -1,21 +1,19 @@
+// src/app/inspeccion/Rutas.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-import InspectionSelector from "./pages/InspectionSelector";
-import HojaInspeccionHidro from "./HojaInspeccionHidro";
-import HojaInspeccionBarredora from "./HojaInspeccionBarredora";
-import HojaInspeccionCamara from "./pages/HojaInspeccionCamara";
+import IndexInspeccion from "./paginas/IndexInspeccion";
+import Hidro from "./paginas/hidro";
+import Barredora from "./paginas/barredora";
+import Camara from "./paginas/camara";
 
-export default function InspectionRoutes() {
+export default function InspeccionRoutes() {
   return (
     <Routes>
-      {/* Selector principal */}
-      <Route index element={<InspectionSelector />} />
-
-      {/* Formatos */}
-      <Route path="hidro" element={<HojaInspeccionHidro />} />
-      <Route path="barredora" element={<HojaInspeccionBarredora />} />
-      <Route path="camara" element={<HojaInspeccionCamara />} />
+      <Route index element={<IndexInspeccion />} />
+      <Route path="hidro" element={<Hidro />} />
+      <Route path="barredora" element={<Barredora />} />
+      <Route path="camara" element={<Camara />} />
     </Routes>
   );
 }
