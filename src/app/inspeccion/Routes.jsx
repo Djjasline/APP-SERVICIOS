@@ -1,80 +1,30 @@
-// src/Routes.jsx
+// src/app/inspeccion/Routes.jsx
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-import ScrollToTop from "./components/ScrollToTop";
-import ErrorBoundary from "./components/ErrorBoundary";
+/* ===== Formularios de inspección ===== */
+import HojaInspeccionHidro from "./HojaInspeccionHidro";
+import HojaInspeccionBarredora from "./HojaInspeccionBarredora";
 
-// Páginas principales
-import PanelServicios from "./pages/PanelServicios";
-import NotFound from "./pages/NotFound";
-
-// Módulo informes de servicio
-import ServiceReportCreation from "./pages/service-report-creation";
-import PDFReportPreview from "./pages/pdf-report-preview";
-import ReportHistoryManagement from "./pages/report-history-management";
-import EmailIntegrationInterface from "./pages/email-integration-interface";
-import DigitalSignatureCapture from "./pages/digital-signature-capture";
-
-// Módulo inspección (rutas hijas)
-import InspectionRoutes from "./app/inspeccion/Routes";
-
-export default function AppRoutes() {
+const InspectionRoutes = () => {
   return (
-    <BrowserRouter>
-      <ErrorBoundary>
-        <ScrollToTop />
+    <Routes>
+      {/* Ruta base: redirige a hidrosuccionador */}
+      <Route index element={<Navigate to="hidro" replace />} />
 
-        <Routes>
-          {/* =============================
-              PANEL PRINCIPAL
-          ============================== */}
-          <Route path="/" element={<PanelServicios />} />
+      {/* Inspección Hidrosuccionador */}
+      <Route
+        path="hidro"
+        element={<HojaInspeccionHidro />}
+      />
 
-          {/* =============================
-              INFORMES DE SERVICIO
-          ============================== */}
-          <Route
-            path="/report-history-management"
-            element={<ReportHistoryManagement />}
-          />
-
-          <Route
-            path="/service-report-creation"
-            element={<ServiceReportCreation />}
-          />
-
-          <Route
-            path="/pdf-report-preview"
-            element={<PDFReportPreview />}
-          />
-
-          <Route
-            path="/digital-signature-capture"
-            element={<DigitalSignatureCapture />}
-          />
-
-          <Route
-            path="/email-integration-interface"
-            element={<EmailIntegrationInterface />}
-          />
-
-          {/* =============================
-              INSPECCIÓN Y VALORACIÓN
-              (IMPORTANTE EL *)
-          ============================== */}
-          <Route
-            path="/inspeccion/*"
-            element={<InspectionRoutes />}
-          />
-
-          {/* =============================
-              404
-          ============================== */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-
-      </ErrorBoundary>
-    </BrowserRouter>
+      {/* Inspección Barredora */}
+      <Route
+        path="barredora"
+        element={<HojaInspeccionBarredora />}
+      />
+    </Routes>
   );
-}
+};
+
+export default InspectionRoutes;
