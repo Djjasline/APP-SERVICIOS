@@ -1,28 +1,18 @@
-// src/app/inspeccion/Routes.jsx
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
-/* ===== Formularios de inspección ===== */
+import InspectionSelector from "./pages/InspectionSelector";
 import HojaInspeccionHidro from "./HojaInspeccionHidro";
 import HojaInspeccionBarredora from "./HojaInspeccionBarredora";
+import HojaInspeccionCamara from "./HojaInspeccionCamara";
 
 const InspectionRoutes = () => {
   return (
     <Routes>
-      {/* Ruta base: redirige a hidrosuccionador */}
-      <Route index element={<Navigate to="hidro" replace />} />
-
-      {/* Inspección Hidrosuccionador */}
-      <Route
-        path="hidro"
-        element={<HojaInspeccionHidro />}
-      />
-
-      {/* Inspección Barredora */}
-      <Route
-        path="barredora"
-        element={<HojaInspeccionBarredora />}
-      />
+      <Route index element={<InspectionSelector />} />
+      <Route path="hidro" element={<HojaInspeccionHidro />} />
+      <Route path="barredora" element={<HojaInspeccionBarredora />} />
+      <Route path="camara" element={<HojaInspeccionCamara />} />
     </Routes>
   );
 };
