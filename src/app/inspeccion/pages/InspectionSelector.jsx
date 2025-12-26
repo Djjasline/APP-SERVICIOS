@@ -32,16 +32,16 @@ const InspectionSelector = () => {
 
           {/* Barredora */}
           <button
-            onClick={() => navigate("/inspeccion/barredora")}
-            className="border rounded-xl p-6 text-left bg-white shadow hover:shadow-md transition"
-          >
-            <h2 className="text-lg font-semibold text-slate-900">
-              Barredora
-            </h2>
-            <p className="text-sm text-slate-600 mt-2">
-              Inspección y valoración de equipos barredores.
-            </p>
-          </button>
+  onClick={() => navigate("/inspeccion/camara")}
+  className="border rounded-xl p-6 text-left bg-white shadow hover:shadow-md transition"
+>
+  <h2 className="text-lg font-semibold text-slate-900">
+    Cámara / VCAM / Metrotech
+  </h2>
+  <p className="text-sm text-slate-600 mt-2">
+    Inspección con cámara de tuberías.
+  </p>
+</button>
         </div>
       </div>
     </div>
