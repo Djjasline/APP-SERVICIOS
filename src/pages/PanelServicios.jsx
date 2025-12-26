@@ -11,8 +11,8 @@ export default function PanelServicios() {
         <div className="border rounded-xl p-4 space-y-3">
           <h2 className="font-semibold">1. Informe general de servicios</h2>
           <button
-            onClick={() => navigate("/service-report-creation")}
             className="btn-primary"
+            onClick={() => navigate("/service-report-creation")}
           >
             Nuevo informe
           </button>
@@ -21,8 +21,8 @@ export default function PanelServicios() {
         <div className="border rounded-xl p-4 space-y-3">
           <h2 className="font-semibold">2. Inspección y valoración</h2>
           <button
-            onClick={() => navigate("/inspeccion")}
             className="btn-primary"
+            onClick={() => navigate("/inspeccion")}
           >
             Ir a inspecciones
           </button>
@@ -30,7 +30,7 @@ export default function PanelServicios() {
 
         <div className="border rounded-xl p-4 space-y-3">
           <h2 className="font-semibold">3. Servicio de mantenimiento</h2>
-          <button disabled className="btn-secondary">
+          <button className="btn-secondary" disabled>
             Próximamente
           </button>
         </div>
