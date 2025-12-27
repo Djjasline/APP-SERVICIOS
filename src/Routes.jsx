@@ -5,15 +5,15 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PanelServicios from "./pages/PanelServicios";
 import NotFound from "./pages/NotFound";
 
-// Flujo informe general
+// Informe general
 import ServiceReportCreation from "./pages/service-report-creation";
 import PDFReportPreview from "./pages/pdf-report-preview";
 import ReportHistoryManagement from "./pages/report-history-management";
 import EmailIntegrationInterface from "./pages/email-integration-interface";
 import DigitalSignatureCapture from "./pages/digital-signature-capture";
 
-// Módulo inspección
-import InspectionRoutes from "./app/inspeccion/Rutas";
+// ✅ INSPECCIÓN (IMPORT CORRECTO)
+import InspectionRoutes from "./app/inspeccion/Routes";
 
 export default function AppRoutes() {
   return (
@@ -22,7 +22,7 @@ export default function AppRoutes() {
         {/* 🏠 MENÚ PRINCIPAL */}
         <Route path="/" element={<PanelServicios />} />
 
-        {/* 📄 INFORME GENERAL DE SERVICIOS */}
+        {/* 📄 INFORME GENERAL */}
         <Route
           path="/report-history-management"
           element={<ReportHistoryManagement />}
