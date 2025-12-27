@@ -12,7 +12,7 @@ import EmailIntegrationInterface from "./pages/email-integration-interface";
 import DigitalSignatureCapture from "./pages/digital-signature-capture";
 
 // Módulo inspección
-import InspectionRoutes from "./app/inspeccion/Routes";
+import InspectionRoutes from "./app/inspeccion/Routes.jsx";
 
 export default function AppRoutes() {
   return (
