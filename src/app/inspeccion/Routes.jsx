@@ -3,9 +3,9 @@ import { Routes, Route } from "react-router-dom";
 
 import IndexInspeccion from "./pages/IndexInspeccion.jsx";
 
-import HojaInspeccionHidro from "./HojaInspeccionHidro.jsx";
-import HojaInspeccionBarredora from "./HojaInspeccionBarredora.jsx";
-import HojaInspeccionCamara from "./HojaInspeccionCamara.jsx";
+import HojaInspeccionHidro from "./HojaInspeccionHidro/index.jsx";
+import HojaInspeccionBarredora from "./HojaInspeccionBarredora/index.jsx";
+import HojaInspeccionCamara from "./HojaInspeccionCamara/index.jsx";
 
 export default function InspectionRoutes() {
   return (
