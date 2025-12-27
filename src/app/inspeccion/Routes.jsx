@@ -9,10 +9,10 @@ import HojaInspeccionCamara from "./HojaInspeccionCamara";
 export default function InspectionRoutes() {
   return (
     <Routes>
-      {/* 📋 Menú de inspecciones */}
+      {/* 📌 PANTALLA PRINCIPAL DEL MÓDULO INSPECCIÓN */}
       <Route index element={<IndexInspeccion />} />
 
-      {/* 📄 Formularios */}
+      {/* 📄 FORMATOS */}
       <Route path="hidro" element={<HojaInspeccionHidro />} />
       <Route path="barredora" element={<HojaInspeccionBarredora />} />
       <Route path="camara" element={<HojaInspeccionCamara />} />
