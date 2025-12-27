@@ -1,4 +1,3 @@
-// src/Routes.jsx
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -12,7 +11,7 @@ import ReportHistoryManagement from "./pages/report-history-management";
 import EmailIntegrationInterface from "./pages/email-integration-interface";
 import DigitalSignatureCapture from "./pages/digital-signature-capture";
 
-// ✅ INSPECCIÓN (IMPORT CORRECTO)
+// Módulo inspección
 import InspectionRoutes from "./app/inspeccion/Routes";
 
 export default function AppRoutes() {
