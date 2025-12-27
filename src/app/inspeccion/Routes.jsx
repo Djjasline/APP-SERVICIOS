@@ -1,15 +1,16 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-import IndexInspeccion from "./pages/IndexInspeccion";
-import HojaInspeccionHidro from "./HojaInspeccionHidro";
-import HojaInspeccionBarredora from "./HojaInspeccionBarredora";
-import HojaInspeccionCamara from "./HojaInspeccionCamara";
+import IndexInspeccion from "./pages/IndexInspeccion.jsx";
+
+import HojaInspeccionHidro from "./HojaInspeccionHidro.jsx";
+import HojaInspeccionBarredora from "./HojaInspeccionBarredora.jsx";
+import HojaInspeccionCamara from "./HojaInspeccionCamara.jsx";
 
 export default function InspectionRoutes() {
   return (
     <Routes>
-      {/* 📌 PANTALLA PRINCIPAL DEL MÓDULO INSPECCIÓN */}
+      {/* 📌 MENÚ DE INSPECCIONES */}
       <Route index element={<IndexInspeccion />} />
 
       {/* 📄 FORMATOS */}
