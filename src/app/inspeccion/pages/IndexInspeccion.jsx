@@ -14,12 +14,11 @@ const Card = ({ title, type, description }) => {
       </div>
 
       <button
-        onClick={() => navigate(`/inspeccion/${type}`)}
-        className="px-3 py-2 text-sm rounded-md bg-slate-900 text-white hover:bg-slate-800"
-      >
-        + Nueva inspección
-      </button>
-
+  onClick={() => navigate(`/inspeccion/${type}/${item.id}`)}
+  className="text-xs text-blue-600 hover:underline"
+>
+  Abrir
+</button>
       <div className="pt-2">
         <p className="text-xs font-medium text-slate-500 mb-2">
           Historial
