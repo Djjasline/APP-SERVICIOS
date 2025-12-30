@@ -21,15 +21,14 @@ export function saveInspectionHistory(history) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
 }
 
-export function addInspection(tipo, data) {
+export function markInspectionCompleted(tipo, id) {
   const history = getInspectionHistory();
 
-  history[tipo].unshift({
-    id: crypto.randomUUID(),
-    fecha: new Date().toISOString().slice(0, 10),
-    estado: "borrador",
-    ...data,
-  });
+  history[tipo] = history[tipo].map((item) =>
+    item.id === id
+      ? { ...item, estado: "completado" }
+      : item
+  );
 
   saveInspectionHistory(history);
 }
