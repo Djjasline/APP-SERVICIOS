@@ -1,6 +1,6 @@
 const STORAGE_KEY = "inspectionHistory";
 
-function getEmptyHistory() {
+function emptyHistory() {
   return {
     hidro: [],
     barredora: [],
@@ -11,24 +11,41 @@ function getEmptyHistory() {
 export function getInspectionHistory() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(getEmptyHistory()));
-    return getEmptyHistory();
+    const data = emptyHistory();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    return data;
   }
   return JSON.parse(raw);
 }
 
-export function saveInspectionHistory(history) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+export function getInspections(type) {
+  const history = getInspectionHistory();
+  return history[type] || [];
 }
 
-export function markInspectionCompleted(tipo, id) {
+export function createInspection(type) {
   const history = getInspectionHistory();
 
-  history[tipo] = history[tipo].map((item) =>
-    item.id === id
-      ? { ...item, estado: "completado" }
-      : item
+  const newInspection = {
+    id: crypto.randomUUID(),
+    fecha: new Date().toISOString().slice(0, 10),
+    estado: "borrador",
+    cliente: "",
+    data: {},
+  };
+
+  history[type].unshift(newInspection);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+
+  return newInspection;
+}
+
+export function markInspectionCompleted(type, id) {
+  const history = getInspectionHistory();
+
+  history[type] = history[type].map((i) =>
+    i.id === id ? { ...i, estado: "completado" } : i
   );
 
-  saveInspectionHistory(history);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
 }
