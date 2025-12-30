@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { getInspectionHistory } from "../utilidades/inspectionStorage";
+import { createInspection, getInspections } from "../utilidades/inspectionStorage";
 
 function Section({ titulo, tipo, items, navigate }) {
   return (
