@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { markInspectionCompleted } from "./utilidades/inspectionStorage.js";
+import { markInspectionCompleted } from "./utilidades/inspectionStorage";
 
 export default function HojaInspeccionHidro() {
   const { id } = useParams();
@@ -22,7 +22,7 @@ export default function HojaInspeccionHidro() {
             type="button"
             onClick={() => {
               if (!id) {
-                alert("No se encontró el ID de la inspección");
+                alert("ID de inspección no encontrado");
                 return;
               }
               markInspectionCompleted("hidro", id);
