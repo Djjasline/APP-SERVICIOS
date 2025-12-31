@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { markInspectionCompleted } from "./utilidades/inspectionStorage";
+import { markInspectionCompleted } from "./utilidades/inspectionStorage.js";
 
 export default function HojaInspeccionHidro() {
   const { id } = useParams();
@@ -13,12 +13,10 @@ export default function HojaInspeccionHidro() {
           Hoja de Inspección – Hidrosuccionador
         </h1>
 
-        {/* FORMULARIO (editable siempre) */}
         <div className="border rounded p-4 text-sm text-slate-600">
           Formulario de inspección (editable siempre)
         </div>
 
-        {/* BOTONES */}
         <div className="flex justify-end gap-3 pt-4">
           <button
             type="button"
