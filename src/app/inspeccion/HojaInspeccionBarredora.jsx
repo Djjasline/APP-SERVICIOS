@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import {
-  getInspectionById,
-  saveInspection
-} from "./utilidades/inspectionStorage";
+import { markInspectionCompleted } from "./utilidades/inspectionStorage";
+import { useNavigate } from "react-router-dom";;
 
 export default function HojaInspeccionbarredora() {
   const { id } = useParams();
