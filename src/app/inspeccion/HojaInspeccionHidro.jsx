@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { markInspectionCompleted } from "./utilidades/inspectionStorage";
+import { useNavigate } from "react-router-dom";
 
 export default function HojaInspeccionHidro() {
   const { id } = useParams();
