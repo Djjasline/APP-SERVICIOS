@@ -1,107 +1,54 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  getInspections,
-  createInspection,
-} from "../utilidades/inspectionStorage";
+const STORAGE_KEY = "inspectionHistory";
 
-/* ===============================
-   CARD REUTILIZABLE
-================================ */
-const Card = ({ title, type, description }) => {
-  const navigate = useNavigate();
-  const inspections = getInspections(type);
+function getEmptyHistory() {
+  return {
+    hidro: [],
+    barredora: [],
+    camara: [],
+  };
+}
 
-  return (
-    <div className="border rounded-xl p-4 space-y-4 bg-white shadow-sm">
-      <div>
-        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-        <p className="text-sm text-slate-600">{description}</p>
-      </div>
+export function getInspectionHistory() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    const empty = getEmptyHistory();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(empty));
+    return empty;
+  }
+  return JSON.parse(raw);
+}
 
-      {/* NUEVA INSPECCIÓN */}
-      <button
-        onClick={() => {
-          const inspection = createInspection(type);
-          navigate(`/inspeccion/${type}/${inspection.id}`);
-        }}
-        className="px-3 py-2 text-sm rounded-md bg-slate-900 text-white hover:bg-slate-800"
-      >
-        + Nueva inspección
-      </button>
+export function saveInspectionHistory(history) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+}
 
-      {/* HISTORIAL */}
-      <div className="pt-2">
-        <p className="text-xs font-medium text-slate-500 mb-2">
-          Historial
-        </p>
+export function getInspections(tipo) {
+  const history = getInspectionHistory();
+  return history[tipo] || [];
+}
 
-        {inspections.length === 0 ? (
-          <p className="text-xs text-slate-400">
-            No hay inspecciones aún.
-          </p>
-        ) : (
-          <ul className="space-y-1 text-sm">
-            {inspections.map((item) => (
-              <li
-                key={item.id}
-                className="flex justify-between items-center border rounded px-2 py-1"
-              >
-                <span>
-                  {item.cliente || "Sin cliente"} —{" "}
-                  <span className="text-xs text-slate-500">
-                    {item.estado}
-                  </span>
-                </span>
+export function addInspection(tipo, data) {
+  const history = getInspectionHistory();
 
-                <button
-                  onClick={() =>
-                    navigate(`/inspeccion/${type}/${item.id}`)
-                  }
-                  className="text-xs text-blue-600 hover:underline"
-                >
-                  Abrir
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
+  history[tipo].unshift({
+    id: crypto.randomUUID(),
+    fecha: new Date().toISOString().slice(0, 10),
+    estado: "borrador",
+    ...data,
+  });
+
+  saveInspectionHistory(history);
+}
+
+/* 🆕 PASO 10: marcar inspección como completada */
+export function markInspectionCompleted(tipo, id) {
+  const history = getInspectionHistory();
+
+  history[tipo] = history[tipo].map((item) =>
+    item.id === id
+      ? { ...item, estado: "completada" }
+      : item
   );
-};
 
-/* ===============================
-   PANTALLA PRINCIPAL INSPECCIÓN
-================================ */
-export default function IndexInspeccion() {
-  return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <h1 className="text-2xl font-semibold text-slate-900">
-          Inspección y valoración
-        </h1>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          <Card
-            title="Hidrosuccionador"
-            type="hidro"
-            description="Inspección general del equipo hidrosuccionador."
-          />
-
-          <Card
-            title="Barredora"
-            type="barredora"
-            description="Inspección y valoración de barredoras."
-          />
-
-          <Card
-            title="Cámara (VCAM / Metrotech)"
-            type="camara"
-            description="Inspección con sistema de cámara."
-          />
-        </div>
-      </div>
-    </div>
-  );
+  saveInspectionHistory(history);
 }
