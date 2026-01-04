@@ -196,3 +196,104 @@ export default function ServiceReportCreation() {
     </div>
   );
 }
+{/* ============================= */}
+{/* 2. DATOS DEL EQUIPO */}
+{/* ============================= */}
+<section className="section">
+  <div>
+    <h2 className="section-title">2. Datos del equipo</h2>
+    <p className="section-description">
+      Información general del equipo atendido durante el servicio.
+    </p>
+  </div>
+
+  {/* Fila 1 */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <label className="label">Tipo de equipo</label>
+      <input
+        type="text"
+        className="input"
+        placeholder="Ej: Hidrosuccionador, Barredora, Cámara"
+      />
+    </div>
+
+    <div>
+      <label className="label">Marca</label>
+      <input
+        type="text"
+        className="input"
+        placeholder="Ej: Vactor, Elgin, Metrotech"
+      />
+    </div>
+
+    <div>
+      <label className="label">Modelo</label>
+      <input
+        type="text"
+        className="input"
+        placeholder="Modelo del equipo"
+      />
+    </div>
+  </div>
+
+  {/* Fila 2 */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <label className="label">Número de serie</label>
+      <input
+        type="text"
+        className="input"
+        placeholder="Serie del equipo"
+      />
+    </div>
+
+    <div>
+      <label className="label">Placa</label>
+      <input
+        type="text"
+        className="input"
+        placeholder="Placa del vehículo"
+      />
+    </div>
+
+    <div>
+      <label className="label">Año de fabricación</label>
+      <input
+        type="number"
+        className="input"
+        placeholder="Ej: 2022"
+      />
+    </div>
+  </div>
+
+  {/* Fila 3 */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <label className="label">Kilometraje</label>
+      <input
+        type="text"
+        className="input"
+        placeholder="Km del vehículo"
+      />
+    </div>
+
+    <div>
+      <label className="label">Horas de trabajo</label>
+      <input
+        type="text"
+        className="input"
+        placeholder="Horas del equipo"
+      />
+    </div>
+
+    <div>
+      <label className="label">VIN / Chasis</label>
+      <input
+        type="text"
+        className="input"
+        placeholder="VIN o número de chasis"
+      />
+    </div>
+  </div>
+</section>
