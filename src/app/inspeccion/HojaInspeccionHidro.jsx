@@ -13,24 +13,22 @@ export default function HojaInspeccionHidro() {
           Hoja de Inspección – Hidrosuccionador
         </h1>
 
+        {/* FORMULARIO */}
         <div className="border rounded p-4 text-sm text-slate-600">
           Formulario de inspección (editable siempre)
         </div>
 
+        {/* BOTONES */}
         <div className="flex justify-end gap-3 pt-4">
           <button
             type="button"
             onClick={() => {
-              if (!id) {
-                alert("ID de inspección no encontrado");
-                return;
-              }
               markInspectionCompleted("hidro", id);
-              alert("Inspección marcada como completada ✅");
+              alert("Inspección marcada como completada");
             }}
             className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
           >
-            ✔ Marcar como completada
+            Marcar como completada
           </button>
 
           <button
