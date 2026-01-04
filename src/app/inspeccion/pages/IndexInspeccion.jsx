@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getInspectionHistory } from "../../utilidades/inspectionStorage";
+import { getInspectionHistory } from "../utilidades/inspectionStorage";
 /* =========================
    Badge visual de estado
 ========================= */
