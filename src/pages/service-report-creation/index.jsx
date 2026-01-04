@@ -297,3 +297,54 @@ export default function ServiceReportCreation() {
     </div>
   </div>
 </section>
+{/* ============================= */}
+{/* 3. DESCRIPCIÓN DEL SERVICIO */}
+{/* ============================= */}
+<section className="section">
+  <div>
+    <h2 className="section-title">3. Descripción del servicio</h2>
+    <p className="section-description">
+      Detalle de las actividades realizadas durante el servicio técnico.
+    </p>
+  </div>
+
+  {/* Descripción principal */}
+  <div>
+    <label className="label">Descripción general del servicio</label>
+    <textarea
+      rows={4}
+      className="input resize-y"
+      placeholder="Describa de forma clara las actividades realizadas, diagnóstico, mantenimiento, reparación, ajustes, etc."
+    />
+  </div>
+
+  {/* Trabajo realizado */}
+  <div>
+    <label className="label">Trabajo realizado</label>
+    <textarea
+      rows={4}
+      className="input resize-y"
+      placeholder="Detalle paso a paso del trabajo ejecutado en el equipo."
+    />
+  </div>
+
+  {/* Observaciones técnicas */}
+  <div>
+    <label className="label">Observaciones técnicas</label>
+    <textarea
+      rows={3}
+      className="input resize-y"
+      placeholder="Observaciones relevantes, hallazgos, condiciones del equipo, recomendaciones."
+    />
+  </div>
+
+  {/* Recomendaciones */}
+  <div>
+    <label className="label">Recomendaciones</label>
+    <textarea
+      rows={3}
+      className="input resize-y"
+      placeholder="Recomendaciones para el cliente: mantenimientos futuros, advertencias, mejoras."
+    />
+  </div>
+</section>
