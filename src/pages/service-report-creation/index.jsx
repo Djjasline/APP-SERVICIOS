@@ -348,3 +348,67 @@ export default function ServiceReportCreation() {
     />
   </div>
 </section>
+{/* ============================= */}
+{/* 4. MATERIALES / REPUESTOS */}
+{/* ============================= */}
+<section className="section">
+  <div>
+    <h2 className="section-title">4. Materiales y repuestos utilizados</h2>
+    <p className="section-description">
+      Detalle de los materiales, repuestos o insumos utilizados durante el
+      servicio.
+    </p>
+  </div>
+
+  <div className="overflow-x-auto">
+    <table className="w-full border border-slate-300 text-sm">
+      <thead className="bg-slate-100 text-slate-700">
+        <tr>
+          <th className="border px-2 py-2 text-left">Ítem</th>
+          <th className="border px-2 py-2 text-left">Descripción</th>
+          <th className="border px-2 py-2 text-center">Cantidad</th>
+          <th className="border px-2 py-2 text-left">Observación</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {[1, 2, 3, 4].map((row) => (
+          <tr key={row}>
+            <td className="border px-2 py-1 text-center">{row}</td>
+
+            <td className="border px-2 py-1">
+              <input
+                type="text"
+                className="input"
+                placeholder="Descripción del material o repuesto"
+              />
+            </td>
+
+            <td className="border px-2 py-1">
+              <input
+                type="number"
+                min="0"
+                className="input text-center"
+                placeholder="0"
+              />
+            </td>
+
+            <td className="border px-2 py-1">
+              <input
+                type="text"
+                className="input"
+                placeholder="Observación"
+              />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  {/* Nota */}
+  <p className="text-xs text-slate-500">
+    * En caso de no utilizar materiales o repuestos, dejar esta sección en
+    blanco.
+  </p>
+</section>
