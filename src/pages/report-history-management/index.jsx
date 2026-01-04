@@ -1,102 +1,89 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useReports } from "../../context/ReportContext";
+import React, { useState } from "react";
 
-const ReportHistoryManagement = () => {
-  const { reports, startNewReport, loadReport, deleteReport } = useReports();
-  const navigate = useNavigate();
-
-  const handleNew = () => {
-    startNewReport();
-    navigate("/service-report-creation");
-  };
-
-  const handleContinue = (id) => {
-    loadReport(id);
-    navigate("/service-report-creation");
-  };
-
-  const handlePreview = (id) => {
-    loadReport(id);
-    navigate("/pdf-report-preview");
-  };
+export default function ServiceReportCreation() {
+  const [report, setReport] = useState({
+    generalInfo: {},
+    equipment: {},
+    serviceDetail: {},
+    materials: [],
+    conclusion: {},
+    signatures: {},
+    status: "draft",
+  });
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-6">
-      <div className="max-w-5xl mx-auto space-y-4">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-slate-50 px-4 py-8">
+      <div className="max-w-5xl mx-auto bg-white border rounded-xl p-6 space-y-8">
+
+        {/* HEADER */}
+        <header className="space-y-1">
           <h1 className="text-2xl font-semibold text-slate-900">
-            Informes de servicio
+            Reporte de Servicio
           </h1>
-          <button
-            onClick={handleNew}
-            className="px-4 py-2 rounded-md bg-slate-900 text-white text-sm font-medium hover:bg-slate-800"
-          >
-            + Nuevo informe
+          <p className="text-sm text-slate-600">
+            Formato general para equipos y vehículos especiales
+          </p>
+        </header>
+
+        {/* SECCIÓN 1 */}
+        <section className="border rounded-lg p-4 space-y-2">
+          <h2 className="font-semibold text-slate-800">
+            1. Datos del reporte
+          </h2>
+          <p className="text-sm text-slate-500">
+            Información general del cliente y servicio
+          </p>
+        </section>
+
+        {/* SECCIÓN 2 */}
+        <section className="border rounded-lg p-4 space-y-2">
+          <h2 className="font-semibold text-slate-800">
+            2. Datos del equipo
+          </h2>
+          <p className="text-sm text-slate-500">
+            Información técnica del equipo o vehículo
+          </p>
+        </section>
+
+        {/* SECCIÓN 3 */}
+        <section className="border rounded-lg p-4 space-y-2">
+          <h2 className="font-semibold text-slate-800">
+            3. Detalle del servicio realizado
+          </h2>
+        </section>
+
+        {/* SECCIÓN 4 */}
+        <section className="border rounded-lg p-4 space-y-2">
+          <h2 className="font-semibold text-slate-800">
+            4. Materiales / Repuestos
+          </h2>
+        </section>
+
+        {/* SECCIÓN 5 */}
+        <section className="border rounded-lg p-4 space-y-2">
+          <h2 className="font-semibold text-slate-800">
+            5. Conclusión
+          </h2>
+        </section>
+
+        {/* SECCIÓN 6 */}
+        <section className="border rounded-lg p-4 space-y-2">
+          <h2 className="font-semibold text-slate-800">
+            6. Firmas
+          </h2>
+        </section>
+
+        {/* ACCIONES */}
+        <div className="flex justify-end gap-3 pt-4">
+          <button className="px-4 py-2 rounded-md border">
+            Guardar borrador
+          </button>
+          <button className="px-4 py-2 rounded-md bg-slate-900 text-white">
+            Finalizar reporte
           </button>
         </div>
 
-        {reports.length === 0 ? (
-          <p className="text-sm text-slate-500">
-            No tienes informes aún. Haz clic en "Nuevo informe" para crear el
-            primero.
-          </p>
-        ) : (
-          <div className="overflow-x-auto bg-white rounded-xl shadow border">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-100 text-slate-700">
-                <tr>
-                  <th className="px-3 py-2 text-left">Fecha</th>
-                  <th className="px-3 py-2 text-left">Cliente</th>
-                  <th className="px-3 py-2 text-left">Código interno</th>
-                  <th className="px-3 py-2 text-left">Estado</th>
-                  <th className="px-3 py-2 text-left">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reports.map((r) => (
-                  <tr key={r.id} className="border-t">
-                    <td className="px-3 py-2">
-                      {r.generalInfo?.serviceDate || "—"}
-                    </td>
-                    <td className="px-3 py-2">
-                      {r.generalInfo?.client || "—"}
-                    </td>
-                    <td className="px-3 py-2">
-                      {r.generalInfo?.internalCode || "—"}
-                    </td>
-                    <td className="px-3 py-2">
-                      {r.status === "completed" ? "Completado" : "Borrador"}
-                    </td>
-                    <td className="px-3 py-2 space-x-2">
-                      <button
-                        onClick={() => handleContinue(r.id)}
-                        className="px-2 py-1 text-xs border rounded hover:bg-slate-50"
-                      >
-                        Continuar
-                      </button>
-                      <button
-                        onClick={() => handlePreview(r.id)}
-                        className="px-2 py-1 text-xs border rounded hover:bg-slate-50"
-                      >
-                        PDF
-                      </button>
-                      <button
-                        onClick={() => deleteReport(r.id)}
-                        className="px-2 py-1 text-xs border rounded text-red-600 hover:bg-red-50"
-                      >
-                        Eliminar
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
       </div>
     </div>
   );
-};
-
-export default ReportHistoryManagement;
+}
