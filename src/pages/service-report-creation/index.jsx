@@ -1,3 +1,4 @@
+import ReportHeader from "@/components/report/ReportHeader";
 import { useEffect, useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
