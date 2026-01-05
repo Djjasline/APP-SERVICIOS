@@ -1,46 +1,49 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { FORM_STATES } from "@utils/formStates";
 
-export default function useFormStorage(key, initialData = {}) {
+/**
+ * Hook genérico para manejo de formularios
+ * - Guarda en localStorage
+ * - Maneja estado (borrador / finalizado)
+ * - Permite editar incluso después de finalizar
+ */
+export default function useFormStorage(key, initialData) {
   const STORAGE_KEY = `form_${key}`;
 
   const [data, setData] = useState(initialData);
-import { FORM_STATES } from "@utils/formStates";
+  const [status, setStatus] = useState(FORM_STATES.BORRADOR);
 
-const [status, setStatus] = useState(FORM_STATES.BORRADOR);
-
-  // Cargar datos
+  /* =========================
+     Cargar desde localStorage
+  ========================= */
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
       setData(parsed.data || initialData);
-      setStatus(parsed.status || "borrador");
+      setStatus(parsed.status || FORM_STATES.BORRADOR);
     }
   }, []);
 
-  // Guardar datos
-  const save = () => {
+  /* =========================
+     Guardar automáticamente
+  ========================= */
+  useEffect(() => {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({
-        data,
-        status,
-        updatedAt: new Date().toISOString(),
-      })
+      JSON.stringify({ data, status })
     );
+  }, [data, status]);
+
+  /* =========================
+     Acciones
+  ========================= */
+  const save = () => {
+    setStatus(FORM_STATES.BORRADOR);
   };
 
-  // Finalizar (NO bloquea)
   const finalize = () => {
-    setStatus("completado");
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        data,
-       status: FORM_STATES.COMPLETADO
-        updatedAt: new Date().toISOString(),
-      })
-    );
+    setStatus(FORM_STATES.FINALIZADO);
   };
 
   return {
