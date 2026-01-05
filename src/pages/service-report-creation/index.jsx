@@ -472,3 +472,35 @@ export default function ServiceReportCreation() {
     />
   </label>
 </section>
+{/* ============================= */}
+{/* 6. FIRMAS DIGITALES DEL REPORTE */}
+{/* ============================= */}
+<section className="section">
+  <div>
+    <h2 className="section-title">
+      6. Firmas digitales del reporte
+    </h2>
+    <p className="section-description">
+      Confirmación de conformidad del servicio realizado.
+    </p>
+  </div>
+
+  <div className="grid md:grid-cols-2 gap-6">
+    {/* FIRMA TÉCNICO */}
+    <div className="border rounded-xl p-4 space-y-3 bg-slate-50">
+      <h3 className="font-semibold text-sm text-slate-900">
+        Firma técnico ASTAP
+      </h3>
+
+      <div className="border-2 border-dashed rounded-lg bg-white">
+        <SignatureCanvas
+          penColor="#111827"
+          canvasProps={{
+            className: "w-full h-40 cursor-crosshair",
+          }}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 text-xs">
+        <input
+          type
