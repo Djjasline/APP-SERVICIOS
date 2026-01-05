@@ -4,7 +4,9 @@ export default function useFormStorage(key, initialData = {}) {
   const STORAGE_KEY = `form_${key}`;
 
   const [data, setData] = useState(initialData);
-  const [status, setStatus] = useState("borrador");
+import { FORM_STATES } from "@utils/formStates";
+
+const [status, setStatus] = useState(FORM_STATES.BORRADOR);
 
   // Cargar datos
   useEffect(() => {
