@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getInspectionHistory } from "../utils/inspectionStorage";
+import { getInspectionHistory } from "@utils/inspectionStorage";
+
 /* =========================
    Badge visual de estado
 ========================= */
@@ -45,8 +46,12 @@ const Card = ({ title, type, description }) => {
     <div className="border rounded-xl p-4 space-y-4 bg-white shadow-sm">
       {/* Título */}
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-        <p className="text-sm text-slate-600">{description}</p>
+        <h2 className="text-lg font-semibold text-slate-900">
+          {title}
+        </h2>
+        <p className="text-sm text-slate-600">
+          {description}
+        </p>
       </div>
 
       {/* Botón nueva inspección */}
@@ -99,7 +104,9 @@ const Card = ({ title, type, description }) => {
                   <StatusBadge estado={item.estado} />
 
                   <button
-                    onClick={() => navigate(`/inspeccion/${type}`)}
+                    onClick={() =>
+                      navigate(`/inspeccion/${type}`)
+                    }
                     className="text-xs text-blue-600 hover:underline"
                   >
                     Abrir
