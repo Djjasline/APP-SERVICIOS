@@ -13,14 +13,16 @@ const STORAGE_KEY_SIGNATURES = "serviceReport_signatures";
 /* ============================= */
 function ServiceReportCreation() {
   /* ============================= */
+  /* HEADER DATA */
+  /* ============================= */
+  const headerData = {
+    fechaVersion: "26-11-25",
+    version: "01",
+  };
+
+  /* ============================= */
   /* ESTADOS */
   /* ============================= */
-
-  const headerData = {
-  fechaVersion: "26-11-25",
-  version: "01",
-};
-
   const [datosCliente, setDatosCliente] = useState({
     cliente: "",
     direccion: "",
@@ -74,7 +76,6 @@ function ServiceReportCreation() {
   /* ============================= */
   /* HANDLERS */
   /* ============================= */
-
   const handleClienteChange = (e) => {
     const { name, value } = e.target;
     setDatosCliente((prev) => ({ ...prev, [name]: value }));
@@ -107,149 +108,77 @@ function ServiceReportCreation() {
   /* RENDER */
   /* ============================= */
   return (
-    <div className="space-y-8 p-6">
+    <div className="min-h-screen bg-slate-100 px-4 py-6">
+      {/* CONTENEDOR PDF */}
+      <div
+        id="pdf-content"
+        className="max-w-6xl mx-auto bg-white p-6 space-y-8"
+      >
+        {/* ============================= */}
+        {/* HEADER INFORME TÉCNICO */}
+        {/* ============================= */}
+        <ReportHeader data={headerData} />
 
-      {/* ============================= */}
-      {/* 1. DATOS DEL CLIENTE */}
-      {/* ============================= */}
-      <section className="bg-white border rounded-xl p-6 space-y-4">
-        <h2 className="text-lg font-semibold text-slate-900">
-          1. Datos del cliente
-        </h2>
+        {/* ============================= */}
+        {/* 1. DATOS DEL CLIENTE */}
+        {/* ============================= */}
+        <section className="border rounded-xl p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-slate-900">
+            1. Datos del cliente
+          </h2>
 
-        <div className="grid md:grid-cols-2 gap-4">
-          <input
-            name="cliente"
-            value={datosCliente.cliente}
-            onChange={handleClienteChange}
-            placeholder="Cliente"
-            className="input"
-          />
-
-          <input
-            name="codigoInterno"
-            value={datosCliente.codigoInterno}
-            onChange={handleClienteChange}
-            placeholder="Código interno"
-            className="input"
-          />
-
-          <input
-            name="direccion"
-            value={datosCliente.direccion}
-            onChange={handleClienteChange}
-            placeholder="Dirección"
-            className="input"
-          />
-
-          <input
-            name="contacto"
-            value={datosCliente.contacto}
-            onChange={handleClienteChange}
-            placeholder="Contacto"
-            className="input"
-          />
-
-          <input
-            name="telefono"
-            value={datosCliente.telefono}
-            onChange={handleClienteChange}
-            placeholder="Teléfono"
-            className="input"
-          />
-
-          <input
-            name="correo"
-            value={datosCliente.correo}
-            onChange={handleClienteChange}
-            placeholder="Correo"
-            className="input"
-          />
-
-          <input
-            type="date"
-            name="fechaServicio"
-            value={datosCliente.fechaServicio}
-            onChange={handleClienteChange}
-            className="input"
-          />
-        </div>
-      </section>
-
-      {/* ============================= */}
-      {/* 6. FIRMAS */}
-      {/* ============================= */}
-      <section className="bg-white border rounded-xl p-6 space-y-6">
-        <h2 className="text-lg font-semibold text-slate-900">
-          6. Firmas
-        </h2>
-
-        {/* FIRMA TÉCNICO */}
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-700">
-            Firma del técnico
-          </p>
-
-          <div className="border rounded bg-slate-50">
-            <SignatureCanvas
-              ref={sigTecnicoRef}
-              penColor="black"
-              canvasProps={{
-                width: 500,
-                height: 180,
-                className: "w-full",
-              }}
-              onEnd={() =>
-                saveSignature("tecnico", sigTecnicoRef)
-              }
+          <div className="grid md:grid-cols-2 gap-4">
+            <input
+              name="cliente"
+              value={datosCliente.cliente}
+              onChange={handleClienteChange}
+              placeholder="Cliente"
+              className="input"
+              spellCheck
             />
-          </div>
 
-          <button
-            type="button"
-            onClick={() =>
-              clearSignature("tecnico", sigTecnicoRef)
-            }
-            className="text-xs px-3 py-1 rounded border hover:bg-slate-100"
-          >
-            Limpiar
-          </button>
-        </div>
-
-        {/* FIRMA CLIENTE */}
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-700">
-            Firma del cliente
-          </p>
-
-          <div className="border rounded bg-slate-50">
-            <SignatureCanvas
-              ref={sigClienteRef}
-              penColor="black"
-              canvasProps={{
-                width: 500,
-                height: 180,
-                className: "w-full",
-              }}
-              onEnd={() =>
-                saveSignature("cliente", sigClienteRef)
-              }
+            <input
+              name="codigoInterno"
+              value={datosCliente.codigoInterno}
+              onChange={handleClienteChange}
+              placeholder="Código interno"
+              className="input"
             />
-          </div>
 
-          <button
-            type="button"
-            onClick={() =>
-              clearSignature("cliente", sigClienteRef)
-            }
-            className="text-xs px-3 py-1 rounded border hover:bg-slate-100"
-          >
-            Limpiar
-          </button>
-        </div>
-      </section>
-    </div>
-  );
-}
+            <input
+              name="direccion"
+              value={datosCliente.direccion}
+              onChange={handleClienteChange}
+              placeholder="Dirección"
+              className="input"
+              spellCheck
+            />
 
-export default ServiceReportCreation;
+            <input
+              name="contacto"
+              value={datosCliente.contacto}
+              onChange={handleClienteChange}
+              placeholder="Contacto"
+              className="input"
+              spellCheck
+            />
+
+            <input
+              name="telefono"
+              value={datosCliente.telefono}
+              onChange={handleClienteChange}
+              placeholder="Teléfono"
+              className="input"
+            />
+
+            <input
+              name="correo"
+              value={datosCliente.correo}
+              onChange={handleClienteChange}
+              placeholder="Correo"
+              className="input"
+            />
+
+            <input
+              type="date"
+              name="fecha
