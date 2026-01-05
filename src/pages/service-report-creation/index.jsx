@@ -201,3 +201,154 @@ function ServiceReportCreation() {
         {/* ============================= */}
         <section className="border rounded-xl p-6 space-y-4">
           <h2 className="text-lg font-semibold">
+            2. Datos del equipo
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <input
+              name="tipoEquipo"
+              value={datosEquipo.tipoEquipo}
+              onChange={handleEquipoChange}
+              placeholder="Tipo de equipo"
+              className="input"
+              spellCheck
+            />
+
+            <input
+              name="marca"
+              value={datosEquipo.marca}
+              onChange={handleEquipoChange}
+              placeholder="Marca"
+              className="input"
+              spellCheck
+            />
+
+            <input
+              name="modelo"
+              value={datosEquipo.modelo}
+              onChange={handleEquipoChange}
+              placeholder="Modelo"
+              className="input"
+              spellCheck
+            />
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <input
+              name="numeroSerie"
+              value={datosEquipo.numeroSerie}
+              onChange={handleEquipoChange}
+              placeholder="Número de serie"
+              className="input"
+            />
+
+            <input
+              name="placa"
+              value={datosEquipo.placa}
+              onChange={handleEquipoChange}
+              placeholder="Placa"
+              className="input"
+            />
+
+            <input
+              name="anioFabricacion"
+              value={datosEquipo.anioFabricacion}
+              onChange={handleEquipoChange}
+              placeholder="Año de fabricación"
+              className="input"
+            />
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <input
+              name="kilometraje"
+              value={datosEquipo.kilometraje}
+              onChange={handleEquipoChange}
+              placeholder="Kilometraje"
+              className="input"
+            />
+
+            <input
+              name="horasTrabajo"
+              value={datosEquipo.horasTrabajo}
+              onChange={handleEquipoChange}
+              placeholder="Horas de trabajo"
+              className="input"
+            />
+
+            <input
+              name="vinChasis"
+              value={datosEquipo.vinChasis}
+              onChange={handleEquipoChange}
+              placeholder="VIN / Chasis"
+              className="input"
+            />
+          </div>
+        </section>
+
+        {/* ============================= */}
+        {/* 6. FIRMAS */}
+        {/* ============================= */}
+        <section className="border rounded-xl p-6 space-y-6">
+          <h2 className="text-lg font-semibold">
+            6. Firmas
+          </h2>
+
+          <div>
+            <p className="text-sm font-medium">
+              Firma del técnico
+            </p>
+            <SignatureCanvas
+              ref={sigTecnicoRef}
+              penColor="black"
+              canvasProps={{
+                width: 500,
+                height: 180,
+                className: "w-full border",
+              }}
+              onEnd={() =>
+                saveSignature("tecnico", sigTecnicoRef)
+              }
+            />
+            <button
+              onClick={() =>
+                clearSignature("tecnico", sigTecnicoRef)
+              }
+              className="text-xs mt-1 border px-3 py-1"
+            >
+              Limpiar
+            </button>
+          </div>
+
+          <div>
+            <p className="text-sm font-medium">
+              Firma del cliente
+            </p>
+            <SignatureCanvas
+              ref={sigClienteRef}
+              penColor="black"
+              canvasProps={{
+                width: 500,
+                height: 180,
+                className: "w-full border",
+              }}
+              onEnd={() =>
+                saveSignature("cliente", sigClienteRef)
+              }
+            />
+            <button
+              onClick={() =>
+                clearSignature("cliente", sigClienteRef)
+              }
+              className="text-xs mt-1 border px-3 py-1"
+            >
+              Limpiar
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+export default ServiceReportCreation;
