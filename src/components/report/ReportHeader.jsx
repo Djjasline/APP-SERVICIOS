@@ -1,112 +1,55 @@
-import astapLogo from "@/assets/astap-logo.png";
+import React from "react";
 
 export default function ReportHeader({ data }) {
   return (
-    <div className="border-2 border-black text-xs">
+    <div className="border border-black mb-4">
       {/* FILA SUPERIOR */}
-      <div className="grid grid-cols-[120px_1fr_220px] border-b border-black">
+      <div className="grid grid-cols-12 border-b border-black">
         {/* LOGO */}
-        <div className="flex items-center justify-center border-r border-black p-2">
+        <div className="col-span-3 flex items-center justify-center border-r border-black p-2">
           <img
-            src={astapLogo}
+            src="/astap-logo.jpg"
             alt="ASTAP"
-            className="max-h-16"
+            className="h-16 object-contain"
           />
         </div>
 
-        {/* TÍTULO */}
-        <div className="flex items-center justify-center font-bold text-sm">
-          INFORME TÉCNICO
+        {/* TITULO */}
+        <div className="col-span-6 text-center border-r border-black p-2">
+          <h1 className="font-bold text-base uppercase">
+            Informe General de Servicios
+          </h1>
+          <p className="text-xs">
+            Departamento de Servicio Técnico
+          </p>
         </div>
 
-        {/* VERSIONES */}
-        <div className="border-l border-black">
+        {/* METADATA */}
+        <div className="col-span-3 text-xs">
           <div className="border-b border-black p-1">
-            <strong>Fecha de versión:</strong>{" "}
-            {data?.fechaVersion || "26-11-25"}
+            <strong>Versión:</strong>{" "}
+            {data?.version || "01"}
+          </div>
+          <div className="border-b border-black p-1">
+            <strong>Fecha:</strong>{" "}
+            {data?.fechaVersion || "--"}
           </div>
           <div className="p-1">
-            <strong>Versión:</strong> {data?.version || "01"}
+            <strong>Página:</strong> 1
           </div>
-        </div>
-      </div>
-
-      {/* REFERENCIA */}
-      <div className="grid grid-cols-[200px_1fr] border-b border-black">
-        <div className="border-r border-black p-1 font-semibold">
-          REFERENCIA DE CONTRATO:
-        </div>
-        <div className="p-1">
-          <input
-            className="w-full outline-none"
-            spellCheck
-          />
-        </div>
-      </div>
-
-      {/* DESCRIPCIÓN */}
-      <div className="grid grid-cols-[200px_1fr] border-b border-black">
-        <div className="border-r border-black p-1 font-semibold">
-          DESCRIPCIÓN:
-        </div>
-        <div className="p-1">
-          <input
-            className="w-full outline-none"
-            spellCheck
-          />
-        </div>
-      </div>
-
-      {/* COD INF */}
-      <div className="grid grid-cols-[200px_1fr] border-b border-black">
-        <div className="border-r border-black p-1 font-semibold">
-          Cod. INF.:
-        </div>
-        <div className="p-1">
-          <input className="w-full outline-none" />
         </div>
       </div>
 
       {/* FILA INFERIOR */}
-      <div className="grid grid-cols-[200px_120px_1fr_200px_200px]">
-        {/* FECHA EMISIÓN */}
-        <div className="border-r border-black p-1 font-semibold">
-          FECHA DE EMISIÓN:
+      <div className="grid grid-cols-12">
+        <div className="col-span-3 border-r border-black p-1 text-xs">
+          Código: AST-SRV-001
         </div>
-
-        <div className="flex border-r border-black">
-          {["DD", "MM", "AA"].map((p) => (
-            <div
-              key={p}
-              className="w-1/3 border-r last:border-r-0 border-black text-center"
-            >
-              <input
-                className="w-full text-center outline-none"
-              />
-            </div>
-          ))}
+        <div className="col-span-6 border-r border-black p-1 text-xs text-center">
+          Documento controlado – Uso interno
         </div>
-
-        {/* UBICACIÓN */}
-        <div className="border-r border-black p-1">
-          <strong>UBICACIÓN:</strong>{" "}
-          <input className="outline-none w-full" spellCheck />
-        </div>
-
-        {/* TÉCNICO */}
-        <div className="border-r border-black p-1">
-          <strong>TÉCNICO RESPONSABLE:</strong>{" "}
-          <input className="outline-none w-full" spellCheck />
-        </div>
-
-        {/* CLIENTE */}
-        <div className="p-1">
-          <strong>CLIENTE:</strong>{" "}
-          <input className="outline-none w-full" spellCheck />
-          <div className="mt-1">
-            <strong>RESPONSABLE CLIENTE:</strong>{" "}
-            <input className="outline-none w-full" spellCheck />
-          </div>
+        <div className="col-span-3 p-1 text-xs text-center">
+          ASTAP
         </div>
       </div>
     </div>
