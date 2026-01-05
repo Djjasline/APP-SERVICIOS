@@ -1,21 +1,26 @@
-// vite.config.js (o .mjs)
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import tagger from "@dhiwise/component-tagger";
-
-// 👇 OJO: quitamos esta línea
-// import tsconfigPaths from "vite-tsconfig-paths";
+import path from "path";
 
 export default defineConfig({
-  build: {
-    outDir: "dist",          // sigue bien para Netlify
-    chunkSizeWarningLimit: 2000,
+  plugins: [react()],
+
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+      "@app": path.resolve(__dirname, "src/app"),
+      "@utils": path.resolve(__dirname, "src/utils"),
+      "@components": path.resolve(__dirname, "src/components"),
+    },
   },
-    plugins: [react(), tagger()],
+
+  build: {
+    outDir: "dist",
+    sourcemap: false,
+  },
+
   server: {
-    port: "4028",
-    host: "0.0.0.0",
-    strictPort: true,
-    allowedHosts: [".amazonaws.com", ".builtwithrocket.new"],
+    port: 5173,
+    open: true,
   },
 });
