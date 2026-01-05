@@ -1,4 +1,8 @@
 import React from "react";
+import {
+  FORM_STATE_LABELS,
+  FORM_STATE_STYLES,
+} from "@utils/formStates";
 
 export default function FormLayout({
   title,
@@ -12,8 +16,8 @@ export default function FormLayout({
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-5xl mx-auto space-y-6">
 
-        {/* HEADER */}
-        <div className="bg-white border rounded-xl p-6 space-y-2">
+        {/* ================= HEADER ================= */}
+        <div className="bg-white border rounded-xl p-6 space-y-3">
           <h1 className="text-2xl font-semibold text-slate-900">
             {title}
           </h1>
@@ -24,28 +28,26 @@ export default function FormLayout({
             </p>
           )}
 
-          {/* Estado */}
+          {/* Estado del formulario */}
           <div className="text-xs">
             Estado actual:{" "}
             <span
               className={`px-2 py-0.5 rounded-full font-medium ${
-               import {
-  FORM_STATE_LABELS,
-  FORM_STATE_STYLES
-} from "@utils/formStates";
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
+                FORM_STATE_STYLES[status] ||
+                "bg-gray-100 text-gray-700"
               }`}
             >
-              {status}
+              {FORM_STATE_LABELS[status] || status}
             </span>
           </div>
         </div>
 
-        {/* CONTENIDO */}
-        <div className="space-y-6">{children}</div>
+        {/* ================= CONTENIDO ================= */}
+        <div className="space-y-6">
+          {children}
+        </div>
 
-        {/* ACCIONES */}
+        {/* ================= ACCIONES ================= */}
         <div className="bg-white border rounded-xl p-4 flex justify-end gap-3">
           <button
             type="button"
