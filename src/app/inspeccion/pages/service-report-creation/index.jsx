@@ -1,1166 +1,332 @@
-// src/pages/service-report-creation/index.jsx
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
+import ReportHeader from "@/components/report/ReportHeader";
 
-import Button from "../../components/ui/Button";
-import Icon from "../../components/AppIcon";
-import { useReports } from "../../context/ReportContext";
+/* ============================= */
+/* STORAGE */
+/* ============================= */
+const STORAGE_KEY = "serviceReport_history";
 
-// ======================================================
-//   Sub-componente para un cuadro de firma reutilizable
-// ======================================================
-const SignatureBox = ({ title, subtitle, value, onChange }) => {
-  const sigRef = useRef(null);
-
-  // Cargar firma previa si existe
-  useEffect(() => {
-    if (!sigRef.current) return;
-    sigRef.current.clear();
-    if (value) {
-      try {
-        sigRef.current.fromDataURL(value);
-      } catch (e) {
-        console.error("Error al cargar firma previa:", e);
-      }
-    }
-  }, [value]);
-
-  const handleClear = () => {
-    if (!sigRef.current) return;
-    sigRef.current.clear();
-    onChange(null);
-  };
-
-  const handleEnd = () => {
-    if (!sigRef.current) return;
-    const dataUrl = sigRef.current.getTrimmedCanvas().toDataURL("image/png");
-    onChange(dataUrl);
-  };
-
-  return (
-    <div className="border rounded-xl p-4 space-y-3 bg-slate-50">
-      <div>
-        <h3 className="font-semibold text-sm text-slate-900">{title}</h3>
-        {subtitle && (
-          <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
-        )}
-      </div>
-
-      <div className="border-2 border-dashed rounded-lg bg-white">
-        <SignatureCanvas
-          ref={sigRef}
-          penColor="#111827"
-          onEnd={handleEnd}
-          canvasProps={{
-            className: "w-full h-40 md:h-48 cursor-crosshair",
-          }}
-        />
-      </div>
-
-      <div className="flex items-center justify-between text-[11px] text-slate-500">
-        <button
-          type="button"
-          onClick={handleClear}
-          className="inline-flex items-center gap-1 text-xs text-slate-600 hover:text-slate-900"
-        >
-          <Icon name="RotateCcw" size={12} />
-          Limpiar
-        </button>
-        <span>Use mouse o toque para firmar</span>
-      </div>
-    </div>
-  );
-};
-
-// =====================
-//  Objetos base
-// =====================
-const emptyGeneralInfo = {
-  client: "",
-  clientContact: "",
-  clientEmail: "",
-  clientRole: "",
-  serviceDate: "",
-  internalCode: "",
-  address: "",
-  reference: "",
-  technicalPersonnel: "",
-  technicianPhone: "",
-  technicianEmail: "",
-};
-
-const emptyTestingRow = {
-  parameter: "",
-  value: "",
-};
-
-const emptyActivitiesIncidents = {
-  activities: [
-    {
-      title: "",
-      detail: "",
-      imageData: null,
-    },
-  ],
-  incidentsDescription: "",
-};
-
-const emptyEquipment = {
-  unit: "",
-  brand: "",
-  model: "",
-  serial: "",
-  plate: "",
-  mileageKm: "",
-  lifeHours: "",
-  manufactureYear: "",
-  vin: "",
-};
-
-// =====================
-//  Componente principal
-// =====================
-const ServiceReportCreation = () => {
+/* ============================= */
+/* COMPONENTE */
+/* ============================= */
+export default function ServiceReportCreation() {
   const navigate = useNavigate();
-  const { currentReport, saveDraft, setCurrentReport } = useReports
-    ? useReports()
-    : { currentReport: null, saveDraft: () => {}, setCurrentReport: () => {} };
 
-  const [generalInfo, setGeneralInfo] = useState(emptyGeneralInfo);
-  const [beforeTesting, setBeforeTesting] = useState([emptyTestingRow]);
-  const [afterTesting, setAfterTesting] = useState([emptyTestingRow]);
-  const [activitiesIncidents, setActivitiesIncidents] = useState(
-    emptyActivitiesIncidents
-  );
-  const [equipment, setEquipment] = useState(emptyEquipment);
-  const [selectedActivityIndex, setSelectedActivityIndex] = useState(0);
+  /* ============================= */
+  /* HEADER CONFIG */
+  /* ============================= */
+  const headerConfig = {
+    titulo: "Informe General de Servicios",
+    codigo: "AST-SRV-001",
+    version: "01",
+    fecha: new Date().toISOString().slice(0, 10),
+  };
 
-  // Firmas digitales del reporte
-  const [digitalSignatures, setDigitalSignatures] = useState({
-    astap: null,
-    client: null,
-  });
+  /* ============================= */
+  /* MODELO BASE */
+  /* ============================= */
+  const emptyReport = {
+    id: crypto.randomUUID(),
+    estado: "borrador",
+    fechaCreacion: new Date().toISOString(),
+    cliente: {
+      cliente: "",
+      direccion: "",
+      contacto: "",
+      telefono: "",
+      correo: "",
+      fechaServicio: "",
+    },
+    equipo: {
+      tipo: "",
+      marca: "",
+      modelo: "",
+      serie: "",
+      placa: "",
+      anio: "",
+      kilometraje: "",
+      horas: "",
+      vin: "",
+    },
+    actividades: [
+      { item: "1", titulo: "", detalle: "", imagen: null },
+    ],
+    conclusiones: "",
+    firmas: {
+      tecnico: null,
+      cliente: null,
+    },
+  };
 
-  const fileInputRef = useRef(null);
+  const [history, setHistory] = useState([]);
+  const [report, setReport] = useState(emptyReport);
 
-  // =====================
-  // Cargar borrador si existe
-  // =====================
+  const sigTecnicoRef = useRef(null);
+  const sigClienteRef = useRef(null);
+
+  /* ============================= */
+  /* LOAD HISTORIAL */
+  /* ============================= */
   useEffect(() => {
-    if (!currentReport) return;
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) setHistory(JSON.parse(saved));
+  }, []);
 
-    const r = currentReport;
-
-    setGeneralInfo({ ...emptyGeneralInfo, ...(r.generalInfo || {}) });
-
-    setBeforeTesting(
-      r.beforeTesting && r.beforeTesting.length > 0
-        ? r.beforeTesting
-        : [emptyTestingRow]
-    );
-
-    setAfterTesting(
-      r.afterTesting && r.afterTesting.length > 0
-        ? r.afterTesting
-        : [emptyTestingRow]
-    );
-
-    const existingActivities = r.activitiesIncidents || {};
-    setActivitiesIncidents({
-      activities:
-        existingActivities.activities &&
-        existingActivities.activities.length > 0
-          ? existingActivities.activities.map((a) => ({
-              title: a.title || "",
-              detail: a.detail || "",
-              imageData: a.imageData || null,
-            }))
-          : emptyActivitiesIncidents.activities,
-      incidentsDescription: existingActivities.incidentsDescription || "",
-    });
-
-    setEquipment({
-      ...emptyEquipment,
-      ...(r.equipment || {}),
-    });
-
-    setDigitalSignatures(
-      r.digitalSignatures || {
-        astap: null,
-        client: null,
-      }
-    );
-  }, [currentReport]);
-
-  // =====================
-  // Handlers generales
-  // =====================
-
-  const handleGeneralChange = (field, value) => {
-    setGeneralInfo((prev) => ({ ...prev, [field]: value }));
+  /* ============================= */
+  /* SAVE HISTORIAL */
+  /* ============================= */
+  const saveToHistory = (estado) => {
+    const updated = { ...report, estado };
+    const next = [
+      updated,
+      ...history.filter((r) => r.id !== updated.id),
+    ];
+    setHistory(next);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    setReport(updated);
   };
 
-  const handleBeforeChange = (index, field, value) => {
-    setBeforeTesting((prev) =>
-      prev.map((row, i) => (i === index ? { ...row, [field]: value } : row))
-    );
+  /* ============================= */
+  /* HELPERS */
+  /* ============================= */
+  const updateField = (section, field, value) => {
+    setReport((p) => ({
+      ...p,
+      [section]: { ...p[section], [field]: value },
+    }));
   };
 
-  const handleAfterChange = (index, field, value) => {
-    setAfterTesting((prev) =>
-      prev.map((row, i) => (i === index ? { ...row, [field]: value } : row))
-    );
+  const updateActividad = (i, field, value) => {
+    const next = [...report.actividades];
+    next[i][field] = value;
+    setReport((p) => ({ ...p, actividades: next }));
   };
 
-  const handleActivitiesChange = (field, value) => {
-    setActivitiesIncidents((prev) => ({ ...prev, [field]: value }));
+  const addActividad = () => {
+    setReport((p) => ({
+      ...p,
+      actividades: [
+        ...p.actividades,
+        {
+          item: `${p.actividades.length + 1}`,
+          titulo: "",
+          detalle: "",
+          imagen: null,
+        },
+      ],
+    }));
   };
 
-  const handleActivityRowChange = (index, field, value) => {
-    setActivitiesIncidents((prev) => {
-      const list = prev.activities || [];
-      const updated = list.map((act, i) =>
-        i === index ? { ...act, [field]: value } : act
-      );
-      return { ...prev, activities: updated };
-    });
-  };
-
-  const handleActivityImageUpload = (index, file) => {
-    if (!file) return;
+  const handleImage = (i, file) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target.result;
-      setActivitiesIncidents((prev) => {
-        const list = prev.activities || [];
-        const updated = list.map((act, i) =>
-          i === index ? { ...act, imageData: dataUrl } : act
-        );
-        return { ...prev, activities: updated };
-      });
+    reader.onload = () => {
+      updateActividad(i, "imagen", reader.result);
     };
     reader.readAsDataURL(file);
   };
 
-  const addActivityRow = () => {
-    setActivitiesIncidents((prev) => ({
-      ...prev,
-      activities: [
-        ...(prev.activities || []),
-        {
-          title: "",
-          detail: "",
-          imageData: null,
-        },
-      ],
-    }));
-    setSelectedActivityIndex((prev) => prev + 1);
-  };
-
-  const removeActivityRow = (index) => {
-    setActivitiesIncidents((prev) => {
-      const list = prev.activities || [];
-      if (list.length === 1) return prev;
-      const updated = list.filter((_, i) => i !== index);
-      return { ...prev, activities: updated };
-    });
-
-    setSelectedActivityIndex((prev) => (prev > 0 ? prev - 1 : 0));
-  };
-
-  const handleEquipmentChange = (field, value) => {
-    setEquipment((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const addBeforeRow = () =>
-    setBeforeTesting((prev) => [...prev, { ...emptyTestingRow }]);
-
-  const removeBeforeRow = (index) =>
-    setBeforeTesting((prev) =>
-      prev.length === 1 ? prev : prev.filter((_, i) => i !== index)
-    );
-
-  const addAfterRow = () =>
-    setAfterTesting((prev) => [...prev, { ...emptyTestingRow }]);
-
-  const removeAfterRow = (index) =>
-    setAfterTesting((prev) =>
-      prev.length === 1 ? prev : prev.filter((_, i) => i !== index)
-    );
-
-  const handleSignatureChange = (who, dataUrl) => {
-    setDigitalSignatures((prev) => ({
-      ...prev,
-      [who]: dataUrl,
+  const saveSignature = (tipo, ref) => {
+    if (!ref.current) return;
+    setReport((p) => ({
+      ...p,
+      firmas: {
+        ...p.firmas,
+        [tipo]: ref.current
+          .getTrimmedCanvas()
+          .toDataURL("image/png"),
+      },
     }));
   };
 
-  // =====================
-  // Construir objeto reporte
-  // =====================
-  const buildReportObject = () => {
-    const cleanedBefore = beforeTesting.filter(
-      (r) => r.parameter.trim() !== "" || r.value.trim() !== ""
-    );
-    const cleanedAfter = afterTesting.filter(
-      (r) => r.parameter.trim() !== "" || r.value.trim() !== ""
-    );
-    const cleanedActivities = (activitiesIncidents.activities || []).filter(
-      (a) =>
-        (a.title && a.title.trim() !== "") ||
-        (a.detail && a.detail.trim() !== "") ||
-        a.imageData
-    );
+  /* ============================= */
+  /* PDF REAL */
+  /* ============================= */
+  const generarPDF = async () => {
+    const element = document.getElementById("pdf-content");
+    const html2pdf = (await import("html2pdf.js")).default;
 
-    return {
-      id: currentReport?.id || Date.now().toString(),
-      status: currentReport?.status || "draft",
-      generalInfo,
-      beforeTesting: cleanedBefore,
-      afterTesting: cleanedAfter,
-      activitiesIncidents: {
-        ...activitiesIncidents,
-        activities: cleanedActivities,
-      },
-      equipment,
-      digitalSignatures: {
-        astap: digitalSignatures.astap || null,
-        client: digitalSignatures.client || null,
-      },
-      createdAt: currentReport?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    html2pdf().set({
+      margin: 0,
+      filename: `Informe_${report.id}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: "mm", format: "a4" },
+    }).from(element).save();
   };
 
-  // =====================
-  // Acciones de botones
-  // =====================
-  const handleSaveDraft = () => {
-    const report = buildReportObject();
-    try {
-      saveDraft && saveDraft(report);
-      setCurrentReport && setCurrentReport(report);
-      alert("Borrador guardado correctamente.");
-    } catch (e) {
-      console.error(e);
-      alert("Error al guardar el borrador.");
-    }
-  };
-
-  // Ir directo a vista previa PDF
-  const handleNextToPreview = () => {
-    const report = buildReportObject();
-    setCurrentReport && setCurrentReport(report);
-    navigate("/pdf-report-preview");
-  };
-
-  const handleBack = () => {
-    navigate("/");
-  };
-
-  const handleGoToList = () => {
-    navigate("/report-history-management");
-  };
-
-  // =====================
-  // Datos derivados de actividades
-  // =====================
-  const activitiesList = activitiesIncidents.activities || [];
-  const safeIndex =
-    activitiesList.length > 0
-      ? Math.min(selectedActivityIndex, activitiesList.length - 1)
-      : 0;
-  const actividadLabel = `Actividad ${safeIndex + 1}`;
-  const selectedActivity = activitiesList[safeIndex] || {};
-
-  // =====================
-  // Render
-  // =====================
-
+  /* ============================= */
+  /* RENDER */
+  /* ============================= */
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-6">
-      <div className="max-w-5xl mx-auto space-y-6">
-        {/* Encabezado superior */}
-        <header className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-slate-900">
-              Crear Reporte de Servicio
-            </h1>
-            <p className="text-sm text-slate-600">
-              Complete la información general, las pruebas realizadas, las
-              actividades, los datos del equipo y las firmas digitales antes de
-              generar el PDF.
-            </p>
-          </div>
-        </header>
+    <div className="min-h-screen bg-slate-100 p-4 space-y-4">
 
-        {/* 1. Información general del servicio */}
-        <section className="bg-white rounded-xl shadow border p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-slate-900">
-            1. Información general del servicio
-          </h2>
-          <p className="text-xs text-slate-500">
-            Datos del cliente, contacto, servicio y técnico responsable.
-          </p>
-
-          <div className="space-y-4">
-            {/* Cliente */}
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
-                Cliente (empresa) *
-              </label>
-              <input
-                type="text"
-                value={generalInfo.client}
-                onChange={(e) =>
-                  handleGeneralChange("client", e.target.value)
-                }
-                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                placeholder="Nombre de la empresa cliente"
-              />
-            </div>
-
-            {/* Contacto + cargo del cliente */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">
-                  Contacto del cliente
-                </label>
-                <input
-                  type="text"
-                  value={generalInfo.clientContact}
-                  onChange={(e) =>
-                    handleGeneralChange("clientContact", e.target.value)
-                  }
-                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                  placeholder="Nombre de la persona de contacto"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">
-                  Cargo del cliente
-                </label>
-                <input
-                  type="text"
-                  value={generalInfo.clientRole}
-                  onChange={(e) =>
-                    handleGeneralChange("clientRole", e.target.value)
-                  }
-                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                  placeholder="Cargo o rol de la persona de contacto"
-                />
-              </div>
-            </div>
-
-            {/* Correo del cliente */}
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
-                Correo del cliente
-              </label>
-              <input
-                type="email"
-                value={generalInfo.clientEmail}
-                onChange={(e) =>
-                  handleGeneralChange("clientEmail", e.target.value)
-                }
-                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                placeholder="correo@cliente.com"
-              />
-            </div>
-
-            {/* Fecha de servicio + Código interno */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">
-                  Fecha de servicio
-                </label>
-                <input
-                  type="date"
-                  value={generalInfo.serviceDate}
-                  onChange={(e) =>
-                    handleGeneralChange("serviceDate", e.target.value)
-                  }
-                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">
-                  Código interno
-                </label>
-                <input
-                  type="text"
-                  value={generalInfo.internalCode}
-                  onChange={(e) =>
-                    handleGeneralChange("internalCode", e.target.value)
-                  }
-                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                  placeholder="Identificador interno del servicio"
-                />
-              </div>
-            </div>
-
-            {/* Dirección + referencia */}
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
-                Dirección
-              </label>
-              <input
-                type="text"
-                value={generalInfo.address}
-                onChange={(e) =>
-                  handleGeneralChange("address", e.target.value)
-                }
-                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                placeholder="Dirección donde se realiza el servicio"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
-                Referencia
-              </label>
-              <textarea
-                rows={2}
-                value={generalInfo.reference}
-                onChange={(e) =>
-                  handleGeneralChange("reference", e.target.value)
-                }
-                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20 resize-y"
-                placeholder="Puntos de referencia para llegar al sitio"
-              />
-            </div>
-
-            {/* Datos del técnico */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">
-                  Técnico responsable
-                </label>
-                <input
-                  type="text"
-                  value={generalInfo.technicalPersonnel}
-                  onChange={(e) =>
-                    handleGeneralChange(
-                      "technicalPersonnel",
-                      e.target.value
-                    )
-                  }
-                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                  placeholder="Nombre del técnico ASTAP"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">
-                  Teléfono del técnico
-                </label>
-                <input
-                  type="tel"
-                  value={generalInfo.technicianPhone}
-                  onChange={(e) =>
-                    handleGeneralChange(
-                      "technicianPhone",
-                      e.target.value
-                    )
-                  }
-                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                  placeholder="+593 ..."
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">
-                  Correo del técnico
-                </label>
-                <input
-                  type="email"
-                  value={generalInfo.technicianEmail}
-                  onChange={(e) =>
-                    handleGeneralChange(
-                      "technicianEmail",
-                      e.target.value
-                    )
-                  }
-                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                  placeholder="tecnico@astap.com"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 2. Pruebas antes del servicio */}
-        <section className="bg-white rounded-xl shadow border p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900">
-                2. Pruebas antes del servicio
-              </h2>
-              <p className="text-xs text-slate-500">
-                Registre los parámetros medidos antes de iniciar el servicio.
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              iconName="Plus"
-              onClick={addBeforeRow}
+      {/* HISTORIAL */}
+      <div className="bg-white border p-3 text-sm">
+        <strong>Historial de informes</strong>
+        <ul className="mt-2 space-y-1">
+          {history.map((h) => (
+            <li
+              key={h.id}
+              className="flex justify-between cursor-pointer hover:bg-slate-100 p-1"
+              onClick={() => setReport(h)}
             >
-              Agregar fila
-            </Button>
-          </div>
+              <span>{h.cliente.cliente || "Sin cliente"}</span>
+              <span className="text-xs">{h.estado}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-          <div className="border rounded-lg overflow-hidden">
-            <div className="grid grid-cols-12 bg-slate-100 border-b text-xs font-semibold text-slate-700">
-              <div className="col-span-2 flex items-center justify-center border-r py-2">
-                Ítem
-              </div>
-              <div className="col-span-5 flex items-center justify-center border-r py-2">
-                Parámetro
-              </div>
-              <div className="col-span-5 flex items-center justify-center py-2">
-                Valor
-              </div>
-            </div>
+      {/* DOCUMENTO */}
+      <div
+        id="pdf-content"
+        className="max-w-6xl mx-auto bg-white p-4 space-y-6 text-sm"
+      >
+        <ReportHeader {...headerConfig} />
 
-            {beforeTesting.map((row, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-12 border-b last:border-b-0 bg-white"
-              >
-                <div className="col-span-2 flex items-center justify-center border-r text-xs text-slate-700">
-                  {index + 1}
-                </div>
-                <div className="col-span-5 border-r p-2">
-                  <input
-                    type="text"
-                    value={row.parameter}
-                    onChange={(e) =>
-                      handleBeforeChange(
-                        index,
-                        "parameter",
-                        e.target.value
-                      )
-                    }
-                    className="border rounded-md px-2 py-1 text-xs w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                    placeholder="Parámetro medido"
-                  />
-                </div>
-                <div className="col-span-5 p-2 flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={row.value}
-                    onChange={(e) =>
-                      handleBeforeChange(index, "value", e.target.value)
-                    }
-                    className="border rounded-md px-2 py-1 text-xs w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                    placeholder="Valor medido"
-                  />
-                  {beforeTesting.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeBeforeRow(index)}
-                      className="text-[10px] text-red-500 hover:text-red-700 inline-flex items-center"
-                    >
-                      <Icon name="Trash2" size={12} className="mr-1" />
-                      Quitar
-                    </button>
-                  )}
-                </div>
+        {/* DATOS CLIENTE */}
+        <div className="border border-black">
+          {Object.entries(report.cliente).map(([k, v]) => (
+            <div key={k} className="grid grid-cols-6 border-b border-black">
+              <div className="col-span-1 p-2 font-semibold border-r border-black">
+                {k}
               </div>
-            ))}
-          </div>
-        </section>
-
-        {/* 3. Actividades */}
-        <section className="bg-white rounded-xl shadow border p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900">
-                3. Actividades
-              </h2>
-              <p className="text-xs text-slate-500">
-                Registre cada actividad realizada. Puede agregar tantas
-                como sea necesario.
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              iconName="Plus"
-              onClick={addActivityRow}
-            >
-              Agregar actividad
-            </Button>
-          </div>
-
-          {/* Tabla de actividades */}
-          <div className="border rounded-lg overflow-hidden">
-            <div className="grid grid-cols-12 bg-slate-100 border-b text-xs font-semibold text-slate-700">
-              <div className="col-span-2 flex items-center justify-center border-r py-2">
-                Artículo
-              </div>
-              <div className="col-span-10 flex items-center justify-center py-2">
-                Descripción de actividades
+              <div className="col-span-5 p-1">
+                <input
+                  className="w-full outline-none"
+                  value={v}
+                  onChange={(e) =>
+                    updateField("cliente", k, e.target.value)
+                  }
+                />
               </div>
             </div>
+          ))}
+        </div>
 
-            {activitiesList.map((act, index) => (
-              <div
-                key={index}
-                onClick={() => setSelectedActivityIndex(index)}
-                className={
-                  "cursor-pointer transition-colors " +
-                  (index === safeIndex ? "bg-slate-50" : "bg-white")
-                }
-              >
-                {/* fila título */}
-                <div className="grid grid-cols-12 border-b">
-                  <div className="col-span-2 flex items-center justify-center border-r text-xs font-medium text-slate-700">
-                    {index + 1}
-                  </div>
-                  <div className="col-span-10 p-3 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-medium text-slate-700">
-                        Título de actividad
-                      </label>
-                      {activitiesList.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeActivityRow(index);
-                          }}
-                          className="inline-flex items-center text-[10px] text-red-500 hover:text-red-700"
-                        >
-                          <Icon name="Trash2" size={12} className="mr-1" />
-                          Eliminar
-                        </button>
-                      )}
-                    </div>
-                    <input
-                      type="text"
-                      value={act.title}
-                      onChange={(e) =>
-                        handleActivityRowChange(
-                          index,
-                          "title",
-                          e.target.value
-                        )
-                      }
-                      className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                      placeholder="Título de la actividad"
-                    />
-                  </div>
-                </div>
+        {/* ACTIVIDADES */}
+        <div className="border border-black">
+          <div className="grid grid-cols-12 font-semibold border-b border-black">
+            <div className="col-span-1 p-2 border-r">Ítem</div>
+            <div className="col-span-5 p-2 border-r">Actividad</div>
+            <div className="col-span-6 p-2">Imagen</div>
+          </div>
 
-                {/* fila detalle */}
-                <div className="grid grid-cols-12 border-b last:border-b-0">
-                  <div className="col-span-2 flex items-start justify-center border-r text-xs text-slate-700 pt-3">
-                    {`${index + 1}.1`}
-                  </div>
-                  <div className="col-span-10 p-3 space-y-1">
-                    <label className="text-xs font-medium text-slate-700">
-                      Detalle de la actividad
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={act.detail}
-                      onChange={(e) =>
-                        handleActivityRowChange(
-                          index,
-                          "detail",
-                          e.target.value
-                        )
-                      }
-                      className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20 resize-y"
-                      placeholder="Describa el detalle de la actividad (pasos, ajustes realizados, observaciones, etc.)."
-                    />
-                  </div>
-                </div>
+          {report.actividades.map((a, i) => (
+            <div key={i} className="grid grid-cols-12 border-b border-black">
+              <div className="col-span-1 p-2 border-r">{a.item}</div>
+
+              <div className="col-span-5 p-2 border-r">
+                <input
+                  className="w-full font-semibold outline-none"
+                  placeholder="Título"
+                  value={a.titulo}
+                  onChange={(e) =>
+                    updateActividad(i, "titulo", e.target.value)
+                  }
+                />
+                <textarea
+                  className="w-full outline-none mt-1"
+                  rows={3}
+                  placeholder="Detalle"
+                  value={a.detalle}
+                  onChange={(e) =>
+                    updateActividad(i, "detalle", e.target.value)
+                  }
+                />
               </div>
-            ))}
-          </div>
 
-          {/* Incidentes (opcional) */}
-          <div className="space-y-2 pt-4">
-            <label className="text-xs font-medium text-slate-700">
-              Incidentes
-            </label>
-            <textarea
-              rows={3}
-              value={activitiesIncidents.incidentsDescription}
-              onChange={(e) =>
-                handleActivitiesChange(
-                  "incidentsDescription",
-                  e.target.value
-                )
-              }
-              className="border rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-900/20 resize-y"
-              placeholder="Registra cualquier incidente relevante (si no hubo, puede dejarlo en blanco)."
-            />
-          </div>
-
-          {/* Cuadro de imagen + botón (actividad seleccionada) */}
-          <div className="mt-4 flex justify-end">
-            <div className="w-64 border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 flex flex-col items-center justify-start px-3 py-3 text-center">
-              <span className="text-sm font-semibold text-slate-700 mb-1">
-                Imagen de {actividadLabel}
-              </span>
-              <p className="text-[11px] text-slate-500 mb-2">
-                Esta imagen corresponde a la {actividadLabel} seleccionada en la
-                tabla.
-              </p>
-
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="px-3 py-1 text-[11px] rounded-md border border-slate-300 hover:bg-slate-100 inline-flex items-center"
-              >
-                <Icon name="Camera" size={12} className="mr-1" />
-                Tomar foto / Agregar imagen
-              </button>
-
-              {selectedActivity.imageData && (
-                <div className="mt-2 w-full">
+              <div className="col-span-6 p-2 text-center">
+                {a.imagen ? (
                   <img
-                    src={selectedActivity.imageData}
-                    alt={`Imagen de ${actividadLabel}`}
-                    className="w-full h-28 object-contain border rounded-md bg-white"
+                    src={a.imagen}
+                    alt="actividad"
+                    className="max-h-40 mx-auto"
                   />
-                  <p className="mt-1 text-[10px] text-emerald-700">
-                    Imagen guardada para esta actividad.
-                  </p>
-                </div>
-              )}
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    handleActivityImageUpload(safeIndex, file);
-                    e.target.value = "";
-                  }
-                }}
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* 4. Pruebas después del servicio */}
-        <section className="bg-white rounded-xl shadow border p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900">
-                4. Pruebas después del servicio
-              </h2>
-              <p className="text-xs text-slate-500">
-                Registre los parámetros medidos una vez finalizado el servicio.
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              iconName="Plus"
-              onClick={addAfterRow}
-            >
-              Agregar fila
-            </Button>
-          </div>
-
-          <div className="border rounded-lg overflow-hidden">
-            <div className="grid grid-cols-12 bg-slate-100 border-b text-xs font-semibold text-slate-700">
-              <div className="col-span-2 flex items-center justify-center border-r py-2">
-                Ítem
-              </div>
-              <div className="col-span-5 flex items-center justify-center border-r py-2">
-                Parámetro
-              </div>
-              <div className="col-span-5 flex items-center justify-center py-2">
-                Valor
-              </div>
-            </div>
-
-            {afterTesting.map((row, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-12 border-b last:border-b-0 bg-white"
-              >
-                <div className="col-span-2 flex items-center justify-center border-r text-xs text-slate-700">
-                  {index + 1}
-                </div>
-                <div className="col-span-5 border-r p-2">
+                ) : (
                   <input
-                    type="text"
-                    value={row.parameter}
+                    type="file"
+                    accept="image/*"
                     onChange={(e) =>
-                      handleAfterChange(
-                        index,
-                        "parameter",
-                        e.target.value
-                      )
+                      handleImage(i, e.target.files[0])
                     }
-                    className="border rounded-md px-2 py-1 text-xs w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                    placeholder="Parámetro medido"
                   />
-                </div>
-                <div className="col-span-5 p-2 flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={row.value}
-                    onChange={(e) =>
-                      handleAfterChange(index, "value", e.target.value)
-                    }
-                    className="border rounded-md px-2 py-1 text-xs w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                    placeholder="Valor medido"
-                  />
-                  {afterTesting.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeAfterRow(index)}
-                      className="text-[10px] text-red-500 hover:text-red-700 inline-flex items-center"
-                    >
-                      <Icon name="Trash2" size={12} className="mr-1" />
-                      Quitar
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* 5. Datos del equipo */}
-        <section className="bg-white rounded-xl shadow border p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-slate-900">
-            5. Datos del equipo
-          </h2>
-          <p className="text-xs text-slate-500">
-            Información del equipo intervenido y sus datos principales.
-          </p>
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
-                Equipo / Unidad
-              </label>
-              <input
-                type="text"
-                value={equipment.unit}
-                onChange={(e) =>
-                  handleEquipmentChange("unit", e.target.value)
-                }
-                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                placeholder="Descripción del equipo o unidad"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">
-                  Marca
-                </label>
-                <input
-                  type="text"
-                  value={equipment.brand}
-                  onChange={(e) =>
-                    handleEquipmentChange("brand", e.target.value)
-                  }
-                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">
-                  Modelo
-                </label>
-                <input
-                  type="text"
-                  value={equipment.model}
-                  onChange={(e) =>
-                    handleEquipmentChange("model", e.target.value)
-                  }
-                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">
-                  Serie
-                </label>
-                <input
-                  type="text"
-                  value={equipment.serial}
-                  onChange={(e) =>
-                    handleEquipmentChange("serial", e.target.value)
-                  }
-                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                />
+                )}
               </div>
             </div>
+          ))}
 
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
-                Placa / Código interno
-              </label>
-              <input
-                type="text"
-                value={equipment.plate}
-                onChange={(e) =>
-                  handleEquipmentChange("plate", e.target.value)
-                }
-                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">
-                  Recorrido (km)
-                </label>
-                <input
-                  type="number"
-                  value={equipment.mileageKm}
-                  onChange={(e) =>
-                    handleEquipmentChange("mileageKm", e.target.value)
-                  }
-                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">
-                  Tiempo de vida útil (horas)
-                </label>
-                <input
-                  type="number"
-                  value={equipment.lifeHours}
-                  onChange={(e) =>
-                    handleEquipmentChange("lifeHours", e.target.value)
-                  }
-                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-slate-700">
-                  Año de fabricación
-                </label>
-                <input
-                  type="number"
-                  value={equipment.manufactureYear}
-                  onChange={(e) =>
-                    handleEquipmentChange(
-                      "manufactureYear",
-                      e.target.value
-                    )
-                  }
-                  className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-700">
-                VIN
-              </label>
-              <input
-                type="text"
-                value={equipment.vin}
-                onChange={(e) =>
-                  handleEquipmentChange("vin", e.target.value)
-                }
-                className="border rounded-md px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-slate-900/20"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* 6. Firmas digitales del reporte */}
-        <section className="bg-white rounded-xl shadow border p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900">
-                6. Firmas digitales del reporte
-              </h2>
-              <p className="text-xs text-slate-500">
-                Capture la firma del técnico ASTAP y del responsable del cliente
-                para validar el reporte de servicio.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <SignatureBox
-              title="Firma técnico ASTAP"
-              subtitle={generalInfo.technicalPersonnel || "Técnico ASTAP"}
-              value={digitalSignatures.astap}
-              onChange={(dataUrl) =>
-                handleSignatureChange("astap", dataUrl)
-              }
-            />
-
-            <SignatureBox
-              title="Firma responsable del cliente"
-              subtitle={
-                generalInfo.clientContact ||
-                "Nombre del responsable del cliente"
-              }
-              value={digitalSignatures.client}
-              onChange={(dataUrl) =>
-                handleSignatureChange("client", dataUrl)
-              }
-            />
-          </div>
-        </section>
-
-        {/* Barra inferior de acciones */}
-        <section className="flex flex-col md:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              iconName="ArrowLeft"
-              onClick={handleBack}
-            >
-              Volver
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              iconName="List"
-              onClick={handleGoToList}
-            >
-              Ver listado de informes
-            </Button>
-
-            <button
-              type="button"
-              onClick={handleSaveDraft}
-              className="inline-flex items-center text-xs text-slate-600 hover:text-slate-900"
-            >
-              <Icon name="Save" size={14} className="mr-1" />
-              Guardar borrador
-            </button>
-          </div>
-
-          <Button
-            size="sm"
-            iconName="ArrowRight"
-            iconPosition="right"
-            onClick={handleNextToPreview}
+          <button
+            onClick={addActividad}
+            className="m-2 px-3 py-1 border"
           >
-            Continuar a vista previa PDF
-          </Button>
-        </section>
+            + Agregar actividad
+          </button>
+        </div>
+
+        {/* CONCLUSIONES */}
+        <div className="border border-black p-2">
+          <strong>Conclusiones</strong>
+          <textarea
+            className="w-full outline-none"
+            rows={4}
+            value={report.conclusiones}
+            onChange={(e) =>
+              setReport((p) => ({
+                ...p,
+                conclusiones: e.target.value,
+              }))
+            }
+          />
+        </div>
+
+        {/* FIRMAS */}
+        <div className="border border-black p-4 grid grid-cols-2 gap-6">
+          <div>
+            <SignatureCanvas
+              ref={sigTecnicoRef}
+              canvasProps={{ className: "border-b w-full h-32" }}
+              onEnd={() =>
+                saveSignature("tecnico", sigTecnicoRef)
+              }
+            />
+            <p className="text-center mt-2">Firma técnico</p>
+          </div>
+
+          <div>
+            <SignatureCanvas
+              ref={sigClienteRef}
+              canvasProps={{ className: "border-b w-full h-32" }}
+              onEnd={() =>
+                saveSignature("cliente", sigClienteRef)
+              }
+            />
+            <p className="text-center mt-2">Firma cliente</p>
+          </div>
+        </div>
+      </div>
+
+      {/* BOTONES */}
+      <div className="flex justify-end gap-3">
+        <button onClick={() => navigate("/")}>Volver</button>
+        <button onClick={() => saveToHistory("borrador")}>
+          Guardar
+        </button>
+        <button
+          className="bg-green-600 text-white px-3"
+          onClick={() => saveToHistory("finalizado")}
+        >
+          Finalizar
+        </button>
+        <button
+          className="bg-blue-600 text-white px-3"
+          onClick={generarPDF}
+        >
+          PDF
+        </button>
       </div>
     </div>
   );
-};
-
-export default ServiceReportCreation;
+}
