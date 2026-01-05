@@ -196,6 +196,61 @@ export default function ServiceReportCreation() {
         <button onClick={addActividad} className="mt-4 px-4 py-2 border rounded">
           + AGREGAR ACTIVIDAD
         </button>
+{/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
+<table className="w-full border border-black mt-6 text-sm">
+  <thead>
+    <tr>
+      <th className="border border-black p-2 text-center font-bold">
+        CONCLUSIONES
+      </th>
+      <th className="border border-black p-2 text-center font-bold">
+        RECOMENDACIONES
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {[0, 1, 2].map((i) => (
+      <tr key={i}>
+        {/* CONCLUSIONES */}
+        <td className="border border-black p-2 align-top">
+          <div className="flex gap-2">
+            <span className="font-bold">{i + 1}.</span>
+            <textarea
+              rows={3}
+              className="w-full uppercase outline-none resize-none"
+              placeholder="CONCLUSIÓN"
+              value={form.conclusiones[i]}
+              onChange={(e) => {
+                const updated = [...form.conclusiones];
+                updated[i] = e.target.value.toUpperCase();
+                setForm((p) => ({ ...p, conclusiones: updated }));
+              }}
+            />
+          </div>
+        </td>
+
+        {/* RECOMENDACIONES */}
+        <td className="border border-black p-2 align-top">
+          <div className="flex gap-2">
+            <span className="font-bold">{i + 1}.</span>
+            <textarea
+              rows={3}
+              className="w-full uppercase outline-none resize-none"
+              placeholder="RECOMENDACIÓN"
+              value={form.recomendaciones[i]}
+              onChange={(e) => {
+                const updated = [...form.recomendaciones];
+                updated[i] = e.target.value.toUpperCase();
+                setForm((p) => ({ ...p, recomendaciones: updated }));
+              }}
+            />
+          </div>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
 
         {/* ================= FIRMAS ================= */}
         <div className="grid grid-cols-2 gap-6 mt-8 p-4">
