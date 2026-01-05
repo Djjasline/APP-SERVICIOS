@@ -1,9 +1,15 @@
 import React from "react";
 
 export default function ClientDataSection({ data, onChange }) {
+  const textProps = {
+    spellCheck: true,
+    autoCorrect: "on",
+    autoCapitalize: "sentences",
+  };
+
   return (
     <section className="bg-white border rounded-xl p-6 space-y-4">
-      {/* ================= HEADER ================= */}
+      {/* HEADER */}
       <div>
         <h2 className="text-lg font-semibold text-slate-900">
           Datos del cliente
@@ -13,9 +19,10 @@ export default function ClientDataSection({ data, onChange }) {
         </p>
       </div>
 
-      {/* ================= FORM ================= */}
+      {/* FORM */}
       <div className="grid md:grid-cols-2 gap-4">
         <input
+          {...textProps}
           name="cliente"
           value={data.cliente || ""}
           onChange={onChange}
@@ -24,6 +31,7 @@ export default function ClientDataSection({ data, onChange }) {
         />
 
         <input
+          {...textProps}
           name="cargo"
           value={data.cargo || ""}
           onChange={onChange}
@@ -32,6 +40,7 @@ export default function ClientDataSection({ data, onChange }) {
         />
 
         <input
+          {...textProps}
           name="contacto"
           value={data.contacto || ""}
           onChange={onChange}
@@ -40,6 +49,7 @@ export default function ClientDataSection({ data, onChange }) {
         />
 
         <input
+          {...textProps}
           name="telefono"
           value={data.telefono || ""}
           onChange={onChange}
@@ -48,8 +58,9 @@ export default function ClientDataSection({ data, onChange }) {
         />
 
         <input
-          name="correo"
+          {...textProps}
           type="email"
+          name="correo"
           value={data.correo || ""}
           onChange={onChange}
           placeholder="Correo electrónico"
@@ -57,6 +68,7 @@ export default function ClientDataSection({ data, onChange }) {
         />
 
         <input
+          {...textProps}
           name="ubicacion"
           value={data.ubicacion || ""}
           onChange={onChange}
@@ -65,6 +77,7 @@ export default function ClientDataSection({ data, onChange }) {
         />
 
         <input
+          {...textProps}
           name="direccion"
           value={data.direccion || ""}
           onChange={onChange}
