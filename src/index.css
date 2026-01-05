@@ -48,3 +48,30 @@ body {
 .section-description {
   @apply text-sm text-slate-500;
 }
+
+/* ============================= */
+/* ESTILO PDF / IMPRESIÓN */
+/* ============================= */
+@media print {
+  body {
+    margin: 0;
+  }
+
+  .report-header {
+    position: running(header);
+  }
+
+  @page {
+    size: A4;
+    margin: 15mm 15mm 20mm 15mm;
+
+    @top-center {
+      content: element(header);
+    }
+
+    @bottom-center {
+      content: "Página " counter(page) " de " counter(pages);
+      font-size: 10px;
+    }
+  }
+}
