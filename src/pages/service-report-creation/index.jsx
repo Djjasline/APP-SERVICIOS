@@ -16,6 +16,11 @@ function ServiceReportCreation() {
   /* ESTADOS */
   /* ============================= */
 
+  const headerData = {
+  fechaVersion: "26-11-25",
+  version: "01",
+};
+
   const [datosCliente, setDatosCliente] = useState({
     cliente: "",
     direccion: "",
