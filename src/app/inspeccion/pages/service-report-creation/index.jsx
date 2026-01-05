@@ -13,22 +13,21 @@ export default function ServiceReportCreation() {
     correo: "",
     fechaServicio: "",
     codigoInterno: "",
+    codigoIN: "",
     referenciaContrato: "",
     descripcion: "",
     ubicacion: "",
     tecnicoResponsable: "",
     responsableCliente: "",
     actividades: [
-      { item: "1", titulo: "", detalle: "", imagen: null },
+      { item: "1", codigo: "1.1", titulo: "", detalle: "", imagen: null },
     ],
   });
 
   const sigTecnicoRef = useRef(null);
   const sigClienteRef = useRef(null);
 
-  /* =========================
-     STORAGE
-  ========================= */
+  /* ================= STORAGE ================= */
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) setForm(JSON.parse(saved));
@@ -56,6 +55,7 @@ export default function ServiceReportCreation() {
         ...p.actividades,
         {
           item: `${p.actividades.length + 1}`,
+          codigo: `${p.actividades.length + 1}.1`,
           titulo: "",
           detalle: "",
           imagen: null,
@@ -64,21 +64,22 @@ export default function ServiceReportCreation() {
     }));
   };
 
-  /* =========================
-     RENDER
-  ========================= */
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
       <div id="pdf-content" className="bg-white border">
 
-        {/* ================= HEADER PDF ================= */}
-        <ReportHeader />
+        {/* ================= HEADER ================= */}
+        <ReportHeader
+          titulo="INFORME TÉCNICO"
+          fechaVersion="01-01-26"
+          version="01"
+        />
 
         {/* ================= DATOS GENERALES ================= */}
         <table className="w-full border border-black text-sm">
           <tbody>
             <tr>
-              <td className="border p-2 font-bold w-1/4">REFERENCIA DE CONTRATO:</td>
+              <td className="border p-2 font-bold">REFERENCIA DE CONTRATO:</td>
               <td className="border p-2" colSpan={3}>
                 <input className="w-full" name="referenciaContrato" value={form.referenciaContrato} onChange={handleChange} />
               </td>
@@ -92,10 +93,11 @@ export default function ServiceReportCreation() {
             </tr>
 
             <tr>
-              <td className="border p-2 font-bold">CÓD. INF.:</td>
+              <td className="border p-2 font-bold">CÓDIGO IN:</td>
               <td className="border p-2">
-                <input className="w-full" name="codigoInterno" value={form.codigoInterno} onChange={handleChange} />
+                <input className="w-full" name="codigoIN" value={form.codigoIN} onChange={handleChange} />
               </td>
+
               <td className="border p-2 font-bold">FECHA DE SERVICIO:</td>
               <td className="border p-2">
                 <input type="date" className="w-full" name="fechaServicio" value={form.fechaServicio} onChange={handleChange} />
@@ -107,6 +109,7 @@ export default function ServiceReportCreation() {
               <td className="border p-2">
                 <input className="w-full" name="ubicacion" value={form.ubicacion} onChange={handleChange} />
               </td>
+
               <td className="border p-2 font-bold">TÉCNICO RESPONSABLE:</td>
               <td className="border p-2">
                 <input className="w-full" name="tecnicoResponsable" value={form.tecnicoResponsable} onChange={handleChange} />
@@ -118,6 +121,7 @@ export default function ServiceReportCreation() {
               <td className="border p-2">
                 <input className="w-full" name="cliente" value={form.cliente} onChange={handleChange} />
               </td>
+
               <td className="border p-2 font-bold">RESPONSABLE CLIENTE:</td>
               <td className="border p-2">
                 <input className="w-full" name="responsableCliente" value={form.responsableCliente} onChange={handleChange} />
@@ -129,6 +133,7 @@ export default function ServiceReportCreation() {
               <td className="border p-2">
                 <input className="w-full" name="direccion" value={form.direccion} onChange={handleChange} />
               </td>
+
               <td className="border p-2 font-bold">CONTACTO:</td>
               <td className="border p-2">
                 <input className="w-full" name="contacto" value={form.contacto} onChange={handleChange} />
@@ -140,6 +145,7 @@ export default function ServiceReportCreation() {
               <td className="border p-2">
                 <input className="w-full" name="telefono" value={form.telefono} onChange={handleChange} />
               </td>
+
               <td className="border p-2 font-bold">CORREO:</td>
               <td className="border p-2">
                 <input className="w-full" name="correo" value={form.correo} onChange={handleChange} />
@@ -153,25 +159,28 @@ export default function ServiceReportCreation() {
           <thead>
             <tr>
               <th className="border p-2 w-12">ÍTEM</th>
+              <th className="border p-2 w-20">CÓDIGO</th>
               <th className="border p-2">DESCRIPCIÓN DE ACTIVIDADES</th>
               <th className="border p-2 w-1/3">IMAGEN</th>
             </tr>
           </thead>
+
           <tbody>
             {form.actividades.map((a, i) => (
               <tr key={i}>
                 <td className="border p-2 text-center">{a.item}</td>
+                <td className="border p-2 text-center">{a.codigo}</td>
                 <td className="border p-2 space-y-2">
                   <input
-                    placeholder="Título de actividad"
                     className="w-full font-semibold"
+                    placeholder="TÍTULO DE ACTIVIDAD"
                     value={a.titulo}
                     onChange={(e) => handleActividadChange(i, "titulo", e.target.value)}
                   />
                   <textarea
-                    placeholder="Detalle de actividad"
                     className="w-full"
                     rows={3}
+                    placeholder="DETALLE DE ACTIVIDAD"
                     value={a.detalle}
                     onChange={(e) => handleActividadChange(i, "detalle", e.target.value)}
                   />
@@ -184,11 +193,8 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        <button
-          onClick={addActividad}
-          className="mt-4 px-4 py-2 border rounded text-sm"
-        >
-          + Agregar actividad
+        <button onClick={addActividad} className="mt-4 px-4 py-2 border rounded">
+          + AGREGAR ACTIVIDAD
         </button>
 
         {/* ================= FIRMAS ================= */}
