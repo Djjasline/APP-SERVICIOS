@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useRef } from "react";
+import SignatureCanvas from "react-signature-canvas";
 import { useReports } from "../../context/ReportContext";
 
 export default function ServiceReportCreation() {
@@ -472,35 +472,75 @@ export default function ServiceReportCreation() {
     />
   </label>
 </section>
-{/* ============================= */}
-{/* 6. FIRMAS DIGITALES DEL REPORTE */}
-{/* ============================= */}
-<section className="section">
-  <div>
-    <h2 className="section-title">
-      6. Firmas digitales del reporte
-    </h2>
-    <p className="section-description">
-      Confirmación de conformidad del servicio realizado.
+
+{/* ================= SECCIÓN 6 – FIRMAS ================= */}
+<div className="bg-white border rounded-xl p-6 space-y-6">
+  <h2 className="text-lg font-semibold text-slate-900">
+    6. Firmas
+  </h2>
+
+  {/* FIRMA TÉCNICO */}
+  <div className="space-y-2">
+    <p className="text-sm font-medium text-slate-700">
+      Firma del técnico
     </p>
+
+    <div className="border rounded bg-slate-50">
+      <SignatureCanvas
+        ref={sigTecnicoRef}
+        penColor="black"
+        canvasProps={{
+          width: 500,
+          height: 180,
+          className: "w-full",
+        }}
+        onEnd={() => saveSignature("tecnico", sigTecnicoRef)}
+      />
+    </div>
+
+    <div className="flex gap-2">
+      <button
+        type="button"
+        onClick={() => clearSignature("tecnico", sigTecnicoRef)}
+        className="text-xs px-3 py-1 rounded border hover:bg-slate-100"
+      >
+        Limpiar
+      </button>
+    </div>
   </div>
 
-  <div className="grid md:grid-cols-2 gap-6">
-    {/* FIRMA TÉCNICO */}
-    <div className="border rounded-xl p-4 space-y-3 bg-slate-50">
-      <h3 className="font-semibold text-sm text-slate-900">
-        Firma técnico ASTAP
-      </h3>
+  {/* FIRMA CLIENTE */}
+  <div className="space-y-2">
+    <p className="text-sm font-medium text-slate-700">
+      Firma del cliente
+    </p>
 
-      <div className="border-2 border-dashed rounded-lg bg-white">
-        <SignatureCanvas
-          penColor="#111827"
-          canvasProps={{
-            className: "w-full h-40 cursor-crosshair",
-          }}
-        />
-      </div>
+    <div className="border rounded bg-slate-50">
+      <SignatureCanvas
+        ref={sigClienteRef}
+        penColor="black"
+        canvasProps={{
+          width: 500,
+          height: 180,
+          className: "w-full",
+        }}
+        onEnd={() => saveSignature("cliente", sigClienteRef)}
+      />
+    </div>
 
-      <div className="grid grid-cols-2 gap-3 text-xs">
-        <input
-          type
+    <div className="flex gap-2">
+      <button
+        type="button"
+        onClick={() => clearSignature("cliente", sigClienteRef)}
+        className="text-xs px-3 py-1 rounded border hover:bg-slate-100"
+      >
+        Limpiar
+      </button>
+    </div>
+  </div>
+</div>
+
+signatures: {
+  tecnico: "data:image/png;base64,...",
+  cliente: "data:image/png;base64,..."
+}
