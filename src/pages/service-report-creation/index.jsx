@@ -6,11 +6,9 @@ import SignatureCanvas from "react-signature-canvas";
 /* STORAGE KEYS */
 /* ============================= */
 const STORAGE_KEY_CLIENTE = "serviceReport_datosCliente";
+const STORAGE_KEY_EQUIPO = "serviceReport_datosEquipo";
 const STORAGE_KEY_SIGNATURES = "serviceReport_signatures";
 
-/* ============================= */
-/* COMPONENTE PRINCIPAL */
-/* ============================= */
 function ServiceReportCreation() {
   /* ============================= */
   /* HEADER DATA */
@@ -22,7 +20,7 @@ function ServiceReportCreation() {
 
   /* ============================= */
   /* ESTADOS */
-  /* ============================= */
+/* ============================= */
   const [datosCliente, setDatosCliente] = useState({
     cliente: "",
     direccion: "",
@@ -31,6 +29,18 @@ function ServiceReportCreation() {
     correo: "",
     fechaServicio: "",
     codigoInterno: "",
+  });
+
+  const [datosEquipo, setDatosEquipo] = useState({
+    tipoEquipo: "",
+    marca: "",
+    modelo: "",
+    numeroSerie: "",
+    placa: "",
+    anioFabricacion: "",
+    kilometraje: "",
+    horasTrabajo: "",
+    vinChasis: "",
   });
 
   const [signatures, setSignatures] = useState({
@@ -43,15 +53,18 @@ function ServiceReportCreation() {
 
   /* ============================= */
   /* EFECTOS */
-  /* ============================= */
-
-  // Cargar datos cliente
+/* ============================= */
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY_CLIENTE);
-    if (saved) setDatosCliente(JSON.parse(saved));
+    const c = localStorage.getItem(STORAGE_KEY_CLIENTE);
+    if (c) setDatosCliente(JSON.parse(c));
+
+    const e = localStorage.getItem(STORAGE_KEY_EQUIPO);
+    if (e) setDatosEquipo(JSON.parse(e));
+
+    const s = localStorage.getItem(STORAGE_KEY_SIGNATURES);
+    if (s) setSignatures(JSON.parse(s));
   }, []);
 
-  // Guardar datos cliente
   useEffect(() => {
     localStorage.setItem(
       STORAGE_KEY_CLIENTE,
@@ -59,13 +72,13 @@ function ServiceReportCreation() {
     );
   }, [datosCliente]);
 
-  // Cargar firmas
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY_SIGNATURES);
-    if (saved) setSignatures(JSON.parse(saved));
-  }, []);
+    localStorage.setItem(
+      STORAGE_KEY_EQUIPO,
+      JSON.stringify(datosEquipo)
+    );
+  }, [datosEquipo]);
 
-  // Guardar firmas
   useEffect(() => {
     localStorage.setItem(
       STORAGE_KEY_SIGNATURES,
@@ -75,55 +88,49 @@ function ServiceReportCreation() {
 
   /* ============================= */
   /* HANDLERS */
-  /* ============================= */
+/* ============================= */
   const handleClienteChange = (e) => {
     const { name, value } = e.target;
-    setDatosCliente((prev) => ({ ...prev, [name]: value }));
+    setDatosCliente((p) => ({ ...p, [name]: value }));
+  };
+
+  const handleEquipoChange = (e) => {
+    const { name, value } = e.target;
+    setDatosEquipo((p) => ({ ...p, [name]: value }));
   };
 
   const saveSignature = (tipo, ref) => {
     if (!ref.current) return;
-
     const dataUrl = ref.current
       .getTrimmedCanvas()
       .toDataURL("image/png");
 
-    setSignatures((prev) => ({
-      ...prev,
-      [tipo]: dataUrl,
-    }));
+    setSignatures((p) => ({ ...p, [tipo]: dataUrl }));
   };
 
   const clearSignature = (tipo, ref) => {
     if (!ref.current) return;
     ref.current.clear();
-
-    setSignatures((prev) => ({
-      ...prev,
-      [tipo]: null,
-    }));
+    setSignatures((p) => ({ ...p, [tipo]: null }));
   };
 
   /* ============================= */
   /* RENDER */
-  /* ============================= */
+/* ============================= */
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-6">
-      {/* CONTENEDOR PDF */}
       <div
         id="pdf-content"
         className="max-w-6xl mx-auto bg-white p-6 space-y-8"
       >
-        {/* ============================= */}
-        {/* HEADER INFORME TÉCNICO */}
-        {/* ============================= */}
+        {/* HEADER */}
         <ReportHeader data={headerData} />
 
         {/* ============================= */}
         {/* 1. DATOS DEL CLIENTE */}
         {/* ============================= */}
         <section className="border rounded-xl p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-slate-900">
+          <h2 className="text-lg font-semibold">
             1. Datos del cliente
           </h2>
 
@@ -181,4 +188,16 @@ function ServiceReportCreation() {
 
             <input
               type="date"
-              name="fecha
+              name="fechaServicio"
+              value={datosCliente.fechaServicio}
+              onChange={handleClienteChange}
+              className="input"
+            />
+          </div>
+        </section>
+
+        {/* ============================= */}
+        {/* 2. DATOS DEL EQUIPO */}
+        {/* ============================= */}
+        <section className="border rounded-xl p-6 space-y-4">
+          <h2 className="text-lg font-semibold">
