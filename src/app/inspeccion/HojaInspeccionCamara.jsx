@@ -1,7 +1,6 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
-import { useNavigate } from "react-router-dom";
 
 export default function HojaInspeccionCamara() {
   const { id } = useParams();
