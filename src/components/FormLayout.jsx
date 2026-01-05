@@ -29,7 +29,10 @@ export default function FormLayout({
             Estado actual:{" "}
             <span
               className={`px-2 py-0.5 rounded-full font-medium ${
-                status === "completado"
+               import {
+  FORM_STATE_LABELS,
+  FORM_STATE_STYLES
+} from "@utils/formStates";
                   ? "bg-green-100 text-green-800"
                   : "bg-yellow-100 text-yellow-800"
               }`}
