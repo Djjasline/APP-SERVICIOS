@@ -4,9 +4,9 @@ import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
 
 /* ============================= */
-/* STORAGE KEY */
+/* STORAGE KEYS */
 /* ============================= */
-const STORAGE_KEY = "serviceReport_full";
+const STORAGE_KEY_HISTORY = "serviceReport_history";
 
 /* ============================= */
 /* COMPONENTE */
@@ -20,9 +20,12 @@ export default function ServiceReportCreation() {
   };
 
   /* ============================= */
-  /* ESTADO ÚNICO */
+  /* ESTADO DOCUMENTO */
 /* ============================= */
-  const [data, setData] = useState({
+  const emptyReport = {
+    id: crypto.randomUUID(),
+    estado: "borrador", // borrador | finalizado
+    fecha: new Date().toISOString(),
     cliente: {
       cliente: "",
       direccion: "",
@@ -50,41 +53,57 @@ export default function ServiceReportCreation() {
       tecnico: null,
       cliente: null,
     },
-  });
+  };
+
+  const [report, setReport] = useState(emptyReport);
+  const [history, setHistory] = useState([]);
 
   const sigTecnicoRef = useRef(null);
   const sigClienteRef = useRef(null);
 
   /* ============================= */
-  /* LOAD / SAVE */
+  /* LOAD HISTORIAL */
 /* ============================= */
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) setData(JSON.parse(saved));
+    const h = localStorage.getItem(STORAGE_KEY_HISTORY);
+    if (h) setHistory(JSON.parse(h));
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [data]);
+  /* ============================= */
+  /* SAVE HISTORIAL */
+/* ============================= */
+  const saveToHistory = (estado = report.estado) => {
+    const updated = { ...report, estado };
+    const next = [
+      updated,
+      ...history.filter((r) => r.id !== updated.id),
+    ];
+    setHistory(next);
+    localStorage.setItem(
+      STORAGE_KEY_HISTORY,
+      JSON.stringify(next)
+    );
+    setReport(updated);
+  };
 
   /* ============================= */
   /* HANDLERS */
 /* ============================= */
   const updateField = (section, field, value) => {
-    setData((p) => ({
+    setReport((p) => ({
       ...p,
       [section]: { ...p[section], [field]: value },
     }));
   };
 
   const updateActividad = (i, field, value) => {
-    const next = [...data.actividades];
+    const next = [...report.actividades];
     next[i][field] = value;
-    setData((p) => ({ ...p, actividades: next }));
+    setReport((p) => ({ ...p, actividades: next }));
   };
 
   const addActividad = () => {
-    setData((p) => ({
+    setReport((p) => ({
       ...p,
       actividades: [
         ...p.actividades,
@@ -98,9 +117,17 @@ export default function ServiceReportCreation() {
     }));
   };
 
+  const handleImage = (i, file) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      updateActividad(i, "imagen", reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const saveSignature = (tipo, ref) => {
     if (!ref.current) return;
-    setData((p) => ({
+    setReport((p) => ({
       ...p,
       firmas: {
         ...p.firmas,
@@ -111,50 +138,48 @@ export default function ServiceReportCreation() {
     }));
   };
 
-  const clearSignature = (tipo, ref) => {
-    if (!ref.current) return;
-    ref.current.clear();
-    setData((p) => ({
-      ...p,
-      firmas: { ...p.firmas, [tipo]: null },
-    }));
-  };
-
   /* ============================= */
   /* PDF REAL */
 /* ============================= */
   const generarPDF = async () => {
     const element = document.getElementById("pdf-content");
-    if (!element) return;
-
     const html2pdf = (await import("html2pdf.js")).default;
 
-    html2pdf()
-      .set({
-        margin: 10,
-        filename: `Informe_Tecnico_${Date.now()}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          scrollY: 0,
-        },
-        jsPDF: {
-          unit: "mm",
-          format: "a4",
-          orientation: "portrait",
-        },
-        pagebreak: { mode: ["css", "legacy"] },
-      })
-      .from(element)
-      .save();
+    html2pdf().set({
+      margin: 10,
+      filename: `Informe_${report.id}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: "mm", format: "a4" },
+    }).from(element).save();
   };
 
   /* ============================= */
   /* RENDER */
 /* ============================= */
   return (
-    <div className="min-h-screen bg-slate-100 p-4">
+    <div className="min-h-screen bg-slate-100 p-4 space-y-4">
+
+      {/* HISTORIAL */}
+      <div className="bg-white border p-3 text-sm">
+        <strong>Historial:</strong>
+        <ul className="mt-2 space-y-1">
+          {history.map((h) => (
+            <li
+              key={h.id}
+              className="flex justify-between cursor-pointer hover:bg-slate-100 p-1"
+              onClick={() => setReport(h)}
+            >
+              <span>{h.cliente.cliente || "Sin cliente"}</span>
+              <span className="text-xs">
+                {h.estado}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* DOCUMENTO */}
       <div
         id="pdf-content"
         className="max-w-6xl mx-auto bg-white p-4 space-y-6 text-sm"
@@ -163,11 +188,8 @@ export default function ServiceReportCreation() {
 
         {/* CLIENTE */}
         <div className="border border-black">
-          {Object.entries(data.cliente).map(([k, v]) => (
-            <div
-              key={k}
-              className="grid grid-cols-6 border-b border-black"
-            >
+          {Object.entries(report.cliente).map(([k, v]) => (
+            <div key={k} className="grid grid-cols-6 border-b border-black">
               <div className="col-span-1 p-2 font-semibold border-r border-black">
                 {k}
               </div>
@@ -178,30 +200,6 @@ export default function ServiceReportCreation() {
                   onChange={(e) =>
                     updateField("cliente", k, e.target.value)
                   }
-                  spellCheck
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* EQUIPO */}
-        <div className="border border-black">
-          {Object.entries(data.equipo).map(([k, v]) => (
-            <div
-              key={k}
-              className="grid grid-cols-6 border-b border-black"
-            >
-              <div className="col-span-1 p-2 font-semibold border-r border-black">
-                {k}
-              </div>
-              <div className="col-span-5 p-1">
-                <input
-                  className="w-full outline-none"
-                  value={v}
-                  onChange={(e) =>
-                    updateField("equipo", k, e.target.value)
-                  }
                 />
               </div>
             </div>
@@ -210,36 +208,24 @@ export default function ServiceReportCreation() {
 
         {/* ACTIVIDADES */}
         <div className="border border-black">
-          <div className="grid grid-cols-12 border-b border-black font-semibold">
-            <div className="col-span-1 p-2 border-r border-black">
-              Ítem
-            </div>
-            <div className="col-span-5 p-2 border-r border-black">
-              Actividad
-            </div>
-            <div className="col-span-6 p-2">
-              Imagen
-            </div>
+          <div className="grid grid-cols-12 font-semibold border-b border-black">
+            <div className="col-span-1 p-2 border-r">Ítem</div>
+            <div className="col-span-5 p-2 border-r">Actividad</div>
+            <div className="col-span-6 p-2">Imagen</div>
           </div>
 
-          {data.actividades.map((a, i) => (
-            <div
-              key={i}
-              className="grid grid-cols-12 border-b border-black"
-            >
-              <div className="col-span-1 p-2 border-r border-black">
-                {a.item}
-              </div>
+          {report.actividades.map((a, i) => (
+            <div key={i} className="grid grid-cols-12 border-b border-black">
+              <div className="col-span-1 p-2 border-r">{a.item}</div>
 
-              <div className="col-span-5 p-2 border-r border-black">
+              <div className="col-span-5 p-2 border-r">
                 <input
-                  className="w-full outline-none font-semibold"
+                  className="w-full font-semibold outline-none"
                   placeholder="Título"
                   value={a.titulo}
                   onChange={(e) =>
                     updateActividad(i, "titulo", e.target.value)
                   }
-                  spellCheck
                 />
                 <textarea
                   className="w-full outline-none mt-1"
@@ -249,12 +235,25 @@ export default function ServiceReportCreation() {
                   onChange={(e) =>
                     updateActividad(i, "detalle", e.target.value)
                   }
-                  spellCheck
                 />
               </div>
 
               <div className="col-span-6 p-2 text-center">
-                <input type="file" accept="image/*" />
+                {a.imagen ? (
+                  <img
+                    src={a.imagen}
+                    alt="actividad"
+                    className="max-h-40 mx-auto"
+                  />
+                ) : (
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleImage(i, e.target.files[0])
+                    }
+                  />
+                )}
               </div>
             </div>
           ))}
@@ -269,18 +268,17 @@ export default function ServiceReportCreation() {
 
         {/* CONCLUSIONES */}
         <div className="border border-black p-2">
-          <p className="font-semibold">Conclusiones</p>
+          <strong>Conclusiones</strong>
           <textarea
             className="w-full outline-none"
             rows={4}
-            value={data.conclusiones}
+            value={report.conclusiones}
             onChange={(e) =>
-              setData((p) => ({
+              setReport((p) => ({
                 ...p,
                 conclusiones: e.target.value,
               }))
             }
-            spellCheck
           />
         </div>
 
@@ -289,57 +287,43 @@ export default function ServiceReportCreation() {
           <div>
             <SignatureCanvas
               ref={sigTecnicoRef}
-              canvasProps={{
-                className:
-                  "border-b border-black w-full h-32",
-              }}
+              canvasProps={{ className: "border-b w-full h-32" }}
               onEnd={() =>
                 saveSignature("tecnico", sigTecnicoRef)
               }
             />
-            <p className="text-center mt-2">
-              Firma del técnico
-            </p>
+            <p className="text-center mt-2">Firma técnico</p>
           </div>
 
           <div>
             <SignatureCanvas
               ref={sigClienteRef}
-              canvasProps={{
-                className:
-                  "border-b border-black w-full h-32",
-              }}
+              canvasProps={{ className: "border-b w-full h-32" }}
               onEnd={() =>
                 saveSignature("cliente", sigClienteRef)
               }
             />
-            <p className="text-center mt-2">
-              Firma del cliente
-            </p>
+            <p className="text-center mt-2">Firma cliente</p>
           </div>
         </div>
+      </div>
 
-        {/* BOTONES */}
-        <div className="flex justify-end gap-3">
-          <button
-            className="border px-4 py-2"
-            onClick={() => navigate("/")}
-          >
-            Volver
-          </button>
-          <button className="border px-4 py-2">
-            Guardar
-          </button>
-          <button className="bg-green-600 text-white px-4 py-2">
-            Finalizar
-          </button>
-          <button
-            className="bg-blue-600 text-white px-4 py-2"
-            onClick={generarPDF}
-          >
-            PDF
-          </button>
-        </div>
+      {/* BOTONES */}
+      <div className="flex justify-end gap-3">
+        <button onClick={() => navigate("/")}>Volver</button>
+        <button onClick={() => saveToHistory("borrador")}>Guardar</button>
+        <button
+          className="bg-green-600 text-white px-3"
+          onClick={() => saveToHistory("finalizado")}
+        >
+          Finalizar
+        </button>
+        <button
+          className="bg-blue-600 text-white px-3"
+          onClick={generarPDF}
+        >
+          PDF
+        </button>
       </div>
     </div>
   );
