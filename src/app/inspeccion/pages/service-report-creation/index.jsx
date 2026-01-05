@@ -1,86 +1,56 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
 
-/* ============================= */
-/* STORAGE */
-/* ============================= */
-const STORAGE_KEY = "serviceReport_history";
+const STORAGE_KEY = "serviceReport_general";
 
-/* ============================= */
-/* COMPONENTE PRINCIPAL */
-/* ============================= */
 export default function ServiceReportCreation() {
-  const navigate = useNavigate();
-
-  /* ============================= */
-  /* HEADER CONFIG */
-  /* ============================= */
-  const headerConfig = {
-    titulo: "Informe General de Servicios",
-    codigo: "AST-SRV-001",
-    version: "01",
-    fecha: "26-11-25",
-  };
-
-  /* ============================= */
-  /* MODELO BASE */
-  /* ============================= */
-  const emptyReport = {
-    id: crypto.randomUUID(),
-    estado: "borrador",
-    cliente: {},
+  const [form, setForm] = useState({
+    cliente: "",
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
+    fechaServicio: "",
+    codigoInterno: "",
+    referenciaContrato: "",
+    descripcion: "",
+    ubicacion: "",
+    tecnicoResponsable: "",
+    responsableCliente: "",
     actividades: [
       { item: "1", titulo: "", detalle: "", imagen: null },
     ],
-    conclusiones: "",
-    firmas: { tecnico: null, cliente: null },
-  };
-
-  const [report, setReport] = useState(emptyReport);
-  const [history, setHistory] = useState([]);
+  });
 
   const sigTecnicoRef = useRef(null);
   const sigClienteRef = useRef(null);
 
-  /* ============================= */
-  /* HISTORIAL */
-  /* ============================= */
+  /* =========================
+     STORAGE
+  ========================= */
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) setHistory(JSON.parse(saved));
+    if (saved) setForm(JSON.parse(saved));
   }, []);
 
-  const saveToHistory = (estado) => {
-    const updated = { ...report, estado };
-    const next = [
-      updated,
-      ...history.filter((r) => r.id !== updated.id),
-    ];
-    setHistory(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    setReport(updated);
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(form));
+  }, [form]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
   };
 
-  /* ============================= */
-  /* HELPERS */
-  /* ============================= */
-  const updateCliente = (field, value) => {
-    setReport((p) => ({
-      ...p,
-      cliente: { ...p.cliente, [field]: value },
-    }));
-  };
-
-  const updateActividad = (i, field, value) => {
-    const next = [...report.actividades];
-    next[i][field] = value;
-    setReport((p) => ({ ...p, actividades: next }));
+  const handleActividadChange = (index, field, value) => {
+    const updated = [...form.actividades];
+    updated[index][field] = value;
+    setForm((p) => ({ ...p, actividades: updated }));
   };
 
   const addActividad = () => {
-    setReport((p) => ({
+    setForm((p) => ({
       ...p,
       actividades: [
         ...p.actividades,
@@ -94,239 +64,145 @@ export default function ServiceReportCreation() {
     }));
   };
 
-  const handleImage = (i, file) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      updateActividad(i, "imagen", reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const saveSignature = (tipo, ref) => {
-    if (!ref.current) return;
-    setReport((p) => ({
-      ...p,
-      firmas: {
-        ...p.firmas,
-        [tipo]: ref.current
-          .getTrimmedCanvas()
-          .toDataURL("image/png"),
-      },
-    }));
-  };
-
-  /* ============================= */
-  /* PDF */
-  /* ============================= */
-  const generarPDF = async () => {
-    await new Promise((r) => requestAnimationFrame(r));
-    const element = document.getElementById("pdf-content");
-    const html2pdf = (await import("html2pdf.js")).default;
-
-    html2pdf().set({
-      margin: 0,
-      filename: `Informe_${report.id}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: "mm", format: "a4" },
-    }).from(element).save();
-  };
-
-  /* ============================= */
-  /* RENDER */
-  /* ============================= */
+  /* =========================
+     RENDER
+  ========================= */
   return (
-    <div className="min-h-screen bg-slate-100 p-4 space-y-4">
+    <div className="p-6 bg-slate-50 min-h-screen">
+      <div id="pdf-content" className="bg-white border">
 
-      {/* ================= HISTORIAL ================= */}
-      <div className="bg-white border p-3 text-sm">
-        <strong>Historial</strong>
-        <ul className="mt-2 space-y-1">
-          {history.map((h) => (
-            <li
-              key={h.id}
-              className="flex justify-between cursor-pointer hover:bg-slate-100 p-1"
-              onClick={() => setReport(h)}
-            >
-              <span>{h.cliente?.nombreCliente || "Sin cliente"}</span>
-              <span className="text-xs">{h.estado}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* ================= DOCUMENTO PDF ================= */}
-      <div
-        id="pdf-content"
-        className="max-w-6xl mx-auto bg-white p-4 space-y-6 text-xs"
-      >
-        {/* HEADER */}
-        <ReportHeader {...headerConfig} />
+        {/* ================= HEADER PDF ================= */}
+        <ReportHeader />
 
         {/* ================= DATOS GENERALES ================= */}
-        <div className="border border-black">
-          {[
-            ["REFERENCIA DE CONTRATO", "referencia"],
-            ["DESCRIPCIÓN", "descripcion"],
-            ["Cod. INF.", "codigoInf"],
-            ["UBICACIÓN", "ubicacion"],
-            ["TÉCNICO RESPONSABLE", "tecnico"],
-            ["CLIENTE", "nombreCliente"],
-            ["RESPONSABLE CLIENTE", "responsableCliente"],
-          ].map(([label, field]) => (
-            <div
-              key={field}
-              className="grid grid-cols-12 border-b border-black"
-            >
-              <div className="col-span-3 border-r border-black p-2 font-semibold">
-                {label}
-              </div>
-              <div className="col-span-9 p-1">
-                <input
-                  className="w-full outline-none"
-                  value={report.cliente[field] || ""}
-                  onChange={(e) =>
-                    updateCliente(field, e.target.value)
-                  }
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+        <table className="w-full border border-black text-sm">
+          <tbody>
+            <tr>
+              <td className="border p-2 font-bold w-1/4">REFERENCIA DE CONTRATO:</td>
+              <td className="border p-2" colSpan={3}>
+                <input className="w-full" name="referenciaContrato" value={form.referenciaContrato} onChange={handleChange} />
+              </td>
+            </tr>
+
+            <tr>
+              <td className="border p-2 font-bold">DESCRIPCIÓN:</td>
+              <td className="border p-2" colSpan={3}>
+                <input className="w-full" name="descripcion" value={form.descripcion} onChange={handleChange} />
+              </td>
+            </tr>
+
+            <tr>
+              <td className="border p-2 font-bold">CÓD. INF.:</td>
+              <td className="border p-2">
+                <input className="w-full" name="codigoInterno" value={form.codigoInterno} onChange={handleChange} />
+              </td>
+              <td className="border p-2 font-bold">FECHA DE SERVICIO:</td>
+              <td className="border p-2">
+                <input type="date" className="w-full" name="fechaServicio" value={form.fechaServicio} onChange={handleChange} />
+              </td>
+            </tr>
+
+            <tr>
+              <td className="border p-2 font-bold">UBICACIÓN:</td>
+              <td className="border p-2">
+                <input className="w-full" name="ubicacion" value={form.ubicacion} onChange={handleChange} />
+              </td>
+              <td className="border p-2 font-bold">TÉCNICO RESPONSABLE:</td>
+              <td className="border p-2">
+                <input className="w-full" name="tecnicoResponsable" value={form.tecnicoResponsable} onChange={handleChange} />
+              </td>
+            </tr>
+
+            <tr>
+              <td className="border p-2 font-bold">CLIENTE:</td>
+              <td className="border p-2">
+                <input className="w-full" name="cliente" value={form.cliente} onChange={handleChange} />
+              </td>
+              <td className="border p-2 font-bold">RESPONSABLE CLIENTE:</td>
+              <td className="border p-2">
+                <input className="w-full" name="responsableCliente" value={form.responsableCliente} onChange={handleChange} />
+              </td>
+            </tr>
+
+            <tr>
+              <td className="border p-2 font-bold">DIRECCIÓN:</td>
+              <td className="border p-2">
+                <input className="w-full" name="direccion" value={form.direccion} onChange={handleChange} />
+              </td>
+              <td className="border p-2 font-bold">CONTACTO:</td>
+              <td className="border p-2">
+                <input className="w-full" name="contacto" value={form.contacto} onChange={handleChange} />
+              </td>
+            </tr>
+
+            <tr>
+              <td className="border p-2 font-bold">TELÉFONO:</td>
+              <td className="border p-2">
+                <input className="w-full" name="telefono" value={form.telefono} onChange={handleChange} />
+              </td>
+              <td className="border p-2 font-bold">CORREO:</td>
+              <td className="border p-2">
+                <input className="w-full" name="correo" value={form.correo} onChange={handleChange} />
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         {/* ================= ACTIVIDADES ================= */}
-        <div className="border border-black">
-          <div className="grid grid-cols-12 font-semibold border-b border-black text-center">
-            <div className="col-span-1 border-r p-2">ÍTEM</div>
-            <div className="col-span-7 border-r p-2">
-              DESCRIPCIÓN DE ACTIVIDADES
-            </div>
-            <div className="col-span-4 p-2">
-              EVIDENCIA FOTOGRÁFICA
-            </div>
-          </div>
-
-          {report.actividades.map((a, i) => (
-            <div
-              key={i}
-              className="grid grid-cols-12 border-b border-black"
-            >
-              <div className="col-span-1 border-r p-2 text-center">
-                {a.item}
-              </div>
-
-              <div className="col-span-7 border-r p-2">
-                <input
-                  className="w-full outline-none font-semibold mb-1"
-                  placeholder="Título"
-                  value={a.titulo}
-                  onChange={(e) =>
-                    updateActividad(i, "titulo", e.target.value)
-                  }
-                />
-                <textarea
-                  className="w-full outline-none resize-none"
-                  rows={4}
-                  placeholder="Detalle"
-                  value={a.detalle}
-                  onChange={(e) =>
-                    updateActividad(i, "detalle", e.target.value)
-                  }
-                />
-              </div>
-
-              <div className="col-span-4 p-2 text-center">
-                {a.imagen ? (
-                  <img
-                    src={a.imagen}
-                    alt="Evidencia"
-                    className="max-h-40 mx-auto"
+        <table className="w-full border border-black mt-6 text-sm">
+          <thead>
+            <tr>
+              <th className="border p-2 w-12">ÍTEM</th>
+              <th className="border p-2">DESCRIPCIÓN DE ACTIVIDADES</th>
+              <th className="border p-2 w-1/3">IMAGEN</th>
+            </tr>
+          </thead>
+          <tbody>
+            {form.actividades.map((a, i) => (
+              <tr key={i}>
+                <td className="border p-2 text-center">{a.item}</td>
+                <td className="border p-2 space-y-2">
+                  <input
+                    placeholder="Título de actividad"
+                    className="w-full font-semibold"
+                    value={a.titulo}
+                    onChange={(e) => handleActividadChange(i, "titulo", e.target.value)}
                   />
-                ) : (
-                  <label className="cursor-pointer underline">
-                    Agregar imagen
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) =>
-                        handleImage(i, e.target.files[0])
-                      }
-                    />
-                  </label>
-                )}
-              </div>
-            </div>
-          ))}
+                  <textarea
+                    placeholder="Detalle de actividad"
+                    className="w-full"
+                    rows={3}
+                    value={a.detalle}
+                    onChange={(e) => handleActividadChange(i, "detalle", e.target.value)}
+                  />
+                </td>
+                <td className="border p-2 text-center">
+                  <input type="file" />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-          <button
-            onClick={addActividad}
-            className="m-2 px-3 py-1 border"
-          >
-            + Agregar actividad
-          </button>
-        </div>
-
-        {/* ================= CONCLUSIONES ================= */}
-        <div className="border border-black p-2">
-          <strong>CONCLUSIONES</strong>
-          <textarea
-            className="w-full outline-none resize-none"
-            rows={4}
-            value={report.conclusiones}
-            onChange={(e) =>
-              setReport((p) => ({
-                ...p,
-                conclusiones: e.target.value,
-              }))
-            }
-          />
-        </div>
+        <button
+          onClick={addActividad}
+          className="mt-4 px-4 py-2 border rounded text-sm"
+        >
+          + Agregar actividad
+        </button>
 
         {/* ================= FIRMAS ================= */}
-        <div className="border border-black p-4 grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-6 mt-8 p-4">
           <div>
-            <SignatureCanvas
-              ref={sigTecnicoRef}
-              canvasProps={{ className: "border-b w-full h-32" }}
-              onEnd={() =>
-                saveSignature("tecnico", sigTecnicoRef)
-              }
-            />
-            <p className="text-center mt-2">Firma Técnico</p>
+            <p className="font-bold mb-2">FIRMA DEL TÉCNICO:</p>
+            <SignatureCanvas ref={sigTecnicoRef} canvasProps={{ className: "border w-full h-40" }} />
           </div>
 
           <div>
-            <SignatureCanvas
-              ref={sigClienteRef}
-              canvasProps={{ className: "border-b w-full h-32" }}
-              onEnd={() =>
-                saveSignature("cliente", sigClienteRef)
-              }
-            />
-            <p className="text-center mt-2">Firma Cliente</p>
+            <p className="font-bold mb-2">FIRMA DEL CLIENTE:</p>
+            <SignatureCanvas ref={sigClienteRef} canvasProps={{ className: "border w-full h-40" }} />
           </div>
         </div>
-      </div>
-
-      {/* ================= BOTONES ================= */}
-      <div className="flex justify-end gap-3">
-        <button onClick={() => navigate("/")}>Volver</button>
-        <button onClick={() => saveToHistory("borrador")}>
-          Guardar
-        </button>
-        <button
-          className="bg-green-600 text-white px-3"
-          onClick={() => saveToHistory("finalizado")}
-        >
-          Finalizar
-        </button>
-        <button
-          className="bg-blue-600 text-white px-3"
-          onClick={generarPDF}
-        >
-          PDF
-        </button>
       </div>
     </div>
   );
