@@ -37,7 +37,7 @@ const [status, setStatus] = useState(FORM_STATES.BORRADOR);
       STORAGE_KEY,
       JSON.stringify({
         data,
-        status: "completado",
+       status: FORM_STATES.COMPLETADO
         updatedAt: new Date().toISOString(),
       })
     );
