@@ -412,3 +412,63 @@ export default function ServiceReportCreation() {
     blanco.
   </p>
 </section>
+{/* ============================= */}
+{/* 5. CONCLUSIÓN DEL SERVICIO */}
+{/* ============================= */}
+<section className="section">
+  <div>
+    <h2 className="section-title">
+      5. Conclusión del servicio y estado final del equipo
+    </h2>
+    <p className="section-description">
+      Resumen del trabajo realizado, estado final del equipo y
+      recomendaciones técnicas.
+    </p>
+  </div>
+
+  <div className="grid md:grid-cols-2 gap-4">
+    {/* Estado final */}
+    <label className="field">
+      <span className="field-label">Estado final del equipo</span>
+      <select className="input">
+        <option value="">Seleccione una opción</option>
+        <option value="operativo">Operativo</option>
+        <option value="operativo-observaciones">
+          Operativo con observaciones
+        </option>
+        <option value="no-operativo">No operativo</option>
+      </select>
+    </label>
+
+    {/* Tipo de cierre */}
+    <label className="field">
+      <span className="field-label">Estado del servicio</span>
+      <select className="input">
+        <option value="">Seleccione una opción</option>
+        <option value="completado">Servicio completado</option>
+        <option value="parcial">Servicio parcial</option>
+        <option value="pendiente">Servicio pendiente</option>
+      </select>
+    </label>
+  </div>
+
+  {/* Descripción final */}
+  <label className="field">
+    <span className="field-label">Descripción del trabajo realizado</span>
+    <textarea
+      rows={3}
+      className="input resize-y"
+      placeholder="Detalle de las actividades realizadas durante el servicio"
+    />
+  </label>
+
+  {/* Recomendaciones */}
+  <label className="field">
+    <span className="field-label">Recomendaciones técnicas</span>
+    <textarea
+      rows={3}
+      className="input resize-y"
+      placeholder="Recomendaciones, mantenimientos futuros o acciones sugeridas"
+    />
+  </label>
+</section>
