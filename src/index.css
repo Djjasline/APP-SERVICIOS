@@ -1,77 +1,44 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Estilos base opcionales para la app */
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-  background-color: #f3f4f6; /* gris claro */
-  color: #111827; /* gris oscuro */
-}
-
-#root {
-  min-height: 100vh;
-}
 /* ============================= */
-/* COMPONENTES REUTILIZABLES */
+/* ESTILOS ESPECÍFICOS PARA PDF */
 /* ============================= */
 
-.input {
-  @apply w-full px-3 py-2 text-sm border border-slate-300 rounded-md
-    focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900;
+.pdf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
 }
 
-.textarea {
-  @apply w-full px-3 py-2 text-sm border border-slate-300 rounded-md
-    focus:outline-none focus:ring-1 focus:ring-slate-900 focus:border-slate-900;
+.pdf-table td,
+.pdf-table th {
+  border: 1px solid #000;
+  padding: 4px;
+  vertical-align: middle;
 }
 
-.label {
-  @apply text-sm font-medium text-slate-700;
+.pdf-label {
+  font-weight: bold;
+  text-transform: uppercase;
+  width: 160px;
+  background: #fff;
 }
 
-.section {
-  @apply border rounded-lg p-4 space-y-4 bg-white;
+.pdf-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 11px;
+  font-family: Arial, sans-serif;
+  background: transparent;
 }
 
-.section-title {
-  @apply font-semibold text-slate-800;
-}
-
-.section-description {
-  @apply text-sm text-slate-500;
-}
-
-/* ============================= */
-/* ESTILO PDF / IMPRESIÓN */
-/* ============================= */
-@media print {
-  body {
-    margin: 0;
-  }
-
-  .report-header {
-    position: running(header);
-  }
-
-  @page {
-    size: A4;
-    margin: 15mm 15mm 20mm 15mm;
-
-    @top-center {
-      content: element(header);
-    }
-
-    @bottom-center {
-      content: "Página " counter(page) " de " counter(pages);
-      font-size: 10px;
-    }
-  }
+.pdf-textarea {
+  width: 100%;
+  min-height: 60px;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: 11px;
+  font-family: Arial, sans-serif;
+  background: transparent;
 }
