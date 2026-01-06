@@ -293,3 +293,126 @@ const addActivity = () => {
     </tr>
   </tbody>
 </table>
+
+/* =============================== */
+/* PASO 3 – CONCLUSIONES Y RECOMENDACIONES */
+/* =============================== */
+
+const [conclusiones, setConclusiones] = useState([""]);
+const [recomendaciones, setRecomendaciones] = useState([""]);
+
+const updateList = (setter, list, index, value) => {
+  const updated = [...list];
+  updated[index] = value;
+  setter(updated);
+};
+
+const addRow = (setter, list) => {
+  setter([...list, ""]);
+};
+
+const removeRow = (setter, list) => {
+  if (list.length > 1) {
+    setter(list.slice(0, -1));
+  }
+};
+
+/* =============================== */
+/* RENDER */
+/* =============================== */
+
+<table className="pdf-table" style={{ marginTop: 20 }}>
+  <thead>
+    <tr>
+      <th colSpan={2}>CONCLUSIONES</th>
+      <th colSpan={2}>RECOMENDACIONES</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {Array.from({
+      length: Math.max(conclusiones.length, recomendaciones.length),
+    }).map((_, index) => (
+      <tr key={index}>
+        {/* Nº CONCLUSIÓN */}
+        <td style={{ width: "30px", textAlign: "center" }}>
+          {index + 1}
+        </td>
+
+        {/* TEXTO CONCLUSIÓN */}
+        <td>
+          <textarea
+            className="pdf-textarea"
+            value={conclusiones[index] || ""}
+            onChange={(e) =>
+              updateList(
+                setConclusiones,
+                conclusiones,
+                index,
+                e.target.value
+              )
+            }
+          />
+        </td>
+
+        {/* Nº RECOMENDACIÓN */}
+        <td style={{ width: "30px", textAlign: "center" }}>
+          {index + 1}
+        </td>
+
+        {/* TEXTO RECOMENDACIÓN */}
+        <td>
+          <textarea
+            className="pdf-textarea"
+            value={recomendaciones[index] || ""}
+            onChange={(e) =>
+              updateList(
+                setRecomendaciones,
+                recomendaciones,
+                index,
+                e.target.value
+              )
+            }
+          />
+        </td>
+      </tr>
+    ))}
+
+    {/* CONTROLES */}
+    <tr>
+      <td colSpan={4}>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button
+            type="button"
+            onClick={() => {
+              addRow(setConclusiones, conclusiones);
+              addRow(setRecomendaciones, recomendaciones);
+            }}
+            style={{
+              padding: "4px 10px",
+              border: "1px solid #000",
+              fontSize: "11px",
+            }}
+          >
+            + AGREGAR FILA
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              removeRow(setConclusiones, conclusiones);
+              removeRow(setRecomendaciones, recomendaciones);
+            }}
+            style={{
+              padding: "4px 10px",
+              border: "1px solid #000",
+              fontSize: "11px",
+            }}
+          >
+            − QUITAR FILA
+          </button>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
