@@ -13,6 +13,13 @@ export default function ServiceReportCreation() {
     telefono: "",
     correo: "",
     fechaServicio: "",
+actividades: [
+  {
+    titulo: "",
+    detalle: "",
+    imagen: null,
+  },
+],
 
     conclusiones: [""],
     recomendaciones: [""],
@@ -105,7 +112,120 @@ export default function ServiceReportCreation() {
             ))}
           </tbody>
         </table>
+{/* ================================
+   DESCRIPCIÓN DE ACTIVIDADES
+================================ */}
+<table className="pdf-table">
+  <thead>
+    <tr>
+      <th style={{ width: 60 }}>ITEM</th>
+      <th>DESCRIPCIÓN DE ACTIVIDADES</th>
+      <th style={{ width: 220 }}>IMAGEN</th>
+    </tr>
+  </thead>
 
+  <tbody>
+    {data.actividades.map((act, index) => (
+      <>
+        {/* FILA TÍTULO */}
+        <tr key={`title-${index}`}>
+          <td>{index + 1}</td>
+          <td>
+            <input
+              className="pdf-input"
+              placeholder="Título de actividad"
+              value={act.titulo}
+              onChange={(e) =>
+                update(["actividades", index, "titulo"], e.target.value)
+              }
+            />
+          </td>
+          <td rowSpan={2} style={{ textAlign: "center" }}>
+            {act.imagen ? (
+              <img
+                src={act.imagen}
+                alt="actividad"
+                style={{ maxWidth: "200px", maxHeight: "120px" }}
+              />
+            ) : (
+              <>
+                <label className="px-3 py-2 border rounded cursor-pointer inline-block">
+                  Agregar imagen
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    hidden
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () =>
+                        update(
+                          ["actividades", index, "imagen"],
+                          reader.result
+                        );
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                </label>
+              </>
+            )}
+          </td>
+        </tr>
+
+        {/* FILA DETALLE */}
+        <tr key={`detail-${index}`}>
+          <td>{index + 1}.1</td>
+          <td>
+            <textarea
+              className="pdf-textarea"
+              placeholder="Detalle de actividad"
+              value={act.detalle}
+              onChange={(e) =>
+                update(["actividades", index, "detalle"], e.target.value)
+              }
+            />
+          </td>
+        </tr>
+      </>
+    ))}
+  </tbody>
+</table>
+
+{/* BOTONES */}
+<div className="flex gap-4 mt-4">
+  <button
+    className="px-4 py-2 border rounded"
+    onClick={() =>
+      setData((prev) => ({
+        ...prev,
+        actividades: [
+          ...prev.actividades,
+          { titulo: "", detalle: "", imagen: null },
+        ],
+      }))
+    }
+  >
+    + Agregar actividad
+  </button>
+
+  {data.actividades.length > 1 && (
+    <button
+      className="px-4 py-2 border rounded"
+      onClick={() =>
+        setData((prev) => ({
+          ...prev,
+          actividades: prev.actividades.slice(0, -1),
+        }))
+      }
+    >
+      − Quitar actividad
+    </button>
+  )}
+</div>
+     
+        
         {/* ================= CONCLUSIONES ================= */}
         <table className="pdf-table">
           <thead>
