@@ -3,11 +3,6 @@ import { FileText, ClipboardCheck, Wrench } from "lucide-react";
 
 export default function PanelServicios() {
   const navigate = useNavigate();
-return (
-  <div style={{ background: "red", color: "white", padding: 40 }}>
-    <h1>ESTE PANEL ES EL QUE SE RENDERIZA</h1>
-  </div>
-);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-6 py-12">
