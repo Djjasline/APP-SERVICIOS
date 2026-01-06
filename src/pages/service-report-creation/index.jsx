@@ -1,329 +1,149 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import SignatureCanvas from "react-signature-canvas";
-import ReportHeader from "@/components/report/ReportHeader";
+import { useState } from "react";
 
-/* ============================= */
-/* STORAGE KEYS */
-/* ============================= */
-const STORAGE_KEY_HISTORY = "serviceReport_history";
-
-/* ============================= */
-/* COMPONENTE */
-/* ============================= */
 export default function ServiceReportCreation() {
-  const navigate = useNavigate();
-
-  const headerData = {
-    fechaVersion: "26-11-25",
-    version: "01",
-  };
-
-  /* ============================= */
-  /* ESTADO DOCUMENTO */
-/* ============================= */
-  const emptyReport = {
-    id: crypto.randomUUID(),
-    estado: "borrador", // borrador | finalizado
-    fecha: new Date().toISOString(),
-    cliente: {
-      cliente: "",
-      direccion: "",
-      contacto: "",
-      telefono: "",
-      correo: "",
-      fechaServicio: "",
-    },
-    equipo: {
-      tipo: "",
-      marca: "",
-      modelo: "",
-      serie: "",
-      placa: "",
-      anio: "",
-      kilometraje: "",
-      horas: "",
-      vin: "",
-    },
+  const [form, setForm] = useState({
+    codigo: "AST-SRV-001",
+    cliente: "",
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
+    fechaServicio: "",
     actividades: [
-      { item: "1", titulo: "", detalle: "", imagen: null },
+      { titulo: "", detalle: "", imagen: null }
     ],
     conclusiones: "",
-    firmas: {
-      tecnico: null,
-      cliente: null,
-    },
-  };
+  });
 
-  const [report, setReport] = useState(emptyReport);
-  const [history, setHistory] = useState([]);
-
-  const sigTecnicoRef = useRef(null);
-  const sigClienteRef = useRef(null);
-
-  /* ============================= */
-  /* LOAD HISTORIAL */
-/* ============================= */
-  useEffect(() => {
-    const h = localStorage.getItem(STORAGE_KEY_HISTORY);
-    if (h) setHistory(JSON.parse(h));
-  }, []);
-
-  /* ============================= */
-  /* SAVE HISTORIAL */
-/* ============================= */
-  const saveToHistory = (estado = report.estado) => {
-    const updated = { ...report, estado };
-    const next = [
-      updated,
-      ...history.filter((r) => r.id !== updated.id),
-    ];
-    setHistory(next);
-    localStorage.setItem(
-      STORAGE_KEY_HISTORY,
-      JSON.stringify(next)
-    );
-    setReport(updated);
-  };
-
-  /* ============================= */
-  /* HANDLERS */
-/* ============================= */
-  const updateField = (section, field, value) => {
-    setReport((p) => ({
-      ...p,
-      [section]: { ...p[section], [field]: value },
-    }));
-  };
-
-  const updateActividad = (i, field, value) => {
-    const next = [...report.actividades];
-    next[i][field] = value;
-    setReport((p) => ({ ...p, actividades: next }));
-  };
-
-  const addActividad = () => {
-    setReport((p) => ({
-      ...p,
-      actividades: [
-        ...p.actividades,
-        {
-          item: `${p.actividades.length + 1}`,
-          titulo: "",
-          detalle: "",
-          imagen: null,
-        },
-      ],
-    }));
-  };
-
-  const handleImage = (i, file) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      updateActividad(i, "imagen", reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const saveSignature = (tipo, ref) => {
-    if (!ref.current) return;
-    setReport((p) => ({
-      ...p,
-      firmas: {
-        ...p.firmas,
-        [tipo]: ref.current
-          .getTrimmedCanvas()
-          .toDataURL("image/png"),
-      },
-    }));
-  };
-
-  /* ============================= */
-  /* PDF REAL */
-/* ============================= */
-  const generarPDF = async () => {
-    const element = document.getElementById("pdf-content");
-    const html2pdf = (await import("html2pdf.js")).default;
-
-    html2pdf().set({
-      margin: 10,
-      filename: `Informe_${report.id}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: "mm", format: "a4" },
-    }).from(element).save();
-  };
-
-  /* ============================= */
-  /* RENDER */
-/* ============================= */
   return (
-    <div className="min-h-screen bg-slate-100 p-4 space-y-4">
+    <div className="flex justify-center bg-slate-100 py-6">
+      <div className="bg-white p-6 w-[900px] border border-black">
 
-      {/* HISTORIAL */}
-      <div className="bg-white border p-3 text-sm">
-        <strong>Historial:</strong>
-        <ul className="mt-2 space-y-1">
-          {history.map((h) => (
-            <li
-              key={h.id}
-              className="flex justify-between cursor-pointer hover:bg-slate-100 p-1"
-              onClick={() => setReport(h)}
-            >
-              <span>{h.cliente.cliente || "Sin cliente"}</span>
-              <span className="text-xs">
-                {h.estado}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* DOCUMENTO */}
-      <div
-        id="pdf-content"
-        className="max-w-6xl mx-auto bg-white p-4 space-y-6 text-sm"
-      >
-        <ReportHeader data={headerData} />
-
-        {/* CLIENTE */}
-        <div className="border border-black">
-          {Object.entries(report.cliente).map(([k, v]) => (
-            <div key={k} className="grid grid-cols-6 border-b border-black">
-              <div className="col-span-1 p-2 font-semibold border-r border-black">
-                {k}
-              </div>
-              <div className="col-span-5 p-1">
-                <input
-                  className="w-full outline-none"
-                  value={v}
-                  onChange={(e) =>
-                    updateField("cliente", k, e.target.value)
-                  }
+        {/* ================= HEADER ================= */}
+        <table className="w-full border border-black text-sm mb-4">
+          <tbody>
+            <tr>
+              <td className="border border-black w-1/5 text-center">
+                <img
+                  src="/astap-logo.jpg"
+                  alt="ASTAP"
+                  className="mx-auto h-12"
                 />
-              </div>
-            </div>
-          ))}
-        </div>
+              </td>
 
-        {/* ACTIVIDADES */}
-        <div className="border border-black">
-          <div className="grid grid-cols-12 font-semibold border-b border-black">
-            <div className="col-span-1 p-2 border-r">Ítem</div>
-            <div className="col-span-5 p-2 border-r">Actividad</div>
-            <div className="col-span-6 p-2">Imagen</div>
-          </div>
+              <td className="border border-black w-3/5 text-center">
+                <div className="font-bold uppercase">
+                  INFORME GENERAL DE SERVICIOS
+                </div>
+                <div className="text-xs uppercase">
+                  DEPARTAMENTO DE SERVICIO TÉCNICO
+                </div>
+              </td>
 
-          {report.actividades.map((a, i) => (
-            <div key={i} className="grid grid-cols-12 border-b border-black">
-              <div className="col-span-1 p-2 border-r">{a.item}</div>
+              <td className="border border-black w-1/5 text-xs">
+                <div><b>VERSIÓN:</b> 01</div>
+                <div><b>FECHA:</b> 26-11-25</div>
+                <div><b>PÁGINA:</b> 1</div>
+              </td>
+            </tr>
 
-              <div className="col-span-5 p-2 border-r">
-                <input
-                  className="w-full font-semibold outline-none"
-                  placeholder="Título"
-                  value={a.titulo}
-                  onChange={(e) =>
-                    updateActividad(i, "titulo", e.target.value)
-                  }
-                />
-                <textarea
-                  className="w-full outline-none mt-1"
-                  rows={3}
-                  placeholder="Detalle"
-                  value={a.detalle}
-                  onChange={(e) =>
-                    updateActividad(i, "detalle", e.target.value)
-                  }
-                />
-              </div>
+            <tr>
+              <td className="border border-black text-xs p-1">
+                <b>CÓDIGO:</b> {form.codigo}
+              </td>
+              <td colSpan={2} className="border border-black text-center text-xs">
+                DOCUMENTO CONTROLADO – USO INTERNO
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-              <div className="col-span-6 p-2 text-center">
-                {a.imagen ? (
-                  <img
-                    src={a.imagen}
-                    alt="actividad"
-                    className="max-h-40 mx-auto"
-                  />
-                ) : (
+        {/* ================= DATOS CLIENTE ================= */}
+        <table className="w-full border border-black text-sm mb-4">
+          <tbody>
+            {[
+              ["CLIENTE", "cliente"],
+              ["DIRECCIÓN", "direccion"],
+              ["CONTACTO", "contacto"],
+              ["TELÉFONO", "telefono"],
+              ["CORREO", "correo"],
+              ["FECHA DE SERVICIO", "fechaServicio"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="border border-black w-1/4 p-2 font-semibold uppercase">
+                  {label}
+                </td>
+                <td className="border border-black p-2">
                   <input
-                    type="file"
-                    accept="image/*"
+                    className="w-full outline-none uppercase"
+                    value={form[key]}
                     onChange={(e) =>
-                      handleImage(i, e.target.files[0])
+                      setForm({ ...form, [key]: e.target.value.toUpperCase() })
                     }
                   />
-                )}
-              </div>
-            </div>
-          ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-          <button
-            onClick={addActividad}
-            className="m-2 px-3 py-1 border"
-          >
-            + Agregar actividad
-          </button>
-        </div>
+        {/* ================= ACTIVIDADES ================= */}
+        <table className="w-full border border-black text-sm mb-4">
+          <thead>
+            <tr>
+              <th className="border border-black p-2 uppercase">ÍTEM</th>
+              <th className="border border-black p-2 uppercase">DESCRIPCIÓN DE ACTIVIDADES</th>
+              <th className="border border-black p-2 uppercase">IMAGEN</th>
+            </tr>
+          </thead>
+          <tbody>
+            {form.actividades.map((act, i) => (
+              <tr key={i}>
+                <td className="border border-black text-center">{i + 1}</td>
+                <td className="border border-black p-2">
+                  <input
+                    placeholder="TÍTULO"
+                    className="w-full mb-2 border p-1 uppercase"
+                  />
+                  <textarea
+                    placeholder="DETALLE"
+                    className="w-full border p-1 uppercase"
+                    rows={3}
+                  />
+                </td>
+                <td className="border border-black p-2 text-center">
+                  <input type="file" />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-        {/* CONCLUSIONES */}
-        <div className="border border-black p-2">
-          <strong>Conclusiones</strong>
-          <textarea
-            className="w-full outline-none"
-            rows={4}
-            value={report.conclusiones}
-            onChange={(e) =>
-              setReport((p) => ({
-                ...p,
-                conclusiones: e.target.value,
-              }))
-            }
-          />
-        </div>
+        {/* ================= CONCLUSIONES ================= */}
+        <table className="w-full border border-black text-sm">
+          <thead>
+            <tr>
+              <th className="border border-black p-2 uppercase">
+                CONCLUSIONES
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border border-black p-2">
+                <textarea
+                  className="w-full uppercase outline-none"
+                  rows={4}
+                  value={form.conclusiones}
+                  onChange={(e) =>
+                    setForm({ ...form, conclusiones: e.target.value.toUpperCase() })
+                  }
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-        {/* FIRMAS */}
-        <div className="border border-black p-4 grid grid-cols-2 gap-6">
-          <div>
-            <SignatureCanvas
-              ref={sigTecnicoRef}
-              canvasProps={{ className: "border-b w-full h-32" }}
-              onEnd={() =>
-                saveSignature("tecnico", sigTecnicoRef)
-              }
-            />
-            <p className="text-center mt-2">Firma técnico</p>
-          </div>
-
-          <div>
-            <SignatureCanvas
-              ref={sigClienteRef}
-              canvasProps={{ className: "border-b w-full h-32" }}
-              onEnd={() =>
-                saveSignature("cliente", sigClienteRef)
-              }
-            />
-            <p className="text-center mt-2">Firma cliente</p>
-          </div>
-        </div>
-      </div>
-
-      {/* BOTONES */}
-      <div className="flex justify-end gap-3">
-        <button onClick={() => navigate("/")}>Volver</button>
-        <button onClick={() => saveToHistory("borrador")}>Guardar</button>
-        <button
-          className="bg-green-600 text-white px-3"
-          onClick={() => saveToHistory("finalizado")}
-        >
-          Finalizar
-        </button>
-        <button
-          className="bg-blue-600 text-white px-3"
-          onClick={generarPDF}
-        >
-          PDF
-        </button>
       </div>
     </div>
   );
