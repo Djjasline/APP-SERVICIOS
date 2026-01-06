@@ -1,9 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import Aplicacion from "./Aplicacion";
+import App from "./App";
 import "./index.css";
-
-import { ProveedorDeInformes } from "./contexto/ReportContext";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root")
@@ -11,8 +9,6 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <ProveedorDeInformes>
-      <Aplicacion />
-    </ProveedorDeInformes>
+    <App />
   </React.StrictMode>
 );
