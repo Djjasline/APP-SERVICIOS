@@ -12,7 +12,7 @@ export default function ReportHeader() {
             INFORME TÉCNICO
           </td>
           <td colSpan={2}>
-            <strong>Fecha de versión:</strong> 26-11-25<br />
+            <strong>Fecha de versión:</strong> 01-01-26<br />
             <strong>Versión:</strong> 01
           </td>
         </tr>
