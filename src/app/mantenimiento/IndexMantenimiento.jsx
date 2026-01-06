@@ -1,52 +1,35 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function IndexMantenimiento() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <h1 className="text-2xl font-semibold text-slate-900">
+    <div className="min-h-screen bg-slate-50 px-6 py-8">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <h1 className="text-2xl font-bold text-slate-900">
           Servicio de mantenimiento
         </h1>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {/* MANTENIMIENTO HIDRO */}
-          <div className="bg-white border rounded-xl p-6 space-y-3">
-            <h2 className="text-lg font-semibold">
-              Hidrosuccionador
-            </h2>
-
-            <p className="text-sm text-slate-600">
-              Servicio de mantenimiento para equipos hidrosuccionadores.
-            </p>
+          <div className="bg-white border rounded-xl p-6 space-y-4">
+            <h2 className="font-semibold">Mantenimiento Hidrosuccionador</h2>
 
             <button
-              onClick={() => navigate("/mantenimiento/hidro")}
-              className="mt-3 inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium
-                         bg-blue-600 hover:bg-blue-700 text-white transition"
+              onClick={() => navigate("hidro")}
+              className="w-full px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
             >
-              Nuevo mantenimiento
+              Crear mantenimiento
             </button>
           </div>
 
-          {/* MANTENIMIENTO BARREDORA */}
-          <div className="bg-white border rounded-xl p-6 space-y-3">
-            <h2 className="text-lg font-semibold">
-              Barredora
-            </h2>
-
-            <p className="text-sm text-slate-600">
-              Servicio de mantenimiento para equipos barredora.
-            </p>
+          <div className="bg-white border rounded-xl p-6 space-y-4">
+            <h2 className="font-semibold">Mantenimiento Barredora</h2>
 
             <button
-              onClick={() => navigate("/mantenimiento/barredora")}
-              className="mt-3 inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium
-                         bg-emerald-600 hover:bg-emerald-700 text-white transition"
+              onClick={() => navigate("barredora")}
+              className="w-full px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
             >
-              Nuevo mantenimiento
+              Crear mantenimiento
             </button>
           </div>
         </div>
