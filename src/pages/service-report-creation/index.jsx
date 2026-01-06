@@ -1,85 +1,123 @@
-import { useState } from "react";
+import React, { useRef, useState } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 export default function ServiceReportCreation() {
-  const [form, setForm] = useState({
-    codigo: "AST-SRV-001",
-    cliente: "",
+  const pdfRef = useRef(null);
+
+  const [cliente, setCliente] = useState({
+    nombre: "",
     direccion: "",
     contacto: "",
     telefono: "",
     correo: "",
     fechaServicio: "",
-    actividades: [
-      { titulo: "", detalle: "", imagen: null }
-    ],
-    conclusiones: "",
+    codigoInterno: "",
   });
 
-  return (
-    <div className="flex justify-center bg-slate-100 py-6">
-      <div className="bg-white p-6 w-[900px] border border-black">
+  const [actividades, setActividades] = useState([
+    { titulo: "", detalle: "", imagen: null },
+  ]);
 
-        {/* ================= HEADER ================= */}
-        <table className="w-full border border-black text-sm mb-4">
+  const [conclusiones, setConclusiones] = useState("");
+
+  const handleClienteChange = (e) => {
+    setCliente({ ...cliente, [e.target.name]: e.target.value });
+  };
+
+  const handleActividadChange = (index, field, value) => {
+    const nuevas = [...actividades];
+    nuevas[index][field] = value;
+    setActividades(nuevas);
+  };
+
+  const handleImageChange = (index, file) => {
+    const nuevas = [...actividades];
+    nuevas[index].imagen = URL.createObjectURL(file);
+    setActividades(nuevas);
+  };
+
+  const agregarActividad = () => {
+    setActividades([
+      ...actividades,
+      { titulo: "", detalle: "", imagen: null },
+    ]);
+  };
+
+  const generarPDF = async () => {
+    const canvas = await html2canvas(pdfRef.current, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save("INFORME_GENERAL_SERVICIOS.pdf");
+  };
+
+  return (
+    <div className="p-6 bg-slate-100 min-h-screen">
+      {/* BOTÓN PDF */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={generarPDF}
+          className="px-4 py-2 bg-slate-900 text-white rounded"
+        >
+          GENERAR PDF
+        </button>
+      </div>
+
+      {/* CONTENIDO PDF */}
+      <div ref={pdfRef} className="bg-white p-6 border">
+
+        {/* HEADER */}
+        <table className="w-full border mb-4 text-sm">
           <tbody>
             <tr>
-              <td className="border border-black w-1/5 text-center">
-                <img
-                  src="/astap-logo.jpg"
-                  alt="ASTAP"
-                  className="mx-auto h-12"
-                />
+              <td className="border p-2 w-1/4 text-center font-bold">
+                ASTAP
               </td>
-
-              <td className="border border-black w-3/5 text-center">
-                <div className="font-bold uppercase">
-                  INFORME GENERAL DE SERVICIOS
-                </div>
-                <div className="text-xs uppercase">
-                  DEPARTAMENTO DE SERVICIO TÉCNICO
-                </div>
+              <td className="border p-2 text-center font-bold">
+                INFORME GENERAL DE SERVICIOS<br />
+                Departamento de Servicio Técnico
               </td>
-
-              <td className="border border-black w-1/5 text-xs">
-                <div><b>VERSIÓN:</b> 01</div>
-                <div><b>FECHA:</b> 26-11-25</div>
-                <div><b>PÁGINA:</b> 1</div>
-              </td>
-            </tr>
-
-            <tr>
-              <td className="border border-black text-xs p-1">
-                <b>CÓDIGO:</b> {form.codigo}
-              </td>
-              <td colSpan={2} className="border border-black text-center text-xs">
-                DOCUMENTO CONTROLADO – USO INTERNO
+              <td className="border p-2 w-1/4">
+                Versión: 01<br />
+                Fecha: 26-11-25<br />
+                Página: 1
               </td>
             </tr>
           </tbody>
         </table>
 
-        {/* ================= DATOS CLIENTE ================= */}
-        <table className="w-full border border-black text-sm mb-4">
+        {/* DATOS CLIENTE */}
+        <table className="w-full border text-sm mb-4">
           <tbody>
             {[
-              ["CLIENTE", "cliente"],
+              ["CLIENTE", "nombre"],
               ["DIRECCIÓN", "direccion"],
               ["CONTACTO", "contacto"],
               ["TELÉFONO", "telefono"],
               ["CORREO", "correo"],
               ["FECHA DE SERVICIO", "fechaServicio"],
-            ].map(([label, key]) => (
-              <tr key={key}>
-                <td className="border border-black w-1/4 p-2 font-semibold uppercase">
+              ["CÓDIGO INTERNO", "codigoInterno"],
+            ].map(([label, field]) => (
+              <tr key={field}>
+                <td className="border p-2 w-1/4 font-bold">
                   {label}
                 </td>
-                <td className="border border-black p-2">
+                <td className="border p-2">
                   <input
-                    className="w-full outline-none uppercase"
-                    value={form[key]}
-                    onChange={(e) =>
-                      setForm({ ...form, [key]: e.target.value.toUpperCase() })
-                    }
+                    name={field}
+                    value={cliente[field]}
+                    onChange={handleClienteChange}
+                    className="w-full border px-2 py-1"
                   />
                 </td>
               </tr>
@@ -87,57 +125,84 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        {/* ================= ACTIVIDADES ================= */}
-        <table className="w-full border border-black text-sm mb-4">
+        {/* ACTIVIDADES */}
+        <table className="w-full border text-sm mb-4">
           <thead>
             <tr>
-              <th className="border border-black p-2 uppercase">ÍTEM</th>
-              <th className="border border-black p-2 uppercase">DESCRIPCIÓN DE ACTIVIDADES</th>
-              <th className="border border-black p-2 uppercase">IMAGEN</th>
+              <th className="border p-2 w-12">ÍTEM</th>
+              <th className="border p-2">DESCRIPCIÓN DE ACTIVIDADES</th>
+              <th className="border p-2 w-1/4">IMAGEN</th>
             </tr>
           </thead>
           <tbody>
-            {form.actividades.map((act, i) => (
+            {actividades.map((act, i) => (
               <tr key={i}>
-                <td className="border border-black text-center">{i + 1}</td>
-                <td className="border border-black p-2">
+                <td className="border p-2 text-center">
+                  {i + 1}
+                </td>
+                <td className="border p-2">
                   <input
                     placeholder="TÍTULO"
-                    className="w-full mb-2 border p-1 uppercase"
+                    className="w-full border mb-2 px-2 py-1"
+                    value={act.titulo}
+                    onChange={(e) =>
+                      handleActividadChange(i, "titulo", e.target.value)
+                    }
                   />
                   <textarea
                     placeholder="DETALLE"
-                    className="w-full border p-1 uppercase"
-                    rows={3}
+                    className="w-full border px-2 py-1"
+                    rows={4}
+                    value={act.detalle}
+                    onChange={(e) =>
+                      handleActividadChange(i, "detalle", e.target.value)
+                    }
                   />
                 </td>
-                <td className="border border-black p-2 text-center">
-                  <input type="file" />
+                <td className="border p-2 text-center">
+                  <input
+                    type="file"
+                    onChange={(e) =>
+                      handleImageChange(i, e.target.files[0])
+                    }
+                  />
+                  {act.imagen && (
+                    <img
+                      src={act.imagen}
+                      alt=""
+                      className="mt-2 max-h-32 mx-auto"
+                    />
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        {/* ================= CONCLUSIONES ================= */}
-        <table className="w-full border border-black text-sm">
+        <button
+          onClick={agregarActividad}
+          className="px-3 py-1 border mb-4"
+        >
+          + AGREGAR ACTIVIDAD
+        </button>
+
+        {/* CONCLUSIONES */}
+        <table className="w-full border text-sm">
           <thead>
             <tr>
-              <th className="border border-black p-2 uppercase">
+              <th className="border p-2 text-center">
                 CONCLUSIONES
               </th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td className="border border-black p-2">
+              <td className="border p-2">
                 <textarea
-                  className="w-full uppercase outline-none"
-                  rows={4}
-                  value={form.conclusiones}
-                  onChange={(e) =>
-                    setForm({ ...form, conclusiones: e.target.value.toUpperCase() })
-                  }
+                  className="w-full border px-2 py-2"
+                  rows={5}
+                  value={conclusiones}
+                  onChange={(e) => setConclusiones(e.target.value)}
                 />
               </td>
             </tr>
