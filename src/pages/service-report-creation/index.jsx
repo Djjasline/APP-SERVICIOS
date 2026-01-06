@@ -416,3 +416,106 @@ const removeRow = (setter, list) => {
     </tr>
   </tbody>
 </table>
+
+/* =============================== */
+/* PASO 4 – FIRMAS Y CIERRE */
+/* =============================== */
+
+<table className="pdf-table" style={{ marginTop: 20 }}>
+  <tbody>
+    {/* RESPONSABLES */}
+    <tr>
+      <td className="pdf-label">TÉCNICO RESPONSABLE</td>
+      <td colSpan={3}>
+        <input
+          className="pdf-input"
+          name="tecnico"
+          value={responsables.tecnico}
+          onChange={handleResponsableChange}
+        />
+      </td>
+    </tr>
+
+    <tr>
+      <td className="pdf-label">RESPONSABLE CLIENTE</td>
+      <td colSpan={3}>
+        <input
+          className="pdf-input"
+          name="cliente"
+          value={responsables.cliente}
+          onChange={handleResponsableChange}
+        />
+      </td>
+    </tr>
+
+    <tr>
+      <td className="pdf-label">FECHA DE CIERRE</td>
+      <td colSpan={3}>
+        <input
+          type="date"
+          className="pdf-input"
+          name="fechaCierre"
+          value={responsables.fechaCierre}
+          onChange={handleResponsableChange}
+        />
+      </td>
+    </tr>
+
+    {/* FIRMAS */}
+    <tr>
+      <th colSpan={2}>FIRMA TÉCNICO</th>
+      <th colSpan={2}>FIRMA CLIENTE</th>
+    </tr>
+
+    <tr>
+      <td colSpan={2} style={{ padding: 6 }}>
+        <SignatureCanvas
+          ref={sigTecnicoRef}
+          penColor="black"
+          canvasProps={{
+            width: 300,
+            height: 120,
+            className: "border",
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => clearSignature("tecnico", sigTecnicoRef)}
+          style={{
+            marginTop: 4,
+            fontSize: 11,
+            border: "1px solid #000",
+            padding: "2px 6px",
+          }}
+        >
+          Limpiar
+        </button>
+      </td>
+
+      <td colSpan={2} style={{ padding: 6 }}>
+        <SignatureCanvas
+          ref={sigClienteRef}
+          penColor="black"
+          canvasProps={{
+            width: 300,
+            height: 120,
+            className: "border",
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => clearSignature("cliente", sigClienteRef)}
+          style={{
+            marginTop: 4,
+            fontSize: 11,
+            border: "1px solid #000",
+            padding: "2px 6px",
+          }}
+        >
+          Limpiar
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
