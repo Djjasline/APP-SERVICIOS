@@ -1,18 +1,39 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import "./index.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import { useReports } from "./context/ReportContext";
+import PanelServicios from "./pages/PanelServicios";
+import NotFound from "./pages/NotFound";
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root")
-);
+// Informe general
+import ServiceReportCreation from "./pages/service-report-creation";
 
-root.render(
-  <React.StrictMode>
-    <ProveedorDeInformes>
-      <App />
-    </ProveedorDeInformes>
-  </React.StrictMode>
-);
+// Módulo inspección
+import InspectionRoutes from "./app/inspeccion/Routes";
+
+// Módulo mantenimiento (si existe)
+import MaintenanceRoutes from "./app/mantenimiento/Routes";
+
+export default function AppRoutes() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* MENÚ PRINCIPAL */}
+        <Route path="/" element={<PanelServicios />} />
+
+        {/* INFORME GENERAL */}
+        <Route
+          path="/service-report-creation"
+          element={<ServiceReportCreation />}
+        />
+
+        {/* INSPECCIONES */}
+        <Route path="/inspeccion/*" element={<InspectionRoutes />} />
+
+        {/* MANTENIMIENTO */}
+        <Route path="/mantenimiento/*" element={<MaintenanceRoutes />} />
+
+        {/* 404 */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
