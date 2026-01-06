@@ -5,11 +5,7 @@ import "./index.css";
 
 import { ReportProvider } from "./context/ReportContext";
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root")
-);
-
-root.render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ReportProvider>
       <App />
