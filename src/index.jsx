@@ -1,14 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
+import Aplicacion from "./Aplicacion";
 import "./index.css";
 
-import { ReportProvider } from "./context/ReportContext";
+import { ProveedorDeInformes } from "./contexto/ReportContext";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+const root = ReactDOM.createRoot(
+  document.getElementById("root")
+);
+
+root.render(
   <React.StrictMode>
-    <ReportProvider>
-      <App />
-    </ReportProvider>
+    <ProveedorDeInformes>
+      <Aplicacion />
+    </ProveedorDeInformes>
   </React.StrictMode>
 );
