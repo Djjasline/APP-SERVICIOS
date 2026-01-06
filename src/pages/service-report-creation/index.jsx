@@ -1,9 +1,16 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { useReports } from "../../context/ReportContext";
 
 export default function ServiceReportCreation() {
   const pdfRef = useRef(null);
+  const {
+    currentReport,
+    startNewReport,
+    saveDraft,
+    saveCompleted,
+  } = useReports();
 
   const [cliente, setCliente] = useState({
     nombre: "",
@@ -21,6 +28,38 @@ export default function ServiceReportCreation() {
 
   const [conclusiones, setConclusiones] = useState("");
 
+  /* ===============================
+     CARGAR DESDE CONTEXT
+  =============================== */
+  useEffect(() => {
+    if (!currentReport) return;
+
+    setCliente(
+      currentReport.generalInfo?.cliente || {
+        nombre: "",
+        direccion: "",
+        contacto: "",
+        telefono: "",
+        correo: "",
+        fechaServicio: "",
+        codigoInterno: "",
+      }
+    );
+
+    setActividades(
+      currentReport.activitiesIncidents?.actividades || [
+        { titulo: "", detalle: "", imagen: null },
+      ]
+    );
+
+    setConclusiones(
+      currentReport.activitiesIncidents?.conclusiones || ""
+    );
+  }, [currentReport]);
+
+  /* ===============================
+     HANDLERS
+  =============================== */
   const handleClienteChange = (e) => {
     setCliente({ ...cliente, [e.target.name]: e.target.value });
   };
@@ -44,6 +83,32 @@ export default function ServiceReportCreation() {
     ]);
   };
 
+  /* ===============================
+     GUARDAR
+  =============================== */
+  const buildPayload = () => ({
+    generalInfo: {
+      cliente,
+    },
+    activitiesIncidents: {
+      actividades,
+      conclusiones,
+    },
+  });
+
+  const guardarBorrador = () => {
+    saveDraft(buildPayload());
+    alert("Borrador guardado");
+  };
+
+  const finalizarInforme = () => {
+    saveCompleted(buildPayload());
+    alert("Informe finalizado");
+  };
+
+  /* ===============================
+     PDF
+  =============================== */
   const generarPDF = async () => {
     const canvas = await html2canvas(pdfRef.current, {
       scale: 2,
@@ -61,21 +126,44 @@ export default function ServiceReportCreation() {
     pdf.save("INFORME_GENERAL_SERVICIOS.pdf");
   };
 
+  /* ===============================
+     RENDER
+  =============================== */
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
-      {/* BOTÓN PDF */}
-      <div className="flex justify-end mb-4">
+      {/* BOTONES */}
+      <div className="flex gap-2 justify-end mb-4">
+        <button
+          onClick={startNewReport}
+          className="px-3 py-2 border rounded"
+        >
+          Nuevo
+        </button>
+
+        <button
+          onClick={guardarBorrador}
+          className="px-3 py-2 bg-yellow-500 text-white rounded"
+        >
+          Guardar borrador
+        </button>
+
+        <button
+          onClick={finalizarInforme}
+          className="px-3 py-2 bg-green-600 text-white rounded"
+        >
+          Finalizar
+        </button>
+
         <button
           onClick={generarPDF}
-          className="px-4 py-2 bg-slate-900 text-white rounded"
+          className="px-3 py-2 bg-slate-900 text-white rounded"
         >
-          GENERAR PDF
+          Generar PDF
         </button>
       </div>
 
-      {/* CONTENIDO PDF */}
+      {/* PDF CONTENT */}
       <div ref={pdfRef} className="bg-white p-6 border">
-
         {/* HEADER */}
         <table className="w-full border mb-4 text-sm">
           <tbody>
@@ -84,12 +172,11 @@ export default function ServiceReportCreation() {
                 ASTAP
               </td>
               <td className="border p-2 text-center font-bold">
-                INFORME GENERAL DE SERVICIOS<br />
-                Departamento de Servicio Técnico
+                INFORME GENERAL DE SERVICIOS
               </td>
               <td className="border p-2 w-1/4">
                 Versión: 01<br />
-                Fecha: 26-11-25<br />
+                Fecha: 01-01-26<br />
                 Página: 1
               </td>
             </tr>
@@ -130,7 +217,9 @@ export default function ServiceReportCreation() {
           <thead>
             <tr>
               <th className="border p-2 w-12">ÍTEM</th>
-              <th className="border p-2">DESCRIPCIÓN DE ACTIVIDADES</th>
+              <th className="border p-2">
+                DESCRIPCIÓN DE ACTIVIDADES
+              </th>
               <th className="border p-2 w-1/4">IMAGEN</th>
             </tr>
           </thead>
@@ -208,7 +297,6 @@ export default function ServiceReportCreation() {
             </tr>
           </tbody>
         </table>
-
       </div>
     </div>
   );
