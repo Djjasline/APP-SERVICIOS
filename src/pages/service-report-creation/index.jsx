@@ -314,7 +314,43 @@ export default function ServiceReportCreation() {
           </tr>
         </tbody>
       </table>
-
+{/* ===============================
+   DESCRIPCIÓN DEL EQUIPO
+================================ */}
+<table className="pdf-table" style={{ marginTop: 20 }}>
+  <thead>
+    <tr>
+      <th colSpan={2}>DESCRIPCIÓN DE EQUIPOS</th>
+    </tr>
+  </thead>
+  <tbody>
+    {[
+      ["MARCA", "marca"],
+      ["MODELO", "modelo"],
+      ["N° SERIE", "serie"],
+      ["AÑO MODELO", "anioModelo"],
+      ["VIN / CHASIS", "vin"],
+      ["PLACA N°", "placa"],
+      ["HORAS TRABAJO MÓDULO", "horasModulo"],
+      ["HORAS TRABAJO CHASIS", "horasChasis"],
+      ["KILOMETRAJE", "kilometraje"],
+    ].map(([label, key]) => (
+      <tr key={key}>
+        <td className="pdf-label">{label}</td>
+        <td>
+          <input
+            className="pdf-input"
+            value={data.equipo?.[key] || ""}
+            onChange={(e) =>
+              update(["equipo", key], e.target.value)
+            }
+          />
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+       
       {/* ===============================
          FIRMAS
       ================================ */}
@@ -349,3 +385,50 @@ export default function ServiceReportCreation() {
     </div>
   );
 }
+
+{/* ===============================
+   DATOS RESPONSABLES
+================================ */}
+<table className="pdf-table" style={{ marginTop: 20 }}>
+  <thead>
+    <tr>
+      <th colSpan={2}>ELABORADO POR</th>
+      <th colSpan={2}>APROBADO POR</th>
+    </tr>
+    <tr>
+      <th colSpan={2}>ASTAP CIA LTDA</th>
+      <th colSpan={2}>CLIENTE</th>
+    </tr>
+  </thead>
+  <tbody>
+    {[
+      ["Nombre", "nombre"],
+      ["Cargo", "cargo"],
+      ["Teléfono", "telefono"],
+      ["Correo", "correo"],
+    ].map(([label, key]) => (
+      <tr key={key}>
+        <td className="pdf-label">{label}</td>
+        <td>
+          <input
+            className="pdf-input"
+            value={data.responsables?.astap?.[key] || ""}
+            onChange={(e) =>
+              update(["responsables", "astap", key], e.target.value)
+            }
+          />
+        </td>
+        <td className="pdf-label">{label}</td>
+        <td>
+          <input
+            className="pdf-input"
+            value={data.responsables?.cliente?.[key] || ""}
+            onChange={(e) =>
+              update(["responsables", "cliente", key], e.target.value)
+            }
+          />
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
