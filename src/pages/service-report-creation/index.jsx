@@ -1,71 +1,54 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
+import ReportHeader from "@/components/report/ReportHeader";
 
-/* ===============================
-   STORAGE KEY
-================================ */
-const STORAGE_KEY = "ASTAP_INFORME_GENERAL";
-
-/* ===============================
-   COMPONENTE PRINCIPAL
-================================ */
 export default function ServiceReportCreation() {
-  /* ===============================
-     STATE GENERAL
-  ================================ */
+  // =============================
+  // ESTADO ÚNICO DEL INFORME
+  // =============================
   const [data, setData] = useState({
-    header: {
-      referenciaContrato: "",
-      descripcion: "",
-      codigoInf: "",
-      fechaDD: "",
-      fechaMM: "",
-      fechaAA: "",
-      ubicacion: "",
-      tecnico: "",
-      cliente: "",
-      responsableCliente: "",
-    },
-    actividades: [
-      { titulo: "", detalle: "", imagen: null },
-    ],
+    cliente: "",
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
+    fechaServicio: "",
+
     conclusiones: [""],
     recomendaciones: [""],
-    responsables: {
-      tecnico: "",
-      cliente: "",
-      fechaCierre: "",
+
+    equipo: {
+      marca: "",
+      modelo: "",
+      serie: "",
+      anio: "",
+      vin: "",
+      placa: "",
+      horasModulo: "",
+      horasChasis: "",
+      kilometraje: "",
     },
+
+    responsables: {
+      astap: { nombre: "", cargo: "", telefono: "", correo: "" },
+      cliente: { nombre: "", cargo: "", telefono: "", correo: "" },
+    },
+
     firmas: {
       tecnico: null,
       cliente: null,
     },
-    estado: "BORRADOR",
   });
 
+  // =============================
+  // FIRMA REFS
+  // =============================
   const sigTecnicoRef = useRef(null);
   const sigClienteRef = useRef(null);
 
-  /* ===============================
-     AUTO LOAD
-  ================================ */
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setData(JSON.parse(saved));
-    }
-  }, []);
-
-  /* ===============================
-     AUTO SAVE
-  ================================ */
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [data]);
-
-  /* ===============================
-     HELPERS
-  ================================ */
+  // =============================
+  // HANDLER GENERAL
+  // =============================
   const update = (path, value) => {
     setData((prev) => {
       const copy = structuredClone(prev);
@@ -78,25 +61,9 @@ export default function ServiceReportCreation() {
     });
   };
 
-  const addActividad = () =>
-    update(["actividades"], [
-      ...data.actividades,
-      { titulo: "", detalle: "", imagen: null },
-    ]);
-
-  const addFila = (key) =>
-    update([key], [...data[key], ""]);
-
-  const removeFila = (key) => {
-    if (data[key].length > 1) {
-      update([key], data[key].slice(0, -1));
-    }
-  };
-
   const saveFirma = (tipo, ref) => {
     if (!ref.current) return;
-    const img = ref.current.getTrimmedCanvas().toDataURL("image/png");
-    update(["firmas", tipo], img);
+    update(["firmas", tipo], ref.current.toDataURL());
   };
 
   const clearFirma = (tipo, ref) => {
@@ -105,330 +72,196 @@ export default function ServiceReportCreation() {
     update(["firmas", tipo], null);
   };
 
-  /* ===============================
-     RENDER
-  ================================ */
+  // =============================
+  // RENDER
+  // =============================
   return (
-    <div className="bg-white p-6">
-      {/* ===============================
-         ENCABEZADO
-      ================================ */}
-      <table className="pdf-table">
-        <tbody>
-          <tr>
-            <td rowSpan={4} style={{ textAlign: "center", width: 140 }}>
-              <img src="/astap-logo.jpg" style={{ width: 90 }} />
-            </td>
-            <td colSpan={6} style={{ textAlign: "center", fontWeight: "bold" }}>
-              INFORME TÉCNICO
-            </td>
-            <td colSpan={2}>
-              Fecha versión: 26-11-25<br />
-              Versión: 01
-            </td>
-          </tr>
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="bg-white p-6 max-w-5xl mx-auto space-y-6">
 
-          {[
-            ["REFERENCIA DE CONTRATO", "referenciaContrato"],
-            ["DESCRIPCIÓN", "descripcion"],
-            ["COD. INF.", "codigoInf"],
-          ].map(([label, key]) => (
-            <tr key={key}>
-              <td className="pdf-label">{label}</td>
-              <td colSpan={7}>
-                <input
-                  className="pdf-input"
-                  value={data.header[key]}
-                  onChange={(e) =>
-                    update(["header", key], e.target.value)
-                  }
-                />
-              </td>
-            </tr>
-          ))}
+        <ReportHeader />
 
-          <tr>
-            <td className="pdf-label">FECHA EMISIÓN</td>
-            {["fechaDD", "fechaMM", "fechaAA"].map((f) => (
-              <td key={f}>
-                <input
-                  className="pdf-input"
-                  value={data.header[f]}
-                  onChange={(e) =>
-                    update(["header", f], e.target.value)
-                  }
-                />
-              </td>
-            ))}
-            <td className="pdf-label">UBICACIÓN</td>
-            <td colSpan={2}>
-              <input
-                className="pdf-input"
-                value={data.header.ubicacion}
-                onChange={(e) =>
-                  update(["header", "ubicacion"], e.target.value)
-                }
-              />
-            </td>
-            <td className="pdf-label">TÉCNICO</td>
-            <td>
-              <input
-                className="pdf-input"
-                value={data.header.tecnico}
-                onChange={(e) =>
-                  update(["header", "tecnico"], e.target.value)
-                }
-              />
-            </td>
-          </tr>
-
-          <tr>
-            <td colSpan={4}></td>
-            <td className="pdf-label">CLIENTE</td>
-            <td colSpan={2}>
-              <input
-                className="pdf-input"
-                value={data.header.cliente}
-                onChange={(e) =>
-                  update(["header", "cliente"], e.target.value)
-                }
-              />
-            </td>
-            <td className="pdf-label">RESP. CLIENTE</td>
-            <td>
-              <input
-                className="pdf-input"
-                value={data.header.responsableCliente}
-                onChange={(e) =>
-                  update(["header", "responsableCliente"], e.target.value)
-                }
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* ===============================
-         ACTIVIDADES
-      ================================ */}
-      <table className="pdf-table" style={{ marginTop: 20 }}>
-        <thead>
-          <tr>
-            <th>ÍTEM</th>
-            <th>DESCRIPCIÓN DE ACTIVIDADES</th>
-            <th>IMAGEN</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.actividades.map((a, i) => (
-            <tr key={i}>
-              <td>{i + 1}</td>
-              <td>
-                <input
-                  className="pdf-input"
-                  placeholder="TÍTULO"
-                  value={a.titulo}
-                  onChange={(e) =>
-                    update(["actividades", i, "titulo"], e.target.value)
-                  }
-                />
-                <textarea
-                  className="pdf-textarea"
-                  placeholder="DETALLE"
-                  value={a.detalle}
-                  onChange={(e) =>
-                    update(["actividades", i, "detalle"], e.target.value)
-                  }
-                />
-              </td>
-              <td>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const r = new FileReader();
-                    r.onload = () =>
-                      update(["actividades", i, "imagen"], r.result);
-                    r.readAsDataURL(e.target.files[0]);
-                  }}
-                />
-                {a.imagen && (
-                  <img
-                    src={a.imagen}
-                    style={{ maxWidth: 160, marginTop: 6 }}
+        {/* ================= CLIENTE ================= */}
+        <table className="pdf-table">
+          <tbody>
+            {[
+              ["CLIENTE", "cliente"],
+              ["DIRECCIÓN", "direccion"],
+              ["CONTACTO", "contacto"],
+              ["TELÉFONO", "telefono"],
+              ["CORREO", "correo"],
+              ["FECHA DE SERVICIO", "fechaServicio"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="pdf-label">{label}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data[key]}
+                    onChange={(e) => update([key], e.target.value)}
                   />
-                )}
-              </td>
-            </tr>
-          ))}
-          <tr>
-            <td colSpan={3}>
-              <button onClick={addActividad}>
-                + AGREGAR ACTIVIDAD
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      {/* ===============================
-         CONCLUSIONES / RECOMENDACIONES
-      ================================ */}
-      <table className="pdf-table" style={{ marginTop: 20 }}>
-        <thead>
-          <tr>
-            <th colSpan={2}>CONCLUSIONES</th>
-            <th colSpan={2}>RECOMENDACIONES</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.conclusiones.map((_, i) => (
-            <tr key={i}>
-              <td>{i + 1}</td>
-              <td>
-                <textarea
-                  className="pdf-textarea"
-                  value={data.conclusiones[i]}
-                  onChange={(e) =>
-                    update(["conclusiones", i], e.target.value)
-                  }
-                />
+        {/* ================= CONCLUSIONES ================= */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>CONCLUSIONES</th>
+              <th>RECOMENDACIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.conclusiones.map((_, i) => (
+              <tr key={i}>
+                <td>
+                  <textarea
+                    className="pdf-textarea"
+                    value={data.conclusiones[i]}
+                    onChange={(e) =>
+                      update(["conclusiones", i], e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <textarea
+                    className="pdf-textarea"
+                    value={data.recomendaciones[i]}
+                    onChange={(e) =>
+                      update(["recomendaciones", i], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="flex gap-4">
+          <button
+            onClick={() =>
+              setData((p) => ({
+                ...p,
+                conclusiones: [...p.conclusiones, ""],
+                recomendaciones: [...p.recomendaciones, ""],
+              }))
+            }
+            className="px-3 py-1 border"
+          >
+            + Fila
+          </button>
+
+          <button
+            onClick={() =>
+              setData((p) => ({
+                ...p,
+                conclusiones: p.conclusiones.slice(0, -1),
+                recomendaciones: p.recomendaciones.slice(0, -1),
+              }))
+            }
+            className="px-3 py-1 border"
+          >
+            − Fila
+          </button>
+        </div>
+
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th colSpan="2">DESCRIPCIÓN DEL EQUIPO</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ["MARCA", "marca"],
+              ["MODELO", "modelo"],
+              ["N° SERIE", "serie"],
+              ["AÑO", "anio"],
+              ["VIN", "vin"],
+              ["PLACA", "placa"],
+              ["HORAS MÓDULO", "horasModulo"],
+              ["HORAS CHASIS", "horasChasis"],
+              ["KILOMETRAJE", "kilometraje"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="pdf-label">{label}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data.equipo[key]}
+                    onChange={(e) =>
+                      update(["equipo", key], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* ================= FIRMAS ================= */}
+        <table className="pdf-table">
+          <tbody>
+            <tr>
+              <th colSpan="2">FIRMA TÉCNICO</th>
+              <th colSpan="2">FIRMA CLIENTE</th>
+            </tr>
+            <tr>
+              <td colSpan="2">
+                <SignatureCanvas ref={sigTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
+                <button onClick={() => saveFirma("tecnico", sigTecnicoRef)}>Guardar</button>
+                <button onClick={() => clearFirma("tecnico", sigTecnicoRef)}>Limpiar</button>
               </td>
-              <td>{i + 1}</td>
-              <td>
-                <textarea
-                  className="pdf-textarea"
-                  value={data.recomendaciones[i]}
-                  onChange={(e) =>
-                    update(["recomendaciones", i], e.target.value)
-                  }
-                />
+              <td colSpan="2">
+                <SignatureCanvas ref={sigClienteRef} canvasProps={{ className: "border w-full h-32" }} />
+                <button onClick={() => saveFirma("cliente", sigClienteRef)}>Guardar</button>
+                <button onClick={() => clearFirma("cliente", sigClienteRef)}>Limpiar</button>
               </td>
             </tr>
-          ))}
-          <tr>
-            <td colSpan={4}>
-              <button onClick={() => addFila("conclusiones")}>+</button>
-              <button onClick={() => removeFila("conclusiones")}>−</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-{/* ===============================
-   DESCRIPCIÓN DEL EQUIPO
-================================ */}
-<table className="pdf-table" style={{ marginTop: 20 }}>
-  <thead>
-    <tr>
-      <th colSpan={2}>DESCRIPCIÓN DE EQUIPOS</th>
-    </tr>
-  </thead>
-  <tbody>
-    {[
-      ["MARCA", "marca"],
-      ["MODELO", "modelo"],
-      ["N° SERIE", "serie"],
-      ["AÑO MODELO", "anioModelo"],
-      ["VIN / CHASIS", "vin"],
-      ["PLACA N°", "placa"],
-      ["HORAS TRABAJO MÓDULO", "horasModulo"],
-      ["HORAS TRABAJO CHASIS", "horasChasis"],
-      ["KILOMETRAJE", "kilometraje"],
-    ].map(([label, key]) => (
-      <tr key={key}>
-        <td className="pdf-label">{label}</td>
-        <td>
-          <input
-            className="pdf-input"
-            value={data.equipo?.[key] || ""}
-            onChange={(e) =>
-              update(["equipo", key], e.target.value)
-            }
-          />
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-       
-      {/* ===============================
-         FIRMAS
-      ================================ */}
-      <table className="pdf-table" style={{ marginTop: 20 }}>
-        <tbody>
-          <tr>
-            <th colSpan={2}>FIRMA TÉCNICO</th>
-            <th colSpan={2}>FIRMA CLIENTE</th>
-          </tr>
-          <tr>
-            <td colSpan={2}>
-              <SignatureCanvas ref={sigTecnicoRef} />
-              <button onClick={() => saveFirma("tecnico", sigTecnicoRef)}>
-                Guardar
-              </button>
-              <button onClick={() => clearFirma("tecnico", sigTecnicoRef)}>
-                Limpiar
-              </button>
-            </td>
-            <td colSpan={2}>
-              <SignatureCanvas ref={sigClienteRef} />
-              <button onClick={() => saveFirma("cliente", sigClienteRef)}>
-                Guardar
-              </button>
-              <button onClick={() => clearFirma("cliente", sigClienteRef)}>
-                Limpiar
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+
+        {/* ================= RESPONSABLES ================= */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th colSpan="2">ELABORADO POR</th>
+              <th colSpan="2">APROBADO POR</th>
+            </tr>
+          </thead>
+          <tbody>
+            {["nombre", "cargo", "telefono", "correo"].map((key) => (
+              <tr key={key}>
+                <td className="pdf-label">{key.toUpperCase()}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data.responsables.astap[key]}
+                    onChange={(e) =>
+                      update(["responsables", "astap", key], e.target.value)
+                    }
+                  />
+                </td>
+                <td className="pdf-label">{key.toUpperCase()}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data.responsables.cliente[key]}
+                    onChange={(e) =>
+                      update(["responsables", "cliente", key], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+      </div>
     </div>
   );
 }
-
-{/* ===============================
-   DATOS RESPONSABLES
-================================ */}
-<table className="pdf-table" style={{ marginTop: 20 }}>
-  <thead>
-    <tr>
-      <th colSpan={2}>ELABORADO POR</th>
-      <th colSpan={2}>APROBADO POR</th>
-    </tr>
-    <tr>
-      <th colSpan={2}>ASTAP CIA LTDA</th>
-      <th colSpan={2}>CLIENTE</th>
-    </tr>
-  </thead>
-  <tbody>
-    {[
-      ["Nombre", "nombre"],
-      ["Cargo", "cargo"],
-      ["Teléfono", "telefono"],
-      ["Correo", "correo"],
-    ].map(([label, key]) => (
-      <tr key={key}>
-        <td className="pdf-label">{label}</td>
-        <td>
-          <input
-            className="pdf-input"
-            value={data.responsables?.astap?.[key] || ""}
-            onChange={(e) =>
-              update(["responsables", "astap", key], e.target.value)
-            }
-          />
-        </td>
-        <td className="pdf-label">{label}</td>
-        <td>
-          <input
-            className="pdf-input"
-            value={data.responsables?.cliente?.[key] || ""}
-            onChange={(e) =>
-              update(["responsables", "cliente", key], e.target.value)
-            }
-          />
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
