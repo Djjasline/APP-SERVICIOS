@@ -1,176 +1,148 @@
-import React from "react";
+import logo from "@/astap-logo.jpg";
 
-export default function ReportHeader() {
+export default function ReportHeader({ data, onChange }) {
   return (
-    <table
-      style={{
-        width: "100%",
-        borderCollapse: "collapse",
-        fontFamily: "Arial, sans-serif",
-        fontSize: "11px",
-      }}
-    >
-      {/* ================= HEADER SUPERIOR ================= */}
-      <tr>
-        {/* LOGO */}
-        <td
-          rowSpan={4}
-          style={{
-            border: "1px solid black",
-            width: "140px",
-            textAlign: "center",
-            verticalAlign: "middle",
-          }}
-        >
-          <img
-            src="/astap-logo.jpg"
-            alt="ASTAP"
-            style={{ width: "90px" }}
-          />
-        </td>
+    <table className="pdf-table">
+      <tbody>
+        {/* FILA 1 */}
+        <tr>
+          <td rowSpan={4} style={{ width: 120, textAlign: "center" }}>
+            <img src={logo} alt="ASTAP" style={{ width: 80 }} />
+          </td>
 
-        {/* TITULO */}
-        <td
-          colSpan={4}
-          style={{
-            border: "1px solid black",
-            textAlign: "center",
-            fontWeight: "bold",
-          }}
-        >
-          INFORME TÉCNICO
-        </td>
+          <td colSpan={4} style={{ textAlign: "center", fontWeight: "bold" }}>
+            INFORME TÉCNICO
+          </td>
 
-        {/* VERSION */}
-        <td
-          colSpan={2}
-          style={{ border: "1px solid black" }}
-        >
-          FECHA DE VERSIÓN: 26-11-25
-        </td>
-      </tr>
+          <td colSpan={2}>
+            <strong>FECHA DE VERSIÓN:</strong> 26-11-25
+          </td>
+        </tr>
 
-      <tr>
-        <td
-          colSpan={4}
-          style={{ border: "1px solid black" }}
-        ></td>
-        <td colSpan={2} style={{ border: "1px solid black" }}>
-          VERSIÓN: 01
-        </td>
-      </tr>
+        {/* FILA 2 */}
+        <tr>
+          <td className="pdf-label">REFERENCIA DE CONTRATO:</td>
+          <td colSpan={3}>
+            <input
+              className="pdf-input"
+              value={data.referenciaContrato || ""}
+              onChange={(e) =>
+                onChange(["referenciaContrato"], e.target.value)
+              }
+            />
+          </td>
 
-      {/* ================= CUERPO SUPERIOR ================= */}
-      <tr>
-        <td
-          style={{
-            border: "1px solid black",
-            fontWeight: "bold",
-            width: "180px",
-          }}
-        >
-          REFERENCIA DE CONTRATO:
-        </td>
-        <td colSpan={5} style={{ border: "1px solid black" }}></td>
-      </tr>
+          <td colSpan={2}>
+            <strong>VERSIÓN:</strong> 01
+          </td>
+        </tr>
 
-      <tr>
-        <td
-          style={{
-            border: "1px solid black",
-            fontWeight: "bold",
-          }}
-        >
-          DESCRIPCIÓN:
-        </td>
-        <td colSpan={5} style={{ border: "1px solid black" }}></td>
-      </tr>
+        {/* FILA 3 */}
+        <tr>
+          <td className="pdf-label">DESCRIPCIÓN:</td>
+          <td colSpan={3}>
+            <input
+              className="pdf-input"
+              value={data.descripcion || ""}
+              onChange={(e) =>
+                onChange(["descripcion"], e.target.value)
+              }
+            />
+          </td>
 
-      <tr>
-        <td
-          style={{
-            border: "1px solid black",
-            fontWeight: "bold",
-          }}
-        >
-          COD. INF.:
-        </td>
-        <td colSpan={5} style={{ border: "1px solid black" }}></td>
-      </tr>
+          <td colSpan={2}>
+            <strong>COD. INF.:</strong> AST-SRV-001
+          </td>
+        </tr>
 
-      {/* ================= FILA FECHA / UBICACIÓN ================= */}
-      <tr>
-        <td
-          style={{
-            border: "1px solid black",
-            fontWeight: "bold",
-          }}
-        >
-          FECHA DE EMISIÓN:
-        </td>
-        <td style={{ border: "1px solid black", width: "40px" }}>DD</td>
-        <td style={{ border: "1px solid black", width: "40px" }}>MM</td>
-        <td style={{ border: "1px solid black", width: "40px" }}>AA</td>
-        <td
-          style={{
-            border: "1px solid black",
-            fontWeight: "bold",
-            width: "140px",
-          }}
-        >
-          UBICACIÓN:
-        </td>
-        <td style={{ border: "1px solid black" }}></td>
-      </tr>
+        {/* FILA 4 */}
+        <tr>
+          <td className="pdf-label">FECHA DE EMISIÓN:</td>
+          <td style={{ width: 40 }}>
+            <input
+              className="pdf-input"
+              placeholder="DD"
+              value={data.fechaDD || ""}
+              onChange={(e) => onChange(["fechaDD"], e.target.value)}
+            />
+          </td>
+          <td style={{ width: 40 }}>
+            <input
+              className="pdf-input"
+              placeholder="MM"
+              value={data.fechaMM || ""}
+              onChange={(e) => onChange(["fechaMM"], e.target.value)}
+            />
+          </td>
+          <td style={{ width: 40 }}>
+            <input
+              className="pdf-input"
+              placeholder="AA"
+              value={data.fechaAA || ""}
+              onChange={(e) => onChange(["fechaAA"], e.target.value)}
+            />
+          </td>
 
-      {/* ================= RESPONSABLES ================= */}
-      <tr>
-        <td
-          colSpan={4}
-          style={{ border: "1px solid black" }}
-        ></td>
-        <td
-          style={{
-            border: "1px solid black",
-            fontWeight: "bold",
-          }}
-        >
-          TÉCNICO RESPONSABLE:
-        </td>
-        <td style={{ border: "1px solid black" }}></td>
-      </tr>
+          <td className="pdf-label">UBICACIÓN:</td>
+          <td colSpan={2}>
+            <input
+              className="pdf-input"
+              value={data.ubicacion || ""}
+              onChange={(e) =>
+                onChange(["ubicacion"], e.target.value)
+              }
+            />
+          </td>
+        </tr>
 
-      <tr>
-        <td
-          colSpan={4}
-          style={{ border: "1px solid black" }}
-        ></td>
-        <td
-          style={{
-            border: "1px solid black",
-            fontWeight: "bold",
-          }}
-        >
-          CLIENTE:
-        </td>
-        <td style={{ border: "1px solid black" }}></td>
-      </tr>
+        {/* FILA 5 */}
+        <tr>
+          <td colSpan={4}></td>
 
-      <tr>
-        <td
-          colSpan={4}
-          style={{ border: "1px solid black" }}
-        ></td>
-        <td
-          style={{
-            border: "1px solid black",
-            fontWeight: "bold",
-          }}
-        >
-          RESPONSABLE CLIENTE:
-        </td>
-        <td style={{ border: "1px solid black" }}></td>
-      </tr>
+          <td className="pdf-label">TÉCNICO RESPONSABLE:</td>
+          <td>
+            <input
+              className="pdf-input"
+              value={data.tecnico || ""}
+              onChange={(e) =>
+                onChange(["tecnico"], e.target.value)
+              }
+            />
+          </td>
+        </tr>
+
+        {/* FILA 6 */}
+        <tr>
+          <td colSpan={4}></td>
+
+          <td className="pdf-label">CLIENTE:</td>
+          <td>
+            <input
+              className="pdf-input"
+              value={data.cliente || ""}
+              onChange={(e) =>
+                onChange(["cliente"], e.target.value)
+              }
+            />
+          </td>
+        </tr>
+
+        {/* FILA 7 */}
+        <tr>
+          <td colSpan={4}></td>
+
+          <td className="pdf-label">RESPONSABLE CLIENTE:</td>
+          <td>
+            <input
+              className="pdf-input"
+              value={data.responsableCliente || ""}
+              onChange={(e) =>
+                onChange(["responsableCliente"], e.target.value)
+              }
+            />
+          </td>
+        </tr>
+      </tbody>
     </table>
   );
 }
