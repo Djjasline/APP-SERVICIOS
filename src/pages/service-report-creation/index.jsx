@@ -168,3 +168,128 @@ export default function ServiceReportCreation() {
     </div>
   );
 }
+
+/* =============================== */
+/* PASO 2 – DESCRIPCIÓN ACTIVIDADES */
+/* =============================== */
+
+const [activities, setActivities] = useState([
+  {
+    titulo: "",
+    detalle: "",
+    imagen: null,
+    imagenPreview: null,
+  },
+]);
+
+const handleActivityChange = (index, field, value) => {
+  const updated = [...activities];
+  updated[index][field] = value;
+  setActivities(updated);
+};
+
+const handleImageChange = (index, file) => {
+  const reader = new FileReader();
+  reader.onload = () => {
+    const updated = [...activities];
+    updated[index].imagen = file;
+    updated[index].imagenPreview = reader.result;
+    setActivities(updated);
+  };
+  reader.readAsDataURL(file);
+};
+
+const addActivity = () => {
+  setActivities([
+    ...activities,
+    { titulo: "", detalle: "", imagen: null, imagenPreview: null },
+  ]);
+};
+
+/* =============================== */
+/* RENDER */
+/* =============================== */
+
+<table className="pdf-table" style={{ marginTop: 20 }}>
+  <thead>
+    <tr>
+      <th style={{ width: "60px" }}>ÍTEM</th>
+      <th>DESCRIPCIÓN DE ACTIVIDADES</th>
+      <th style={{ width: "200px" }}>IMAGEN</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {activities.map((act, index) => (
+      <tr key={index}>
+        {/* ÍTEM */}
+        <td style={{ textAlign: "center", fontWeight: "bold" }}>
+          {index + 1}
+        </td>
+
+        {/* DESCRIPCIÓN */}
+        <td>
+          <input
+            className="pdf-input"
+            placeholder="TÍTULO DE LA ACTIVIDAD"
+            value={act.titulo}
+            onChange={(e) =>
+              handleActivityChange(index, "titulo", e.target.value)
+            }
+          />
+
+          <textarea
+            className="pdf-textarea"
+            placeholder="DETALLE DE LA ACTIVIDAD"
+            value={act.detalle}
+            onChange={(e) =>
+              handleActivityChange(index, "detalle", e.target.value)
+            }
+          />
+        </td>
+
+        {/* IMAGEN */}
+        <td style={{ textAlign: "center" }}>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              handleImageChange(index, e.target.files[0])
+            }
+          />
+
+          {act.imagenPreview && (
+            <img
+              src={act.imagenPreview}
+              alt="Actividad"
+              style={{
+                marginTop: 8,
+                maxWidth: "180px",
+                maxHeight: "120px",
+                border: "1px solid #000",
+              }}
+            />
+          )}
+        </td>
+      </tr>
+    ))}
+
+    {/* BOTÓN AGREGAR */}
+    <tr>
+      <td colSpan={3} style={{ textAlign: "left" }}>
+        <button
+          type="button"
+          onClick={addActivity}
+          style={{
+            padding: "4px 10px",
+            border: "1px solid #000",
+            fontSize: "11px",
+            cursor: "pointer",
+          }}
+        >
+          + AGREGAR ACTIVIDAD
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
