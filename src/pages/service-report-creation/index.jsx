@@ -1,12 +1,26 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
 
 export default function ServiceReportCreation() {
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const reportId = params.get("id");
+
+  const pdfRef = useRef(null);
+  const sigTecnicoRef = useRef(null);
+  const sigClienteRef = useRef(null);
+
+  // ===============================
+  // ESTADO COMPLETO DEL INFORME
+  // ===============================
   const [data, setData] = useState({
     referenciaContrato: "",
-    descripcion: "",
-    codInf: "",
+    descripcionContrato: "",
+    codigoInf: "",
 
     cliente: "",
     direccion: "",
@@ -16,7 +30,7 @@ export default function ServiceReportCreation() {
     fechaServicio: "",
 
     actividades: [
-      { titulo: "", detalle: "", imagen: null },
+      { titulo: "", detalle: "", imagen: null }
     ],
 
     conclusiones: [""],
@@ -26,12 +40,17 @@ export default function ServiceReportCreation() {
       marca: "",
       modelo: "",
       serie: "",
-      año: "",
+      anio: "",
       vin: "",
       placa: "",
-      horas Modulo: "",
-      horas Chasis: "",
+      horasModulo: "",
+      horasChasis: "",
       kilometraje: "",
+    },
+
+    firmas: {
+      tecnico: null,
+      cliente: null,
     },
 
     responsables: {
@@ -40,9 +59,19 @@ export default function ServiceReportCreation() {
     },
   });
 
-  const sigTecnicoRef = useState(null)[0];
-  const sigClienteRef = useState(null)[0];
+  // ===============================
+  // CARGAR DESDE HISTORIAL
+  // ===============================
+  useEffect(() => {
+    if (!reportId) return;
+    const all = JSON.parse(localStorage.getItem("serviceReports") || "[]");
+    const found = all.find(r => r.id === reportId);
+    if (found) setData(found.data);
+  }, [reportId]);
 
+  // ===============================
+  // UPDATE PROFUNDO
+  // ===============================
   const update = (path, value) => {
     setData(prev => {
       const copy = structuredClone(prev);
@@ -55,46 +84,55 @@ export default function ServiceReportCreation() {
     });
   };
 
-  const addActividad = () =>
-    setData(p => ({
-      ...p,
-      actividades: [...p.actividades, { titulo: "", detalle: "", imagen: null }],
-    }));
+  // ===============================
+  // GUARDAR INFORME
+  // ===============================
+  const saveReport = (estado = "borrador") => {
+    const report = {
+      id: reportId || Date.now().toString(),
+      estado,
+      fecha: new Date().toISOString(),
+      data,
+    };
 
-  const removeActividad = () =>
-    setData(p => ({
-      ...p,
-      actividades: p.actividades.slice(0, -1),
-    }));
+    const all = JSON.parse(localStorage.getItem("serviceReports") || "[]");
+    const filtered = all.filter(r => r.id !== report.id);
+    filtered.push(report);
+    localStorage.setItem("serviceReports", JSON.stringify(filtered));
 
-  const handleImage = (i, file) => {
-    const reader = new FileReader();
-    reader.onload = () =>
-      update(["actividades", i, "imagen"], reader.result);
-    reader.readAsDataURL(file);
+    alert("Informe guardado");
+    return report.id;
   };
 
-  const addFilaCR = () =>
-    setData(p => ({
-      ...p,
-      conclusiones: [...p.conclusiones, ""],
-      recomendaciones: [...p.recomendaciones, ""],
-    }));
+  // ===============================
+  // PDF
+  // ===============================
+  const generatePDF = async () => {
+    const canvas = await html2canvas(pdfRef.current, { scale: 2 });
+    const img = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    pdf.addImage(img, "PNG", 0, 0, 210, 297);
+    pdf.save(`Informe-${Date.now()}.pdf`);
+  };
 
-  const removeFilaCR = () =>
-    setData(p => ({
-      ...p,
-      conclusiones: p.conclusiones.slice(0, -1),
-      recomendaciones: p.recomendaciones.slice(0, -1),
-    }));
+  // ===============================
+  // FIRMAS
+  // ===============================
+  const saveFirma = (tipo, ref) => {
+    if (!ref.current) return;
+    update(["firmas", tipo], ref.current.toDataURL());
+  };
 
+  // ===============================
+  // RENDER
+  // ===============================
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="bg-white p-6 rounded shadow max-w-5xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto bg-white p-6 rounded space-y-6" ref={pdfRef}>
 
-        <ReportHeader data={data} />
+        <ReportHeader />
 
-        {/* DATOS CLIENTE */}
+        {/* CLIENTE */}
         <table className="pdf-table">
           <tbody>
             {[
@@ -104,12 +142,15 @@ export default function ServiceReportCreation() {
               ["TELÉFONO", "telefono"],
               ["CORREO", "correo"],
               ["FECHA DE SERVICIO", "fechaServicio"],
-            ].map(([l, k]) => (
-              <tr key={k}>
-                <td className="pdf-label">{l}</td>
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="pdf-label">{label}</td>
                 <td>
-                  <input className="pdf-input" value={data[k]}
-                    onChange={e => update([k], e.target.value)} />
+                  <input
+                    className="pdf-input"
+                    value={data[key]}
+                    onChange={e => update([key], e.target.value)}
+                  />
                 </td>
               </tr>
             ))}
@@ -130,29 +171,38 @@ export default function ServiceReportCreation() {
               <tr key={i}>
                 <td>{i + 1}</td>
                 <td>
-                  <input className="pdf-input" placeholder="Título"
+                  <input
+                    className="pdf-input"
+                    placeholder="Título"
                     value={a.titulo}
-                    onChange={e => update(["actividades", i, "titulo"], e.target.value)} />
-                  <textarea className="pdf-textarea" placeholder="Detalle"
+                    onChange={e => update(["actividades", i, "titulo"], e.target.value)}
+                  />
+                  <textarea
+                    className="pdf-textarea"
+                    placeholder="Detalle"
                     value={a.detalle}
-                    onChange={e => update(["actividades", i, "detalle"], e.target.value)} />
+                    onChange={e => update(["actividades", i, "detalle"], e.target.value)}
+                  />
                 </td>
                 <td>
-                  <input type="file" accept="image/*"
-                    onChange={e => handleImage(i, e.target.files[0])} />
-                  {a.imagen && <img src={a.imagen} style={{ maxWidth: "100%" }} />}
+                  <input
+                    type="file"
+                    onChange={e =>
+                      update(
+                        ["actividades", i, "imagen"],
+                        e.target.files[0]
+                          ? URL.createObjectURL(e.target.files[0])
+                          : null
+                      )
+                    }
+                  />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <div className="flex gap-4">
-          <button onClick={addActividad}>+ Agregar actividad</button>
-          <button onClick={removeActividad}>− Quitar actividad</button>
-        </div>
-
-        {/* CONCLUSIONES / RECOMENDACIONES */}
+        {/* CONCLUSIONES */}
         <table className="pdf-table">
           <thead>
             <tr>
@@ -163,33 +213,40 @@ export default function ServiceReportCreation() {
           <tbody>
             {data.conclusiones.map((_, i) => (
               <tr key={i}>
-                <td><textarea className="pdf-textarea"
-                  value={data.conclusiones[i]}
-                  onChange={e => update(["conclusiones", i], e.target.value)} /></td>
-                <td><textarea className="pdf-textarea"
-                  value={data.recomendaciones[i]}
-                  onChange={e => update(["recomendaciones", i], e.target.value)} /></td>
+                <td>
+                  <textarea
+                    className="pdf-textarea"
+                    value={data.conclusiones[i]}
+                    onChange={e => update(["conclusiones", i], e.target.value)}
+                  />
+                </td>
+                <td>
+                  <textarea
+                    className="pdf-textarea"
+                    value={data.recomendaciones[i]}
+                    onChange={e => update(["recomendaciones", i], e.target.value)}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <div className="flex gap-4">
-          <button onClick={addFilaCR}>+ Agregar fila</button>
-          <button onClick={removeFilaCR}>− Quitar fila</button>
-        </div>
-
-        {/* DESCRIPCIÓN EQUIPO */}
+        {/* DESCRIPCIÓN DEL EQUIPO */}
         <table className="pdf-table">
-          <thead><tr><th colSpan="2">DESCRIPCIÓN DEL EQUIPO</th></tr></thead>
+          <thead>
+            <tr><th colSpan={2}>DESCRIPCIÓN DEL EQUIPO</th></tr>
+          </thead>
           <tbody>
             {Object.entries(data.equipo).map(([k]) => (
               <tr key={k}>
                 <td className="pdf-label">{k.toUpperCase()}</td>
                 <td>
-                  <input className="pdf-input"
+                  <input
+                    className="pdf-input"
                     value={data.equipo[k]}
-                    onChange={e => update(["equipo", k], e.target.value)} />
+                    onChange={e => update(["equipo", k], e.target.value)}
+                  />
                 </td>
               </tr>
             ))}
@@ -199,36 +256,43 @@ export default function ServiceReportCreation() {
         {/* FIRMAS */}
         <table className="pdf-table">
           <thead>
-            <tr><th>FIRMA TÉCNICO</th><th>FIRMA CLIENTE</th></tr>
+            <tr>
+              <th>FIRMA TÉCNICO</th>
+              <th>FIRMA CLIENTE</th>
+            </tr>
           </thead>
           <tbody>
             <tr>
-              <td><SignatureCanvas ref={sigTecnicoRef} /></td>
-              <td><SignatureCanvas ref={sigClienteRef} /></td>
+              <td>
+                <SignatureCanvas ref={sigTecnicoRef} />
+                <button onClick={() => saveFirma("tecnico", sigTecnicoRef)}>Guardar</button>
+              </td>
+              <td>
+                <SignatureCanvas ref={sigClienteRef} />
+                <button onClick={() => saveFirma("cliente", sigClienteRef)}>Guardar</button>
+              </td>
             </tr>
           </tbody>
         </table>
 
-        {/* RESPONSABLES */}
-        <table className="pdf-table">
-          <thead>
-            <tr><th colSpan="2">ELABORADO POR</th><th colSpan="2">APROBADO POR</th></tr>
-          </thead>
-          <tbody>
-            {["nombre", "cargo", "telefono", "correo"].map(k => (
-              <tr key={k}>
-                <td>{k.toUpperCase()}</td>
-                <td><input className="pdf-input"
-                  value={data.responsables.astap[k]}
-                  onChange={e => update(["responsables", "astap", k], e.target.value)} /></td>
-                <td>{k.toUpperCase()}</td>
-                <td><input className="pdf-input"
-                  value={data.responsables.cliente[k]}
-                  onChange={e => update(["responsables", "cliente", k], e.target.value)} /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {/* BOTONES */}
+        <div className="flex gap-4">
+          <button onClick={() => saveReport("borrador")} className="border px-4 py-2">
+            Guardar
+          </button>
+          <button
+            onClick={() => {
+              saveReport("final");
+              generatePDF();
+            }}
+            className="bg-black text-white px-4 py-2"
+          >
+            Guardar y PDF
+          </button>
+          <button onClick={() => navigate("/report-history-management")}>
+            Historial
+          </button>
+        </div>
 
       </div>
     </div>
