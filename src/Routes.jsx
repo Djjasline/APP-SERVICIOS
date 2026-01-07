@@ -5,15 +5,13 @@ import NotFound from "./pages/NotFound";
 
 // Informe general
 import ServiceReportCreation from "./pages/service-report-creation";
-
 import ServiceReportHistory from "./pages/service-report-history";
 import ServiceReportPreview from "./pages/service-report-preview";
-
 
 // Módulo inspección
 import InspectionRoutes from "./app/inspeccion/Routes";
 
-// Módulo mantenimiento (si existe)
+// Módulo mantenimiento
 import MaintenanceRoutes from "./app/mantenimiento/Routes";
 
 export default function AppRoutes() {
@@ -28,6 +26,14 @@ export default function AppRoutes() {
           path="/service-report-creation"
           element={<ServiceReportCreation />}
         />
+        <Route
+          path="/service-report-history"
+          element={<ServiceReportHistory />}
+        />
+        <Route
+          path="/service-report-preview"
+          element={<ServiceReportPreview />}
+        />
 
         {/* INSPECCIONES */}
         <Route path="/inspeccion/*" element={<InspectionRoutes />} />
@@ -41,23 +47,3 @@ export default function AppRoutes() {
     </BrowserRouter>
   );
 }
-<Routes>
-  <Route path="/" element={<PanelServicios />} />
-
-  <Route
-    path="/service-report-creation"
-    element={<ServiceReportCreation />}
-  />
-
-  {/* HISTORIAL */}
-  <Route
-    path="/service-report-history"
-    element={<ServiceReportHistory />}
-  />
-
-  {/* PREVIEW + PDF */}
-  <Route
-    path="/service-report-preview"
-    element={<ServiceReportPreview />}
-  />
-</Routes>
