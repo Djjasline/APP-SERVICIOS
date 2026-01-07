@@ -79,7 +79,9 @@ const Card = ({ title, type, description }) => {
         <p className="text-xs font-medium text-slate-500 mb-2">Historial</p>
 
         {filteredInspections.length === 0 ? (
-          <p className="text-xs text-slate-400">No hay inspecciones aún.</p>
+          <p className="text-xs text-slate-400">
+            No hay inspecciones aún.
+          </p>
         ) : (
           <ul className="space-y-2 text-sm">
             {filteredInspections.map((item) => (
@@ -93,6 +95,7 @@ const Card = ({ title, type, description }) => {
 
                 <div className="flex items-center gap-2">
                   <StatusBadge estado={item.estado} />
+
                   <button
                     onClick={() =>
                       navigate(`/inspeccion/${type}/${item.id}`)
@@ -128,11 +131,13 @@ export default function IndexInspeccion() {
             type="hidro"
             description="Inspección general del equipo hidrosuccionador."
           />
+
           <Card
             title="Barredora"
             type="barredora"
             description="Inspección y valoración de barredoras."
           />
+
           <Card
             title="Cámara (VCAM / Metrotech)"
             type="camara"
