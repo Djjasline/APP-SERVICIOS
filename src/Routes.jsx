@@ -6,6 +6,10 @@ import NotFound from "./pages/NotFound";
 // Informe general
 import ServiceReportCreation from "./pages/service-report-creation";
 
+import ServiceReportHistory from "./pages/service-report-history";
+import ServiceReportPreview from "./pages/service-report-preview";
+
+
 // Módulo inspección
 import InspectionRoutes from "./app/inspeccion/Routes";
 
@@ -37,3 +41,23 @@ export default function AppRoutes() {
     </BrowserRouter>
   );
 }
+<Routes>
+  <Route path="/" element={<PanelServicios />} />
+
+  <Route
+    path="/service-report-creation"
+    element={<ServiceReportCreation />}
+  />
+
+  {/* HISTORIAL */}
+  <Route
+    path="/service-report-history"
+    element={<ServiceReportHistory />}
+  />
+
+  {/* PREVIEW + PDF */}
+  <Route
+    path="/service-report-preview"
+    element={<ServiceReportPreview />}
+  />
+</Routes>
