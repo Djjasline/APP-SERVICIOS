@@ -1,21 +1,12 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
 
-/**
- * INFORME GENERAL DE SERVICIOS
- * ARCHIVO ÚNICO – ESTADO ÚNICO
- */
 export default function ServiceReportCreation() {
   // =============================
-  // ESTADO PRINCIPAL (OBLIGATORIO)
+  // ESTADO PRINCIPAL DEL INFORME
   // =============================
   const [data, setData] = useState({
-    // ===== HEADER =====
-    referenciaContrato: "",
-    descripcion: "",
-    codigoInf: "",
-
-    // ===== CLIENTE =====
     cliente: "",
     direccion: "",
     contacto: "",
@@ -23,20 +14,13 @@ export default function ServiceReportCreation() {
     correo: "",
     fechaServicio: "",
 
-    // ===== ACTIVIDADES =====
-    actividades: [
-      {
-        titulo: "",
-        detalle: "",
-        imagen: null,
-      },
-    ],
+    referenciaContrato: "",
+    descripcionServicio: "",
+    codigoInforme: "",
 
-    // ===== CONCLUSIONES =====
     conclusiones: [""],
     recomendaciones: [""],
 
-    // ===== DESCRIPCIÓN DEL EQUIPO =====
     equipo: {
       marca: "",
       modelo: "",
@@ -49,7 +33,6 @@ export default function ServiceReportCreation() {
       kilometraje: "",
     },
 
-    // ===== RESPONSABLES =====
     responsables: {
       astap: {
         nombre: "",
@@ -64,10 +47,21 @@ export default function ServiceReportCreation() {
         correo: "",
       },
     },
+
+    firmas: {
+      tecnico: null,
+      cliente: null,
+    },
   });
 
   // =============================
-  // HANDLER UNIVERSAL
+  // REFS FIRMAS
+  // =============================
+  const sigTecnicoRef = useRef(null);
+  const sigClienteRef = useRef(null);
+
+  // =============================
+  // UPDATE GENÉRICO
   // =============================
   const update = (path, value) => {
     setData((prev) => {
@@ -82,14 +76,28 @@ export default function ServiceReportCreation() {
   };
 
   // =============================
+  // FIRMAS
+  // =============================
+  const saveFirma = (tipo, ref) => {
+    if (!ref.current) return;
+    const img = ref.current.getTrimmedCanvas().toDataURL("image/png");
+    update(["firmas", tipo], img);
+  };
+
+  const clearFirma = (tipo, ref) => {
+    ref.current.clear();
+    update(["firmas", tipo], null);
+  };
+
+  // =============================
   // RENDER
   // =============================
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="bg-white max-w-5xl mx-auto p-6 rounded shadow space-y-6">
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="bg-white p-6 rounded shadow max-w-5xl mx-auto space-y-8">
 
-        {/* ================= HEADER ================= */}
-        <ReportHeader data={data} update={update} />
+        {/* HEADER */}
+        <ReportHeader />
 
         {/* ================= DATOS CLIENTE ================= */}
         <table className="pdf-table">
@@ -115,69 +123,6 @@ export default function ServiceReportCreation() {
             ))}
           </tbody>
         </table>
-
-        {/* ================= ACTIVIDADES ================= */}
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th style={{ width: "50px" }}>ÍTEM</th>
-              <th>DESCRIPCIÓN DE ACTIVIDADES</th>
-              <th>IMAGEN</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.actividades.map((act, i) => (
-              <tr key={i}>
-                <td>{i + 1}</td>
-                <td>
-                  <input
-                    className="pdf-input"
-                    placeholder="Título de actividad"
-                    value={act.titulo}
-                    onChange={(e) =>
-                      update(["actividades", i, "titulo"], e.target.value)
-                    }
-                  />
-                  <textarea
-                    className="pdf-textarea"
-                    placeholder="Detalle de actividad"
-                    value={act.detalle}
-                    onChange={(e) =>
-                      update(["actividades", i, "detalle"], e.target.value)
-                    }
-                  />
-                </td>
-                <td>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      update(
-                        ["actividades", i, "imagen"],
-                        e.target.files[0]
-                      )
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <button
-          className="px-4 py-2 border rounded"
-          onClick={() =>
-            setData((p) => ({
-              ...p,
-              actividades: [
-                ...p.actividades,
-                { titulo: "", detalle: "", imagen: null },
-              ],
-            }))
-          }
-        >
-          + Agregar actividad
-        </button>
 
         {/* ================= CONCLUSIONES ================= */}
         <table className="pdf-table">
@@ -226,6 +171,7 @@ export default function ServiceReportCreation() {
           >
             + Agregar fila
           </button>
+
           <button
             className="px-4 py-2 border rounded"
             onClick={() =>
@@ -275,38 +221,51 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        {/* ================= RESPONSABLES ================= */}
+        {/* ================= FIRMAS ================= */}
         <table className="pdf-table">
           <thead>
             <tr>
-              <th colSpan={2}>ELABORADO POR</th>
-              <th colSpan={2}>APROBADO POR</th>
+              <th colSpan="2">ELABORADO POR</th>
+              <th colSpan="2">APROBADO POR</th>
             </tr>
             <tr>
-              <th colSpan={2}>ASTAP CIA LTDA</th>
-              <th colSpan={2}>CLIENTE</th>
+              <th colSpan="2">ASTAP CIA LTDA</th>
+              <th colSpan="2">CLIENTE</th>
             </tr>
           </thead>
           <tbody>
-            {["nombre", "cargo", "telefono", "correo"].map((k) => (
-              <tr key={k}>
-                <td className="pdf-label">{k.toUpperCase()}</td>
+            <tr>
+              <td colSpan="2">
+                <SignatureCanvas ref={sigTecnicoRef} canvasProps={{ className: "w-full h-32 border" }} />
+                <button onClick={() => saveFirma("tecnico", sigTecnicoRef)}>Guardar</button>
+                <button onClick={() => clearFirma("tecnico", sigTecnicoRef)}>Limpiar</button>
+              </td>
+              <td colSpan="2">
+                <SignatureCanvas ref={sigClienteRef} canvasProps={{ className: "w-full h-32 border" }} />
+                <button onClick={() => saveFirma("cliente", sigClienteRef)}>Guardar</button>
+                <button onClick={() => clearFirma("cliente", sigClienteRef)}>Limpiar</button>
+              </td>
+            </tr>
+
+            {["nombre", "cargo", "telefono", "correo"].map((key) => (
+              <tr key={key}>
+                <td className="pdf-label">{key.toUpperCase()}</td>
                 <td>
                   <input
                     className="pdf-input"
-                    value={data.responsables.astap[k]}
+                    value={data.responsables.astap[key]}
                     onChange={(e) =>
-                      update(["responsables", "astap", k], e.target.value)
+                      update(["responsables", "astap", key], e.target.value)
                     }
                   />
                 </td>
-                <td className="pdf-label">{k.toUpperCase()}</td>
+                <td className="pdf-label">{key.toUpperCase()}</td>
                 <td>
                   <input
                     className="pdf-input"
-                    value={data.responsables.cliente[k]}
+                    value={data.responsables.cliente[key]}
                     onChange={(e) =>
-                      update(["responsables", "cliente", k], e.target.value)
+                      update(["responsables", "cliente", key], e.target.value)
                     }
                   />
                 </td>
