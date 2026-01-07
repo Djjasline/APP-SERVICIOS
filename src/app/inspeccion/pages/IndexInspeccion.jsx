@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuid } from "uuid";
+const id = crypto.randomUUID();
 import { getInspectionHistory } from "@utils/inspectionStorage";
 
 /* =========================
@@ -42,7 +42,7 @@ const Card = ({ title, type, description }) => {
     );
 
   const crearNuevaInspeccion = () => {
-    const id = uuid();
+    const id = crypto.randomUUID();
     navigate(`/inspeccion/${type}/${id}`);
   };
 
