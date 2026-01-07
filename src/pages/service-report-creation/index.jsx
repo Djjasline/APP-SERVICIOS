@@ -2,7 +2,16 @@ import { useState } from "react";
 import ReportHeader from "@/components/report/ReportHeader";
 
 export default function ServiceReportCreation() {
+  // =============================
+  // ESTADO ÚNICO DEL INFORME
+  // =============================
   const [data, setData] = useState({
+    // HEADER
+    referenciaContrato: "",
+    descripcion: "",
+    codigoInforme: "",
+
+    // CLIENTE
     cliente: "",
     direccion: "",
     contacto: "",
@@ -10,6 +19,7 @@ export default function ServiceReportCreation() {
     correo: "",
     fechaServicio: "",
 
+    // ACTIVIDADES
     actividades: [
       {
         titulo: "",
@@ -18,10 +28,27 @@ export default function ServiceReportCreation() {
       },
     ],
 
+    // CONCLUSIONES / RECOMENDACIONES
     conclusiones: [""],
     recomendaciones: [""],
+
+    // DESCRIPCIÓN DEL EQUIPO
+    equipo: {
+      marca: "",
+      modelo: "",
+      serie: "",
+      anio: "",
+      vin: "",
+      placa: "",
+      horasModulo: "",
+      horasChasis: "",
+      kilometraje: "",
+    },
   });
 
+  // =============================
+  // HANDLER GENERAL (NO TOCAR)
+  // =============================
   const update = (path, value) => {
     setData((prev) => {
       const copy = structuredClone(prev);
@@ -34,11 +61,15 @@ export default function ServiceReportCreation() {
     });
   };
 
+  // =============================
+  // RENDER
+  // =============================
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-5xl mx-auto space-y-6">
 
-        <ReportHeader />
+        {/* ================= HEADER ================= */}
+        <ReportHeader data={data} update={update} />
 
         {/* ================= DATOS CLIENTE ================= */}
         <table className="pdf-table">
@@ -71,18 +102,17 @@ export default function ServiceReportCreation() {
             <tr>
               <th style={{ width: 60 }}>ÍTEM</th>
               <th>DESCRIPCIÓN DE ACTIVIDADES</th>
-              <th style={{ width: 220 }}>IMAGEN</th>
+              <th style={{ width: 200 }}>IMAGEN</th>
             </tr>
           </thead>
           <tbody>
             {data.actividades.map((act, i) => (
               <tr key={i}>
                 <td>{i + 1}</td>
-
                 <td>
                   <input
                     className="pdf-input"
-                    placeholder="Título de la actividad"
+                    placeholder="Título"
                     value={act.titulo}
                     onChange={(e) =>
                       update(["actividades", i, "titulo"], e.target.value)
@@ -90,14 +120,13 @@ export default function ServiceReportCreation() {
                   />
                   <textarea
                     className="pdf-textarea"
-                    placeholder="Detalle de la actividad"
+                    placeholder="Detalle"
                     value={act.detalle}
                     onChange={(e) =>
                       update(["actividades", i, "detalle"], e.target.value)
                     }
                   />
                 </td>
-
                 <td>
                   <input
                     type="file"
@@ -105,53 +134,32 @@ export default function ServiceReportCreation() {
                     onChange={(e) =>
                       update(
                         ["actividades", i, "imagen"],
-                        e.target.files[0]
+                        e.target.files[0] || null
                       )
                     }
                   />
-                  {act.imagen && (
-                    <img
-                      src={URL.createObjectURL(act.imagen)}
-                      alt="actividad"
-                      style={{ marginTop: 6, maxWidth: "100%" }}
-                    />
-                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <div className="flex gap-4">
-          <button
-            className="px-4 py-2 border rounded"
-            onClick={() =>
-              setData((p) => ({
-                ...p,
-                actividades: [
-                  ...p.actividades,
-                  { titulo: "", detalle: "", imagen: null },
-                ],
-              }))
-            }
-          >
-            + Agregar actividad
-          </button>
+        <button
+          className="px-4 py-2 border rounded"
+          onClick={() =>
+            setData((p) => ({
+              ...p,
+              actividades: [
+                ...p.actividades,
+                { titulo: "", detalle: "", imagen: null },
+              ],
+            }))
+          }
+        >
+          + Agregar actividad
+        </button>
 
-          <button
-            className="px-4 py-2 border rounded"
-            onClick={() =>
-              setData((p) => ({
-                ...p,
-                actividades: p.actividades.slice(0, -1),
-              }))
-            }
-          >
-            − Quitar actividad
-          </button>
-        </div>
-
-        {/* ================= CONCLUSIONES ================= */}
+        {/* ================= CONCLUSIONES / RECOMENDACIONES ================= */}
         <table className="pdf-table">
           <thead>
             <tr>
@@ -184,6 +192,70 @@ export default function ServiceReportCreation() {
             ))}
           </tbody>
         </table>
+
+        <div className="flex gap-4">
+          <button
+            className="px-4 py-2 border rounded"
+            onClick={() =>
+              setData((p) => ({
+                ...p,
+                conclusiones: [...p.conclusiones, ""],
+                recomendaciones: [...p.recomendaciones, ""],
+              }))
+            }
+          >
+            + Agregar fila
+          </button>
+
+          <button
+            className="px-4 py-2 border rounded"
+            onClick={() =>
+              setData((p) => ({
+                ...p,
+                conclusiones: p.conclusiones.slice(0, -1),
+                recomendaciones: p.recomendaciones.slice(0, -1),
+              }))
+            }
+          >
+            − Quitar fila
+          </button>
+        </div>
+
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th colSpan="2">DESCRIPCIÓN DEL EQUIPO</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ["MARCA", "marca"],
+              ["MODELO", "modelo"],
+              ["N° SERIE", "serie"],
+              ["AÑO MODELO", "anio"],
+              ["VIN CHASIS", "vin"],
+              ["PLACA", "placa"],
+              ["HORAS TRABAJO MÓDULO", "horasModulo"],
+              ["HORAS TRABAJO CHASIS", "horasChasis"],
+              ["KILOMETRAJE", "kilometraje"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="pdf-label">{label}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data.equipo[key]}
+                    onChange={(e) =>
+                      update(["equipo", key], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
       </div>
     </div>
   );
