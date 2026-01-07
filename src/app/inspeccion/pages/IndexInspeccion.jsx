@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuid } from "uuid";
 import { getInspectionHistory } from "@utils/inspectionStorage";
 
 /* =========================
@@ -33,30 +34,29 @@ const Card = ({ title, type, description }) => {
   const [filter, setFilter] = useState("todas");
 
   const filteredInspections = inspections
-    .filter((i) =>
-      filter === "todas" ? true : i.estado === filter
-    )
+    .filter((i) => (filter === "todas" ? true : i.estado === filter))
     .sort(
       (a, b) =>
         new Date(b.fecha || b.fechaCompletada) -
         new Date(a.fecha || a.fechaCompletada)
     );
 
+  const crearNuevaInspeccion = () => {
+    const id = uuid();
+    navigate(`/inspeccion/${type}/${id}`);
+  };
+
   return (
     <div className="border rounded-xl p-4 space-y-4 bg-white shadow-sm">
       {/* Título */}
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">
-          {title}
-        </h2>
-        <p className="text-sm text-slate-600">
-          {description}
-        </p>
+        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+        <p className="text-sm text-slate-600">{description}</p>
       </div>
 
       {/* Botón nueva inspección */}
       <button
-        onClick={() => navigate(`/inspeccion/${type}`)}
+        onClick={crearNuevaInspeccion}
         className="px-3 py-2 text-sm rounded-md bg-slate-900 text-white hover:bg-slate-800"
       >
         + Nueva inspección
@@ -81,9 +81,7 @@ const Card = ({ title, type, description }) => {
 
       {/* Historial */}
       <div>
-        <p className="text-xs font-medium text-slate-500 mb-2">
-          Historial
-        </p>
+        <p className="text-xs font-medium text-slate-500 mb-2">Historial</p>
 
         {filteredInspections.length === 0 ? (
           <p className="text-xs text-slate-400">
@@ -105,7 +103,7 @@ const Card = ({ title, type, description }) => {
 
                   <button
                     onClick={() =>
-                      navigate(`/inspeccion/${type}`)
+                      navigate(`/inspeccion/${type}/${item.id}`)
                     }
                     className="text-xs text-blue-600 hover:underline"
                   >
