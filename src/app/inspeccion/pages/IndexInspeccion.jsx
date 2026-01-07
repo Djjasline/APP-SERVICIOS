@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-const id = crypto.randomUUID();
 import { getInspectionHistory } from "@utils/inspectionStorage";
 
 /* =========================
