@@ -1,25 +1,50 @@
 import logo from "@/astap-logo.jpg";
 
 export default function ReportHeader({ data }) {
-  // 🔐 Protección total contra undefined
   const safe = data || {};
 
   return (
-    <table className="pdf-table">
+    <table className="pdf-table" style={{ marginBottom: 20 }}>
       <tbody>
+        {/* FILA 1 */}
         <tr>
-          <td rowSpan={3} style={{ width: 120, textAlign: "center" }}>
-            <img src={logo} alt="ASTAP" style={{ width: 80 }} />
+          {/* LOGO */}
+          <td
+            rowSpan={4}
+            style={{
+              width: 140,
+              textAlign: "center",
+              verticalAlign: "middle",
+            }}
+          >
+            <img
+              src={logo}
+              alt="ASTAP"
+              style={{ width: 95, display: "block", margin: "0 auto" }}
+            />
           </td>
-          <td colSpan={3} style={{ textAlign: "center", fontWeight: "bold" }}>
+
+          {/* TITULO */}
+          <td
+            colSpan={3}
+            style={{
+              textAlign: "center",
+              fontWeight: "bold",
+              fontSize: 13,
+            }}
+          >
             INFORME TÉCNICO
           </td>
-          <td>
-            Fecha de versión: 01-01-26<br />
+
+          {/* VERSION */}
+          <td style={{ fontSize: 10 }}>
+            Fecha de versión: 01-01-26
+            <br />
             Versión: 01
           </td>
         </tr>
 
+        {/* FILA 2 */}
         <tr>
           <td className="pdf-label">REFERENCIA DE CONTRATO</td>
           <td colSpan={3}>
@@ -29,9 +54,10 @@ export default function ReportHeader({ data }) {
               readOnly
             />
           </td>
-          <td rowSpan={3} />
+          <td />
         </tr>
 
+        {/* FILA 3 */}
         <tr>
           <td className="pdf-label">DESCRIPCIÓN</td>
           <td colSpan={3}>
@@ -41,8 +67,10 @@ export default function ReportHeader({ data }) {
               readOnly
             />
           </td>
+          <td />
         </tr>
 
+        {/* FILA 4 */}
         <tr>
           <td className="pdf-label">COD. INF.</td>
           <td colSpan={3}>
@@ -52,6 +80,7 @@ export default function ReportHeader({ data }) {
               readOnly
             />
           </td>
+          <td />
         </tr>
       </tbody>
     </table>
