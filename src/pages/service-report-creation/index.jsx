@@ -40,7 +40,7 @@ export default function ServiceReportCreation() {
       marca: "",
       modelo: "",
       serie: "",
-      anio: "",
+      año: "",
       vin: "",
       placa: "",
       horasModulo: "",
