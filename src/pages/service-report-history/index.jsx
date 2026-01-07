@@ -2,49 +2,105 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function ServiceReportHistory() {
-  const [reports, setReports] = useState([]);
   const navigate = useNavigate();
+  const [reports, setReports] = useState([]);
 
+  // =============================
+  // CARGAR HISTORIAL
+  // =============================
   useEffect(() => {
-    const stored = JSON.parse(
-      localStorage.getItem("serviceReports") || "[]"
-    );
-    setReports(stored.reverse());
+    const saved = JSON.parse(localStorage.getItem("serviceReports")) || [];
+    setReports(saved);
   }, []);
 
-  return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Historial de informes</h1>
+  // =============================
+  // ELIMINAR REPORTE
+  // =============================
+  const deleteReport = (index) => {
+    if (!confirm("¿Eliminar este reporte?")) return;
+    const updated = [...reports];
+    updated.splice(index, 1);
+    setReports(updated);
+    localStorage.setItem("serviceReports", JSON.stringify(updated));
+  };
 
-      <table className="w-full border">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2">Fecha</th>
-            <th className="border p-2">Estado</th>
-            <th className="border p-2">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {reports.map((r) => (
-            <tr key={r.id}>
-              <td className="border p-2">
-                {new Date(r.fecha).toLocaleString()}
-              </td>
-              <td className="border p-2">{r.status}</td>
-              <td className="border p-2">
-                <button
-                  className="underline"
-                  onClick={() =>
-                    navigate("/service-report-preview", { state: r })
-                  }
-                >
-                  Ver / PDF
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+  // =============================
+  // RENDER
+  // =============================
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-6xl mx-auto bg-white p-6 rounded shadow space-y-6">
+
+        <h1 className="text-2xl font-bold text-center">
+          Historial de Informes Técnicos
+        </h1>
+
+        {reports.length === 0 ? (
+          <p className="text-center text-gray-500">
+            No existen informes guardados.
+          </p>
+        ) : (
+          <table className="pdf-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Cliente</th>
+                <th>Referencia</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports.map((r, i) => (
+                <tr key={i}>
+                  <td>{i + 1}</td>
+                  <td>{r.cliente || "-"}</td>
+                  <td>{r.referenciaContrato || "-"}</td>
+                  <td>{r.fechaServicio || "-"}</td>
+                  <td className="space-x-2">
+                    <button
+                      onClick={() => {
+                        localStorage.setItem("currentReport", JSON.stringify(r));
+                        navigate("/service-report-creation");
+                      }}
+                      className="px-3 py-1 bg-blue-600 text-white rounded"
+                    >
+                      Continuar
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        localStorage.setItem("currentReport", JSON.stringify(r));
+                        navigate("/service-report-preview");
+                      }}
+                      className="px-3 py-1 bg-green-600 text-white rounded"
+                    >
+                      PDF
+                    </button>
+
+                    <button
+                      onClick={() => deleteReport(i)}
+                      className="px-3 py-1 bg-red-600 text-white rounded"
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        <div className="text-center pt-4">
+          <button
+            onClick={() => navigate("/")}
+            className="px-6 py-2 border rounded"
+          >
+            Volver al panel
+          </button>
+        </div>
+
+      </div>
     </div>
   );
 }
