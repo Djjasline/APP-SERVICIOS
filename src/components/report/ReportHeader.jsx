@@ -1,8 +1,6 @@
 import logo from "@/astap-logo.jpg";
 
-export default function ReportHeader({ data }) {
-  const safe = data || {};
-
+export default function ReportHeader({ data = {} }) {
   return (
     <table className="pdf-table" style={{ marginBottom: 20 }}>
       <tbody>
@@ -12,7 +10,7 @@ export default function ReportHeader({ data }) {
           <td
             rowSpan={4}
             style={{
-              width: 140,
+              width: 130,
               textAlign: "center",
               verticalAlign: "middle",
             }}
@@ -20,7 +18,7 @@ export default function ReportHeader({ data }) {
             <img
               src={logo}
               alt="ASTAP"
-              style={{ width: 95, display: "block", margin: "0 auto" }}
+              style={{ width: 90, display: "block", margin: "0 auto" }}
             />
           </td>
 
@@ -33,11 +31,18 @@ export default function ReportHeader({ data }) {
               fontSize: 13,
             }}
           >
-            INFORME TÉCNICO
+            REPORTE TÉCNICO DE SERVICIO
           </td>
 
-          {/* VERSION */}
-          <td style={{ fontSize: 10 }}>
+          {/* FECHA / VERSION */}
+          <td
+            style={{
+              width: 180,
+              fontSize: 10,
+              textAlign: "left",
+              verticalAlign: "top",
+            }}
+          >
             Fecha de versión: 01-01-26
             <br />
             Versión: 01
@@ -50,8 +55,7 @@ export default function ReportHeader({ data }) {
           <td colSpan={3}>
             <input
               className="pdf-input"
-              value={safe.referenciaContrato || ""}
-              readOnly
+              value={data.referenciaContrato || ""}
             />
           </td>
           <td />
@@ -63,8 +67,7 @@ export default function ReportHeader({ data }) {
           <td colSpan={3}>
             <input
               className="pdf-input"
-              value={safe.descripcionContrato || ""}
-              readOnly
+              value={data.descripcionContrato || ""}
             />
           </td>
           <td />
@@ -76,8 +79,7 @@ export default function ReportHeader({ data }) {
           <td colSpan={3}>
             <input
               className="pdf-input"
-              value={safe.codigoInf || ""}
-              readOnly
+              value={data.codigoInf || ""}
             />
           </td>
           <td />
