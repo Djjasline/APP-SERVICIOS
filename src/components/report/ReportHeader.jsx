@@ -1,57 +1,57 @@
 import logo from "@/astap-logo.jpg";
 
 export default function ReportHeader({ data }) {
+  // 🔐 Protección total contra undefined
+  const safe = data || {};
+
   return (
-    <table className="pdf-table" style={{ marginBottom: 20 }}>
+    <table className="pdf-table">
       <tbody>
         <tr>
-          <td rowSpan="4" style={{ width: 120, textAlign: "center" }}>
+          <td rowSpan={3} style={{ width: 120, textAlign: "center" }}>
             <img src={logo} alt="ASTAP" style={{ width: 80 }} />
           </td>
-          <td colSpan="3" style={{ textAlign: "center", fontWeight: "bold" }}>
+          <td colSpan={3} style={{ textAlign: "center", fontWeight: "bold" }}>
             INFORME TÉCNICO
           </td>
           <td>
-            <strong>Fecha de versión:</strong> 01-01-26
+            Fecha de versión: 01-01-26<br />
+            Versión: 01
           </td>
         </tr>
 
         <tr>
           <td className="pdf-label">REFERENCIA DE CONTRATO</td>
-          <td colSpan="3">
+          <td colSpan={3}>
             <input
               className="pdf-input"
-              value={data.referenciaContrato}
+              value={safe.referenciaContrato || ""}
               readOnly
             />
           </td>
-          <td>
-            <strong>Versión:</strong> 01
-          </td>
+          <td rowSpan={3} />
         </tr>
 
         <tr>
           <td className="pdf-label">DESCRIPCIÓN</td>
-          <td colSpan="3">
+          <td colSpan={3}>
             <input
               className="pdf-input"
-              value={data.descripcion}
+              value={safe.descripcionContrato || ""}
               readOnly
             />
           </td>
-          <td />
         </tr>
 
         <tr>
           <td className="pdf-label">COD. INF.</td>
-          <td colSpan="3">
+          <td colSpan={3}>
             <input
               className="pdf-input"
-              value={data.codInf}
+              value={safe.codigoInf || ""}
               readOnly
             />
           </td>
-          <td />
         </tr>
       </tbody>
     </table>
