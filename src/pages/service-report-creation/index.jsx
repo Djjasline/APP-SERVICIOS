@@ -8,6 +8,9 @@ import ReportHeader from "@/components/report/ReportHeader";
 export default function ServiceReportCreation() {
   const navigate = useNavigate();
 
+  /* ===========================
+     ESTADO DEL INFORME
+  =========================== */
   const [data, setData] = useState({
     referenciaContrato: "",
     descripcion: "",
@@ -47,6 +50,9 @@ export default function ServiceReportCreation() {
   const sigTecnico = useRef();
   const sigCliente = useRef();
 
+  /* ===========================
+     UPDATE GENÉRICO
+  =========================== */
   const update = (path, value) => {
     setData(prev => {
       const copy = structuredClone(prev);
@@ -59,11 +65,31 @@ export default function ServiceReportCreation() {
     });
   };
 
+  /* ===========================
+     PASO 1 — GUARDAR INFORME
+  =========================== */
+  const saveReport = () => {
+    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
+
+    const report = {
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      data,
+    };
+
+    localStorage.setItem(
+      "serviceReports",
+      JSON.stringify([...stored, report])
+    );
+
+    navigate("/service-report-history");
+  };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
 
-        {/* ================= HEADER ÚNICO ================= */}
+        {/* ================= HEADER ================= */}
         <ReportHeader data={data} onChange={update} />
 
         {/* ================= DATOS CLIENTE ================= */}
@@ -239,12 +265,22 @@ export default function ServiceReportCreation() {
           <tbody>
             <tr>
               <td>
-                <SignatureCanvas ref={sigTecnico} canvasProps={{ width: 300, height: 150 }} />
-                <button onClick={() => sigTecnico.current.clear()}>Limpiar</button>
+                <SignatureCanvas
+                  ref={sigTecnico}
+                  canvasProps={{ width: 300, height: 150 }}
+                />
+                <button onClick={() => sigTecnico.current.clear()}>
+                  Limpiar
+                </button>
               </td>
               <td>
-                <SignatureCanvas ref={sigCliente} canvasProps={{ width: 300, height: 150 }} />
-                <button onClick={() => sigCliente.current.clear()}>Limpiar</button>
+                <SignatureCanvas
+                  ref={sigCliente}
+                  canvasProps={{ width: 300, height: 150 }}
+                />
+                <button onClick={() => sigCliente.current.clear()}>
+                  Limpiar
+                </button>
               </td>
             </tr>
           </tbody>
@@ -252,7 +288,10 @@ export default function ServiceReportCreation() {
 
         {/* ================= BOTONES ================= */}
         <div className="flex justify-between pt-6">
-          <button onClick={() => navigate("/")} className="border px-6 py-2 rounded">
+          <button
+            onClick={() => navigate("/")}
+            className="border px-6 py-2 rounded"
+          >
             Volver
           </button>
 
@@ -265,7 +304,7 @@ export default function ServiceReportCreation() {
             </button>
 
             <button
-              onClick={() => navigate("/service-report-history")}
+              onClick={saveReport}
               className="bg-blue-600 text-white px-6 py-2 rounded"
             >
               Guardar / continuar
