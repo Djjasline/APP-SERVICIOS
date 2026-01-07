@@ -1,59 +1,57 @@
 import logo from "@/astap-logo.jpg";
 
-export default function ReportHeader({ data, update }) {
+export default function ReportHeader({ data }) {
   return (
-    <table className="pdf-table">
+    <table className="pdf-table" style={{ marginBottom: 20 }}>
       <tbody>
         <tr>
-          <td rowSpan={4} style={{ width: 120, textAlign: "center" }}>
-            <img src={logo} style={{ width: 80 }} />
+          <td rowSpan="4" style={{ width: 120, textAlign: "center" }}>
+            <img src={logo} alt="ASTAP" style={{ width: 80 }} />
           </td>
-          <td colSpan={3} style={{ textAlign: "center", fontWeight: "bold" }}>
+          <td colSpan="3" style={{ textAlign: "center", fontWeight: "bold" }}>
             INFORME TÉCNICO
           </td>
-          <td colSpan={2}>
-            Fecha de versión: 01-01-26<br />
-            Versión: 01
+          <td>
+            <strong>Fecha de versión:</strong> 01-01-26
           </td>
         </tr>
 
         <tr>
           <td className="pdf-label">REFERENCIA DE CONTRATO</td>
-          <td colSpan={4}>
+          <td colSpan="3">
             <input
               className="pdf-input"
               value={data.referenciaContrato}
-              onChange={(e) =>
-                update(["referenciaContrato"], e.target.value)
-              }
+              readOnly
             />
+          </td>
+          <td>
+            <strong>Versión:</strong> 01
           </td>
         </tr>
 
         <tr>
           <td className="pdf-label">DESCRIPCIÓN</td>
-          <td colSpan={4}>
+          <td colSpan="3">
             <input
               className="pdf-input"
               value={data.descripcion}
-              onChange={(e) =>
-                update(["descripcion"], e.target.value)
-              }
+              readOnly
             />
           </td>
+          <td />
         </tr>
 
         <tr>
           <td className="pdf-label">COD. INF.</td>
-          <td colSpan={4}>
+          <td colSpan="3">
             <input
               className="pdf-input"
               value={data.codInf}
-              onChange={(e) =>
-                update(["codInf"], e.target.value)
-              }
+              readOnly
             />
           </td>
+          <td />
         </tr>
       </tbody>
     </table>
