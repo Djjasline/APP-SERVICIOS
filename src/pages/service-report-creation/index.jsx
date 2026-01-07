@@ -1,21 +1,13 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
 
-/**
- * FORMULARIO COMPLETO
- * INFORME GENERAL DE SERVICIOS – ASTAP
- */
 export default function ServiceReportCreation() {
-  // =============================
-  // ESTADO ÚNICO DEL INFORME
-  // =============================
   const [data, setData] = useState({
-    // HEADER
     referenciaContrato: "",
     descripcion: "",
     codInf: "",
 
-    // DATOS CLIENTE
     cliente: "",
     direccion: "",
     contacto: "",
@@ -23,20 +15,9 @@ export default function ServiceReportCreation() {
     correo: "",
     fechaServicio: "",
 
-    // ACTIVIDADES
-    actividades: [
-      {
-        titulo: "",
-        detalle: "",
-        imagen: null,
-      },
-    ],
-
-    // CONCLUSIONES / RECOMENDACIONES
     conclusiones: [""],
     recomendaciones: [""],
 
-    // DESCRIPCIÓN DEL EQUIPO
     equipo: {
       marca: "",
       modelo: "",
@@ -49,26 +30,20 @@ export default function ServiceReportCreation() {
       kilometraje: "",
     },
 
-    // RESPONSABLES
+    firmas: {
+      tecnico: null,
+      cliente: null,
+    },
+
     responsables: {
-      astap: {
-        nombre: "",
-        cargo: "",
-        telefono: "",
-        correo: "",
-      },
-      cliente: {
-        nombre: "",
-        cargo: "",
-        telefono: "",
-        correo: "",
-      },
+      astap: { nombre: "", cargo: "", telefono: "", correo: "" },
+      cliente: { nombre: "", cargo: "", telefono: "", correo: "" },
     },
   });
 
-  // =============================
-  // UPDATE GENÉRICO
-  // =============================
+  const sigTecnicoRef = useRef(null);
+  const sigClienteRef = useRef(null);
+
   const update = (path, value) => {
     setData((prev) => {
       const copy = structuredClone(prev);
@@ -81,17 +56,45 @@ export default function ServiceReportCreation() {
     });
   };
 
-  // =============================
-  // RENDER
-  // =============================
+  const guardarFirma = (tipo, ref) => {
+    if (!ref.current || ref.current.isEmpty()) return;
+    update(["firmas", tipo], ref.current.toDataURL("image/png"));
+  };
+
+  const limpiarFirma = (tipo, ref) => {
+    ref.current.clear();
+    update(["firmas", tipo], null);
+  };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
+      <div className="bg-white p-6 rounded shadow max-w-5xl mx-auto space-y-6">
 
-        {/* ================= HEADER ================= */}
-        <ReportHeader data={data} update={update} />
+        <ReportHeader />
 
-        {/* ================= DATOS CLIENTE ================= */}
+        {/* DATOS GENERALES */}
+        <table className="pdf-table">
+          <tbody>
+            {[
+              ["REFERENCIA DE CONTRATO", "referenciaContrato"],
+              ["DESCRIPCIÓN", "descripcion"],
+              ["COD. INF.", "codInf"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="pdf-label">{label}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data[key]}
+                    onChange={(e) => update([key], e.target.value)}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* CLIENTE */}
         <table className="pdf-table">
           <tbody>
             {[
@@ -116,83 +119,7 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        {/* ================= ACTIVIDADES ================= */}
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th style={{ width: 50 }}>ITEM</th>
-              <th>DESCRIPCIÓN DE ACTIVIDADES</th>
-              <th style={{ width: 200 }}>IMAGEN</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.actividades.map((act, i) => (
-              <tr key={i}>
-                <td>{i + 1}</td>
-                <td>
-                  <input
-                    className="pdf-input"
-                    placeholder="Título de actividad"
-                    value={act.titulo}
-                    onChange={(e) =>
-                      update(["actividades", i, "titulo"], e.target.value)
-                    }
-                  />
-                  <textarea
-                    className="pdf-textarea"
-                    placeholder="Detalle de actividad"
-                    value={act.detalle}
-                    onChange={(e) =>
-                      update(["actividades", i, "detalle"], e.target.value)
-                    }
-                  />
-                </td>
-                <td>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      update(
-                        ["actividades", i, "imagen"],
-                        e.target.files[0]
-                      )
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div className="flex gap-4">
-          <button
-            className="px-4 py-2 border rounded"
-            onClick={() =>
-              setData((p) => ({
-                ...p,
-                actividades: [
-                  ...p.actividades,
-                  { titulo: "", detalle: "", imagen: null },
-                ],
-              }))
-            }
-          >
-            + Agregar actividad
-          </button>
-          <button
-            className="px-4 py-2 border rounded"
-            onClick={() =>
-              setData((p) => ({
-                ...p,
-                actividades: p.actividades.slice(0, -1),
-              }))
-            }
-          >
-            − Quitar actividad
-          </button>
-        </div>
-
-        {/* ================= CONCLUSIONES / RECOMENDACIONES ================= */}
+        {/* CONCLUSIONES / RECOMENDACIONES */}
         <table className="pdf-table">
           <thead>
             <tr>
@@ -239,6 +166,7 @@ export default function ServiceReportCreation() {
           >
             + Agregar fila
           </button>
+
           <button
             className="px-4 py-2 border rounded"
             onClick={() =>
@@ -253,7 +181,7 @@ export default function ServiceReportCreation() {
           </button>
         </div>
 
-        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        {/* DESCRIPCIÓN DEL EQUIPO */}
         <table className="pdf-table">
           <thead>
             <tr>
@@ -288,43 +216,41 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        {/* ================= RESPONSABLES ================= */}
+        {/* FIRMAS */}
         <table className="pdf-table">
           <thead>
             <tr>
-              <th colSpan={2}>ELABORADO POR</th>
-              <th colSpan={2}>APROBADO POR</th>
-            </tr>
-            <tr>
-              <th colSpan={2}>ASTAP CIA LTDA</th>
-              <th colSpan={2}>CLIENTE</th>
+              <th colSpan={2}>FIRMA TÉCNICO</th>
+              <th colSpan={2}>FIRMA CLIENTE</th>
             </tr>
           </thead>
           <tbody>
-            {["nombre", "cargo", "telefono", "correo"].map((key) => (
-              <tr key={key}>
-                <td className="pdf-label">{key.toUpperCase()}</td>
-                <td>
-                  <input
-                    className="pdf-input"
-                    value={data.responsables.astap[key]}
-                    onChange={(e) =>
-                      update(["responsables", "astap", key], e.target.value)
-                    }
-                  />
-                </td>
-                <td className="pdf-label">{key.toUpperCase()}</td>
-                <td>
-                  <input
-                    className="pdf-input"
-                    value={data.responsables.cliente[key]}
-                    onChange={(e) =>
-                      update(["responsables", "cliente", key], e.target.value)
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
+            <tr>
+              <td colSpan={2}>
+                <SignatureCanvas
+                  ref={sigTecnicoRef}
+                  canvasProps={{ width: 400, height: 150, className: "border" }}
+                />
+                <button onClick={() => guardarFirma("tecnico", sigTecnicoRef)}>
+                  Guardar
+                </button>
+                <button onClick={() => limpiarFirma("tecnico", sigTecnicoRef)}>
+                  Limpiar
+                </button>
+              </td>
+              <td colSpan={2}>
+                <SignatureCanvas
+                  ref={sigClienteRef}
+                  canvasProps={{ width: 400, height: 150, className: "border" }}
+                />
+                <button onClick={() => guardarFirma("cliente", sigClienteRef)}>
+                  Guardar
+                </button>
+                <button onClick={() => limpiarFirma("cliente", sigClienteRef)}>
+                  Limpiar
+                </button>
+              </td>
+            </tr>
           </tbody>
         </table>
 
