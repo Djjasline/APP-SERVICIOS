@@ -18,13 +18,13 @@ export default function ReportHeader({ data = {} }) {
             <img
               src={logo}
               alt="ASTAP"
-              style={{ width: 90, display: "block", margin: "0 auto" }}
+              style={{ width: 95, display: "block", margin: "0 auto" }}
             />
           </td>
 
           {/* TITULO */}
           <td
-            colSpan={3}
+            colSpan={2}
             style={{
               textAlign: "center",
               fontWeight: "bold",
@@ -37,7 +37,7 @@ export default function ReportHeader({ data = {} }) {
           {/* FECHA / VERSION */}
           <td
             style={{
-              width: 180,
+              width: 200,
               fontSize: 10,
               textAlign: "left",
               verticalAlign: "top",
@@ -52,37 +52,34 @@ export default function ReportHeader({ data = {} }) {
         {/* FILA 2 */}
         <tr>
           <td className="pdf-label">REFERENCIA DE CONTRATO</td>
-          <td colSpan={3}>
+          <td colSpan={2}>
             <input
               className="pdf-input"
               value={data.referenciaContrato || ""}
             />
           </td>
-          <td />
         </tr>
 
         {/* FILA 3 */}
         <tr>
           <td className="pdf-label">DESCRIPCIÓN</td>
-          <td colSpan={3}>
+          <td colSpan={2}>
             <input
               className="pdf-input"
               value={data.descripcionContrato || ""}
             />
           </td>
-          <td />
         </tr>
 
         {/* FILA 4 */}
         <tr>
           <td className="pdf-label">COD. INF.</td>
-          <td colSpan={3}>
+          <td colSpan={2}>
             <input
               className="pdf-input"
               value={data.codigoInf || ""}
             />
           </td>
-          <td />
         </tr>
       </tbody>
     </table>
