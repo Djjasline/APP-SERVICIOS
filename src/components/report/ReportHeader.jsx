@@ -4,14 +4,18 @@ export default function ReportHeader({ data, onChange }) {
       <tbody>
         <tr>
           <td rowSpan={4} style={{ width: 140, textAlign: "center" }}>
-            <img src="/astap-logo.jpg" alt="ASTAP" style={{ width: 80 }} />
+            <img
+              src="/astap-logo.jpg"
+              alt="ASTAP"
+              style={{ width: 90, margin: "0 auto" }}
+            />
           </td>
 
           <td colSpan={2} style={{ textAlign: "center", fontWeight: "bold" }}>
             REPORTE TÉCNICO DE SERVICIO
           </td>
 
-          <td style={{ width: 180 }}>
+          <td style={{ width: 180, fontSize: 11 }}>
             <div>Fecha de versión: 01-01-26</div>
             <div>Versión: 01</div>
           </td>
