@@ -1,20 +1,21 @@
-import { useState, useRef } from "react";
-import SignatureCanvas from "react-signature-canvas";
+import { useState } from "react";
 import ReportHeader from "@/components/report/ReportHeader";
 
-/* =========================================================
-   INFORME GENERAL DE SERVICIOS – ASTAP
-========================================================= */
-
+/**
+ * INFORME GENERAL DE SERVICIOS
+ * ARCHIVO ÚNICO – ESTADO ÚNICO
+ */
 export default function ServiceReportCreation() {
-  const sigTecnicoRef = useRef(null);
-  const sigClienteRef = useRef(null);
-
+  // =============================
+  // ESTADO PRINCIPAL (OBLIGATORIO)
+  // =============================
   const [data, setData] = useState({
+    // ===== HEADER =====
     referenciaContrato: "",
     descripcion: "",
-    codigoInforme: "",
+    codigoInf: "",
 
+    // ===== CLIENTE =====
     cliente: "",
     direccion: "",
     contacto: "",
@@ -22,11 +23,20 @@ export default function ServiceReportCreation() {
     correo: "",
     fechaServicio: "",
 
-    actividades: [{ descripcion: "", detalle: "" }],
+    // ===== ACTIVIDADES =====
+    actividades: [
+      {
+        titulo: "",
+        detalle: "",
+        imagen: null,
+      },
+    ],
 
+    // ===== CONCLUSIONES =====
     conclusiones: [""],
     recomendaciones: [""],
 
+    // ===== DESCRIPCIÓN DEL EQUIPO =====
     equipo: {
       marca: "",
       modelo: "",
@@ -39,20 +49,26 @@ export default function ServiceReportCreation() {
       kilometraje: "",
     },
 
+    // ===== RESPONSABLES =====
     responsables: {
-      astap: { nombre: "", cargo: "", telefono: "", correo: "" },
-      cliente: { nombre: "", cargo: "", telefono: "", correo: "" },
-    },
-
-    firmas: {
-      tecnico: null,
-      cliente: null,
+      astap: {
+        nombre: "",
+        cargo: "",
+        telefono: "",
+        correo: "",
+      },
+      cliente: {
+        nombre: "",
+        cargo: "",
+        telefono: "",
+        correo: "",
+      },
     },
   });
 
-  /* =========================================================
-     HANDLER GENERAL
-  ========================================================= */
+  // =============================
+  // HANDLER UNIVERSAL
+  // =============================
   const update = (path, value) => {
     setData((prev) => {
       const copy = structuredClone(prev);
@@ -65,49 +81,17 @@ export default function ServiceReportCreation() {
     });
   };
 
-  const saveFirma = (tipo, ref) => {
-    if (!ref.current) return;
-    update(["firmas", tipo], ref.current.toDataURL());
-  };
-
-  const clearFirma = (tipo, ref) => {
-    ref.current?.clear();
-    update(["firmas", tipo], null);
-  };
-
-  /* =========================================================
-     RENDER
-  ========================================================= */
+  // =============================
+  // RENDER
+  // =============================
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="bg-white max-w-5xl mx-auto p-6 space-y-6 shadow">
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="bg-white max-w-5xl mx-auto p-6 rounded shadow space-y-6">
 
         {/* ================= HEADER ================= */}
-        <ReportHeader />
+        <ReportHeader data={data} update={update} />
 
-        {/* ================= DATOS GENERALES ================= */}
-        <table className="pdf-table">
-          <tbody>
-            {[
-              ["REFERENCIA DE CONTRATO", "referenciaContrato"],
-              ["DESCRIPCIÓN", "descripcion"],
-              ["COD. INF.", "codigoInforme"],
-            ].map(([label, key]) => (
-              <tr key={key}>
-                <td className="pdf-label">{label}</td>
-                <td>
-                  <input
-                    className="pdf-input"
-                    value={data[key]}
-                    onChange={(e) => update([key], e.target.value)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* ================= DATOS DEL CLIENTE ================= */}
+        {/* ================= DATOS CLIENTE ================= */}
         <table className="pdf-table">
           <tbody>
             {[
@@ -136,28 +120,42 @@ export default function ServiceReportCreation() {
         <table className="pdf-table">
           <thead>
             <tr>
-              <th>ACTIVIDAD</th>
-              <th>DETALLE</th>
+              <th style={{ width: "50px" }}>ÍTEM</th>
+              <th>DESCRIPCIÓN DE ACTIVIDADES</th>
+              <th>IMAGEN</th>
             </tr>
           </thead>
           <tbody>
-            {data.actividades.map((_, i) => (
+            {data.actividades.map((act, i) => (
               <tr key={i}>
+                <td>{i + 1}</td>
                 <td>
+                  <input
+                    className="pdf-input"
+                    placeholder="Título de actividad"
+                    value={act.titulo}
+                    onChange={(e) =>
+                      update(["actividades", i, "titulo"], e.target.value)
+                    }
+                  />
                   <textarea
                     className="pdf-textarea"
-                    value={data.actividades[i].descripcion}
+                    placeholder="Detalle de actividad"
+                    value={act.detalle}
                     onChange={(e) =>
-                      update(["actividades", i, "descripcion"], e.target.value)
+                      update(["actividades", i, "detalle"], e.target.value)
                     }
                   />
                 </td>
                 <td>
-                  <textarea
-                    className="pdf-textarea"
-                    value={data.actividades[i].detalle}
+                  <input
+                    type="file"
+                    accept="image/*"
                     onChange={(e) =>
-                      update(["actividades", i, "detalle"], e.target.value)
+                      update(
+                        ["actividades", i, "imagen"],
+                        e.target.files[0]
+                      )
                     }
                   />
                 </td>
@@ -167,11 +165,14 @@ export default function ServiceReportCreation() {
         </table>
 
         <button
-          className="border px-3 py-1"
+          className="px-4 py-2 border rounded"
           onClick={() =>
             setData((p) => ({
               ...p,
-              actividades: [...p.actividades, { descripcion: "", detalle: "" }],
+              actividades: [
+                ...p.actividades,
+                { titulo: "", detalle: "", imagen: null },
+              ],
             }))
           }
         >
@@ -212,18 +213,32 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        <button
-          className="border px-3 py-1"
-          onClick={() =>
-            setData((p) => ({
-              ...p,
-              conclusiones: [...p.conclusiones, ""],
-              recomendaciones: [...p.recomendaciones, ""],
-            }))
-          }
-        >
-          + Agregar fila
-        </button>
+        <div className="flex gap-4">
+          <button
+            className="px-4 py-2 border rounded"
+            onClick={() =>
+              setData((p) => ({
+                ...p,
+                conclusiones: [...p.conclusiones, ""],
+                recomendaciones: [...p.recomendaciones, ""],
+              }))
+            }
+          >
+            + Agregar fila
+          </button>
+          <button
+            className="px-4 py-2 border rounded"
+            onClick={() =>
+              setData((p) => ({
+                ...p,
+                conclusiones: p.conclusiones.slice(0, -1),
+                recomendaciones: p.recomendaciones.slice(0, -1),
+              }))
+            }
+          >
+            − Quitar fila
+          </button>
+        </div>
 
         {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
         <table className="pdf-table">
@@ -237,11 +252,11 @@ export default function ServiceReportCreation() {
               ["MARCA", "marca"],
               ["MODELO", "modelo"],
               ["N° SERIE", "serie"],
-              ["AÑO", "anio"],
-              ["VIN / CHASIS", "vin"],
+              ["AÑO MODELO", "anio"],
+              ["VIN CHASIS", "vin"],
               ["PLACA", "placa"],
-              ["HORAS MÓDULO", "horasModulo"],
-              ["HORAS CHASIS", "horasChasis"],
+              ["HORAS TRABAJO MÓDULO", "horasModulo"],
+              ["HORAS TRABAJO CHASIS", "horasChasis"],
               ["KILOMETRAJE", "kilometraje"],
             ].map(([label, key]) => (
               <tr key={key}>
@@ -260,44 +275,16 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        {/* ================= FIRMAS ================= */}
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th colSpan={2}>FIRMA TÉCNICO</th>
-              <th colSpan={2}>FIRMA CLIENTE</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td colSpan={2}>
-                <SignatureCanvas ref={sigTecnicoRef} />
-                <button onClick={() => saveFirma("tecnico", sigTecnicoRef)}>
-                  Guardar
-                </button>
-                <button onClick={() => clearFirma("tecnico", sigTecnicoRef)}>
-                  Limpiar
-                </button>
-              </td>
-              <td colSpan={2}>
-                <SignatureCanvas ref={sigClienteRef} />
-                <button onClick={() => saveFirma("cliente", sigClienteRef)}>
-                  Guardar
-                </button>
-                <button onClick={() => clearFirma("cliente", sigClienteRef)}>
-                  Limpiar
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
         {/* ================= RESPONSABLES ================= */}
         <table className="pdf-table">
           <thead>
             <tr>
-              <th colSpan={2}>ELABORADO POR – ASTAP</th>
-              <th colSpan={2}>APROBADO POR – CLIENTE</th>
+              <th colSpan={2}>ELABORADO POR</th>
+              <th colSpan={2}>APROBADO POR</th>
+            </tr>
+            <tr>
+              <th colSpan={2}>ASTAP CIA LTDA</th>
+              <th colSpan={2}>CLIENTE</th>
             </tr>
           </thead>
           <tbody>
