@@ -124,8 +124,26 @@ export default function HojaInspeccionHidro() {
     items: {},
   });
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
+
+  const handleItemChange = (codigo, campo, valor) => {
+    setFormData((p) => ({
+      ...p,
+      items: {
+        ...p.items,
+        [codigo]: {
+          ...p.items[codigo],
+          [campo]: valor,
+        },
+      },
+    }));
+  };
+
   /* =============================
-     FIRMAS – LÓGICA
+     FIRMA – LÓGICA
   ============================= */
   const startDraw = (e, canvas) => {
     drawing.current = true;
@@ -157,29 +175,6 @@ export default function HojaInspeccionHidro() {
     setFormData((p) => ({ ...p, [field]: "" }));
   };
 
-  /* =============================
-     RESTO DEL FORMULARIO
-     (TODO IGUAL QUE ANTES)
-  ============================= */
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
-  };
-
-  const handleItemChange = (codigo, campo, valor) => {
-    setFormData((p) => ({
-      ...p,
-      items: {
-        ...p.items,
-        [codigo]: {
-          ...p.items[codigo],
-          [campo]: valor,
-        },
-      },
-    }));
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     markInspectionCompleted("hidro", id, formData);
@@ -189,12 +184,9 @@ export default function HojaInspeccionHidro() {
   return (
     <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
 
-      {/* AQUÍ VA TODO TU FORMULARIO TAL CUAL */}
-      {/* ... encabezado, datos, imagen, tablas, descripción ... */}
+      {/* TODO EL FORMULARIO ORIGINAL VA AQUÍ (SIN CAMBIOS) */}
 
-      {/* =============================
-         FIRMAS (FUNCIONALES)
-      ============================= */}
+      {/* FIRMAS (FUNCIONALES, MISMO LAYOUT) */}
       <section className="border rounded p-4">
         <div className="grid grid-cols-2 gap-4 text-xs text-center">
 
@@ -212,7 +204,7 @@ export default function HojaInspeccionHidro() {
             <button
               type="button"
               onClick={() => clearCanvas(canvasTecnico.current, "firmaTecnico")}
-              className="mt-1 text-xs text-red-600"
+              className="text-xs text-red-600 mt-1"
             >
               Limpiar
             </button>
@@ -232,7 +224,7 @@ export default function HojaInspeccionHidro() {
             <button
               type="button"
               onClick={() => clearCanvas(canvasCliente.current, "firmaCliente")}
-              className="mt-1 text-xs text-red-600"
+              className="text-xs text-red-600 mt-1"
             >
               Limpiar
             </button>
