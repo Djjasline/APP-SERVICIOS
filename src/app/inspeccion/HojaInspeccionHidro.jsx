@@ -348,19 +348,25 @@ export default function HojaInspeccionHidro() {
         </div>
       </section>
 
-      {/* FIRMAS (SOLO 2) */}
-      <section className="border rounded p-4">
-        <div className="grid grid-cols-2 gap-4 text-xs text-center">
-          <div className="border h-32 flex flex-col justify-between p-2">
-            <div className="font-semibold">FIRMA TÉCNICO</div>
-            <div className="border-t pt-1">ASTAP Cía. Ltda.</div>
-          </div>
-          <div className="border h-32 flex flex-col justify-between p-2">
-            <div className="font-semibold">FIRMA CLIENTE</div>
-            <div className="border-t pt-1">&nbsp;</div>
-          </div>
-        </div>
-      </section>
+{/* FIRMAS */}
+<section className="border rounded p-4 space-y-4">
+  <SignaturePad
+    label="Firma técnico"
+    value={formData.firmaTecnico}
+    onChange={(val) =>
+      setFormData((p) => ({ ...p, firmaTecnico: val }))
+    }
+  />
+
+  <SignaturePad
+    label="Firma cliente"
+    required
+    value={formData.firmaCliente}
+    onChange={(val) =>
+      setFormData((p) => ({ ...p, firmaCliente: val }))
+    }
+  />
+</section>
 
       {/* BOTONES */}
       <div className="flex justify-end gap-4">
