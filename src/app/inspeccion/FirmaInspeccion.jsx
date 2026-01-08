@@ -1,38 +1,62 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getInspectionHistory, saveInspectionHistory } from "@utils/inspectionStorage";
+import { getInspectionHistory, markInspectionCompleted } from "@utils/inspectionStorage";
 
 export default function FirmaInspeccion() {
   const { id } = useParams();
   const navigate = useNavigate();
   const canvasRef = useRef(null);
-  const [drawing, setDrawing] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
+
+  const getPos = (e) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+
+    if (e.touches) {
+      return {
+        x: e.touches[0].clientX - rect.left,
+        y: e.touches[0].clientY - rect.top,
+      };
+    }
+
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+  };
 
   const startDraw = (e) => {
+    e.preventDefault();
     const ctx = canvasRef.current.getContext("2d");
+    const pos = getPos(e);
+
     ctx.beginPath();
-    ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-    setDrawing(true);
+    ctx.moveTo(pos.x, pos.y);
+    setIsDrawing(true);
   };
 
   const draw = (e) => {
-    if (!drawing) return;
+    if (!isDrawing) return;
+    e.preventDefault();
+
     const ctx = canvasRef.current.getContext("2d");
-    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    const pos = getPos(e);
+
+    ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
   };
 
-  const endDraw = () => setDrawing(false);
+  const endDraw = () => setIsDrawing(false);
 
   const guardarFirma = () => {
-    const firmaBase64 = canvasRef.current.toDataURL("image/png");
+    const firma = canvasRef.current.toDataURL("image/png");
 
     const history = getInspectionHistory();
+
     history.hidro = history.hidro.map((i) =>
-      i.id === id ? { ...i, firmaCliente: firmaBase64 } : i
+      i.id === id ? { ...i, firmaCliente: firma } : i
     );
 
-    saveInspectionHistory(history);
+    localStorage.setItem("inspectionHistory", JSON.stringify(history));
     navigate("/inspeccion");
   };
 
@@ -46,13 +70,13 @@ export default function FirmaInspeccion() {
         ref={canvasRef}
         width={500}
         height={200}
-        className="border w-full touch-none"
+        className="border w-full rounded touch-none"
         onMouseDown={startDraw}
         onMouseMove={draw}
         onMouseUp={endDraw}
         onMouseLeave={endDraw}
-        onTouchStart={(e) => startDraw(e.touches[0])}
-        onTouchMove={(e) => draw(e.touches[0])}
+        onTouchStart={startDraw}
+        onTouchMove={draw}
         onTouchEnd={endDraw}
       />
 
