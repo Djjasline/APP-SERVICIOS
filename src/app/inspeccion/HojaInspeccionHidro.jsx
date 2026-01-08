@@ -105,6 +105,17 @@ export default function HojaInspeccionHidro() {
     correoTecnico: "",
     estadoEquipoDetalle: "",
     estadoEquipoPuntos: [],
+    // descripción equipo
+    notaEquipo: "",
+    marca: "",
+    modelo: "",
+    serie: "",
+    anioModelo: "",
+    vin: "",
+    placa: "",
+    horasModulo: "",
+    horasChasis: "",
+    kilometraje: "",
     items: {},
   });
 
@@ -156,70 +167,11 @@ export default function HojaInspeccionHidro() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
-    >
-
-      {/* ENCABEZADO DEL REPORTE */}
-      <section className="border rounded-lg overflow-hidden">
-        <table className="w-full text-xs border-collapse">
-          <tbody>
-            <tr className="border-b">
-              <td rowSpan={4} className="w-32 border-r p-3 text-center align-middle">
-                <img src="/astap-logo.jpg" alt="ASTAP" className="mx-auto max-h-20" />
-              </td>
-              <td colSpan={2} className="border-r text-center font-bold py-2">
-                REPORTE TÉCNICO DE SERVICIO
-              </td>
-              <td className="w-48 p-2">
-                <div>Fecha de versión: <strong>01-01-26</strong></div>
-                <div>Versión: <strong>01</strong></div>
-              </td>
-            </tr>
-            <tr className="border-b">
-              <td className="border-r p-2 font-semibold">REFERENCIA DE CONTRATO</td>
-              <td colSpan={2} className="p-2">
-                <textarea name="referenciaContrato" rows={2} onChange={handleChange} className="w-full border rounded p-1 resize-none" />
-              </td>
-            </tr>
-            <tr className="border-b">
-              <td className="border-r p-2 font-semibold">DESCRIPCIÓN</td>
-              <td colSpan={2} className="p-2">
-                <textarea name="descripcion" rows={2} onChange={handleChange} className="w-full border rounded p-1 resize-none" />
-              </td>
-            </tr>
-            <tr>
-              <td className="border-r p-2 font-semibold">COD. INF.</td>
-              <td colSpan={2} className="p-2">
-                <input name="codInf" onChange={handleChange} className="w-full border rounded p-1" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      {/* DATOS DEL SERVICIO */}
-      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
-        <input type="date" name="fechaInspeccion" onChange={handleChange} className="input" />
-        <input name="ubicacion" placeholder="Ubicación" onChange={handleChange} className="input" />
-        <input name="cliente" placeholder="Cliente" onChange={handleChange} className="input" />
-        <input name="contactoCliente" placeholder="Contacto con el cliente" onChange={handleChange} className="input" />
-        <input name="telefonoCliente" placeholder="Teléfono cliente" onChange={handleChange} className="input" />
-        <input name="correoCliente" placeholder="Correo cliente" onChange={handleChange} className="input" />
-        <input name="tecnicoResponsable" placeholder="Técnico responsable" onChange={handleChange} className="input" />
-        <input name="telefonoTecnico" placeholder="Teléfono técnico" onChange={handleChange} className="input" />
-        <input name="correoTecnico" placeholder="Correo técnico" onChange={handleChange} className="input" />
-      </section>
+    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
 
       {/* ESTADO DEL EQUIPO */}
       <section className="border rounded p-4 space-y-2">
         <p className="font-semibold">Estado del equipo</p>
-        <p className="text-xs text-gray-500">
-          Haga clic sobre la imagen para marcar daños o novedades.
-          Doble clic sobre un número para eliminarlo.
-        </p>
-
         <div className="relative border rounded overflow-hidden cursor-crosshair" onClick={handleImageClick}>
           <img src="/estado-equipo.png" className="w-full" draggable={false} />
           {formData.estadoEquipoPuntos.map((pt) => (
@@ -233,7 +185,6 @@ export default function HojaInspeccionHidro() {
             </div>
           ))}
         </div>
-
         <textarea
           name="estadoEquipoDetalle"
           placeholder="Detalle del estado del equipo"
@@ -242,7 +193,7 @@ export default function HojaInspeccionHidro() {
         />
       </section>
 
-      {/* TABLAS */}
+      {/* TABLAS A–D */}
       {secciones.map((sec) => (
         <section key={sec.id} className="border rounded p-4">
           <h2 className="font-semibold mb-2">{sec.titulo}</h2>
@@ -262,15 +213,13 @@ export default function HojaInspeccionHidro() {
                   <td>{item.codigo}</td>
                   <td>{item.texto}</td>
                   <td>
-                    <input
-                      type="radio"
+                    <input type="radio"
                       checked={formData.items[item.codigo]?.estado === "SI"}
                       onChange={() => handleItemChange(item.codigo, "estado", "SI")}
                     />
                   </td>
                   <td>
-                    <input
-                      type="radio"
+                    <input type="radio"
                       checked={formData.items[item.codigo]?.estado === "NO"}
                       onChange={() => handleItemChange(item.codigo, "estado", "NO")}
                     />
@@ -288,6 +237,48 @@ export default function HojaInspeccionHidro() {
           </table>
         </section>
       ))}
+
+      {/* DESCRIPCIÓN DEL EQUIPO */}
+      <section className="border rounded p-4 space-y-2">
+        <h2 className="font-semibold text-center">DESCRIPCIÓN DEL EQUIPO</h2>
+        <div className="grid grid-cols-4 gap-2 text-xs">
+          {[
+            ["NOTA", "notaEquipo"],
+            ["MARCA", "marca"],
+            ["MODELO", "modelo"],
+            ["N° SERIE", "serie"],
+            ["AÑO MODELO", "anioModelo"],
+            ["VIN / CHASIS", "vin"],
+            ["PLACA N°", "placa"],
+            ["HORAS TRABAJO MÓDULO", "horasModulo"],
+            ["HORAS TRABAJO CHASIS", "horasChasis"],
+            ["KILOMETRAJE", "kilometraje"],
+          ].map(([label, name]) => (
+            <>
+              <label className="font-semibold">{label}:</label>
+              <input name={name} onChange={handleChange} className="col-span-3 border p-1" />
+            </>
+          ))}
+        </div>
+      </section>
+
+      {/* FIRMAS */}
+      <section className="border rounded p-4">
+        <div className="grid grid-cols-3 gap-4 text-xs text-center">
+          <div className="border h-32 flex flex-col justify-between p-2">
+            <div className="font-semibold">Elaborado por</div>
+            <div className="border-t pt-1">ASTAP Cía. Ltda.</div>
+          </div>
+          <div className="border h-32 flex flex-col justify-between p-2">
+            <div className="font-semibold">Autorizado por</div>
+            <div className="border-t pt-1">&nbsp;</div>
+          </div>
+          <div className="border h-32 flex flex-col justify-between p-2">
+            <div className="font-semibold">CLIENTE</div>
+            <div className="border-t pt-1">&nbsp;</div>
+          </div>
+        </div>
+      </section>
 
       <div className="flex justify-end gap-4">
         <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
