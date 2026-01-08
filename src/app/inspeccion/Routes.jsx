@@ -8,13 +8,16 @@ import HojaInspeccionBarredora from "./HojaInspeccionBarredora";
 import HojaInspeccionCamara from "./HojaInspeccionCamara";
 import HistorialInspecciones from "./HistorialInspecciones";
 
+/* ✅ NUEVO: pantalla aislada de firma */
+import HojaFirma from "./HojaFirma";
+
 export default function InspectionRoutes() {
   return (
     <Routes>
       {/* MENÚ DE INSPECCIONES */}
       <Route index element={<IndexInspeccion />} />
 
-      {/* HISTORIAL HIDRO (NUEVO) */}
+      {/* HISTORIAL HIDRO */}
       <Route
         path="hidro/historial"
         element={<HistorialInspecciones />}
@@ -24,6 +27,9 @@ export default function InspectionRoutes() {
       <Route path="hidro/:id" element={<HojaInspeccionHidro />} />
       <Route path="barredora/:id" element={<HojaInspeccionBarredora />} />
       <Route path="camara/:id" element={<HojaInspeccionCamara />} />
+
+      {/* ✅ NUEVA RUTA DE FIRMA (AISLADA, SEGURA) */}
+      <Route path="hidro/:id/firma" element={<HojaFirma />} />
     </Routes>
   );
 }
