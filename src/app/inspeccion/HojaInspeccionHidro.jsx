@@ -54,14 +54,20 @@ export default function HojaInspeccionHidro() {
     fechaInspeccion: "",
     ubicacion: "",
     cliente: "",
+
+    contactoCliente: "",
+    telefonoCliente: "",
+    correoCliente: "",
+
     tecnicoAstap: "",
-    responsableCliente: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
+
     estadoEquipo: "",
-    observacionesGenerales: "",
     items: {},
   });
 
-  const handleHeaderChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
   };
@@ -82,13 +88,12 @@ export default function HojaInspeccionHidro() {
   return (
     <form className="max-w-6xl mx-auto my-6 bg-white shadow-lg rounded-2xl p-6 space-y-6 text-sm">
 
-      {/* ================= ENCABEZADO FORMATO PDF ================= */}
+      {/* ================= ENCABEZADO ================= */}
       <section className="border rounded-xl p-4 space-y-4">
 
-        {/* CABECERA SUPERIOR */}
         <div className="grid grid-cols-[120px_1fr_200px] items-center gap-4">
           <img
-            src="/astap-logo.jpg"
+            src="/logotipo-de-astap.jpg"
             alt="ASTAP"
             className="w-full object-contain"
           />
@@ -98,13 +103,12 @@ export default function HojaInspeccionHidro() {
           </h1>
 
           <div className="text-xs text-right">
-            <p>Fecha de versión: 01-01-2026</p>
+            <p>Fecha de versión: 25-11-2025</p>
             <p>Versión: 01</p>
           </div>
         </div>
 
-        {/* TABLA DE DATOS */}
-        <table className="w-full border-collapse border text-sm">
+        <table className="w-full border-collapse border">
           <tbody>
             {[
               ["REFERENCIA DE CONTRATO", "referenciaContrato"],
@@ -113,11 +117,17 @@ export default function HojaInspeccionHidro() {
               ["FECHA DE INSPECCIÓN", "fechaInspeccion", "date"],
               ["UBICACIÓN", "ubicacion"],
               ["CLIENTE", "cliente"],
+
+              ["CONTACTO CLIENTE", "contactoCliente"],
+              ["TELÉFONO CLIENTE", "telefonoCliente"],
+              ["CORREO CLIENTE", "correoCliente"],
+
               ["TÉCNICO RESPONSABLE", "tecnicoAstap"],
-              ["CLIENTE RESPONSABLE", "responsableCliente"],
+              ["TELÉFONO TÉCNICO", "telefonoTecnico"],
+              ["CORREO TÉCNICO", "correoTecnico"],
             ].map(([label, key, type]) => (
               <tr key={key}>
-                <td className="border px-2 py-1 font-semibold w-56">
+                <td className="border px-2 py-1 font-semibold w-60">
                   {label}
                 </td>
                 <td className="border px-2 py-1">
@@ -125,7 +135,7 @@ export default function HojaInspeccionHidro() {
                     type={type || "text"}
                     name={key}
                     value={formData[key]}
-                    onChange={handleHeaderChange}
+                    onChange={handleChange}
                     className="w-full outline-none"
                   />
                 </td>
@@ -148,7 +158,7 @@ export default function HojaInspeccionHidro() {
         <textarea
           name="estadoEquipo"
           value={formData.estadoEquipo}
-          onChange={handleHeaderChange}
+          onChange={handleChange}
           placeholder="Detalle del estado del equipo"
           className="w-full border rounded px-2 py-1 min-h-[100px]"
         />
