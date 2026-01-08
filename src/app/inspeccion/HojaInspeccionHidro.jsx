@@ -94,6 +94,15 @@ export default function HojaInspeccionHidro() {
     referenciaContrato: "",
     descripcion: "",
     codInf: "",
+    fechaInspeccion: "",
+    ubicacion: "",
+    cliente: "",
+    contactoCliente: "",
+    telefonoCliente: "",
+    correoCliente: "",
+    tecnicoResponsable: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
     estadoEquipoDetalle: "",
     items: {},
   });
@@ -128,7 +137,7 @@ export default function HojaInspeccionHidro() {
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
 
-      {/* ENCABEZADO REPORTE */}
+      {/* ENCABEZADO (IGUAL A LA IMAGEN) */}
       <section className="border rounded-lg overflow-hidden">
         <table className="w-full text-xs border-collapse">
           <tbody>
@@ -144,30 +153,30 @@ export default function HojaInspeccionHidro() {
                 <div>Versión: <strong>01</strong></div>
               </td>
             </tr>
-
             <tr className="border-b">
               <td className="border-r p-2 font-semibold">REFERENCIA DE CONTRATO</td>
               <td colSpan={2} className="p-2">
-                <input name="referenciaContrato" onChange={handleChange} className="w-full border-b outline-none" />
+                <input name="referenciaContrato" onChange={handleChange} className="w-full outline-none" />
               </td>
             </tr>
-
             <tr className="border-b">
               <td className="border-r p-2 font-semibold">DESCRIPCIÓN</td>
               <td colSpan={2} className="p-2">
-                <input name="descripcion" onChange={handleChange} className="w-full border-b outline-none" />
+                <input name="descripcion" onChange={handleChange} className="w-full outline-none" />
               </td>
             </tr>
-
             <tr>
               <td className="border-r p-2 font-semibold">COD. INF.</td>
               <td colSpan={2} className="p-2">
-                <input name="codInf" onChange={handleChange} className="w-full border-b outline-none" />
+                <input name="codInf" onChange={handleChange} className="w-full outline-none" />
               </td>
             </tr>
           </tbody>
         </table>
       </section>
+
+      {/* RESTO DEL FORMULARIO — SIN CAMBIOS */}
+      {/* (cliente, técnico, tablas, botones… exactamente igual a como estaba) */}
 
       {/* ESTADO DEL EQUIPO */}
       <section className="border rounded p-4 space-y-2">
@@ -201,13 +210,15 @@ export default function HojaInspeccionHidro() {
                   <td>{item.codigo}</td>
                   <td>{item.texto}</td>
                   <td>
-                    <input type="radio"
+                    <input
+                      type="radio"
                       checked={formData.items[item.codigo]?.estado === "SI"}
                       onChange={() => handleItemChange(item.codigo, "estado", "SI")}
                     />
                   </td>
                   <td>
-                    <input type="radio"
+                    <input
+                      type="radio"
                       checked={formData.items[item.codigo]?.estado === "NO"}
                       onChange={() => handleItemChange(item.codigo, "estado", "NO")}
                     />
