@@ -1,16 +1,52 @@
-// src/app/inspeccion/HojaInspeccionHidro.jsx
-
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { markInspectionCompleted } from "@utils/inspectionStorage";
+
+/* =============================
+   SECCIONES DE INSPECCIÓN
+============================= */
+const secciones = [
+  {
+    id: "sec1",
+    titulo:
+      "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
+    items: [
+      { codigo: "1.1", texto: "Prueba de encendido general del equipo" },
+      { codigo: "1.2", texto: "Verificación de funcionamiento de controles principales" },
+      { codigo: "1.3", texto: "Revisión de alarmas o mensajes de fallo" },
+    ],
+  },
+  {
+    id: "secA",
+    titulo:
+      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES – A) SISTEMA HIDRÁULICO (ACEITES)",
+    items: [
+      { codigo: "A.1", texto: "Fugas de aceite hidráulico" },
+      { codigo: "A.2", texto: "Nivel de aceite del soplador" },
+      { codigo: "A.3", texto: "Nivel de aceite hidráulico" },
+      { codigo: "A.4", texto: "Nivel de aceite caja de transferencia" },
+      { codigo: "A.5", texto: "Manómetro filtro hidráulico" },
+      { codigo: "A.6", texto: "Filtro hidráulico de retorno" },
+      { codigo: "A.7", texto: "Filtros succión tanque hidráulico" },
+      { codigo: "A.8", texto: "Cilindros hidráulicos" },
+      { codigo: "A.9", texto: "Tapones de drenaje" },
+      { codigo: "A.10", texto: "Bancos hidráulicos" },
+    ],
+  },
+  {
+    id: "secB",
+    titulo:
+      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES – B) SISTEMA HIDRÁULICO (AGUA)",
+    items: [
+      { codigo: "B.1", texto: "Empaques filtros de agua" },
+      { codigo: "B.2", texto: "Tapón expansión tanques" },
+      { codigo: "B.3", texto: "Fugas tanque aluminio" },
+      { codigo: "B.4", texto: "Sistema de trinquete y seguros" },
+      { codigo: "B.5", texto: "Sellos tanque desperdicios" },
+      { codigo: "B.6", texto: "Filtros malla agua" },
+    ],
+  },
+];
 
 export default function HojaInspeccionHidro() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-
-  /* =============================
-     ESTADO PRINCIPAL
-  ============================= */
   const [formData, setFormData] = useState({
     referenciaContrato: "",
     descripcion: "",
@@ -20,193 +56,153 @@ export default function HojaInspeccionHidro() {
     cliente: "",
     tecnicoAstap: "",
     responsableCliente: "",
-    detalleEstadoEquipo: "",
+    estadoEquipo: "",
+    observacionesGenerales: "",
+    items: {},
   });
 
-  const [marcas, setMarcas] = useState([]);
-
-  /* =============================
-     HANDLERS
-  ============================= */
-  const handleChange = (e) => {
+  const handleHeaderChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
   };
 
-  const agregarMarca = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-    setMarcas((prev) => [...prev, { x, y }]);
+  const handleItemChange = (codigo, campo, valor) => {
+    setFormData((p) => ({
+      ...p,
+      items: {
+        ...p.items,
+        [codigo]: {
+          ...p.items[codigo],
+          [campo]: valor,
+        },
+      },
+    }));
   };
 
-  const eliminarMarca = (index) => {
-    setMarcas((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    markInspectionCompleted("hidro", id, {
-      ...formData,
-      marcas,
-    });
-    navigate("/inspeccion");
-  };
-
-  /* =============================
-     RENDER
-  ============================= */
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-6xl mx-auto my-6 bg-white rounded-xl shadow p-6 space-y-8"
-    >
-      {/* ================= ENCABEZADO ================= */}
+    <form className="max-w-6xl mx-auto my-6 bg-white shadow-lg rounded-2xl p-6 space-y-6 text-sm">
+
+      {/* ================= ENCABEZADO FORMATO PDF ================= */}
       <section className="border rounded-xl p-4 space-y-4">
+
+        {/* CABECERA SUPERIOR */}
         <div className="grid grid-cols-[120px_1fr_200px] items-center gap-4">
-          {/* LOGO */}
           <img
-            src="/astap-logo.jpg"
+            src="/logotipo-de-astap.jpg"
             alt="ASTAP"
             className="w-full object-contain"
           />
 
-          {/* TÍTULO */}
           <h1 className="text-center font-semibold text-lg">
             HOJA DE INSPECCIÓN – HIDROSUCCIONADOR
           </h1>
 
-          {/* VERSION */}
           <div className="text-xs text-right">
-            <p>Fecha de versión: 01-01-2026</p>
+            <p>Fecha de versión: 25-11-2025</p>
             <p>Versión: 01</p>
           </div>
         </div>
 
-        {/* CAMPOS */}
-        <div className="grid md:grid-cols-3 gap-3">
-          <input
-            name="referenciaContrato"
-            value={formData.referenciaContrato}
-            onChange={handleChange}
-            placeholder="Referencia contrato"
-            className="input"
-          />
-          <input
-            name="descripcion"
-            value={formData.descripcion}
-            onChange={handleChange}
-            placeholder="Descripción"
-            className="input md:col-span-2"
-          />
-          <input
-            name="codInf"
-            value={formData.codInf}
-            onChange={handleChange}
-            placeholder="Cód. INF."
-            className="input"
-          />
-          <input
-            type="date"
-            name="fechaInspeccion"
-            value={formData.fechaInspeccion}
-            onChange={handleChange}
-            className="input"
-          />
-          <input
-            name="ubicacion"
-            value={formData.ubicacion}
-            onChange={handleChange}
-            placeholder="Ubicación"
-            className="input"
-          />
-          <input
-            name="cliente"
-            value={formData.cliente}
-            onChange={handleChange}
-            placeholder="Cliente"
-            className="input"
-          />
-          <input
-            name="tecnicoAstap"
-            value={formData.tecnicoAstap}
-            onChange={handleChange}
-            placeholder="Técnico ASTAP"
-            className="input"
-          />
-          <input
-            name="responsableCliente"
-            value={formData.responsableCliente}
-            onChange={handleChange}
-            placeholder="Cliente responsable"
-            className="input md:col-span-2"
-          />
-        </div>
+        {/* TABLA DE DATOS */}
+        <table className="w-full border-collapse border text-sm">
+          <tbody>
+            {[
+              ["REFERENCIA DE CONTRATO", "referenciaContrato"],
+              ["DESCRIPCIÓN", "descripcion"],
+              ["CÓD. INF.", "codInf"],
+              ["FECHA DE INSPECCIÓN", "fechaInspeccion", "date"],
+              ["UBICACIÓN", "ubicacion"],
+              ["CLIENTE", "cliente"],
+              ["TÉCNICO RESPONSABLE", "tecnicoAstap"],
+              ["CLIENTE RESPONSABLE", "responsableCliente"],
+            ].map(([label, key, type]) => (
+              <tr key={key}>
+                <td className="border px-2 py-1 font-semibold w-56">
+                  {label}
+                </td>
+                <td className="border px-2 py-1">
+                  <input
+                    type={type || "text"}
+                    name={key}
+                    value={formData[key]}
+                    onChange={handleHeaderChange}
+                    className="w-full outline-none"
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </section>
 
       {/* ================= ESTADO DEL EQUIPO ================= */}
-      <section className="border rounded-xl p-4 space-y-4">
-        <h2 className="font-semibold text-sm">Estado del equipo</h2>
+      <section className="border rounded-xl p-4 space-y-3">
+        <h2 className="font-semibold">Estado del equipo</h2>
 
-        <p className="text-xs text-gray-500">
-          Haga clic sobre la imagen para marcar daños o defectos. Doble clic
-          sobre un número para eliminarlo.
-        </p>
+        <img
+          src="/estado-equipo.png"
+          alt="Estado del equipo"
+          className="w-full border rounded"
+        />
 
-        {/* IMAGEN + MARCAS */}
-        <div
-          className="relative border rounded-lg overflow-hidden"
-          onClick={agregarMarca}
-        >
-          <img
-            src="/estado-equipo.png"
-            alt="Estado del equipo"
-            className="w-full object-contain"
-          />
-
-          {marcas.map((m, i) => (
-            <div
-              key={i}
-              onDoubleClick={() => eliminarMarca(i)}
-              className="absolute bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full cursor-pointer"
-              style={{
-                left: `${m.x}%`,
-                top: `${m.y}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              {i + 1}
-            </div>
-          ))}
-        </div>
-
-        {/* DETALLE */}
         <textarea
-          name="detalleEstadoEquipo"
-          value={formData.detalleEstadoEquipo}
-          onChange={handleChange}
+          name="estadoEquipo"
+          value={formData.estadoEquipo}
+          onChange={handleHeaderChange}
           placeholder="Detalle del estado del equipo"
-          className="w-full border rounded p-2 min-h-[120px]"
+          className="w-full border rounded px-2 py-1 min-h-[100px]"
         />
       </section>
 
-      {/* ================= BOTONES ================= */}
-      <div className="flex justify-end gap-4">
-        <button
-          type="button"
-          onClick={() => navigate("/inspeccion")}
-          className="border px-4 py-2 rounded"
-        >
-          Volver
-        </button>
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
-          Guardar y completar
-        </button>
-      </div>
+      {/* ================= TABLAS DE INSPECCIÓN ================= */}
+      {secciones.map((sec) => (
+        <section key={sec.id} className="border rounded-xl p-4 space-y-3">
+          <h2 className="font-semibold text-sm">{sec.titulo}</h2>
+
+          <table className="w-full border-collapse border text-xs">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border p-1 w-16">Ítem</th>
+                <th className="border p-1">Detalle</th>
+                <th className="border p-1 w-10">Sí</th>
+                <th className="border p-1 w-10">No</th>
+                <th className="border p-1 w-48">Observación</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sec.items.map((item) => (
+                <tr key={item.codigo}>
+                  <td className="border p-1 text-center">{item.codigo}</td>
+                  <td className="border p-1">{item.texto}</td>
+                  <td className="border p-1 text-center">
+                    <input
+                      type="radio"
+                      checked={formData.items[item.codigo]?.estado === "SI"}
+                      onChange={() => handleItemChange(item.codigo, "estado", "SI")}
+                    />
+                  </td>
+                  <td className="border p-1 text-center">
+                    <input
+                      type="radio"
+                      checked={formData.items[item.codigo]?.estado === "NO"}
+                      onChange={() => handleItemChange(item.codigo, "estado", "NO")}
+                    />
+                  </td>
+                  <td className="border p-1">
+                    <input
+                      className="w-full border px-1"
+                      value={formData.items[item.codigo]?.observacion || ""}
+                      onChange={(e) =>
+                        handleItemChange(item.codigo, "observacion", e.target.value)
+                      }
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      ))}
     </form>
   );
 }
