@@ -95,10 +95,6 @@ export default function HojaInspeccionHidro() {
   const drawing = useRef(false);
 
   const [formData, setFormData] = useState({
-    /* TODO lo que ya tenías */
-    firmaTecnico: "",
-    firmaCliente: "",
-    /* resto intacto */
     referenciaContrato: "",
     descripcion: "",
     codInf: "",
@@ -123,12 +119,19 @@ export default function HojaInspeccionHidro() {
     horasModulo: "",
     horasChasis: "",
     kilometraje: "",
+    firmaTecnico: "",
+    firmaCliente: "",
     items: {},
   });
 
+  /* =============================
+     FIRMAS – LÓGICA
+  ============================= */
   const startDraw = (e, canvas) => {
     drawing.current = true;
     const ctx = canvas.getContext("2d");
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
     ctx.beginPath();
     ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
   };
@@ -154,6 +157,29 @@ export default function HojaInspeccionHidro() {
     setFormData((p) => ({ ...p, [field]: "" }));
   };
 
+  /* =============================
+     RESTO DEL FORMULARIO
+     (TODO IGUAL QUE ANTES)
+  ============================= */
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
+
+  const handleItemChange = (codigo, campo, valor) => {
+    setFormData((p) => ({
+      ...p,
+      items: {
+        ...p.items,
+        [codigo]: {
+          ...p.items[codigo],
+          [campo]: valor,
+        },
+      },
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     markInspectionCompleted("hidro", id, formData);
@@ -163,13 +189,17 @@ export default function HojaInspeccionHidro() {
   return (
     <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
 
-      {/* FIRMAS */}
+      {/* AQUÍ VA TODO TU FORMULARIO TAL CUAL */}
+      {/* ... encabezado, datos, imagen, tablas, descripción ... */}
+
+      {/* =============================
+         FIRMAS (FUNCIONALES)
+      ============================= */}
       <section className="border rounded p-4">
         <div className="grid grid-cols-2 gap-4 text-xs text-center">
 
-          {/* FIRMA TÉCNICO */}
           <div>
-            <p className="font-semibold mb-1">FIRMA TÉCNICO</p>
+            <div className="font-semibold mb-1">FIRMA TÉCNICO</div>
             <canvas
               ref={canvasTecnico}
               width={400}
@@ -188,9 +218,8 @@ export default function HojaInspeccionHidro() {
             </button>
           </div>
 
-          {/* FIRMA CLIENTE */}
           <div>
-            <p className="font-semibold mb-1">FIRMA CLIENTE</p>
+            <div className="font-semibold mb-1">FIRMA CLIENTE</div>
             <canvas
               ref={canvasCliente}
               width={400}
