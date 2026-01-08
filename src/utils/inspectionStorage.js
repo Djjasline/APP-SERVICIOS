@@ -27,28 +27,39 @@ export function getInspections(tipo) {
   return history[tipo] || [];
 }
 
-export function addInspection(tipo, data) {
+export function addInspection(tipo, data = {}) {
   const history = getInspectionHistory();
 
   history[tipo].unshift({
     id: crypto.randomUUID(),
     fecha: new Date().toISOString().slice(0, 10),
     estado: "borrador",
-    ...data,
+    datos: data, // puede venir vacío
   });
 
   saveInspectionHistory(history);
 }
 
-/* 🆕 PASO 10: marcar inspección como completada */
-export function markInspectionCompleted(tipo, id) {
+/* ✅ COMPLETAR INSPECCIÓN (GUARDA TODO EL FORMULARIO) */
+export function markInspectionCompleted(tipo, id, formData) {
   const history = getInspectionHistory();
 
   history[tipo] = history[tipo].map((item) =>
     item.id === id
-      ? { ...item, estado: "completada" }
+      ? {
+          ...item,
+          estado: "completada",
+          datos: formData, // 🔴 AQUÍ SE GUARDA TODO
+          fechaCompletada: new Date().toISOString(),
+        }
       : item
   );
 
   saveInspectionHistory(history);
+}
+
+/* 🆕 Obtener una inspección puntual (para PDF / lectura) */
+export function getInspectionById(tipo, id) {
+  const history = getInspectionHistory();
+  return history[tipo]?.find((i) => i.id === id) || null;
 }
