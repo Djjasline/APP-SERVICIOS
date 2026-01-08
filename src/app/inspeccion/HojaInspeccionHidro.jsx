@@ -117,6 +117,8 @@ export default function HojaInspeccionHidro() {
     horasChasis: "",
     kilometraje: "",
     items: {},
+    firmaTecnico: null,
+    firmaCliente: null,
   });
 
   const handleChange = (e) => {
@@ -162,6 +164,10 @@ export default function HojaInspeccionHidro() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+   // 🔴 PASO 4: validar firma del cliente
+  if (!formData.firmaCliente) {
+    alert("El cliente debe firmar antes de finalizar el servicio.");
+    return;   
     markInspectionCompleted("hidro", id, formData);
     navigate("/inspeccion");
   };
