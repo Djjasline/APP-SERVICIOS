@@ -1,5 +1,3 @@
-// src/app/inspeccion/HojaInspeccionHidro.jsx
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
@@ -23,16 +21,16 @@ const secciones = [
     id: "secA",
     titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
     items: [
-      { codigo: "A.1", texto: "Fugas de aceite hidráulico (mangueras, acoples, bancos)" },
+      { codigo: "A.1", texto: "Fugas de aceite hidráulico" },
       { codigo: "A.2", texto: "Nivel de aceite del soplador" },
       { codigo: "A.3", texto: "Nivel de aceite hidráulico" },
-      { codigo: "A.4", texto: "Nivel de aceite en caja de transferencia" },
-      { codigo: "A.5", texto: "Manómetro del filtro hidráulico de retorno" },
-      { codigo: "A.6", texto: "Filtro hidráulico de retorno (fugas o daños)" },
-      { codigo: "A.7", texto: "Filtros de succión del tanque hidráulico" },
-      { codigo: "A.8", texto: "Cilindros hidráulicos (fugas o daños)" },
-      { codigo: "A.9", texto: "Tapones de drenaje de lubricantes" },
-      { codigo: "A.10", texto: "Bancos hidráulicos (fugas o daños)" },
+      { codigo: "A.4", texto: "Aceite caja de transferencia" },
+      { codigo: "A.5", texto: "Manómetro filtro hidráulico" },
+      { codigo: "A.6", texto: "Filtro hidráulico de retorno" },
+      { codigo: "A.7", texto: "Filtros de succión tanque hidráulico" },
+      { codigo: "A.8", texto: "Cilindros hidráulicos" },
+      { codigo: "A.9", texto: "Tapones de drenaje" },
+      { codigo: "A.10", texto: "Bancos hidráulicos" },
     ],
   },
 
@@ -40,25 +38,25 @@ const secciones = [
     id: "secB",
     titulo: "B) SISTEMA HIDRÁULICO (AGUA)",
     items: [
-      { codigo: "B.1", texto: "Estado de filtros malla para agua 2” y 3”" },
-      { codigo: "B.2", texto: "Estado de empaques tapa filtros de agua" },
-      { codigo: "B.3", texto: "Inspección de fugas de agua (mangueras – acoples)" },
-      { codigo: "B.4", texto: "Válvula de alivio de pistola (opcional 700 PSI)" },
-      { codigo: "B.5", texto: "Golpes y fugas de agua en tanque de aluminio" },
-      { codigo: "B.6", texto: "Medidor de nivel del tanque (visualización de bolitas)" },
-      { codigo: "B.7", texto: "Sistema de tapón de expansión tanques de aluminio" },
-      { codigo: "B.8", texto: "Sistema de drenaje bomba Rodder (opcional)" },
-      { codigo: "B.9", texto: "Válvulas check internas bomba 2” y 3”" },
-      { codigo: "B.10", texto: "Manómetros de presión (opcional)" },
-      { codigo: "B.11", texto: "Carrete de manguera y manguera guía" },
-      { codigo: "B.12", texto: "Soporte del carrete (fijo / flojo)" },
-      { codigo: "B.13", texto: "Codo giratorio del carrete (fugas)" },
-      { codigo: "B.14", texto: "Sistema de trinquete y seguros neumáticos" },
-      { codigo: "B.15", texto: "Válvula de alivio bomba de agua (opcional)" },
-      { codigo: "B.16", texto: "Válvulas de 1”" },
-      { codigo: "B.17", texto: "Válvulas de ¾”" },
-      { codigo: "B.18", texto: "Válvulas de ½”" },
-      { codigo: "B.19", texto: "Boquillas (estado y mantenimiento)" },
+      { codigo: "B.1", texto: "Filtros malla 2\" y 3\"" },
+      { codigo: "B.2", texto: "Empaques tapa filtros" },
+      { codigo: "B.3", texto: "Fugas de agua (mangueras / acoples)" },
+      { codigo: "B.4", texto: "Válvula alivio pistola" },
+      { codigo: "B.5", texto: "Golpes / fugas tanque aluminio" },
+      { codigo: "B.6", texto: "Medidor de nivel tanque" },
+      { codigo: "B.7", texto: "Tapón expansión 2\"" },
+      { codigo: "B.8", texto: "Drenaje bomba Rodder" },
+      { codigo: "B.9", texto: "Válvulas check bomba" },
+      { codigo: "B.10", texto: "Manómetros de presión" },
+      { codigo: "B.11", texto: "Carrete de manguera" },
+      { codigo: "B.12", texto: "Soporte del carrete" },
+      { codigo: "B.13", texto: "Codo giratorio" },
+      { codigo: "B.14", texto: "Sistema de trinquete" },
+      { codigo: "B.15", texto: "Válvula alivio bomba" },
+      { codigo: "B.16", texto: "Válvulas 1\"" },
+      { codigo: "B.17", texto: "Válvulas 3/4\"" },
+      { codigo: "B.18", texto: "Válvulas 1/2\"" },
+      { codigo: "B.19", texto: "Boquillas" },
     ],
   },
 
@@ -66,12 +64,12 @@ const secciones = [
     id: "secC",
     titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
     items: [
-      { codigo: "C.1", texto: "Tablero frontal limpio y funcional" },
-      { codigo: "C.2", texto: "Funcionamiento tablero control interno cabina" },
-      { codigo: "C.3", texto: "Control remoto y puerto de carga" },
-      { codigo: "C.4", texto: "Electroválvulas de bancos de control" },
-      { codigo: "C.5", texto: "Presencia de humedad en componentes eléctricos" },
-      { codigo: "C.6", texto: "Luces estrobo, flechas y accesorios externos" },
+      { codigo: "C.1", texto: "Tablero frontal" },
+      { codigo: "C.2", texto: "Tablero cabina" },
+      { codigo: "C.3", texto: "Control remoto" },
+      { codigo: "C.4", texto: "Electroválvulas" },
+      { codigo: "C.5", texto: "Humedad en componentes" },
+      { codigo: "C.6", texto: "Luces y accesorios" },
     ],
   },
 
@@ -79,18 +77,171 @@ const secciones = [
     id: "secD",
     titulo: "D) SISTEMA DE SUCCIÓN",
     items: [
-      { codigo: "D.1", texto: "Sellos tanque de desperdicios (frontal y posterior)" },
-      { codigo: "D.2", texto: "Estado interno tanque de desechos y deflectores" },
-      { codigo: "D.3", texto: "Microfiltros de succión (3)" },
-      { codigo: "D.4", texto: "Tapón drenaje filtro de succión" },
-      { codigo: "D.5", texto: "Estado físico mangueras de succión" },
-      { codigo: "D.6", texto: "Seguros compuerta tanque desechos" },
-      { codigo: "D.7", texto: "Sistema de desfogue (válvula y actuador)" },
-      { codigo: "D.8", texto: "Válvulas alivio presión Kunkle (3)" },
+      { codigo: "D.1", texto: "Sellos tanque" },
+      { codigo: "D.2", texto: "Interior tanque desechos" },
+      { codigo: "D.3", texto: "Microfiltros succión" },
+      { codigo: "D.4", texto: "Tapón drenaje filtro" },
+      { codigo: "D.5", texto: "Mangueras succión" },
+      { codigo: "D.6", texto: "Seguros compuerta" },
+      { codigo: "D.7", texto: "Sistema desfogüe" },
+      { codigo: "D.8", texto: "Válvulas alivio Kunkle" },
       { codigo: "D.9", texto: "Operación del soplador" },
     ],
   },
 ];
 
-  export default function HojaInspeccionHidro() {
+/* =============================
+   COMPONENTE PRINCIPAL
+============================= */
+export default function HojaInspeccionHidro() {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
+  const [formData, setFormData] = useState({
+    referenciaContrato: "",
+    descripcion: "",
+    codInf: "",
+    fechaInspeccion: "",
+    ubicacion: "",
+
+    cliente: "",
+    contactoCliente: "",
+    telefonoCliente: "",
+    correoCliente: "",
+
+    tecnicoResponsable: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
+
+    estadoEquipoDetalle: "",
+    items: {},
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
+
+  const handleItemChange = (codigo, campo, valor) => {
+    setFormData((p) => ({
+      ...p,
+      items: {
+        ...p.items,
+        [codigo]: {
+          ...p.items[codigo],
+          [campo]: valor,
+        },
+      },
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    markInspectionCompleted("hidro", id, formData);
+    navigate("/inspeccion");
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
+    >
+      <h1 className="text-lg font-bold text-center">
+        HOJA DE INSPECCIÓN – HIDROSUCCIONADOR
+      </h1>
+
+      {/* ENCABEZADO */}
+      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
+        <input name="referenciaContrato" placeholder="Referencia contrato" onChange={handleChange} className="input" />
+        <input name="descripcion" placeholder="Descripción" onChange={handleChange} className="input" />
+        <input name="codInf" placeholder="Cod. INF." onChange={handleChange} className="input" />
+        <input type="date" name="fechaInspeccion" onChange={handleChange} className="input" />
+        <input name="ubicacion" placeholder="Ubicación" onChange={handleChange} className="input" />
+        <input name="cliente" placeholder="Cliente" onChange={handleChange} className="input" />
+
+        <input name="contactoCliente" placeholder="Contacto cliente" onChange={handleChange} className="input" />
+        <input name="telefonoCliente" placeholder="Teléfono cliente" onChange={handleChange} className="input" />
+        <input name="correoCliente" placeholder="Correo cliente" onChange={handleChange} className="input md:col-span-2" />
+
+        <input name="tecnicoResponsable" placeholder="Técnico responsable" onChange={handleChange} className="input" />
+        <input name="telefonoTecnico" placeholder="Teléfono técnico" onChange={handleChange} className="input" />
+        <input name="correoTecnico" placeholder="Correo técnico" onChange={handleChange} className="input md:col-span-2" />
+      </section>
+
+      {/* ESTADO DEL EQUIPO */}
+      <section className="border rounded p-4 space-y-2">
+        <p className="font-semibold">Estado del equipo</p>
+        <img
+          src="/estado-equipo.png"
+          alt="Estado del equipo"
+          className="w-full border rounded"
+        />
+        <textarea
+          name="estadoEquipoDetalle"
+          placeholder="Detalle del estado del equipo"
+          onChange={handleChange}
+          className="w-full border rounded p-2 min-h-[80px]"
+        />
+      </section>
+
+      {/* TABLAS */}
+      {secciones.map((sec) => (
+        <section key={sec.id} className="border rounded p-4">
+          <h2 className="font-semibold mb-2">{sec.titulo}</h2>
+          <table className="w-full text-xs border">
+            <thead className="bg-gray-100">
+              <tr>
+                <th>Ítem</th>
+                <th>Detalle</th>
+                <th>Sí</th>
+                <th>No</th>
+                <th>Observación</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sec.items.map((item) => (
+                <tr key={item.codigo}>
+                  <td>{item.codigo}</td>
+                  <td>{item.texto}</td>
+                  <td>
+                    <input
+                      type="radio"
+                      checked={formData.items[item.codigo]?.estado === "SI"}
+                      onChange={() => handleItemChange(item.codigo, "estado", "SI")}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="radio"
+                      checked={formData.items[item.codigo]?.estado === "NO"}
+                      onChange={() => handleItemChange(item.codigo, "estado", "NO")}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      className="w-full border px-1"
+                      value={formData.items[item.codigo]?.observacion || ""}
+                      onChange={(e) =>
+                        handleItemChange(item.codigo, "observacion", e.target.value)
+                      }
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      ))}
+
+      {/* BOTONES */}
+      <div className="flex justify-end gap-4">
+        <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
+          Volver
+        </button>
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+          Guardar y completar
+        </button>
+      </div>
+    </form>
+  );
+}
