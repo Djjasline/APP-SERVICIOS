@@ -18,36 +18,6 @@ const secciones = [
       { codigo: "1.3", texto: "Revisión de alarmas o mensajes de fallo" },
     ],
   },
-  {
-    id: "secA",
-    titulo:
-      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES – A) SISTEMA HIDRÁULICO (ACEITES)",
-    items: [
-      { codigo: "A.1", texto: "Fugas de aceite hidráulico" },
-      { codigo: "A.2", texto: "Nivel de aceite del soplador" },
-      { codigo: "A.3", texto: "Nivel de aceite hidráulico" },
-      { codigo: "A.4", texto: "Aceite caja de transferencia" },
-      { codigo: "A.5", texto: "Manómetro filtro hidráulico" },
-      { codigo: "A.6", texto: "Filtro hidráulico de retorno" },
-      { codigo: "A.7", texto: "Filtros de succión tanque hidráulico" },
-      { codigo: "A.8", texto: "Cilindros hidráulicos" },
-      { codigo: "A.9", texto: "Tapones de drenaje" },
-      { codigo: "A.10", texto: "Bancos hidráulicos" },
-    ],
-  },
-  {
-    id: "secB",
-    titulo:
-      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES – B) SISTEMA HIDRÁULICO (AGUA)",
-    items: [
-      { codigo: "B.1", texto: "Empaques filtros de agua" },
-      { codigo: "B.2", texto: "Tapón expansión tanques" },
-      { codigo: "B.3", texto: "Fugas tanque aluminio" },
-      { codigo: "B.4", texto: "Sistema de trinquete y seguros" },
-      { codigo: "B.5", texto: "Sellos tanque desperdicios" },
-      { codigo: "B.6", texto: "Filtros malla agua" },
-    ],
-  },
 ];
 
 export default function HojaInspeccionHidro() {
@@ -67,6 +37,11 @@ export default function HojaInspeccionHidro() {
     items: {},
   });
 
+  const [marcas, setMarcas] = useState([]);
+
+  /* =============================
+     HANDLERS
+  ============================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
@@ -85,9 +60,30 @@ export default function HojaInspeccionHidro() {
     }));
   };
 
+  /* =============================
+     MARCAR DAÑOS EN IMAGEN
+  ============================= */
+  const handleImageClick = (e) => {
+    const rect = e.target.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    setMarcas((prev) => [
+      ...prev,
+      { id: prev.length + 1, x, y },
+    ]);
+  };
+
+  const handleRemoveMarca = (id) => {
+    setMarcas((prev) => prev.filter((m) => m.id !== id));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    markInspectionCompleted("hidro", id, formData);
+    markInspectionCompleted("hidro", id, {
+      ...formData,
+      marcas,
+    });
     navigate("/inspeccion");
   };
 
@@ -98,17 +94,22 @@ export default function HojaInspeccionHidro() {
     >
       {/* ================= ENCABEZADO ================= */}
       <section className="border rounded-xl p-4 space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <img
-            src="/logotipo de astap.jpg"
-            alt="ASTAP"
-            className="h-10 object-contain"
-          />
+        <div className="grid grid-cols-[160px_1fr_160px] items-center gap-4">
+          {/* LOGO */}
+          <div className="h-12">
+            <img
+              src="/logotipo%20de%20astap.jpg"
+              alt="ASTAP"
+              className="w-full h-full object-contain"
+            />
+          </div>
 
-          <h1 className="text-lg font-bold text-center flex-1">
+          {/* TÍTULO */}
+          <h1 className="text-lg font-bold text-center">
             HOJA DE INSPECCIÓN – HIDROSUCCIONADOR
           </h1>
 
+          {/* VERSIÓN */}
           <div className="text-[11px] text-right leading-tight">
             <p>Fecha de versión: 25-11-2025</p>
             <p>Versión: 01</p>
@@ -116,14 +117,14 @@ export default function HojaInspeccionHidro() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-4">
-          <input name="referenciaContrato" value={formData.referenciaContrato} onChange={handleChange} placeholder="Referencia contrato" className="input" />
-          <input name="descripcion" value={formData.descripcion} onChange={handleChange} placeholder="Descripción" className="input md:col-span-2" />
-          <input name="codInf" value={formData.codInf} onChange={handleChange} placeholder="Cód. INF." className="input" />
-          <input type="date" name="fechaInspeccion" value={formData.fechaInspeccion} onChange={handleChange} className="input" />
-          <input name="ubicacion" value={formData.ubicacion} onChange={handleChange} placeholder="Ubicación" className="input" />
-          <input name="cliente" value={formData.cliente} onChange={handleChange} placeholder="Cliente" className="input" />
-          <input name="tecnicoAstap" value={formData.tecnicoAstap} onChange={handleChange} placeholder="Técnico ASTAP" className="input" />
-          <input name="responsableCliente" value={formData.responsableCliente} onChange={handleChange} placeholder="Cliente responsable" className="input md:col-span-2" />
+          <input name="referenciaContrato" onChange={handleChange} placeholder="Referencia contrato" className="input" />
+          <input name="descripcion" onChange={handleChange} placeholder="Descripción" className="input md:col-span-2" />
+          <input name="codInf" onChange={handleChange} placeholder="Cód. INF." className="input" />
+          <input type="date" name="fechaInspeccion" onChange={handleChange} className="input" />
+          <input name="ubicacion" onChange={handleChange} placeholder="Ubicación" className="input" />
+          <input name="cliente" onChange={handleChange} placeholder="Cliente" className="input" />
+          <input name="tecnicoAstap" onChange={handleChange} placeholder="Técnico ASTAP" className="input" />
+          <input name="responsableCliente" onChange={handleChange} placeholder="Cliente responsable" className="input md:col-span-2" />
         </div>
       </section>
 
@@ -131,19 +132,37 @@ export default function HojaInspeccionHidro() {
       <section className="border rounded-xl p-4 space-y-3">
         <h2 className="font-semibold">Estado del equipo</h2>
 
-        <div className="border rounded-lg p-3 flex justify-center">
+        <div className="relative border rounded-lg p-3 overflow-hidden">
           <img
             src="/estado-equipo.png"
             alt="Estado del equipo"
-            className="max-w-full h-auto"
+            onClick={handleImageClick}
+            className="w-full cursor-crosshair select-none"
           />
+
+          {/* MARCAS */}
+          {marcas.map((m) => (
+            <div
+              key={m.id}
+              onDoubleClick={() => handleRemoveMarca(m.id)}
+              className="absolute bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs cursor-pointer"
+              style={{
+                left: `${m.x}%`,
+                top: `${m.y}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+              title="Doble click para eliminar"
+            >
+              {m.id}
+            </div>
+          ))}
         </div>
 
+        {/* DETALLE – ancho completo */}
         <textarea
           name="estadoEquipo"
-          value={formData.estadoEquipo}
           onChange={handleChange}
-          className="border rounded px-2 py-2 min-h-[100px]"
+          className="border rounded px-2 py-2 w-full min-h-[120px]"
           placeholder="Detalle del estado del equipo"
         />
       </section>
@@ -169,27 +188,13 @@ export default function HojaInspeccionHidro() {
                   <td className="border p-1">{item.codigo}</td>
                   <td className="border p-1">{item.texto}</td>
                   <td className="border p-1 text-center">
-                    <input
-                      type="radio"
-                      checked={formData.items[item.codigo]?.estado === "SI"}
-                      onChange={() => handleItemChange(item.codigo, "estado", "SI")}
-                    />
+                    <input type="radio" onChange={() => handleItemChange(item.codigo, "estado", "SI")} />
                   </td>
                   <td className="border p-1 text-center">
-                    <input
-                      type="radio"
-                      checked={formData.items[item.codigo]?.estado === "NO"}
-                      onChange={() => handleItemChange(item.codigo, "estado", "NO")}
-                    />
+                    <input type="radio" onChange={() => handleItemChange(item.codigo, "estado", "NO")} />
                   </td>
                   <td className="border p-1">
-                    <input
-                      className="w-full border px-1"
-                      value={formData.items[item.codigo]?.observacion || ""}
-                      onChange={(e) =>
-                        handleItemChange(item.codigo, "observacion", e.target.value)
-                      }
-                    />
+                    <input className="w-full border px-1" />
                   </td>
                 </tr>
               ))}
