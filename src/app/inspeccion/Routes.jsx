@@ -1,4 +1,5 @@
 // APP-SERVICIOS/src/app/inspeccion/Routes.jsx
+import HistorialInspecciones from "./HistorialInspecciones";
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
