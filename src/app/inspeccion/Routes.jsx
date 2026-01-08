@@ -1,6 +1,9 @@
 // APP-SERVICIOS/src/app/inspeccion/Routes.jsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+import FirmaInspeccion from "./FirmaInspeccion";
+
+<Route path="hidro/:id/firma" element={<FirmaInspeccion />} />
 
 import IndexInspeccion from "./pages/IndexInspeccion";
 import HojaInspeccionHidro from "./HojaInspeccionHidro";
