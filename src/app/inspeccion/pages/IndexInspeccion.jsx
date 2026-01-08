@@ -45,6 +45,14 @@ const Card = ({ title, type, description }) => {
     navigate(`/inspeccion/${type}/${id}`);
   };
 
+  const abrirInspeccion = (item) => {
+    if (item.estado === "completada") {
+      navigate(`/inspeccion/${type}/${item.id}?view=readonly`);
+    } else {
+      navigate(`/inspeccion/${type}/${item.id}`);
+    }
+  };
+
   return (
     <div className="border rounded-xl p-4 space-y-4 bg-white shadow-sm">
       <div>
@@ -97,12 +105,10 @@ const Card = ({ title, type, description }) => {
                   <StatusBadge estado={item.estado} />
 
                   <button
-                    onClick={() =>
-                      navigate(`/inspeccion/${type}/${item.id}`)
-                    }
+                    onClick={() => abrirInspeccion(item)}
                     className="text-xs text-blue-600 hover:underline"
                   >
-                    Abrir
+                    {item.estado === "completada" ? "Ver" : "Abrir"}
                   </button>
                 </div>
               </li>
