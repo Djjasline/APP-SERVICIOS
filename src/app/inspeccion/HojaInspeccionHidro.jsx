@@ -67,7 +67,7 @@ export default function HojaInspeccionHidro() {
         <div className="grid grid-cols-[120px_1fr_200px] items-center gap-4">
           {/* LOGO */}
           <img
-            src="/logotipo-de-astap.jpg"
+            src="/astap-logo.jpg"
             alt="ASTAP"
             className="w-full object-contain"
           />
@@ -79,7 +79,7 @@ export default function HojaInspeccionHidro() {
 
           {/* VERSION */}
           <div className="text-xs text-right">
-            <p>Fecha de versión: 25-11-2025</p>
+            <p>Fecha de versión: 01-01-2026</p>
             <p>Versión: 01</p>
           </div>
         </div>
