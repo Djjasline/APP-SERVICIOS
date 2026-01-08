@@ -4,26 +4,13 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
 
-/* =============================
-   SECCIONES DE INSPECCIÓN
-============================= */
-const secciones = [
-  {
-    id: "sec1",
-    titulo:
-      "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
-    items: [
-      { codigo: "1.1", texto: "Prueba de encendido general del equipo" },
-      { codigo: "1.2", texto: "Verificación de funcionamiento de controles principales" },
-      { codigo: "1.3", texto: "Revisión de alarmas o mensajes de fallo" },
-    ],
-  },
-];
-
 export default function HojaInspeccionHidro() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  /* =============================
+     ESTADO PRINCIPAL
+  ============================= */
   const [formData, setFormData] = useState({
     referenciaContrato: "",
     descripcion: "",
@@ -33,8 +20,7 @@ export default function HojaInspeccionHidro() {
     cliente: "",
     tecnicoAstap: "",
     responsableCliente: "",
-    estadoEquipo: "",
-    items: {},
+    detalleEstadoEquipo: "",
   });
 
   const [marcas, setMarcas] = useState([]);
@@ -47,35 +33,16 @@ export default function HojaInspeccionHidro() {
     setFormData((p) => ({ ...p, [name]: value }));
   };
 
-  const handleItemChange = (codigo, campo, valor) => {
-    setFormData((p) => ({
-      ...p,
-      items: {
-        ...p.items,
-        [codigo]: {
-          ...p.items[codigo],
-          [campo]: valor,
-        },
-      },
-    }));
-  };
-
-  /* =============================
-     MARCAR DAÑOS EN IMAGEN
-  ============================= */
-  const handleImageClick = (e) => {
-    const rect = e.target.getBoundingClientRect();
+  const agregarMarca = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-    setMarcas((prev) => [
-      ...prev,
-      { id: prev.length + 1, x, y },
-    ]);
+    setMarcas((prev) => [...prev, { x, y }]);
   };
 
-  const handleRemoveMarca = (id) => {
-    setMarcas((prev) => prev.filter((m) => m.id !== id));
+  const eliminarMarca = (index) => {
+    setMarcas((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = (e) => {
@@ -87,128 +54,156 @@ export default function HojaInspeccionHidro() {
     navigate("/inspeccion");
   };
 
+  /* =============================
+     RENDER
+  ============================= */
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
+      className="max-w-6xl mx-auto my-6 bg-white rounded-xl shadow p-6 space-y-8"
     >
       {/* ================= ENCABEZADO ================= */}
       <section className="border rounded-xl p-4 space-y-4">
-        <div className="grid grid-cols-[160px_1fr_160px] items-center gap-4">
+        <div className="grid grid-cols-[120px_1fr_200px] items-center gap-4">
           {/* LOGO */}
-          <div className="h-12">
-            <img
-              src="/logotipo%20de%20astap.jpg"
-              alt="ASTAP"
-              className="w-full h-full object-contain"
-            />
-          </div>
+          <img
+            src="/logotipo-de-astap.jpg"
+            alt="ASTAP"
+            className="w-full object-contain"
+          />
 
           {/* TÍTULO */}
-          <h1 className="text-lg font-bold text-center">
+          <h1 className="text-center font-semibold text-lg">
             HOJA DE INSPECCIÓN – HIDROSUCCIONADOR
           </h1>
 
-          {/* VERSIÓN */}
-          <div className="text-[11px] text-right leading-tight">
+          {/* VERSION */}
+          <div className="text-xs text-right">
             <p>Fecha de versión: 25-11-2025</p>
             <p>Versión: 01</p>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4">
-          <input name="referenciaContrato" onChange={handleChange} placeholder="Referencia contrato" className="input" />
-          <input name="descripcion" onChange={handleChange} placeholder="Descripción" className="input md:col-span-2" />
-          <input name="codInf" onChange={handleChange} placeholder="Cód. INF." className="input" />
-          <input type="date" name="fechaInspeccion" onChange={handleChange} className="input" />
-          <input name="ubicacion" onChange={handleChange} placeholder="Ubicación" className="input" />
-          <input name="cliente" onChange={handleChange} placeholder="Cliente" className="input" />
-          <input name="tecnicoAstap" onChange={handleChange} placeholder="Técnico ASTAP" className="input" />
-          <input name="responsableCliente" onChange={handleChange} placeholder="Cliente responsable" className="input md:col-span-2" />
+        {/* CAMPOS */}
+        <div className="grid md:grid-cols-3 gap-3">
+          <input
+            name="referenciaContrato"
+            value={formData.referenciaContrato}
+            onChange={handleChange}
+            placeholder="Referencia contrato"
+            className="input"
+          />
+          <input
+            name="descripcion"
+            value={formData.descripcion}
+            onChange={handleChange}
+            placeholder="Descripción"
+            className="input md:col-span-2"
+          />
+          <input
+            name="codInf"
+            value={formData.codInf}
+            onChange={handleChange}
+            placeholder="Cód. INF."
+            className="input"
+          />
+          <input
+            type="date"
+            name="fechaInspeccion"
+            value={formData.fechaInspeccion}
+            onChange={handleChange}
+            className="input"
+          />
+          <input
+            name="ubicacion"
+            value={formData.ubicacion}
+            onChange={handleChange}
+            placeholder="Ubicación"
+            className="input"
+          />
+          <input
+            name="cliente"
+            value={formData.cliente}
+            onChange={handleChange}
+            placeholder="Cliente"
+            className="input"
+          />
+          <input
+            name="tecnicoAstap"
+            value={formData.tecnicoAstap}
+            onChange={handleChange}
+            placeholder="Técnico ASTAP"
+            className="input"
+          />
+          <input
+            name="responsableCliente"
+            value={formData.responsableCliente}
+            onChange={handleChange}
+            placeholder="Cliente responsable"
+            className="input md:col-span-2"
+          />
         </div>
       </section>
 
       {/* ================= ESTADO DEL EQUIPO ================= */}
-      <section className="border rounded-xl p-4 space-y-3">
-        <h2 className="font-semibold">Estado del equipo</h2>
+      <section className="border rounded-xl p-4 space-y-4">
+        <h2 className="font-semibold text-sm">Estado del equipo</h2>
 
-        <div className="relative border rounded-lg p-3 overflow-hidden">
+        <p className="text-xs text-gray-500">
+          Haga clic sobre la imagen para marcar daños o defectos. Doble clic
+          sobre un número para eliminarlo.
+        </p>
+
+        {/* IMAGEN + MARCAS */}
+        <div
+          className="relative border rounded-lg overflow-hidden"
+          onClick={agregarMarca}
+        >
           <img
             src="/estado-equipo.png"
             alt="Estado del equipo"
-            onClick={handleImageClick}
-            className="w-full cursor-crosshair select-none"
+            className="w-full object-contain"
           />
 
-          {/* MARCAS */}
-          {marcas.map((m) => (
+          {marcas.map((m, i) => (
             <div
-              key={m.id}
-              onDoubleClick={() => handleRemoveMarca(m.id)}
-              className="absolute bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs cursor-pointer"
+              key={i}
+              onDoubleClick={() => eliminarMarca(i)}
+              className="absolute bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full cursor-pointer"
               style={{
                 left: `${m.x}%`,
                 top: `${m.y}%`,
                 transform: "translate(-50%, -50%)",
               }}
-              title="Doble click para eliminar"
             >
-              {m.id}
+              {i + 1}
             </div>
           ))}
         </div>
 
-        {/* DETALLE – ancho completo */}
+        {/* DETALLE */}
         <textarea
-          name="estadoEquipo"
+          name="detalleEstadoEquipo"
+          value={formData.detalleEstadoEquipo}
           onChange={handleChange}
-          className="border rounded px-2 py-2 w-full min-h-[120px]"
           placeholder="Detalle del estado del equipo"
+          className="w-full border rounded p-2 min-h-[120px]"
         />
       </section>
 
-      {/* ================= SECCIONES ================= */}
-      {secciones.map((sec) => (
-        <section key={sec.id} className="border rounded p-4">
-          <h2 className="font-semibold mb-2">{sec.titulo}</h2>
-
-          <table className="w-full border-collapse border text-xs">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border p-1">Ítem</th>
-                <th className="border p-1">Detalle</th>
-                <th className="border p-1">Sí</th>
-                <th className="border p-1">No</th>
-                <th className="border p-1">Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sec.items.map((item) => (
-                <tr key={item.codigo}>
-                  <td className="border p-1">{item.codigo}</td>
-                  <td className="border p-1">{item.texto}</td>
-                  <td className="border p-1 text-center">
-                    <input type="radio" onChange={() => handleItemChange(item.codigo, "estado", "SI")} />
-                  </td>
-                  <td className="border p-1 text-center">
-                    <input type="radio" onChange={() => handleItemChange(item.codigo, "estado", "NO")} />
-                  </td>
-                  <td className="border p-1">
-                    <input className="w-full border px-1" />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      ))}
-
       {/* ================= BOTONES ================= */}
       <div className="flex justify-end gap-4">
-        <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
+        <button
+          type="button"
+          onClick={() => navigate("/inspeccion")}
+          className="border px-4 py-2 rounded"
+        >
           Volver
         </button>
-        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+        <button
+          type="submit"
+          className="bg-green-600 text-white px-4 py-2 rounded"
+        >
           Guardar y completar
         </button>
       </div>
