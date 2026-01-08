@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
+import SignaturePad from "@/components/SignaturePad";
 
 /* =============================
    SECCIONES DE INSPECCIÓN
