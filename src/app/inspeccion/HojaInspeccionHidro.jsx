@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
 
@@ -90,6 +90,13 @@ export default function HojaInspeccionHidro() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  /* =============================
+     REFS PARA FIRMAS (TABLET)
+  ============================= */
+  const firmaTecnicoRef = useRef(null);
+  const firmaClienteRef = useRef(null);
+  const dibujando = useRef(false);
+
   const [formData, setFormData] = useState({
     referenciaContrato: "",
     descripcion: "",
@@ -115,9 +122,14 @@ export default function HojaInspeccionHidro() {
     horasModulo: "",
     horasChasis: "",
     kilometraje: "",
+    firmaTecnico: "",
+    firmaCliente: "",
     items: {},
   });
 
+  /* =============================
+     HANDLERS GENERALES
+  ============================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
@@ -136,6 +148,9 @@ export default function HojaInspeccionHidro() {
     }));
   };
 
+  /* =============================
+     MARCADO DE DAÑOS
+  ============================= */
   const handleImageClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -159,6 +174,44 @@ export default function HojaInspeccionHidro() {
     }));
   };
 
+  /* =============================
+     FIRMAS (POINTER EVENTS)
+  ============================= */
+  const iniciarFirma = (e, ref) => {
+    e.preventDefault();
+    dibujando.current = true;
+    const ctx = ref.current.getContext("2d");
+    const rect = ref.current.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+  };
+
+  const dibujarFirma = (e, ref) => {
+    if (!dibujando.current) return;
+    e.preventDefault();
+    const ctx = ref.current.getContext("2d");
+    const rect = ref.current.getBoundingClientRect();
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000";
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+  };
+
+  const terminarFirma = (ref, campo) => {
+    dibujando.current = false;
+    setFormData((p) => ({
+      ...p,
+      [campo]: ref.current.toDataURL(),
+    }));
+  };
+
+  const limpiarFirma = (ref, campo) => {
+    const ctx = ref.current.getContext("2d");
+    ctx.clearRect(0, 0, ref.current.width, ref.current.height);
+    setFormData((p) => ({ ...p, [campo]: "" }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     markInspectionCompleted("hidro", id, formData);
@@ -171,7 +224,9 @@ export default function HojaInspeccionHidro() {
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
 
-      {/* ENCABEZADO */}
+      {/* =============================
+         ENCABEZADO
+      ============================= */}
       <section className="border rounded-lg overflow-hidden">
         <table className="w-full text-xs border-collapse">
           <tbody>
@@ -187,57 +242,46 @@ export default function HojaInspeccionHidro() {
                 <div>Versión: <strong>01</strong></div>
               </td>
             </tr>
-
             <tr className="border-b">
-              <td className="w-48 border-r p-2 font-semibold">REFERENCIA DE CONTRATO</td>
+              <td className="border-r p-2 font-semibold">REFERENCIA DE CONTRATO</td>
               <td colSpan={2} className="p-2">
-                <input
-                  name="referenciaContrato"
-                  onChange={handleChange}
-                  className="w-full border rounded p-1"
-                />
+                <input name="referenciaContrato" onChange={handleChange} className="w-full border rounded p-1" />
               </td>
             </tr>
-
             <tr className="border-b">
               <td className="border-r p-2 font-semibold">DESCRIPCIÓN</td>
               <td colSpan={2} className="p-2">
-                <input
-                  name="descripcion"
-                  onChange={handleChange}
-                  className="w-full border rounded p-1"
-                />
+                <input name="descripcion" onChange={handleChange} className="w-full border rounded p-1" />
               </td>
             </tr>
-
             <tr>
               <td className="border-r p-2 font-semibold">COD. INF.</td>
               <td colSpan={2} className="p-2">
-                <input
-                  name="codInf"
-                  onChange={handleChange}
-                  className="w-full border rounded p-1"
-                />
+                <input name="codInf" onChange={handleChange} className="w-full border rounded p-1" />
               </td>
             </tr>
           </tbody>
         </table>
       </section>
 
-      {/* DATOS DEL SERVICIO */}
+      {/* =============================
+         DATOS DEL SERVICIO
+      ============================= */}
       <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
         <input type="date" name="fechaInspeccion" onChange={handleChange} className="input" />
         <input name="ubicacion" placeholder="Ubicación" onChange={handleChange} className="input" />
         <input name="cliente" placeholder="Cliente" onChange={handleChange} className="input" />
         <input name="contactoCliente" placeholder="Contacto con el cliente" onChange={handleChange} className="input" />
         <input name="telefonoCliente" placeholder="Teléfono cliente" onChange={handleChange} className="input" />
-        <input name="correoCliente" placeholder="Correo cliente" onChange={handleChange} className="input" explain />
+        <input name="correoCliente" placeholder="Correo cliente" onChange={handleChange} className="input" />
         <input name="tecnicoResponsable" placeholder="Técnico responsable" onChange={handleChange} className="input" />
         <input name="telefonoTecnico" placeholder="Teléfono técnico" onChange={handleChange} className="input" />
         <input name="correoTecnico" placeholder="Correo técnico" onChange={handleChange} className="input" />
       </section>
 
-      {/* ESTADO DEL EQUIPO */}
+      {/* =============================
+         ESTADO DEL EQUIPO
+      ============================= */}
       <section className="border rounded p-4 space-y-2">
         <p className="font-semibold">Estado del equipo</p>
         <div
@@ -271,7 +315,9 @@ export default function HojaInspeccionHidro() {
         />
       </section>
 
-      {/* TABLAS A–D */}
+      {/* =============================
+         TABLAS A–D
+      ============================= */}
       {secciones.map((sec) => (
         <section key={sec.id} className="border rounded p-4">
           <h2 className="font-semibold mb-2">{sec.titulo}</h2>
@@ -320,7 +366,9 @@ export default function HojaInspeccionHidro() {
         </section>
       ))}
 
-      {/* DESCRIPCIÓN DEL EQUIPO */}
+      {/* =============================
+         DESCRIPCIÓN DEL EQUIPO
+      ============================= */}
       <section className="border rounded p-4 space-y-2">
         <h2 className="font-semibold text-center">DESCRIPCIÓN DEL EQUIPO</h2>
         <div className="grid grid-cols-4 gap-2 text-xs">
@@ -338,43 +386,75 @@ export default function HojaInspeccionHidro() {
           ].map(([label, name]) => (
             <>
               <label className="font-semibold">{label}:</label>
-              <input
-                name={name}
-                onChange={handleChange}
-                className="col-span-3 border p-1"
-              />
+              <input name={name} onChange={handleChange} className="col-span-3 border p-1" />
             </>
           ))}
         </div>
       </section>
 
-      {/* FIRMAS (SOLO 2) */}
+      {/* =============================
+         FIRMAS FUNCIONALES (TABLET)
+      ============================= */}
       <section className="border rounded p-4">
         <div className="grid grid-cols-2 gap-4 text-xs text-center">
-          <div className="border h-32 flex flex-col justify-between p-2">
-            <div className="font-semibold">FIRMA TÉCNICO</div>
-            <div className="border-t pt-1">ASTAP Cía. Ltda.</div>
+
+          {/* FIRMA TÉCNICO */}
+          <div className="border p-2">
+            <div className="font-semibold mb-1">FIRMA TÉCNICO</div>
+            <canvas
+              ref={firmaTecnicoRef}
+              width={400}
+              height={150}
+              className="border w-full"
+              style={{ touchAction: "none" }}
+              onPointerDown={(e) => iniciarFirma(e, firmaTecnicoRef)}
+              onPointerMove={(e) => dibujarFirma(e, firmaTecnicoRef)}
+              onPointerUp={() => terminarFirma(firmaTecnicoRef, "firmaTecnico")}
+              onPointerLeave={() => (dibujando.current = false)}
+            />
+            <button
+              type="button"
+              onClick={() => limpiarFirma(firmaTecnicoRef, "firmaTecnico")}
+              className="text-xs text-blue-600 mt-1"
+            >
+              Limpiar
+            </button>
           </div>
-          <div className="border h-32 flex flex-col justify-between p-2">
-            <div className="font-semibold">FIRMA CLIENTE</div>
-            <div className="border-t pt-1">&nbsp;</div>
+
+          {/* FIRMA CLIENTE */}
+          <div className="border p-2">
+            <div className="font-semibold mb-1">FIRMA CLIENTE</div>
+            <canvas
+              ref={firmaClienteRef}
+              width={400}
+              height={150}
+              className="border w-full"
+              style={{ touchAction: "none" }}
+              onPointerDown={(e) => iniciarFirma(e, firmaClienteRef)}
+              onPointerMove={(e) => dibujarFirma(e, firmaClienteRef)}
+              onPointerUp={() => terminarFirma(firmaClienteRef, "firmaCliente")}
+              onPointerLeave={() => (dibujando.current = false)}
+            />
+            <button
+              type="button"
+              onClick={() => limpiarFirma(firmaClienteRef, "firmaCliente")}
+              className="text-xs text-blue-600 mt-1"
+            >
+              Limpiar
+            </button>
           </div>
+
         </div>
       </section>
 
-      {/* BOTONES */}
+      {/* =============================
+         BOTONES
+      ============================= */}
       <div className="flex justify-end gap-4">
-        <button
-          type="button"
-          onClick={() => navigate("/inspeccion")}
-          className="border px-4 py-2 rounded"
-        >
+        <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
           Volver
         </button>
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
           Guardar y completar
         </button>
       </div>
