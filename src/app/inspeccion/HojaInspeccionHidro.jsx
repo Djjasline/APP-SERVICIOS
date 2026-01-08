@@ -1,13 +1,6 @@
-import React, { useState, useEffect } from "react";
-import {
-  useParams,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
-import {
-  getInspectionHistory,
-  markInspectionCompleted,
-} from "@utils/inspectionStorage";
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { markInspectionCompleted } from "@utils/inspectionStorage";
 
 /* =============================
    SECCIONES DE INSPECCIÓN
@@ -19,108 +12,83 @@ const secciones = [
       "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
     items: [
       { codigo: "1.1", texto: "Prueba de encendido general del equipo" },
-      {
-        codigo: "1.2",
-        texto: "Verificación de funcionamiento de controles principales",
-      },
-      {
-        codigo: "1.3",
-        texto: "Revisión de alarmas o mensajes de fallo",
-      },
+      { codigo: "1.2", texto: "Verificación de funcionamiento de controles principales" },
+      { codigo: "1.3", texto: "Revisión de alarmas o mensajes de fallo" },
     ],
   },
   {
     id: "secA",
-    titulo:
-      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS DEL MÓDULO VACTOR – A) SISTEMA HIDRÁULICO (ACEITES)",
+    titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
     items: [
-      {
-        codigo: "A.1",
-        texto:
-          "Fugas de aceite hidráulico (mangueras - acoples - bancos)",
-      },
+      { codigo: "A.1", texto: "Fugas de aceite hidráulico" },
       { codigo: "A.2", texto: "Nivel de aceite del soplador" },
       { codigo: "A.3", texto: "Nivel de aceite hidráulico" },
-      { codigo: "A.4", texto: "Nivel de aceite en la caja de transferencia" },
-      {
-        codigo: "A.5",
-        texto:
-          "Inspección del manómetro de filtro hidráulico de retorno (verde, amarillo, rojo)",
-      },
-      {
-        codigo: "A.6",
-        texto:
-          "Inspección del filtro hidráulico de retorno, presenta fugas o daños",
-      },
-      {
-        codigo: "A.7",
-        texto:
-          "Inspección de los filtros de succión del tanque hidráulico (opcional)",
-      },
-      {
-        codigo: "A.8",
-        texto:
-          "Estado de los cilindros hidráulicos, presenta fugas o daños",
-      },
-      {
-        codigo: "A.9",
-        texto:
-          "Evaluación del estado de los tapones de drenaje de lubricantes",
-      },
-      {
-        codigo: "A.10",
-        texto:
-          "Evaluación de bancos hidráulicos, presentan fugas o daños",
-      },
+      { codigo: "A.4", texto: "Aceite caja de transferencia" },
+      { codigo: "A.5", texto: "Manómetro filtro hidráulico" },
+      { codigo: "A.6", texto: "Filtro hidráulico de retorno" },
+      { codigo: "A.7", texto: "Filtros de succión tanque hidráulico" },
+      { codigo: "A.8", texto: "Cilindros hidráulicos" },
+      { codigo: "A.9", texto: "Tapones de drenaje" },
+      { codigo: "A.10", texto: "Bancos hidráulicos" },
     ],
   },
   {
     id: "secB",
-    titulo:
-      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS DEL MÓDULO VACTOR – B) SISTEMA HIDRÁULICO (AGUA)",
+    titulo: "B) SISTEMA HIDRÁULICO (AGUA)",
     items: [
-      {
-        codigo: "B.1",
-        texto:
-          "Estado de los empaques de la tapa de los filtros de agua",
-      },
-      {
-        codigo: "B.2",
-        texto:
-          "Inspección del sistema de tapón de expansión de 2\" de tanques de agua",
-      },
-      {
-        codigo: "B.3",
-        texto:
-          "Inspección de golpes y fugas de agua en el tanque de aluminio",
-      },
-      {
-        codigo: "B.4",
-        texto:
-          "Inspección de sistema de trinquete, seguros y cilindros neumáticos, se activan",
-      },
-      {
-        codigo: "B.5",
-        texto:
-          "Inspección de los sellos en el tanque de desperdicios (frontal y posterior), presencia de humedad en sus componentes",
-      },
-      {
-        codigo: "B.6",
-        texto:
-          "Inspección del estado de los filtros malla para agua de 2\" y 3\"",
-      },
+      { codigo: "B.1", texto: "Filtros malla 2\" y 3\"" },
+      { codigo: "B.2", texto: "Empaques tapa filtros" },
+      { codigo: "B.3", texto: "Fugas de agua (mangueras / acoples)" },
+      { codigo: "B.4", texto: "Válvula alivio pistola" },
+      { codigo: "B.5", texto: "Golpes / fugas tanque aluminio" },
+      { codigo: "B.6", texto: "Medidor de nivel tanque" },
+      { codigo: "B.7", texto: "Tapón expansión 2\"" },
+      { codigo: "B.8", texto: "Drenaje bomba Rodder" },
+      { codigo: "B.9", texto: "Válvulas check bomba" },
+      { codigo: "B.10", texto: "Manómetros de presión" },
+      { codigo: "B.11", texto: "Carrete de manguera" },
+      { codigo: "B.12", texto: "Soporte del carrete" },
+      { codigo: "B.13", texto: "Codo giratorio" },
+      { codigo: "B.14", texto: "Sistema de trinquete" },
+      { codigo: "B.15", texto: "Válvula alivio bomba" },
+      { codigo: "B.16", texto: "Válvulas 1\"" },
+      { codigo: "B.17", texto: "Válvulas 3/4\"" },
+      { codigo: "B.18", texto: "Válvulas 1/2\"" },
+      { codigo: "B.19", texto: "Boquillas" },
+    ],
+  },
+  {
+    id: "secC",
+    titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
+    items: [
+      { codigo: "C.1", texto: "Tablero frontal" },
+      { codigo: "C.2", texto: "Tablero cabina" },
+      { codigo: "C.3", texto: "Control remoto" },
+      { codigo: "C.4", texto: "Electroválvulas" },
+      { codigo: "C.5", texto: "Humedad en componentes" },
+      { codigo: "C.6", texto: "Luces y accesorios" },
+    ],
+  },
+  {
+    id: "secD",
+    titulo: "D) SISTEMA DE SUCCIÓN",
+    items: [
+      { codigo: "D.1", texto: "Sellos tanque" },
+      { codigo: "D.2", texto: "Interior tanque desechos" },
+      { codigo: "D.3", texto: "Microfiltros succión" },
+      { codigo: "D.4", texto: "Tapón drenaje filtro" },
+      { codigo: "D.5", texto: "Mangueras succión" },
+      { codigo: "D.6", texto: "Seguros compuerta" },
+      { codigo: "D.7", texto: "Sistema desfogüe" },
+      { codigo: "D.8", texto: "Válvulas alivio Kunkle" },
+      { codigo: "D.9", texto: "Operación del soplador" },
     ],
   },
 ];
 
-/* =============================
-   COMPONENTE PRINCIPAL
-============================= */
 export default function HojaInspeccionHidro() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const isReadOnly = searchParams.get("view") === "readonly";
 
   const [formData, setFormData] = useState({
     referenciaContrato: "",
@@ -129,50 +97,27 @@ export default function HojaInspeccionHidro() {
     fechaInspeccion: "",
     ubicacion: "",
     cliente: "",
-    tecnicoAstap: "",
-    responsableCliente: "",
-    estadoEquipo: "",
-    observacionesGenerales: "",
-
+    contactoCliente: "",
+    telefonoCliente: "",
+    correoCliente: "",
+    tecnicoResponsable: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
+    estadoEquipoDetalle: "",
+    estadoEquipoPuntos: [],
+    notaEquipo: "",
     marca: "",
     modelo: "",
-    numeroSerie: "",
+    serie: "",
+    anioModelo: "",
+    vin: "",
     placa: "",
     horasModulo: "",
     horasChasis: "",
-    anioModelo: "",
-    vinChasis: "",
     kilometraje: "",
-
-    elaboradoNombre: "",
-    elaboradoCargo: "",
-    elaboradoTelefono: "",
-    elaboradoCorreo: "",
-    autorizadoNombre: "",
-    autorizadoCargo: "",
-    autorizadoTelefono: "",
-    autorizadoCorreo: "",
-
     items: {},
   });
 
-  /* =============================
-     CARGAR DESDE HISTORIAL
-  ============================= */
-  useEffect(() => {
-    if (!id) return;
-
-    const history = getInspectionHistory();
-    const item = history.hidro.find((i) => i.id === id);
-
-    if (item?.datos) {
-      setFormData(item.datos);
-    }
-  }, [id]);
-
-  /* =============================
-     HANDLERS
-  ============================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
@@ -191,141 +136,180 @@ export default function HojaInspeccionHidro() {
     }));
   };
 
+  const handleImageClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: [
+        ...p.estadoEquipoPuntos,
+        { id: p.estadoEquipoPuntos.length + 1, x, y },
+      ],
+    }));
+  };
+
+  const handleRemovePoint = (id) => {
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: p.estadoEquipoPuntos
+        .filter((pt) => pt.id !== id)
+        .map((pt, i) => ({ ...pt, id: i + 1 })),
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     markInspectionCompleted("hidro", id, formData);
     navigate("/inspeccion");
   };
 
-  const generarPDF = () => {
-    alert("Aquí se generará el PDF (siguiente paso)");
-  };
-
-  /* =============================
-     JSX (FORMATO ORIGINAL)
-  ============================= */
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-6xl mx-auto my-6 bg-white shadow-lg rounded-2xl p-6 space-y-6 text-xs md:text-sm"
+      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
 
-      {/* ================= ENCABEZADO ================= */}
-      <section className="border rounded-xl p-4 space-y-3">
-        <div className="flex justify-between">
-          <h1 className="font-bold text-lg">
-            HOJA DE INSPECCIÓN HIDROSUCCIONADOR
-          </h1>
-          <div className="text-[10px] text-right">
-            <p>Fecha de versión: 25-11-2025</p>
-            <p>Versión: 01</p>
-          </div>
-        </div>
+      {/* ENCABEZADO */}
+      <section className="border rounded-lg overflow-hidden">
+        <table className="w-full text-xs border-collapse">
+          <tbody>
+            <tr className="border-b">
+              <td rowSpan={4} className="w-32 border-r p-3 text-center align-middle">
+                <img src="/astap-logo.jpg" alt="ASTAP" className="mx-auto max-h-20" />
+              </td>
+              <td colSpan={2} className="border-r text-center font-bold py-2">
+                REPORTE TÉCNICO DE SERVICIO
+              </td>
+              <td className="w-48 p-2">
+                <div>Fecha de versión: <strong>01-01-26</strong></div>
+                <div>Versión: <strong>01</strong></div>
+              </td>
+            </tr>
 
-        <div className="grid md:grid-cols-3 gap-3">
-          <input
-            name="referenciaContrato"
-            value={formData.referenciaContrato}
-            onChange={handleChange}
-            disabled={isReadOnly}
-            className="border rounded px-2 py-1"
-            placeholder="Referencia contrato"
-          />
-          <input
-            name="descripcion"
-            value={formData.descripcion}
-            onChange={handleChange}
-            disabled={isReadOnly}
-            className="border rounded px-2 py-1 md:col-span-2"
-            placeholder="Descripción"
-          />
-          <input
-            name="codInf"
-            value={formData.codInf}
-            onChange={handleChange}
-            disabled={isReadOnly}
-            className="border rounded px-2 py-1"
-            placeholder="Cod. INF."
-          />
-        </div>
+            <tr className="border-b">
+              <td className="w-48 border-r p-2 font-semibold">REFERENCIA DE CONTRATO</td>
+              <td colSpan={2} className="p-2">
+                <input
+                  name="referenciaContrato"
+                  onChange={handleChange}
+                  className="w-full border rounded p-1"
+                />
+              </td>
+            </tr>
+
+            <tr className="border-b">
+              <td className="border-r p-2 font-semibold">DESCRIPCIÓN</td>
+              <td colSpan={2} className="p-2">
+                <input
+                  name="descripcion"
+                  onChange={handleChange}
+                  className="w-full border rounded p-1"
+                />
+              </td>
+            </tr>
+
+            <tr>
+              <td className="border-r p-2 font-semibold">COD. INF.</td>
+              <td colSpan={2} className="p-2">
+                <input
+                  name="codInf"
+                  onChange={handleChange}
+                  className="w-full border rounded p-1"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </section>
 
-      {/* ================= ESTADO EQUIPO ================= */}
-      <section className="border rounded-xl p-4 space-y-3">
+      {/* DATOS DEL SERVICIO */}
+      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
+        <input type="date" name="fechaInspeccion" onChange={handleChange} className="input" />
+        <input name="ubicacion" placeholder="Ubicación" onChange={handleChange} className="input" />
+        <input name="cliente" placeholder="Cliente" onChange={handleChange} className="input" />
+        <input name="contactoCliente" placeholder="Contacto con el cliente" onChange={handleChange} className="input" />
+        <input name="telefonoCliente" placeholder="Teléfono cliente" onChange={handleChange} className="input" />
+        <input name="correoCliente" placeholder="Correo cliente" onChange={handleChange} className="input" explain />
+        <input name="tecnicoResponsable" placeholder="Técnico responsable" onChange={handleChange} className="input" />
+        <input name="telefonoTecnico" placeholder="Teléfono técnico" onChange={handleChange} className="input" />
+        <input name="correoTecnico" placeholder="Correo técnico" onChange={handleChange} className="input" />
+      </section>
+
+      {/* ESTADO DEL EQUIPO */}
+      <section className="border rounded p-4 space-y-2">
+        <p className="font-semibold">Estado del equipo</p>
+        <div
+          className="relative border rounded overflow-hidden cursor-crosshair"
+          onClick={handleImageClick}
+        >
+          <img src="/estado-equipo.png" className="w-full" draggable={false} />
+          {formData.estadoEquipoPuntos.map((pt) => (
+            <div
+              key={pt.id}
+              onDoubleClick={(e) => {
+                e.stopPropagation();
+                handleRemovePoint(pt.id);
+              }}
+              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
+              style={{
+                left: `${pt.x}%`,
+                top: `${pt.y}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              {pt.id}
+            </div>
+          ))}
+        </div>
         <textarea
-          name="estadoEquipo"
-          value={formData.estadoEquipo}
+          name="estadoEquipoDetalle"
+          placeholder="Detalle del estado del equipo"
           onChange={handleChange}
-          readOnly={isReadOnly}
-          className="border rounded px-2 py-1 min-h-[80px] w-full"
-          placeholder="Estado del equipo"
-        />
-        <textarea
-          name="observacionesGenerales"
-          value={formData.observacionesGenerales}
-          onChange={handleChange}
-          readOnly={isReadOnly}
-          className="border rounded px-2 py-1 min-h-[80px] w-full"
-          placeholder="Observaciones generales"
+          className="w-full border rounded p-2 min-h-[80px]"
         />
       </section>
 
-      {/* ================= TABLAS ================= */}
+      {/* TABLAS A–D */}
       {secciones.map((sec) => (
-        <section key={sec.id} className="border rounded-xl p-4 space-y-3">
-          <h2 className="font-semibold">{sec.titulo}</h2>
-          <table className="w-full border-collapse border text-xs">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border px-2">Ítem</th>
-                <th className="border px-2">Detalle</th>
-                <th className="border px-2">Sí</th>
-                <th className="border px-2">No</th>
-                <th className="border px-2">Observación</th>
+        <section key={sec.id} className="border rounded p-4">
+          <h2 className="font-semibold mb-2">{sec.titulo}</h2>
+          <table className="w-full text-xs border">
+            <thead className="bg-gray-100">
+              <tr>
+                <th>Ítem</th>
+                <th>Detalle</th>
+                <th>Sí</th>
+                <th>No</th>
+                <th>Observación</th>
               </tr>
             </thead>
             <tbody>
               {sec.items.map((item) => (
                 <tr key={item.codigo}>
-                  <td className="border px-2">{item.codigo}</td>
-                  <td className="border px-2">{item.texto}</td>
-                  <td className="border px-2 text-center">
+                  <td>{item.codigo}</td>
+                  <td>{item.texto}</td>
+                  <td>
                     <input
                       type="radio"
-                      disabled={isReadOnly}
-                      checked={
-                        formData.items[item.codigo]?.estado === "SI"
-                      }
-                      onChange={() =>
-                        handleItemChange(item.codigo, "estado", "SI")
-                      }
+                      checked={formData.items[item.codigo]?.estado === "SI"}
+                      onChange={() => handleItemChange(item.codigo, "estado", "SI")}
                     />
                   </td>
-                  <td className="border px-2 text-center">
+                  <td>
                     <input
                       type="radio"
-                      disabled={isReadOnly}
-                      checked={
-                        formData.items[item.codigo]?.estado === "NO"
-                      }
-                      onChange={() =>
-                        handleItemChange(item.codigo, "estado", "NO")
-                      }
+                      checked={formData.items[item.codigo]?.estado === "NO"}
+                      onChange={() => handleItemChange(item.codigo, "estado", "NO")}
                     />
                   </td>
-                  <td className="border px-2">
+                  <td>
                     <input
                       className="w-full border px-1"
-                      disabled={isReadOnly}
-                      value={
-                        formData.items[item.codigo]?.observacion || ""
-                      }
+                      value={formData.items[item.codigo]?.observacion || ""}
                       onChange={(e) =>
-                        handleItemChange(
-                          item.codigo,
-                          "observacion",
-                          e.target.value
-                        )
+                        handleItemChange(item.codigo, "observacion", e.target.value)
                       }
                     />
                   </td>
@@ -336,33 +320,63 @@ export default function HojaInspeccionHidro() {
         </section>
       ))}
 
-      {/* ================= BOTONES ================= */}
-      <div className="flex justify-end gap-3">
-        {isReadOnly ? (
-          <>
-            <button
-              type="button"
-              onClick={generarPDF}
-              className="px-4 py-2 bg-green-600 text-white rounded"
-            >
-              Generar PDF
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/inspeccion")}
-              className="px-4 py-2 border rounded"
-            >
-              Volver
-            </button>
-          </>
-        ) : (
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded"
-          >
-            Guardar / continuar
-          </button>
-        )}
+      {/* DESCRIPCIÓN DEL EQUIPO */}
+      <section className="border rounded p-4 space-y-2">
+        <h2 className="font-semibold text-center">DESCRIPCIÓN DEL EQUIPO</h2>
+        <div className="grid grid-cols-4 gap-2 text-xs">
+          {[
+            ["NOTA", "notaEquipo"],
+            ["MARCA", "marca"],
+            ["MODELO", "modelo"],
+            ["N° SERIE", "serie"],
+            ["AÑO MODELO", "anioModelo"],
+            ["VIN / CHASIS", "vin"],
+            ["PLACA N°", "placa"],
+            ["HORAS TRABAJO MÓDULO", "horasModulo"],
+            ["HORAS TRABAJO CHASIS", "horasChasis"],
+            ["KILOMETRAJE", "kilometraje"],
+          ].map(([label, name]) => (
+            <>
+              <label className="font-semibold">{label}:</label>
+              <input
+                name={name}
+                onChange={handleChange}
+                className="col-span-3 border p-1"
+              />
+            </>
+          ))}
+        </div>
+      </section>
+
+      {/* FIRMAS (SOLO 2) */}
+      <section className="border rounded p-4">
+        <div className="grid grid-cols-2 gap-4 text-xs text-center">
+          <div className="border h-32 flex flex-col justify-between p-2">
+            <div className="font-semibold">FIRMA TÉCNICO</div>
+            <div className="border-t pt-1">ASTAP Cía. Ltda.</div>
+          </div>
+          <div className="border h-32 flex flex-col justify-between p-2">
+            <div className="font-semibold">FIRMA CLIENTE</div>
+            <div className="border-t pt-1">&nbsp;</div>
+          </div>
+        </div>
+      </section>
+
+      {/* BOTONES */}
+      <div className="flex justify-end gap-4">
+        <button
+          type="button"
+          onClick={() => navigate("/inspeccion")}
+          className="border px-4 py-2 rounded"
+        >
+          Volver
+        </button>
+        <button
+          type="submit"
+          className="bg-green-600 text-white px-4 py-2 rounded"
+        >
+          Guardar y completar
+        </button>
       </div>
     </form>
   );
