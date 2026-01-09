@@ -4,6 +4,9 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
+import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+
 
 export default function ServiceReportCreation() {
   const navigate = useNavigate();
@@ -70,6 +73,7 @@ export default function ServiceReportCreation() {
   =========================== */
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
+    const { id } = useParams();
 
     const report = {
       id: Date.now(),
