@@ -45,14 +45,6 @@ const Card = ({ title, type, description }) => {
     navigate(`/inspeccion/${type}/${id}`);
   };
 
-  const abrirInspeccion = (item) => {
-    if (item.estado === "completada") {
-      navigate(`/inspeccion/${type}/${item.id}?view=readonly`);
-    } else {
-      navigate(`/inspeccion/${type}/${item.id}`);
-    }
-  };
-
   return (
     <div className="border rounded-xl p-4 space-y-4 bg-white shadow-sm">
       <div>
@@ -105,10 +97,12 @@ const Card = ({ title, type, description }) => {
                   <StatusBadge estado={item.estado} />
 
                   <button
-                    onClick={() => abrirInspeccion(item)}
+                    onClick={() =>
+                      navigate(`/inspeccion/${type}/${item.id}`)
+                    }
                     className="text-xs text-blue-600 hover:underline"
                   >
-                    {item.estado === "completada" ? "Ver" : "Abrir"}
+                    Abrir
                   </button>
                 </div>
               </li>
@@ -124,9 +118,20 @@ const Card = ({ title, type, description }) => {
    INDEX INSPECCIÓN
 ========================= */
 export default function IndexInspeccion() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
+
+        {/* BOTÓN VOLVER AL MENÚ PRINCIPAL */}
+        <button
+          onClick={() => navigate("/")}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          ← Volver al panel principal
+        </button>
+
         <h1 className="text-2xl font-semibold text-slate-900">
           Inspección y valoración
         </h1>
