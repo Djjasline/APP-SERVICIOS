@@ -5,6 +5,17 @@ import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
 
+/* ===========================
+   UTIL: FILE → BASE64
+=========================== */
+const fileToBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
 export default function ServiceReportCreation() {
   const navigate = useNavigate();
 
@@ -46,18 +57,18 @@ export default function ServiceReportCreation() {
     },
   });
 
-  const sigTecnico = useRef(null);
-  const sigCliente = useRef(null);
+  const sigTecnico = useRef();
+  const sigCliente = useRef();
 
   /* ===========================
-     CARGAR INFORME SI EXISTE
+     CARGAR INFORME DESDE HISTORIAL
   =========================== */
   useEffect(() => {
-    const stored = localStorage.getItem("currentReport");
-    if (stored) {
-      const report = JSON.parse(stored);
-      if (report?.data) {
-        setData(report.data);
+    const current = localStorage.getItem("currentReport");
+    if (current) {
+      const parsed = JSON.parse(current);
+      if (parsed?.data) {
+        setData(parsed.data);
       }
     }
   }, []);
@@ -66,7 +77,7 @@ export default function ServiceReportCreation() {
      UPDATE GENÉRICO
   =========================== */
   const update = (path, value) => {
-    setData(prev => {
+    setData((prev) => {
       const copy = structuredClone(prev);
       let ref = copy;
       for (let i = 0; i < path.length - 1; i++) {
@@ -78,34 +89,32 @@ export default function ServiceReportCreation() {
   };
 
   /* ===========================
-     GUARDAR / ACTUALIZAR
+     GUARDAR INFORME
   =========================== */
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
-    const current = localStorage.getItem("currentReport");
+    const current = JSON.parse(localStorage.getItem("currentReport"));
 
-    let reports;
+    let updated;
 
     if (current) {
-      const currentReport = JSON.parse(current);
-
-      reports = stored.map(r =>
-        r.id === currentReport.id
-          ? { ...r, data }
-          : r
+      updated = stored.map((r) =>
+        r.id === current.id ? { ...r, data } : r
       );
-
-      localStorage.removeItem("currentReport");
     } else {
-      const newReport = {
-        id: Date.now(),
-        createdAt: new Date().toISOString(),
-        data,
-      };
-      reports = [...stored, newReport];
+      updated = [
+        ...stored,
+        {
+          id: Date.now(),
+          createdAt: new Date().toISOString(),
+          data,
+        },
+      ];
     }
 
-    localStorage.setItem("serviceReports", JSON.stringify(reports));
+    localStorage.setItem("serviceReports", JSON.stringify(updated));
+    localStorage.removeItem("currentReport");
+
     navigate("/service-report-history");
   };
 
@@ -179,10 +188,22 @@ export default function ServiceReportCreation() {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) =>
-                      update(["actividades", i, "imagen"], e.target.files[0])
-                    }
+                    capture="environment"
+                    onChange={async (e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+                      const base64 = await fileToBase64(file);
+                      update(["actividades", i, "imagen"], base64);
+                    }}
                   />
+
+                  {a.imagen && (
+                    <img
+                      src={a.imagen}
+                      alt="Actividad"
+                      className="mt-2 max-h-32 border rounded"
+                    />
+                  )}
                 </td>
               </tr>
             ))}
@@ -192,7 +213,7 @@ export default function ServiceReportCreation() {
         <div className="flex gap-4">
           <button
             onClick={() =>
-              setData(p => ({
+              setData((p) => ({
                 ...p,
                 actividades: [...p.actividades, { titulo: "", detalle: "", imagen: null }],
               }))
@@ -204,7 +225,7 @@ export default function ServiceReportCreation() {
 
           <button
             onClick={() =>
-              setData(p => ({
+              setData((p) => ({
                 ...p,
                 actividades: p.actividades.slice(0, -1),
               }))
@@ -249,43 +270,6 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-        <section className="border border-black mt-4">
-          <h3 className="text-center font-semibold border-b border-black py-1">
-            DESCRIPCIÓN DEL EQUIPO
-          </h3>
-
-          <table className="w-full text-xs border-collapse">
-            <tbody>
-              {[
-                ["NOTA", "nota", true],
-                ["MARCA", "marca"],
-                ["MODELO", "modelo"],
-                ["N° SERIE", "serie"],
-                ["AÑO MODELO", "anio"],
-                ["VIN / CHASIS", "vin"],
-                ["PLACA N°", "placa"],
-                ["HORAS TRABAJO MÓDULO", "horasModulo"],
-                ["HORAS TRABAJO CHASIS", "horasChasis"],
-                ["KILOMETRAJE", "kilometraje", true],
-              ].map(([label, key, full], i) => (
-                <tr key={i}>
-                  <td className="border p-1 font-semibold">{label}</td>
-                  <td className="border p-1" colSpan={full ? 3 : 1}>
-                    <input
-                      className="w-full outline-none"
-                      value={data.equipo[key]}
-                      onChange={(e) =>
-                        update(["equipo", key], e.target.value)
-                      }
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-
         {/* ================= FIRMAS ================= */}
         <table className="pdf-table">
           <thead>
@@ -297,12 +281,22 @@ export default function ServiceReportCreation() {
           <tbody>
             <tr>
               <td>
-                <SignatureCanvas ref={sigTecnico} canvasProps={{ width: 300, height: 150 }} />
-                <button onClick={() => sigTecnico.current.clear()}>Limpiar</button>
+                <SignatureCanvas
+                  ref={sigTecnico}
+                  canvasProps={{ width: 300, height: 150 }}
+                />
+                <button onClick={() => sigTecnico.current.clear()}>
+                  Limpiar
+                </button>
               </td>
               <td>
-                <SignatureCanvas ref={sigCliente} canvasProps={{ width: 300, height: 150 }} />
-                <button onClick={() => sigCliente.current.clear()}>Limpiar</button>
+                <SignatureCanvas
+                  ref={sigCliente}
+                  canvasProps={{ width: 300, height: 150 }}
+                />
+                <button onClick={() => sigCliente.current.clear()}>
+                  Limpiar
+                </button>
               </td>
             </tr>
           </tbody>
@@ -310,7 +304,10 @@ export default function ServiceReportCreation() {
 
         {/* ================= BOTONES ================= */}
         <div className="flex justify-between pt-6">
-          <button onClick={() => navigate("/")} className="border px-6 py-2 rounded">
+          <button
+            onClick={() => navigate("/")}
+            className="border px-6 py-2 rounded"
+          >
             Volver
           </button>
 
