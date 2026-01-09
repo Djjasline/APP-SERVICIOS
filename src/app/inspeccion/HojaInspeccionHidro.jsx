@@ -162,7 +162,6 @@ export default function HojaInspeccionHidro() {
   const handleSubmit = (e) => {
     e.preventDefault();
     markInspectionCompleted("hidro", id, formData);
-     navigate("/inspeccion");
   };
 
   return (
