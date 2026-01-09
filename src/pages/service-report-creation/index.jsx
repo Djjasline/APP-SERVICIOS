@@ -268,8 +268,11 @@ export default function ServiceReportCreation() {
         <td className="border border-black p-1 font-semibold w-1/4">NOTA</td>
         <td className="border border-black p-1" colSpan={3}>
           <input
-            name="notaEquipo"
             className="w-full outline-none"
+            value={data.equipo.nota || ""}
+            onChange={(e) =>
+              update(["equipo", "nota"], e.target.value)
+            }
           />
         </td>
       </tr>
@@ -277,33 +280,69 @@ export default function ServiceReportCreation() {
       <tr>
         <td className="border border-black p-1 font-semibold">MARCA</td>
         <td className="border border-black p-1">
-          <input name="marca" className="w-full outline-none" />
+          <input
+            className="w-full outline-none"
+            value={data.equipo.marca}
+            onChange={(e) =>
+              update(["equipo", "marca"], e.target.value)
+            }
+          />
         </td>
         <td className="border border-black p-1 font-semibold">MODELO</td>
         <td className="border border-black p-1">
-          <input name="modelo" className="w-full outline-none" />
+          <input
+            className="w-full outline-none"
+            value={data.equipo.modelo}
+            onChange={(e) =>
+              update(["equipo", "modelo"], e.target.value)
+            }
+          />
         </td>
       </tr>
 
       <tr>
         <td className="border border-black p-1 font-semibold">N° SERIE</td>
         <td className="border border-black p-1">
-          <input name="serie" className="w-full outline-none" />
+          <input
+            className="w-full outline-none"
+            value={data.equipo.serie}
+            onChange={(e) =>
+              update(["equipo", "serie"], e.target.value)
+            }
+          />
         </td>
         <td className="border border-black p-1 font-semibold">AÑO MODELO</td>
         <td className="border border-black p-1">
-          <input name="anioModelo" className="w-full outline-none" />
+          <input
+            className="w-full outline-none"
+            value={data.equipo.anio}
+            onChange={(e) =>
+              update(["equipo", "anio"], e.target.value)
+            }
+          />
         </td>
       </tr>
 
       <tr>
         <td className="border border-black p-1 font-semibold">VIN / CHASIS</td>
         <td className="border border-black p-1">
-          <input name="vin" className="w-full outline-none" />
+          <input
+            className="w-full outline-none"
+            value={data.equipo.vin}
+            onChange={(e) =>
+              update(["equipo", "vin"], e.target.value)
+            }
+          />
         </td>
         <td className="border border-black p-1 font-semibold">PLACA N°</td>
         <td className="border border-black p-1">
-          <input name="placa" className="w-full outline-none" />
+          <input
+            className="w-full outline-none"
+            value={data.equipo.placa}
+            onChange={(e) =>
+              update(["equipo", "placa"], e.target.value)
+            }
+          />
         </td>
       </tr>
 
@@ -312,20 +351,38 @@ export default function ServiceReportCreation() {
           HORAS TRABAJO MÓDULO
         </td>
         <td className="border border-black p-1">
-          <input name="horasModulo" className="w-full outline-none" />
+          <input
+            className="w-full outline-none"
+            value={data.equipo.horasModulo}
+            onChange={(e) =>
+              update(["equipo", "horasModulo"], e.target.value)
+            }
+          />
         </td>
         <td className="border border-black p-1 font-semibold">
           HORAS TRABAJO CHASIS
         </td>
         <td className="border border-black p-1">
-          <input name="horasChasis" className="w-full outline-none" />
+          <input
+            className="w-full outline-none"
+            value={data.equipo.horasChasis}
+            onChange={(e) =>
+              update(["equipo", "horasChasis"], e.target.value)
+            }
+          />
         </td>
       </tr>
 
       <tr>
         <td className="border border-black p-1 font-semibold">KILOMETRAJE</td>
         <td className="border border-black p-1" colSpan={3}>
-          <input name="kilometraje" className="w-full outline-none" />
+          <input
+            className="w-full outline-none"
+            value={data.equipo.kilometraje}
+            onChange={(e) =>
+              update(["equipo", "kilometraje"], e.target.value)
+            }
+          />
         </td>
       </tr>
     </tbody>
