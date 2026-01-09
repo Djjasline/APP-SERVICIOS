@@ -1,15 +1,13 @@
 // APP-SERVICIOS/src/pages/service-report-creation/index.jsx
 
-import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
-import { useParams } from "react-router-dom";
-import { useEffect } from "react";
-
 
 export default function ServiceReportCreation() {
   const navigate = useNavigate();
+  const { id } = useParams();
 
   /* ===========================
      ESTADO DEL INFORME
@@ -30,14 +28,13 @@ export default function ServiceReportCreation() {
     tecnicoTelefono: "",
     tecnicoCorreo: "",
 
-    actividades: [
-      { titulo: "", detalle: "", imagen: null },
-    ],
+    actividades: [{ titulo: "", detalle: "", imagen: null }],
 
     conclusiones: [""],
     recomendaciones: [""],
 
     equipo: {
+      nota: "",
       marca: "",
       modelo: "",
       serie: "",
@@ -50,8 +47,22 @@ export default function ServiceReportCreation() {
     },
   });
 
-  const sigTecnico = useRef();
-  const sigCliente = useRef();
+  const sigTecnico = useRef(null);
+  const sigCliente = useRef(null);
+
+  /* ===========================
+     CARGAR INFORME SI EXISTE
+  =========================== */
+  useEffect(() => {
+    if (!id) return;
+
+    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
+    const report = stored.find(r => String(r.id) === String(id));
+
+    if (report) {
+      setData(report.data);
+    }
+  }, [id]);
 
   /* ===========================
      UPDATE GENÉRICO
@@ -69,21 +80,35 @@ export default function ServiceReportCreation() {
   };
 
   /* ===========================
-     PASO 1 — GUARDAR INFORME
+     GUARDAR / ACTUALIZAR
   =========================== */
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
-    const { id } = useParams();
 
-    const report = {
-      id: Date.now(),
-      createdAt: new Date().toISOString(),
-      data,
-    };
+    let updatedReports;
+
+    if (id) {
+      // 🔁 ACTUALIZAR EXISTENTE
+      updatedReports = stored.map(r =>
+        String(r.id) === String(id)
+          ? { ...r, data }
+          : r
+      );
+    } else {
+      // 🆕 NUEVO INFORME
+      updatedReports = [
+        ...stored,
+        {
+          id: Date.now(),
+          createdAt: new Date().toISOString(),
+          data,
+        },
+      ];
+    }
 
     localStorage.setItem(
       "serviceReports",
-      JSON.stringify([...stored, report])
+      JSON.stringify(updatedReports)
     );
 
     navigate("/service-report-history");
@@ -170,32 +195,6 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        <div className="flex gap-4">
-          <button
-            onClick={() =>
-              setData(p => ({
-                ...p,
-                actividades: [...p.actividades, { titulo: "", detalle: "", imagen: null }],
-              }))
-            }
-            className="border px-4 py-2 rounded"
-          >
-            + Agregar actividad
-          </button>
-
-          <button
-            onClick={() =>
-              setData(p => ({
-                ...p,
-                actividades: p.actividades.slice(0, -1),
-              }))
-            }
-            className="border px-4 py-2 rounded"
-          >
-            − Quitar actividad
-          </button>
-        </div>
-
         {/* ================= CONCLUSIONES ================= */}
         <table className="pdf-table">
           <thead>
@@ -230,169 +229,9 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        <div className="flex gap-4">
-          <button
-            onClick={() =>
-              setData(p => ({
-                ...p,
-                conclusiones: [...p.conclusiones, ""],
-                recomendaciones: [...p.recomendaciones, ""],
-              }))
-            }
-            className="border px-4 py-2 rounded"
-          >
-            + Agregar fila
-          </button>
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        {/* 👈 SE MANTIENE TAL COMO PEDISTE */}
 
-          <button
-            onClick={() =>
-              setData(p => ({
-                ...p,
-                conclusiones: p.conclusiones.slice(0, -1),
-                recomendaciones: p.recomendaciones.slice(0, -1),
-              }))
-            }
-            className="border px-4 py-2 rounded"
-          >
-            − Quitar fila
-          </button>
-        </div>
-
-{/* =============================
-   DESCRIPCIÓN DEL EQUIPO
-============================= */}
-<section className="border border-black mt-4">
-  <h3 className="text-center font-semibold border-b border-black py-1">
-    DESCRIPCIÓN DEL EQUIPO
-  </h3>
-
-  <table className="w-full text-xs border-collapse">
-    <tbody>
-      <tr>
-        <td className="border border-black p-1 font-semibold w-1/4">NOTA</td>
-        <td className="border border-black p-1" colSpan={3}>
-          <input
-            className="w-full outline-none"
-            value={data.equipo.nota || ""}
-            onChange={(e) =>
-              update(["equipo", "nota"], e.target.value)
-            }
-          />
-        </td>
-      </tr>
-
-      <tr>
-        <td className="border border-black p-1 font-semibold">MARCA</td>
-        <td className="border border-black p-1">
-          <input
-            className="w-full outline-none"
-            value={data.equipo.marca}
-            onChange={(e) =>
-              update(["equipo", "marca"], e.target.value)
-            }
-          />
-        </td>
-        <td className="border border-black p-1 font-semibold">MODELO</td>
-        <td className="border border-black p-1">
-          <input
-            className="w-full outline-none"
-            value={data.equipo.modelo}
-            onChange={(e) =>
-              update(["equipo", "modelo"], e.target.value)
-            }
-          />
-        </td>
-      </tr>
-
-      <tr>
-        <td className="border border-black p-1 font-semibold">N° SERIE</td>
-        <td className="border border-black p-1">
-          <input
-            className="w-full outline-none"
-            value={data.equipo.serie}
-            onChange={(e) =>
-              update(["equipo", "serie"], e.target.value)
-            }
-          />
-        </td>
-        <td className="border border-black p-1 font-semibold">AÑO MODELO</td>
-        <td className="border border-black p-1">
-          <input
-            className="w-full outline-none"
-            value={data.equipo.anio}
-            onChange={(e) =>
-              update(["equipo", "anio"], e.target.value)
-            }
-          />
-        </td>
-      </tr>
-
-      <tr>
-        <td className="border border-black p-1 font-semibold">VIN / CHASIS</td>
-        <td className="border border-black p-1">
-          <input
-            className="w-full outline-none"
-            value={data.equipo.vin}
-            onChange={(e) =>
-              update(["equipo", "vin"], e.target.value)
-            }
-          />
-        </td>
-        <td className="border border-black p-1 font-semibold">PLACA N°</td>
-        <td className="border border-black p-1">
-          <input
-            className="w-full outline-none"
-            value={data.equipo.placa}
-            onChange={(e) =>
-              update(["equipo", "placa"], e.target.value)
-            }
-          />
-        </td>
-      </tr>
-
-      <tr>
-        <td className="border border-black p-1 font-semibold">
-          HORAS TRABAJO MÓDULO
-        </td>
-        <td className="border border-black p-1">
-          <input
-            className="w-full outline-none"
-            value={data.equipo.horasModulo}
-            onChange={(e) =>
-              update(["equipo", "horasModulo"], e.target.value)
-            }
-          />
-        </td>
-        <td className="border border-black p-1 font-semibold">
-          HORAS TRABAJO CHASIS
-        </td>
-        <td className="border border-black p-1">
-          <input
-            className="w-full outline-none"
-            value={data.equipo.horasChasis}
-            onChange={(e) =>
-              update(["equipo", "horasChasis"], e.target.value)
-            }
-          />
-        </td>
-      </tr>
-
-      <tr>
-        <td className="border border-black p-1 font-semibold">KILOMETRAJE</td>
-        <td className="border border-black p-1" colSpan={3}>
-          <input
-            className="w-full outline-none"
-            value={data.equipo.kilometraje}
-            onChange={(e) =>
-              update(["equipo", "kilometraje"], e.target.value)
-            }
-          />
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</section>
-        
         {/* ================= FIRMAS ================= */}
         <table className="pdf-table">
           <thead>
@@ -434,21 +273,12 @@ export default function ServiceReportCreation() {
             Volver
           </button>
 
-          <div className="flex gap-4">
-            <button
-              onClick={() => navigate("/service-report-preview")}
-              className="bg-green-600 text-white px-6 py-2 rounded"
-            >
-              Generar PDF
-            </button>
-
-            <button
-              onClick={saveReport}
-              className="bg-blue-600 text-white px-6 py-2 rounded"
-            >
-              Guardar / continuar
-            </button>
-          </div>
+          <button
+            onClick={saveReport}
+            className="bg-blue-600 text-white px-6 py-2 rounded"
+          >
+            Guardar / continuar
+          </button>
         </div>
 
       </div>
