@@ -231,31 +231,20 @@ export default function ServiceReportCreation() {
         </table>
 
         {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-        <section className="border border-black mt-4">
-          <h3 className="text-center font-semibold border-b border-black py-1">
-            DESCRIPCIÓN DEL EQUIPO
-          </h3>
-          <table className="w-full text-xs border-collapse">
-            <tbody>
-              {Object.entries(data.equipo).map(([key, val]) => (
-                <tr key={key}>
-                  <td className="border p-1 font-semibold uppercase w-1/4">
-                    {key}
-                  </td>
-                  <td className="border p-1" colSpan={3}>
-                    <input
-                      className="w-full outline-none"
-                      value={val}
-                      onChange={(e) =>
-                        update(["equipo", key], e.target.value)
-                      }
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
+        {Object.entries(data.equipo).map(([k, v]) => (
+  <tr key={k}>
+    <td className="border p-1 font-semibold">{k.toUpperCase()}</td>
+    <td className="border p-1">
+      <input
+        className="w-full outline-none"
+        value={v}
+        onChange={(e) =>
+          update(["equipo", k], e.target.value)
+        }
+      />
+    </td>
+  </tr>
+))}
 
         {/* ================= FIRMAS ================= */}
         <table className="pdf-table">
