@@ -109,8 +109,8 @@ export default function ServiceReportCreation() {
     anio: "AÑO",
     vin: "VIN / CHASIS",
     placa: "PLACA",
-    horasModulo: "HORAS MÓDULO",
-    horasChasis: "HORAS CHASIS",
+    horasModulo: "HORAS-MÓDULO",
+    horasChasis: "HORAS-CHASIS",
     kilometraje: "KILOMETRAJE",
   };
 
