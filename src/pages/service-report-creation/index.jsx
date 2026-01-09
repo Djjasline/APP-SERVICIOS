@@ -1,20 +1,7 @@
-// APP-SERVICIOS/src/pages/service-report-creation/index.jsx
-
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
-
-/* ===========================
-   UTIL: FILE → BASE64
-=========================== */
-const fileToBase64 = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 
 export default function ServiceReportCreation() {
   const navigate = useNavigate();
@@ -38,7 +25,9 @@ export default function ServiceReportCreation() {
     tecnicoTelefono: "",
     tecnicoCorreo: "",
 
-    actividades: [{ titulo: "", detalle: "", imagen: null }],
+    actividades: [
+      { titulo: "", detalle: "", imagen: null },
+    ],
 
     conclusiones: [""],
     recomendaciones: [""],
@@ -57,19 +46,17 @@ export default function ServiceReportCreation() {
     },
   });
 
-  const sigTecnico = useRef();
-  const sigCliente = useRef();
+  const sigTecnico = useRef(null);
+  const sigCliente = useRef(null);
 
   /* ===========================
-     CARGAR INFORME DESDE HISTORIAL
+     CARGAR INFORME SI EXISTE
   =========================== */
   useEffect(() => {
     const current = localStorage.getItem("currentReport");
     if (current) {
       const parsed = JSON.parse(current);
-      if (parsed?.data) {
-        setData(parsed.data);
-      }
+      setData(parsed.data);
     }
   }, []);
 
@@ -77,7 +64,7 @@ export default function ServiceReportCreation() {
      UPDATE GENÉRICO
   =========================== */
   const update = (path, value) => {
-    setData((prev) => {
+    setData(prev => {
       const copy = structuredClone(prev);
       let ref = copy;
       for (let i = 0; i < path.length - 1; i++) {
@@ -93,28 +80,23 @@ export default function ServiceReportCreation() {
   =========================== */
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
-    const current = JSON.parse(localStorage.getItem("currentReport"));
 
-    let updated;
+    const report = {
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      data: {
+        ...data,
+        firmaTecnico: sigTecnico.current?.toDataURL() || null,
+        firmaCliente: sigCliente.current?.toDataURL() || null,
+      },
+    };
 
-    if (current) {
-      updated = stored.map((r) =>
-        r.id === current.id ? { ...r, data } : r
-      );
-    } else {
-      updated = [
-        ...stored,
-        {
-          id: Date.now(),
-          createdAt: new Date().toISOString(),
-          data,
-        },
-      ];
-    }
+    localStorage.setItem(
+      "serviceReports",
+      JSON.stringify([...stored, report])
+    );
 
-    localStorage.setItem("serviceReports", JSON.stringify(updated));
     localStorage.removeItem("currentReport");
-
     navigate("/service-report-history");
   };
 
@@ -188,20 +170,24 @@ export default function ServiceReportCreation() {
                   <input
                     type="file"
                     accept="image/*"
-                    capture="environment"
-                    onChange={async (e) => {
+                    onChange={(e) => {
                       const file = e.target.files[0];
                       if (!file) return;
-                      const base64 = await fileToBase64(file);
-                      update(["actividades", i, "imagen"], base64);
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        update(
+                          ["actividades", i, "imagen"],
+                          reader.result
+                        );
+                      };
+                      reader.readAsDataURL(file);
                     }}
                   />
-
                   {a.imagen && (
                     <img
                       src={a.imagen}
-                      alt="Actividad"
-                      className="mt-2 max-h-32 border rounded"
+                      alt="actividad"
+                      className="mt-2 max-h-24"
                     />
                   )}
                 </td>
@@ -209,32 +195,6 @@ export default function ServiceReportCreation() {
             ))}
           </tbody>
         </table>
-
-        <div className="flex gap-4">
-          <button
-            onClick={() =>
-              setData((p) => ({
-                ...p,
-                actividades: [...p.actividades, { titulo: "", detalle: "", imagen: null }],
-              }))
-            }
-            className="border px-4 py-2 rounded"
-          >
-            + Agregar actividad
-          </button>
-
-          <button
-            onClick={() =>
-              setData((p) => ({
-                ...p,
-                actividades: p.actividades.slice(0, -1),
-              }))
-            }
-            className="border px-4 py-2 rounded"
-          >
-            − Quitar actividad
-          </button>
-        </div>
 
         {/* ================= CONCLUSIONES ================= */}
         <table className="pdf-table">
@@ -270,6 +230,33 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        <section className="border border-black mt-4">
+          <h3 className="text-center font-semibold border-b border-black py-1">
+            DESCRIPCIÓN DEL EQUIPO
+          </h3>
+          <table className="w-full text-xs border-collapse">
+            <tbody>
+              {Object.entries(data.equipo).map(([key, val]) => (
+                <tr key={key}>
+                  <td className="border p-1 font-semibold uppercase w-1/4">
+                    {key}
+                  </td>
+                  <td className="border p-1" colSpan={3}>
+                    <input
+                      className="w-full outline-none"
+                      value={val}
+                      onChange={(e) =>
+                        update(["equipo", key], e.target.value)
+                      }
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
         {/* ================= FIRMAS ================= */}
         <table className="pdf-table">
           <thead>
@@ -302,41 +289,33 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-       {/* ================= BOTONES ================= */}
-<div className="flex justify-between pt-6">
+        {/* ================= BOTONES ================= */}
+        <div className="flex justify-between pt-6">
+          <div className="flex gap-4">
+            <button
+              onClick={() => navigate("/")}
+              className="border px-6 py-2 rounded"
+            >
+              Volver
+            </button>
 
-  {/* IZQUIERDA */}
-  <div className="flex gap-4">
-    <button
-      onClick={() => navigate("/")}
-      className="border px-6 py-2 rounded"
-    >
-      Volver
-    </button>
+            <button
+              onClick={() => navigate("/service-report-history")}
+              className="border px-6 py-2 rounded"
+            >
+              Historial
+            </button>
+          </div>
 
-    <button
-      onClick={() => navigate("/service-report-history")}
-      className="border px-6 py-2 rounded"
-    >
-      Historial
-    </button>
-  </div>
+          <button
+            onClick={saveReport}
+            className="bg-blue-600 text-white px-6 py-2 rounded"
+          >
+            Guardar / continuar
+          </button>
+        </div>
 
-  {/* DERECHA */}
-  <div className="flex gap-4">
-    <button
-      onClick={() => navigate("/service-report-preview")}
-      className="bg-green-600 text-white px-6 py-2 rounded"
-    >
-      Generar PDF
-    </button>
-
-    <button
-      onClick={saveReport}
-      className="bg-blue-600 text-white px-6 py-2 rounded"
-    >
-      Guardar / continuar
-    </button>
-  </div>
-
-</div>
+      </div>
+    </div>
+  );
+}
