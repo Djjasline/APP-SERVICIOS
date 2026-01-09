@@ -254,6 +254,84 @@ export default function ServiceReportCreation() {
           </button>
         </div>
 
+{/* =============================
+   DESCRIPCIÓN DEL EQUIPO
+============================= */}
+<section className="border border-black mt-4">
+  <h3 className="text-center font-semibold border-b border-black py-1">
+    DESCRIPCIÓN DEL EQUIPO
+  </h3>
+
+  <table className="w-full text-xs border-collapse">
+    <tbody>
+      <tr>
+        <td className="border border-black p-1 font-semibold w-1/4">NOTA</td>
+        <td className="border border-black p-1" colSpan={3}>
+          <input
+            name="notaEquipo"
+            className="w-full outline-none"
+          />
+        </td>
+      </tr>
+
+      <tr>
+        <td className="border border-black p-1 font-semibold">MARCA</td>
+        <td className="border border-black p-1">
+          <input name="marca" className="w-full outline-none" />
+        </td>
+        <td className="border border-black p-1 font-semibold">MODELO</td>
+        <td className="border border-black p-1">
+          <input name="modelo" className="w-full outline-none" />
+        </td>
+      </tr>
+
+      <tr>
+        <td className="border border-black p-1 font-semibold">N° SERIE</td>
+        <td className="border border-black p-1">
+          <input name="serie" className="w-full outline-none" />
+        </td>
+        <td className="border border-black p-1 font-semibold">AÑO MODELO</td>
+        <td className="border border-black p-1">
+          <input name="anioModelo" className="w-full outline-none" />
+        </td>
+      </tr>
+
+      <tr>
+        <td className="border border-black p-1 font-semibold">VIN / CHASIS</td>
+        <td className="border border-black p-1">
+          <input name="vin" className="w-full outline-none" />
+        </td>
+        <td className="border border-black p-1 font-semibold">PLACA N°</td>
+        <td className="border border-black p-1">
+          <input name="placa" className="w-full outline-none" />
+        </td>
+      </tr>
+
+      <tr>
+        <td className="border border-black p-1 font-semibold">
+          HORAS TRABAJO MÓDULO
+        </td>
+        <td className="border border-black p-1">
+          <input name="horasModulo" className="w-full outline-none" />
+        </td>
+        <td className="border border-black p-1 font-semibold">
+          HORAS TRABAJO CHASIS
+        </td>
+        <td className="border border-black p-1">
+          <input name="horasChasis" className="w-full outline-none" />
+        </td>
+      </tr>
+
+      <tr>
+        <td className="border border-black p-1 font-semibold">KILOMETRAJE</td>
+        <td className="border border-black p-1" colSpan={3}>
+          <input name="kilometraje" className="w-full outline-none" />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+        
         {/* ================= FIRMAS ================= */}
         <table className="pdf-table">
           <thead>
