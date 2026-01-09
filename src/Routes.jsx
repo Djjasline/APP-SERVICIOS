@@ -23,7 +23,7 @@ export default function AppRoutes() {
 
         {/* INFORME GENERAL */}
         <Route
-          path="/service-report-creation"
+          path="/service-report-creation/:id?"
           element={<ServiceReportCreation />}
         />
         <Route
