@@ -1,3 +1,5 @@
+// APP-SERVICIOS/src/pages/service-report-creation/index.jsx
+
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
@@ -84,11 +86,7 @@ export default function ServiceReportCreation() {
     const report = {
       id: Date.now(),
       createdAt: new Date().toISOString(),
-      data: {
-        ...data,
-        firmaTecnico: sigTecnico.current?.toDataURL() || null,
-        firmaCliente: sigCliente.current?.toDataURL() || null,
-      },
+      data,
     };
 
     localStorage.setItem(
@@ -100,14 +98,30 @@ export default function ServiceReportCreation() {
     navigate("/service-report-history");
   };
 
+  /* ===========================
+     LABELS EQUIPO
+  =========================== */
+  const labelsEquipo = {
+    nota: "NOTA",
+    marca: "MARCA",
+    modelo: "MODELO",
+    serie: "N° SERIE",
+    anio: "AÑO",
+    vin: "VIN / CHASIS",
+    placa: "PLACA",
+    horasModulo: "HORAS MÓDULO",
+    horasChasis: "HORAS CHASIS",
+    kilometraje: "KILOMETRAJE",
+  };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
 
-        {/* ================= HEADER ================= */}
+        {/* HEADER */}
         <ReportHeader data={data} onChange={update} />
 
-        {/* ================= DATOS CLIENTE ================= */}
+        {/* DATOS CLIENTE */}
         <table className="pdf-table">
           <tbody>
             {[
@@ -135,7 +149,7 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        {/* ================= ACTIVIDADES ================= */}
+        {/* ACTIVIDADES */}
         <table className="pdf-table">
           <thead>
             <tr>
@@ -174,21 +188,13 @@ export default function ServiceReportCreation() {
                       const file = e.target.files[0];
                       if (!file) return;
                       const reader = new FileReader();
-                      reader.onload = () => {
-                        update(
-                          ["actividades", i, "imagen"],
-                          reader.result
-                        );
-                      };
+                      reader.onload = () =>
+                        update(["actividades", i, "imagen"], reader.result);
                       reader.readAsDataURL(file);
                     }}
                   />
                   {a.imagen && (
-                    <img
-                      src={a.imagen}
-                      alt="actividad"
-                      className="mt-2 max-h-24"
-                    />
+                    <img src={a.imagen} alt="" className="mt-2 max-w-[120px]" />
                   )}
                 </td>
               </tr>
@@ -196,7 +202,7 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        {/* ================= CONCLUSIONES ================= */}
+        {/* CONCLUSIONES */}
         <table className="pdf-table">
           <thead>
             <tr>
@@ -230,23 +236,32 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-        {Object.entries(data.equipo).map(([k, v]) => (
-  <tr key={k}>
-    <td className="border p-1 font-semibold">{k.toUpperCase()}</td>
-    <td className="border p-1">
-      <input
-        className="w-full outline-none"
-        value={v}
-        onChange={(e) =>
-          update(["equipo", k], e.target.value)
-        }
-      />
-    </td>
-  </tr>
-))}
+        {/* DESCRIPCIÓN DEL EQUIPO */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th colSpan={2}>DESCRIPCIÓN DEL EQUIPO</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(data.equipo).map(([k, v]) => (
+              <tr key={k}>
+                <td className="pdf-label">{labelsEquipo[k]}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={v}
+                    onChange={(e) =>
+                      update(["equipo", k], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-        {/* ================= FIRMAS ================= */}
+        {/* FIRMAS */}
         <table className="pdf-table">
           <thead>
             <tr>
@@ -257,44 +272,25 @@ export default function ServiceReportCreation() {
           <tbody>
             <tr>
               <td>
-                <SignatureCanvas
-                  ref={sigTecnico}
-                  canvasProps={{ width: 300, height: 150 }}
-                />
-                <button onClick={() => sigTecnico.current.clear()}>
-                  Limpiar
-                </button>
+                <SignatureCanvas ref={sigTecnico} canvasProps={{ width: 300, height: 150 }} />
+                <button onClick={() => sigTecnico.current.clear()}>Limpiar</button>
               </td>
               <td>
-                <SignatureCanvas
-                  ref={sigCliente}
-                  canvasProps={{ width: 300, height: 150 }}
-                />
-                <button onClick={() => sigCliente.current.clear()}>
-                  Limpiar
-                </button>
+                <SignatureCanvas ref={sigCliente} canvasProps={{ width: 300, height: 150 }} />
+                <button onClick={() => sigCliente.current.clear()}>Limpiar</button>
               </td>
             </tr>
           </tbody>
         </table>
 
-        {/* ================= BOTONES ================= */}
+        {/* BOTONES */}
         <div className="flex justify-between pt-6">
-          <div className="flex gap-4">
-            <button
-              onClick={() => navigate("/")}
-              className="border px-6 py-2 rounded"
-            >
-              Volver
-            </button>
-
-            <button
-              onClick={() => navigate("/service-report-history")}
-              className="border px-6 py-2 rounded"
-            >
-              Historial
-            </button>
-          </div>
+          <button
+            onClick={() => navigate("/service-report-history")}
+            className="border px-6 py-2 rounded"
+          >
+            Historial
+          </button>
 
           <button
             onClick={saveReport}
