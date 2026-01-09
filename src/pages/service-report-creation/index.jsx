@@ -302,24 +302,41 @@ export default function ServiceReportCreation() {
           </tbody>
         </table>
 
-        {/* ================= BOTONES ================= */}
-        <div className="flex justify-between pt-6">
-          <button
-            onClick={() => navigate("/")}
-            className="border px-6 py-2 rounded"
-          >
-            Volver
-          </button>
+       {/* ================= BOTONES ================= */}
+<div className="flex justify-between pt-6">
 
-          <button
-            onClick={saveReport}
-            className="bg-blue-600 text-white px-6 py-2 rounded"
-          >
-            Guardar / continuar
-          </button>
-        </div>
+  {/* IZQUIERDA */}
+  <div className="flex gap-4">
+    <button
+      onClick={() => navigate("/")}
+      className="border px-6 py-2 rounded"
+    >
+      Volver
+    </button>
 
-      </div>
-    </div>
-  );
-}
+    <button
+      onClick={() => navigate("/service-report-history")}
+      className="border px-6 py-2 rounded"
+    >
+      Historial
+    </button>
+  </div>
+
+  {/* DERECHA */}
+  <div className="flex gap-4">
+    <button
+      onClick={() => navigate("/service-report-preview")}
+      className="bg-green-600 text-white px-6 py-2 rounded"
+    >
+      Generar PDF
+    </button>
+
+    <button
+      onClick={saveReport}
+      className="bg-blue-600 text-white px-6 py-2 rounded"
+    >
+      Guardar / continuar
+    </button>
+  </div>
+
+</div>
