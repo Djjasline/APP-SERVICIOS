@@ -1,13 +1,12 @@
 // APP-SERVICIOS/src/pages/service-report-creation/index.jsx
 
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
 
 export default function ServiceReportCreation() {
   const navigate = useNavigate();
-  const { id } = useParams();
 
   /* ===========================
      ESTADO DEL INFORME
@@ -54,15 +53,14 @@ export default function ServiceReportCreation() {
      CARGAR INFORME SI EXISTE
   =========================== */
   useEffect(() => {
-    if (!id) return;
-
-    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
-    const report = stored.find(r => String(r.id) === String(id));
-
-    if (report) {
-      setData(report.data);
+    const stored = localStorage.getItem("currentReport");
+    if (stored) {
+      const report = JSON.parse(stored);
+      if (report?.data) {
+        setData(report.data);
+      }
     }
-  }, [id]);
+  }, []);
 
   /* ===========================
      UPDATE GENÉRICO
@@ -84,33 +82,30 @@ export default function ServiceReportCreation() {
   =========================== */
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
+    const current = localStorage.getItem("currentReport");
 
-    let updatedReports;
+    let reports;
 
-    if (id) {
-      // 🔁 ACTUALIZAR EXISTENTE
-      updatedReports = stored.map(r =>
-        String(r.id) === String(id)
+    if (current) {
+      const currentReport = JSON.parse(current);
+
+      reports = stored.map(r =>
+        r.id === currentReport.id
           ? { ...r, data }
           : r
       );
+
+      localStorage.removeItem("currentReport");
     } else {
-      // 🆕 NUEVO INFORME
-      updatedReports = [
-        ...stored,
-        {
-          id: Date.now(),
-          createdAt: new Date().toISOString(),
-          data,
-        },
-      ];
+      const newReport = {
+        id: Date.now(),
+        createdAt: new Date().toISOString(),
+        data,
+      };
+      reports = [...stored, newReport];
     }
 
-    localStorage.setItem(
-      "serviceReports",
-      JSON.stringify(updatedReports)
-    );
-
+    localStorage.setItem("serviceReports", JSON.stringify(reports));
     navigate("/service-report-history");
   };
 
@@ -184,7 +179,6 @@ export default function ServiceReportCreation() {
                   <input
                     type="file"
                     accept="image/*"
-                    capture="environment"
                     onChange={(e) =>
                       update(["actividades", i, "imagen"], e.target.files[0])
                     }
@@ -194,6 +188,32 @@ export default function ServiceReportCreation() {
             ))}
           </tbody>
         </table>
+
+        <div className="flex gap-4">
+          <button
+            onClick={() =>
+              setData(p => ({
+                ...p,
+                actividades: [...p.actividades, { titulo: "", detalle: "", imagen: null }],
+              }))
+            }
+            className="border px-4 py-2 rounded"
+          >
+            + Agregar actividad
+          </button>
+
+          <button
+            onClick={() =>
+              setData(p => ({
+                ...p,
+                actividades: p.actividades.slice(0, -1),
+              }))
+            }
+            className="border px-4 py-2 rounded"
+          >
+            − Quitar actividad
+          </button>
+        </div>
 
         {/* ================= CONCLUSIONES ================= */}
         <table className="pdf-table">
@@ -230,7 +250,41 @@ export default function ServiceReportCreation() {
         </table>
 
         {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-        {/* 👈 SE MANTIENE TAL COMO PEDISTE */}
+        <section className="border border-black mt-4">
+          <h3 className="text-center font-semibold border-b border-black py-1">
+            DESCRIPCIÓN DEL EQUIPO
+          </h3>
+
+          <table className="w-full text-xs border-collapse">
+            <tbody>
+              {[
+                ["NOTA", "nota", true],
+                ["MARCA", "marca"],
+                ["MODELO", "modelo"],
+                ["N° SERIE", "serie"],
+                ["AÑO MODELO", "anio"],
+                ["VIN / CHASIS", "vin"],
+                ["PLACA N°", "placa"],
+                ["HORAS TRABAJO MÓDULO", "horasModulo"],
+                ["HORAS TRABAJO CHASIS", "horasChasis"],
+                ["KILOMETRAJE", "kilometraje", true],
+              ].map(([label, key, full], i) => (
+                <tr key={i}>
+                  <td className="border p-1 font-semibold">{label}</td>
+                  <td className="border p-1" colSpan={full ? 3 : 1}>
+                    <input
+                      className="w-full outline-none"
+                      value={data.equipo[key]}
+                      onChange={(e) =>
+                        update(["equipo", key], e.target.value)
+                      }
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
 
         {/* ================= FIRMAS ================= */}
         <table className="pdf-table">
@@ -243,22 +297,12 @@ export default function ServiceReportCreation() {
           <tbody>
             <tr>
               <td>
-                <SignatureCanvas
-                  ref={sigTecnico}
-                  canvasProps={{ width: 300, height: 150 }}
-                />
-                <button onClick={() => sigTecnico.current.clear()}>
-                  Limpiar
-                </button>
+                <SignatureCanvas ref={sigTecnico} canvasProps={{ width: 300, height: 150 }} />
+                <button onClick={() => sigTecnico.current.clear()}>Limpiar</button>
               </td>
               <td>
-                <SignatureCanvas
-                  ref={sigCliente}
-                  canvasProps={{ width: 300, height: 150 }}
-                />
-                <button onClick={() => sigCliente.current.clear()}>
-                  Limpiar
-                </button>
+                <SignatureCanvas ref={sigCliente} canvasProps={{ width: 300, height: 150 }} />
+                <button onClick={() => sigCliente.current.clear()}>Limpiar</button>
               </td>
             </tr>
           </tbody>
@@ -266,10 +310,7 @@ export default function ServiceReportCreation() {
 
         {/* ================= BOTONES ================= */}
         <div className="flex justify-between pt-6">
-          <button
-            onClick={() => navigate("/")}
-            className="border px-6 py-2 rounded"
-          >
+          <button onClick={() => navigate("/")} className="border px-6 py-2 rounded">
             Volver
           </button>
 
