@@ -1,10 +1,8 @@
 import { BrowserRouter } from "react-router-dom";
-import AppRoutes from "./Routes";
+import App from "./App"; // o el componente raíz
 
-export default function App() {
-  return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
-  );
-}
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+);
