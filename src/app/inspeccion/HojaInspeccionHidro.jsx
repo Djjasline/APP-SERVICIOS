@@ -334,10 +334,10 @@ export default function HojaInspeccionHidro() {
             ["HORAS TRABAJO MÓDULO", "horasModulo"],
             ["HORAS TRABAJO CHASIS", "horasChasis"],
             ["KILOMETRAJE", "kilometraje"],
-          ].map(([label, name]) => (
-            <>
-              <label className="font-semibold">{label}:</label>
-              <input
+          .map(([label, name]) => (
+  <div key={name} className="contents">
+    <label className="font-semibold">{label}:</label>
+    <input
                 name={name}
                 onChange={handleChange}
                 className="col-span-3 border p-1"
