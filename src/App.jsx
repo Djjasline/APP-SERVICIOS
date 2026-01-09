@@ -1,11 +1,10 @@
-import { Routes, Route } from "react-router-dom";
-import InspectionRoutes from "./app/inspeccion/Routes";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./Routes";
 
-export default function AppRoutes() {
+export default function App() {
   return (
-    <Routes>
-      <Route path="/inspeccion/*" element={<InspectionRoutes />} />
-      {/* otras rutas si existen */}
-    </Routes>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
 }
