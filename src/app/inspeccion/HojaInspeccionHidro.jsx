@@ -40,11 +40,19 @@ export default function HojaInspeccionHidro() {
     referenciaContrato: "",
     descripcion: "",
     codInf: "",
-    fechaInspeccion: "",
-    ubicacion: "",
+
     cliente: "",
-    tecnicoAstap: "",
-    responsableCliente: "",
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
+
+    tecnicoResponsable: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
+
+    fechaServicio: "",
+
     estadoEquipoDetalle: "",
     estadoEquipoPuntos: [],
     items: {},
@@ -153,15 +161,36 @@ export default function HojaInspeccionHidro() {
         </table>
       </section>
 
-      {/* DATOS */}
+      {/* DATOS DEL SERVICIO */}
       <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
-        <input type="date" name="fechaInspeccion" onChange={handleChange} className="input" />
-        <input name="ubicacion" placeholder="Ubicación" onChange={handleChange} className="input" />
         <input name="cliente" placeholder="Cliente" onChange={handleChange} className="input" />
-        <input name="tecnicoAstap" placeholder="Técnico ASTAP" onChange={handleChange} className="input" />
+        <input name="direccion" placeholder="Dirección" onChange={handleChange} className="input" />
+        <input name="contacto" placeholder="Contacto" onChange={handleChange} className="input" />
+        <input name="telefono" placeholder="Teléfono" onChange={handleChange} className="input" />
+        <input name="correo" placeholder="Correo" onChange={handleChange} className="input" />
+
         <input
-          name="responsableCliente"
-          placeholder="Responsable cliente"
+          name="tecnicoResponsable"
+          placeholder="Técnico responsable"
+          onChange={handleChange}
+          className="input"
+        />
+        <input
+          name="telefonoTecnico"
+          placeholder="Teléfono técnico"
+          onChange={handleChange}
+          className="input"
+        />
+        <input
+          name="correoTecnico"
+          placeholder="Correo técnico"
+          onChange={handleChange}
+          className="input"
+        />
+
+        <input
+          type="date"
+          name="fechaServicio"
           onChange={handleChange}
           className="input md:col-span-2"
         />
@@ -185,7 +214,7 @@ export default function HojaInspeccionHidro() {
         </div>
         <textarea
           name="estadoEquipoDetalle"
-          placeholder="Observaciones"
+          placeholder="Observaciones del estado del equipo"
           onChange={handleChange}
           className="w-full border rounded p-2 min-h-[80px]"
         />
@@ -211,10 +240,16 @@ export default function HojaInspeccionHidro() {
                   <td>{item.codigo}</td>
                   <td>{item.texto}</td>
                   <td>
-                    <input type="radio" onChange={() => handleItemChange(item.codigo, "estado", "SI")} />
+                    <input
+                      type="radio"
+                      onChange={() => handleItemChange(item.codigo, "estado", "SI")}
+                    />
                   </td>
                   <td>
-                    <input type="radio" onChange={() => handleItemChange(item.codigo, "estado", "NO")} />
+                    <input
+                      type="radio"
+                      onChange={() => handleItemChange(item.codigo, "estado", "NO")}
+                    />
                   </td>
                   <td>
                     <input
@@ -245,6 +280,7 @@ export default function HojaInspeccionHidro() {
         </div>
       </section>
 
+      {/* BOTONES */}
       <div className="flex justify-end gap-4">
         <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
           Volver
