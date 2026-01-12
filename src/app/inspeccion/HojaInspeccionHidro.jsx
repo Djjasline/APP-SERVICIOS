@@ -180,7 +180,7 @@ export default function HojaInspeccionHidro() {
                 <img src="/astap-logo.jpg" alt="ASTAP" className="mx-auto max-h-20" />
               </td>
               <td colSpan={2} className="border-r text-center font-bold py-2">
-                REPORTE TÉCNICO DE SERVICIO
+                HOJA DE INSPECCIÓN HIDROSUCCIONADOR
               </td>
               <td className="w-48 p-2">
                 <div>Fecha de versión: <strong>01-01-26</strong></div>
