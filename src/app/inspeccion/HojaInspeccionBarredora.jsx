@@ -4,73 +4,54 @@ import SignatureCanvas from "react-signature-canvas";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
 
 /* =============================
-   SECCIONES DE INSPECCIÓN BARREDORA
+   SECCIONES – BARREDORA
 ============================= */
 const secciones = [
   {
-    id: "secA",
-    titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
+    id: "sec1",
+    titulo:
+      "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
     items: [
-      { codigo: "A.1", texto: "Fugas de aceite hidráulico (mangueras, acoples, bancos, cilindros y solenoides)" },
-      { codigo: "A.2", texto: "Nivel de aceite del tanque AW68, ¿se visualiza la mirilla?" },
-      { codigo: "A.3", texto: "Fugas de aceite en motores de cepillos" },
-      { codigo: "A.4", texto: "Fugas de aceite en motor de banda" },
-      { codigo: "A.5", texto: "Fugas de bombas hidráulicas" },
-      { codigo: "A.6", texto: "Fugas en motor John Deere" },
+      { codigo: "1.1", texto: "Prueba de encendido general del equipo" },
+      { codigo: "1.2", texto: "Verificación de funcionamiento de controles principales" },
+      { codigo: "1.3", texto: "Revisión de alarmas o mensajes de fallo" },
+    ],
+  },
+  {
+    id: "secA",
+    titulo: "2. SISTEMA HIDRÁULICO (ACEITES)",
+    items: [
+      { codigo: "A.1", texto: "Fugas de aceite hidráulico" },
+      { codigo: "A.2", texto: "Nivel de aceite del tanque hidráulico" },
+      { codigo: "A.3", texto: "Estado de bombas hidráulicas" },
+      { codigo: "A.4", texto: "Estado de motores hidráulicos" },
     ],
   },
   {
     id: "secB",
-    titulo: "B) SISTEMA DE CONTROL DE POLVO (AGUA)",
+    titulo: "3. SISTEMA DE CONTROL DE POLVO (AGUA)",
     items: [
-      { codigo: "B.1", texto: "Inspección de fugas de agua (mangueras, acoples)" },
-      { codigo: "B.2", texto: "Estado del filtro para agua" },
-      { codigo: "B.3", texto: "Estado de válvulas check" },
-      { codigo: "B.4", texto: "Estado de solenoides de apertura de agua" },
-      { codigo: "B.5", texto: "Estado de la bomba eléctrica de agua" },
-      { codigo: "B.6", texto: "Estado de los aspersores de cepillos" },
-      { codigo: "B.7", texto: "Estado de la manguera de carga de agua hidrante" },
-      { codigo: "B.8", texto: "Inspección del medidor de nivel del tanque" },
-      { codigo: "B.9", texto: "Inspección del sistema de llenado de agua" },
+      { codigo: "B.1", texto: "Fugas de agua (mangueras y acoples)" },
+      { codigo: "B.2", texto: "Estado de la bomba eléctrica de agua" },
+      { codigo: "B.3", texto: "Funcionamiento de aspersores" },
     ],
   },
   {
     id: "secC",
-    titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
+    titulo: "4. SISTEMA ELÉCTRICO Y ELECTRÓNICO",
     items: [
-      { codigo: "C.1", texto: "Inspección visual de conectores (sockets) de bancos de control" },
-      { codigo: "C.2", texto: "Evaluar funcionamiento de elementos al encender el equipo" },
-      { codigo: "C.3", texto: "Estado del tablero de control de cabina" },
-      { codigo: "C.4", texto: "Inspección de batería" },
-      { codigo: "C.5", texto: "Inspección de luces externas" },
-      { codigo: "C.6", texto: "Diagnóstico y conexión con service tool (opcional)" },
-      { codigo: "C.7", texto: "Inspección de limpia parabrisas" },
-      { codigo: "C.8", texto: "Verificación de conexiones externas (GPS / radiocomunicación)" },
+      { codigo: "C.1", texto: "Estado de tablero de control" },
+      { codigo: "C.2", texto: "Estado de luces y accesorios" },
+      { codigo: "C.3", texto: "Estado de batería" },
     ],
   },
   {
     id: "secD",
-    titulo: "D) SISTEMA DE SUCCIÓN",
+    titulo: "5. SISTEMA DE SUCCIÓN",
     items: [
-      { codigo: "D.1", texto: "Estado de la banda, aceptable" },
-      { codigo: "D.2", texto: "Estado de las cerdas de los cepillos" },
+      { codigo: "D.1", texto: "Estado de la banda" },
+      { codigo: "D.2", texto: "Estado de cepillos" },
       { codigo: "D.3", texto: "Estado de la tolva" },
-      { codigo: "D.4", texto: "Funcionamiento aceptable de la tolva" },
-      { codigo: "D.5", texto: "Funcionamiento aceptable de la banda" },
-      { codigo: "D.6", texto: "Estado de zapatas de arrastre cortas y largas" },
-    ],
-  },
-  {
-    id: "secE",
-    titulo: "E) MOTOR JOHN DEERE",
-    items: [
-      { codigo: "E.1", texto: "Estado de filtros de aire 1° y 2°" },
-      { codigo: "E.2", texto: "Estado de filtro combustible trampa de agua" },
-      { codigo: "E.3", texto: "Estado de filtro de combustible" },
-      { codigo: "E.4", texto: "Estado de filtro de aceite" },
-      { codigo: "E.5", texto: "Nivel de aceite de motor" },
-      { codigo: "E.6", texto: "Estado y nivel del refrigerante" },
-      { codigo: "E.7", texto: "Estado filtro de A/C cabina" },
     ],
   },
 ];
@@ -89,26 +70,17 @@ export default function HojaInspeccionBarredora() {
     fechaInspeccion: "",
     ubicacion: "",
     cliente: "",
-    contactoCliente: "",
-    telefonoCliente: "",
-    correoCliente: "",
-    tecnicoResponsable: "",
-    telefonoTecnico: "",
-    correoTecnico: "",
+    tecnicoAstap: "",
+    responsableCliente: "",
     estadoEquipoDetalle: "",
     estadoEquipoPuntos: [],
-    notaEquipo: "",
-    marca: "",
-    modelo: "",
-    serie: "",
-    anioModelo: "",
-    vin: "",
-    placa: "",
-    horasModulo: "",
-    horasChasis: "",
-    kilometraje: "",
     items: {},
   });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
 
   const handleItemChange = (codigo, campo, valor) => {
     setFormData((p) => ({
@@ -123,16 +95,44 @@ export default function HojaInspeccionBarredora() {
     }));
   };
 
+  const handleImageClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: [
+        ...p.estadoEquipoPuntos,
+        { id: p.estadoEquipoPuntos.length + 1, x, y },
+      ],
+    }));
+  };
+
+  const handleRemovePoint = (id) => {
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: p.estadoEquipoPuntos
+        .filter((pt) => pt.id !== id)
+        .map((pt, i) => ({ ...pt, id: i + 1 })),
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const firmaTecnico = firmaTecnicoRef.current?.toDataURL();
-    const firmaCliente = firmaClienteRef.current?.toDataURL();
+    const firmas = {
+      tecnico: firmaTecnicoRef.current?.isEmpty()
+        ? ""
+        : firmaTecnicoRef.current.toDataURL(),
+      cliente: firmaClienteRef.current?.isEmpty()
+        ? ""
+        : firmaClienteRef.current.toDataURL(),
+    };
 
     markInspectionCompleted("barredora", id, {
       ...formData,
-      firmaTecnico,
-      firmaCliente,
+      firmas,
     });
 
     navigate("/inspeccion");
@@ -143,10 +143,82 @@ export default function HojaInspeccionBarredora() {
       onSubmit={handleSubmit}
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
-      <h1 className="font-bold text-lg text-center">
-        HOJA DE INSPECCIÓN BARREDORA
-      </h1>
+      {/* ENCABEZADO */}
+      <section className="border rounded-lg overflow-hidden">
+        <table className="w-full text-xs border-collapse">
+          <tbody>
+            <tr className="border-b">
+              <td rowSpan={4} className="w-32 border-r p-3 text-center">
+                <img src="/astap-logo.jpg" className="mx-auto max-h-20" />
+              </td>
+              <td colSpan={2} className="border-r text-center font-bold">
+                HOJA DE INSPECCIÓN BARREDORA
+              </td>
+              <td className="p-2">
+                <div>Fecha versión: <strong>01-01-26</strong></div>
+                <div>Versión: <strong>01</strong></div>
+              </td>
+            </tr>
 
+            {[
+              ["REFERENCIA DE CONTRATO", "referenciaContrato"],
+              ["DESCRIPCIÓN", "descripcion"],
+              ["COD. INF.", "codInf"],
+            ].map(([label, name]) => (
+              <tr key={name} className="border-b">
+                <td className="border-r p-2 font-semibold">{label}</td>
+                <td colSpan={2} className="p-2">
+                  <input
+                    name={name}
+                    onChange={handleChange}
+                    className="w-full border rounded p-1"
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* DATOS */}
+      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
+        <input type="date" name="fechaInspeccion" onChange={handleChange} className="input" />
+        <input name="ubicacion" placeholder="Ubicación" onChange={handleChange} className="input" />
+        <input name="cliente" placeholder="Cliente" onChange={handleChange} className="input" />
+        <input name="tecnicoAstap" placeholder="Técnico ASTAP" onChange={handleChange} className="input" />
+        <input
+          name="responsableCliente"
+          placeholder="Responsable cliente"
+          onChange={handleChange}
+          className="input md:col-span-2"
+        />
+      </section>
+
+      {/* ESTADO DEL EQUIPO */}
+      <section className="border rounded p-4 space-y-2">
+        <p className="font-semibold">Estado del equipo</p>
+        <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
+          <img src="/estado equipo barredora.png" className="w-full" draggable={false} />
+          {formData.estadoEquipoPuntos.map((pt) => (
+            <div
+              key={pt.id}
+              onDoubleClick={() => handleRemovePoint(pt.id)}
+              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
+              style={{ left: `${pt.x}%`, top: `${pt.y}%`, transform: "translate(-50%, -50%)" }}
+            >
+              {pt.id}
+            </div>
+          ))}
+        </div>
+        <textarea
+          name="estadoEquipoDetalle"
+          placeholder="Observaciones"
+          onChange={handleChange}
+          className="w-full border rounded p-2 min-h-[80px]"
+        />
+      </section>
+
+      {/* TABLAS */}
       {secciones.map((sec) => (
         <section key={sec.id} className="border rounded p-4">
           <h2 className="font-semibold mb-2">{sec.titulo}</h2>
@@ -155,8 +227,8 @@ export default function HojaInspeccionBarredora() {
               <tr>
                 <th>Ítem</th>
                 <th>Detalle</th>
-                <th>Sí</th>
-                <th>No</th>
+                <th>SI</th>
+                <th>NO</th>
                 <th>Observación</th>
               </tr>
             </thead>
@@ -168,28 +240,20 @@ export default function HojaInspeccionBarredora() {
                   <td>
                     <input
                       type="radio"
-                      onChange={() =>
-                        handleItemChange(item.codigo, "estado", "SI")
-                      }
+                      onChange={() => handleItemChange(item.codigo, "estado", "SI")}
                     />
                   </td>
                   <td>
                     <input
                       type="radio"
-                      onChange={() =>
-                        handleItemChange(item.codigo, "estado", "NO")
-                      }
+                      onChange={() => handleItemChange(item.codigo, "estado", "NO")}
                     />
                   </td>
                   <td>
                     <input
                       className="w-full border px-1"
                       onChange={(e) =>
-                        handleItemChange(
-                          item.codigo,
-                          "observacion",
-                          e.target.value
-                        )
+                        handleItemChange(item.codigo, "observacion", e.target.value)
                       }
                     />
                   </td>
@@ -200,6 +264,7 @@ export default function HojaInspeccionBarredora() {
         </section>
       ))}
 
+      {/* FIRMAS */}
       <section className="border rounded p-4">
         <div className="grid md:grid-cols-2 gap-6 text-center">
           <div>
@@ -208,13 +273,6 @@ export default function HojaInspeccionBarredora() {
               ref={firmaTecnicoRef}
               canvasProps={{ className: "border w-full h-32" }}
             />
-            <button
-              type="button"
-              onClick={() => firmaTecnicoRef.current.clear()}
-              className="text-xs mt-1 border px-2 py-1 rounded"
-            >
-              Borrar firma
-            </button>
           </div>
 
           <div>
@@ -223,29 +281,16 @@ export default function HojaInspeccionBarredora() {
               ref={firmaClienteRef}
               canvasProps={{ className: "border w-full h-32" }}
             />
-            <button
-              type="button"
-              onClick={() => firmaClienteRef.current.clear()}
-              className="text-xs mt-1 border px-2 py-1 rounded"
-            >
-              Borrar firma
-            </button>
           </div>
         </div>
       </section>
 
+      {/* BOTONES */}
       <div className="flex justify-end gap-4">
-        <button
-          type="button"
-          onClick={() => navigate("/inspeccion")}
-          className="border px-4 py-2 rounded"
-        >
+        <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
           Volver
         </button>
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
           Guardar y completar
         </button>
       </div>
