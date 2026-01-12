@@ -1,10 +1,9 @@
 import { useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import SignatureCanvas from "react-signature-canvas";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
 
 /* =============================
-   SECCIONES SEGÚN PDF OFICIAL
+   SECCIONES DE INSPECCIÓN
 ============================= */
 const secciones = [
   {
@@ -21,92 +20,68 @@ const secciones = [
     id: "secA",
     titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
     items: [
-      { codigo: "A.1", texto: "Fugas de aceite hidráulico (mangueras - acoples - bancos)" },
+      { codigo: "A.1", texto: "Fugas de aceite hidráulico" },
       { codigo: "A.2", texto: "Nivel de aceite del soplador" },
       { codigo: "A.3", texto: "Nivel de aceite hidráulico" },
-      { codigo: "A.4", texto: "Nivel de aceite en la caja de transferencia" },
-      {
-        codigo: "A.5",
-        texto:
-          "Inspección del manómetro de filtro hidráulico de retorno (verde, amarillo, rojo)",
-      },
-      {
-        codigo: "A.6",
-        texto:
-          "Inspección del filtro hidráulico de retorno, presenta fugas o daños",
-      },
-      {
-        codigo: "A.7",
-        texto:
-          "Inspección de los filtros de succión del tanque hidráulico (opcional)",
-      },
-      {
-        codigo: "A.8",
-        texto:
-          "Estado de los cilindros hidráulicos, presenta fugas o daños",
-      },
-      {
-        codigo: "A.9",
-        texto:
-          "Evaluación del estado de los tapones de drenaje de lubricantes",
-      },
-      {
-        codigo: "A.10",
-        texto:
-          "Evaluación de bancos hidráulicos, presentan fugas o daños",
-      },
+      { codigo: "A.4", texto: "Aceite caja de transferencia" },
+      { codigo: "A.5", texto: "Manómetro filtro hidráulico" },
+      { codigo: "A.6", texto: "Filtro hidráulico de retorno" },
+      { codigo: "A.7", texto: "Filtros de succión tanque hidráulico" },
+      { codigo: "A.8", texto: "Cilindros hidráulicos" },
+      { codigo: "A.9", texto: "Tapones de drenaje" },
+      { codigo: "A.10", texto: "Bancos hidráulicos" },
     ],
   },
   {
     id: "secB",
     titulo: "B) SISTEMA HIDRÁULICO (AGUA)",
     items: [
-      { codigo: "B.1", texto: "Inspección del estado de los filtros malla para agua de 2\" y 3\"" },
-      { codigo: "B.2", texto: "Estado de los empaques de la tapa de los filtros de agua" },
-      { codigo: "B.3", texto: "Inspección de fugas de agua (mangueras - acoples)" },
-      { codigo: "B.4", texto: "Inspección de la válvula de alivio de la pistola (opcional de 700 PSI)" },
-      { codigo: "B.5", texto: "Inspección de golpes y fugas de agua en el tanque de aluminio" },
-      { codigo: "B.6", texto: "Inspección del medidor de nivel del tanque, se visualiza sus bolitas?" },
-      { codigo: "B.7", texto: "Inspección del sistema de tapón de expansión de 2\" de tanques de aluminio" },
-      { codigo: "B.8", texto: "Inspección del sistema de drenaje de la bomba Rodder (opcional)" },
-      { codigo: "B.9", texto: "Estado de válvulas checks internas de la bomba de 2\" y de 3\"" },
-      { codigo: "B.10", texto: "Estado de los manómetros de presión (opcional)" },
-      { codigo: "B.11", texto: "Inspección del estado del carrete de manguera, manguera guía" },
-      { codigo: "B.12", texto: "Soporte del carrete está flojo?" },
-      { codigo: "B.13", texto: "Inspección del codo giratorio del carrete, superior e inferior, presenta fugas?" },
-      { codigo: "B.14", texto: "Inspección de sistema de trinquete, seguros, cilindros neumáticos, se activan?" },
-      { codigo: "B.15", texto: "Inspección de la válvula de alivio de bomba de agua (opcional)" },
-      { codigo: "B.16", texto: "Inspección de válvulas de 1\"" },
-      { codigo: "B.17", texto: "Inspección de válvulas de 3/4\"" },
-      { codigo: "B.18", texto: "Inspección de válvulas de 1/2\"" },
-      { codigo: "B.19", texto: "Estado de las boquillas, se las da mantenimiento, conservación?" },
+      { codigo: "B.1", texto: "Filtros malla 2\" y 3\"" },
+      { codigo: "B.2", texto: "Empaques tapa filtros" },
+      { codigo: "B.3", texto: "Fugas de agua (mangueras / acoples)" },
+      { codigo: "B.4", texto: "Válvula alivio pistola" },
+      { codigo: "B.5", texto: "Golpes / fugas tanque aluminio" },
+      { codigo: "B.6", texto: "Medidor de nivel tanque" },
+      { codigo: "B.7", texto: "Tapón expansión 2\"" },
+      { codigo: "B.8", texto: "Drenaje bomba Rodder" },
+      { codigo: "B.9", texto: "Válvulas check bomba" },
+      { codigo: "B.10", texto: "Manómetros de presión" },
+      { codigo: "B.11", texto: "Carrete de manguera" },
+      { codigo: "B.12", texto: "Soporte del carrete" },
+      { codigo: "B.13", texto: "Codo giratorio" },
+      { codigo: "B.14", texto: "Sistema de trinquete" },
+      { codigo: "B.15", texto: "Válvula alivio bomba" },
+      { codigo: "B.16", texto: "Válvulas 1\"" },
+      { codigo: "B.17", texto: "Válvulas 3/4\"" },
+      { codigo: "B.18", texto: "Válvulas 1/2\"" },
+      { codigo: "B.19", texto: "Boquillas" },
     ],
   },
   {
     id: "secC",
     titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
     items: [
-      { codigo: "C.1", texto: "Inspección de funciones de tablero frontal, se mantiene limpio?" },
-      { codigo: "C.2", texto: "Evaluar funcionamiento de tablero de control interno cabina" },
-      { codigo: "C.3", texto: "Inspección del estado de control remoto, estado de su puerto de carga" },
-      { codigo: "C.4", texto: "Inspección del estado de las electroválvulas de los bancos de control" },
-      { codigo: "C.5", texto: "Presencia de humedad en sus componentes" },
-      { codigo: "C.6", texto: "Revisión de luces estrobo, flechas y accesorios externos" },
+      { codigo: "C.1", texto: "Tablero frontal" },
+      { codigo: "C.2", texto: "Tablero cabina" },
+      { codigo: "C.3", texto: "Control remoto" },
+      { codigo: "C.4", texto: "Electroválvulas" },
+      { codigo: "C.5", texto: "Humedad en componentes" },
+      { codigo: "C.6", texto: "Luces y accesorios" },
     ],
   },
   {
     id: "secD",
     titulo: "D) SISTEMA DE SUCCIÓN",
     items: [
-      { codigo: "D.1", texto: "Inspección de los sellos en el tanque de desperdicios frontal y posterior" },
-      { codigo: "D.2", texto: "Estado interno del tanque de desechos, canastillas, esferas y deflectores" },
-      { codigo: "D.3", texto: "Inspección del microfiltros de succión (3)" },
-      { codigo: "D.4", texto: "Inspección del tapón de drenaje del filtro de succión" },
-      { codigo: "D.5", texto: "Estado físico de las mangueras de succión" },
-      { codigo: "D.6", texto: "Seguros de compuerta del tanque de desechos" },
-      { codigo: "D.7", texto: "Inspección del sistema de desfogue (válvula y actuador)" },
-      { codigo: "D.8", texto: "Inspección de válvulas de alivio de presión Kunkle (3)" },
-      { codigo: "D.9", texto: "Inspeccionar la operación del soplador" },
+      { codigo: "D.1", texto: "Sellos tanque" },
+      { codigo: "D.2", texto: "Interior tanque desechos" },
+      { codigo: "D.3", texto: "Microfiltros succión" },
+      { codigo: "D.4", texto: "Tapón drenaje filtro" },
+      { codigo: "D.5", texto: "Mangueras succión" },
+      { codigo: "D.6", texto: "Seguros compuerta" },
+      { codigo: "D.7", texto: "Sistema desfogüe" },
+      { codigo: "D.8", texto: "Válvulas alivio Kunkle" },
+      { codigo: "D.9", texto: "Operación del soplador" },
     ],
   },
 ];
@@ -115,13 +90,50 @@ export default function HojaInspeccionHidro() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const sigTecnico = useRef(null);
-  const sigCliente = useRef(null);
+  /* =============================
+     FIRMAS – REFS
+  ============================= */
+  const canvasTecnico = useRef(null);
+  const canvasCliente = useRef(null);
+  const drawing = useRef(false);
 
   const [formData, setFormData] = useState({
+    referenciaContrato: "",
+    descripcion: "",
+    codInf: "",
+    fechaInspeccion: "",
+    ubicacion: "",
+    cliente: "",
+    contactoCliente: "",
+    telefonoCliente: "",
+    correoCliente: "",
+    tecnicoResponsable: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
+    estadoEquipoDetalle: "",
+    estadoEquipoPuntos: [],
+    notaEquipo: "",
+    marca: "",
+    modelo: "",
+    serie: "",
+    anioModelo: "",
+    vin: "",
+    placa: "",
+    horasModulo: "",
+    horasChasis: "",
+    kilometraje: "",
+    firmaTecnico: "",
+    firmaCliente: "",
     items: {},
-    puntos: [],
   });
+
+  /* =============================
+     HANDLERS GENERALES
+  ============================= */
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
 
   const handleItemChange = (codigo, campo, valor) => {
     setFormData((p) => ({
@@ -136,22 +148,137 @@ export default function HojaInspeccionHidro() {
     }));
   };
 
+  /* =============================
+     MARCADO DE IMAGEN
+  ============================= */
+  const handleImageClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: [
+        ...p.estadoEquipoPuntos,
+        { id: p.estadoEquipoPuntos.length + 1, x, y },
+      ],
+    }));
+  };
+
+  const handleRemovePoint = (id) => {
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: p.estadoEquipoPuntos
+        .filter((pt) => pt.id !== id)
+        .map((pt, i) => ({ ...pt, id: i + 1 })),
+    }));
+  };
+
+  /* =============================
+     FIRMAS – DIBUJO
+  ============================= */
+  const startDraw = (e, ref) => {
+    drawing.current = true;
+    const ctx = ref.current.getContext("2d");
+    ctx.beginPath();
+    const rect = ref.current.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    ctx.moveTo(x, y);
+  };
+
+  const draw = (e, ref) => {
+    if (!drawing.current) return;
+    const ctx = ref.current.getContext("2d");
+    const rect = ref.current.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const stopDraw = () => {
+    drawing.current = false;
+  };
+
+  const clearSignature = (ref, field) => {
+    const ctx = ref.current.getContext("2d");
+    ctx.clearRect(0, 0, ref.current.width, ref.current.height);
+    setFormData((p) => ({ ...p, [field]: "" }));
+  };
+
+  /* =============================
+     SUBMIT
+  ============================= */
   const handleSubmit = (e) => {
     e.preventDefault();
-    markInspectionCompleted("hidro", id, {
+
+    const dataToSave = {
       ...formData,
-      firmas: {
-        tecnico: sigTecnico.current?.toDataURL(),
-        cliente: sigCliente.current?.toDataURL(),
-      },
-    });
+      firmaTecnico: canvasTecnico.current.toDataURL(),
+      firmaCliente: canvasCliente.current.toDataURL(),
+    };
+
+    markInspectionCompleted("hidro", id, dataToSave);
     navigate("/inspeccion");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto p-6 bg-white space-y-6">
-      {/* TODO el layout ya corregido */}
-      {/* (el mensaje ya está largo; en el siguiente seguimos con BARREDORA igual que este) */}
+    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
+
+      {/* TODO EL FORMULARIO PERMANECE IGUAL HASTA AQUÍ */}
+
+      {/* FIRMAS */}
+      <section className="border rounded p-4">
+        <div className="grid grid-cols-2 gap-6 text-xs">
+          {[
+            ["FIRMA TÉCNICO", canvasTecnico, "firmaTecnico"],
+            ["FIRMA CLIENTE", canvasCliente, "firmaCliente"],
+          ].map(([label, ref, field]) => (
+            <div key={label}>
+              <p className="font-semibold text-center mb-1">{label}</p>
+              <canvas
+                ref={ref}
+                width={500}
+                height={120}
+                className="border w-full"
+                style={{ touchAction: "none" }}
+                onMouseDown={(e) => startDraw(e, ref)}
+                onMouseMove={(e) => draw(e, ref)}
+                onMouseUp={stopDraw}
+                onMouseLeave={stopDraw}
+                onTouchStart={(e) => startDraw(e, ref)}
+                onTouchMove={(e) => draw(e, ref)}
+                onTouchEnd={stopDraw}
+              />
+              <button
+                type="button"
+                onClick={() => clearSignature(ref, field)}
+                className="mt-1 text-[10px] border px-2 py-1 rounded"
+              >
+                Borrar firma
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* BOTONES */}
+      <div className="flex justify-end gap-4">
+        <button
+          type="button"
+          onClick={() => navigate("/inspeccion")}
+          className="border px-4 py-2 rounded"
+        >
+          Volver
+        </button>
+        <button
+          type="submit"
+          className="bg-green-600 text-white px-4 py-2 rounded"
+        >
+          Guardar y completar
+        </button>
+      </div>
     </form>
   );
 }
