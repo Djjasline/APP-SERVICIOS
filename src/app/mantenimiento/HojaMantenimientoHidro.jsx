@@ -11,7 +11,11 @@ const secciones = [
     id: "1",
     titulo: "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
     tipo: "simple",
-    items: ["1.1", "1.2", "1.3"],
+    items: [
+      ["1.1", "Prueba de encendido general del equipo"],
+      ["1.2", "Verificación de funcionamiento de controles principales"],
+      ["1.3", "Revisión de alarmas o mensajes de fallo"],
+    ],
   },
   {
     id: "2",
@@ -49,14 +53,20 @@ const secciones = [
   {
     id: "4",
     titulo: "4. OTROS (ESPECIFICAR)",
-    tipo: "simple",
+    tipo: "otros",
     items: ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6"],
   },
   {
     id: "5",
     titulo: "5. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POSTERIOR AL SERVICIO",
     tipo: "simple",
-    items: ["5.1", "5.2", "5.3", "5.4", "5.5"],
+    items: [
+      ["5.1", "Encendido general del equipo"],
+      ["5.2", "Verificación de presiones de trabajo"],
+      ["5.3", "Funcionamiento de sistemas hidráulicos"],
+      ["5.4", "Funcionamiento de sistema de succión"],
+      ["5.5", "Funcionamiento de sistema de agua"],
+    ],
   },
 ];
 
@@ -71,11 +81,6 @@ export default function HojaMantenimientoHidro() {
     referenciaContrato: "",
     descripcion: "",
     codInf: "",
-    fechaServicio: "",
-    ubicacion: "",
-    cliente: "",
-    tecnicoAstap: "",
-    responsableCliente: "",
     estadoEquipoDetalle: "",
     estadoEquipoPuntos: [],
     items: {},
@@ -157,7 +162,7 @@ export default function HojaMantenimientoHidro() {
         </table>
       </section>
 
-      {/* ESTADO DEL EQUIPO */}
+      {/* IMAGEN ESTADO EQUIPO */}
       <section className="border rounded p-4">
         <div className="relative border cursor-crosshair" onClick={handleImageClick}>
           <img src="/estado-equipo.png" className="w-full" />
@@ -168,22 +173,27 @@ export default function HojaMantenimientoHidro() {
             </div>
           ))}
         </div>
-        <textarea name="estadoEquipoDetalle" onChange={handleChange} className="w-full border p-2 mt-2" />
+        <textarea
+          name="estadoEquipoDetalle"
+          placeholder="Observaciones generales del estado del equipo"
+          onChange={handleChange}
+          className="w-full border p-2 mt-2"
+        />
       </section>
 
-      {/* SECCIONES */}
+      {/* TABLAS */}
       {secciones.map((sec) => (
         <section key={sec.id} className="border rounded p-4">
           <h2 className="font-semibold mb-2">{sec.titulo}</h2>
           <table className="w-full text-xs border">
             <thead className="bg-gray-100">
               <tr>
-                <th>Ítem</th>
+                <th>Artículo</th>
                 <th>Detalle</th>
-                {sec.tipo === "cantidad" && <th>Cant.</th>}
+                {sec.tipo === "cantidad" && <th>No. poder</th>}
                 <th>SI</th>
                 <th>NO</th>
-                <th>Obs.</th>
+                <th>Observación</th>
               </tr>
             </thead>
             <tbody>
@@ -193,9 +203,15 @@ export default function HojaMantenimientoHidro() {
                 return (
                   <tr key={codigo}>
                     <td>{codigo}</td>
-                    <td>{texto}</td>
+                    <td>
+                      {sec.tipo === "otros" ? (
+                        <input className="border w-full" onChange={(e) => handleItemChange(codigo, "detalle", e.target.value)} />
+                      ) : texto}
+                    </td>
                     {sec.tipo === "cantidad" && (
-                      <td><input className="border w-12" onChange={(e) => handleItemChange(codigo, "cantidad", e.target.value)} /></td>
+                      <td>
+                        <input type="number" className="border w-16" onChange={(e) => handleItemChange(codigo, "cantidad", e.target.value)} />
+                      </td>
                     )}
                     <td><input type="radio" onChange={() => handleItemChange(codigo, "estado", "SI")} /></td>
                     <td><input type="radio" onChange={() => handleItemChange(codigo, "estado", "NO")} /></td>
