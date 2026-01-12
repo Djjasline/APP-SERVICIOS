@@ -145,7 +145,7 @@ export default function HojaInspeccionBarredora() {
           onClick={handleImageClick}
         >
           <img
-            src="/estado-equipo-barredora.png"
+            src="/estado equipo barredora.png"
             alt="Estado del equipo barredora"
             className="w-full select-none"
             draggable={false}
