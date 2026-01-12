@@ -37,13 +37,13 @@ const secciones = [
     id: "secB",
     titulo: "B) SISTEMA HIDRÁULICO (AGUA)",
     items: [
-      { codigo: "B.1", texto: "Filtros malla 2\" y 3\"" },
+      { codigo: "B.1", texto: 'Filtros malla 2" y 3"' },
       { codigo: "B.2", texto: "Empaques tapa filtros" },
       { codigo: "B.3", texto: "Fugas de agua (mangueras / acoples)" },
       { codigo: "B.4", texto: "Válvula alivio pistola" },
       { codigo: "B.5", texto: "Golpes / fugas tanque aluminio" },
       { codigo: "B.6", texto: "Medidor de nivel tanque" },
-      { codigo: "B.7", texto: "Tapón expansión 2\"" },
+      { codigo: "B.7", texto: 'Tapón expansión 2"' },
       { codigo: "B.8", texto: "Drenaje bomba Rodder" },
       { codigo: "B.9", texto: "Válvulas check bomba" },
       { codigo: "B.10", texto: "Manómetros de presión" },
@@ -52,9 +52,9 @@ const secciones = [
       { codigo: "B.13", texto: "Codo giratorio" },
       { codigo: "B.14", texto: "Sistema de trinquete" },
       { codigo: "B.15", texto: "Válvula alivio bomba" },
-      { codigo: "B.16", texto: "Válvulas 1\"" },
-      { codigo: "B.17", texto: "Válvulas 3/4\"" },
-      { codigo: "B.18", texto: "Válvulas 1/2\"" },
+      { codigo: "B.16", texto: 'Válvulas 1"' },
+      { codigo: "B.17", texto: 'Válvulas 3/4"' },
+      { codigo: "B.18", texto: 'Válvulas 1/2"' },
       { codigo: "B.19", texto: "Boquillas" },
     ],
   },
@@ -140,29 +140,6 @@ export default function HojaInspeccionHidro() {
     }));
   };
 
-  const handleImageClick = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-    setFormData((p) => ({
-      ...p,
-      estadoEquipoPuntos: [
-        ...p.estadoEquipoPuntos,
-        { id: p.estadoEquipoPuntos.length + 1, x, y },
-      ],
-    }));
-  };
-
-  const handleRemovePoint = (id) => {
-    setFormData((p) => ({
-      ...p,
-      estadoEquipoPuntos: p.estadoEquipoPuntos
-        .filter((pt) => pt.id !== id)
-        .map((pt, i) => ({ ...pt, id: i + 1 })),
-    }));
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -178,10 +155,117 @@ export default function HojaInspeccionHidro() {
     navigate("/inspeccion");
   };
 
-  /* ======== JSX: NO SE TOCÓ NADA ======== */
-
   return (
-  <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
-    ...
-  </form>
-);
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
+    >
+      <h1 className="font-bold text-lg text-center">
+        HOJA DE INSPECCIÓN HIDROSUCCIONADOR
+      </h1>
+
+      {secciones.map((sec) => (
+        <section key={sec.id} className="border rounded p-4">
+          <h2 className="font-semibold mb-2">{sec.titulo}</h2>
+          <table className="w-full text-xs border">
+            <thead className="bg-gray-100">
+              <tr>
+                <th>Ítem</th>
+                <th>Detalle</th>
+                <th>Sí</th>
+                <th>No</th>
+                <th>Observación</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sec.items.map((item) => (
+                <tr key={item.codigo}>
+                  <td>{item.codigo}</td>
+                  <td>{item.texto}</td>
+                  <td>
+                    <input
+                      type="radio"
+                      onChange={() =>
+                        handleItemChange(item.codigo, "estado", "SI")
+                      }
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="radio"
+                      onChange={() =>
+                        handleItemChange(item.codigo, "estado", "NO")
+                      }
+                    />
+                  </td>
+                  <td>
+                    <input
+                      className="w-full border px-1"
+                      onChange={(e) =>
+                        handleItemChange(
+                          item.codigo,
+                          "observacion",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      ))}
+
+      <section className="border rounded p-4">
+        <div className="grid md:grid-cols-2 gap-6 text-center">
+          <div>
+            <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
+            <SignatureCanvas
+              ref={firmaTecnicoRef}
+              canvasProps={{ className: "border w-full h-32" }}
+            />
+            <button
+              type="button"
+              onClick={() => firmaTecnicoRef.current.clear()}
+              className="text-xs mt-1 border px-2 py-1 rounded"
+            >
+              Borrar firma
+            </button>
+          </div>
+
+          <div>
+            <p className="font-semibold mb-1">FIRMA CLIENTE</p>
+            <SignatureCanvas
+              ref={firmaClienteRef}
+              canvasProps={{ className: "border w-full h-32" }}
+            />
+            <button
+              type="button"
+              onClick={() => firmaClienteRef.current.clear()}
+              className="text-xs mt-1 border px-2 py-1 rounded"
+            >
+              Borrar firma
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <div className="flex justify-end gap-4">
+        <button
+          type="button"
+          onClick={() => navigate("/inspeccion")}
+          className="border px-4 py-2 rounded"
+        >
+          Volver
+        </button>
+        <button
+          type="submit"
+          className="bg-green-600 text-white px-4 py-2 rounded"
+        >
+          Guardar y completar
+        </button>
+      </div>
+    </form>
+  );
+}
