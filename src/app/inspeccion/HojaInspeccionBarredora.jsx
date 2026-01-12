@@ -4,54 +4,73 @@ import SignatureCanvas from "react-signature-canvas";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
 
 /* =============================
-   SECCIONES – BARREDORA
+   SECCIONES – BARREDORA (OFICIAL)
 ============================= */
 const secciones = [
   {
-    id: "sec1",
-    titulo:
-      "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
+    id: "A",
+    titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
     items: [
-      { codigo: "1.1", texto: "Prueba de encendido general del equipo" },
-      { codigo: "1.2", texto: "Verificación de funcionamiento de controles principales" },
-      { codigo: "1.3", texto: "Revisión de alarmas o mensajes de fallo" },
+      ["A.1", "Fugas de aceite hidráulico (mangueras, acoples, bancos, cilindros y solenoides)"],
+      ["A.2", "Nivel de aceite del tanque AW68, ¿se visualiza la mirilla?"],
+      ["A.3", "Fugas de aceite en motores de cepillos"],
+      ["A.4", "Fugas de aceite en motor de banda"],
+      ["A.5", "Fugas de bombas hidráulicas"],
+      ["A.6", "Fugas en motor John Deere"],
     ],
   },
   {
-    id: "secA",
-    titulo: "2. SISTEMA HIDRÁULICO (ACEITES)",
+    id: "B",
+    titulo: "B) SISTEMA DE CONTROL DE POLVO (AGUA)",
     items: [
-      { codigo: "A.1", texto: "Fugas de aceite hidráulico" },
-      { codigo: "A.2", texto: "Nivel de aceite del tanque hidráulico" },
-      { codigo: "A.3", texto: "Estado de bombas hidráulicas" },
-      { codigo: "A.4", texto: "Estado de motores hidráulicos" },
+      ["B.1", "Inspección de fugas de agua (mangueras, acoples)"],
+      ["B.2", "Estado del filtro para agua"],
+      ["B.3", "Estado de válvulas check"],
+      ["B.4", "Estado de solenoides de apertura de agua"],
+      ["B.5", "Estado de la bomba eléctrica de agua"],
+      ["B.6", "Estado de los aspersores de cepillos"],
+      ["B.7", "Estado de la manguera de carga de agua hidrante"],
+      ["B.8", "Inspección del medidor de nivel del tanque"],
+      ["B.9", "Inspección del sistema de llenado de agua"],
     ],
   },
   {
-    id: "secB",
-    titulo: "3. SISTEMA DE CONTROL DE POLVO (AGUA)",
+    id: "C",
+    titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
     items: [
-      { codigo: "B.1", texto: "Fugas de agua (mangueras y acoples)" },
-      { codigo: "B.2", texto: "Estado de la bomba eléctrica de agua" },
-      { codigo: "B.3", texto: "Funcionamiento de aspersores" },
+      ["C.1", "Inspección visual de conectores de bancos de control"],
+      ["C.2", "Evaluar funcionamiento de elementos al encender el equipo"],
+      ["C.3", "Estado del tablero de control de cabina"],
+      ["C.4", "Inspección de batería"],
+      ["C.5", "Inspección de luces externas"],
+      ["C.6", "Diagnóstico y conexión con service tool (opcional)"],
+      ["C.7", "Inspección de limpia parabrisas"],
+      ["C.8", "Verificación de conexiones externas (GPS / radiocomunicación)"],
     ],
   },
   {
-    id: "secC",
-    titulo: "4. SISTEMA ELÉCTRICO Y ELECTRÓNICO",
+    id: "D",
+    titulo: "D) SISTEMA DE SUCCIÓN",
     items: [
-      { codigo: "C.1", texto: "Estado de tablero de control" },
-      { codigo: "C.2", texto: "Estado de luces y accesorios" },
-      { codigo: "C.3", texto: "Estado de batería" },
+      ["D.1", "Estado de la banda"],
+      ["D.2", "Estado de las cerdas de los cepillos"],
+      ["D.3", "Estado de la tolva"],
+      ["D.4", "Funcionamiento de la tolva"],
+      ["D.5", "Funcionamiento de la banda"],
+      ["D.6", "Estado de zapatas de arrastre cortas y largas"],
     ],
   },
   {
-    id: "secD",
-    titulo: "5. SISTEMA DE SUCCIÓN",
+    id: "E",
+    titulo: "E) MOTOR JOHN DEERE",
     items: [
-      { codigo: "D.1", texto: "Estado de la banda" },
-      { codigo: "D.2", texto: "Estado de cepillos" },
-      { codigo: "D.3", texto: "Estado de la tolva" },
+      ["E.1", "Estado de filtros de aire 1° y 2°"],
+      ["E.2", "Estado de filtro combustible trampa de agua"],
+      ["E.3", "Estado de filtro de combustible"],
+      ["E.4", "Estado de filtro de aceite"],
+      ["E.5", "Nivel de aceite de motor"],
+      ["E.6", "Estado y nivel del refrigerante"],
+      ["E.7", "Estado filtro de A/C cabina"],
     ],
   },
 ];
@@ -67,13 +86,32 @@ export default function HojaInspeccionBarredora() {
     referenciaContrato: "",
     descripcion: "",
     codInf: "",
-    fechaInspeccion: "",
-    ubicacion: "",
+
     cliente: "",
-    tecnicoAstap: "",
-    responsableCliente: "",
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
+
+    tecnicoResponsable: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
+    fechaServicio: "",
+
     estadoEquipoDetalle: "",
     estadoEquipoPuntos: [],
+
+    nota: "",
+    marca: "",
+    modelo: "",
+    serie: "",
+    anioModelo: "",
+    vin: "",
+    placa: "",
+    horasModulo: "",
+    horasChasis: "",
+    kilometraje: "",
+
     items: {},
   });
 
@@ -122,12 +160,8 @@ export default function HojaInspeccionBarredora() {
     e.preventDefault();
 
     const firmas = {
-      tecnico: firmaTecnicoRef.current?.isEmpty()
-        ? ""
-        : firmaTecnicoRef.current.toDataURL(),
-      cliente: firmaClienteRef.current?.isEmpty()
-        ? ""
-        : firmaClienteRef.current.toDataURL(),
+      tecnico: firmaTecnicoRef.current?.toDataURL() || "",
+      cliente: firmaClienteRef.current?.toDataURL() || "",
     };
 
     markInspectionCompleted("barredora", id, {
@@ -139,12 +173,10 @@ export default function HojaInspeccionBarredora() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
-    >
+    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
+
       {/* ENCABEZADO */}
-      <section className="border rounded-lg overflow-hidden">
+      <section className="border rounded overflow-hidden">
         <table className="w-full text-xs border-collapse">
           <tbody>
             <tr className="border-b">
@@ -168,11 +200,7 @@ export default function HojaInspeccionBarredora() {
               <tr key={name} className="border-b">
                 <td className="border-r p-2 font-semibold">{label}</td>
                 <td colSpan={2} className="p-2">
-                  <input
-                    name={name}
-                    onChange={handleChange}
-                    className="w-full border rounded p-1"
-                  />
+                  <input name={name} onChange={handleChange} className="w-full border p-1" />
                 </td>
               </tr>
             ))}
@@ -180,18 +208,17 @@ export default function HojaInspeccionBarredora() {
         </table>
       </section>
 
-      {/* DATOS */}
+      {/* DATOS DEL SERVICIO */}
       <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
-        <input type="date" name="fechaInspeccion" onChange={handleChange} className="input" />
-        <input name="ubicacion" placeholder="Ubicación" onChange={handleChange} className="input" />
         <input name="cliente" placeholder="Cliente" onChange={handleChange} className="input" />
-        <input name="tecnicoAstap" placeholder="Técnico ASTAP" onChange={handleChange} className="input" />
-        <input
-          name="responsableCliente"
-          placeholder="Responsable cliente"
-          onChange={handleChange}
-          className="input md:col-span-2"
-        />
+        <input name="direccion" placeholder="Dirección" onChange={handleChange} className="input" />
+        <input name="contacto" placeholder="Contacto" onChange={handleChange} className="input" />
+        <input name="telefono" placeholder="Teléfono" onChange={handleChange} className="input" />
+        <input name="correo" placeholder="Correo" onChange={handleChange} className="input" />
+        <input name="tecnicoResponsable" placeholder="Técnico responsable" onChange={handleChange} className="input" />
+        <input name="telefonoTecnico" placeholder="Teléfono técnico" onChange={handleChange} className="input" />
+        <input name="correoTecnico" placeholder="Correo técnico" onChange={handleChange} className="input" />
+        <input type="date" name="fechaServicio" onChange={handleChange} className="input md:col-span-2" />
       </section>
 
       {/* ESTADO DEL EQUIPO */}
@@ -212,9 +239,9 @@ export default function HojaInspeccionBarredora() {
         </div>
         <textarea
           name="estadoEquipoDetalle"
-          placeholder="Observaciones"
+          placeholder="Observaciones del estado del equipo"
           onChange={handleChange}
-          className="w-full border rounded p-2 min-h-[80px]"
+          className="w-full border p-2 min-h-[80px]"
         />
       </section>
 
@@ -233,28 +260,16 @@ export default function HojaInspeccionBarredora() {
               </tr>
             </thead>
             <tbody>
-              {sec.items.map((item) => (
-                <tr key={item.codigo}>
-                  <td>{item.codigo}</td>
-                  <td>{item.texto}</td>
-                  <td>
-                    <input
-                      type="radio"
-                      onChange={() => handleItemChange(item.codigo, "estado", "SI")}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="radio"
-                      onChange={() => handleItemChange(item.codigo, "estado", "NO")}
-                    />
-                  </td>
+              {sec.items.map(([codigo, texto]) => (
+                <tr key={codigo}>
+                  <td>{codigo}</td>
+                  <td>{texto}</td>
+                  <td><input type="radio" onChange={() => handleItemChange(codigo, "estado", "SI")} /></td>
+                  <td><input type="radio" onChange={() => handleItemChange(codigo, "estado", "NO")} /></td>
                   <td>
                     <input
                       className="w-full border px-1"
-                      onChange={(e) =>
-                        handleItemChange(item.codigo, "observacion", e.target.value)
-                      }
+                      onChange={(e) => handleItemChange(codigo, "observacion", e.target.value)}
                     />
                   </td>
                 </tr>
@@ -264,23 +279,40 @@ export default function HojaInspeccionBarredora() {
         </section>
       ))}
 
+      {/* DATOS DEL EQUIPO */}
+      <section className="border rounded p-4">
+        <h2 className="font-semibold text-center mb-2">DATOS DEL EQUIPO</h2>
+        <div className="grid grid-cols-4 gap-2 text-xs">
+          {[
+            ["NOTA", "nota"],
+            ["MARCA", "marca"],
+            ["MODELO", "modelo"],
+            ["N° SERIE", "serie"],
+            ["AÑO MODELO", "anioModelo"],
+            ["VIN / CHASIS", "vin"],
+            ["PLACA", "placa"],
+            ["HORAS MÓDULO", "horasModulo"],
+            ["HORAS CHASIS", "horasChasis"],
+            ["KILOMETRAJE", "kilometraje"],
+          ].map(([label, name]) => (
+            <div key={name} className="contents">
+              <label className="font-semibold">{label}</label>
+              <input name={name} onChange={handleChange} className="col-span-3 border p-1" />
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* FIRMAS */}
       <section className="border rounded p-4">
         <div className="grid md:grid-cols-2 gap-6 text-center">
           <div>
             <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
-            <SignatureCanvas
-              ref={firmaTecnicoRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
+            <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
           </div>
-
           <div>
             <p className="font-semibold mb-1">FIRMA CLIENTE</p>
-            <SignatureCanvas
-              ref={firmaClienteRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
+            <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
           </div>
         </div>
       </section>
