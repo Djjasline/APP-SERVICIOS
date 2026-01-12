@@ -138,7 +138,7 @@ export default function HojaInspeccionBarredora() {
                 className="w-32 border-r p-3 text-center align-middle"
               >
                 <img
-                  src="/logotipo de astap.jpg"
+                  src="/astap-logo.jpg"
                   alt="ASTAP"
                   className="mx-auto max-h-20"
                 />
@@ -216,7 +216,7 @@ export default function HojaInspeccionBarredora() {
           className="relative border rounded overflow-hidden cursor-crosshair"
           onClick={handleImageClick}
         >
-          <img src="/estado-equipo-barredora.png" className="w-full" draggable={false} />
+          <img src="/estado equipo barredora.png" className="w-full" draggable={false} />
           {formData.estadoEquipoPuntos.map((pt) => (
             <div
               key={pt.id}
