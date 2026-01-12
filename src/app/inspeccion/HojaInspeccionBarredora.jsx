@@ -167,8 +167,7 @@ export default function HojaInspeccionBarredora() {
   };
 
   return (
-    <>
-      {/* TU JSX NO SE TOCÓ */}
-    </>
-  );
-}
+  <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
+    ...
+  </form>
+);
