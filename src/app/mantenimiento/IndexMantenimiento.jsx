@@ -6,10 +6,23 @@ export default function IndexMantenimiento() {
   return (
     <div className="min-h-screen bg-slate-50 px-6 py-8">
       <div className="max-w-4xl mx-auto space-y-6">
-        <h1 className="text-2xl font-bold text-slate-900">
-          Servicio de mantenimiento
-        </h1>
 
+        {/* ENCABEZADO */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-slate-900">
+            Servicio de mantenimiento
+          </h1>
+
+          {/* BOTÓN VOLVER */}
+          <button
+            onClick={() => navigate("/")}
+            className="border px-4 py-2 rounded hover:bg-gray-100 text-sm"
+          >
+            Volver
+          </button>
+        </div>
+
+        {/* TARJETAS */}
         <div className="grid md:grid-cols-2 gap-6">
           <div className="bg-white border rounded-xl p-6 space-y-4">
             <h2 className="font-semibold">Mantenimiento Hidrosuccionador</h2>
