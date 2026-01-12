@@ -348,33 +348,47 @@ export default function HojaInspeccionHidro() {
         </div>
       </section>
 
-      {/* FIRMAS (SOLO 2) */}
+      {/* FIRMAS */}
       <section className="border rounded p-4">
-        <div className="grid grid-cols-2 gap-4 text-xs text-center">
-          <div className="border h-32 flex flex-col justify-between p-2">
-            <div className="font-semibold">FIRMA TÉCNICO</div>
-            <div className="border-t pt-1">ASTAP Cía. Ltda.</div>
+        <div className="grid md:grid-cols-2 gap-6 text-center">
+          <div>
+            <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
+            <SignatureCanvas
+              ref={firmaTecnicoRef}
+              canvasProps={{ className: "border w-full h-32" }}
+            />
+            <button
+              type="button"
+              onClick={() => firmaTecnicoRef.current.clear()}
+              className="text-xs mt-1 border px-2 py-1 rounded"
+            >
+              Borrar firma
+            </button>
           </div>
-          <div className="border h-32 flex flex-col justify-between p-2">
-            <div className="font-semibold">FIRMA CLIENTE</div>
-            <div className="border-t pt-1">&nbsp;</div>
+
+          <div>
+            <p className="font-semibold mb-1">FIRMA CLIENTE</p>
+            <SignatureCanvas
+              ref={firmaClienteRef}
+              canvasProps={{ className: "border w-full h-32" }}
+            />
+            <button
+              type="button"
+              onClick={() => firmaClienteRef.current.clear()}
+              className="text-xs mt-1 border px-2 py-1 rounded"
+            >
+              Borrar firma
+            </button>
           </div>
         </div>
       </section>
 
       {/* BOTONES */}
       <div className="flex justify-end gap-4">
-        <button
-          type="button"
-          onClick={() => navigate("/inspeccion")}
-          className="border px-4 py-2 rounded"
-        >
+        <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
           Volver
         </button>
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
           Guardar y completar
         </button>
       </div>
