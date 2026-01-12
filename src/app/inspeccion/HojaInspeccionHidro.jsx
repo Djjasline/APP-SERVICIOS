@@ -4,7 +4,7 @@ import SignatureCanvas from "react-signature-canvas";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
 
 /* =============================
-   SECCIONES DE INSPECCIÓN
+   SECCIONES – HIDROSUCCIONADOR
 ============================= */
 const secciones = [
   {
@@ -19,70 +19,12 @@ const secciones = [
   },
   {
     id: "secA",
-    titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
+    titulo: "2. EVALUACIÓN DEL ESTADO DE LOS SISTEMAS",
     items: [
-      { codigo: "A.1", texto: "Fugas de aceite hidráulico" },
-      { codigo: "A.2", texto: "Nivel de aceite del soplador" },
-      { codigo: "A.3", texto: "Nivel de aceite hidráulico" },
-      { codigo: "A.4", texto: "Aceite caja de transferencia" },
-      { codigo: "A.5", texto: "Manómetro filtro hidráulico" },
-      { codigo: "A.6", texto: "Filtro hidráulico de retorno" },
-      { codigo: "A.7", texto: "Filtros de succión tanque hidráulico" },
-      { codigo: "A.8", texto: "Cilindros hidráulicos" },
-      { codigo: "A.9", texto: "Tapones de drenaje" },
-      { codigo: "A.10", texto: "Bancos hidráulicos" },
-    ],
-  },
-  {
-    id: "secB",
-    titulo: "B) SISTEMA HIDRÁULICO (AGUA)",
-    items: [
-      { codigo: "B.1", texto: 'Filtros malla 2" y 3"' },
-      { codigo: "B.2", texto: "Empaques tapa filtros" },
-      { codigo: "B.3", texto: "Fugas de agua (mangueras / acoples)" },
-      { codigo: "B.4", texto: "Válvula alivio pistola" },
-      { codigo: "B.5", texto: "Golpes / fugas tanque aluminio" },
-      { codigo: "B.6", texto: "Medidor de nivel tanque" },
-      { codigo: "B.7", texto: 'Tapón expansión 2"' },
-      { codigo: "B.8", texto: "Drenaje bomba Rodder" },
-      { codigo: "B.9", texto: "Válvulas check bomba" },
-      { codigo: "B.10", texto: "Manómetros de presión" },
-      { codigo: "B.11", texto: "Carrete de manguera" },
-      { codigo: "B.12", texto: "Soporte del carrete" },
-      { codigo: "B.13", texto: "Codo giratorio" },
-      { codigo: "B.14", texto: "Sistema de trinquete" },
-      { codigo: "B.15", texto: "Válvula alivio bomba" },
-      { codigo: "B.16", texto: 'Válvulas 1"' },
-      { codigo: "B.17", texto: 'Válvulas 3/4"' },
-      { codigo: "B.18", texto: 'Válvulas 1/2"' },
-      { codigo: "B.19", texto: "Boquillas" },
-    ],
-  },
-  {
-    id: "secC",
-    titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
-    items: [
-      { codigo: "C.1", texto: "Tablero frontal" },
-      { codigo: "C.2", texto: "Tablero cabina" },
-      { codigo: "C.3", texto: "Control remoto" },
-      { codigo: "C.4", texto: "Electroválvulas" },
-      { codigo: "C.5", texto: "Humedad en componentes" },
-      { codigo: "C.6", texto: "Luces y accesorios" },
-    ],
-  },
-  {
-    id: "secD",
-    titulo: "D) SISTEMA DE SUCCIÓN",
-    items: [
-      { codigo: "D.1", texto: "Sellos tanque" },
-      { codigo: "D.2", texto: "Interior tanque desechos" },
-      { codigo: "D.3", texto: "Microfiltros succión" },
-      { codigo: "D.4", texto: "Tapón drenaje filtro" },
-      { codigo: "D.5", texto: "Mangueras succión" },
-      { codigo: "D.6", texto: "Seguros compuerta" },
-      { codigo: "D.7", texto: "Sistema desfogüe" },
-      { codigo: "D.8", texto: "Válvulas alivio Kunkle" },
-      { codigo: "D.9", texto: "Operación del soplador" },
+      { codigo: "A.1", texto: "Sistema hidráulico (aceites)" },
+      { codigo: "A.2", texto: "Sistema hidráulico (agua)" },
+      { codigo: "A.3", texto: "Sistema eléctrico y electrónico" },
+      { codigo: "A.4", texto: "Sistema de succión" },
     ],
   },
 ];
@@ -101,24 +43,10 @@ export default function HojaInspeccionHidro() {
     fechaInspeccion: "",
     ubicacion: "",
     cliente: "",
-    contactoCliente: "",
-    telefonoCliente: "",
-    correoCliente: "",
-    tecnicoResponsable: "",
-    telefonoTecnico: "",
-    correoTecnico: "",
+    tecnicoAstap: "",
+    responsableCliente: "",
     estadoEquipoDetalle: "",
     estadoEquipoPuntos: [],
-    notaEquipo: "",
-    marca: "",
-    modelo: "",
-    serie: "",
-    anioModelo: "",
-    vin: "",
-    placa: "",
-    horasModulo: "",
-    horasChasis: "",
-    kilometraje: "",
     items: {},
   });
 
@@ -140,16 +68,44 @@ export default function HojaInspeccionHidro() {
     }));
   };
 
+  const handleImageClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: [
+        ...p.estadoEquipoPuntos,
+        { id: p.estadoEquipoPuntos.length + 1, x, y },
+      ],
+    }));
+  };
+
+  const handleRemovePoint = (id) => {
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: p.estadoEquipoPuntos
+        .filter((pt) => pt.id !== id)
+        .map((pt, i) => ({ ...pt, id: i + 1 })),
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const firmaTecnico = firmaTecnicoRef.current?.toDataURL();
-    const firmaCliente = firmaClienteRef.current?.toDataURL();
+    const firmas = {
+      tecnico: firmaTecnicoRef.current?.isEmpty()
+        ? ""
+        : firmaTecnicoRef.current.toDataURL(),
+      cliente: firmaClienteRef.current?.isEmpty()
+        ? ""
+        : firmaClienteRef.current.toDataURL(),
+    };
 
     markInspectionCompleted("hidro", id, {
       ...formData,
-      firmaTecnico,
-      firmaCliente,
+      firmas,
     });
 
     navigate("/inspeccion");
@@ -160,10 +116,82 @@ export default function HojaInspeccionHidro() {
       onSubmit={handleSubmit}
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
-      <h1 className="font-bold text-lg text-center">
-        HOJA DE INSPECCIÓN HIDROSUCCIONADOR
-      </h1>
+      {/* ENCABEZADO */}
+      <section className="border rounded-lg overflow-hidden">
+        <table className="w-full text-xs border-collapse">
+          <tbody>
+            <tr className="border-b">
+              <td rowSpan={4} className="w-32 border-r p-3 text-center">
+                <img src="/astap-logo.jpg" className="mx-auto max-h-20" />
+              </td>
+              <td colSpan={2} className="border-r text-center font-bold">
+                HOJA DE INSPECCIÓN HIDROSUCCIONADOR
+              </td>
+              <td className="p-2">
+                <div>Fecha versión: <strong>01-01-26</strong></div>
+                <div>Versión: <strong>01</strong></div>
+              </td>
+            </tr>
 
+            {[
+              ["REFERENCIA DE CONTRATO", "referenciaContrato"],
+              ["DESCRIPCIÓN", "descripcion"],
+              ["COD. INF.", "codInf"],
+            ].map(([label, name]) => (
+              <tr key={name} className="border-b">
+                <td className="border-r p-2 font-semibold">{label}</td>
+                <td colSpan={2} className="p-2">
+                  <input
+                    name={name}
+                    onChange={handleChange}
+                    className="w-full border rounded p-1"
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* DATOS */}
+      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
+        <input type="date" name="fechaInspeccion" onChange={handleChange} className="input" />
+        <input name="ubicacion" placeholder="Ubicación" onChange={handleChange} className="input" />
+        <input name="cliente" placeholder="Cliente" onChange={handleChange} className="input" />
+        <input name="tecnicoAstap" placeholder="Técnico ASTAP" onChange={handleChange} className="input" />
+        <input
+          name="responsableCliente"
+          placeholder="Responsable cliente"
+          onChange={handleChange}
+          className="input md:col-span-2"
+        />
+      </section>
+
+      {/* ESTADO DEL EQUIPO */}
+      <section className="border rounded p-4 space-y-2">
+        <p className="font-semibold">Estado del equipo</p>
+        <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
+          <img src="/estado-equipo.png" className="w-full" draggable={false} />
+          {formData.estadoEquipoPuntos.map((pt) => (
+            <div
+              key={pt.id}
+              onDoubleClick={() => handleRemovePoint(pt.id)}
+              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
+              style={{ left: `${pt.x}%`, top: `${pt.y}%`, transform: "translate(-50%, -50%)" }}
+            >
+              {pt.id}
+            </div>
+          ))}
+        </div>
+        <textarea
+          name="estadoEquipoDetalle"
+          placeholder="Observaciones"
+          onChange={handleChange}
+          className="w-full border rounded p-2 min-h-[80px]"
+        />
+      </section>
+
+      {/* TABLAS */}
       {secciones.map((sec) => (
         <section key={sec.id} className="border rounded p-4">
           <h2 className="font-semibold mb-2">{sec.titulo}</h2>
@@ -172,8 +200,8 @@ export default function HojaInspeccionHidro() {
               <tr>
                 <th>Ítem</th>
                 <th>Detalle</th>
-                <th>Sí</th>
-                <th>No</th>
+                <th>SI</th>
+                <th>NO</th>
                 <th>Observación</th>
               </tr>
             </thead>
@@ -183,30 +211,16 @@ export default function HojaInspeccionHidro() {
                   <td>{item.codigo}</td>
                   <td>{item.texto}</td>
                   <td>
-                    <input
-                      type="radio"
-                      onChange={() =>
-                        handleItemChange(item.codigo, "estado", "SI")
-                      }
-                    />
+                    <input type="radio" onChange={() => handleItemChange(item.codigo, "estado", "SI")} />
                   </td>
                   <td>
-                    <input
-                      type="radio"
-                      onChange={() =>
-                        handleItemChange(item.codigo, "estado", "NO")
-                      }
-                    />
+                    <input type="radio" onChange={() => handleItemChange(item.codigo, "estado", "NO")} />
                   </td>
                   <td>
                     <input
                       className="w-full border px-1"
                       onChange={(e) =>
-                        handleItemChange(
-                          item.codigo,
-                          "observacion",
-                          e.target.value
-                        )
+                        handleItemChange(item.codigo, "observacion", e.target.value)
                       }
                     />
                   </td>
@@ -217,52 +231,25 @@ export default function HojaInspeccionHidro() {
         </section>
       ))}
 
+      {/* FIRMAS */}
       <section className="border rounded p-4">
         <div className="grid md:grid-cols-2 gap-6 text-center">
           <div>
             <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
-            <SignatureCanvas
-              ref={firmaTecnicoRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
-            <button
-              type="button"
-              onClick={() => firmaTecnicoRef.current.clear()}
-              className="text-xs mt-1 border px-2 py-1 rounded"
-            >
-              Borrar firma
-            </button>
+            <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
           </div>
-
           <div>
             <p className="font-semibold mb-1">FIRMA CLIENTE</p>
-            <SignatureCanvas
-              ref={firmaClienteRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
-            <button
-              type="button"
-              onClick={() => firmaClienteRef.current.clear()}
-              className="text-xs mt-1 border px-2 py-1 rounded"
-            >
-              Borrar firma
-            </button>
+            <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
           </div>
         </div>
       </section>
 
       <div className="flex justify-end gap-4">
-        <button
-          type="button"
-          onClick={() => navigate("/inspeccion")}
-          className="border px-4 py-2 rounded"
-        >
+        <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
           Volver
         </button>
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
           Guardar y completar
         </button>
       </div>
