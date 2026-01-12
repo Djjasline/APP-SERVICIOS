@@ -160,7 +160,7 @@ export default function HojaInspeccionBarredora() {
                 HOJA DE INSPECCIÓN BARREDORA
               </td>
               <td className="border p-1">
-                Fecha de versión: 25-11-2025<br />Versión: 01
+                Fecha de versión: 01-01-2026<br />Versión: 01
               </td>
             </tr>
             {[
