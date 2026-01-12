@@ -189,7 +189,7 @@ export default function HojaInspeccionCamara() {
       <section className="border rounded p-4 space-y-2">
         <p className="font-semibold">Estado del equipo</p>
         <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
-          <img src="/estado-equipo-camara.png" className="w-full" draggable={false} />
+          <img src="/estado equipo camara.png" className="w-full" draggable={false} />
           {formData.estadoEquipoPuntos.map((pt) => (
             <div
               key={pt.id}
