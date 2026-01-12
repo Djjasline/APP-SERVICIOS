@@ -3,83 +3,46 @@ import { useParams, useNavigate } from "react-router-dom";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
 
 /* =============================
-   SECCIONES – BARREDORA (PDF)
+   SECCIONES DE INSPECCIÓN BARREDORA
 ============================= */
 const secciones = [
   {
     id: "sec1",
     titulo:
-      "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
+      "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS",
     items: [
-      { codigo: "1.1", texto: "Prueba de encendido general del equipo" },
-      { codigo: "1.2", texto: "Verificación de funcionamiento de controles principales" },
-      { codigo: "1.3", texto: "Revisión de alarmas o mensajes de fallo" },
+      { codigo: "1.1", texto: "Encendido general del equipo" },
+      { codigo: "1.2", texto: "Funcionamiento de controles" },
+      { codigo: "1.3", texto: "Alarmas o mensajes de fallo" },
     ],
   },
   {
     id: "secA",
-    titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
+    titulo: "A) SISTEMA HIDRÁULICO",
     items: [
-      { codigo: "A.1", texto: "Fugas de aceite hidráulico (mangueras, acoples, bancos, cilindros y solenoides)" },
-      { codigo: "A.2", texto: "Nivel de aceite del tanque AW68, se visualiza la mirilla" },
-      { codigo: "A.3", texto: "Fugas de aceite en motores de cepillos" },
-      { codigo: "A.4", texto: "Fugas de aceite en motor de banda" },
-      { codigo: "A.5", texto: "Fugas de bombas hidráulicas" },
-      { codigo: "A.6", texto: "Fugas en motor John Deere" },
+      { codigo: "A.1", texto: "Fugas de aceite hidráulico" },
+      { codigo: "A.2", texto: "Nivel de aceite hidráulico" },
+      { codigo: "A.3", texto: "Estado de mangueras y acoples" },
+      { codigo: "A.4", texto: "Cilindros hidráulicos" },
     ],
   },
   {
     id: "secB",
-    titulo: "B) SISTEMA DE CONTROL DE POLVO (AGUA)",
+    titulo: "B) SISTEMA ELÉCTRICO",
     items: [
-      { codigo: "B.1", texto: "Inspección de fugas de agua (mangueras / acoples)" },
-      { codigo: "B.2", texto: "Estado del filtro para agua" },
-      { codigo: "B.3", texto: "Estado de válvulas checks" },
-      { codigo: "B.4", texto: "Estado de solenoides de apertura de agua" },
-      { codigo: "B.5", texto: "Estado de la bomba eléctrica de agua" },
-      { codigo: "B.6", texto: "Estado de aspersores de cepillos" },
-      { codigo: "B.7", texto: "Estado de la manguera de carga de agua" },
-      { codigo: "B.8", texto: "Estado del medidor de nivel del tanque" },
-      { codigo: "B.9", texto: "Inspección del sistema de llenado de agua" },
+      { codigo: "B.1", texto: "Tablero de control" },
+      { codigo: "B.2", texto: "Luces y accesorios" },
+      { codigo: "B.3", texto: "Cableado general" },
     ],
   },
   {
     id: "secC",
-    titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
+    titulo: "C) SISTEMA DE BARREDO",
     items: [
-      { codigo: "C.1", texto: "Inspección visual de conectores (sockets)" },
-      { codigo: "C.2", texto: "Evaluar funcionamiento al encender el equipo" },
-      { codigo: "C.3", texto: "Estado del tablero de control de cabina" },
-      { codigo: "C.4", texto: "Inspección de batería" },
-      { codigo: "C.5", texto: "Inspección de luces externas" },
-      { codigo: "C.6", texto: "Diagnóstico con Service Tool (opcional)" },
-      { codigo: "C.7", texto: "Inspección de limpia parabrisas" },
-      { codigo: "C.8", texto: "Verificación de conexiones externas (GPS / radio)" },
-    ],
-  },
-  {
-    id: "secD",
-    titulo: "D) SISTEMA DE SUCCIÓN",
-    items: [
-      { codigo: "D.1", texto: "Estado de la banda (aceptable)" },
-      { codigo: "D.2", texto: "Estado de cerdas de cepillos" },
-      { codigo: "D.3", texto: "Estado de la tolva" },
-      { codigo: "D.4", texto: "Funcionamiento de la tolva" },
-      { codigo: "D.5", texto: "Funcionamiento de la banda" },
-      { codigo: "D.6", texto: "Estado de zapatas de arrastre" },
-    ],
-  },
-  {
-    id: "secE",
-    titulo: "E) MOTOR JOHN DEERE",
-    items: [
-      { codigo: "E.1", texto: "Estado de filtros de aire 1° y 2°" },
-      { codigo: "E.2", texto: "Filtro de combustible / trampa de agua" },
-      { codigo: "E.3", texto: "Filtro de combustible" },
-      { codigo: "E.4", texto: "Filtro de aceite" },
-      { codigo: "E.5", texto: "Nivel de aceite de motor" },
-      { codigo: "E.6", texto: "Nivel y estado del refrigerante" },
-      { codigo: "E.7", texto: "Estado del filtro de A/C cabina" },
+      { codigo: "C.1", texto: "Cepillos principales" },
+      { codigo: "C.2", texto: "Cepillos laterales" },
+      { codigo: "C.3", texto: "Sistema de aspiración" },
+      { codigo: "C.4", texto: "Tolva de residuos" },
     ],
   },
 ];
@@ -95,141 +58,233 @@ export default function HojaInspeccionBarredora() {
     fechaInspeccion: "",
     ubicacion: "",
     cliente: "",
-    tecnicoAstap: "",
-    responsableCliente: "",
+    contactoCliente: "",
+    telefonoCliente: "",
+    correoCliente: "",
+    tecnicoResponsable: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
     estadoEquipoDetalle: "",
-    puntos: [],
+    estadoEquipoPuntos: [],
     marca: "",
     modelo: "",
     serie: "",
     anioModelo: "",
-    vin: "",
     placa: "",
-    horasModulo: "",
-    horasChasis: "",
-    recorrido: "",
+    horasEquipo: "",
+    kilometraje: "",
     items: {},
   });
 
-  const handleChange = (e) =>
-    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
 
   const handleItemChange = (codigo, campo, valor) => {
     setFormData((p) => ({
       ...p,
       items: {
         ...p.items,
-        [codigo]: { ...p.items[codigo], [campo]: valor },
+        [codigo]: {
+          ...p.items[codigo],
+          [campo]: valor,
+        },
       },
     }));
   };
 
   const handleImageClick = (e) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - r.left) / r.width) * 100;
-    const y = ((e.clientY - r.top) / r.height) * 100;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
     setFormData((p) => ({
       ...p,
-      puntos: [...p.puntos, { id: p.puntos.length + 1, x, y }],
+      estadoEquipoPuntos: [
+        ...p.estadoEquipoPuntos,
+        { id: p.estadoEquipoPuntos.length + 1, x, y },
+      ],
     }));
   };
 
-  const removePoint = (id) =>
+  const handleRemovePoint = (id) => {
     setFormData((p) => ({
       ...p,
-      puntos: p.puntos.filter((pt) => pt.id !== id).map((pt, i) => ({ ...pt, id: i + 1 })),
+      estadoEquipoPuntos: p.estadoEquipoPuntos
+        .filter((pt) => pt.id !== id)
+        .map((pt, i) => ({ ...pt, id: i + 1 })),
     }));
+  };
 
-  const submit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     markInspectionCompleted("barredora", id, formData);
     navigate("/inspeccion");
   };
 
   return (
-    <form onSubmit={submit} className="max-w-6xl mx-auto bg-white p-6 space-y-6 text-xs">
-      {/* ENCABEZADO */}
-      <section className="border">
-        <table className="w-full border-collapse">
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
+    >
+      {/* ENCABEZADO (IGUAL A HIDRO) */}
+      <section className="border rounded-lg overflow-hidden">
+        <table className="w-full text-xs border-collapse">
           <tbody>
-            <tr>
-              <td rowSpan={4} className="w-32 border p-2 text-center">
-                <img src="/astap-logo.jpg" className="mx-auto h-16" />
+            <tr className="border-b">
+              <td
+                rowSpan={4}
+                className="w-32 border-r p-3 text-center align-middle"
+              >
+                <img
+                  src="/logotipo de astap.jpg"
+                  alt="ASTAP"
+                  className="mx-auto max-h-20"
+                />
               </td>
-              <td colSpan={2} className="border text-center font-bold">
+              <td colSpan={2} className="border-r text-center font-bold py-2">
                 HOJA DE INSPECCIÓN BARREDORA
               </td>
-              <td className="border p-1">
-                Fecha de versión: 01-01-2026<br />Versión: 01
+              <td className="w-48 p-2 text-right">
+                <div>Fecha de versión: <strong>01-01-2026</strong></div>
+                <div>Versión: <strong>01</strong></div>
               </td>
             </tr>
-            {[
-              ["REFERENCIA DE CONTRATO", "referenciaContrato"],
-              ["DESCRIPCIÓN", "descripcion"],
-              ["COD. INF.", "codInf"],
-            ].map(([l, n]) => (
-              <tr key={n}>
-                <td className="border p-1 font-semibold">{l}</td>
-                <td colSpan={2} className="border p-1">
-                  <input name={n} onChange={handleChange} className="w-full border p-1" />
-                </td>
-              </tr>
-            ))}
+
+            <tr className="border-b">
+              <td className="w-56 border-r p-2 font-semibold">
+                REFERENCIA DE CONTRATO
+              </td>
+              <td colSpan={2} className="p-2">
+                <input
+                  name="referenciaContrato"
+                  onChange={handleChange}
+                  className="w-full border rounded p-1"
+                />
+              </td>
+            </tr>
+
+            <tr className="border-b">
+              <td className="border-r p-2 font-semibold">DESCRIPCIÓN</td>
+              <td colSpan={2} className="p-2">
+                <input
+                  name="descripcion"
+                  onChange={handleChange}
+                  className="w-full border rounded p-1"
+                />
+              </td>
+            </tr>
+
+            <tr>
+              <td className="border-r p-2 font-semibold">COD. INF.</td>
+              <td colSpan={2} className="p-2">
+                <input
+                  name="codInf"
+                  onChange={handleChange}
+                  className="w-full border rounded p-1"
+                />
+              </td>
+            </tr>
           </tbody>
         </table>
       </section>
 
-      {/* CONTEXTO */}
-      <section className="grid grid-cols-2 gap-2 border p-3">
-        <input type="date" name="fechaInspeccion" onChange={handleChange} className="input" />
-        <input name="ubicacion" placeholder="Ubicación" onChange={handleChange} className="input" />
-        <input name="cliente" placeholder="Cliente" onChange={handleChange} className="input" />
-        <input name="tecnicoAstap" placeholder="Técnico ASTAP" onChange={handleChange} className="input" />
-        <input name="responsableCliente" placeholder="Responsable cliente" onChange={handleChange} className="input col-span-2" />
+      {/* DATOS DEL SERVICIO (IGUAL A HIDRO) */}
+      <section className="border rounded-lg p-4">
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <input type="date" name="fechaInspeccion" onChange={handleChange} className="border rounded p-2" />
+          <input name="ubicacion" placeholder="Ubicación" onChange={handleChange} className="border rounded p-2" />
+
+          <input name="cliente" placeholder="Cliente" onChange={handleChange} className="border rounded p-2" />
+          <input name="contactoCliente" placeholder="Contacto con el cliente" onChange={handleChange} className="border rounded p-2" />
+
+          <input name="telefonoCliente" placeholder="Teléfono cliente" onChange={handleChange} className="border rounded p-2" />
+          <input name="correoCliente" placeholder="Correo cliente" onChange={handleChange} className="border rounded p-2" />
+
+          <input name="tecnicoResponsable" placeholder="Técnico responsable" onChange={handleChange} className="border rounded p-2" />
+          <input name="telefonoTecnico" placeholder="Teléfono técnico" onChange={handleChange} className="border rounded p-2" />
+
+          <input name="correoTecnico" placeholder="Correo técnico" onChange={handleChange} className="border rounded p-2 col-span-2" />
+        </div>
       </section>
 
       {/* ESTADO DEL EQUIPO */}
-      <section className="border p-3">
-        <p className="font-semibold mb-1">Estado del equipo</p>
-        <div className="relative border cursor-crosshair" onClick={handleImageClick}>
-          <img src="/estado equipo barredora.png" className="w-full" />
-          {formData.puntos.map((p) => (
+      <section className="border rounded p-4 space-y-2">
+        <p className="font-semibold">Estado del equipo</p>
+        <div
+          className="relative border rounded overflow-hidden cursor-crosshair"
+          onClick={handleImageClick}
+        >
+          <img src="/estado-equipo-barredora.png" className="w-full" draggable={false} />
+          {formData.estadoEquipoPuntos.map((pt) => (
             <div
-              key={p.id}
-              onDoubleClick={() => removePoint(p.id)}
-              className="absolute bg-red-600 text-white w-5 h-5 text-[10px] flex items-center justify-center rounded-full"
-              style={{ left: `${p.x}%`, top: `${p.y}%`, transform: "translate(-50%, -50%)" }}
+              key={pt.id}
+              onDoubleClick={(e) => {
+                e.stopPropagation();
+                handleRemovePoint(pt.id);
+              }}
+              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
+              style={{
+                left: `${pt.x}%`,
+                top: `${pt.y}%`,
+                transform: "translate(-50%, -50%)",
+              }}
             >
-              {p.id}
+              {pt.id}
             </div>
           ))}
         </div>
         <textarea
           name="estadoEquipoDetalle"
-          placeholder="Observaciones del estado del equipo"
+          placeholder="Detalle del estado del equipo"
           onChange={handleChange}
-          className="w-full border p-2 mt-2"
+          className="w-full border rounded p-2 min-h-[80px]"
         />
       </section>
 
-      {/* CHECKLIST */}
+      {/* CHECKLISTS */}
       {secciones.map((sec) => (
-        <section key={sec.id} className="border p-3">
-          <h3 className="font-semibold mb-1">{sec.titulo}</h3>
-          <table className="w-full border text-[10px]">
-            <thead>
-              <tr className="bg-gray-100">
-                <th>Ítem</th><th>Detalle</th><th>Sí</th><th>No</th><th>Obs.</th>
+        <section key={sec.id} className="border rounded p-4">
+          <h2 className="font-semibold mb-2">{sec.titulo}</h2>
+          <table className="w-full text-xs border">
+            <thead className="bg-gray-100">
+              <tr>
+                <th>Ítem</th>
+                <th>Detalle</th>
+                <th>Sí</th>
+                <th>No</th>
+                <th>Observación</th>
               </tr>
             </thead>
             <tbody>
-              {sec.items.map((i) => (
-                <tr key={i.codigo}>
-                  <td>{i.codigo}</td>
-                  <td>{i.texto}</td>
-                  <td><input type="radio" onChange={() => handleItemChange(i.codigo, "estado", "SI")} /></td>
-                  <td><input type="radio" onChange={() => handleItemChange(i.codigo, "estado", "NO")} /></td>
-                  <td><input className="w-full border" /></td>
+              {sec.items.map((item) => (
+                <tr key={item.codigo}>
+                  <td>{item.codigo}</td>
+                  <td>{item.texto}</td>
+                  <td>
+                    <input
+                      type="radio"
+                      checked={formData.items[item.codigo]?.estado === "SI"}
+                      onChange={() => handleItemChange(item.codigo, "estado", "SI")}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="radio"
+                      checked={formData.items[item.codigo]?.estado === "NO"}
+                      onChange={() => handleItemChange(item.codigo, "estado", "NO")}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      className="w-full border px-1"
+                      value={formData.items[item.codigo]?.observacion || ""}
+                      onChange={(e) =>
+                        handleItemChange(item.codigo, "observacion", e.target.value)
+                      }
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -238,9 +293,20 @@ export default function HojaInspeccionBarredora() {
       ))}
 
       {/* BOTONES */}
-      <div className="flex justify-end gap-3">
-        <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2">Volver</button>
-        <button type="submit" className="bg-green-600 text-white px-4 py-2">Guardar</button>
+      <div className="flex justify-end gap-4">
+        <button
+          type="button"
+          onClick={() => navigate("/inspeccion")}
+          className="border px-4 py-2 rounded"
+        >
+          Volver
+        </button>
+        <button
+          type="submit"
+          className="bg-green-600 text-white px-4 py-2 rounded"
+        >
+          Guardar y completar
+        </button>
       </div>
     </form>
   );
