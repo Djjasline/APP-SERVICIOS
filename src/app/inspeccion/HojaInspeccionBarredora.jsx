@@ -162,7 +162,7 @@ export default function HojaInspeccionBarredora() {
           <tbody>
             <tr className="border-b">
               <td rowSpan={4} className="w-32 border-r p-3 text-center">
-                <img src="/logotipo de astap.jpg" className="mx-auto max-h-20" />
+                <img src="/astap-logo.jpg" className="mx-auto max-h-20" />
               </td>
               <td colSpan={2} className="border-r text-center font-bold py-2">
                 HOJA DE INSPECCIÓN BARREDORA
@@ -211,7 +211,7 @@ export default function HojaInspeccionBarredora() {
       <section className="border rounded p-4 space-y-2">
         <p className="font-semibold">Estado del equipo</p>
         <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
-          <img src="/estado-equipo-barredora.png" className="w-full" draggable={false} />
+          <img src="/estado equipo barredora.png" className="w-full" draggable={false} />
           {formData.estadoEquipoPuntos.map((pt) => (
             <div
               key={pt.id}
