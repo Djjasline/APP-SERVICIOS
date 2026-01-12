@@ -181,8 +181,7 @@ export default function HojaInspeccionHidro() {
   /* ======== JSX: NO SE TOCÓ NADA ======== */
 
   return (
-    <>
-      {/* TODO tu JSX EXACTAMENTE igual */}
-    </>
-  );
-}
+  <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
+    ...
+  </form>
+);
