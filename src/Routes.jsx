@@ -3,11 +3,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PanelServicios from "./pages/PanelServicios";
 import NotFound from "./pages/NotFound";
 
-// Informe general (LEGACY)
-import ServiceReportCreation from "./pages/service-report-creation";
-import ServiceReportHistory from "./pages/service-report-history";
-import ServiceReportPreview from "./pages/service-report-preview";
-
 // Módulo informe (NUEVO)
 import InformeRoutes from "./app/informe/Routes";
 
