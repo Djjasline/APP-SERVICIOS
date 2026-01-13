@@ -90,7 +90,7 @@ export default function HojaInspeccionHidro() {
   });
 
   /* =============================
-     HANDLERS GENERALES
+     HANDLERS
   ============================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -122,24 +122,17 @@ export default function HojaInspeccionHidro() {
       ...p,
       estadoEquipoPuntos: [
         ...p.estadoEquipoPuntos,
-        {
-          id: p.estadoEquipoPuntos.length + 1,
-          x,
-          y,
-          nota: "",
-        },
+        { id: p.estadoEquipoPuntos.length + 1, x, y, nota: "" },
       ],
     }));
   };
 
   const handleRemovePoint = (id) => {
-    const nuevos = formData.estadoEquipoPuntos
-      .filter((pt) => pt.id !== id)
-      .map((pt, i) => ({ ...pt, id: i + 1 }));
-
     setFormData((p) => ({
       ...p,
-      estadoEquipoPuntos: nuevos,
+      estadoEquipoPuntos: p.estadoEquipoPuntos
+        .filter((pt) => pt.id !== id)
+        .map((pt, i) => ({ ...pt, id: i + 1 })),
     }));
   };
 
@@ -174,8 +167,43 @@ export default function HojaInspeccionHidro() {
       onSubmit={handleSubmit}
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
+      {/* ENCABEZADO */}
+      <section className="border rounded overflow-hidden">
+        <table className="w-full text-xs border-collapse">
+          <tbody>
+            <tr className="border-b">
+              <td rowSpan={4} className="w-32 border-r p-3 text-center">
+                <img src="/astap-logo.jpg" className="mx-auto max-h-20" />
+              </td>
+              <td colSpan={2} className="border-r text-center font-bold">
+                HOJA DE INSPECCIÓN HIDROSUCCIONADOR
+              </td>
+              <td className="p-2">
+                <div>Fecha versión: <strong>01-01-26</strong></div>
+                <div>Versión: <strong>01</strong></div>
+              </td>
+            </tr>
+            {[
+              ["REFERENCIA DE CONTRATO", "referenciaContrato"],
+              ["DESCRIPCIÓN", "descripcion"],
+              ["COD. INF.", "codInf"],
+            ].map(([label, name]) => (
+              <tr key={name} className="border-b">
+                <td className="border-r p-2 font-semibold">{label}</td>
+                <td colSpan={2} className="p-2">
+                  <input
+                    name={name}
+                    onChange={handleChange}
+                    className="w-full border p-1"
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
 
-      {/* ===== ESTADO DEL EQUIPO (CORREGIDO) ===== */}
+      {/* ESTADO DEL EQUIPO */}
       <section className="border rounded p-4 space-y-3">
         <p className="font-semibold">Estado del equipo</p>
 
@@ -202,24 +230,20 @@ export default function HojaInspeccionHidro() {
           ))}
         </div>
 
-        <div className="space-y-2">
-          {formData.estadoEquipoPuntos.map((pt) => (
-            <div key={pt.id} className="flex gap-2">
-              <span className="font-semibold">{pt.id})</span>
-              <input
-                className="flex-1 border p-1"
-                placeholder="Observación"
-                value={pt.nota}
-                onChange={(e) =>
-                  handleNotaChange(pt.id, e.target.value)
-                }
-              />
-            </div>
-          ))}
-        </div>
+        {formData.estadoEquipoPuntos.map((pt) => (
+          <div key={pt.id} className="flex gap-2">
+            <span className="font-semibold">{pt.id})</span>
+            <input
+              className="flex-1 border p-1"
+              placeholder="Observación"
+              value={pt.nota}
+              onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+            />
+          </div>
+        ))}
       </section>
 
-      {/* ===== FIRMAS ===== */}
+      {/* FIRMAS */}
       <section className="border rounded p-4">
         <div className="grid md:grid-cols-2 gap-6 text-center">
           <div>
@@ -239,7 +263,7 @@ export default function HojaInspeccionHidro() {
         </div>
       </section>
 
-      {/* ===== BOTONES ===== */}
+      {/* BOTONES */}
       <div className="flex justify-end gap-4">
         <button
           type="button"
