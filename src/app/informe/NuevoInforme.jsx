@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
 
-export default function ServiceReportCreation() {
+export default function NuevoInforme() {
   const navigate = useNavigate();
 
   /* ===========================
@@ -128,7 +128,7 @@ export default function ServiceReportCreation() {
     );
     localStorage.setItem("currentReport", JSON.stringify(report));
 
-    navigate("/service-report-history");
+    navigate("/informe");
   };
 
   return (
@@ -292,7 +292,7 @@ export default function ServiceReportCreation() {
         {/* ================= BOTONES ================= */}
         <div className="flex justify-between pt-6">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/informe")}
             className="border px-6 py-2 rounded"
           >
             Volver
@@ -302,7 +302,7 @@ export default function ServiceReportCreation() {
             onClick={saveReport}
             className="bg-blue-600 text-white px-6 py-2 rounded"
           >
-            Guardar / continuar
+            Guardar informe
           </button>
         </div>
 
