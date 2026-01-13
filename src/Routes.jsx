@@ -3,10 +3,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PanelServicios from "./pages/PanelServicios";
 import NotFound from "./pages/NotFound";
 
-// Informe general
+// Informe general (LEGACY)
 import ServiceReportCreation from "./pages/service-report-creation";
 import ServiceReportHistory from "./pages/service-report-history";
 import ServiceReportPreview from "./pages/service-report-preview";
+
+// Módulo informe (NUEVO)
+import InformeRoutes from "./app/informe/Routes";
 
 // Módulo inspección
 import InspectionRoutes from "./app/inspeccion/Routes";
@@ -21,7 +24,10 @@ export default function AppRoutes() {
         {/* MENÚ PRINCIPAL */}
         <Route path="/" element={<PanelServicios />} />
 
-        {/* INFORME GENERAL */}
+        {/* INFORME GENERAL (NUEVO) */}
+        <Route path="/informe/*" element={<InformeRoutes />} />
+
+        {/* INFORME GENERAL (LEGACY – NO TOCAR AÚN) */}
         <Route
           path="/service-report-creation/:id?"
           element={<ServiceReportCreation />}
