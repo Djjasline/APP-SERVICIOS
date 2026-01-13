@@ -97,6 +97,7 @@ export default function HojaInspeccionHidro() {
     referenciaContrato: "",
     descripcion: "",
     codInf: "",
+
     cliente: "",
     direccion: "",
     contacto: "",
@@ -106,17 +107,8 @@ export default function HojaInspeccionHidro() {
     telefonoTecnico: "",
     correoTecnico: "",
     fechaServicio: "",
+
     estadoEquipoPuntos: [],
-    nota: "",
-    marca: "",
-    modelo: "",
-    serie: "",
-    anioModelo: "",
-    vin: "",
-    placa: "",
-    horasModulo: "",
-    horasChasis: "",
-    kilometraje: "",
     items: {},
   });
 
@@ -138,20 +130,32 @@ export default function HojaInspeccionHidro() {
     }));
   };
 
-  /* ===== AQUÍ EMPIEZA LO QUE FALTABA ===== */
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    markInspectionCompleted("hidro", id, {
+      ...formData,
+      firmas: {
+        tecnico: firmaTecnicoRef.current?.toDataURL() || "",
+        cliente: firmaClienteRef.current?.toDataURL() || "",
+      },
+    });
+
+    navigate("/inspeccion");
+  };
 
   return (
-    <form className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
+    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
 
       {/* 1. PRUEBAS PREVIAS */}
       <section className="border rounded p-4">
         <h2 className="font-semibold mb-2">
           1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO
         </h2>
-        <table className="w-full text-sm border">
+        <table className="w-full text-xs border">
           <thead className="bg-gray-100">
             <tr>
-              <th>Ítem</th>
+              <th>Artículo</th>
               <th>Detalle</th>
               <th>SI</th>
               <th>NO</th>
@@ -159,35 +163,28 @@ export default function HojaInspeccionHidro() {
             </tr>
           </thead>
           <tbody>
-            {pruebasPrevias.map(([codigo, texto]) => (
-              <tr key={codigo}>
-                <td>{codigo}</td>
-                <td>{texto}</td>
-                <td><input type="radio" onChange={() => handleItemChange(codigo, "estado", "SI")} /></td>
-                <td><input type="radio" onChange={() => handleItemChange(codigo, "estado", "NO")} /></td>
-                <td>
-                  <input
-                    className="w-full border px-1"
-                    onChange={(e) =>
-                      handleItemChange(codigo, "observacion", e.target.value)
-                    }
-                  />
-                </td>
+            {pruebasPrevias.map(([cod, txt]) => (
+              <tr key={cod}>
+                <td>{cod}</td>
+                <td>{txt}</td>
+                <td><input type="radio" /></td>
+                <td><input type="radio" /></td>
+                <td><input className="w-full border px-1" /></td>
               </tr>
             ))}
           </tbody>
         </table>
       </section>
 
-      {/* 2. EVALUACIÓN DE LOS SISTEMAS */}
-      <h2 className="font-semibold text-base">
+      {/* 2. EVALUACIÓN */}
+      <h2 className="font-semibold text-sm">
         2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS
       </h2>
 
       {secciones.map((sec) => (
         <section key={sec.id} className="border rounded p-4">
           <h3 className="font-semibold mb-2">{sec.titulo}</h3>
-          <table className="w-full text-sm border">
+          <table className="w-full text-xs border">
             <thead className="bg-gray-100">
               <tr>
                 <th>Ítem</th>
@@ -202,22 +199,35 @@ export default function HojaInspeccionHidro() {
                 <tr key={codigo}>
                   <td>{codigo}</td>
                   <td>{texto}</td>
-                  <td><input type="radio" onChange={() => handleItemChange(codigo, "estado", "SI")} /></td>
-                  <td><input type="radio" onChange={() => handleItemChange(codigo, "estado", "NO")} /></td>
-                  <td>
-                    <input
-                      className="w-full border px-1"
-                      onChange={(e) =>
-                        handleItemChange(codigo, "observacion", e.target.value)
-                      }
-                    />
-                  </td>
+                  <td><input type="radio" /></td>
+                  <td><input type="radio" /></td>
+                  <td><input className="w-full border px-1" /></td>
                 </tr>
               ))}
             </tbody>
           </table>
         </section>
       ))}
+
+      {/* FIRMAS */}
+      <section className="border rounded p-4">
+        <div className="grid md:grid-cols-2 gap-6 text-center">
+          <div>
+            <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
+            <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
+          </div>
+          <div>
+            <p className="font-semibold mb-1">FIRMA CLIENTE</p>
+            <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
+          </div>
+        </div>
+      </section>
+
+      <div className="flex justify-end gap-4">
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+          Guardar y completar
+        </button>
+      </div>
     </form>
   );
 }
