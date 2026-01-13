@@ -22,20 +22,6 @@ export default function AppRoutes() {
         {/* INFORME GENERAL (NUEVO) */}
         <Route path="/informe/*" element={<InformeRoutes />} />
 
-        {/* INFORME GENERAL (LEGACY – NO TOCAR AÚN) */}
-        <Route
-          path="/service-report-creation/:id?"
-          element={<ServiceReportCreation />}
-        />
-        <Route
-          path="/service-report-history"
-          element={<ServiceReportHistory />}
-        />
-        <Route
-          path="/service-report-preview"
-          element={<ServiceReportPreview />}
-        />
-
         {/* INSPECCIONES */}
         <Route path="/inspeccion/*" element={<InspectionRoutes />} />
 
