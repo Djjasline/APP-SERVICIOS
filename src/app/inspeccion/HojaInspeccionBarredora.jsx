@@ -3,10 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
 
-<h2 className="font-semibold text-sm px-2">
-  2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS
-</h2>
-
 /* =============================
    SECCIONES – BARREDORA
 ============================= */
@@ -335,6 +331,10 @@ export default function HojaInspeccionBarredora() {
     </tbody>
   </table>
 </section>
+      <h2 className="font-semibold text-sm px-2">
+  2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS
+</h2>
+
 
       {/* ================= TABLAS ================= */}
       {secciones.map((sec) => (
