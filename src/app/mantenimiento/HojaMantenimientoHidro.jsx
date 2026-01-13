@@ -9,8 +9,7 @@ import { markInspectionCompleted } from "@utils/inspectionStorage";
 const secciones = [
   {
     id: "1",
-    titulo:
-      "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
+    titulo: "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
     tipo: "simple",
     items: [
       ["1.1", "Prueba de encendido general del equipo"],
@@ -20,21 +19,20 @@ const secciones = [
   },
   {
     id: "2",
-    titulo:
-      "2. RECAMBIO DE ELEMENTOS DE LOS SISTEMAS DEL MÓDULO HIDROSUCCIONADOR",
+    titulo: "2. RECAMBIO DE ELEMENTOS DE LOS SISTEMAS DEL MÓDULO HIDROSUCCIONADOR",
     tipo: "cantidad",
     items: [
       ["2.1", "Tapón de expansión PN 45731-30"],
-      ["2.2", 'Empaque externo tapa filtro en Y 3" PN 41272-30'],
-      ["2.3", 'Empaque externo tapa filtro en Y 3" New Model PN 513726A-30'],
-      ["2.4", 'Empaque interno tapa filtro en Y 3" New Model PN 513726B-31'],
-      ["2.5", 'Empaque interno tapa filtro en Y 3" PN 41271-30'],
-      ["2.6", 'Empaque filtro de agua Y 2" PN 46137-30'],
-      ["2.7", 'Empaque filtro de agua Y 2" PN 46138-30'],
-      ["2.8", 'Malla filtro de agua 2" PN 45803-30'],
-      ["2.9", 'O-Ring válvula check 2" PN 29674-30'],
-      ["2.10", 'O-Ring válvula check 3" PN 29640-30'],
-      ["2.11", 'Malla filtro de agua 3" PN 41280-30'],
+      ["2.2", "Empaque externo tapa filtro en Y 3\" PN 41272-30"],
+      ["2.3", "Empaque externo tapa filtro en Y 3\" New Model PN 513726A-30"],
+      ["2.4", "Empaque interno tapa filtro en Y 3\" New Model PN 513726B-31"],
+      ["2.5", "Empaque interno tapa filtro en Y 3\" PN 41271-30"],
+      ["2.6", "Empaque filtro de agua Y 2\" PN 46137-30"],
+      ["2.7", "Empaque filtro de agua Y 2\" PN 46138-30"],
+      ["2.8", "Malla filtro de agua 2\" PN 45803-30"],
+      ["2.9", "O-Ring válvula check 2\" PN 29674-30"],
+      ["2.10", "O-Ring válvula check 3\" PN 29640-30"],
+      ["2.11", "Malla filtro de agua 3\" PN 41280-30"],
       ["2.12", "Filtro aceite hidráulico cartucho New Model PN 514335-30"],
       ["2.13", "Filtro aceite hidráulico cartucho PN 1099061"],
       ["2.14", "Aceite caja transferencia 80W90 (galones)"],
@@ -47,10 +45,7 @@ const secciones = [
     titulo: "3. SERVICIOS DE MÓDULO HIDROSUCCIONADOR",
     tipo: "simple",
     items: [
-      [
-        "3.1",
-        "Sistema de diálisis para limpieza de impurezas del sistema hidráulico",
-      ],
+      ["3.1", "Sistema de diálisis para limpieza de impurezas del sistema hidráulico"],
       ["3.2", "Limpieza de bomba Rodder y cambio de elementos"],
       ["3.3", "Inspección válvula paso de agua a bomba Rodder"],
     ],
@@ -63,8 +58,7 @@ const secciones = [
   },
   {
     id: "5",
-    titulo:
-      "5. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POSTERIOR AL SERVICIO",
+    titulo: "5. PRUEBAS POSTERIORES AL SERVICIO",
     tipo: "simple",
     items: [
       ["5.1", "Encendido general del equipo"],
@@ -76,7 +70,7 @@ const secciones = [
   },
 ];
 
-function HojaMantenimientoHidro() {
+export default function HojaMantenimientoHidro() {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -98,8 +92,9 @@ function HojaMantenimientoHidro() {
     correoTecnico: "",
     fechaServicio: "",
 
+    estadoEquipoPuntos: [],
     estadoEquipoDetalle: "",
-    estadoEquipoPuntos: [], // {id, x, y, nota}
+
     items: {},
 
     nota: "",
@@ -114,26 +109,34 @@ function HojaMantenimientoHidro() {
     kilometraje: "",
   });
 
-  const handleChange = (e) =>
-    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
+  /* =============================
+     HANDLERS GENERALES
+  ============================= */
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
 
   const handleItemChange = (codigo, campo, valor) => {
     setFormData((p) => ({
       ...p,
       items: {
         ...p.items,
-        [codigo]: { ...p.items[codigo], [campo]: valor },
+        [codigo]: {
+          ...p.items[codigo],
+          [campo]: valor,
+        },
       },
     }));
   };
 
   /* =============================
-     PUNTOS ROJOS – ESTADO EQUIPO
+     PUNTOS ROJOS – IGUAL QUE HIDRO
   ============================= */
   const handleImageClick = (e) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - r.left) / r.width) * 100;
-    const y = ((e.clientY - r.top) / r.height) * 100;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
 
     setFormData((p) => ({
       ...p,
@@ -166,6 +169,9 @@ function HojaMantenimientoHidro() {
     }));
   };
 
+  /* =============================
+     SUBMIT
+  ============================= */
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -181,40 +187,25 @@ function HojaMantenimientoHidro() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
-    >
+    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
 
       {/* ================= ESTADO DEL EQUIPO ================= */}
       <section className="border rounded p-4 space-y-3">
         <div className="flex justify-between items-center">
           <p className="font-semibold">Estado del equipo</p>
-          <button
-            type="button"
-            onClick={clearAllPoints}
-            className="text-xs border px-2 py-1 rounded"
-          >
+          <button type="button" onClick={clearAllPoints} className="text-xs border px-2 py-1 rounded">
             Limpiar puntos
           </button>
         </div>
 
-        <div
-          className="relative border rounded cursor-crosshair"
-          onClick={handleImageClick}
-        >
+        <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
           <img src="/estado-equipo.png" className="w-full" draggable={false} />
           {formData.estadoEquipoPuntos.map((pt) => (
             <div
               key={pt.id}
               onDoubleClick={() => handleRemovePoint(pt.id)}
               className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
-              style={{
-                left: `${pt.x}%`,
-                top: `${pt.y}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-              title="Doble click para eliminar"
+              style={{ left: `${pt.x}%`, top: `${pt.y}%`, transform: "translate(-50%, -50%)" }}
             >
               {pt.id}
             </div>
@@ -241,9 +232,28 @@ function HojaMantenimientoHidro() {
         />
       </section>
 
-      {/* TODO EL RESTO DEL FORMULARIO SE MANTIENE IGUAL */}
+      {/* FIRMAS */}
+      <section className="border rounded p-4">
+        <div className="grid md:grid-cols-2 gap-6 text-center">
+          <div>
+            <p className="font-semibold mb-1">Firma Técnico ASTAP</p>
+            <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
+          </div>
+          <div>
+            <p className="font-semibold mb-1">Firma Cliente</p>
+            <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
+          </div>
+        </div>
+      </section>
+
+      <div className="flex justify-end gap-4">
+        <button type="button" onClick={() => navigate("/mantenimiento")} className="border px-4 py-2 rounded">
+          Volver
+        </button>
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+          Guardar mantenimiento
+        </button>
+      </div>
     </form>
   );
 }
-
-export default HojaMantenimientoHidro;
