@@ -1,4 +1,3 @@
-Codigo inspeccion hidro
 import { useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
