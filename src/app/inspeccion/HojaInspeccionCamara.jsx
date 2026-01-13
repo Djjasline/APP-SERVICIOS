@@ -63,15 +63,13 @@ export default function HojaInspeccionCamara() {
     cliente: "",
     tecnicoAstap: "",
     responsableCliente: "",
-    estadoEquipoDetalle: "",
     estadoEquipoPuntos: [],
     items: {},
-    firmas: {
-      tecnico: "",
-      cliente: "",
-    },
   });
 
+  /* =============================
+     HANDLERS
+  ============================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
@@ -90,6 +88,7 @@ export default function HojaInspeccionCamara() {
     }));
   };
 
+  /* ===== PUNTOS ROJOS ===== */
   const handleImageClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -99,7 +98,7 @@ export default function HojaInspeccionCamara() {
       ...p,
       estadoEquipoPuntos: [
         ...p.estadoEquipoPuntos,
-        { id: p.estadoEquipoPuntos.length + 1, x, y },
+        { id: p.estadoEquipoPuntos.length + 1, x, y, nota: "" },
       ],
     }));
   };
@@ -113,34 +112,41 @@ export default function HojaInspeccionCamara() {
     }));
   };
 
+  const handleNotaChange = (id, value) => {
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: p.estadoEquipoPuntos.map((pt) =>
+        pt.id === id ? { ...pt, nota: value } : pt
+      ),
+    }));
+  };
+
+  const clearAllPoints = () => {
+    setFormData((p) => ({ ...p, estadoEquipoPuntos: [] }));
+  };
+
+  /* =============================
+     SUBMIT
+  ============================= */
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const firmas = {
-      tecnico: firmaTecnicoRef.current?.isEmpty()
-        ? ""
-        : firmaTecnicoRef.current.toDataURL(),
-      cliente: firmaClienteRef.current?.isEmpty()
-        ? ""
-        : firmaClienteRef.current.toDataURL(),
-    };
-
     markInspectionCompleted("camara", id, {
       ...formData,
-      firmas,
+      firmas: {
+        tecnico: firmaTecnicoRef.current?.toDataURL() || "",
+        cliente: firmaClienteRef.current?.toDataURL() || "",
+      },
     });
 
     navigate("/inspeccion");
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
-    >
+    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
 
       {/* ENCABEZADO */}
-      <section className="border rounded-lg overflow-hidden">
+      <section className="border rounded overflow-hidden">
         <table className="w-full text-xs border-collapse">
           <tbody>
             <tr className="border-b">
@@ -155,7 +161,6 @@ export default function HojaInspeccionCamara() {
                 <div>Versión: <strong>01</strong></div>
               </td>
             </tr>
-
             {[
               ["REFERENCIA DE CONTRATO", "referenciaContrato"],
               ["DESCRIPCIÓN", "descripcion"],
@@ -164,11 +169,7 @@ export default function HojaInspeccionCamara() {
               <tr key={name} className="border-b">
                 <td className="border-r p-2 font-semibold">{label}</td>
                 <td colSpan={2} className="p-2">
-                  <input
-                    name={name}
-                    onChange={handleChange}
-                    className="w-full border rounded p-1"
-                  />
+                  <input name={name} onChange={handleChange} className="w-full border p-1" />
                 </td>
               </tr>
             ))}
@@ -186,27 +187,39 @@ export default function HojaInspeccionCamara() {
       </section>
 
       {/* ESTADO DEL EQUIPO */}
-      <section className="border rounded p-4 space-y-2">
-        <p className="font-semibold">Estado del equipo</p>
+      <section className="border rounded p-4 space-y-3">
+        <div className="flex justify-between items-center">
+          <p className="font-semibold">Estado del equipo</p>
+          <button type="button" onClick={clearAllPoints} className="text-xs border px-2 py-1 rounded">
+            Limpiar puntos
+          </button>
+        </div>
+
         <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
           <img src="/estado equipo camara.png" className="w-full" draggable={false} />
           {formData.estadoEquipoPuntos.map((pt) => (
             <div
               key={pt.id}
               onDoubleClick={() => handleRemovePoint(pt.id)}
-              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
+              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
               style={{ left: `${pt.x}%`, top: `${pt.y}%`, transform: "translate(-50%, -50%)" }}
             >
               {pt.id}
             </div>
           ))}
         </div>
-        <textarea
-          name="estadoEquipoDetalle"
-          placeholder="Observaciones"
-          onChange={handleChange}
-          className="w-full border rounded p-2 min-h-[80px]"
-        />
+
+        {formData.estadoEquipoPuntos.map((pt) => (
+          <div key={pt.id} className="flex gap-2">
+            <span className="font-semibold">{pt.id})</span>
+            <input
+              className="flex-1 border p-1"
+              placeholder={`Observación punto ${pt.id}`}
+              value={pt.nota}
+              onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+            />
+          </div>
+        ))}
       </section>
 
       {/* TABLAS */}
@@ -228,24 +241,11 @@ export default function HojaInspeccionCamara() {
                 <tr key={item.codigo}>
                   <td>{item.codigo}</td>
                   <td>{item.texto}</td>
+                  <td><input type="radio" onChange={() => handleItemChange(item.codigo, "estado", "SI")} /></td>
+                  <td><input type="radio" onChange={() => handleItemChange(item.codigo, "estado", "NO")} /></td>
                   <td>
-                    <input
-                      type="radio"
-                      onChange={() => handleItemChange(item.codigo, "estado", "SI")}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="radio"
-                      onChange={() => handleItemChange(item.codigo, "estado", "NO")}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      className="w-full border px-1"
-                      onChange={(e) =>
-                        handleItemChange(item.codigo, "observacion", e.target.value)
-                      }
+                    <input className="w-full border px-1"
+                      onChange={(e) => handleItemChange(item.codigo, "observacion", e.target.value)}
                     />
                   </td>
                 </tr>
@@ -260,32 +260,11 @@ export default function HojaInspeccionCamara() {
         <div className="grid md:grid-cols-2 gap-6 text-center">
           <div>
             <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
-            <SignatureCanvas
-              ref={firmaTecnicoRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
-            <button
-              type="button"
-              onClick={() => firmaTecnicoRef.current.clear()}
-              className="text-xs mt-1 border px-2 py-1 rounded"
-            >
-              Borrar firma
-            </button>
+            <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
           </div>
-
           <div>
             <p className="font-semibold mb-1">FIRMA CLIENTE</p>
-            <SignatureCanvas
-              ref={firmaClienteRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
-            <button
-              type="button"
-              onClick={() => firmaClienteRef.current.clear()}
-              className="text-xs mt-1 border px-2 py-1 rounded"
-            >
-              Borrar firma
-            </button>
+            <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
           </div>
         </div>
       </section>
