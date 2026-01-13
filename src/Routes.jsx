@@ -19,7 +19,7 @@ export default function AppRoutes() {
         {/* MENÚ PRINCIPAL */}
         <Route path="/" element={<PanelServicios />} />
 
-        {/* INFORME GENERAL (NUEVO) */}
+        {/* INFORME GENERAL */}
         <Route path="/informe/*" element={<InformeRoutes />} />
 
         {/* INSPECCIONES */}
