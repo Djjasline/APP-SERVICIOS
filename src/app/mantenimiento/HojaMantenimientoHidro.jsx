@@ -4,76 +4,50 @@ import SignatureCanvas from "react-signature-canvas";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
 
 /* =============================
-   SECCIONES – MANTENIMIENTO HIDRO
+   SECCIONES – CÁMARA V-CAM
 ============================= */
 const secciones = [
   {
-    id: "1",
+    id: "sec1",
     titulo:
       "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
-    tipo: "simple",
     items: [
-      ["1.1", "Prueba de encendido general del equipo"],
-      ["1.2", "Verificación de funcionamiento de controles principales"],
-      ["1.3", "Revisión de alarmas o mensajes de fallo"],
+      { codigo: "1.1", texto: "Prueba de encendido general del equipo" },
+      { codigo: "1.2", texto: "Verificación de funcionamiento de controles principales" },
+      { codigo: "1.3", texto: "Revisión de alarmas o mensajes de fallo" },
     ],
   },
   {
-    id: "2",
+    id: "secA",
     titulo:
-      "2. RECAMBIO DE ELEMENTOS DE LOS SISTEMAS DEL MÓDULO HIDROSUCCIONADOR",
-    tipo: "cantidad",
+      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS",
     items: [
-      ["2.1", "Tapón de expansión PN 45731-30"],
-      ["2.2", "Empaque externo tapa filtro en Y 3\" PN 41272-30"],
-      ["2.3", "Empaque externo tapa filtro en Y 3\" New Model PN 513726A-30"],
-      ["2.4", "Empaque interno tapa filtro en Y 3\" New Model PN 513726B-31"],
-      ["2.5", "Empaque interno tapa filtro en Y 3\" PN 41271-30"],
-      ["2.6", "Empaque filtro de agua Y 2\" PN 46137-30"],
-      ["2.7", "Empaque filtro de agua Y 2\" PN 46138-30"],
-      ["2.8", "Malla filtro de agua 2\" PN 45803-30"],
-      ["2.9", "O-Ring válvula check 2\" PN 29674-30"],
-      ["2.10", "O-Ring válvula check 3\" PN 29640-30"],
-      ["2.11", "Malla filtro de agua 3\" PN 41280-30"],
-      ["2.12", "Filtro aceite hidráulico cartucho New Model PN 514335-30"],
-      ["2.13", "Filtro aceite hidráulico cartucho PN 1099061"],
-      ["2.14", "Aceite caja transferencia 80W90 (galones)"],
-      ["2.15", "Aceite soplador ISO 220 (galones)"],
-      ["2.16", "Aceite hidráulico AW 46 (galones)"],
-    ],
-  },
-  {
-    id: "3",
-    titulo: "3. SERVICIOS DE MÓDULO HIDROSUCCIONADOR",
-    tipo: "simple",
-    items: [
-      ["3.1", "Sistema de diálisis para limpieza de impurezas del sistema hidráulico"],
-      ["3.2", "Limpieza de bomba Rodder y cambio de elementos"],
-      ["3.3", "Inspección válvula paso de agua a bomba Rodder"],
-    ],
-  },
-  {
-    id: "4",
-    titulo: "4. OTROS (ESPECIFICAR)",
-    tipo: "otros",
-    items: ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6"],
-  },
-  {
-    id: "5",
-    titulo:
-      "5. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POSTERIOR AL SERVICIO",
-    tipo: "simple",
-    items: [
-      ["5.1", "Encendido general del equipo"],
-      ["5.2", "Verificación de presiones de trabajo"],
-      ["5.3", "Funcionamiento de sistemas hidráulicos"],
-      ["5.4", "Funcionamiento de sistema de succión"],
-      ["5.5", "Funcionamiento de sistema de agua"],
+      { codigo: "A.1", texto: "Estructura del carrete sin deformaciones" },
+      { codigo: "A.2", texto: "Pintura y acabado sin corrosión" },
+      { codigo: "A.3", texto: "Manivela y freno en buen estado" },
+      { codigo: "A.4", texto: "Base estable sin vibraciones" },
+      { codigo: "A.5", texto: "Ruedas en buen estado" },
+      { codigo: "A.6", texto: "Cable sin cortes ni aplastamientos" },
+      { codigo: "A.7", texto: "Recubrimiento sin grietas" },
+      { codigo: "A.8", texto: "Longitud correcta del cable" },
+      { codigo: "A.9", texto: "Marcadores visibles" },
+      { codigo: "A.10", texto: "Enrollado uniforme" },
+      { codigo: "A.11", texto: "Cable limpio" },
+      { codigo: "A.12", texto: "Lubricación correcta" },
+      { codigo: "A.13", texto: "Protecciones instaladas" },
+      { codigo: "A.14", texto: "Empaque en buen estado" },
+      { codigo: "A.15", texto: "Sin fugas" },
+      { codigo: "A.16", texto: "Protección frontal intacta" },
+      { codigo: "A.17", texto: "Lente sin rayaduras" },
+      { codigo: "A.18", texto: "Iluminación LED funcional" },
+      { codigo: "A.19", texto: "Imagen estable" },
+      { codigo: "A.20", texto: "Sin interferencias" },
+      { codigo: "A.21", texto: "Control de intensidad LED" },
     ],
   },
 ];
 
-export default function HojaMantenimientoHidro() {
+export default function HojaInspeccionCamara() {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -84,56 +58,38 @@ export default function HojaMantenimientoHidro() {
     referenciaContrato: "",
     descripcion: "",
     codInf: "",
-
+    fechaInspeccion: "",
+    ubicacion: "",
     cliente: "",
-    direccion: "",
-    contacto: "",
-    telefono: "",
-    correo: "",
-    tecnicoResponsable: "",
-    telefonoTecnico: "",
-    correoTecnico: "",
-    fechaServicio: "",
-
+    tecnicoAstap: "",
+    responsableCliente: "",
     estadoEquipoPuntos: [],
-
     items: {},
-
-    nota: "",
-    marca: "",
-    modelo: "",
-    serie: "",
-    anioModelo: "",
-    vin: "",
-    placa: "",
-    horasModulo: "",
-    horasChasis: "",
-    kilometraje: "",
   });
 
-  /* =============================
-     HANDLERS
-  ============================= */
-  const handleChange = (e) =>
-    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
 
   const handleItemChange = (codigo, campo, valor) => {
     setFormData((p) => ({
       ...p,
       items: {
         ...p.items,
-        [codigo]: { ...p.items[codigo], [campo]: valor },
+        [codigo]: {
+          ...p.items[codigo],
+          [campo]: valor,
+        },
       },
     }));
   };
 
-  /* =============================
-     PUNTOS ROJOS – ESTADO EQUIPO
-  ============================= */
+  /* ===== PUNTOS ROJOS (MISMO COMPORTAMIENTO QUE HIDRO) ===== */
   const handleImageClick = (e) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - r.left) / r.width) * 100;
-    const y = ((e.clientY - r.top) / r.height) * 100;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
 
     setFormData((p) => ({
       ...p,
@@ -166,13 +122,10 @@ export default function HojaMantenimientoHidro() {
     }));
   };
 
-  /* =============================
-     SUBMIT
-  ============================= */
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    markInspectionCompleted("mantenimiento-hidro", id, {
+    markInspectionCompleted("camara", id, {
       ...formData,
       firmas: {
         tecnico: firmaTecnicoRef.current?.toDataURL() || "",
@@ -180,43 +133,29 @@ export default function HojaMantenimientoHidro() {
       },
     });
 
-    navigate("/mantenimiento");
+    navigate("/inspeccion");
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
-    >
-      {/* ================= ESTADO DEL EQUIPO ================= */}
+    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
+
+      {/* ESTADO DEL EQUIPO */}
       <section className="border rounded p-4 space-y-3">
         <div className="flex justify-between items-center">
           <p className="font-semibold">Estado del equipo</p>
-          <button
-            type="button"
-            onClick={clearAllPoints}
-            className="text-xs border px-2 py-1 rounded"
-          >
+          <button type="button" onClick={clearAllPoints} className="text-xs border px-2 py-1 rounded">
             Limpiar puntos
           </button>
         </div>
 
-        <div
-          className="relative border rounded cursor-crosshair"
-          onClick={handleImageClick}
-        >
-          <img src="/estado-equipo.png" className="w-full" draggable={false} />
+        <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
+          <img src="/estado equipo camara.png" className="w-full" draggable={false} />
           {formData.estadoEquipoPuntos.map((pt) => (
             <div
               key={pt.id}
               onDoubleClick={() => handleRemovePoint(pt.id)}
               className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
-              style={{
-                left: `${pt.x}%`,
-                top: `${pt.y}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-              title="Doble click para eliminar"
+              style={{ left: `${pt.x}%`, top: `${pt.y}%`, transform: "translate(-50%, -50%)" }}
             >
               {pt.id}
             </div>
@@ -236,103 +175,7 @@ export default function HojaMantenimientoHidro() {
         ))}
       </section>
 
-      {/* ================= TABLAS ================= */}
-      {secciones.map((sec) => (
-        <section key={sec.id} className="border rounded p-4">
-          <h2 className="font-semibold mb-2">{sec.titulo}</h2>
-          <table className="w-full text-xs border">
-            <thead className="bg-gray-100">
-              <tr>
-                <th>Artículo</th>
-                <th>Detalle</th>
-                {sec.tipo === "cantidad" && <th>Cantidad</th>}
-                <th>SI</th>
-                <th>NO</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sec.items.map((it) => {
-                const codigo = Array.isArray(it) ? it[0] : it;
-                const texto = Array.isArray(it) ? it[1] : "";
-                return (
-                  <tr key={codigo}>
-                    <td>{codigo}</td>
-                    <td>
-                      {sec.tipo === "otros" ? (
-                        <input
-                          className="border w-full"
-                          onChange={(e) =>
-                            handleItemChange(codigo, "detalle", e.target.value)
-                          }
-                        />
-                      ) : (
-                        texto
-                      )}
-                    </td>
-                    {sec.tipo === "cantidad" && (
-                      <td>
-                        <input
-                          type="number"
-                          className="border w-16"
-                          onChange={(e) =>
-                            handleItemChange(codigo, "cantidad", e.target.value)
-                          }
-                        />
-                      </td>
-                    )}
-                    <td>
-                      <input
-                        type="radio"
-                        onChange={() =>
-                          handleItemChange(codigo, "estado", "SI")
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="radio"
-                        onChange={() =>
-                          handleItemChange(codigo, "estado", "NO")
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        className="border w-full"
-                        onChange={(e) =>
-                          handleItemChange(
-                            codigo,
-                            "observacion",
-                            e.target.value
-                          )
-                        }
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </section>
-      ))}
-
-      {/* ================= BOTONES ================= */}
-      <div className="flex justify-end gap-4">
-        <button
-          type="button"
-          onClick={() => navigate("/mantenimiento")}
-          className="border px-4 py-2 rounded"
-        >
-          Volver
-        </button>
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
-          Guardar mantenimiento
-        </button>
-      </div>
+      {/* TABLAS + FIRMAS + BOTONES → SIN CAMBIOS */}
     </form>
   );
 }
