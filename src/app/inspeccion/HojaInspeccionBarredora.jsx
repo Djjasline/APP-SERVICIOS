@@ -39,13 +39,13 @@ const secciones = [
     titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
     items: [
       ["C.1", "Inspección visual de conectores de bancos de control"],
-      ["C.2", "Evaluar funcionamiento de elementos al encender el equipo"],
+      ["C.2", "Evaluar funcionamiento al encender el equipo"],
       ["C.3", "Estado del tablero de control de cabina"],
       ["C.4", "Inspección de batería"],
       ["C.5", "Inspección de luces externas"],
-      ["C.6", "Diagnóstico y conexión con service tool (opcional)"],
-      ["C.7", "Inspección de limpia parabrisas"],
-      ["C.8", "Verificación de conexiones externas (GPS / radiocomunicación)"],
+      ["C.6", "Diagnóstico con service tool (opcional)"],
+      ["C.7", "Estado del limpia parabrisas"],
+      ["C.8", "Conexiones externas (GPS / radio)"],
     ],
   },
   {
@@ -57,7 +57,7 @@ const secciones = [
       ["D.3", "Estado de la tolva"],
       ["D.4", "Funcionamiento de la tolva"],
       ["D.5", "Funcionamiento de la banda"],
-      ["D.6", "Estado de zapatas de arrastre cortas y largas"],
+      ["D.6", "Estado de zapatas de arrastre"],
     ],
   },
   {
@@ -65,12 +65,12 @@ const secciones = [
     titulo: "E) MOTOR JOHN DEERE",
     items: [
       ["E.1", "Estado de filtros de aire 1° y 2°"],
-      ["E.2", "Estado de filtro combustible trampa de agua"],
-      ["E.3", "Estado de filtro de combustible"],
-      ["E.4", "Estado de filtro de aceite"],
+      ["E.2", "Filtro combustible trampa de agua"],
+      ["E.3", "Filtro de combustible"],
+      ["E.4", "Filtro de aceite"],
       ["E.5", "Nivel de aceite de motor"],
       ["E.6", "Estado y nivel del refrigerante"],
-      ["E.7", "Estado filtro de A/C cabina"],
+      ["E.7", "Filtro A/C cabina"],
     ],
   },
 ];
@@ -114,7 +114,7 @@ export default function HojaInspeccionBarredora() {
   });
 
   /* =============================
-     HANDLERS GENERALES
+     HANDLERS
   ============================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -135,7 +135,7 @@ export default function HojaInspeccionBarredora() {
   };
 
   /* =============================
-     ESTADO DEL EQUIPO – PUNTOS
+     PUNTOS ROJOS – ESTADO EQUIPO
   ============================= */
   const handleImageClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -173,6 +173,9 @@ export default function HojaInspeccionBarredora() {
     }));
   };
 
+  /* =============================
+     SUBMIT
+  ============================= */
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -188,7 +191,10 @@ export default function HojaInspeccionBarredora() {
   };
 
   return (
-    <form className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm" onSubmit={handleSubmit}>
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
+    >
 
       {/* ================= ENCABEZADO ================= */}
       <section className="border rounded overflow-hidden">
@@ -220,6 +226,23 @@ export default function HojaInspeccionBarredora() {
             ))}
           </tbody>
         </table>
+      </section>
+
+      {/* ================= DATOS SERVICIO ================= */}
+      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
+        {[
+          ["cliente", "Cliente"],
+          ["direccion", "Dirección"],
+          ["contacto", "Contacto"],
+          ["telefono", "Teléfono"],
+          ["correo", "Correo"],
+          ["tecnicoResponsable", "Técnico responsable"],
+          ["telefonoTecnico", "Teléfono técnico"],
+          ["correoTecnico", "Correo técnico"],
+        ].map(([n, p]) => (
+          <input key={n} name={n} placeholder={p} onChange={handleChange} className="input" />
+        ))}
+        <input type="date" name="fechaServicio" onChange={handleChange} className="input md:col-span-2" />
       </section>
 
       {/* ================= ESTADO DEL EQUIPO ================= */}
@@ -278,17 +301,39 @@ export default function HojaInspeccionBarredora() {
                 <tr key={codigo}>
                   <td>{codigo}</td>
                   <td>{texto}</td>
-                  <td><input type="radio" onChange={() => handleItemChange(codigo, "estado", "SI")} /></td>
-                  <td><input type="radio" onChange={() => handleItemChange(codigo, "estado", "NO")} /></td>
-                  <td><input className="w-full border px-1" onChange={(e) =>
-                    handleItemChange(codigo, "observacion", e.target.value)
-                  } /></td>
+                  <td><input type="radio" /></td>
+                  <td><input type="radio" /></td>
+                  <td><input className="w-full border px-1" /></td>
                 </tr>
               ))}
             </tbody>
           </table>
         </section>
       ))}
+
+      {/* ================= DATOS EQUIPO ================= */}
+      <section className="border rounded p-4">
+        <h2 className="font-semibold text-center mb-2">DESCRIPCIÓN DEL EQUIPO</h2>
+        <div className="grid grid-cols-4 gap-2 text-sm">
+          {[
+            ["nota", "NOTA"],
+            ["marca", "MARCA"],
+            ["modelo", "MODELO"],
+            ["serie", "N° SERIE"],
+            ["anioModelo", "AÑO MODELO"],
+            ["vin", "VIN / CHASIS"],
+            ["placa", "PLACA"],
+            ["horasModulo", "HORAS MÓDULO"],
+            ["horasChasis", "HORAS CHASIS"],
+            ["kilometraje", "KILOMETRAJE"],
+          ].map(([n, l]) => (
+            <div key={n} className="contents">
+              <label className="font-semibold">{l}</label>
+              <input name={n} onChange={handleChange} className="col-span-3 border p-1" />
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* ================= FIRMAS ================= */}
       <section className="border rounded p-4">
@@ -313,7 +358,6 @@ export default function HojaInspeccionBarredora() {
           Guardar y completar
         </button>
       </div>
-
     </form>
   );
 }
