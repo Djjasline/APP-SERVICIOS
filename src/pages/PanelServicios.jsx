@@ -35,7 +35,10 @@ export default function PanelServicios() {
             </p>
 
             <button
-              onClick={() => navigate("/informe")}
+              onClick={() => {
+                localStorage.removeItem("currentReport");
+                navigate("/informe");
+              }}
               className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold text-lg hover:bg-blue-700 transition"
             >
               Nuevo informe
