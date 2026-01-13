@@ -177,14 +177,35 @@ export default function HojaInspeccionCamara() {
         </table>
       </section>
 
-      {/* DATOS */}
-      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
-        <input type="date" name="fechaInspeccion" onChange={handleChange} className="input" />
-        <input name="ubicacion" placeholder="Ubicación" onChange={handleChange} className="input" />
-        <input name="cliente" placeholder="Cliente" onChange={handleChange} className="input" />
-        <input name="tecnicoAstap" placeholder="Técnico ASTAP" onChange={handleChange} className="input" />
-        <input name="responsableCliente" placeholder="Responsable cliente" onChange={handleChange} className="input md:col-span-2" />
-      </section>
+     {/* DATOS SERVICIO */}
+<section className="grid md:grid-cols-2 gap-3 border rounded p-4">
+  {[
+    ["cliente", "Cliente"],
+    ["direccion", "Dirección"],
+    ["contacto", "Contacto"],
+    ["telefono", "Teléfono"],
+    ["correo", "Correo"],
+    ["tecnicoResponsable", "Técnico responsable"],
+    ["telefonoTecnico", "Teléfono técnico"],
+    ["correoTecnico", "Correo técnico"],
+  ].map(([name, placeholder]) => (
+    <input
+      key={name}
+      name={name}
+      placeholder={placeholder}
+      onChange={handleChange}
+      className="input"
+    />
+  ))}
+
+  <input
+    type="date"
+    name="fechaInspeccion"
+    onChange={handleChange}
+    className="input md:col-span-2"
+  />
+</section>
+      
 
       {/* ESTADO DEL EQUIPO */}
       <section className="border rounded p-4 space-y-3">
