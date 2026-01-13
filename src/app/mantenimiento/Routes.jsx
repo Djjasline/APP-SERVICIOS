@@ -3,12 +3,12 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import IndexMantenimiento from "./IndexMantenimiento";
 
 // HIDRO
-import MantenimientoHidroHome from "./hidro/Home";
-import HojaMantenimientoHidro from "./hidro/Form";
+import MantenimientoHidroHome from "./MantenimientoHidroHome";
+import HojaMantenimientoHidro from "./HojaMantenimientoHidro";
 
 // BARREDORA
-import MantenimientoBarredoraHome from "./barredora/Home";
-import HojaMantenimientoBarredora from "./barredora/Form";
+import MantenimientoBarredoraHome from "./MantenimientoBarredoraHome";
+import HojaMantenimientoBarredora from "./HojaMantenimientoBarredora";
 
 export default function MantenimientoRoutes() {
   return (
@@ -19,20 +19,16 @@ export default function MantenimientoRoutes() {
       {/* =============================
           HIDRO
       ============================== */}
-      <Route path="hidro">
-        <Route index element={<MantenimientoHidroHome />} />
-        <Route path="crear" element={<HojaMantenimientoHidro />} />
-        <Route path=":id" element={<HojaMantenimientoHidro />} />
-      </Route>
+      <Route path="hidro" element={<MantenimientoHidroHome />} />
+      <Route path="hidro/crear" element={<HojaMantenimientoHidro />} />
+      <Route path="hidro/:id" element={<HojaMantenimientoHidro />} />
 
       {/* =============================
           BARREDORA
       ============================== */}
-      <Route path="barredora">
-        <Route index element={<MantenimientoBarredoraHome />} />
-        <Route path="crear" element={<HojaMantenimientoBarredora />} />
-        <Route path=":id" element={<HojaMantenimientoBarredora />} />
-      </Route>
+      <Route path="barredora" element={<MantenimientoBarredoraHome />} />
+      <Route path="barredora/crear" element={<HojaMantenimientoBarredora />} />
+      <Route path="barredora/:id" element={<HojaMantenimientoBarredora />} />
 
       {/* FALLBACK */}
       <Route path="*" element={<Navigate to="/mantenimiento" replace />} />
