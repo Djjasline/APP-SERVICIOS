@@ -4,7 +4,7 @@ import SignatureCanvas from "react-signature-canvas";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
 
 /* =============================
-   SECCIONES – BARREDORA (OFICIAL)
+   SECCIONES – BARREDORA
 ============================= */
 const secciones = [
   {
@@ -114,6 +114,9 @@ export default function HojaInspeccionBarredora() {
     items: {},
   });
 
+  /* =============================
+     HANDLERS GENERALES
+  ============================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
@@ -149,15 +152,6 @@ export default function HojaInspeccionBarredora() {
     }));
   };
 
-  const handleRemovePoint = (id) => {
-    setFormData((p) => ({
-      ...p,
-      estadoEquipoPuntos: p.estadoEquipoPuntos
-        .filter((pt) => pt.id !== id)
-        .map((pt, i) => ({ ...pt, id: i + 1 })),
-    }));
-  };
-
   const clearAllPoints = () => {
     setFormData((p) => ({ ...p, estadoEquipoPuntos: [] }));
   };
@@ -171,6 +165,9 @@ export default function HojaInspeccionBarredora() {
     }));
   };
 
+  /* =============================
+     SUBMIT
+  ============================= */
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -186,43 +183,28 @@ export default function HojaInspeccionBarredora() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
-    >
-      {/* ESTADO DEL EQUIPO */}
+    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
+
+      {/* ================= ESTADO DEL EQUIPO ================= */}
       <section className="border rounded p-4 space-y-3">
         <div className="flex justify-between items-center">
           <p className="font-semibold">Estado del equipo</p>
           <button
             type="button"
             onClick={clearAllPoints}
-            className="text-sm border px-3 py-1 rounded"
+            className="text-xs border px-2 py-1 rounded"
           >
             Limpiar puntos
           </button>
         </div>
 
-        <div
-          className="relative border rounded cursor-crosshair"
-          onClick={handleImageClick}
-        >
-          <img
-            src="/estado equipo barredora.png"
-            className="w-full"
-            draggable={false}
-          />
+        <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
+          <img src="/estado equipo barredora.png" className="w-full" draggable={false} />
           {formData.estadoEquipoPuntos.map((pt) => (
             <div
               key={pt.id}
-              onDoubleClick={() => handleRemovePoint(pt.id)}
-              className="absolute bg-red-600 text-white text-sm w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
-              style={{
-                left: `${pt.x}%`,
-                top: `${pt.y}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-              title="Doble click para eliminar"
+              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
+              style={{ left: `${pt.x}%`, top: `${pt.y}%`, transform: "translate(-50%, -50%)" }}
             >
               {pt.id}
             </div>
@@ -233,61 +215,41 @@ export default function HojaInspeccionBarredora() {
           <div key={pt.id} className="flex gap-2">
             <span className="font-semibold">{pt.id})</span>
             <input
-              className="flex-1 border p-2"
+              className="flex-1 border p-1"
               placeholder={`Observación punto ${pt.id}`}
               value={pt.nota}
-              onChange={(e) =>
-                handleNotaChange(pt.id, e.target.value)
-              }
+              onChange={(e) => handleNotaChange(pt.id, e.target.value)}
             />
           </div>
         ))}
       </section>
 
-      {/* TABLAS */}
+      {/* ================= TABLAS ================= */}
       {secciones.map((sec) => (
         <section key={sec.id} className="border rounded p-4">
-          <h2 className="font-semibold mb-3">{sec.titulo}</h2>
-          <table className="w-full text-sm border border-gray-300">
-            <thead className="bg-gray-100 font-semibold">
+          <h2 className="font-semibold mb-2">{sec.titulo}</h2>
+          <table className="w-full text-sm border">
+            <thead className="bg-gray-100">
               <tr>
-                <th className="p-2 border">Ítem</th>
-                <th className="p-2 border">Detalle</th>
-                <th className="p-2 border text-center">SI</th>
-                <th className="p-2 border text-center">NO</th>
-                <th className="p-2 border">Observación</th>
+                <th>Ítem</th>
+                <th>Detalle</th>
+                <th>SI</th>
+                <th>NO</th>
+                <th>Observación</th>
               </tr>
             </thead>
             <tbody>
               {sec.items.map(([codigo, texto]) => (
                 <tr key={codigo}>
-                  <td className="p-2 border">{codigo}</td>
-                  <td className="p-2 border">{texto}</td>
-                  <td className="p-2 border text-center">
+                  <td>{codigo}</td>
+                  <td>{texto}</td>
+                  <td><input type="radio" onChange={() => handleItemChange(codigo, "estado", "SI")} /></td>
+                  <td><input type="radio" onChange={() => handleItemChange(codigo, "estado", "NO")} /></td>
+                  <td>
                     <input
-                      type="radio"
-                      onChange={() =>
-                        handleItemChange(codigo, "estado", "SI")
-                      }
-                    />
-                  </td>
-                  <td className="p-2 border text-center">
-                    <input
-                      type="radio"
-                      onChange={() =>
-                        handleItemChange(codigo, "estado", "NO")
-                      }
-                    />
-                  </td>
-                  <td className="p-2 border">
-                    <input
-                      className="w-full border p-1"
+                      className="w-full border px-1"
                       onChange={(e) =>
-                        handleItemChange(
-                          codigo,
-                          "observacion",
-                          e.target.value
-                        )
+                        handleItemChange(codigo, "observacion", e.target.value)
                       }
                     />
                   </td>
@@ -298,39 +260,26 @@ export default function HojaInspeccionBarredora() {
         </section>
       ))}
 
-      {/* FIRMAS */}
+      {/* ================= FIRMAS ================= */}
       <section className="border rounded p-4">
         <div className="grid md:grid-cols-2 gap-6 text-center">
           <div>
             <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
-            <SignatureCanvas
-              ref={firmaTecnicoRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
+            <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
           </div>
           <div>
             <p className="font-semibold mb-1">FIRMA CLIENTE</p>
-            <SignatureCanvas
-              ref={firmaClienteRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
+            <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
           </div>
         </div>
       </section>
 
-      {/* BOTONES */}
+      {/* ================= BOTONES ================= */}
       <div className="flex justify-end gap-4">
-        <button
-          type="button"
-          onClick={() => navigate("/inspeccion")}
-          className="border px-4 py-2 rounded"
-        >
+        <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
           Volver
         </button>
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
           Guardar y completar
         </button>
       </div>
