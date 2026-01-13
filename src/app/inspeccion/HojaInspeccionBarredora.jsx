@@ -3,6 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { markInspectionCompleted } from "@utils/inspectionStorage";
 
+<h2 className="font-semibold text-sm px-2">
+  2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS
+</h2>
+
 /* =============================
    SECCIONES – BARREDORA
 ============================= */
@@ -281,6 +285,56 @@ export default function HojaInspeccionBarredora() {
           </div>
         ))}
       </section>
+{/* ================= PRUEBAS PREVIAS AL SERVICIO ================= */}
+<section className="border rounded p-4">
+  <h2 className="font-semibold mb-2">
+    1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO
+  </h2>
+
+  <table className="w-full text-sm border">
+    <thead className="bg-gray-100">
+      <tr>
+        <th>Artículo</th>
+        <th>Detalle</th>
+        <th>SI</th>
+        <th>NO</th>
+        <th>Observación</th>
+      </tr>
+    </thead>
+    <tbody>
+      {[
+        ["1.1", "Prueba de encendido general del equipo"],
+        ["1.2", "Verificación de funcionamiento de controles principales"],
+        ["1.3", "Revisión de alarmas o mensajes de fallo"],
+      ].map(([codigo, texto]) => (
+        <tr key={codigo}>
+          <td>{codigo}</td>
+          <td>{texto}</td>
+          <td>
+            <input
+              type="radio"
+              onChange={() => handleItemChange(codigo, "estado", "SI")}
+            />
+          </td>
+          <td>
+            <input
+              type="radio"
+              onChange={() => handleItemChange(codigo, "estado", "NO")}
+            />
+          </td>
+          <td>
+            <input
+              className="w-full border px-1"
+              onChange={(e) =>
+                handleItemChange(codigo, "observacion", e.target.value)
+              }
+            />
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</section>
 
       {/* ================= TABLAS ================= */}
       {secciones.map((sec) => (
