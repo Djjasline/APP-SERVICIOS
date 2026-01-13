@@ -182,60 +182,62 @@ function HojaMantenimientoHidro() {
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
 
-      {/* ESTADO DEL EQUIPO */}
-      <section className="border rounded p-4 space-y-3">
-        <div className="flex justify-between items-center">
-          <p className="font-semibold">Estado del equipo</p>
-          <button
-            type="button"
-            onClick={clearAllPoints}
-            className="text-xs border px-2 py-1 rounded"
-          >
-            Limpiar puntos
-          </button>
-        </div>
+    {/* ESTADO DEL EQUIPO */}
+<section className="border rounded p-4 space-y-3">
+  <div className="flex justify-between items-center">
+    <p className="font-semibold">Estado del equipo</p>
+    <button
+      type="button"
+      onClick={clearAllPoints}
+      className="text-xs border px-2 py-1 rounded"
+    >
+      Limpiar puntos
+    </button>
+  </div>
 
-        <div
-          className="relative border rounded cursor-crosshair"
-          onClick={handleImageClick}
-        >
-          <img src="/estado-equipo.png" className="w-full" draggable={false} />
-          {formData.estadoEquipoPuntos.map((pt) => (
-            <div
-              key={pt.id}
-              onDoubleClick={() => handleRemovePoint(pt.id)}
-              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
-              style={{
-                left: `${pt.x}%`,
-                top: `${pt.y}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-              title="Doble click para eliminar"
-            >
-              {pt.id}
-            </div>
-          ))}
-        </div>
+  <div
+    className="relative border rounded cursor-crosshair"
+    onClick={handleImageClick}
+  >
+    <img src="/estado-equipo.png" className="w-full" draggable={false} />
 
-        {formData.estadoEquipoPuntos.map((pt) => (
-          <div key={pt.id} className="flex gap-2">
-            <span className="font-semibold">{pt.id})</span>
-            <input
-              className="flex-1 border p-1"
-              placeholder={`Observación punto ${pt.id}`}
-              value={pt.nota}
-              onChange={(e) => handleNotaChange(pt.id, e.target.value)}
-            />
-          </div>
-        ))}
+    {formData.estadoEquipoPuntos.map((pt) => (
+      <div
+        key={pt.id}
+        onDoubleClick={() => handleRemovePoint(pt.id)}
+        className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
+        style={{
+          left: `${pt.x}%`,
+          top: `${pt.y}%`,
+          transform: "translate(-50%, -50%)",
+        }}
+        title="Doble click para eliminar"
+      >
+        {pt.id}
+      </div>
+    ))}
+  </div>
 
-        <textarea
-          name="estadoEquipoDetalle"
-          placeholder="Observaciones generales del estado del equipo"
-          onChange={handleChange}
-          className="w-full border rounded p-2 min-h-[80px]"
-        />
-      </section>
+  {formData.estadoEquipoPuntos.map((pt) => (
+    <div key={pt.id} className="flex gap-2">
+      <span className="font-semibold">{pt.id})</span>
+      <input
+        className="flex-1 border p-1"
+        placeholder={`Observación punto ${pt.id}`}
+        value={pt.nota}
+        onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+      />
+    </div>
+  ))}
+
+  <textarea
+    name="estadoEquipoDetalle"
+    placeholder="Observaciones generales del estado del equipo"
+    onChange={handleChange}
+    className="w-full border rounded p-2 min-h-[80px]"
+  />
+</section>
+ 
 
       {/* EL RESTO DEL FORMULARIO (TABLAS, DESCRIPCIÓN, FIRMAS) SE MANTIENE IGUAL */}
 
