@@ -1,103 +1,97 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getInspectionsByType } from "@utils/inspectionStorage";
 
 export default function MantenimientoBarredoraHome() {
   const navigate = useNavigate();
-  const [filtro, setFiltro] = useState("todas");
-  const [registros, setRegistros] = useState([]);
 
+  const [filtro, setFiltro] = useState("todos");
+  const [mantenimientos, setMantenimientos] = useState([]);
+
+  /* =============================
+     CARGA DESDE LOCAL STORAGE
+  ============================== */
   useEffect(() => {
-    const data = getInspectionsByType("mantenimiento-barredora");
-    setRegistros(data || []);
+    const stored = JSON.parse(
+      localStorage.getItem("mantenimiento-barredora") || "[]"
+    );
+    setMantenimientos(stored);
   }, []);
 
-  const filtrados = registros.filter((r) => {
-    if (filtro === "todas") return true;
-    if (filtro === "borrador") return r.estado === "borrador";
-    if (filtro === "completada") return r.estado === "completado";
-    return true;
-  });
+  /* =============================
+     FILTRO (todos | borrador | completado)
+  ============================== */
+  const mantenimientosFiltrados =
+    filtro === "todos"
+      ? mantenimientos
+      : mantenimientos.filter((m) => m.estado === filtro);
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-4">
+    <div className="max-w-4xl mx-auto space-y-6">
       {/* HEADER */}
       <div className="flex justify-between items-center">
-        <h1 className="text-lg font-semibold">
-          Mantenimiento Barredora
-        </h1>
-
+        <h1 className="text-lg font-semibold">Mantenimiento Barredora</h1>
         <button
-          onClick={() => navigate("/mantenimiento/barredora/crear")}
-          className="bg-green-600 text-white px-4 py-2 rounded"
+          onClick={() => navigate("/mantenimiento")}
+          className="text-sm border px-3 py-1 rounded"
         >
-          Crear mantenimiento
+          Volver
         </button>
       </div>
 
-      {/* SUBMENÚ */}
-      <div className="flex gap-2 border-b pb-2 text-sm">
+      {/* CREAR */}
+      <button
+        onClick={() => navigate("/mantenimiento/barredora/crear")}
+        className="bg-green-600 text-white px-4 py-2 rounded"
+      >
+        Crear mantenimiento
+      </button>
+
+      {/* FILTROS */}
+      <div className="flex gap-2 text-xs">
         {[
-          ["todas", "Todos"],
-          ["borrador", "Borrador"],
-          ["completada", "Completada"],
-        ].map(([key, label]) => (
+          { id: "todos", label: "Todos" },
+          { id: "borrador", label: "Borrador" },
+          { id: "completado", label: "Completado" },
+        ].map((f) => (
           <button
-            key={key}
-            onClick={() => setFiltro(key)}
-            className={`px-3 py-1 rounded ${
-              filtro === key
-                ? "bg-black text-white"
-                : "border text-gray-700"
+            key={f.id}
+            onClick={() => setFiltro(f.id)}
+            className={`px-3 py-1 border rounded ${
+              filtro === f.id ? "bg-black text-white" : "bg-white"
             }`}
           >
-            {label}
+            {f.label}
           </button>
         ))}
       </div>
 
       {/* HISTÓRICO */}
-      <div className="border rounded p-4 space-y-2 text-sm">
-        {filtrados.length === 0 && (
-          <p className="text-gray-500">
-            No hay mantenimientos aún.
+      <div className="space-y-2">
+        {mantenimientosFiltrados.length === 0 && (
+          <p className="text-xs text-gray-400">
+            No hay mantenimientos registrados.
           </p>
         )}
 
-        {filtrados.map((r) => (
+        {mantenimientosFiltrados.map((item) => (
           <div
-            key={r.id}
-            className="flex justify-between items-center border-b py-2"
+            key={item.id}
+            className="border rounded p-3 cursor-pointer hover:bg-gray-50"
+            onClick={() =>
+              navigate(`/mantenimiento/barredora/${item.id}`)
+            }
           >
-            <div>
-              <p className="font-semibold">
-                {r.codInf || "Sin código"}
-              </p>
-              <p className="text-xs text-gray-500">
-                {r.fecha || "Sin fecha"} · {r.estado}
-              </p>
+            <div className="flex justify-between items-center">
+              <div className="text-sm font-medium">
+                {item.codInf || "Sin código"}
+              </div>
+              <span className="text-xs px-2 py-1 border rounded">
+                {item.estado}
+              </span>
             </div>
 
-            <div className="flex gap-2">
-              <button
-                onClick={() =>
-                  navigate(`/mantenimiento/barredora/${r.id}`)
-                }
-                className="border px-3 py-1 rounded"
-              >
-                Abrir
-              </button>
-
-              {r.estado === "completado" && (
-                <button
-                  onClick={() =>
-                    navigate(`/mantenimiento/barredora/${r.id}/pdf`)
-                  }
-                  className="border px-3 py-1 rounded"
-                >
-                  PDF
-                </button>
-              )}
+            <div className="text-xs text-gray-500">
+              {item.fechaServicio || "Sin fecha"}
             </div>
           </div>
         ))}
