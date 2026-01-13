@@ -90,7 +90,7 @@ export default function HojaInspeccionHidro() {
   });
 
   /* =============================
-     HELPERS
+     HANDLERS GENERALES
   ============================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -174,7 +174,8 @@ export default function HojaInspeccionHidro() {
       onSubmit={handleSubmit}
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
-      {/* ESTADO DEL EQUIPO */}
+
+      {/* ===== ESTADO DEL EQUIPO (CORREGIDO) ===== */}
       <section className="border rounded p-4 space-y-3">
         <p className="font-semibold">Estado del equipo</p>
 
@@ -182,37 +183,32 @@ export default function HojaInspeccionHidro() {
           className="relative border rounded cursor-crosshair"
           onClick={handleImageClick}
         >
-          <img
-            src="/estado-equipo.png"
-            className="w-full"
-            draggable={false}
-          />
+          <img src="/estado-equipo.png" className="w-full" draggable={false} />
 
           {formData.estadoEquipoPuntos.map((pt) => (
             <div
               key={pt.id}
               onDoubleClick={() => handleRemovePoint(pt.id)}
-              title="Doble click para eliminar"
               className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
               style={{
                 left: `${pt.x}%`,
                 top: `${pt.y}%`,
                 transform: "translate(-50%, -50%)",
               }}
+              title="Doble click para eliminar"
             >
               {pt.id}
             </div>
           ))}
         </div>
 
-        {/* OBSERVACIONES POR PUNTO */}
         <div className="space-y-2">
           {formData.estadoEquipoPuntos.map((pt) => (
-            <div key={pt.id} className="flex gap-2 items-start">
+            <div key={pt.id} className="flex gap-2">
               <span className="font-semibold">{pt.id})</span>
               <input
                 className="flex-1 border p-1"
-                placeholder="Descripción del punto"
+                placeholder="Observación"
                 value={pt.nota}
                 onChange={(e) =>
                   handleNotaChange(pt.id, e.target.value)
@@ -223,7 +219,7 @@ export default function HojaInspeccionHidro() {
         </div>
       </section>
 
-      {/* FIRMAS */}
+      {/* ===== FIRMAS ===== */}
       <section className="border rounded p-4">
         <div className="grid md:grid-cols-2 gap-6 text-center">
           <div>
@@ -243,7 +239,7 @@ export default function HojaInspeccionHidro() {
         </div>
       </section>
 
-      {/* BOTONES */}
+      {/* ===== BOTONES ===== */}
       <div className="flex justify-end gap-4">
         <button
           type="button"
