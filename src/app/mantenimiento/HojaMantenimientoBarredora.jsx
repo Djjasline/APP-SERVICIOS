@@ -129,19 +129,47 @@ function HojaMantenimientoBarredora() {
   };
 
   const handleImageClick = (e) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - r.left) / r.width) * 100;
-    const y = ((e.clientY - r.top) / r.height) * 100;
+  const r = e.currentTarget.getBoundingClientRect();
+  const x = ((e.clientX - r.left) / r.width) * 100;
+  const y = ((e.clientY - r.top) / r.height) * 100;
 
-    setFormData((p) => ({
-      ...p,
-      estadoEquipoPuntos: [
-        ...p.estadoEquipoPuntos,
-        { id: p.estadoEquipoPuntos.length + 1, x, y },
-      ],
-    }));
-  };
+  setFormData((p) => ({
+    ...p,
+    estadoEquipoPuntos: [
+      ...p.estadoEquipoPuntos,
+      {
+        id: p.estadoEquipoPuntos.length + 1,
+        x,
+        y,
+        nota: "",
+      },
+    ],
+  }));
+};
 
+const handleRemovePoint = (id) => {
+  setFormData((p) => ({
+    ...p,
+    estadoEquipoPuntos: p.estadoEquipoPuntos
+      .filter((pt) => pt.id !== id)
+      .map((pt, i) => ({ ...pt, id: i + 1 })),
+  }));
+};
+
+const clearAllPoints = () => {
+  setFormData((p) => ({ ...p, estadoEquipoPuntos: [] }));
+};
+
+const handleNotaChange = (id, value) => {
+  setFormData((p) => ({
+    ...p,
+    estadoEquipoPuntos: p.estadoEquipoPuntos.map((pt) =>
+      pt.id === id ? { ...pt, nota: value } : pt
+    ),
+  }));
+};
+
+   
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -204,31 +232,61 @@ function HojaMantenimientoBarredora() {
       </section>
 
       {/* ESTADO DEL EQUIPO */}
-      <section className="border rounded p-4 space-y-2">
-        <p className="font-semibold">Estado del equipo</p>
-        <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
-          <img src="/estado equipo barredora.png" className="w-full" draggable={false} />
-          {formData.estadoEquipoPuntos.map((pt) => (
-            <div
-              key={pt.id}
-              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
-              style={{
-                left: `${pt.x}%`,
-                top: `${pt.y}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              {pt.id}
-            </div>
-          ))}
-        </div>
-        <textarea
-          name="estadoEquipoDetalle"
-          placeholder="Observaciones"
-          onChange={handleChange}
-          className="w-full border rounded p-2 min-h-[80px]"
-        />
-      </section>
+<section className="border rounded p-4 space-y-3">
+  <div className="flex justify-between items-center">
+    <p className="font-semibold">Estado del equipo</p>
+    <button
+      type="button"
+      onClick={clearAllPoints}
+      className="text-xs border px-2 py-1 rounded"
+    >
+      Limpiar puntos
+    </button>
+  </div>
+
+  <div
+    className="relative border rounded cursor-crosshair"
+    onClick={handleImageClick}
+  >
+    <img src="/estado equipo barredora.png" className="w-full" draggable={false} />
+
+    {formData.estadoEquipoPuntos.map((pt) => (
+      <div
+        key={pt.id}
+        onDoubleClick={() => handleRemovePoint(pt.id)}
+        className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
+        style={{
+          left: `${pt.x}%`,
+          top: `${pt.y}%`,
+          transform: "translate(-50%, -50%)",
+        }}
+        title="Doble click para eliminar"
+      >
+        {pt.id}
+      </div>
+    ))}
+  </div>
+
+  {formData.estadoEquipoPuntos.map((pt) => (
+    <div key={pt.id} className="flex gap-2">
+      <span className="font-semibold">{pt.id})</span>
+      <input
+        className="flex-1 border p-1"
+        placeholder={`Observación punto ${pt.id}`}
+        value={pt.nota}
+        onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+      />
+    </div>
+  ))}
+
+  <textarea
+    name="estadoEquipoDetalle"
+    placeholder="Observaciones generales del estado del equipo"
+    onChange={handleChange}
+    className="w-full border rounded p-2 min-h-[80px]"
+  />
+</section>
+
 
       {/* TABLAS */}
       {secciones.map((sec) => (
