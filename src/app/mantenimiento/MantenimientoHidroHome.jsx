@@ -1,101 +1,62 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getInspectionsByType } from "@utils/inspectionStorage";
 
 export default function MantenimientoHidroHome() {
   const navigate = useNavigate();
-  const [filtro, setFiltro] = useState("todas");
-  const [registros, setRegistros] = useState([]);
+  const [filtro, setFiltro] = useState("todos");
+  const [data, setData] = useState([]);
 
   useEffect(() => {
-    const data = getInspectionsByType("mantenimiento-hidro");
-    setRegistros(data || []);
+    const stored = JSON.parse(
+      localStorage.getItem("mantenimiento-hidro") || "[]"
+    );
+    setData(stored);
   }, []);
 
-  const filtrados = registros.filter((r) => {
-    if (filtro === "todas") return true;
-    if (filtro === "borrador") return r.estado === "borrador";
-    if (filtro === "completada") return r.estado === "completado";
-    return true;
-  });
+  const filtrados =
+    filtro === "todos"
+      ? data
+      : data.filter((i) => i.estado === filtro);
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-4">
-      {/* HEADER */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-lg font-semibold">
-          Mantenimiento Hidrosuccionador
-        </h1>
+    <div className="space-y-4">
+      <button
+        onClick={() => navigate("/mantenimiento/hidro/crear")}
+        className="bg-blue-600 text-white px-4 py-2 rounded"
+      >
+        Crear mantenimiento
+      </button>
 
-        <button
-          onClick={() => navigate("/mantenimiento/hidro/crear")}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Crear mantenimiento
-        </button>
-      </div>
-
-      {/* SUBMENÚ */}
-      <div className="flex gap-2 border-b pb-2 text-sm">
-        {[
-          ["todas", "Todos"],
-          ["borrador", "Borrador"],
-          ["completada", "Completada"],
-        ].map(([key, label]) => (
+      <div className="flex gap-2 text-xs">
+        {["todos", "borrador", "completado"].map((f) => (
           <button
-            key={key}
-            onClick={() => setFiltro(key)}
-            className={`px-3 py-1 rounded ${
-              filtro === key
-                ? "bg-black text-white"
-                : "border text-gray-700"
+            key={f}
+            onClick={() => setFiltro(f)}
+            className={`px-3 py-1 border rounded ${
+              filtro === f ? "bg-black text-white" : ""
             }`}
           >
-            {label}
+            {f}
           </button>
         ))}
       </div>
 
-      {/* HISTÓRICO */}
-      <div className="border rounded p-4 space-y-2 text-sm">
+      <div className="space-y-2">
         {filtrados.length === 0 && (
-          <p className="text-gray-500">No hay mantenimientos aún.</p>
+          <p className="text-xs text-gray-400">No hay registros</p>
         )}
 
-        {filtrados.map((r) => (
+        {filtrados.map((item) => (
           <div
-            key={r.id}
-            className="flex justify-between items-center border-b py-2"
+            key={item.id}
+            className="border rounded p-2 cursor-pointer hover:bg-gray-50"
+            onClick={() =>
+              navigate(`/mantenimiento/hidro/${item.id}`)
+            }
           >
-            <div>
-              <p className="font-semibold">
-                {r.codInf || "Sin código"}
-              </p>
-              <p className="text-xs text-gray-500">
-                {r.fecha || "Sin fecha"} · {r.estado}
-              </p>
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={() =>
-                  navigate(`/mantenimiento/hidro/${r.id}`)
-                }
-                className="border px-3 py-1 rounded"
-              >
-                Abrir
-              </button>
-
-              {r.estado === "completado" && (
-                <button
-                  onClick={() =>
-                    navigate(`/mantenimiento/hidro/${r.id}/pdf`)
-                  }
-                  className="border px-3 py-1 rounded"
-                >
-                  PDF
-                </button>
-              )}
+            <div className="flex justify-between text-sm">
+              <span>{item.codInf || "Sin código"}</span>
+              <span className="text-xs">{item.estado}</span>
             </div>
           </div>
         ))}
