@@ -1,30 +1,48 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
 export default function InformePDF() {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [report, setReport] = useState(null);
 
   useEffect(() => {
-    const current = JSON.parse(localStorage.getItem("currentReport"));
-    if (current) setReport(current);
-  }, []);
+    const reports = JSON.parse(localStorage.getItem("serviceReports")) || [];
+    const report = reports.find(r => String(r.id) === id);
 
-  if (!report) {
-    return <p className="p-6">No hay informe cargado</p>;
-  }
+    if (!report) {
+      alert("Informe no encontrado");
+      navigate("/informe");
+      return;
+    }
+
+    const firmado =
+      report.data?.firmas?.tecnico &&
+      report.data?.firmas?.cliente;
+
+    if (!firmado) {
+      alert("El informe no está completado");
+      navigate("/informe");
+      return;
+    }
+
+    setTimeout(() => {
+      window.print();
+    }, 500);
+  }, [id, navigate]);
 
   return (
     <div className="p-6">
-      <button
-        className="border px-4 py-2 mb-4 rounded"
-        onClick={() => navigate("/informe")}
-      >
-        Volver
-      </button>
+      <h2 className="text-center font-bold mb-4">
+        Informe Técnico
+      </h2>
 
-      <pre className="bg-gray-100 p-4 rounded text-xs overflow-auto">
-        {JSON.stringify(report, null, 2)}
+      <pre style={{ fontSize: 12 }}>
+        {JSON.stringify(
+          JSON.parse(localStorage.getItem("serviceReports"))
+            ?.find(r => String(r.id) === id),
+          null,
+          2
+        )}
       </pre>
     </div>
   );
