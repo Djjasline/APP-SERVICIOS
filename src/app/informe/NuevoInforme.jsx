@@ -238,51 +238,45 @@ export default function NuevoInforme() {
           + Agregar actividad
         </button>
 
+{/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
+<table className="pdf-table">
+  <thead>
+    <tr>
+      <th colSpan={2}>CONCLUSIONES</th>
+      <th colSpan={2}>RECOMENDACIONES</th>
+    </tr>
+  </thead>
+  <tbody>
+    {[0, 1, 2].map((i) => (
+      <tr key={i}>
         {/* CONCLUSIONES */}
-        <h3 className="font-bold text-sm">CONCLUSIONES</h3>
-        <table className="pdf-table">
-          <tbody>
-            {data.conclusiones.map((c, i) => (
-              <tr key={i}>
-                <td>
-                  <textarea
-                    className="pdf-textarea"
-                    value={c}
-                    onChange={(e) =>
-                      update(["conclusiones", i], e.target.value)
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button onClick={() => addLinea("conclusiones")} className="text-xs border px-2 py-1">
-          + Agregar conclusión
-        </button>
+        <td style={{ width: "30px", textAlign: "center" }}>{i + 1}.</td>
+        <td>
+          <textarea
+            className="pdf-textarea"
+            value={data.conclusiones[i] || ""}
+            onChange={(e) =>
+              update(["conclusiones", i], e.target.value)
+            }
+          />
+        </td>
 
         {/* RECOMENDACIONES */}
-        <h3 className="font-bold text-sm">RECOMENDACIONES</h3>
-        <table className="pdf-table">
-          <tbody>
-            {data.recomendaciones.map((r, i) => (
-              <tr key={i}>
-                <td>
-                  <textarea
-                    className="pdf-textarea"
-                    value={r}
-                    onChange={(e) =>
-                      update(["recomendaciones", i], e.target.value)
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button onClick={() => addLinea("recomendaciones")} className="text-xs border px-2 py-1">
-          + Agregar recomendación
-        </button>
+        <td style={{ width: "30px", textAlign: "center" }}>{i + 1}.</td>
+        <td>
+          <textarea
+            className="pdf-textarea"
+            value={data.recomendaciones[i] || ""}
+            onChange={(e) =>
+              update(["recomendaciones", i], e.target.value)
+            }
+          />
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
 
         {/* DESCRIPCIÓN DEL EQUIPO */}
         <h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
