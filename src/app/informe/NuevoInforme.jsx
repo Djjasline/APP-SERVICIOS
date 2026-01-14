@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
+import ReportHeader from "@/components/report/ReportHeader";
 
 export default function NuevoInforme() {
   const navigate = useNavigate();
 
   /* ===========================
-     ESTADO BASE
+     ESTADO BASE DEL INFORME
   =========================== */
   const emptyReport = {
     referenciaContrato: "",
@@ -18,10 +19,11 @@ export default function NuevoInforme() {
     contacto: "",
     telefono: "",
     correo: "",
+    fechaServicio: "",
+
     tecnicoNombre: "",
     tecnicoTelefono: "",
     tecnicoCorreo: "",
-    fechaServicio: "",
 
     actividades: [
       { titulo: "", detalle: "", imagen: "" },
@@ -58,6 +60,15 @@ export default function NuevoInforme() {
     const current = JSON.parse(localStorage.getItem("currentReport"));
     if (current?.data) {
       setData(current.data);
+
+      setTimeout(() => {
+        if (current.data.firmas?.tecnico) {
+          sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
+        }
+        if (current.data.firmas?.cliente) {
+          sigCliente.current?.fromDataURL(current.data.firmas.cliente);
+        }
+      }, 0);
     }
   }, []);
 
@@ -90,16 +101,17 @@ export default function NuevoInforme() {
      ACTIVIDADES
   =========================== */
   const addActividad = () => {
-    update(["actividades"], [
-      ...data.actividades,
-      { titulo: "", detalle: "", imagen: "" },
-    ]);
+    setData(prev => ({
+      ...prev,
+      actividades: [...prev.actividades, { titulo: "", detalle: "", imagen: "" }],
+    }));
   };
 
   const removeActividad = (index) => {
-    const copy = [...data.actividades];
-    copy.splice(index, 1);
-    update(["actividades"], copy.length ? copy : [{ titulo: "", detalle: "", imagen: "" }]);
+    setData(prev => ({
+      ...prev,
+      actividades: prev.actividades.filter((_, i) => i !== index),
+    }));
   };
 
   /* ===========================
@@ -124,10 +136,7 @@ export default function NuevoInforme() {
       },
     };
 
-    localStorage.setItem(
-      "serviceReports",
-      JSON.stringify([...stored, report])
-    );
+    localStorage.setItem("serviceReports", JSON.stringify([...stored, report]));
     localStorage.setItem("currentReport", JSON.stringify(report));
 
     navigate("/informe");
@@ -138,129 +147,92 @@ export default function NuevoInforme() {
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
 
         {/* ================= ENCABEZADO ================= */}
-        <section className="border rounded overflow-hidden">
-          <table className="w-full text-xs border-collapse">
-            <tbody>
-              <tr className="border-b">
-                <td rowSpan={4} className="w-32 border-r p-3 text-center">
-                  <img src="/astap-logo.jpg" className="mx-auto max-h-20" />
-                </td>
-                <td colSpan={2} className="border-r text-center font-bold">
-                  INFORME TÉCNICO DE SERVICIO
-                </td>
-                <td className="p-2">
-                  <div>Fecha versión: <strong>01-01-26</strong></div>
-                  <div>Versión: <strong>01</strong></div>
-                </td>
-              </tr>
-
-              {[
-                ["REFERENCIA DE CONTRATO", "referenciaContrato"],
-                ["DESCRIPCIÓN", "descripcion"],
-                ["CÓD. INF.", "codInf"],
-              ].map(([label, key]) => (
-                <tr key={key} className="border-b">
-                  <td className="border-r p-2 font-semibold">{label}</td>
-                  <td colSpan={2} className="p-2">
-                    <input
-                      className="w-full border p-1"
-                      value={data[key]}
-                      onChange={(e) => update([key], e.target.value)}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
+        <ReportHeader data={data} onChange={update} />
 
         {/* ================= DATOS CLIENTE ================= */}
-        <section className="grid md:grid-cols-2 gap-3 border rounded p-4 text-sm">
-          {[
-            ["Cliente", "cliente"],
-            ["Dirección", "direccion"],
-            ["Contacto", "contacto"],
-            ["Teléfono", "telefono"],
-            ["Correo", "correo"],
-            ["Técnico responsable", "tecnicoNombre"],
-            ["Teléfono técnico", "tecnicoTelefono"],
-            ["Correo técnico", "tecnicoCorreo"],
-          ].map(([ph, key]) => (
-            <input
-              key={key}
-              className="border p-2"
-              placeholder={ph}
-              value={data[key]}
-              onChange={(e) => update([key], e.target.value)}
-            />
-          ))}
-
-          <input
-            type="date"
-            className="border p-2 md:col-span-2"
-            value={data.fechaServicio}
-            onChange={(e) => update(["fechaServicio"], e.target.value)}
-          />
-        </section>
+        <table className="pdf-table">
+          <tbody>
+            {[
+              ["CLIENTE", "cliente"],
+              ["DIRECCIÓN", "direccion"],
+              ["CONTACTO", "contacto"],
+              ["TELÉFONO", "telefono"],
+              ["CORREO", "correo"],
+              ["TÉCNICO RESPONSABLE", "tecnicoNombre"],
+              ["TELÉFONO TÉCNICO", "tecnicoTelefono"],
+              ["CORREO TÉCNICO", "tecnicoCorreo"],
+              ["FECHA DE SERVICIO", "fechaServicio"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="pdf-label">{label}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data[key]}
+                    onChange={(e) => update([key], e.target.value)}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         {/* ================= ACTIVIDADES REALIZADAS ================= */}
-        <section className="border rounded p-4 space-y-4 text-sm">
-          <h2 className="font-semibold">ACTIVIDADES REALIZADAS</h2>
+        <h3 className="font-bold text-sm">ACTIVIDADES REALIZADAS</h3>
 
-          <table className="pdf-table">
-            <thead>
-              <tr>
-                <th style={{ width: 40 }}>ÍTEM</th>
-                <th>DESCRIPCIÓN</th>
-                <th style={{ width: 220 }}>IMAGEN</th>
-                <th style={{ width: 80 }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.actividades.map((a, i) => (
-                <tr key={i}>
-                  <td className="text-center">{i + 1}</td>
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th style={{ width: 40 }}>ÍTEM</th>
+              <th>DESCRIPCIÓN</th>
+              <th style={{ width: 260 }}>IMAGEN</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.actividades.map((a, i) => (
+              <tr key={i}>
+                <td className="text-center">{i + 1}</td>
 
-                  <td>
-                    <input
-                      className="pdf-input"
-                      placeholder="Título de la actividad"
-                      value={a.titulo}
-                      onChange={(e) =>
-                        update(["actividades", i, "titulo"], e.target.value)
-                      }
+                <td>
+                  <input
+                    className="pdf-input"
+                    placeholder="Título de la actividad"
+                    value={a.titulo}
+                    onChange={(e) =>
+                      update(["actividades", i, "titulo"], e.target.value)
+                    }
+                  />
+                  <textarea
+                    className="pdf-textarea"
+                    placeholder="Detalle"
+                    value={a.detalle}
+                    onChange={(e) =>
+                      update(["actividades", i, "detalle"], e.target.value)
+                    }
+                  />
+                </td>
+
+                <td className="text-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      fileToBase64(e.target.files[0], (b64) =>
+                        update(["actividades", i, "imagen"], b64)
+                      )
+                    }
+                  />
+
+                  {a.imagen && (
+                    <img
+                      src={a.imagen}
+                      alt="actividad"
+                      style={{ maxWidth: 120, marginTop: 6 }}
                     />
-                    <textarea
-                      className="pdf-textarea"
-                      placeholder="Detalle"
-                      value={a.detalle}
-                      onChange={(e) =>
-                        update(["actividades", i, "detalle"], e.target.value)
-                      }
-                    />
-                  </td>
+                  )}
 
-                  <td className="text-center">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) =>
-                        fileToBase64(e.target.files[0], (b64) =>
-                          update(["actividades", i, "imagen"], b64)
-                        )
-                      }
-                    />
-                    {a.imagen && (
-                      <img
-                        src={a.imagen}
-                        alt="actividad"
-                        style={{ maxWidth: 120, marginTop: 6 }}
-                      />
-                    )}
-                  </td>
-
-                  <td className="text-center">
-                    {data.actividades.length > 1 && (
+                  {data.actividades.length > 1 && (
+                    <div style={{ marginTop: 6 }}>
                       <button
                         type="button"
                         onClick={() => removeActividad(i)}
@@ -268,21 +240,41 @@ export default function NuevoInforme() {
                       >
                         Eliminar
                       </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-          <button
-            type="button"
-            onClick={addActividad}
-            className="border px-3 py-1 text-xs rounded"
-          >
-            + Agregar actividad
-          </button>
-        </section>
+        <button
+          type="button"
+          onClick={addActividad}
+          className="border px-3 py-1 text-xs rounded"
+        >
+          + Agregar actividad
+        </button>
+
+        {/* ================= FIRMAS (TEMPORAL, PASO 4) ================= */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>FIRMA TÉCNICO</th>
+              <th>FIRMA CLIENTE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="text-center">
+                <SignatureCanvas ref={sigTecnico} canvasProps={{ width: 300, height: 120 }} />
+              </td>
+              <td className="text-center">
+                <SignatureCanvas ref={sigCliente} canvasProps={{ width: 300, height: 120 }} />
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         {/* ================= BOTONES ================= */}
         <div className="flex justify-between pt-6">
