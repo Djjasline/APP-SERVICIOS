@@ -11,108 +11,127 @@ export default function InformeHome() {
     setReports(stored);
   }, []);
 
-  const openReport = (report) => {
-    // 🔑 PASO CLAVE
-    localStorage.setItem("currentReport", JSON.stringify(report));
-    navigate("/informe/nuevo");
-  };
-
-  const deleteReport = (id) => {
-    const updated = reports.filter((r) => r.id !== id);
-    setReports(updated);
-    localStorage.setItem("serviceReports", JSON.stringify(updated));
-  };
-
   const isCompleted = (r) =>
     r.data?.firmas?.tecnico && r.data?.firmas?.cliente;
 
   const filteredReports = reports.filter((r) => {
+    if (filter === "todos") return true;
     if (filter === "borrador") return !isCompleted(r);
     if (filter === "completado") return isCompleted(r);
     return true;
   });
 
+  const openReport = (id) => {
+    navigate(`/informe/editar/${id}`);
+  };
+
+  const openPDF = (id) => {
+    navigate(`/informe/pdf/${id}`);
+  };
+
+  const deleteReport = (id) => {
+    if (!confirm("¿Eliminar informe?")) return;
+    const updated = reports.filter((r) => r.id !== id);
+    localStorage.setItem("serviceReports", JSON.stringify(updated));
+    setReports(updated);
+  };
+
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Informe general</h1>
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="bg-white p-6 rounded shadow max-w-5xl mx-auto space-y-4">
 
-      <button
-        className="bg-blue-600 text-white px-6 py-2 rounded mb-4"
-        onClick={() => {
-          localStorage.removeItem("currentReport");
-          navigate("/informe/nuevo");
-        }}
-      >
-        Nuevo informe
-      </button>
+        {/* ===== HEADER ===== */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-lg font-semibold">Informe general</h1>
 
-      {/* FILTROS */}
-      <div className="flex gap-2 mb-4">
-        {["todos", "borrador", "completado"].map((f) => (
+          {/* 🔙 BOTÓN VOLVER (ESTE FALTABA) */}
           <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-3 py-1 border rounded ${
-              filter === f ? "bg-black text-white" : ""
-            }`}
+            onClick={() => navigate("/")}
+            className="border px-4 py-2 rounded"
           >
-            {f}
+            Volver
           </button>
-        ))}
-      </div>
+        </div>
 
-      {/* LISTA */}
-      <div className="space-y-2">
-        {filteredReports.length === 0 && (
-          <p className="text-gray-500">Sin registros</p>
-        )}
+        {/* ===== NUEVO INFORME ===== */}
+        <button
+          onClick={() => navigate("/informe/nuevo")}
+          className="bg-blue-600 text-white px-4 py-2 rounded w-full"
+        >
+          Nuevo informe
+        </button>
 
-        {filteredReports.map((r) => (
-          <div
-            key={r.id}
-            className="border p-3 rounded flex justify-between items-center"
-          >
-            <div>
-              <p className="font-semibold">
-                {r.data?.cliente || "ETAPA"}
-              </p>
-              <p className="text-xs text-gray-500">
-                {new Date(r.createdAt).toLocaleString()}
-              </p>
-              <p className="text-xs">
-                Estado:{" "}
-                <strong>
-                  {isCompleted(r) ? "Completado" : "Borrador"}
-                </strong>
-              </p>
-            </div>
+        {/* ===== FILTROS ===== */}
+        <div className="flex gap-2">
+          {["todos", "borrador", "completado"].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1 border rounded text-sm ${
+                filter === f ? "bg-black text-white" : ""
+              }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
 
-            <div className="flex gap-3 text-sm">
-              <button
-                className="text-blue-600"
-                onClick={() => openReport(r)}
+        {/* ===== LISTADO ===== */}
+        <div className="space-y-2">
+          {filteredReports.length === 0 && (
+            <p className="text-sm text-gray-500">Sin registros</p>
+          )}
+
+          {filteredReports.map((r) => {
+            const completed = isCompleted(r);
+
+            return (
+              <div
+                key={r.id}
+                className="border rounded p-3 flex justify-between items-center"
               >
-                Abrir
-              </button>
+                <div>
+                  <strong>{r.data?.cliente || "ETAPA"}</strong>
+                  <div className="text-xs text-gray-500">
+                    {new Date(r.createdAt).toLocaleString()}
+                  </div>
+                  <div className="text-xs">
+                    Estado:{" "}
+                    <strong>
+                      {completed ? "Completado" : "Borrador"}
+                    </strong>
+                  </div>
+                </div>
 
-              {isCompleted(r) && (
-                <button
-                  className="text-green-600"
-                  onClick={() => navigate(`/informe/pdf/${r.id}`)}
-                >
-                  PDF
-                </button>
-              )}
+                <div className="flex gap-3 text-sm">
+                  <button
+                    className="text-blue-600"
+                    onClick={() => openReport(r.id)}
+                  >
+                    Abrir
+                  </button>
 
-              <button
-                className="text-red-600"
-                onClick={() => deleteReport(r.id)}
-              >
-                Eliminar
-              </button>
-            </div>
-          </div>
-        ))}
+                  {completed && (
+                    <button
+                      className="text-green-600"
+                      onClick={() => openPDF(r.id)}
+                    >
+                      PDF
+                    </button>
+                  )}
+
+                  <button
+                    className="text-red-600"
+                    onClick={() => deleteReport(r.id)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
       </div>
     </div>
   );
