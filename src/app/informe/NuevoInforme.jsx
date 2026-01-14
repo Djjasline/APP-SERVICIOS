@@ -26,6 +26,9 @@ export default function NuevoInforme() {
       { titulo: "", detalle: "", imagen: "" },
     ],
 
+    conclusiones: [""],
+    recomendaciones: [""],
+
     equipo: {
       nota: "",
       marca: "",
@@ -50,25 +53,52 @@ export default function NuevoInforme() {
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
 
+  /* ===========================
+     CARGAR BORRADOR
+  =========================== */
   useEffect(() => {
     const current = JSON.parse(localStorage.getItem("currentReport"));
     if (current?.data) {
       setData(current.data);
       setTimeout(() => {
-        current.data.firmas?.tecnico && sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
-        current.data.firmas?.cliente && sigCliente.current?.fromDataURL(current.data.firmas.cliente);
+        if (current.data.firmas?.tecnico) {
+          sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
+        }
+        if (current.data.firmas?.cliente) {
+          sigCliente.current?.fromDataURL(current.data.firmas.cliente);
+        }
       }, 0);
     }
   }, []);
 
+  /* ===========================
+     UPDATE GENÉRICO
+  =========================== */
   const update = (path, value) => {
     setData(prev => {
       const copy = structuredClone(prev);
       let ref = copy;
-      for (let i = 0; i < path.length - 1; i++) ref = ref[path[i]];
-      ref[path.at(-1)] = value;
+      for (let i = 0; i < path.length - 1; i++) {
+        ref = ref[path[i]];
+      }
+      ref[path[path.length - 1]] = value;
       return copy;
     });
+  };
+
+  /* ===========================
+     ACTIVIDADES
+  =========================== */
+  const addActividad = () => {
+    update(
+      ["actividades"],
+      [...data.actividades, { titulo: "", detalle: "", imagen: "" }]
+    );
+  };
+
+  const removeActividad = (index) => {
+    const updated = data.actividades.filter((_, i) => i !== index);
+    update(["actividades"], updated);
   };
 
   const fileToBase64 = (file, cb) => {
@@ -78,42 +108,31 @@ export default function NuevoInforme() {
     reader.readAsDataURL(file);
   };
 
-  const addActividad = () => {
-    setData(p => ({
-      ...p,
-      actividades: [...p.actividades, { titulo: "", detalle: "", imagen: "" }],
-    }));
-  };
-
-  const removeActividad = (index) => {
-    setData(p => ({
-      ...p,
-      actividades: p.actividades.filter((_, i) => i !== index),
-    }));
-  };
-
+  /* ===========================
+     GUARDAR
+  =========================== */
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
 
     const report = {
       id: Date.now(),
       createdAt: new Date().toISOString(),
-      estado:
-        sigTecnico.current?.isEmpty() || sigCliente.current?.isEmpty()
-          ? "borrador"
-          : "completado",
       data: {
         ...data,
         firmas: {
-          tecnico: sigTecnico.current?.toDataURL() || "",
-          cliente: sigCliente.current?.toDataURL() || "",
+          tecnico: sigTecnico.current?.isEmpty()
+            ? ""
+            : sigTecnico.current.toDataURL(),
+          cliente: sigCliente.current?.isEmpty()
+            ? ""
+            : sigCliente.current.toDataURL(),
         },
       },
     };
 
     localStorage.setItem("serviceReports", JSON.stringify([...stored, report]));
+    local compiler = 0;
     localStorage.setItem("currentReport", JSON.stringify(report));
-
     navigate("/informe");
   };
 
@@ -123,69 +142,123 @@ export default function NuevoInforme() {
 
         <ReportHeader data={data} onChange={update} />
 
-        {/* ACTIVIDADES */}
-        <h2 className="text-lg font-bold">ACTIVIDADES REALIZADAS</h2>
+        {/* ================= ACTIVIDADES ================= */}
+        <h2 className="font-bold text-sm uppercase">
+          Actividades realizadas
+        </h2>
 
-        {data.actividades.map((a, i) => (
-          <div key={i} className="border p-4 rounded space-y-2">
-            <div className="flex justify-between">
-              <strong>Actividad {i + 1}</strong>
-              {data.actividades.length > 1 && (
-                <button
-                  className="text-red-600 text-sm"
-                  onClick={() => removeActividad(i)}
-                >
-                  Eliminar
-                </button>
-              )}
-            </div>
-
-            <input
-              className="pdf-input"
-              placeholder="Título de la actividad"
-              value={a.titulo}
-              onChange={(e) => update(["actividades", i, "titulo"], e.target.value)}
-            />
-
-            <textarea
-              className="pdf-textarea"
-              placeholder="Detalle"
-              value={a.detalle}
-              onChange={(e) => update(["actividades", i, "detalle"], e.target.value)}
-            />
-
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) =>
-                fileToBase64(e.target.files[0], (b64) =>
-                  update(["actividades", i, "imagen"], b64)
-                )
-              }
-            />
-
-            {a.imagen && <img src={a.imagen} style={{ maxWidth: 200 }} />}
-          </div>
-        ))}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th style={{ width: "40px" }}>Ítem</th>
+              <th>Descripción</th>
+              <th style={{ width: "200px" }}>Imagen</th>
+              <th style={{ width: "60px" }}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.actividades.map((a, i) => (
+              <tr key={i}>
+                <td>{i + 1}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    placeholder="Título de la actividad"
+                    value={a.titulo}
+                    onChange={(e) =>
+                      update(["actividades", i, "titulo"], e.target.value)
+                    }
+                  />
+                  <textarea
+                    className="pdf-textarea"
+                    placeholder="Detalle"
+                    value={a.detalle}
+                    onChange={(e) =>
+                      update(["actividades", i, "detalle"], e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      fileToBase64(e.target.files[0], (b64) =>
+                        update(["actividades", i, "imagen"], b64)
+                      )
+                    }
+                  />
+                  {a.imagen && (
+                    <img
+                      src={a.imagen}
+                      alt=""
+                      style={{ maxWidth: 120, marginTop: 6 }}
+                    />
+                  )}
+                </td>
+                <td className="text-center">
+                  {data.actividades.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeActividad(i)}
+                      className="text-red-600 text-sm"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         <button
-          className="border px-4 py-2 rounded"
+          type="button"
           onClick={addActividad}
+          className="border px-3 py-1 text-sm rounded"
         >
           + Agregar actividad
         </button>
 
-        {/* FIRMAS */}
-        <div className="grid grid-cols-2 gap-4">
-          <SignatureCanvas ref={sigTecnico} canvasProps={{ height: 150 }} />
-          <SignatureCanvas ref={sigCliente} canvasProps={{ height: 150 }} />
-        </div>
+        {/* ================= FIRMAS ================= */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>Firma técnico</th>
+              <th>Firma cliente</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="text-center">
+                <SignatureCanvas
+                  ref={sigTecnico}
+                  canvasProps={{ width: 300, height: 150 }}
+                />
+              </td>
+              <td className="text-center">
+                <SignatureCanvas
+                  ref={sigCliente}
+                  canvasProps={{ width: 300, height: 150 }}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-        <div className="flex justify-between">
-          <button onClick={() => navigate("/informe")} className="border px-6 py-2">
+        {/* ================= BOTONES ================= */}
+        <div className="flex justify-between pt-6">
+          <button
+            onClick={() => navigate("/informe")}
+            className="border px-6 py-2 rounded"
+          >
             Volver
           </button>
-          <button onClick={saveReport} className="bg-blue-600 text-white px-6 py-2">
+
+          <button
+            onClick={saveReport}
+            className="bg-blue-600 text-white px-6 py-2 rounded"
+          >
             Guardar informe
           </button>
         </div>
