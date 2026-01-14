@@ -108,8 +108,22 @@ export default function NuevoInforme() {
       actividades: p.actividades.filter((_, idx) => idx !== i),
     }));
 
-  const addLinea = (campo) =>
-    setData(p => ({ ...p, [campo]: [...p[campo], ""] }));
+  /* ===========================
+     CONCLUSIONES / RECOMENDACIONES
+  =========================== */
+  const addConclusionRow = () =>
+    setData(p => ({
+      ...p,
+      conclusiones: [...p.conclusiones, ""],
+      recomendaciones: [...p.recomendaciones, ""],
+    }));
+
+  const removeConclusionRow = (index) =>
+    setData(p => ({
+      ...p,
+      conclusiones: p.conclusiones.filter((_, i) => i !== index),
+      recomendaciones: p.recomendaciones.filter((_, i) => i !== index),
+    }));
 
   /* ===========================
      GUARDAR
@@ -238,65 +252,55 @@ export default function NuevoInforme() {
           + Agregar actividad
         </button>
 
-{/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
-<table className="pdf-table">
-  <thead>
-    <tr>
-      <th colSpan={2}>CONCLUSIONES</th>
-      <th colSpan={2}>RECOMENDACIONES</th>
-    </tr>
-  </thead>
+        {/* CONCLUSIONES Y RECOMENDACIONES */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th colSpan={2}>CONCLUSIONES</th>
+              <th colSpan={2}>RECOMENDACIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.conclusiones.map((_, i) => (
+              <tr key={i}>
+                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
+                <td>
+                  <textarea
+                    className="pdf-textarea"
+                    value={data.conclusiones[i]}
+                    onChange={(e) =>
+                      update(["conclusiones", i], e.target.value)
+                    }
+                  />
+                </td>
+                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
+                <td>
+                  <textarea
+                    className="pdf-textarea"
+                    value={data.recomendaciones[i]}
+                    onChange={(e) =>
+                      update(["recomendaciones", i], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-  <tbody>
-    {data.conclusiones.map((_, i) => (
-      <tr key={i}>
-        {/* CONCLUSIONES */}
-        <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
-        <td>
-          <textarea
-            className="pdf-textarea"
-            value={data.conclusiones[i]}
-            onChange={(e) =>
-              update(["conclusiones", i], e.target.value)
-            }
-          />
-        </td>
-
-        {/* RECOMENDACIONES */}
-        <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
-        <td>
-          <textarea
-            className="pdf-textarea"
-            value={data.recomendaciones[i]}
-            onChange={(e) =>
-              update(["recomendaciones", i], e.target.value)
-            }
-          />
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-
-<div className="flex justify-between mt-2">
-  <button
-    type="button"
-    className="border px-3 py-1 rounded text-sm"
-    onClick={addConclusionRow}
-  >
-    + Agregar fila
-  </button>
-
-  {data.conclusiones.length > 1 && (
-    <button
-      type="button"
-      className="border px-3 py-1 rounded text-sm text-red-600"
-      onClick={() => removeConclusionRow(data.conclusiones.length - 1)}
-    >
-      Eliminar última fila
-    </button>
-  )}
-</div>
+        <div className="flex justify-between">
+          <button onClick={addConclusionRow} className="border px-3 py-1 text-sm rounded">
+            + Agregar fila
+          </button>
+          {data.conclusiones.length > 1 && (
+            <button
+              onClick={() => removeConclusionRow(data.conclusiones.length - 1)}
+              className="border px-3 py-1 text-sm rounded text-red-600"
+            >
+              Eliminar última fila
+            </button>
+          )}
+        </div>
 
         {/* DESCRIPCIÓN DEL EQUIPO */}
         <h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
