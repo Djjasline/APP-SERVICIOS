@@ -70,49 +70,71 @@ export default function InformeHome() {
           {filtered.length === 0 && (
             <p className="text-sm text-gray-400">Sin registros</p>
           )}
+{filtered.map((r) => {
+  const firmado =
+    r.data?.firmas?.tecnico && r.data?.firmas?.cliente;
 
-          {filtered.map((r) => {
-            const firmado =
-              r.data?.firmas?.tecnico && r.data?.firmas?.cliente;
+  return (
+    <div
+      key={r.id}
+      className="border rounded p-3 flex justify-between items-center"
+    >
+      <div>
+        <p className="font-semibold text-sm">
+          {r.data.cliente || "Sin cliente"}
+        </p>
+        <p className="text-xs text-gray-500">
+          {new Date(r.createdAt).toLocaleString()}
+        </p>
+        <p className="text-xs">
+          Estado:{" "}
+          <strong>{firmado ? "Completado" : "Borrador"}</strong>
+        </p>
+      </div>
 
-            return (
-              <div
-                key={r.id}
-                className="border rounded p-3 flex justify-between items-center"
-              >
-                <div>
-                  <p className="font-semibold text-sm">
-                    {r.data.cliente || "Sin cliente"}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(r.createdAt).toLocaleString()}
-                  </p>
-                  <p className="text-xs">
-                    Estado:{" "}
-                    <strong>
-                      {firmado ? "Completado" : "Borrador"}
-                    </strong>
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => {
-                    localStorage.setItem(
-                      "currentReport",
-                      JSON.stringify(r)
-                    );
-                    navigate(`/informe/${r.id}`);
-                  }}
-                  className="text-blue-600 text-sm"
-                >
-                  Abrir
-                </button>
-              </div>
+      <div className="flex gap-3 items-center">
+        <button
+          onClick={() => {
+            localStorage.setItem(
+              "currentReport",
+              JSON.stringify(r)
             );
-          })}
-        </div>
+            navigate(`/informe/${r.id}`);
+          }}
+          className="text-blue-600 text-sm"
+        >
+          Abrir
+        </button>
 
+        {firmado && (
+          <button
+            onClick={() => navigate(`/informe/pdf/${r.id}`)}
+            className="text-green-600 text-sm"
+          >
+            PDF
+          </button>
+        )}
+
+        <button
+          onClick={() => {
+            if (!confirm("¿Eliminar informe?")) return;
+
+            const all =
+              JSON.parse(localStorage.getItem("serviceReports")) || [];
+            const updated = all.filter(x => x.id !== r.id);
+            localStorage.setItem(
+              "serviceReports",
+              JSON.stringify(updated)
+            );
+            setReports(updated);
+          }}
+          className="text-red-600 text-sm"
+        >
+          Eliminar
+        </button>
       </div>
     </div>
   );
-}
+})}
+
+          
