@@ -3,167 +3,116 @@ import { useNavigate } from "react-router-dom";
 
 export default function InformeHome() {
   const navigate = useNavigate();
-
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState("todos");
 
-  /* =============================
-     CARGAR INFORMES
-  ============================== */
   useEffect(() => {
-    const stored =
-      JSON.parse(localStorage.getItem("serviceReports")) || [];
+    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
     setReports(stored);
   }, []);
 
-  /* =============================
-     FILTRADO
-  ============================== */
-  const filtered = reports.filter((r) => {
-    const firmado =
-      r.data?.firmas?.tecnico && r.data?.firmas?.cliente;
+  const openReport = (report) => {
+    // 🔑 PASO CLAVE
+    localStorage.setItem("currentReport", JSON.stringify(report));
+    navigate("/informe/nuevo");
+  };
 
-    if (filter === "borrador") return !firmado;
-    if (filter === "completado") return firmado;
+  const deleteReport = (id) => {
+    const updated = reports.filter((r) => r.id !== id);
+    setReports(updated);
+    localStorage.setItem("serviceReports", JSON.stringify(updated));
+  };
+
+  const isCompleted = (r) =>
+    r.data?.firmas?.tecnico && r.data?.firmas?.cliente;
+
+  const filteredReports = reports.filter((r) => {
+    if (filter === "borrador") return !isCompleted(r);
+    if (filter === "completado") return isCompleted(r);
     return true;
   });
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="max-w-6xl mx-auto space-y-4">
+    <div className="p-6">
+      <h1 className="text-xl font-bold mb-4">Informe general</h1>
 
-        {/* HEADER */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-xl font-semibold">
-            Informe general
-          </h1>
+      <button
+        className="bg-blue-600 text-white px-6 py-2 rounded mb-4"
+        onClick={() => {
+          localStorage.removeItem("currentReport");
+          navigate("/informe/nuevo");
+        }}
+      >
+        Nuevo informe
+      </button>
 
+      {/* FILTROS */}
+      <div className="flex gap-2 mb-4">
+        {["todos", "borrador", "completado"].map((f) => (
           <button
-            onClick={() => navigate("/")}
-            className="border px-4 py-2 rounded"
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-3 py-1 border rounded ${
+              filter === f ? "bg-black text-white" : ""
+            }`}
           >
-            Volver
+            {f}
           </button>
-        </div>
+        ))}
+      </div>
 
-        {/* NUEVO INFORME */}
-        <div className="bg-white rounded shadow p-4">
-          <p className="text-sm text-gray-600 mb-2">
-            Crear informes técnicos con actividades, imágenes,
-            conclusiones y firmas.
-          </p>
+      {/* LISTA */}
+      <div className="space-y-2">
+        {filteredReports.length === 0 && (
+          <p className="text-gray-500">Sin registros</p>
+        )}
 
-          <button
-            onClick={() => navigate("/informe/nuevo")}
-            className="w-full bg-blue-600 text-white py-2 rounded"
+        {filteredReports.map((r) => (
+          <div
+            key={r.id}
+            className="border p-3 rounded flex justify-between items-center"
           >
-            Nuevo informe
-          </button>
-        </div>
+            <div>
+              <p className="font-semibold">
+                {r.data?.cliente || "ETAPA"}
+              </p>
+              <p className="text-xs text-gray-500">
+                {new Date(r.createdAt).toLocaleString()}
+              </p>
+              <p className="text-xs">
+                Estado:{" "}
+                <strong>
+                  {isCompleted(r) ? "Completado" : "Borrador"}
+                </strong>
+              </p>
+            </div>
 
-        {/* FILTROS */}
-        <div className="flex gap-2 text-sm">
-          {["todos", "borrador", "completado"].map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-1 rounded border ${
-                filter === f
-                  ? "bg-black text-white"
-                  : "bg-white"
-              }`}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-
-        {/* HISTORIAL */}
-        <div className="bg-white rounded shadow p-4 space-y-3">
-          {filtered.length === 0 && (
-            <p className="text-sm text-gray-500">
-              Sin registros
-            </p>
-          )}
-
-          {filtered.map((r) => {
-            const firmado =
-              r.data?.firmas?.tecnico &&
-              r.data?.firmas?.cliente;
-
-            return (
-              <div
-                key={r.id}
-                className="border rounded p-3 flex justify-between items-center"
+            <div className="flex gap-3 text-sm">
+              <button
+                className="text-blue-600"
+                onClick={() => openReport(r)}
               >
-                <div>
-                  <p className="font-semibold text-sm">
-                    {r.data?.cliente || "Sin cliente"}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(r.createdAt).toLocaleString()}
-                  </p>
-                  <p className="text-xs">
-                    Estado:{" "}
-                    <strong>
-                      {firmado ? "Completado" : "Borrador"}
-                    </strong>
-                  </p>
-                </div>
+                Abrir
+              </button>
 
-                <div className="flex gap-3 items-center">
-                  {/* ABRIR */}
-                  <button
-                    onClick={() => {
-                      localStorage.setItem(
-                        "currentReport",
-                        JSON.stringify(r)
-                      );
-                      navigate(`/informe/${r.id}`);
-                    }}
-                    className="text-blue-600 text-sm"
-                  >
-                    Abrir
-                  </button>
+              {isCompleted(r) && (
+                <button
+                  className="text-green-600"
+                  onClick={() => navigate(`/informe/pdf/${r.id}`)}
+                >
+                  PDF
+                </button>
+              )}
 
-                  {/* PDF SOLO SI COMPLETADO */}
-                  {firmado && (
-                    <button
-                      onClick={() =>
-                        navigate(`/informe/pdf/${r.id}`)
-                      }
-                      className="text-green-600 text-sm"
-                    >
-                      PDF
-                    </button>
-                  )}
-
-                  {/* ELIMINAR */}
-                  <button
-                    onClick={() => {
-                      if (
-                        !confirm("¿Eliminar informe?")
-                      )
-                        return;
-
-                      const updated = reports.filter(
-                        (x) => x.id !== r.id
-                      );
-                      localStorage.setItem(
-                        "serviceReports",
-                        JSON.stringify(updated)
-                      );
-                      setReports(updated);
-                    }}
-                    className="text-red-600 text-sm"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              <button
+                className="text-red-600"
+                onClick={() => deleteReport(r.id)}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
