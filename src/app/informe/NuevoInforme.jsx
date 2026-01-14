@@ -292,7 +292,8 @@ export default function NuevoInforme() {
         {/* ================= BOTONES ================= */}
         <div className="flex justify-between pt-6">
           <button
-            onClick={() => navigate("/informe")}
+            type="button"
+            onClick={() => navigate("/")}
             className="border px-6 py-2 rounded"
           >
             Volver
