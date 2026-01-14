@@ -246,15 +246,16 @@ export default function NuevoInforme() {
       <th colSpan={2}>RECOMENDACIONES</th>
     </tr>
   </thead>
+
   <tbody>
-    {[0, 1, 2].map((i) => (
+    {data.conclusiones.map((_, i) => (
       <tr key={i}>
         {/* CONCLUSIONES */}
-        <td style={{ width: "30px", textAlign: "center" }}>{i + 1}.</td>
+        <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
         <td>
           <textarea
             className="pdf-textarea"
-            value={data.conclusiones[i] || ""}
+            value={data.conclusiones[i]}
             onChange={(e) =>
               update(["conclusiones", i], e.target.value)
             }
@@ -262,11 +263,11 @@ export default function NuevoInforme() {
         </td>
 
         {/* RECOMENDACIONES */}
-        <td style={{ width: "30px", textAlign: "center" }}>{i + 1}.</td>
+        <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
         <td>
           <textarea
             className="pdf-textarea"
-            value={data.recomendaciones[i] || ""}
+            value={data.recomendaciones[i]}
             onChange={(e) =>
               update(["recomendaciones", i], e.target.value)
             }
@@ -277,6 +278,25 @@ export default function NuevoInforme() {
   </tbody>
 </table>
 
+<div className="flex justify-between mt-2">
+  <button
+    type="button"
+    className="border px-3 py-1 rounded text-sm"
+    onClick={addConclusionRow}
+  >
+    + Agregar fila
+  </button>
+
+  {data.conclusiones.length > 1 && (
+    <button
+      type="button"
+      className="border px-3 py-1 rounded text-sm text-red-600"
+      onClick={() => removeConclusionRow(data.conclusiones.length - 1)}
+    >
+      Eliminar última fila
+    </button>
+  )}
+</div>
 
         {/* DESCRIPCIÓN DEL EQUIPO */}
         <h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
