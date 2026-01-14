@@ -25,9 +25,7 @@ export default function NuevoInforme() {
     tecnicoTelefono: "",
     tecnicoCorreo: "",
 
-    actividades: [
-      { titulo: "", detalle: "", imagen: "" },
-    ],
+    actividades: [{ titulo: "", detalle: "", imagen: "" }],
 
     conclusiones: [""],
     recomendaciones: [""],
@@ -57,7 +55,7 @@ export default function NuevoInforme() {
   const sigCliente = useRef(null);
 
   /* ===========================
-     CARGAR DESDE HISTORIAL
+     CARGAR DESDE BORRADOR
   =========================== */
   useEffect(() => {
     const current = JSON.parse(localStorage.getItem("currentReport"));
@@ -79,7 +77,7 @@ export default function NuevoInforme() {
      UPDATE GENÉRICO
   =========================== */
   const update = (path, value) => {
-    setData(prev => {
+    setData((prev) => {
       const copy = structuredClone(prev);
       let ref = copy;
       for (let i = 0; i < path.length - 1; i++) {
@@ -101,14 +99,19 @@ export default function NuevoInforme() {
   };
 
   /* ===========================
-     GUARDAR INFORME
+     GUARDAR INFORME (CORREGIDO)
   =========================== */
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
 
+    const isCompleted =
+      !sigTecnico.current?.isEmpty() &&
+      !sigCliente.current?.isEmpty();
+
     const report = {
       id: Date.now(),
       createdAt: new Date().toISOString(),
+      status: isCompleted ? "completed" : "draft",
       data: {
         ...data,
         firmas: {
@@ -126,8 +129,10 @@ export default function NuevoInforme() {
       "serviceReports",
       JSON.stringify([...stored, report])
     );
-    localStorage.setItem("currentReport", JSON.stringify(report));
 
+    localStorage.removeItem("currentReport");
+
+    // 👉 SALIDA CORRECTA AL HISTÓRICO
     navigate("/informe");
   };
 
@@ -266,10 +271,7 @@ export default function NuevoInforme() {
                   ref={sigTecnico}
                   canvasProps={{ width: 300, height: 150 }}
                 />
-                <button
-                  type="button"
-                  onClick={() => sigTecnico.current.clear()}
-                >
+                <button type="button" onClick={() => sigTecnico.current.clear()}>
                   Limpiar
                 </button>
               </td>
@@ -278,10 +280,7 @@ export default function NuevoInforme() {
                   ref={sigCliente}
                   canvasProps={{ width: 300, height: 150 }}
                 />
-                <button
-                  type="button"
-                  onClick={() => sigCliente.current.clear()}
-                >
+                <button type="button" onClick={() => sigCliente.current.clear()}>
                   Limpiar
                 </button>
               </td>
@@ -292,8 +291,7 @@ export default function NuevoInforme() {
         {/* ================= BOTONES ================= */}
         <div className="flex justify-between pt-6">
           <button
-            type="button"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/informe")}
             className="border px-6 py-2 rounded"
           >
             Volver
