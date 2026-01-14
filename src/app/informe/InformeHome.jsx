@@ -7,39 +7,29 @@ export default function InformeHome() {
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState("todos");
 
-  /* ===========================
+  /* =============================
      CARGAR INFORMES
-  =========================== */
+  ============================== */
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
     setReports(stored);
   }, []);
 
-  /* ===========================
+  /* =============================
      FILTRO
-  =========================== */
+  ============================== */
   const filteredReports = reports.filter((r) => {
-    const completed =
+    const hasSignatures =
       r.data?.firmas?.tecnico && r.data?.firmas?.cliente;
 
-    if (filter === "borrador") return !completed;
-    if (filter === "completado") return completed;
+    if (filter === "borrador") return !hasSignatures;
+    if (filter === "completado") return hasSignatures;
     return true;
   });
 
-  /* ===========================
-     ACCIONES
-  =========================== */
-  const openReport = (report) => {
-    localStorage.setItem("currentReport", JSON.stringify(report));
-    navigate("/informe"); // ✅ RUTA CORRECTA
-  };
-
-  const newReport = () => {
-    localStorage.removeItem("currentReport");
-    navigate("/informe"); // ✅ RUTA CORRECTA
-  };
-
+  /* =============================
+     ELIMINAR
+  ============================== */
   const deleteReport = (id) => {
     if (!confirm("¿Eliminar este informe?")) return;
     const updated = reports.filter((r) => r.id !== id);
@@ -47,39 +37,54 @@ export default function InformeHome() {
     setReports(updated);
   };
 
-  /* ===========================
-     UI
-  =========================== */
+  /* =============================
+     ABRIR
+  ============================== */
+  const openReport = (report) => {
+    localStorage.setItem("currentReport", JSON.stringify(report));
+    navigate(`/informe/${report.id}`);
+  };
+
+  /* =============================
+     PDF
+  ============================== */
+  const openPDF = (id) => {
+    window.open(`/informe/pdf/${id}`, "_blank");
+  };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="bg-white p-6 rounded shadow max-w-5xl mx-auto space-y-4">
+      <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-4">
 
         {/* HEADER */}
         <div className="flex justify-between items-center">
           <h1 className="text-lg font-semibold">Informe general</h1>
           <button
+            type="button"
             onClick={() => navigate("/")}
-            className="border px-4 py-1 rounded text-sm"
+            className="border px-4 py-1 rounded"
           >
             Volver
           </button>
         </div>
 
-        {/* NUEVO */}
+        {/* NUEVO INFORME */}
         <button
-          onClick={newReport}
-          className="w-full bg-blue-600 text-white py-2 rounded"
+          type="button"
+          onClick={() => navigate("/informe/nuevo")}
+          className="bg-blue-600 text-white w-full py-2 rounded"
         >
           Nuevo informe
         </button>
 
         {/* FILTROS */}
-        <div className="flex gap-2 text-xs">
+        <div className="flex gap-2">
           {["todos", "borrador", "completado"].map((f) => (
             <button
               key={f}
+              type="button"
               onClick={() => setFilter(f)}
-              className={`px-3 py-1 border rounded ${
+              className={`px-3 py-1 border rounded text-sm ${
                 filter === f ? "bg-black text-white" : ""
               }`}
             >
@@ -91,7 +96,7 @@ export default function InformeHome() {
         {/* LISTA */}
         <div className="space-y-2">
           {filteredReports.length === 0 && (
-            <p className="text-xs text-gray-500">Sin registros</p>
+            <p className="text-sm text-gray-500">Sin registros</p>
           )}
 
           {filteredReports.map((r) => {
@@ -103,21 +108,22 @@ export default function InformeHome() {
                 key={r.id}
                 className="border rounded p-3 flex justify-between items-center"
               >
-                <div className="text-xs">
-                  <p className="font-semibold">
-                    {r.data?.cliente || "ETAPA"}
-                  </p>
-                  <p>{new Date(r.createdAt).toLocaleString()}</p>
-                  <p>
+                <div>
+                  <strong>ETAPA-EP</strong>
+                  <div className="text-xs">
+                    {new Date(r.createdAt).toLocaleString()}
+                  </div>
+                  <div className="text-xs">
                     Estado:{" "}
                     <strong>
                       {completed ? "Completado" : "Borrador"}
                     </strong>
-                  </p>
+                  </div>
                 </div>
 
-                <div className="flex gap-3 text-xs">
+                <div className="flex gap-3 text-sm">
                   <button
+                    type="button"
                     onClick={() => openReport(r)}
                     className="text-blue-600"
                   >
@@ -126,9 +132,8 @@ export default function InformeHome() {
 
                   {completed && (
                     <button
-                      onClick={() =>
-                        navigate(`/informe/pdf/${r.id}`)
-                      }
+                      type="button"
+                      onClick={() => openPDF(r.id)}
                       className="text-green-600"
                     >
                       PDF
@@ -136,6 +141,7 @@ export default function InformeHome() {
                   )}
 
                   <button
+                    type="button"
                     onClick={() => deleteReport(r.id)}
                     className="text-red-600"
                   >
