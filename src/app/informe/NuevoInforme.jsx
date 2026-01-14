@@ -22,9 +22,7 @@ export default function NuevoInforme() {
     tecnicoTelefono: "",
     tecnicoCorreo: "",
 
-    actividades: [
-      { titulo: "", detalle: "", imagen: "" },
-    ],
+    actividades: [{ titulo: "", detalle: "", imagen: "" }],
 
     conclusiones: [""],
     recomendaciones: [""],
@@ -75,7 +73,7 @@ export default function NuevoInforme() {
      UPDATE GENÉRICO
   =========================== */
   const update = (path, value) => {
-    setData(prev => {
+    setData((prev) => {
       const copy = structuredClone(prev);
       let ref = copy;
       for (let i = 0; i < path.length - 1; i++) {
@@ -90,10 +88,10 @@ export default function NuevoInforme() {
      ACTIVIDADES
   =========================== */
   const addActividad = () => {
-    update(
-      ["actividades"],
-      [...data.actividades, { titulo: "", detalle: "", imagen: "" }]
-    );
+    update(["actividades"], [
+      ...data.actividades,
+      { titulo: "", detalle: "", imagen: "" },
+    ]);
   };
 
   const removeActividad = (index) => {
@@ -109,7 +107,7 @@ export default function NuevoInforme() {
   };
 
   /* ===========================
-     GUARDAR
+     GUARDAR INFORME
   =========================== */
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
@@ -130,8 +128,10 @@ export default function NuevoInforme() {
       },
     };
 
-    localStorage.setItem("serviceReports", JSON.stringify([...stored, report]));
-    local compiler = 0;
+    localStorage.setItem(
+      "serviceReports",
+      JSON.stringify([...stored, report])
+    );
     localStorage.setItem("currentReport", JSON.stringify(report));
     navigate("/informe");
   };
