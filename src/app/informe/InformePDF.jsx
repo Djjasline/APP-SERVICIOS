@@ -1,103 +1,196 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+
+/*
+  VISTA PDF – INFORME GENERAL DE SERVICIOS
+  - SOLO LECTURA
+  - FORMATO FIJO
+  - IMPRIMIBLE / DESCARGABLE
+*/
 
 export default function InformePDF() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [report, setReport] = useState(null);
 
-  useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
-    const found = stored.find((r) => String(r.id) === String(id));
-    if (found) setReport(found);
-  }, [id]);
+  const reports = JSON.parse(localStorage.getItem("serviceReports")) || [];
+  const report = reports.find(r => String(r.id) === id);
 
-  useEffect(() => {
-    if (report) {
-      setTimeout(() => {
-        window.print();
-      }, 500);
-    }
-  }, [report]);
+  if (!report) {
+    return (
+      <div style={{ padding: 40 }}>
+        <h2>Informe no encontrado</h2>
+        <button onClick={() => navigate("/informe")}>Volver</button>
+      </div>
+    );
+  }
 
-  if (!report) return <p>Cargando informe…</p>;
-
-  const d = report.data;
+  const { data, createdAt } = report;
 
   return (
-    <div className="p-8 bg-white text-black text-sm print:text-xs">
-      {/* ENCABEZADO */}
-      <h1 className="text-center text-lg font-bold mb-4">
-        INFORME TÉCNICO DE SERVICIO
-      </h1>
+    <div className="pdf-container">
+      {/* ================= ENCABEZADO ================= */}
+      <table className="pdf-table">
+        <tbody>
+          <tr>
+            <td rowSpan="3" style={{ width: 90, textAlign: "center" }}>
+              <img src="/astap-logo.jpg" style={{ maxWidth: 80 }} />
+            </td>
+            <td colSpan="4" className="pdf-title">
+              INFORME TÉCNICO DE SERVICIO
+            </td>
+            <td className="pdf-small">
+              Fecha versión: 26-11-25<br />
+              Versión: 01
+            </td>
+          </tr>
+          <tr>
+            <td className="pdf-label">REFERENCIA DE CONTRATO</td>
+            <td colSpan="5">{data.referenciaContrato}</td>
+          </tr>
+          <tr>
+            <td className="pdf-label">DESCRIPCIÓN</td>
+            <td colSpan="5">{data.descripcion}</td>
+          </tr>
+        </tbody>
+      </table>
 
-      {/* DATOS GENERALES */}
-      <section className="mb-4">
-        <p><strong>Cliente:</strong> {d.cliente}</p>
-        <p><strong>Dirección:</strong> {d.direccion}</p>
-        <p><strong>Contacto:</strong> {d.contacto}</p>
-        <p><strong>Teléfono:</strong> {d.telefono}</p>
-        <p><strong>Correo:</strong> {d.correo}</p>
-        <p><strong>Fecha de servicio:</strong> {d.fechaServicio}</p>
-      </section>
+      {/* ================= DATOS DEL CLIENTE ================= */}
+      <table className="pdf-table">
+        <tbody>
+          {[
+            ["CLIENTE", data.cliente],
+            ["DIRECCIÓN", data.direccion],
+            ["CONTACTO", data.contacto],
+            ["TELÉFONO", data.telefono],
+            ["CORREO", data.correo],
+            ["TÉCNICO RESPONSABLE", data.tecnicoNombre],
+            ["TELÉFONO TÉCNICO", data.tecnicoTelefono],
+            ["CORREO TÉCNICO", data.tecnicoCorreo],
+            ["FECHA DE SERVICIO", data.fechaServicio],
+          ].map(([label, value], i) => (
+            <tr key={i}>
+              <td className="pdf-label">{label}</td>
+              <td colSpan="5">{value || "-"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-      {/* ACTIVIDADES */}
-      <section className="mb-4">
-        <h2 className="font-semibold mb-2">Actividades realizadas</h2>
+      {/* ================= ACTIVIDADES ================= */}
+      <table className="pdf-table">
+        <thead>
+          <tr>
+            <th style={{ width: 60 }}>ÍTEM</th>
+            <th>DESCRIPCIÓN DE ACTIVIDADES</th>
+            <th style={{ width: 220 }}>IMAGEN</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.actividades.map((a, i) => (
+            <>
+              <tr key={`t-${i}`}>
+                <td>{i + 1}</td>
+                <td>{a.titulo}</td>
+                <td rowSpan="2" style={{ textAlign: "center" }}>
+                  {a.imagen && (
+                    <img
+                      src={a.imagen}
+                      style={{ maxWidth: 200, maxHeight: 150 }}
+                    />
+                  )}
+                </td>
+              </tr>
+              <tr key={`d-${i}`}>
+                <td>{i + 1}.1</td>
+                <td>{a.detalle}</td>
+              </tr>
+            </>
+          ))}
+        </tbody>
+      </table>
 
-        {d.actividades.map((a, i) => (
-          <div key={i} className="mb-3">
-            <p><strong>{i + 1}. {a.titulo}</strong></p>
-            <p>{a.detalle}</p>
+      {/* ================= CONCLUSIONES ================= */}
+      <table className="pdf-table">
+        <thead>
+          <tr>
+            <th>CONCLUSIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.conclusiones?.map((c, i) => (
+            <tr key={i}>
+              <td>{c}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-            {a.imagen && (
-              <img
-                src={a.imagen}
-                alt="actividad"
-                style={{ maxWidth: "300px", marginTop: "8px" }}
-              />
-            )}
-          </div>
-        ))}
-      </section>
+      {/* ================= RECOMENDACIONES ================= */}
+      <table className="pdf-table">
+        <thead>
+          <tr>
+            <th>RECOMENDACIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.recomendaciones?.map((r, i) => (
+            <tr key={i}>
+              <td>{r}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-      {/* EQUIPO */}
-      <section className="mb-4">
-        <h2 className="font-semibold mb-2">Descripción del equipo</h2>
-        <p>Marca: {d.equipo.marca}</p>
-        <p>Modelo: {d.equipo.modelo}</p>
-        <p>Serie: {d.equipo.serie}</p>
-        <p>VIN: {d.equipo.vin}</p>
-        <p>Placa: {d.equipo.placa}</p>
-        <p>Horas módulo: {d.equipo.horasModulo}</p>
-        <p>Kilometraje: {d.equipo.kilometraje}</p>
-      </section>
+      {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+      <table className="pdf-table">
+        <tbody>
+          {[
+            ["NOTA", data.equipo?.nota],
+            ["MARCA", data.equipo?.marca],
+            ["MODELO", data.equipo?.modelo],
+            ["N° SERIE", data.equipo?.serie],
+            ["AÑO MODELO", data.equipo?.anio],
+            ["VIN / CHASIS", data.equipo?.vin],
+            ["PLACA", data.equipo?.placa],
+            ["HORAS MÓDULO", data.equipo?.horasModulo],
+            ["HORAS CHASIS", data.equipo?.horasChasis],
+            ["KILOMETRAJE", data.equipo?.kilometraje],
+          ].map(([label, value], i) => (
+            <tr key={i}>
+              <td className="pdf-label">{label}</td>
+              <td colSpan="5">{value || "-"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-      {/* FIRMAS */}
-      <section className="mt-8 grid grid-cols-2 gap-8 text-center">
-        <div>
-          <p className="mb-2">Firma técnico</p>
-          {d.firmas.tecnico && (
-            <img src={d.firmas.tecnico} style={{ maxWidth: "200px" }} />
-          )}
-        </div>
+      {/* ================= FIRMAS ================= */}
+      <table className="pdf-table">
+        <thead>
+          <tr>
+            <th>FIRMA TÉCNICO</th>
+            <th>FIRMA CLIENTE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style={{ textAlign: "center", height: 160 }}>
+              {data.firmas?.tecnico && (
+                <img src={data.firmas.tecnico} style={{ maxHeight: 140 }} />
+              )}
+            </td>
+            <td style={{ textAlign: "center" }}>
+              {data.firmas?.cliente && (
+                <img src={data.firmas.cliente} style={{ maxHeight: 140 }} />
+              )}
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-        <div>
-          <p className="mb-2">Firma cliente</p>
-          {d.firmas.cliente && (
-            <img src={d.firmas.cliente} style={{ maxWidth: "200px" }} />
-          )}
-        </div>
-      </section>
-
-      {/* BOTÓN SOLO EN PANTALLA */}
-      <div className="mt-10 text-center print:hidden">
-        <button
-          className="border px-6 py-2 rounded"
-          onClick={() => navigate("/informe")}
-        >
-          Volver
-        </button>
+      {/* ================= BOTONES (NO PDF) ================= */}
+      <div className="no-print" style={{ marginTop: 20 }}>
+        <button onClick={() => navigate("/informe")}>Volver</button>
+        <button onClick={() => window.print()}>Imprimir / Guardar PDF</button>
       </div>
     </div>
   );
