@@ -7,11 +7,14 @@ import InformePDF from "./InformePDF";
 export default function InformeRoutes() {
   return (
     <Routes>
-      {/* HOME */}
+      {/* LISTADO */}
       <Route index element={<InformeHome />} />
 
-      {/* NUEVO INFORME */}
+      {/* NUEVO */}
       <Route path="nuevo" element={<NuevoInforme />} />
+
+      {/* ABRIR / EDITAR */}
+      <Route path=":id" element={<NuevoInforme />} />
 
       {/* PDF */}
       <Route path="pdf/:id" element={<InformePDF />} />
