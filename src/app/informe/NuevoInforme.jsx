@@ -6,7 +6,7 @@ export default function NuevoInforme() {
   const navigate = useNavigate();
 
   /* ===========================
-     ESTADO BASE DEL INFORME
+     ESTADO BASE
   =========================== */
   const emptyReport = {
     referenciaContrato: "",
@@ -52,7 +52,7 @@ export default function NuevoInforme() {
   const sigCliente = useRef(null);
 
   /* ===========================
-     CARGA DESDE BORRADOR
+     CARGAR BORRADOR
   =========================== */
   useEffect(() => {
     const current = JSON.parse(localStorage.getItem("currentReport"));
@@ -84,6 +84,22 @@ export default function NuevoInforme() {
     const reader = new FileReader();
     reader.onload = () => cb(reader.result);
     reader.readAsDataURL(file);
+  };
+
+  /* ===========================
+     ACTIVIDADES
+  =========================== */
+  const addActividad = () => {
+    update(["actividades"], [
+      ...data.actividades,
+      { titulo: "", detalle: "", imagen: "" },
+    ]);
+  };
+
+  const removeActividad = (index) => {
+    const copy = [...data.actividades];
+    copy.splice(index, 1);
+    update(["actividades"], copy.length ? copy : [{ titulo: "", detalle: "", imagen: "" }]);
   };
 
   /* ===========================
@@ -121,7 +137,7 @@ export default function NuevoInforme() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
 
-        {/* ================= ENCABEZADO (IGUAL A INSPECCIÓN) ================= */}
+        {/* ================= ENCABEZADO ================= */}
         <section className="border rounded overflow-hidden">
           <table className="w-full text-xs border-collapse">
             <tbody>
@@ -158,62 +174,114 @@ export default function NuevoInforme() {
           </table>
         </section>
 
-        {/* ================= DATOS DEL CLIENTE (IGUAL A INSPECCIÓN) ================= */}
+        {/* ================= DATOS CLIENTE ================= */}
         <section className="grid md:grid-cols-2 gap-3 border rounded p-4 text-sm">
-          <input
-            className="border p-2"
-            placeholder="Cliente"
-            value={data.cliente}
-            onChange={(e) => update(["cliente"], e.target.value)}
-          />
-          <input
-            className="border p-2"
-            placeholder="Dirección"
-            value={data.direccion}
-            onChange={(e) => update(["direccion"], e.target.value)}
-          />
-          <input
-            className="border p-2"
-            placeholder="Contacto"
-            value={data.contacto}
-            onChange={(e) => update(["contacto"], e.target.value)}
-          />
-          <input
-            className="border p-2"
-            placeholder="Teléfono"
-            value={data.telefono}
-            onChange={(e) => update(["telefono"], e.target.value)}
-          />
-          <input
-            className="border p-2"
-            placeholder="Correo"
-            value={data.correo}
-            onChange={(e) => update(["correo"], e.target.value)}
-          />
-          <input
-            className="border p-2"
-            placeholder="Técnico responsable"
-            value={data.tecnicoNombre}
-            onChange={(e) => update(["tecnicoNombre"], e.target.value)}
-          />
-          <input
-            className="border p-2"
-            placeholder="Teléfono técnico"
-            value={data.tecnicoTelefono}
-            onChange={(e) => update(["tecnicoTelefono"], e.target.value)}
-          />
-          <input
-            className="border p-2"
-            placeholder="Correo técnico"
-            value={data.tecnicoCorreo}
-            onChange={(e) => update(["tecnicoCorreo"], e.target.value)}
-          />
+          {[
+            ["Cliente", "cliente"],
+            ["Dirección", "direccion"],
+            ["Contacto", "contacto"],
+            ["Teléfono", "telefono"],
+            ["Correo", "correo"],
+            ["Técnico responsable", "tecnicoNombre"],
+            ["Teléfono técnico", "tecnicoTelefono"],
+            ["Correo técnico", "tecnicoCorreo"],
+          ].map(([ph, key]) => (
+            <input
+              key={key}
+              className="border p-2"
+              placeholder={ph}
+              value={data[key]}
+              onChange={(e) => update([key], e.target.value)}
+            />
+          ))}
+
           <input
             type="date"
             className="border p-2 md:col-span-2"
             value={data.fechaServicio}
             onChange={(e) => update(["fechaServicio"], e.target.value)}
           />
+        </section>
+
+        {/* ================= ACTIVIDADES REALIZADAS ================= */}
+        <section className="border rounded p-4 space-y-4 text-sm">
+          <h2 className="font-semibold">ACTIVIDADES REALIZADAS</h2>
+
+          <table className="pdf-table">
+            <thead>
+              <tr>
+                <th style={{ width: 40 }}>ÍTEM</th>
+                <th>DESCRIPCIÓN</th>
+                <th style={{ width: 220 }}>IMAGEN</th>
+                <th style={{ width: 80 }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.actividades.map((a, i) => (
+                <tr key={i}>
+                  <td className="text-center">{i + 1}</td>
+
+                  <td>
+                    <input
+                      className="pdf-input"
+                      placeholder="Título de la actividad"
+                      value={a.titulo}
+                      onChange={(e) =>
+                        update(["actividades", i, "titulo"], e.target.value)
+                      }
+                    />
+                    <textarea
+                      className="pdf-textarea"
+                      placeholder="Detalle"
+                      value={a.detalle}
+                      onChange={(e) =>
+                        update(["actividades", i, "detalle"], e.target.value)
+                      }
+                    />
+                  </td>
+
+                  <td className="text-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) =>
+                        fileToBase64(e.target.files[0], (b64) =>
+                          update(["actividades", i, "imagen"], b64)
+                        )
+                      }
+                    />
+                    {a.imagen && (
+                      <img
+                        src={a.imagen}
+                        alt="actividad"
+                        style={{ maxWidth: 120, marginTop: 6 }}
+                      />
+                    )}
+                  </td>
+
+                  <td className="text-center">
+                    {data.actividades.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeActividad(i)}
+                        className="text-red-600 text-xs"
+                      >
+                        Eliminar
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <button
+            type="button"
+            onClick={addActividad}
+            className="border px-3 py-1 text-xs rounded"
+          >
+            + Agregar actividad
+          </button>
         </section>
 
         {/* ================= BOTONES ================= */}
