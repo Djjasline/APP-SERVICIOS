@@ -3,71 +3,83 @@ import { useNavigate } from "react-router-dom";
 
 export default function InformeHome() {
   const navigate = useNavigate();
+
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState("todos");
 
+  /* ===========================
+     CARGAR INFORMES
+  =========================== */
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
     setReports(stored);
   }, []);
 
-  const isCompleted = (r) =>
-    r.data?.firmas?.tecnico && r.data?.firmas?.cliente;
-
+  /* ===========================
+     FILTRO
+  =========================== */
   const filteredReports = reports.filter((r) => {
-    if (filter === "todos") return true;
-    if (filter === "borrador") return !isCompleted(r);
-    if (filter === "completado") return isCompleted(r);
+    const completed =
+      r.data?.firmas?.tecnico && r.data?.firmas?.cliente;
+
+    if (filter === "borrador") return !completed;
+    if (filter === "completado") return completed;
     return true;
   });
 
-  const openReport = (id) => {
-    navigate(`/informe/editar/${id}`);
+  /* ===========================
+     ACCIONES
+  =========================== */
+  const openReport = (report) => {
+    localStorage.setItem("currentReport", JSON.stringify(report));
+    navigate("/informe"); // ✅ RUTA CORRECTA
   };
 
-  const openPDF = (id) => {
-    navigate(`/informe/pdf/${id}`);
+  const newReport = () => {
+    localStorage.removeItem("currentReport");
+    navigate("/informe"); // ✅ RUTA CORRECTA
   };
 
   const deleteReport = (id) => {
-    if (!confirm("¿Eliminar informe?")) return;
+    if (!confirm("¿Eliminar este informe?")) return;
     const updated = reports.filter((r) => r.id !== id);
     localStorage.setItem("serviceReports", JSON.stringify(updated));
     setReports(updated);
   };
 
+  /* ===========================
+     UI
+  =========================== */
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-5xl mx-auto space-y-4">
 
-        {/* ===== HEADER ===== */}
+        {/* HEADER */}
         <div className="flex justify-between items-center">
           <h1 className="text-lg font-semibold">Informe general</h1>
-
-          {/* 🔙 BOTÓN VOLVER (ESTE FALTABA) */}
           <button
             onClick={() => navigate("/")}
-            className="border px-4 py-2 rounded"
+            className="border px-4 py-1 rounded text-sm"
           >
             Volver
           </button>
         </div>
 
-        {/* ===== NUEVO INFORME ===== */}
+        {/* NUEVO */}
         <button
-          onClick={() => navigate("/informe/nuevo")}
-          className="bg-blue-600 text-white px-4 py-2 rounded w-full"
+          onClick={newReport}
+          className="w-full bg-blue-600 text-white py-2 rounded"
         >
           Nuevo informe
         </button>
 
-        {/* ===== FILTROS ===== */}
-        <div className="flex gap-2">
+        {/* FILTROS */}
+        <div className="flex gap-2 text-xs">
           {["todos", "borrador", "completado"].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1 border rounded text-sm ${
+              className={`px-3 py-1 border rounded ${
                 filter === f ? "bg-black text-white" : ""
               }`}
             >
@@ -76,53 +88,56 @@ export default function InformeHome() {
           ))}
         </div>
 
-        {/* ===== LISTADO ===== */}
+        {/* LISTA */}
         <div className="space-y-2">
           {filteredReports.length === 0 && (
-            <p className="text-sm text-gray-500">Sin registros</p>
+            <p className="text-xs text-gray-500">Sin registros</p>
           )}
 
           {filteredReports.map((r) => {
-            const completed = isCompleted(r);
+            const completed =
+              r.data?.firmas?.tecnico && r.data?.firmas?.cliente;
 
             return (
               <div
                 key={r.id}
                 className="border rounded p-3 flex justify-between items-center"
               >
-                <div>
-                  <strong>{r.data?.cliente || "ETAPA"}</strong>
-                  <div className="text-xs text-gray-500">
-                    {new Date(r.createdAt).toLocaleString()}
-                  </div>
-                  <div className="text-xs">
+                <div className="text-xs">
+                  <p className="font-semibold">
+                    {r.data?.cliente || "ETAPA"}
+                  </p>
+                  <p>{new Date(r.createdAt).toLocaleString()}</p>
+                  <p>
                     Estado:{" "}
                     <strong>
                       {completed ? "Completado" : "Borrador"}
                     </strong>
-                  </div>
+                  </p>
                 </div>
 
-                <div className="flex gap-3 text-sm">
+                <div className="flex gap-3 text-xs">
                   <button
+                    onClick={() => openReport(r)}
                     className="text-blue-600"
-                    onClick={() => openReport(r.id)}
                   >
                     Abrir
                   </button>
 
                   {completed && (
                     <button
+                      onClick={() =>
+                        navigate(`/informe/pdf/${r.id}`)
+                      }
                       className="text-green-600"
-                      onClick={() => openPDF(r.id)}
                     >
                       PDF
                     </button>
                   )}
 
                   <button
-                    className="text-red-600"
                     onClick={() => deleteReport(r.id)}
+                    className="text-red-600"
                   >
                     Eliminar
                   </button>
