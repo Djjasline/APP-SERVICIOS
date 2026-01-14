@@ -7,7 +7,7 @@ export default function NuevoInforme() {
   const navigate = useNavigate();
 
   /* ===========================
-     ESTADO BASE DEL INFORME
+     ESTADO BASE
   =========================== */
   const emptyReport = {
     referenciaContrato: "",
@@ -25,9 +25,10 @@ export default function NuevoInforme() {
     tecnicoTelefono: "",
     tecnicoCorreo: "",
 
-    actividades: [
-      { titulo: "", detalle: "", imagen: "" },
-    ],
+    actividades: [{ titulo: "", detalle: "", imagen: "" }],
+
+    conclusiones: [""],
+    recomendaciones: [""],
 
     equipo: {
       nota: "",
@@ -60,14 +61,11 @@ export default function NuevoInforme() {
     const current = JSON.parse(localStorage.getItem("currentReport"));
     if (current?.data) {
       setData(current.data);
-
       setTimeout(() => {
-        if (current.data.firmas?.tecnico) {
+        current.data.firmas?.tecnico &&
           sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
-        }
-        if (current.data.firmas?.cliente) {
+        current.data.firmas?.cliente &&
           sigCliente.current?.fromDataURL(current.data.firmas.cliente);
-        }
       }, 0);
     }
   }, []);
@@ -79,9 +77,7 @@ export default function NuevoInforme() {
     setData(prev => {
       const copy = structuredClone(prev);
       let ref = copy;
-      for (let i = 0; i < path.length - 1; i++) {
-        ref = ref[path[i]];
-      }
+      for (let i = 0; i < path.length - 1; i++) ref = ref[path[i]];
       ref[path[path.length - 1]] = value;
       return copy;
     });
@@ -100,22 +96,23 @@ export default function NuevoInforme() {
   /* ===========================
      ACTIVIDADES
   =========================== */
-  const addActividad = () => {
-    setData(prev => ({
-      ...prev,
-      actividades: [...prev.actividades, { titulo: "", detalle: "", imagen: "" }],
+  const addActividad = () =>
+    setData(p => ({
+      ...p,
+      actividades: [...p.actividades, { titulo: "", detalle: "", imagen: "" }],
     }));
-  };
 
-  const removeActividad = (index) => {
-    setData(prev => ({
-      ...prev,
-      actividades: prev.actividades.filter((_, i) => i !== index),
+  const removeActividad = (i) =>
+    setData(p => ({
+      ...p,
+      actividades: p.actividades.filter((_, idx) => idx !== i),
     }));
-  };
+
+  const addLinea = (campo) =>
+    setData(p => ({ ...p, [campo]: [...p[campo], ""] }));
 
   /* ===========================
-     GUARDAR INFORME
+     GUARDAR
   =========================== */
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
@@ -138,7 +135,6 @@ export default function NuevoInforme() {
 
     localStorage.setItem("serviceReports", JSON.stringify([...stored, report]));
     localStorage.setItem("currentReport", JSON.stringify(report));
-
     navigate("/informe");
   };
 
@@ -146,10 +142,10 @@ export default function NuevoInforme() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
 
-        {/* ================= ENCABEZADO ================= */}
+        {/* ENCABEZADO */}
         <ReportHeader data={data} onChange={update} />
 
-        {/* ================= DATOS CLIENTE ================= */}
+        {/* DATOS CLIENTE */}
         <table className="pdf-table">
           <tbody>
             {[
@@ -162,14 +158,14 @@ export default function NuevoInforme() {
               ["TELÉFONO TÉCNICO", "tecnicoTelefono"],
               ["CORREO TÉCNICO", "tecnicoCorreo"],
               ["FECHA DE SERVICIO", "fechaServicio"],
-            ].map(([label, key]) => (
-              <tr key={key}>
-                <td className="pdf-label">{label}</td>
+            ].map(([l, k]) => (
+              <tr key={k}>
+                <td className="pdf-label">{l}</td>
                 <td>
                   <input
                     className="pdf-input"
-                    value={data[key]}
-                    onChange={(e) => update([key], e.target.value)}
+                    value={data[k]}
+                    onChange={(e) => update([k], e.target.value)}
                   />
                 </td>
               </tr>
@@ -177,7 +173,7 @@ export default function NuevoInforme() {
           </tbody>
         </table>
 
-        {/* ================= ACTIVIDADES REALIZADAS ================= */}
+        {/* ACTIVIDADES */}
         <h3 className="font-bold text-sm">ACTIVIDADES REALIZADAS</h3>
 
         <table className="pdf-table">
@@ -192,7 +188,6 @@ export default function NuevoInforme() {
             {data.actividades.map((a, i) => (
               <tr key={i}>
                 <td className="text-center">{i + 1}</td>
-
                 <td>
                   <input
                     className="pdf-input"
@@ -211,7 +206,6 @@ export default function NuevoInforme() {
                     }
                   />
                 </td>
-
                 <td className="text-center">
                   <input
                     type="file"
@@ -222,25 +216,17 @@ export default function NuevoInforme() {
                       )
                     }
                   />
-
                   {a.imagen && (
-                    <img
-                      src={a.imagen}
-                      alt="actividad"
-                      style={{ maxWidth: 120, marginTop: 6 }}
-                    />
+                    <img src={a.imagen} style={{ maxWidth: 120, marginTop: 6 }} />
                   )}
-
                   {data.actividades.length > 1 && (
-                    <div style={{ marginTop: 6 }}>
-                      <button
-                        type="button"
-                        onClick={() => removeActividad(i)}
-                        className="text-red-600 text-xs"
-                      >
-                        Eliminar
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeActividad(i)}
+                      className="text-red-600 text-xs mt-2"
+                    >
+                      Eliminar
+                    </button>
                   )}
                 </td>
               </tr>
@@ -248,19 +234,93 @@ export default function NuevoInforme() {
           </tbody>
         </table>
 
-        <button
-          type="button"
-          onClick={addActividad}
-          className="border px-3 py-1 text-xs rounded"
-        >
+        <button onClick={addActividad} className="border px-3 py-1 text-xs rounded">
           + Agregar actividad
         </button>
 
-        {/* ================= FIRMAS (TEMPORAL, PASO 4) ================= */}
+        {/* CONCLUSIONES */}
+        <h3 className="font-bold text-sm">CONCLUSIONES</h3>
+        <table className="pdf-table">
+          <tbody>
+            {data.conclusiones.map((c, i) => (
+              <tr key={i}>
+                <td>
+                  <textarea
+                    className="pdf-textarea"
+                    value={c}
+                    onChange={(e) =>
+                      update(["conclusiones", i], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button onClick={() => addLinea("conclusiones")} className="text-xs border px-2 py-1">
+          + Agregar conclusión
+        </button>
+
+        {/* RECOMENDACIONES */}
+        <h3 className="font-bold text-sm">RECOMENDACIONES</h3>
+        <table className="pdf-table">
+          <tbody>
+            {data.recomendaciones.map((r, i) => (
+              <tr key={i}>
+                <td>
+                  <textarea
+                    className="pdf-textarea"
+                    value={r}
+                    onChange={(e) =>
+                      update(["recomendaciones", i], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button onClick={() => addLinea("recomendaciones")} className="text-xs border px-2 py-1">
+          + Agregar recomendación
+        </button>
+
+        {/* DESCRIPCIÓN DEL EQUIPO */}
+        <h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
+        <table className="pdf-table">
+          <tbody>
+            {[
+              ["NOTA", "nota"],
+              ["MARCA", "marca"],
+              ["MODELO", "modelo"],
+              ["N° SERIE", "serie"],
+              ["AÑO MODELO", "anio"],
+              ["VIN / CHASIS", "vin"],
+              ["PLACA", "placa"],
+              ["HORAS MÓDULO", "horasModulo"],
+              ["HORAS CHASIS", "horasChasis"],
+              ["KILOMETRAJE", "kilometraje"],
+            ].map(([l, k]) => (
+              <tr key={k}>
+                <td className="pdf-label">{l}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data.equipo[k]}
+                    onChange={(e) =>
+                      update(["equipo", k], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* FIRMAS */}
         <table className="pdf-table">
           <thead>
             <tr>
-              <th>FIRMA TÉCNICO</th>
+              <th>FIRMA TÉCNICO ASTAP</th>
               <th>FIRMA CLIENTE</th>
             </tr>
           </thead>
@@ -276,23 +336,15 @@ export default function NuevoInforme() {
           </tbody>
         </table>
 
-        {/* ================= BOTONES ================= */}
+        {/* BOTONES */}
         <div className="flex justify-between pt-6">
-          <button
-            onClick={() => navigate("/informe")}
-            className="border px-6 py-2 rounded"
-          >
+          <button onClick={() => navigate("/informe")} className="border px-6 py-2 rounded">
             Volver
           </button>
-
-          <button
-            onClick={saveReport}
-            className="bg-blue-600 text-white px-6 py-2 rounded"
-          >
+          <button onClick={saveReport} className="bg-blue-600 text-white px-6 py-2 rounded">
             Guardar informe
           </button>
         </div>
-
       </div>
     </div>
   );
