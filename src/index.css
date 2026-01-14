@@ -69,3 +69,37 @@ body {
   font-family: Arial, sans-serif;
   background: transparent;
 }
+/* ============================= */
+/* CONTENEDOR PDF */
+/* ============================= */
+.pdf-container {
+  background: white;
+  padding: 20px;
+  font-size: 11px;
+}
+
+/* ============================= */
+/* TÍTULOS PDF */
+/* ============================= */
+.pdf-title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* ============================= */
+/* OCULTAR ELEMENTOS AL IMPRIMIR */
+/* ============================= */
+.no-print {
+  margin-top: 20px;
+}
+
+@media print {
+  body {
+    background: white;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
