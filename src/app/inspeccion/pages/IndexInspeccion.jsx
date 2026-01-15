@@ -37,10 +37,12 @@ const Card = ({ title, type, description }) => {
     filter === "todas" ? true : i.estado === filter
   );
 
-  const crearNuevaInspeccion = () => {
-    const id = crypto.randomUUID();
-    navigate(`/inspeccion/${type}/${id}`);
-  };
+  import { createInspection } from "@/utils/inspectionStorage";
+
+const crearNuevaInspeccion = () => {
+  const id = createInspection(type); // 👈 CREA en storage
+  navigate(`/inspeccion/${type}/${id}`);
+};
 
   return (
     <div className="border rounded-xl p-4 space-y-4 bg-white shadow">
