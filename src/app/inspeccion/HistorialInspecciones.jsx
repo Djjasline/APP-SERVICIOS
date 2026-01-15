@@ -7,7 +7,7 @@ export default function HistorialInspecciones() {
   const [inspecciones, setInspecciones] = useState([]);
 
   useEffect(() => {
-    const data = getInspectionsByType("hidro");
+    const data = getInspections("hidro");
     setInspecciones(data);
   }, []);
 
