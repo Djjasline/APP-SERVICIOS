@@ -27,29 +27,38 @@ const StatusBadge = ({ estado }) => {
 ========================= */
 const Card = ({ title, type, description }) => {
   const navigate = useNavigate();
-  const history = getInspectionHistory();
-const inspections = getAllInspections();
+
+  // 🔑 SOLO usamos lo que EXISTE en inspectionStorage.js
+  const inspections = getAllInspections().filter(
+    (i) => i.type === type
+  );
 
   const [filter, setFilter] = useState("todas");
 
   const filteredInspections = inspections
-    .filter((i) => (filter === "todas" ? true : i.estado === filter))
+    .filter((i) =>
+      filter === "todas" ? true : i.estado === filter
+    )
     .sort(
       (a, b) =>
-        new Date(b.fecha || b.fechaCompletada) -
-        new Date(a.fecha || a.fechaCompletada)
+        new Date(b.fecha || 0) -
+        new Date(a.fecha || 0)
     );
 
   const crearNuevaInspeccion = () => {
-    const id = crypto.randomUUID();
+    const id = Date.now();
     navigate(`/inspeccion/${type}/${id}`);
   };
 
   return (
     <div className="border rounded-xl p-4 space-y-4 bg-white shadow-sm">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-        <p className="text-sm text-slate-600">{description}</p>
+        <h2 className="text-lg font-semibold text-slate-900">
+          {title}
+        </h2>
+        <p className="text-sm text-slate-600">
+          {description}
+        </p>
       </div>
 
       <button
@@ -76,7 +85,9 @@ const inspections = getAllInspections();
       </div>
 
       <div>
-        <p className="text-xs font-medium text-slate-500 mb-2">Historial</p>
+        <p className="text-xs font-medium text-slate-500 mb-2">
+          Historial
+        </p>
 
         {filteredInspections.length === 0 ? (
           <p className="text-xs text-slate-400">
@@ -90,7 +101,7 @@ const inspections = getAllInspections();
                 className="flex justify-between items-center border rounded px-2 py-1"
               >
                 <span className="truncate">
-                  {item.cliente || "Sin cliente"}
+                  {item.data?.cliente || "Sin cliente"}
                 </span>
 
                 <div className="flex items-center gap-2">
@@ -98,7 +109,9 @@ const inspections = getAllInspections();
 
                   <button
                     onClick={() =>
-                      navigate(`/inspeccion/${type}/${item.id}`)
+                      navigate(
+                        `/inspeccion/${type}/${item.id}`
+                      )
                     }
                     className="text-xs text-blue-600 hover:underline"
                   >
@@ -123,8 +136,7 @@ export default function IndexInspeccion() {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
-
-        {/* BOTÓN VOLVER AL MENÚ PRINCIPAL */}
+        {/* BOTÓN VOLVER */}
         <button
           onClick={() => navigate("/")}
           className="text-sm text-blue-600 hover:underline"
