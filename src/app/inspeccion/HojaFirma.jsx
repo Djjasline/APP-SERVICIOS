@@ -2,8 +2,8 @@ import { useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   getInspectionById,
-  saveInspectionDraft,
-} from "@/utils/inspectionStorage";
+  markInspectionCompleted
+} from "@utils/inspectionStorage";
 
 export default function HojaFirma() {
   const { id } = useParams();
