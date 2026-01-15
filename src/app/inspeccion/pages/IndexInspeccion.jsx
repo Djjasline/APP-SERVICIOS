@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllInspections } from "@/utils/inspectionStorage";
+import {
+  getAllInspections,
+  createInspection,
+} from "@/utils/inspectionStorage";
 
 /* =========================
-   Badge estado
+   Badge de estado
 ========================= */
 const StatusBadge = ({ estado }) => {
   const styles = {
@@ -23,26 +26,24 @@ const StatusBadge = ({ estado }) => {
 };
 
 /* =========================
-   Card reutilizable
+   Card por tipo
 ========================= */
 const Card = ({ title, type, description }) => {
   const navigate = useNavigate();
+  const [filter, setFilter] = useState("todas");
+
   const inspections = getAllInspections().filter(
     (i) => i.type === type
   );
-
-  const [filter, setFilter] = useState("todas");
 
   const filtered = inspections.filter((i) =>
     filter === "todas" ? true : i.estado === filter
   );
 
-  import { createInspection } from "@/utils/inspectionStorage";
-
-const crearNuevaInspeccion = () => {
-  const id = createInspection(type); // 👈 CREA en storage
-  navigate(`/inspeccion/${type}/${id}`);
-};
+  const crearNueva = () => {
+    const id = createInspection(type);
+    navigate(`/inspeccion/${type}/${id}`);
+  };
 
   return (
     <div className="border rounded-xl p-4 space-y-4 bg-white shadow">
@@ -52,8 +53,8 @@ const crearNuevaInspeccion = () => {
       </div>
 
       <button
-        onClick={crearNuevaInspeccion}
-        className="bg-slate-900 text-white px-3 py-2 rounded text-sm"
+        onClick={crearNueva}
+        className="px-3 py-2 text-sm rounded bg-blue-600 text-white"
       >
         + Nueva inspección
       </button>
@@ -65,7 +66,7 @@ const crearNuevaInspeccion = () => {
             onClick={() => setFilter(f)}
             className={`px-2 py-1 rounded border ${
               filter === f
-                ? "bg-slate-900 text-white"
+                ? "bg-blue-600 text-white"
                 : "bg-white"
             }`}
           >
@@ -74,40 +75,36 @@ const crearNuevaInspeccion = () => {
         ))}
       </div>
 
-      <div>
-        <p className="text-xs font-semibold text-gray-500 mb-2">
-          Historial
+      {filtered.length === 0 ? (
+        <p className="text-xs text-gray-400">
+          No hay inspecciones.
         </p>
+      ) : (
+        <ul className="space-y-2 text-sm">
+          {filtered.map((item) => (
+            <li
+              key={item.id}
+              className="flex justify-between items-center border rounded px-2 py-1"
+            >
+              <span>
+                {item.data?.cliente || "Sin cliente"}
+              </span>
 
-        {filtered.length === 0 ? (
-          <p className="text-xs text-gray-400">
-            No hay inspecciones aún.
-          </p>
-        ) : (
-          <ul className="space-y-2">
-            {filtered.map((item) => (
-              <li
-                key={item.id}
-                className="flex justify-between items-center border rounded px-2 py-1 text-sm"
-              >
-                <span>{item.data?.cliente || "Sin cliente"}</span>
-
-                <div className="flex items-center gap-2">
-                  <StatusBadge estado={item.estado} />
-                  <button
-                    onClick={() =>
-                      navigate(`/inspeccion/${type}/${item.id}`)
-                    }
-                    className="text-blue-600 text-xs"
-                  >
-                    Abrir
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+              <div className="flex items-center gap-2">
+                <StatusBadge estado={item.estado} />
+                <button
+                  onClick={() =>
+                    navigate(`/inspeccion/${type}/${item.id}`)
+                  }
+                  className="text-xs text-blue-600"
+                >
+                  Abrir
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
@@ -119,7 +116,7 @@ export default function IndexInspeccion() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
         <button
           onClick={() => navigate("/")}
@@ -128,7 +125,7 @@ export default function IndexInspeccion() {
           ← Volver al panel principal
         </button>
 
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-2xl font-semibold">
           Inspección y valoración
         </h1>
 
@@ -136,17 +133,7 @@ export default function IndexInspeccion() {
           <Card
             title="Hidrosuccionador"
             type="hidro"
-            description="Inspección general del equipo hidrosuccionador."
-          />
-          <Card
-            title="Barredora"
-            type="barredora"
-            description="Inspección y valoración de barredoras."
-          />
-          <Card
-            title="Cámara"
-            type="camara"
-            description="Inspección con sistema de cámara."
+            description="Inspección del equipo hidrosuccionador"
           />
         </div>
       </div>
