@@ -1,9 +1,9 @@
 import { useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  getInspectionHistory,
-  saveInspectionHistory,
-} from "@utils/inspectionStorage";
+  getInspectionById,
+  saveInspectionDraft,
+} from "@/utils/inspectionStorage";
 
 export default function HojaFirma() {
   const { id } = useParams();
@@ -13,6 +13,9 @@ export default function HojaFirma() {
   const canvasCli = useRef(null);
   const [drawing, setDrawing] = useState(false);
 
+  /* ===============================
+     CANVAS HELPERS
+  =============================== */
   const getPos = (e, canvas) => {
     const rect = canvas.getBoundingClientRect();
     return {
@@ -26,6 +29,8 @@ export default function HojaFirma() {
     const { x, y } = getPos(e, canvas);
     ctx.beginPath();
     ctx.moveTo(x, y);
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
     setDrawing(true);
   };
 
@@ -44,15 +49,24 @@ export default function HojaFirma() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
+  /* ===============================
+     GUARDAR FIRMAS
+  =============================== */
   const guardarFirmas = () => {
-    const history = getInspectionHistory();
-    const item = history.hidro.find((i) => i.id === id);
-    if (!item) return;
+    const inspection = getInspectionById(id);
+    if (!inspection) return;
 
-    item.firmaTecnico = canvasTec.current.toDataURL();
-    item.firmaCliente = canvasCli.current.toDataURL();
+    const dataActualizada = {
+      ...inspection.data,
+      firmas: {
+        tecnico: canvasTec.current?.toDataURL() || "",
+        cliente: canvasCli.current?.toDataURL() || "",
+      },
+    };
 
-    saveInspectionHistory(history);
+    // Guardamos como BORRADOR (no cambia estado)
+    saveInspectionDraft("hidro", inspection.id, dataActualizada);
+
     navigate("/inspeccion");
   };
 
@@ -72,7 +86,7 @@ export default function HojaFirma() {
             ref={canvasTec}
             width={400}
             height={150}
-            className="border w-full bg-white"
+            className="border w-full bg-white touch-none"
             onPointerDown={(e) => start(e, canvasTec.current)}
             onPointerMove={(e) => draw(e, canvasTec.current)}
             onPointerUp={end}
@@ -95,7 +109,7 @@ export default function HojaFirma() {
             ref={canvasCli}
             width={400}
             height={150}
-            className="border w-full bg-white"
+            className="border w-full bg-white touch-none"
             onPointerDown={(e) => start(e, canvasCli.current)}
             onPointerMove={(e) => draw(e, canvasCli.current)}
             onPointerUp={end}
@@ -119,7 +133,7 @@ export default function HojaFirma() {
         </button>
         <button
           onClick={guardarFirmas}
-          className="bg-green-600 text-white px-4 py-2 rounded"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
         >
           Guardar firmas
         </button>
