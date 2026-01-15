@@ -87,7 +87,7 @@ const secciones = [
 ];
 
 export default function HojaInspeccionHidro() {
-  const { id } = useParams();
+  const { type, id } = useParams();
   const navigate = useNavigate();
 
   const firmaTecnicoRef = useRef(null);
