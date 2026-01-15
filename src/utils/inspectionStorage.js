@@ -36,8 +36,8 @@ export function createInspection(type) {
 
   const inspection = {
     id: Date.now(),
-    type,
-    estado: "borrador",
+    type,                     // hidro | barredora | camara
+    estado: "borrador",        // borrador | completada
     fecha: new Date().toISOString().slice(0, 10),
     data: {},
   };
