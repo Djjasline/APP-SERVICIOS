@@ -8,11 +8,11 @@ import SignatureCanvas from "react-signature-canvas";
 const pruebasPrevias = [
   ["1.1", "Prueba de encendido general del equipo"],
   ["1.2", "Funcionamiento de controles principales"],
-  ["1.3", "Revisión de alarmas o fallas"],
+  ["1.3", "Alarmas o mensajes de fallo"],
 ];
 
 /* =============================
-   SECCIONES
+   SECCIONES HIDRO
 ============================= */
 const secciones = [
   {
@@ -20,8 +20,9 @@ const secciones = [
     titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
     items: [
       ["A.1", "Fugas de aceite hidráulico"],
-      ["A.2", "Nivel de aceite hidráulico"],
-      ["A.3", "Bancos hidráulicos"],
+      ["A.2", "Nivel de aceite del soplador"],
+      ["A.3", "Nivel de aceite hidráulico"],
+      ["A.4", "Aceite caja de transferencia"],
     ],
   },
   {
@@ -29,8 +30,8 @@ const secciones = [
     titulo: "B) SISTEMA HIDRÁULICO (AGUA)",
     items: [
       ["B.1", "Filtros de agua"],
-      ["B.2", "Fugas de agua"],
-      ["B.3", "Manómetros"],
+      ["B.2", "Empaques de filtros"],
+      ["B.3", "Fugas de agua"],
     ],
   },
 ];
@@ -42,9 +43,6 @@ export default function HojaInspeccionHidro() {
   const firmaTecnicoRef = useRef(null);
   const firmaClienteRef = useRef(null);
 
-  /* =============================
-     ESTADO BASE
-  ============================= */
   const [formData, setFormData] = useState({
     referenciaContrato: "",
     descripcion: "",
@@ -61,20 +59,19 @@ export default function HojaInspeccionHidro() {
     fechaServicio: "",
 
     estadoEquipoPuntos: [],
+
+    nota: "",
+    marca: "",
+    modelo: "",
+    serie: "",
+    anioModelo: "",
+    vin: "",
+    placa: "",
+    horasModulo: "",
+    horasChasis: "",
+    kilometraje: "",
+
     items: {},
-
-    equipo: {
-      marca: "",
-      modelo: "",
-      serie: "",
-      anioModelo: "",
-      vin: "",
-      placa: "",
-      horasModulo: "",
-      horasChasis: "",
-      kilometraje: "",
-    },
-
     firmas: {
       tecnico: "",
       cliente: "",
@@ -87,19 +84,25 @@ export default function HojaInspeccionHidro() {
   useEffect(() => {
     if (!id) return;
 
-    const stored = JSON.parse(localStorage.getItem("inspections_hidro")) || [];
-    const found = stored.find((i) => String(i.id) === String(id));
+    const stored =
+      JSON.parse(localStorage.getItem("inspections_hidro")) || [];
+
+    const found = stored.find(
+      (i) => String(i.id) === String(id)
+    );
 
     if (found) {
       setFormData(found.data);
 
       setTimeout(() => {
-        if (found.data.firmas?.tecnico) {
-          firmaTecnicoRef.current?.fromDataURL(found.data.firmas.tecnico);
-        }
-        if (found.data.firmas?.cliente) {
-          firmaClienteRef.current?.fromDataURL(found.data.firmas.cliente);
-        }
+        found.data.firmas?.tecnico &&
+          firmaTecnicoRef.current?.fromDataURL(
+            found.data.firmas.tecnico
+          );
+        found.data.firmas?.cliente &&
+          firmaClienteRef.current?.fromDataURL(
+            found.data.firmas.cliente
+          );
       }, 0);
     }
   }, [id]);
@@ -107,8 +110,10 @@ export default function HojaInspeccionHidro() {
   /* =============================
      HANDLERS
   ============================= */
-  const handleChange = (e) =>
-    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
 
   const handleItemChange = (codigo, campo, valor) => {
     setFormData((p) => ({
@@ -123,26 +128,34 @@ export default function HojaInspeccionHidro() {
     }));
   };
 
+  /* =============================
+     ESTADO EQUIPO (PUNTOS)
+  ============================= */
   const handleImageClick = (e) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - r.left) / r.width) * 100;
-    const y = ((e.clientY - r.top) / r.height) * 100;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
 
     setFormData((p) => ({
       ...p,
       estadoEquipoPuntos: [
         ...p.estadoEquipoPuntos,
-        { id: p.estadoEquipoPuntos.length + 1, x, y, nota: "" },
+        {
+          id: p.estadoEquipoPuntos.length + 1,
+          x,
+          y,
+          nota: "",
+        },
       ],
     }));
   };
 
-  const handleNotaChange = (id, value) => {
+  const removePoint = (id) => {
     setFormData((p) => ({
       ...p,
-      estadoEquipoPuntos: p.estadoEquipoPuntos.map((pt) =>
-        pt.id === id ? { ...pt, nota: value } : pt
-      ),
+      estadoEquipoPuntos: p.estadoEquipoPuntos
+        .filter((pt) => pt.id !== id)
+        .map((pt, i) => ({ ...pt, id: i + 1 })),
     }));
   };
 
@@ -152,18 +165,21 @@ export default function HojaInspeccionHidro() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const tecnico = firmaTecnicoRef.current?.isEmpty()
-      ? ""
-      : firmaTecnicoRef.current.toDataURL();
+    const tecnico =
+      firmaTecnicoRef.current?.isEmpty()
+        ? ""
+        : firmaTecnicoRef.current.toDataURL();
 
-    const cliente = firmaClienteRef.current?.isEmpty()
-      ? ""
-      : firmaClienteRef.current.toDataURL();
+    const cliente =
+      firmaClienteRef.current?.isEmpty()
+        ? ""
+        : firmaClienteRef.current.toDataURL();
 
     const estado =
       tecnico && cliente ? "Completado" : "Borrador";
 
-    const stored = JSON.parse(localStorage.getItem("inspections_hidro")) || [];
+    const stored =
+      JSON.parse(localStorage.getItem("inspections_hidro")) || [];
 
     const payload = {
       id: id ? Number(id) : Date.now(),
@@ -177,10 +193,15 @@ export default function HojaInspeccionHidro() {
     };
 
     const updated = id
-      ? stored.map((i) => (i.id === payload.id ? payload : i))
+      ? stored.map((i) =>
+          i.id === payload.id ? payload : i
+        )
       : [...stored, payload];
 
-    localStorage.setItem("inspections_hidro", JSON.stringify(updated));
+    localStorage.setItem(
+      "inspections_hidro",
+      JSON.stringify(updated)
+    );
 
     navigate("/inspeccion");
   };
@@ -193,17 +214,21 @@ export default function HojaInspeccionHidro() {
       onSubmit={handleSubmit}
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
-      <h1 className="text-xl font-bold">Hoja de inspección – Hidrosuccionador</h1>
+      <h1 className="text-xl font-bold">
+        Hoja de inspección – Hidrosuccionador
+      </h1>
 
       {/* DATOS */}
-      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
+      <section className="grid md:grid-cols-2 gap-3">
         {[
           ["cliente", "Cliente"],
           ["direccion", "Dirección"],
           ["contacto", "Contacto"],
           ["telefono", "Teléfono"],
           ["correo", "Correo"],
-          ["tecnicoResponsable", "Técnico responsable"],
+          ["tecnicoResponsable", "Técnico"],
+          ["telefonoTecnico", "Teléfono técnico"],
+          ["correoTecnico", "Correo técnico"],
         ].map(([n, p]) => (
           <input
             key={n}
@@ -223,17 +248,22 @@ export default function HojaInspeccionHidro() {
         />
       </section>
 
-      {/* ESTADO DEL EQUIPO */}
-      <section className="border rounded p-4 space-y-3">
-        <p className="font-semibold">Estado del equipo</p>
+      {/* ESTADO EQUIPO */}
+      <section>
+        <h2 className="font-semibold">Estado del equipo</h2>
         <div
           className="relative border rounded cursor-crosshair"
           onClick={handleImageClick}
         >
-          <img src="/estado-equipo.png" className="w-full" />
+          <img
+            src="/estado-equipo.png"
+            className="w-full"
+            draggable={false}
+          />
           {formData.estadoEquipoPuntos.map((pt) => (
             <div
               key={pt.id}
+              onDoubleClick={() => removePoint(pt.id)}
               className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
               style={{
                 left: `${pt.x}%`,
@@ -245,65 +275,86 @@ export default function HojaInspeccionHidro() {
             </div>
           ))}
         </div>
-
-        {formData.estadoEquipoPuntos.map((pt) => (
-          <input
-            key={pt.id}
-            className="w-full border p-1"
-            placeholder={`Observación punto ${pt.id}`}
-            value={pt.nota}
-            onChange={(e) => handleNotaChange(pt.id, e.target.value)}
-          />
-        ))}
       </section>
 
-      {/* TABLAS */}
-      {[...pruebasPrevias.map(p => ({ titulo: "Pruebas previas", items:[p] })), ...secciones].map((sec, i) => (
-        <section key={i} className="border rounded p-4">
-          <h2 className="font-semibold mb-2">{sec.titulo}</h2>
-          <table className="w-full text-xs border">
-            <thead>
-              <tr>
-                <th>Ítem</th>
-                <th>Detalle</th>
-                <th>SI</th>
-                <th>NO</th>
-                <th>Obs.</th>
+      {/* PRUEBAS */}
+      <section>
+        <h2 className="font-semibold">Pruebas previas</h2>
+        <table className="w-full border text-xs">
+          <tbody>
+            {pruebasPrevias.map(([c, t]) => (
+              <tr key={c}>
+                <td>{c}</td>
+                <td>{t}</td>
+                <td>
+                  <input
+                    type="radio"
+                    onChange={() =>
+                      handleItemChange(c, "estado", "SI")
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    type="radio"
+                    onChange={() =>
+                      handleItemChange(c, "estado", "NO")
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    className="border w-full"
+                    onChange={(e) =>
+                      handleItemChange(
+                        c,
+                        "observacion",
+                        e.target.value
+                      )
+                    }
+                  />
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {sec.items.map(([c, t]) => (
-                <tr key={c}>
-                  <td>{c}</td>
-                  <td>{t}</td>
-                  <td><input type="radio" onChange={() => handleItemChange(c,"estado","SI")} /></td>
-                  <td><input type="radio" onChange={() => handleItemChange(c,"estado","NO")} /></td>
-                  <td><input className="border w-full" onChange={(e)=>handleItemChange(c,"observacion",e.target.value)} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      ))}
+            ))}
+          </tbody>
+        </table>
+      </section>
 
       {/* FIRMAS */}
-      <section className="grid md:grid-cols-2 gap-6 border rounded p-4">
+      <section className="grid md:grid-cols-2 gap-6">
         <div>
-          <p className="font-semibold mb-1">Firma Técnico</p>
-          <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
+          <p className="font-semibold">Firma Técnico</p>
+          <SignatureCanvas
+            ref={firmaTecnicoRef}
+            canvasProps={{
+              className: "border w-full h-32",
+            }}
+          />
         </div>
         <div>
-          <p className="font-semibold mb-1">Firma Cliente</p>
-          <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
+          <p className="font-semibold">Firma Cliente</p>
+          <SignatureCanvas
+            ref={firmaClienteRef}
+            canvasProps={{
+              className: "border w-full h-32",
+            }}
+          />
         </div>
       </section>
 
       {/* BOTONES */}
-      <div className="flex justify-end gap-4">
-        <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
+      <div className="flex justify-between">
+        <button
+          type="button"
+          onClick={() => navigate("/inspeccion")}
+          className="border px-4 py-2 rounded"
+        >
           Volver
         </button>
-        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
           Guardar
         </button>
       </div>
