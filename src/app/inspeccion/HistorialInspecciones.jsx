@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getInspectionsByType } from "@/utils/inspectionStorage";
+import { getInspectionsByType } from "../../utils/inspectionStorage";
 
 export default function HistorialInspecciones() {
   const navigate = useNavigate();
