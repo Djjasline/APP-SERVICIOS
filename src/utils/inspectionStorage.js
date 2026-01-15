@@ -1,65 +1,71 @@
-const STORAGE_KEY = "inspectionHistory";
+/* ======================================================
+   STORAGE PARA INSPECCIONES (HIDRO / BARREDORA / CAMARA)
+====================================================== */
 
-function getEmptyHistory() {
-  return {
-    hidro: [],
-    barredora: [],
-    camara: [],
-  };
-}
+const STORAGE_KEY = "inspections";
 
-export function getInspectionHistory() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) {
-    const empty = getEmptyHistory();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(empty));
-    return empty;
+/* ================= OBTENER TODO ================= */
+export function getAllInspections() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch {
+    return [];
   }
-  return JSON.parse(raw);
 }
 
-export function saveInspectionHistory(history) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+/* ================= POR TIPO ================= */
+export function getInspections(type) {
+  return getAllInspections().filter((i) => i.type === type);
 }
 
-export function getInspections(tipo) {
-  const history = getInspectionHistory();
-  return history[tipo] || [];
+/* ================= POR ID ================= */
+export function getInspectionById(id) {
+  return getAllInspections().find(
+    (i) => String(i.id) === String(id)
+  );
 }
 
-export function addInspection(tipo, data = {}) {
-  const history = getInspectionHistory();
+/* ================= GUARDAR ================= */
+function saveAll(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
 
-  history[tipo].unshift({
-    id: crypto.randomUUID(),
-    fecha: new Date().toISOString().slice(0, 10),
+/* ================= CREAR BORRADOR ================= */
+export function createInspection(type) {
+  const all = getAllInspections();
+
+  const inspection = {
+    id: Date.now(),
+    type,
     estado: "borrador",
-    datos: data, // puede venir vacío
-  });
+    fecha: new Date().toISOString().slice(0, 10),
+    data: {},
+  };
 
-  saveInspectionHistory(history);
+  all.push(inspection);
+  saveAll(all);
+
+  return inspection.id;
 }
 
-/* ✅ COMPLETAR INSPECCIÓN (GUARDA TODO EL FORMULARIO) */
-export function markInspectionCompleted(tipo, id, formData) {
-  const history = getInspectionHistory();
-
-  history[tipo] = history[tipo].map((item) =>
-    item.id === id
-      ? {
-          ...item,
-          estado: "completada",
-          datos: formData, // 🔴 AQUÍ SE GUARDA TODO
-          fechaCompletada: new Date().toISOString(),
-        }
-      : item
+/* ================= GUARDAR BORRADOR ================= */
+export function saveInspectionDraft(type, id, data) {
+  const all = getAllInspections().map((i) =>
+    i.id === id
+      ? { ...i, data, estado: "borrador" }
+      : i
   );
 
-  saveInspectionHistory(history);
+  saveAll(all);
 }
 
-/* 🆕 Obtener una inspección puntual (para PDF / lectura) */
-export function getInspectionById(tipo, id) {
-  const history = getInspectionHistory();
-  return history[tipo]?.find((i) => i.id === id) || null;
+/* ================= COMPLETAR ================= */
+export function markInspectionCompleted(type, id, data) {
+  const all = getAllInspections().map((i) =>
+    i.id === id
+      ? { ...i, data, estado: "completada" }
+      : i
+  );
+
+  saveAll(all);
 }
