@@ -28,7 +28,7 @@ const StatusBadge = ({ estado }) => {
 const Card = ({ title, type, description }) => {
   const navigate = useNavigate();
   const history = getInspectionHistory();
-  const inspections = history[type] || [];
+const inspections = getAllInspections();
 
   const [filter, setFilter] = useState("todas");
 
