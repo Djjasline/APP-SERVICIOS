@@ -5,9 +5,21 @@ export default function MenuInspeccion() {
 
   return (
     <div className="max-w-4xl mx-auto my-8 bg-white shadow-lg rounded-2xl p-6 space-y-6">
-      <h1 className="text-xl font-bold text-center">
-        Inspección y valoración
-      </h1>
+
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl font-bold">
+          Inspección y valoración
+        </h1>
+
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="border px-4 py-1 rounded text-sm"
+        >
+          Volver
+        </button>
+      </div>
 
       {/* HIDROSUCCIONADOR */}
       <section className="border rounded-xl p-4 space-y-3">
