@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getAllInspections } from "@/utils/inspectionStorage";
 
 /* =========================
-   Badge visual de estado
+   Badge estado
 ========================= */
 const StatusBadge = ({ estado }) => {
   const styles = {
@@ -17,7 +17,7 @@ const StatusBadge = ({ estado }) => {
         styles[estado] || "bg-gray-100 text-gray-700"
       }`}
     >
-      {estado || "—"}
+      {estado}
     </span>
   );
 };
@@ -27,43 +27,31 @@ const StatusBadge = ({ estado }) => {
 ========================= */
 const Card = ({ title, type, description }) => {
   const navigate = useNavigate();
-
-  // 🔑 SOLO usamos lo que EXISTE en inspectionStorage.js
   const inspections = getAllInspections().filter(
     (i) => i.type === type
   );
 
   const [filter, setFilter] = useState("todas");
 
-  const filteredInspections = inspections
-    .filter((i) =>
-      filter === "todas" ? true : i.estado === filter
-    )
-    .sort(
-      (a, b) =>
-        new Date(b.fecha || 0) -
-        new Date(a.fecha || 0)
-    );
+  const filtered = inspections.filter((i) =>
+    filter === "todas" ? true : i.estado === filter
+  );
 
   const crearNuevaInspeccion = () => {
-    const id = Date.now();
+    const id = crypto.randomUUID();
     navigate(`/inspeccion/${type}/${id}`);
   };
 
   return (
-    <div className="border rounded-xl p-4 space-y-4 bg-white shadow-sm">
+    <div className="border rounded-xl p-4 space-y-4 bg-white shadow">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">
-          {title}
-        </h2>
-        <p className="text-sm text-slate-600">
-          {description}
-        </p>
+        <h2 className="text-lg font-semibold">{title}</h2>
+        <p className="text-sm text-gray-600">{description}</p>
       </div>
 
       <button
         onClick={crearNuevaInspeccion}
-        className="px-3 py-2 text-sm rounded-md bg-slate-900 text-white hover:bg-slate-800"
+        className="bg-slate-900 text-white px-3 py-2 rounded text-sm"
       >
         + Nueva inspección
       </button>
@@ -76,7 +64,7 @@ const Card = ({ title, type, description }) => {
             className={`px-2 py-1 rounded border ${
               filter === f
                 ? "bg-slate-900 text-white"
-                : "bg-white text-slate-600"
+                : "bg-white"
             }`}
           >
             {f}
@@ -85,35 +73,30 @@ const Card = ({ title, type, description }) => {
       </div>
 
       <div>
-        <p className="text-xs font-medium text-slate-500 mb-2">
+        <p className="text-xs font-semibold text-gray-500 mb-2">
           Historial
         </p>
 
-        {filteredInspections.length === 0 ? (
-          <p className="text-xs text-slate-400">
+        {filtered.length === 0 ? (
+          <p className="text-xs text-gray-400">
             No hay inspecciones aún.
           </p>
         ) : (
-          <ul className="space-y-2 text-sm">
-            {filteredInspections.map((item) => (
+          <ul className="space-y-2">
+            {filtered.map((item) => (
               <li
                 key={item.id}
-                className="flex justify-between items-center border rounded px-2 py-1"
+                className="flex justify-between items-center border rounded px-2 py-1 text-sm"
               >
-                <span className="truncate">
-                  {item.data?.cliente || "Sin cliente"}
-                </span>
+                <span>{item.data?.cliente || "Sin cliente"}</span>
 
                 <div className="flex items-center gap-2">
                   <StatusBadge estado={item.estado} />
-
                   <button
                     onClick={() =>
-                      navigate(
-                        `/inspeccion/${type}/${item.id}`
-                      )
+                      navigate(`/inspeccion/${type}/${item.id}`)
                     }
-                    className="text-xs text-blue-600 hover:underline"
+                    className="text-blue-600 text-xs"
                   >
                     Abrir
                   </button>
@@ -134,17 +117,16 @@ export default function IndexInspeccion() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* BOTÓN VOLVER */}
         <button
           onClick={() => navigate("/")}
-          className="text-sm text-blue-600 hover:underline"
+          className="text-sm text-blue-600"
         >
           ← Volver al panel principal
         </button>
 
-        <h1 className="text-2xl font-semibold text-slate-900">
+        <h1 className="text-2xl font-bold">
           Inspección y valoración
         </h1>
 
@@ -154,15 +136,13 @@ export default function IndexInspeccion() {
             type="hidro"
             description="Inspección general del equipo hidrosuccionador."
           />
-
           <Card
             title="Barredora"
             type="barredora"
             description="Inspección y valoración de barredoras."
           />
-
           <Card
-            title="Cámara (VCAM / Metrotech)"
+            title="Cámara"
             type="camara"
             description="Inspección con sistema de cámara."
           />
