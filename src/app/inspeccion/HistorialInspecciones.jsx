@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getInspections } from "@/utils/inspectionStorage";
+import { getInspectionsByType } from "@/utilidades/inspectionStorage";
 
 export default function HistorialInspecciones() {
   const navigate = useNavigate();
   const [inspecciones, setInspecciones] = useState([]);
 
   useEffect(() => {
-    const data = getInspections("hidro");
+    const data = getInspectionsByType("hidro");
     setInspecciones(data);
   }, []);
 
@@ -35,39 +35,41 @@ export default function HistorialInspecciones() {
               {inspecciones.map((item) => (
                 <tr key={item.id}>
                   <td className="border px-3 py-2">
-                    {item.fecha || "—"}
+                    {new Date(item.createdAt).toLocaleString()}
                   </td>
+
                   <td className="border px-3 py-2">
                     <span
                       className={`px-2 py-1 rounded text-xs font-semibold ${
-                        item.estado === "completada"
+                        item.status === "completado"
                           ? "bg-green-100 text-green-700"
                           : "bg-yellow-100 text-yellow-700"
                       }`}
                     >
-                      {item.estado}
+                      {item.status}
                     </span>
                   </td>
-                  <td className="border px-3 py-2 text-center space-x-2">
-                    {item.estado === "borrador" && (
-                      <button
-                        onClick={() =>
-                          navigate(`/inspeccion/hidro/${item.id}`)
-                        }
-                        className="px-3 py-1 rounded bg-blue-600 text-white text-xs"
-                      >
-                        Continuar
-                      </button>
-                    )}
 
-                    {item.estado === "completada" && (
+                  <td className="border px-3 py-2 text-center space-x-2">
+                    {/* SIEMPRE SE PUEDE ABRIR */}
+                    <button
+                      onClick={() =>
+                        navigate(`/inspeccion/hidro/${item.id}`)
+                      }
+                      className="px-3 py-1 rounded bg-blue-600 text-white text-xs"
+                    >
+                      Abrir
+                    </button>
+
+                    {/* PDF SOLO SI ESTÁ COMPLETADO */}
+                    {item.status === "completado" && (
                       <button
                         onClick={() =>
-                          navigate(`/inspeccion/hidro/${item.id}?view=readonly`)
+                          navigate(`/inspeccion/hidro/${item.id}?pdf=true`)
                         }
-                        className="px-3 py-1 rounded bg-gray-600 text-white text-xs"
+                        className="px-3 py-1 rounded bg-gray-700 text-white text-xs"
                       >
-                        Ver
+                        PDF
                       </button>
                     )}
                   </td>
