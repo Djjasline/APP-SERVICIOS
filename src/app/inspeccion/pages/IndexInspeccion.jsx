@@ -26,7 +26,7 @@ const StatusBadge = ({ estado }) => {
 };
 
 /* =========================
-   Card por tipo
+   Card reutilizable
 ========================= */
 const Card = ({ title, type, description }) => {
   const navigate = useNavigate();
@@ -75,36 +75,42 @@ const Card = ({ title, type, description }) => {
         ))}
       </div>
 
-      {filtered.length === 0 ? (
-        <p className="text-xs text-gray-400">
-          No hay inspecciones.
+      <div>
+        <p className="text-xs font-medium text-gray-500 mb-1">
+          Historial
         </p>
-      ) : (
-        <ul className="space-y-2 text-sm">
-          {filtered.map((item) => (
-            <li
-              key={item.id}
-              className="flex justify-between items-center border rounded px-2 py-1"
-            >
-              <span>
-                {item.data?.cliente || "Sin cliente"}
-              </span>
 
-              <div className="flex items-center gap-2">
-                <StatusBadge estado={item.estado} />
-                <button
-                  onClick={() =>
-                    navigate(`/inspeccion/${type}/${item.id}`)
-                  }
-                  className="text-xs text-blue-600"
-                >
-                  Abrir
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+        {filtered.length === 0 ? (
+          <p className="text-xs text-gray-400">
+            No hay inspecciones aún.
+          </p>
+        ) : (
+          <ul className="space-y-2 text-sm">
+            {filtered.map((item) => (
+              <li
+                key={item.id}
+                className="flex justify-between items-center border rounded px-2 py-1"
+              >
+                <span>
+                  {item.data?.cliente || "Sin cliente"}
+                </span>
+
+                <div className="flex items-center gap-2">
+                  <StatusBadge estado={item.estado} />
+                  <button
+                    onClick={() =>
+                      navigate(`/inspeccion/${type}/${item.id}`)
+                    }
+                    className="text-xs text-blue-600"
+                  >
+                    Abrir
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };
@@ -118,6 +124,7 @@ export default function IndexInspeccion() {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
+
         <button
           onClick={() => navigate("/")}
           className="text-sm text-blue-600"
@@ -130,11 +137,28 @@ export default function IndexInspeccion() {
         </h1>
 
         <div className="grid md:grid-cols-3 gap-6">
+
+          {/* HIDRO */}
           <Card
             title="Hidrosuccionador"
             type="hidro"
             description="Inspección del equipo hidrosuccionador"
           />
+
+          {/* BARREDORA */}
+          <Card
+            title="Barredora"
+            type="barredora"
+            description="Inspección y valoración de barredoras"
+          />
+
+          {/* CAMARA */}
+          <Card
+            title="Cámara (VCAM / Metrotech)"
+            type="camara"
+            description="Inspección con sistema de cámara"
+          />
+
         </div>
       </div>
     </div>
