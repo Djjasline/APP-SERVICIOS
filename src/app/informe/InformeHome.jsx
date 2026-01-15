@@ -8,28 +8,45 @@ export default function InformeHome() {
   const [filter, setFilter] = useState("todos");
 
   /* =============================
-     CARGAR INFORMES
+     CARGA SEGURA DESDE STORAGE
   ============================== */
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
-    setReports(stored);
+    try {
+      const stored = JSON.parse(localStorage.getItem("serviceReports"));
+      if (Array.isArray(stored)) {
+        setReports(stored);
+      } else {
+        setReports([]);
+      }
+    } catch (e) {
+      console.error("Error leyendo serviceReports", e);
+      setReports([]);
+    }
   }, []);
 
   /* =============================
-     FILTRO
+     FILTRO SEGURO
   ============================== */
-  const filteredReports = reports.filter((r) => {
-    const hasSignatures =
-      r.data?.firmas?.tecnico && r.data?.firmas?.cliente;
+  const filteredReports = Array.isArray(reports)
+    ? reports.filter((r) => {
+        const completed =
+          r?.data?.firmas?.tecnico && r?.data?.firmas?.cliente;
 
-    if (filter === "borrador") return !hasSignatures;
-    if (filter === "completado") return hasSignatures;
-    return true;
-  });
+        if (filter === "borrador") return !completed;
+        if (filter === "completado") return completed;
+        return true;
+      })
+    : [];
 
   /* =============================
-     ELIMINAR
+     ACCIONES
   ============================== */
+  const openReport = (report) => {
+    if (!report) return;
+    localStorage.setItem("currentReport", JSON.stringify(report));
+    navigate(`/informe/${report.id}`);
+  };
+
   const deleteReport = (id) => {
     if (!confirm("¿Eliminar este informe?")) return;
     const updated = reports.filter((r) => r.id !== id);
@@ -37,21 +54,13 @@ export default function InformeHome() {
     setReports(updated);
   };
 
-  /* =============================
-     ABRIR
-  ============================== */
-  const openReport = (report) => {
-    localStorage.setItem("currentReport", JSON.stringify(report));
-    navigate(`/informe/${report.id}`);
-  };
-
-  /* =============================
-     PDF
-  ============================== */
   const openPDF = (id) => {
     window.open(`/informe/pdf/${id}`, "_blank");
   };
 
+  /* =============================
+     RENDER
+  ============================== */
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-4">
@@ -68,7 +77,7 @@ export default function InformeHome() {
           </button>
         </div>
 
-        {/* NUEVO INFORME */}
+        {/* NUEVO */}
         <button
           type="button"
           onClick={() => navigate("/informe/nuevo")}
@@ -101,7 +110,7 @@ export default function InformeHome() {
 
           {filteredReports.map((r) => {
             const completed =
-              r.data?.firmas?.tecnico && r.data?.firmas?.cliente;
+              r?.data?.firmas?.tecnico && r?.data?.firmas?.cliente;
 
             return (
               <div
