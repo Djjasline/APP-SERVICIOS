@@ -1,59 +1,114 @@
-const KEY = "serviceRecords";
+/* ======================================================
+   STORAGE GENERAL PARA INSPECCIONES Y REPORTES
+   Usa localStorage
+====================================================== */
 
-/* ===========================
-   BASE
-=========================== */
-function getAll() {
-  return JSON.parse(localStorage.getItem(KEY)) || [];
+const STORAGE_KEY = "inspections";
+
+/* ======================================================
+   OBTENER TODO
+====================================================== */
+export function getAllInspections() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch (err) {
+    console.error("Error leyendo inspections:", err);
+    return [];
+  }
 }
 
-function saveAll(data) {
-  localStorage.setItem(KEY, JSON.stringify(data));
-}
-
-/* ===========================
-   OBTENER
-=========================== */
-export function getRecords({ module, type }) {
-  return getAll().filter(
-    r => r.module === module && r.type === type
+/* ======================================================
+   OBTENER POR TIPO (hidro | barredora | camara)
+====================================================== */
+export function getInspectionsByType(type) {
+  return getAllInspections().filter(
+    (i) => i.type === type
   );
 }
 
-export function getRecordById(id) {
-  return getAll().find(r => r.id === Number(id));
+/* ======================================================
+   OBTENER UNA INSPECCIÓN POR ID
+====================================================== */
+export function getInspectionById(id) {
+  return getAllInspections().find(
+    (i) => String(i.id) === String(id)
+  );
 }
 
-/* ===========================
-   CREAR
-=========================== */
-export function createRecord({ module, type, data }) {
-  const record = {
-    id: Date.now(),
-    module,
+/* ======================================================
+   GUARDAR / ACTUALIZAR INSPECCIÓN
+====================================================== */
+export function saveInspection(type, inspection) {
+  const all = getAllInspections();
+
+  const index = all.findIndex(
+    (i) => String(i.id) === String(inspection.id)
+  );
+
+  const payload = {
+    ...inspection,
     type,
-    status: "borrador",
-    createdAt: new Date().toISOString(),
-    data,
+    updatedAt: new Date().toISOString(),
   };
 
-  saveAll([...getAll(), record]);
-  return record.id;
+  if (index >= 0) {
+    all[index] = payload;
+  } else {
+    all.push({
+      ...payload,
+      createdAt: new Date().toISOString(),
+      status: inspection.status || "borrador",
+    });
+  }
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
 }
 
-/* ===========================
-   ACTUALIZAR
-=========================== */
-export function updateRecord(id, updates) {
-  const updated = getAll().map(r =>
-    r.id === Number(id) ? { ...r, ...updates } : r
+/* ======================================================
+   CREAR BORRADOR NUEVO
+====================================================== */
+export function createInspection(type) {
+  const inspection = {
+    id: Date.now(),
+    type,
+    status: "borrador",
+    data: {},
+    createdAt: new Date().toISOString(),
+  };
+
+  saveInspection(type, inspection);
+  return inspection.id;
+}
+
+/* ======================================================
+   GUARDAR BORRADOR (CONTINUAR)
+====================================================== */
+export function saveInspectionDraft(type, id, data) {
+  saveInspection(type, {
+    id,
+    data,
+    status: "borrador",
+  });
+}
+
+/* ======================================================
+   MARCAR COMO COMPLETADO
+====================================================== */
+export function markInspectionCompleted(type, id, data) {
+  saveInspection(type, {
+    id,
+    data,
+    status: "completado",
+  });
+}
+
+/* ======================================================
+   ELIMINAR INSPECCIÓN
+====================================================== */
+export function deleteInspection(id) {
+  const filtered = getAllInspections().filter(
+    (i) => String(i.id) !== String(id)
   );
-  saveAll(updated);
-}
 
-/* ===========================
-   ELIMINAR
-=========================== */
-export function deleteRecord(id) {
-  saveAll(getAll().filter(r => r.id !== Number(id)));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
 }
