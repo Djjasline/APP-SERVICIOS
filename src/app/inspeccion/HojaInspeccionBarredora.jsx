@@ -408,8 +408,8 @@ export default function HojaInspeccionBarredora() {
         <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
           Volver
         </button>
-        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
-          Guardar y completar
+         <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+          Guardar informe
         </button>
       </div>
     </form>
