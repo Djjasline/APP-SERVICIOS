@@ -19,6 +19,10 @@ function saveAll(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
+function generateId() {
+  return Date.now();
+}
+
 /* ================= GET ================= */
 export function getAllInspections() {
   return loadAll();
@@ -35,42 +39,51 @@ export function getInspectionById(type, id) {
 }
 
 /* ================= CREATE ================= */
-export function createInspection(type, id) {
+export function createInspection(type) {
   const all = loadAll();
 
-  const exists = all.some(
-    i => i.type === type && String(i.id) === String(id)
-  );
-  if (exists) return;
-
-  all.push({
-    id,
+  const newInspection = {
+    id: generateId(),
     type,
     estado: "borrador",
     fecha: new Date().toISOString(),
     data: {},
-  });
+  };
 
+  all.push(newInspection);
   saveAll(all);
+
+  return newInspection.id;
 }
 
 /* ================= SAVE ================= */
 export function saveInspectionDraft(type, id, data) {
-  const all = loadAll().map(i =>
-    i.type === type && String(i.id) === String(id)
-      ? { ...i, data, estado: "borrador" }
-      : i
+  const all = loadAll();
+  const index = all.findIndex(
+    i => i.type === type && String(i.id) === String(id)
   );
+
+  if (index === -1) {
+    // Si no existe, se crea
+    all.push({
+      id,
+      type,
+      estado: "borrador",
+      fecha: new Date().toISOString(),
+      data,
+    });
+  } else {
+    all[index] = {
+      ...all[index],
+      data,
+      estado: "borrador",
+    };
+  }
 
   saveAll(all);
 }
 
 export function markInspectionCompleted(type, id, data) {
-  const all = loadAll().map(i =>
-    i.type === type && String(i.id) === String(id)
-      ? { ...i, data, estado: "completada" }
-      : i
-  );
-
-  saveAll(all);
-}
+  const all = loadAll();
+  const index = all.findIndex(
+    i => i.type ===
