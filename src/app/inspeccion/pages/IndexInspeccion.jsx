@@ -39,7 +39,7 @@ export default function IndexInspeccion() {
 
           {/* NUEVA INSPECCIÓN → historial (como estaba antes) */}
           <button
-            onClick={() => navigate("hidro/historial")}
+            onClick={() => navigate("hidro/0")}
             className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
           >
             + Nueva inspección
@@ -76,7 +76,7 @@ export default function IndexInspeccion() {
 
               {/* ABRIR → hoja existente */}
               <button
-                onClick={() => navigate("hidro/1")}
+                onClick={() => navigate(`hidro/${id}`)}
                 className="text-blue-600 text-xs"
               >
                 Abrir
