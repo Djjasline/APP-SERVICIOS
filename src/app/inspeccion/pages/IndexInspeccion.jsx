@@ -99,4 +99,141 @@ export default function IndexInspeccion() {
                 {ultimoHidro.data?.cliente || "Sin cliente"}
               </span>
 
-              <div className
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-xs ${
+                    ultimoHidro.estado === "completada"
+                      ? "text-green-600"
+                      : "text-yellow-600"
+                  }`}
+                >
+                  {ultimoHidro.estado}
+                </span>
+
+                {/* PDF (PREVIEW SIMPLE) */}
+                <button
+                  onClick={() => setPreviewPDF(true)}
+                  className="bg-red-600 text-white px-2 py-0.5 rounded text-xs"
+                >
+                  PDF
+                </button>
+
+                {/* ABRIR */}
+                <button
+                  onClick={() => handleAbrirHidro(ultimoHidro.id)}
+                  className="text-blue-600 text-xs"
+                >
+                  Abrir
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-gray-400">
+              No hay inspecciones aún.
+            </p>
+          )}
+        </div>
+
+        {/* =================================================
+            BARREDORA (SIN TOCAR FORMULARIOS)
+        ================================================= */}
+        <div className="border rounded-lg p-4 space-y-3">
+          <h2 className="text-lg font-semibold">Barredora</h2>
+          <p className="text-sm text-gray-600">
+            Inspección y valoración de barredoras.
+          </p>
+
+          <button
+            onClick={() => {
+              const id = createInspection("barredora");
+              navigate(`barredora/${id}`);
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
+          >
+            + Nueva inspección
+          </button>
+
+          <p className="text-xs text-gray-400">
+            Histórico<br />No hay inspecciones aún.
+          </p>
+        </div>
+
+        {/* =================================================
+            CÁMARA
+        ================================================= */}
+        <div className="border rounded-lg p-4 space-y-3">
+          <h2 className="text-lg font-semibold">
+            Cámara (VCAM / Metrotech)
+          </h2>
+          <p className="text-sm text-gray-600">
+            Inspección con sistema de cámara.
+          </p>
+
+          <button
+            onClick={() => {
+              const id = createInspection("camara");
+              navigate(`camara/${id}`);
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
+          >
+            + Nueva inspección
+          </button>
+
+          <p className="text-xs text-gray-400">
+            Histórico<br />No hay inspecciones aún.
+          </p>
+        </div>
+      </div>
+
+      {/* =========================
+          MODAL PDF (PREVIEW SIMPLE)
+      ========================= */}
+      {previewPDF && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-5 w-[90%] max-w-xl space-y-4">
+            <h3 className="text-lg font-semibold">
+              Vista previa PDF
+            </h3>
+
+            <div
+              ref={pdfRef}
+              className="border rounded p-4 text-sm space-y-2"
+            >
+              <h4 className="text-center font-bold">
+                Inspección Hidrosuccionador
+              </h4>
+              <p>
+                <b>Cliente:</b>{" "}
+                {ultimoHidro?.data?.cliente || "Sin cliente"}
+              </p>
+              <p>
+                <b>Estado:</b> {ultimoHidro?.estado}
+              </p>
+              <p>
+                <b>Fecha:</b>{" "}
+                {ultimoHidro
+                  ? new Date(ultimoHidro.fecha).toLocaleDateString()
+                  : ""}
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setPreviewPDF(false)}
+                className="bg-gray-400 text-white px-3 py-1 rounded"
+              >
+                Cerrar
+              </button>
+              <button
+                onClick={generarPDF}
+                className="bg-green-600 text-white px-3 py-1 rounded"
+              >
+                Descargar PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
