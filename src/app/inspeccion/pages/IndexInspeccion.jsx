@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllInspections } from "@/utils/inspectionStorage";
-import { generarInformePdf } from "@/utils/generarInformePdf";
 
 /* =========================
    Badge de estado
@@ -18,7 +17,7 @@ const StatusBadge = ({ estado }) => {
         styles[estado] || "bg-gray-100 text-gray-700"
       }`}
     >
-      {estado}
+      {estado || "—"}
     </span>
   );
 };
@@ -30,12 +29,9 @@ const Card = ({ title, type, description }) => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("todas");
 
-  // 🔹 SOLO inspecciones del tipo actual
   const inspections = getAllInspections()
     .filter((i) => i.type === type)
-    .filter((i) =>
-      filter === "todas" ? true : i.estado === filter
-    )
+    .filter((i) => (filter === "todas" ? true : i.estado === filter))
     .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
   const crearNuevaInspeccion = () => {
@@ -47,7 +43,7 @@ const Card = ({ title, type, description }) => {
     <div className="border rounded-xl p-4 space-y-4 bg-white shadow-sm">
       <div>
         <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="text-sm text-gray-600">{description}</p>
+        <p className="text-sm text-slate-600">{description}</p>
       </div>
 
       <button
@@ -57,7 +53,7 @@ const Card = ({ title, type, description }) => {
         + Nueva inspección
       </button>
 
-      {/* FILTROS */}
+      {/* Filtros */}
       <div className="flex gap-2 text-xs">
         {["todas", "borrador", "completada"].map((f) => (
           <button
@@ -66,7 +62,7 @@ const Card = ({ title, type, description }) => {
             className={`px-2 py-1 rounded border ${
               filter === f
                 ? "bg-blue-600 text-white"
-                : "bg-white text-gray-600"
+                : "bg-white text-slate-600"
             }`}
           >
             {f}
@@ -74,18 +70,18 @@ const Card = ({ title, type, description }) => {
         ))}
       </div>
 
-      {/* HISTORIAL */}
+      {/* Historial */}
       <div>
-        <p className="text-xs font-medium text-gray-500 mb-2">
+        <p className="text-xs font-semibold text-slate-500 mb-2">
           Historial
         </p>
 
         {inspections.length === 0 ? (
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-slate-400">
             No hay inspecciones aún.
           </p>
         ) : (
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-2 text-xs">
             {inspections.map((item) => (
               <li
                 key={item.id}
@@ -102,24 +98,10 @@ const Card = ({ title, type, description }) => {
                     onClick={() =>
                       navigate(`/inspeccion/${type}/${item.id}`)
                     }
-                    className="text-xs text-blue-600 hover:underline"
+                    className="text-blue-600 hover:underline"
                   >
                     Abrir
                   </button>
-
-                  {item.estado === "completada" && (
-                    <button
-                      onClick={() =>
-                        generarInformePdf({
-                          type,
-                          inspection: item,
-                        })
-                      }
-                      className="text-xs text-red-600 hover:underline"
-                    >
-                      PDF
-                    </button>
-                  )}
                 </div>
               </li>
             ))}
@@ -139,6 +121,7 @@ export default function IndexInspeccion() {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
+        {/* Volver */}
         <button
           onClick={() => navigate("/")}
           className="text-sm text-blue-600 hover:underline"
