@@ -25,17 +25,8 @@ export default function IndexInspeccion() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* BOTÓN VOLVER */}
-      <button
-        onClick={() => navigate("/")}
-        className="text-blue-600 text-sm hover:underline"
-      >
-        ← Volver al panel principal
-      </button>
-
       <h1 className="text-2xl font-semibold">Inspección y valoración</h1>
 
-      {/* GRID DE TARJETAS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* ================= HIDROSUCCIONADOR ================= */}
         <div className="border rounded-lg p-4 space-y-3">
@@ -46,9 +37,9 @@ export default function IndexInspeccion() {
             </p>
           </div>
 
-          {/* NUEVA INSPECCIÓN */}
+          {/* NUEVA INSPECCIÓN → historial (como estaba antes) */}
           <button
-            onClick={() => navigate("/inspeccion/hidro")}
+            onClick={() => navigate("hidro/historial")}
             className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
           >
             + Nueva inspección
@@ -68,13 +59,14 @@ export default function IndexInspeccion() {
 
           <div className="text-sm text-gray-600">Histórico</div>
 
-          {/* HISTÓRICO ITEM */}
+          {/* ITEM HISTÓRICO (ejemplo existente) */}
           <div className="flex justify-between items-center border rounded p-2">
             <span>Sin cliente</span>
 
             <div className="flex items-center gap-2">
               <span className="text-green-600 text-xs">completada</span>
 
+              {/* PDF */}
               <button
                 onClick={() => setPreviewPDF(true)}
                 className="bg-red-600 text-white px-2 py-0.5 rounded text-xs"
@@ -82,8 +74,9 @@ export default function IndexInspeccion() {
                 PDF
               </button>
 
+              {/* ABRIR → hoja existente */}
               <button
-                onClick={() => navigate("/inspeccion/1")}
+                onClick={() => navigate("hidro/1")}
                 className="text-blue-600 text-xs"
               >
                 Abrir
@@ -100,7 +93,7 @@ export default function IndexInspeccion() {
           </p>
 
           <button
-            onClick={() => navigate("/inspeccion/barredora")}
+            onClick={() => navigate("barredora/1")}
             className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
           >
             + Nueva inspección
@@ -135,7 +128,7 @@ export default function IndexInspeccion() {
           </p>
 
           <button
-            onClick={() => navigate("/inspeccion/camara")}
+            onClick={() => navigate("camara/1")}
             className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
           >
             + Nueva inspección
