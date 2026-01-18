@@ -1,8 +1,11 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
 export default function IndexInspeccion() {
+  const navigate = useNavigate();
+
   const [previewPDF, setPreviewPDF] = useState(false);
   const pdfRef = useRef(null);
 
@@ -22,6 +25,14 @@ export default function IndexInspeccion() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* BOTÓN VOLVER */}
+      <button
+        onClick={() => navigate("/")}
+        className="text-blue-600 text-sm hover:underline"
+      >
+        ← Volver al panel principal
+      </button>
+
       <h1 className="text-2xl font-semibold">Inspección y valoración</h1>
 
       {/* GRID DE TARJETAS */}
@@ -35,7 +46,11 @@ export default function IndexInspeccion() {
             </p>
           </div>
 
-          <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm">
+          {/* NUEVA INSPECCIÓN */}
+          <button
+            onClick={() => navigate("/inspeccion/hidro")}
+            className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
+          >
             + Nueva inspección
           </button>
 
@@ -60,7 +75,6 @@ export default function IndexInspeccion() {
             <div className="flex items-center gap-2">
               <span className="text-green-600 text-xs">completada</span>
 
-              {/* BOTÓN PDF (SOLO AQUÍ) */}
               <button
                 onClick={() => setPreviewPDF(true)}
                 className="bg-red-600 text-white px-2 py-0.5 rounded text-xs"
@@ -68,21 +82,27 @@ export default function IndexInspeccion() {
                 PDF
               </button>
 
-              <button className="text-blue-600 text-xs">Abrir</button>
+              <button
+                onClick={() => navigate("/inspeccion/1")}
+                className="text-blue-600 text-xs"
+              >
+                Abrir
+              </button>
             </div>
           </div>
         </div>
 
         {/* ================= BARREDORA ================= */}
         <div className="border rounded-lg p-4 space-y-3">
-          <div>
-            <h2 className="text-lg font-semibold">Barredora</h2>
-            <p className="text-sm text-gray-600">
-              Inspección y valoración de barredoras.
-            </p>
-          </div>
+          <h2 className="text-lg font-semibold">Barredora</h2>
+          <p className="text-sm text-gray-600">
+            Inspección y valoración de barredoras.
+          </p>
 
-          <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm">
+          <button
+            onClick={() => navigate("/inspeccion/barredora")}
+            className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
+          >
             + Nueva inspección
           </button>
 
@@ -107,16 +127,17 @@ export default function IndexInspeccion() {
 
         {/* ================= CÁMARA ================= */}
         <div className="border rounded-lg p-4 space-y-3">
-          <div>
-            <h2 className="text-lg font-semibold">
-              Cámara (VCAM / Metrotech)
-            </h2>
-            <p className="text-sm text-gray-600">
-              Inspección con sistema de cámara.
-            </p>
-          </div>
+          <h2 className="text-lg font-semibold">
+            Cámara (VCAM / Metrotech)
+          </h2>
+          <p className="text-sm text-gray-600">
+            Inspección con sistema de cámara.
+          </p>
 
-          <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm">
+          <button
+            onClick={() => navigate("/inspeccion/camara")}
+            className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
+          >
             + Nueva inspección
           </button>
 
