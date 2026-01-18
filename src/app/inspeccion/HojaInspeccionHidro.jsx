@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { markInspectionCompleted } from "@/utils/inspectionStorage";
 import { createInspection } from "@/utils/inspectionStorage";
+import { getInspectionById } from "@/utils/inspectionStorage";
+import { useEffect } from "react";
 
 /* =============================
    PRUEBAS PREVIAS AL SERVICIO
