@@ -1,175 +1,115 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  getAllInspections,
-  createInspection,
-} from "@/utils/inspectionStorage";
-import generarInformePdf from "@/utils/generarInformePdf";
+import { useState, useRef } from "react";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 
-/* =========================
-   Badge de estado
-========================= */
-const StatusBadge = ({ estado }) => {
-  const styles = {
-    borrador: "bg-yellow-100 text-yellow-800",
-    completada: "bg-green-100 text-green-800",
-  };
-
-  return (
-    <span
-      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-        styles[estado] || "bg-gray-100 text-gray-700"
-      }`}
-    >
-      {estado}
-    </span>
-  );
-};
-
-/* =========================
-   Card por tipo
-========================= */
-const Card = ({ title, type, description }) => {
-  const navigate = useNavigate();
-  const [filter, setFilter] = useState("todas");
-
-  const inspections = getAllInspections().filter(
-    (i) => i.type === type
-  );
-
-  const filtered = inspections.filter((i) =>
-    filter === "todas" ? true : i.estado === filter
-  );
-
-  const nuevaInspeccion = () => {
-    const id = createInspection(type);
-    navigate(`/inspeccion/${type}/${id}`);
-  };
-
-  return (
-    <div className="border rounded-xl p-4 space-y-4 bg-white shadow-sm">
-      <div>
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="text-sm text-slate-600">{description}</p>
-      </div>
-
-      <button
-        onClick={nuevaInspeccion}
-        className="px-3 py-2 text-sm rounded-md bg-blue-600 text-white"
-      >
-        + Nueva inspección
-      </button>
-
-      {/* Filtros */}
-      <div className="flex gap-2 text-xs">
-        {["todas", "borrador", "completada"].map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-2 py-1 rounded border ${
-              filter === f
-                ? "bg-blue-600 text-white"
-                : "bg-white text-slate-600"
-            }`}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-
-      {/* Historial */}
-      <div>
-        <p className="text-xs font-medium text-slate-500 mb-2">
-          Historial
-        </p>
-
-        {filtered.length === 0 ? (
-          <p className="text-xs text-slate-400">
-            No hay inspecciones aún.
-          </p>
-        ) : (
-          <ul className="space-y-2 text-sm">
-            {filtered.map((item) => (
-              <li
-                key={item.id}
-                className="flex justify-between items-center border rounded px-2 py-1"
-              >
-                <span className="truncate">
-                  {item.data?.cliente || "Sin cliente"}
-                </span>
-
-                <div className="flex items-center gap-2">
-                  <StatusBadge estado={item.estado} />
-
-                  {/* ABRIR */}
-                  <button
-                    onClick={() =>
-                      navigate(`/inspeccion/${type}/${item.id}`)
-                    }
-                    className="text-xs text-blue-600 hover:underline"
-                  >
-                    Abrir
-                  </button>
-
-                  {/* PDF SOLO SI ESTÁ COMPLETADA */}
-                  {item.estado === "completada" && (
-                    <button
-                      onClick={() => generarInformePdf(item)}
-                      className="text-xs text-green-700 hover:underline"
-                    >
-                      PDF
-                    </button>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
-  );
-};
-
-/* =========================
-   INDEX INSPECCIÓN
-========================= */
 export default function IndexInspeccion() {
-  const navigate = useNavigate();
+  const [mostrarPreview, setMostrarPreview] = useState(false);
+  const pdfRef = useRef(null);
+
+  const generarPDF = async () => {
+    if (!pdfRef.current) return;
+
+    const canvas = await html2canvas(pdfRef.current, {
+      scale: 2,
+      useCORS: true,
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save("inspeccion.pdf");
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <button
-          onClick={() => navigate("/")}
-          className="text-sm text-blue-600 hover:underline"
-        >
-          ← Volver al panel principal
-        </button>
+    <div className="p-6 space-y-6">
+      {/* ENCABEZADO */}
+      <div>
+        <h1 className="text-2xl font-semibold">Inspección y valoración</h1>
+      </div>
 
-        <h1 className="text-2xl font-semibold">
-          Inspección y valoración
-        </h1>
+      {/* TARJETA HISTÓRICO */}
+      <div className="border rounded-lg p-4 flex justify-between items-center bg-gray-50">
+        <div>
+          <p className="font-medium">Sin cliente</p>
+          <span className="text-green-600 text-sm">completada</span>
+        </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          <Card
-            title="Hidrosuccionador"
-            type="hidro"
-            description="Inspección del equipo hidrosuccionador."
-          />
+        <div className="flex gap-2">
+          {/* BOTÓN PDF */}
+          <button
+            onClick={() => setMostrarPreview(true)}
+            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"
+          >
+            PDF
+          </button>
 
-          <Card
-            title="Barredora"
-            type="barredora"
-            description="Inspección y valoración de barredoras."
-          />
-
-          <Card
-            title="Cámara (VCAM / Metrotech)"
-            type="camara"
-            description="Inspección con sistema de cámara."
-          />
+          {/* BOTÓN ABRIR (NO SE TOCA) */}
+          <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm">
+            Abrir
+          </button>
         </div>
       </div>
+
+      {/* MODAL PREVIEW PDF */}
+      {mostrarPreview && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white w-[90%] max-w-2xl rounded-lg p-5 space-y-4">
+            <h2 className="text-lg font-semibold">Vista previa del PDF</h2>
+
+            {/* CONTENIDO A EXPORTAR */}
+            <div
+              ref={pdfRef}
+              className="border rounded p-4 text-sm space-y-2 bg-white"
+            >
+              <h3 className="text-center text-lg font-bold">
+                Informe de Inspección
+              </h3>
+
+              <p>
+                <strong>Equipo:</strong> Hidrosuccionador
+              </p>
+              <p>
+                <strong>Cliente:</strong> Sin cliente
+              </p>
+              <p>
+                <strong>Estado:</strong> Completada
+              </p>
+              <p>
+                <strong>Fecha:</strong>{" "}
+                {new Date().toLocaleDateString()}
+              </p>
+
+              <hr />
+
+              <p>
+                Este documento corresponde a una inspección realizada desde la
+                aplicación de servicios.
+              </p>
+            </div>
+
+            {/* BOTONES MODAL */}
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                onClick={() => setMostrarPreview(false)}
+                className="px-4 py-1 rounded bg-gray-400 text-white hover:bg-gray-500"
+              >
+                Cerrar
+              </button>
+
+              <button
+                onClick={generarPDF}
+                className="px-4 py-1 rounded bg-green-600 text-white hover:bg-green-700"
+              >
+                Descargar PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
