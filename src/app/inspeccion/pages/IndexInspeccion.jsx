@@ -37,7 +37,7 @@ export default function IndexInspeccion() {
             </p>
           </div>
 
-          {/* NUEVA INSPECCIÓN → historial (como estaba antes) */}
+          {/* NUEVA INSPECCIÓN (CORRECTO) */}
           <button
             onClick={() => navigate("hidro/0")}
             className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
@@ -59,7 +59,7 @@ export default function IndexInspeccion() {
 
           <div className="text-sm text-gray-600">Histórico</div>
 
-          {/* ITEM HISTÓRICO (ejemplo existente) */}
+          {/* HISTÓRICO (VISTA RESUMIDA) */}
           <div className="flex justify-between items-center border rounded p-2">
             <span>Sin cliente</span>
 
@@ -74,9 +74,9 @@ export default function IndexInspeccion() {
                 PDF
               </button>
 
-              {/* ABRIR → hoja existente */}
+              {/* ABRIR (EVITA id UNDEFINED) */}
               <button
-                onClick={() => navigate(`hidro/${id}`)}
+                onClick={() => navigate("hidro/0")}
                 className="text-blue-600 text-xs"
               >
                 Abrir
@@ -93,23 +93,11 @@ export default function IndexInspeccion() {
           </p>
 
           <button
-            onClick={() => navigate("barredora/1")}
+            onClick={() => navigate("barredora/0")}
             className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
           >
             + Nueva inspección
           </button>
-
-          <div className="flex gap-2">
-            <button className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
-              todas
-            </button>
-            <button className="border px-2 py-1 rounded text-xs">
-              borrador
-            </button>
-            <button className="border px-2 py-1 rounded text-xs">
-              completada
-            </button>
-          </div>
 
           <div className="text-sm text-gray-400">
             Histórico
@@ -128,23 +116,11 @@ export default function IndexInspeccion() {
           </p>
 
           <button
-            onClick={() => navigate("camara/1")}
+            onClick={() => navigate("camara/0")}
             className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
           >
             + Nueva inspección
           </button>
-
-          <div className="flex gap-2">
-            <button className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
-              todas
-            </button>
-            <button className="border px-2 py-1 rounded text-xs">
-              borrador
-            </button>
-            <button className="border px-2 py-1 rounded text-xs">
-              completada
-            </button>
-          </div>
 
           <div className="text-sm text-gray-400">
             Histórico
