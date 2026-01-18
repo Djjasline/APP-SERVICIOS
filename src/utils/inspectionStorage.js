@@ -9,8 +9,9 @@ const STORAGE_KEY = "inspections";
 /* ================= UTIL ================= */
 function loadAll() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
     return [];
   }
 }
@@ -20,7 +21,7 @@ function saveAll(data) {
 }
 
 function generateId() {
-  return Date.now();
+  return new Date().getTime();
 }
 
 /* ================= GET ================= */
@@ -29,61 +30,93 @@ export function getAllInspections() {
 }
 
 export function getInspections(type) {
-  return loadAll().filter(i => i.type === type);
+  return loadAll().filter(function (i) {
+    return i.type === type;
+  });
 }
 
 export function getInspectionById(type, id) {
-  return loadAll().find(
-    i => i.type === type && String(i.id) === String(id)
-  );
+  return loadAll().find(function (i) {
+    return i.type === type && String(i.id) === String(id);
+  });
 }
 
 /* ================= CREATE ================= */
 export function createInspection(type) {
-  const all = loadAll();
+  var all = loadAll();
 
-  const newInspection = {
+  var inspection = {
     id: generateId(),
-    type,
+    type: type,
     estado: "borrador",
     fecha: new Date().toISOString(),
     data: {},
   };
 
-  all.push(newInspection);
+  all.push(inspection);
   saveAll(all);
 
-  return newInspection.id;
+  return inspection.id;
 }
 
 /* ================= SAVE ================= */
 export function saveInspectionDraft(type, id, data) {
-  const all = loadAll();
-  const index = all.findIndex(
-    i => i.type === type && String(i.id) === String(id)
-  );
+  var all = loadAll();
+  var found = false;
 
-  if (index === -1) {
-    // Si no existe, se crea
+  for (var i = 0; i < all.length; i++) {
+    if (all[i].type === type && String(all[i].id) === String(id)) {
+      all[i].data = data;
+      all[i].estado = "borrador";
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
     all.push({
-      id,
-      type,
+      id: id,
+      type: type,
       estado: "borrador",
       fecha: new Date().toISOString(),
-      data,
+      data: data,
     });
-  } else {
-    all[index] = {
-      ...all[index],
-      data,
-      estado: "borrador",
-    };
   }
 
   saveAll(all);
 }
 
 export function markInspectionCompleted(type, id, data) {
-  const all = loadAll();
-  const index = all.findIndex(
-    i => i.type ===
+  var all = loadAll();
+  var found = false;
+
+  for (var i = 0; i < all.length; i++) {
+    if (all[i].type === type && String(all[i].id) === String(id)) {
+      all[i].data = data;
+      all[i].estado = "completada";
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    all.push({
+      id: generateId(),
+      type: type,
+      estado: "completada",
+      fecha: new Date().toISOString(),
+      data: data,
+    });
+  }
+
+  saveAll(all);
+}
+
+/* ================= DELETE ================= */
+export function deleteInspection(type, id) {
+  var all = loadAll().filter(function (i) {
+    return !(i.type === type && String(i.id) === String(id));
+  });
+
+  saveAll(all);
+}
