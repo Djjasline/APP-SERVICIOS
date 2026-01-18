@@ -3,106 +3,171 @@ import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
 export default function IndexInspeccion() {
-  const [mostrarPreview, setMostrarPreview] = useState(false);
+  const [previewPDF, setPreviewPDF] = useState(false);
   const pdfRef = useRef(null);
 
   const generarPDF = async () => {
     if (!pdfRef.current) return;
 
-    const canvas = await html2canvas(pdfRef.current, {
-      scale: 2,
-      useCORS: true,
-    });
-
+    const canvas = await html2canvas(pdfRef.current, { scale: 2 });
     const imgData = canvas.toDataURL("image/png");
+
     const pdf = new jsPDF("p", "mm", "a4");
+    const w = pdf.internal.pageSize.getWidth();
+    const h = (canvas.height * w) / canvas.width;
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save("inspeccion.pdf");
+    pdf.addImage(imgData, "PNG", 0, 0, w, h);
+    pdf.save("inspeccion-hidrosuccionador.pdf");
   };
 
   return (
     <div className="p-6 space-y-6">
-      {/* ENCABEZADO */}
-      <div>
-        <h1 className="text-2xl font-semibold">Inspección y valoración</h1>
-      </div>
+      <h1 className="text-2xl font-semibold">Inspección y valoración</h1>
 
-      {/* TARJETA HISTÓRICO */}
-      <div className="border rounded-lg p-4 flex justify-between items-center bg-gray-50">
-        <div>
-          <p className="font-medium">Sin cliente</p>
-          <span className="text-green-600 text-sm">completada</span>
-        </div>
+      {/* GRID DE TARJETAS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* ================= HIDROSUCCIONADOR ================= */}
+        <div className="border rounded-lg p-4 space-y-3">
+          <div>
+            <h2 className="text-lg font-semibold">Hidrosuccionador</h2>
+            <p className="text-sm text-gray-600">
+              Inspección del equipo hidrosuccionador.
+            </p>
+          </div>
 
-        <div className="flex gap-2">
-          {/* BOTÓN PDF */}
-          <button
-            onClick={() => setMostrarPreview(true)}
-            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm"
-          >
-            PDF
+          <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm">
+            + Nueva inspección
           </button>
 
-          {/* BOTÓN ABRIR (NO SE TOCA) */}
-          <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm">
-            Abrir
+          <div className="flex gap-2">
+            <button className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
+              todas
+            </button>
+            <button className="border px-2 py-1 rounded text-xs">
+              borrador
+            </button>
+            <button className="border px-2 py-1 rounded text-xs">
+              completada
+            </button>
+          </div>
+
+          <div className="text-sm text-gray-600">Histórico</div>
+
+          {/* HISTÓRICO ITEM */}
+          <div className="flex justify-between items-center border rounded p-2">
+            <span>Sin cliente</span>
+
+            <div className="flex items-center gap-2">
+              <span className="text-green-600 text-xs">completada</span>
+
+              {/* BOTÓN PDF (SOLO AQUÍ) */}
+              <button
+                onClick={() => setPreviewPDF(true)}
+                className="bg-red-600 text-white px-2 py-0.5 rounded text-xs"
+              >
+                PDF
+              </button>
+
+              <button className="text-blue-600 text-xs">Abrir</button>
+            </div>
+          </div>
+        </div>
+
+        {/* ================= BARREDORA ================= */}
+        <div className="border rounded-lg p-4 space-y-3">
+          <div>
+            <h2 className="text-lg font-semibold">Barredora</h2>
+            <p className="text-sm text-gray-600">
+              Inspección y valoración de barredoras.
+            </p>
+          </div>
+
+          <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm">
+            + Nueva inspección
           </button>
+
+          <div className="flex gap-2">
+            <button className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
+              todas
+            </button>
+            <button className="border px-2 py-1 rounded text-xs">
+              borrador
+            </button>
+            <button className="border px-2 py-1 rounded text-xs">
+              completada
+            </button>
+          </div>
+
+          <div className="text-sm text-gray-400">
+            Histórico
+            <br />
+            No hay inspecciones aún.
+          </div>
+        </div>
+
+        {/* ================= CÁMARA ================= */}
+        <div className="border rounded-lg p-4 space-y-3">
+          <div>
+            <h2 className="text-lg font-semibold">
+              Cámara (VCAM / Metrotech)
+            </h2>
+            <p className="text-sm text-gray-600">
+              Inspección con sistema de cámara.
+            </p>
+          </div>
+
+          <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm">
+            + Nueva inspección
+          </button>
+
+          <div className="flex gap-2">
+            <button className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
+              todas
+            </button>
+            <button className="border px-2 py-1 rounded text-xs">
+              borrador
+            </button>
+            <button className="border px-2 py-1 rounded text-xs">
+              completada
+            </button>
+          </div>
+
+          <div className="text-sm text-gray-400">
+            Histórico
+            <br />
+            No hay inspecciones aún.
+          </div>
         </div>
       </div>
 
-      {/* MODAL PREVIEW PDF */}
-      {mostrarPreview && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white w-[90%] max-w-2xl rounded-lg p-5 space-y-4">
-            <h2 className="text-lg font-semibold">Vista previa del PDF</h2>
+      {/* ================= MODAL PDF ================= */}
+      {previewPDF && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-5 w-[90%] max-w-xl space-y-4">
+            <h3 className="text-lg font-semibold">Vista previa PDF</h3>
 
-            {/* CONTENIDO A EXPORTAR */}
             <div
               ref={pdfRef}
-              className="border rounded p-4 text-sm space-y-2 bg-white"
+              className="border rounded p-4 text-sm space-y-2"
             >
-              <h3 className="text-center text-lg font-bold">
-                Informe de Inspección
-              </h3>
-
-              <p>
-                <strong>Equipo:</strong> Hidrosuccionador
-              </p>
-              <p>
-                <strong>Cliente:</strong> Sin cliente
-              </p>
-              <p>
-                <strong>Estado:</strong> Completada
-              </p>
-              <p>
-                <strong>Fecha:</strong>{" "}
-                {new Date().toLocaleDateString()}
-              </p>
-
-              <hr />
-
-              <p>
-                Este documento corresponde a una inspección realizada desde la
-                aplicación de servicios.
-              </p>
+              <h4 className="text-center font-bold">
+                Inspección Hidrosuccionador
+              </h4>
+              <p><b>Cliente:</b> Sin cliente</p>
+              <p><b>Estado:</b> Completada</p>
+              <p><b>Fecha:</b> {new Date().toLocaleDateString()}</p>
             </div>
 
-            {/* BOTONES MODAL */}
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex justify-end gap-2">
               <button
-                onClick={() => setMostrarPreview(false)}
-                className="px-4 py-1 rounded bg-gray-400 text-white hover:bg-gray-500"
+                onClick={() => setPreviewPDF(false)}
+                className="bg-gray-400 text-white px-3 py-1 rounded"
               >
                 Cerrar
               </button>
-
               <button
                 onClick={generarPDF}
-                className="px-4 py-1 rounded bg-green-600 text-white hover:bg-green-700"
+                className="bg-green-600 text-white px-3 py-1 rounded"
               >
                 Descargar PDF
               </button>
