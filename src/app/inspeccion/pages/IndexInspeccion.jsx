@@ -3,11 +3,29 @@ import { useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
+import {
+  getInspections,
+  createInspection,
+} from "@/utils/inspectionStorage";
+
 export default function IndexInspeccion() {
   const navigate = useNavigate();
 
   const [previewPDF, setPreviewPDF] = useState(false);
   const pdfRef = useRef(null);
+
+  /* =========================
+     HANDLERS
+  ========================= */
+
+  const handleNuevaInspeccionHidro = () => {
+    const newId = createInspection("hidro");
+    navigate(`hidro/${newId}`);
+  };
+
+  const handleAbrirHidro = (id) => {
+    navigate(`hidro/${id}`);
+  };
 
   const generarPDF = async () => {
     if (!pdfRef.current) return;
@@ -23,12 +41,26 @@ export default function IndexInspeccion() {
     pdf.save("inspeccion-hidrosuccionador.pdf");
   };
 
+  /* =========================
+     DATA
+  ========================= */
+
+  const inspeccionesHidro = getInspections("hidro");
+
+  const ultimoHidro = inspeccionesHidro.at(-1);
+
+  /* =========================
+     RENDER
+  ========================= */
+
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-2xl font-semibold">Inspección y valoración</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* ================= HIDROSUCCIONADOR ================= */}
+        {/* =================================================
+            HIDROSUCCIONADOR
+        ================================================= */}
         <div className="border rounded-lg p-4 space-y-3">
           <div>
             <h2 className="text-lg font-semibold">Hidrosuccionador</h2>
@@ -37,14 +69,15 @@ export default function IndexInspeccion() {
             </p>
           </div>
 
-          {/* NUEVA INSPECCIÓN (CORRECTO) */}
+          {/* NUEVA INSPECCIÓN */}
           <button
-            onClick={() => navigate("hidro/0")}
+            onClick={handleNuevaInspeccionHidro}
             className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
           >
             + Nueva inspección
           </button>
 
+          {/* FILTROS (UI EXISTENTE) */}
           <div className="flex gap-2">
             <button className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
               todas
@@ -59,112 +92,11 @@ export default function IndexInspeccion() {
 
           <div className="text-sm text-gray-600">Histórico</div>
 
-          {/* HISTÓRICO (VISTA RESUMIDA) */}
-          <div className="flex justify-between items-center border rounded p-2">
-            <span>Sin cliente</span>
+          {/* HISTÓRICO RESUMIDO */}
+          {ultimoHidro ? (
+            <div className="flex justify-between items-center border rounded p-2">
+              <span>
+                {ultimoHidro.data?.cliente || "Sin cliente"}
+              </span>
 
-            <div className="flex items-center gap-2">
-              <span className="text-green-600 text-xs">completada</span>
-
-              {/* PDF */}
-              <button
-                onClick={() => setPreviewPDF(true)}
-                className="bg-red-600 text-white px-2 py-0.5 rounded text-xs"
-              >
-                PDF
-              </button>
-
-              {/* ABRIR (EVITA id UNDEFINED) */}
-              <button
-                onClick={() => navigate("hidro/0")}
-                className="text-blue-600 text-xs"
-              >
-                Abrir
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* ================= BARREDORA ================= */}
-        <div className="border rounded-lg p-4 space-y-3">
-          <h2 className="text-lg font-semibold">Barredora</h2>
-          <p className="text-sm text-gray-600">
-            Inspección y valoración de barredoras.
-          </p>
-
-          <button
-            onClick={() => navigate("barredora/0")}
-            className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
-          >
-            + Nueva inspección
-          </button>
-
-          <div className="text-sm text-gray-400">
-            Histórico
-            <br />
-            No hay inspecciones aún.
-          </div>
-        </div>
-
-        {/* ================= CÁMARA ================= */}
-        <div className="border rounded-lg p-4 space-y-3">
-          <h2 className="text-lg font-semibold">
-            Cámara (VCAM / Metrotech)
-          </h2>
-          <p className="text-sm text-gray-600">
-            Inspección con sistema de cámara.
-          </p>
-
-          <button
-            onClick={() => navigate("camara/0")}
-            className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
-          >
-            + Nueva inspección
-          </button>
-
-          <div className="text-sm text-gray-400">
-            Histórico
-            <br />
-            No hay inspecciones aún.
-          </div>
-        </div>
-      </div>
-
-      {/* ================= MODAL PDF ================= */}
-      {previewPDF && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-5 w-[90%] max-w-xl space-y-4">
-            <h3 className="text-lg font-semibold">Vista previa PDF</h3>
-
-            <div
-              ref={pdfRef}
-              className="border rounded p-4 text-sm space-y-2"
-            >
-              <h4 className="text-center font-bold">
-                Inspección Hidrosuccionador
-              </h4>
-              <p><b>Cliente:</b> Sin cliente</p>
-              <p><b>Estado:</b> Completada</p>
-              <p><b>Fecha:</b> {new Date().toLocaleDateString()}</p>
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setPreviewPDF(false)}
-                className="bg-gray-400 text-white px-3 py-1 rounded"
-              >
-                Cerrar
-              </button>
-              <button
-                onClick={generarPDF}
-                className="bg-green-600 text-white px-3 py-1 rounded"
-              >
-                Descargar PDF
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+              <div className
