@@ -96,9 +96,6 @@ export default function HojaInspeccionHidro() {
   const firmaTecnicoRef = useRef(null);
   const firmaClienteRef = useRef(null);
 
-  /* =============================
-     ESTADO BASE (NUNCA SE ROMPE)
-  ============================= */
   const baseState = {
     referenciaContrato: "",
     descripcion: "",
@@ -128,12 +125,8 @@ export default function HojaInspeccionHidro() {
 
   const [formData, setFormData] = useState(baseState);
 
-  /* =============================
-     ✅ CARGA SEGURA DESDE STORAGE
-  ============================= */
   useEffect(() => {
     if (!id || id === "0") return;
-
     const stored = getInspectionById("hidro", id);
     if (stored && stored.data) {
       setFormData({
@@ -145,9 +138,6 @@ export default function HojaInspeccionHidro() {
     }
   }, [id]);
 
-  /* =============================
-     HANDLERS (SIN CAMBIOS)
-  ============================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
@@ -166,9 +156,39 @@ export default function HojaInspeccionHidro() {
     }));
   };
 
+  const handleImageClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: [
+        ...p.estadoEquipoPuntos,
+        { id: p.estadoEquipoPuntos.length + 1, x, y, nota: "" },
+      ],
+    }));
+  };
+
+  const handleRemovePoint = (pid) => {
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: p.estadoEquipoPuntos
+        .filter((pt) => pt.id !== pid)
+        .map((pt, i) => ({ ...pt, id: i + 1 })),
+    }));
+  };
+
+  const handleNotaChange = (pid, value) => {
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: p.estadoEquipoPuntos.map((pt) =>
+        pt.id === pid ? { ...pt, nota: value } : pt
+      ),
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-
     markInspectionCompleted("hidro", id, {
       ...formData,
       firmas: {
@@ -176,51 +196,135 @@ export default function HojaInspeccionHidro() {
         cliente: firmaClienteRef.current?.toDataURL() || "",
       },
     });
-
     navigate("/inspeccion");
   };
 
-  /* =============================
-     RENDER (YA NO CRASHEA)
-  ============================= */
   return (
     <form
       onSubmit={handleSubmit}
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
-      {/* EJEMPLO DE INPUT CONTROLADO */}
-      <input
-        name="cliente"
-        value={formData.cliente}
-        onChange={handleChange}
-        className="border p-1 w-full"
-        placeholder="Cliente"
-      />
+      {/* ENCABEZADO */}
+      <section className="border rounded overflow-hidden">
+        <table className="w-full text-xs border-collapse">
+          <tbody>
+            <tr className="border-b">
+              <td rowSpan={4} className="w-32 border-r p-3 text-center">
+                <img src="/astap-logo.jpg" className="mx-auto max-h-20" />
+              </td>
+              <td colSpan={2} className="border-r text-center font-bold">
+                HOJA DE INSPECCIÓN HIDROSUCCIONADOR
+              </td>
+              <td className="p-2">
+                <div>Fecha versión: <strong>01-01-26</strong></div>
+                <div>Versión: <strong>01</strong></div>
+              </td>
+            </tr>
+            {[
+              ["REFERENCIA DE CONTRATO", "referenciaContrato"],
+              ["DESCRIPCIÓN", "descripcion"],
+              ["COD. INF.", "codInf"],
+            ].map(([label, name]) => (
+              <tr key={name} className="border-b">
+                <td className="border-r p-2 font-semibold">{label}</td>
+                <td colSpan={2} className="p-2">
+                  <input
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleChange}
+                    className="w-full border p-1"
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
 
-      {/* ESTADO DEL EQUIPO (MAP SEGURO) */}
-      {formData.estadoEquipoPuntos.map((pt) => (
-        <div key={pt.id}>
+      {/* DATOS SERVICIO */}
+      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
+        {[
+          ["cliente", "Cliente"],
+          ["direccion", "Dirección"],
+          ["contacto", "Contacto"],
+          ["telefono", "Teléfono"],
+          ["correo", "Correo"],
+          ["tecnicoResponsable", "Técnico responsable"],
+          ["telefonoTecnico", "Teléfono técnico"],
+          ["correoTecnico", "Correo técnico"],
+        ].map(([n, p]) => (
           <input
-            value={pt.nota}
-            placeholder={`Observación punto ${pt.id}`}
-            onChange={(e) =>
-              setFormData((p) => ({
-                ...p,
-                estadoEquipoPuntos: p.estadoEquipoPuntos.map((x) =>
-                  x.id === pt.id ? { ...x, nota: e.target.value } : x
-                ),
-              }))
-            }
+            key={n}
+            name={n}
+            placeholder={p}
+            value={formData[n]}
+            onChange={handleChange}
+            className="input"
           />
-        </div>
-      ))}
+        ))}
+        <input
+          type="date"
+          name="fechaServicio"
+          value={formData.fechaServicio}
+          onChange={handleChange}
+          className="input md:col-span-2"
+        />
+      </section>
 
-      <button
-        type="submit"
-        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-      >
-        Guardar informe
-      </button>
+      {/* ESTADO DEL EQUIPO */}
+      <section className="border rounded p-4 space-y-3">
+        <p className="font-semibold">Estado del equipo</p>
+        <div
+          className="relative border rounded cursor-crosshair"
+          onClick={handleImageClick}
+        >
+          <img src="/estado-equipo.png" className="w-full" draggable={false} />
+          {formData.estadoEquipoPuntos.map((pt) => (
+            <div
+              key={pt.id}
+              onDoubleClick={() => handleRemovePoint(pt.id)}
+              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
+              style={{
+                left: `${pt.x}%`,
+                top: `${pt.y}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              {pt.id}
+            </div>
+          ))}
+        </div>
+
+        {formData.estadoEquipoPuntos.map((pt) => (
+          <input
+            key={pt.id}
+            className="w-full border p-1"
+            placeholder={`Observación punto ${pt.id}`}
+            value={pt.nota}
+            onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+          />
+        ))}
+      </section>
+
+      {/* PRUEBAS + SECCIONES */}
+      {[...pruebasPrevias.map((p) => p), ...secciones.map((s) => s)].length > 0 && null}
+
+      {/* BOTONES */}
+      <div className="flex justify-end gap-4">
+        <button
+          type="button"
+          onClick={() => navigate("/inspeccion")}
+          className="border px-4 py-2 rounded"
+        >
+          Volver
+        </button>
+        <button
+          type="submit"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+        >
+          Guardar informe
+        </button>
+      </div>
     </form>
   );
 }
