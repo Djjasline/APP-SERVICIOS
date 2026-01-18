@@ -1,330 +1,312 @@
 import { useState, useRef, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import {
-  markInspectionCompleted,
-  getInspectionById,
-} from "@/utils/inspectionStorage";
+import ReportHeader from "@/components/report/ReportHeader";
 
-/* =============================
-   PRUEBAS PREVIAS AL SERVICIO
-============================= */
-const pruebasPrevias = [
-  ["1.1", "Prueba de encendido general del equipo"],
-  ["1.2", "Verificación de funcionamiento de controles principales"],
-  ["1.3", "Revisión de alarmas o mensajes de fallo"],
-];
-
-/* =============================
-   SECCIONES – HIDROSUCCIONADOR
-============================= */
-const secciones = [
-  {
-    id: "A",
-    titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
-    items: [
-      ["A.1", "Fugas de aceite hidráulico (mangueras - acoples - bancos)"],
-      ["A.2", "Nivel de aceite del soplador"],
-      ["A.3", "Nivel de aceite hidráulico"],
-      ["A.4", "Nivel de aceite en la caja de transferencia"],
-      ["A.5", "Manómetro de filtro hidráulico de retorno"],
-      ["A.6", "Filtro hidráulico de retorno, presenta fugas o daños"],
-      ["A.7", "Filtros de succión del tanque hidráulico"],
-      ["A.8", "Cilindros hidráulicos, presentan fugas o daños"],
-      ["A.9", "Tapones de drenaje de lubricantes"],
-      ["A.10", "Bancos hidráulicos, presentan fugas o daños"],
-    ],
-  },
-  {
-    id: "B",
-    titulo: "B) SISTEMA HIDRÁULICO (AGUA)",
-    items: [
-      ["B.1", "Filtros malla de agua 2” y 3”"],
-      ["B.2", "Empaques de tapa de filtros de agua"],
-      ["B.3", "Fugas de agua (mangueras / acoples)"],
-      ["B.4", "Válvula de alivio de la pistola"],
-      ["B.5", "Golpes o fugas en tanque de aluminio"],
-      ["B.6", "Medidor de nivel del tanque"],
-      ["B.7", "Tapón de expansión del tanque"],
-      ["B.8", "Drenaje de la bomba Rodder"],
-      ["B.9", "Válvulas check internas"],
-      ["B.10", "Manómetros de presión"],
-      ["B.11", "Carrete de manguera de agua"],
-      ["B.12", "Soporte del carrete"],
-      ["B.13", "Codo giratorio del carrete"],
-      ["B.14", "Sistema de trinquete y seguros"],
-      ["B.15", "Válvula de alivio de bomba de agua"],
-      ["B.16", "Válvulas de 1”"],
-      ["B.17", "Válvulas de 3/4”"],
-      ["B.18", "Válvulas de 1/2”"],
-      ["B.19", "Boquillas"],
-    ],
-  },
-  {
-    id: "C",
-    titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
-    items: [
-      ["C.1", "Funciones del tablero frontal"],
-      ["C.2", "Tablero de control en cabina"],
-      ["C.3", "Control remoto"],
-      ["C.4", "Electroválvulas"],
-      ["C.5", "Humedad en componentes"],
-      ["C.6", "Luces y accesorios externos"],
-    ],
-  },
-  {
-    id: "D",
-    titulo: "D) SISTEMA DE SUCCIÓN",
-    items: [
-      ["D.1", "Sellos del tanque de desperdicios"],
-      ["D.2", "Interior del tanque de desechos"],
-      ["D.3", "Microfiltro de succión"],
-      ["D.4", "Tapón de drenaje del filtro de succión"],
-      ["D.5", "Mangueras de succión"],
-      ["D.6", "Seguros de compuerta"],
-      ["D.7", "Sistema de desfogue"],
-      ["D.8", "Válvulas de alivio Kunkle"],
-      ["D.9", "Operación del soplador"],
-    ],
-  },
-];
-
-export default function HojaInspeccionHidro() {
-  const { id } = useParams();
+export default function NuevoInforme() {
   const navigate = useNavigate();
 
-  const firmaTecnicoRef = useRef(null);
-  const firmaClienteRef = useRef(null);
-
-  const baseState = {
+  /* ===========================
+     ESTADO BASE DEL INFORME
+  =========================== */
+  const emptyReport = {
     referenciaContrato: "",
     descripcion: "",
     codInf: "",
+
     cliente: "",
     direccion: "",
     contacto: "",
     telefono: "",
     correo: "",
-    tecnicoResponsable: "",
-    telefonoTecnico: "",
-    correoTecnico: "",
     fechaServicio: "",
-    estadoEquipoPuntos: [],
-    nota: "",
-    marca: "",
-    modelo: "",
-    serie: "",
-    anioModelo: "",
-    vin: "",
-    placa: "",
-    horasModulo: "",
-    horasChasis: "",
-    kilometraje: "",
-    items: {},
+
+    tecnicoNombre: "",
+    tecnicoTelefono: "",
+    tecnicoCorreo: "",
+
+    actividades: [
+      { titulo: "", detalle: "", imagen: "" },
+    ],
+
+    conclusiones: [""],
+    recomendaciones: [""],
+
+    equipo: {
+      nota: "",
+      marca: "",
+      modelo: "",
+      serie: "",
+      anio: "",
+      vin: "",
+      placa: "",
+      horasModulo: "",
+      horasChasis: "",
+      kilometraje: "",
+    },
+
+    firmas: {
+      tecnico: "",
+      cliente: "",
+    },
   };
 
-  const [formData, setFormData] = useState(baseState);
+  const [data, setData] = useState(emptyReport);
 
+  const sigTecnico = useRef(null);
+  const sigCliente = useRef(null);
+
+  /* ===========================
+     CARGAR DESDE HISTORIAL
+  =========================== */
   useEffect(() => {
-    if (!id || id === "0") return;
-    const stored = getInspectionById("hidro", id);
-    if (stored && stored.data) {
-      setFormData({
-        ...baseState,
-        ...stored.data,
-        estadoEquipoPuntos: stored.data.estadoEquipoPuntos || [],
-        items: stored.data.items || {},
-      });
-    }
-  }, [id]);
+    const current = JSON.parse(localStorage.getItem("currentReport"));
+    if (current?.data) {
+      setData(current.data);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
+      setTimeout(() => {
+        if (current.data.firmas?.tecnico) {
+          sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
+        }
+        if (current.data.firmas?.cliente) {
+          sigCliente.current?.fromDataURL(current.data.firmas.cliente);
+        }
+      }, 0);
+    }
+  }, []);
+
+  /* ===========================
+     UPDATE GENÉRICO
+  =========================== */
+  const update = (path, value) => {
+    setData(prev => {
+      const copy = structuredClone(prev);
+      let ref = copy;
+      for (let i = 0; i < path.length - 1; i++) {
+        ref = ref[path[i]];
+      }
+      ref[path[path.length - 1]] = value;
+      return copy;
+    });
   };
 
-  const handleItemChange = (codigo, campo, valor) => {
-    setFormData((p) => ({
-      ...p,
-      items: {
-        ...p.items,
-        [codigo]: {
-          ...p.items[codigo],
-          [campo]: valor,
+  /* ===========================
+     IMAGEN → BASE64
+  =========================== */
+  const fileToBase64 = (file, cb) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => cb(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  /* ===========================
+     GUARDAR INFORME
+  =========================== */
+  const saveReport = () => {
+    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
+
+    const report = {
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      data: {
+        ...data,
+        firmas: {
+          tecnico: sigTecnico.current?.isEmpty()
+            ? ""
+            : sigTecnico.current.toDataURL(),
+          cliente: sigCliente.current?.isEmpty()
+            ? ""
+            : sigCliente.current.toDataURL(),
         },
       },
-    }));
-  };
+    };
 
-  const handleImageClick = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setFormData((p) => ({
-      ...p,
-      estadoEquipoPuntos: [
-        ...p.estadoEquipoPuntos,
-        { id: p.estadoEquipoPuntos.length + 1, x, y, nota: "" },
-      ],
-    }));
-  };
+    localStorage.setItem(
+      "serviceReports",
+      JSON.stringify([...stored, report])
+    );
+    localStorage.setItem("currentReport", JSON.stringify(report));
 
-  const handleRemovePoint = (pid) => {
-    setFormData((p) => ({
-      ...p,
-      estadoEquipoPuntos: p.estadoEquipoPuntos
-        .filter((pt) => pt.id !== pid)
-        .map((pt, i) => ({ ...pt, id: i + 1 })),
-    }));
-  };
-
-  const handleNotaChange = (pid, value) => {
-    setFormData((p) => ({
-      ...p,
-      estadoEquipoPuntos: p.estadoEquipoPuntos.map((pt) =>
-        pt.id === pid ? { ...pt, nota: value } : pt
-      ),
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    markInspectionCompleted("hidro", id, {
-      ...formData,
-      firmas: {
-        tecnico: firmaTecnicoRef.current?.toDataURL() || "",
-        cliente: firmaClienteRef.current?.toDataURL() || "",
-      },
-    });
-    navigate("/inspeccion");
+    navigate("/informe");
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
-    >
-      {/* ENCABEZADO */}
-      <section className="border rounded overflow-hidden">
-        <table className="w-full text-xs border-collapse">
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
+
+        {/* ================= ENCABEZADO ================= */}
+        <ReportHeader data={data} onChange={update} />
+
+        {/* ================= DATOS CLIENTE ================= */}
+        <table className="pdf-table">
           <tbody>
-            <tr className="border-b">
-              <td rowSpan={4} className="w-32 border-r p-3 text-center">
-                <img src="/astap-logo.jpg" className="mx-auto max-h-20" />
-              </td>
-              <td colSpan={2} className="border-r text-center font-bold">
-                HOJA DE INSPECCIÓN HIDROSUCCIONADOR
-              </td>
-              <td className="p-2">
-                <div>Fecha versión: <strong>01-01-26</strong></div>
-                <div>Versión: <strong>01</strong></div>
-              </td>
-            </tr>
             {[
-              ["REFERENCIA DE CONTRATO", "referenciaContrato"],
-              ["DESCRIPCIÓN", "descripcion"],
-              ["COD. INF.", "codInf"],
-            ].map(([label, name]) => (
-              <tr key={name} className="border-b">
-                <td className="border-r p-2 font-semibold">{label}</td>
-                <td colSpan={2} className="p-2">
+              ["CLIENTE", "cliente"],
+              ["DIRECCIÓN", "direccion"],
+              ["CONTACTO", "contacto"],
+              ["TELÉFONO", "telefono"],
+              ["CORREO", "correo"],
+              ["TÉCNICO RESPONSABLE", "tecnicoNombre"],
+              ["TELÉFONO TÉCNICO", "tecnicoTelefono"],
+              ["CORREO TÉCNICO", "tecnicoCorreo"],
+              ["FECHA DE SERVICIO", "fechaServicio"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="pdf-label">{label}</td>
+                <td>
                   <input
-                    name={name}
-                    value={formData[name]}
-                    onChange={handleChange}
-                    className="w-full border p-1"
+                    className="pdf-input"
+                    value={data[key]}
+                    onChange={(e) => update([key], e.target.value)}
                   />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </section>
 
-      {/* DATOS SERVICIO */}
-      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
-        {[
-          ["cliente", "Cliente"],
-          ["direccion", "Dirección"],
-          ["contacto", "Contacto"],
-          ["telefono", "Teléfono"],
-          ["correo", "Correo"],
-          ["tecnicoResponsable", "Técnico responsable"],
-          ["telefonoTecnico", "Teléfono técnico"],
-          ["correoTecnico", "Correo técnico"],
-        ].map(([n, p]) => (
-          <input
-            key={n}
-            name={n}
-            placeholder={p}
-            value={formData[n]}
-            onChange={handleChange}
-            className="input"
-          />
-        ))}
-        <input
-          type="date"
-          name="fechaServicio"
-          value={formData.fechaServicio}
-          onChange={handleChange}
-          className="input md:col-span-2"
-        />
-      </section>
+        {/* ================= ACTIVIDADES ================= */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>ÍTEM</th>
+              <th>DESCRIPCIÓN</th>
+              <th>IMAGEN</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.actividades.map((a, i) => (
+              <tr key={i}>
+                <td>{i + 1}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    placeholder="Título"
+                    value={a.titulo}
+                    onChange={(e) =>
+                      update(["actividades", i, "titulo"], e.target.value)
+                    }
+                  />
+                  <textarea
+                    className="pdf-textarea"
+                    placeholder="Detalle"
+                    value={a.detalle}
+                    onChange={(e) =>
+                      update(["actividades", i, "detalle"], e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      fileToBase64(e.target.files[0], (b64) =>
+                        update(["actividades", i, "imagen"], b64)
+                      )
+                    }
+                  />
+                  {a.imagen && (
+                    <img
+                      src={a.imagen}
+                      alt="actividad"
+                      style={{ maxWidth: 120, marginTop: 6 }}
+                    />
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      {/* ESTADO DEL EQUIPO */}
-      <section className="border rounded p-4 space-y-3">
-        <p className="font-semibold">Estado del equipo</p>
-        <div
-          className="relative border rounded cursor-crosshair"
-          onClick={handleImageClick}
-        >
-          <img src="/estado-equipo.png" className="w-full" draggable={false} />
-          {formData.estadoEquipoPuntos.map((pt) => (
-            <div
-              key={pt.id}
-              onDoubleClick={() => handleRemovePoint(pt.id)}
-              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
-              style={{
-                left: `${pt.x}%`,
-                top: `${pt.y}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              {pt.id}
-            </div>
-          ))}
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        <table className="pdf-table">
+          <tbody>
+            {[
+              ["NOTA", "nota"],
+              ["MARCA", "marca"],
+              ["MODELO", "modelo"],
+              ["N° SERIE", "serie"],
+              ["AÑO MODELO", "anio"],
+              ["VIN / CHASIS", "vin"],
+              ["PLACA", "placa"],
+              ["HORAS MÓDULO", "horasModulo"],
+              ["HORAS CHASIS", "horasChasis"],
+              ["KILOMETRAJE", "kilometraje"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="pdf-label">{label}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data.equipo[key]}
+                    onChange={(e) =>
+                      update(["equipo", key], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* ================= FIRMAS ================= */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>FIRMA TÉCNICO</th>
+              <th>FIRMA CLIENTE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="text-center">
+                <SignatureCanvas
+                  ref={sigTecnico}
+                  canvasProps={{ width: 300, height: 150 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => sigTecnico.current.clear()}
+                >
+                  Limpiar
+                </button>
+              </td>
+              <td className="text-center">
+                <SignatureCanvas
+                  ref={sigCliente}
+                  canvasProps={{ width: 300, height: 150 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => sigCliente.current.clear()}
+                >
+                  Limpiar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* ================= BOTONES ================= */}
+        <div className="flex justify-between pt-6">
+          <button
+            onClick={() => navigate("/informe")}
+            className="border px-6 py-2 rounded"
+          >
+            Volver
+          </button>
+
+          <button
+            onClick={saveReport}
+            className="bg-blue-600 text-white px-6 py-2 rounded"
+          >
+            Guardar informe
+          </button>
         </div>
 
-        {formData.estadoEquipoPuntos.map((pt) => (
-          <input
-            key={pt.id}
-            className="w-full border p-1"
-            placeholder={`Observación punto ${pt.id}`}
-            value={pt.nota}
-            onChange={(e) => handleNotaChange(pt.id, e.target.value)}
-          />
-        ))}
-      </section>
-
-      {/* PRUEBAS + SECCIONES */}
-      {[...pruebasPrevias.map((p) => p), ...secciones.map((s) => s)].length > 0 && null}
-
-      {/* BOTONES */}
-      <div className="flex justify-end gap-4">
-        <button
-          type="button"
-          onClick={() => navigate("/inspeccion")}
-          className="border px-4 py-2 rounded"
-        >
-          Volver
-        </button>
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
-          Guardar informe
-        </button>
       </div>
-    </form>
+    </div>
   );
 }
