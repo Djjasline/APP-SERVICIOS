@@ -1,11 +1,13 @@
 /* ======================================================
-   STORAGE PARA INSPECCIONES (HIDRO / BARREDORA / CAMARA)
+   STORAGE PARA INSPECCIONES
+   Tipos: hidro | barredora | camara
+   Estados: borrador | completada
 ====================================================== */
 
 const STORAGE_KEY = "inspections";
 
-/* ================= OBTENER TODO ================= */
-export function getAllInspections() {
+/* ================= UTIL ================= */
+function loadAll() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
   } catch {
@@ -13,45 +15,49 @@ export function getAllInspections() {
   }
 }
 
-/* ================= POR TIPO ================= */
-export function getInspections(type) {
-  return getAllInspections().filter((i) => i.type === type);
-}
-
-/* ================= POR ID ================= */
-export function getInspectionById(id) {
-  return getAllInspections().find(
-    (i) => String(i.id) === String(id)
-  );
-}
-
-/* ================= GUARDAR TODO ================= */
 function saveAll(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-/* ================= CREAR BORRADOR ================= */
-export function createInspection(type) {
-  const all = getAllInspections();
-
-  const inspection = {
-    id: Date.now(),
-    type,                 // hidro | barredora | camara
-    estado: "borrador",
-    fecha: new Date().toISOString().slice(0, 10),
-    data: {},
-  };
-
-  all.push(inspection);
-  saveAll(all);
-
-  return inspection.id;
+/* ================= GET ================= */
+export function getAllInspections() {
+  return loadAll();
 }
 
-/* ================= GUARDAR BORRADOR ================= */
+export function getInspections(type) {
+  return loadAll().filter(i => i.type === type);
+}
+
+export function getInspectionById(type, id) {
+  return loadAll().find(
+    i => i.type === type && String(i.id) === String(id)
+  );
+}
+
+/* ================= CREATE ================= */
+export function createInspection(type, id) {
+  const all = loadAll();
+
+  const exists = all.some(
+    i => i.type === type && String(i.id) === String(id)
+  );
+  if (exists) return;
+
+  all.push({
+    id,
+    type,
+    estado: "borrador",
+    fecha: new Date().toISOString(),
+    data: {},
+  });
+
+  saveAll(all);
+}
+
+/* ================= SAVE ================= */
 export function saveInspectionDraft(type, id, data) {
-  const all = getAllInspections().map((i) =>
-    String(i.id) === String(id)
+  const all = loadAll().map(i =>
+    i.type === type && String(i.id) === String(id)
       ? { ...i, data, estado: "borrador" }
       : i
   );
@@ -59,10 +65,9 @@ export function saveInspectionDraft(type, id, data) {
   saveAll(all);
 }
 
-/* ================= COMPLETAR ================= */
 export function markInspectionCompleted(type, id, data) {
-  const all = getAllInspections().map((i) =>
-    String(i.id) === String(id)
+  const all = loadAll().map(i =>
+    i.type === type && String(i.id) === String(id)
       ? { ...i, data, estado: "completada" }
       : i
   );
