@@ -27,14 +27,10 @@ const StatusBadge = ({ estado }) => {
 ========================= */
 const Card = ({ title, type, description }) => {
   const navigate = useNavigate();
-
-  const inspections = getAllInspections().filter(
-    (i) => i.type === type
-  );
-
   const [filter, setFilter] = useState("todas");
 
-  const filteredInspections = inspections
+  const inspections = getAllInspections()
+    .filter((i) => i.type === type)
     .filter((i) => (filter === "todas" ? true : i.estado === filter))
     .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
@@ -76,17 +72,15 @@ const Card = ({ title, type, description }) => {
 
       {/* HISTORIAL */}
       <div>
-        <p className="text-xs font-medium text-slate-500 mb-2">
-          Historial
-        </p>
+        <p className="text-xs font-medium text-slate-500 mb-2">Historial</p>
 
-        {filteredInspections.length === 0 ? (
+        {inspections.length === 0 ? (
           <p className="text-xs text-slate-400">
             No hay inspecciones aún.
           </p>
         ) : (
           <ul className="space-y-2 text-sm">
-            {filteredInspections.map((item) => (
+            {inspections.map((item) => (
               <li
                 key={item.id}
                 className="flex justify-between items-center border rounded px-2 py-1"
@@ -95,8 +89,10 @@ const Card = ({ title, type, description }) => {
                   {item.data?.cliente || "Sin cliente"}
                 </span>
 
-            
-                  {/* PDF – SOLO COMPLETADA */}
+                <div className="flex items-center gap-2">
+                  <StatusBadge estado={item.estado} />
+
+                  {/* PDF SOLO COMPLETADA */}
                   {item.estado === "completada" && (
                     <button
                       onClick={() =>
@@ -154,13 +150,11 @@ export default function IndexInspeccion() {
             type="hidro"
             description="Inspección general del equipo hidrosuccionador."
           />
-
           <Card
             title="Barredora"
             type="barredora"
             description="Inspección y valoración de barredoras."
           />
-
           <Card
             title="Cámara (VCAM / Metrotech)"
             type="camara"
