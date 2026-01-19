@@ -146,21 +146,25 @@ export default function NuevoInforme() {
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
 
-    const report = {
-      id: Date.now(),
-      createdAt: new Date().toISOString(),
-      data: {
-        ...data,
-        firmas: {
-          tecnico: sigTecnico.current?.isEmpty()
-            ? ""
-            : sigTecnico.current.toDataURL(),
-          cliente: sigCliente.current?.isEmpty()
-            ? ""
-            : sigCliente.current.toDataURL(),
-        },
-      },
-    };
+const report = {
+  id: Date.now(),
+  createdAt: new Date().toISOString(),
+  data: {
+    ...data,
+    codInf:
+      data.codInf?.trim() ||
+      `INF-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`,
+    firmas: {
+      tecnico: sigTecnico.current?.isEmpty()
+        ? ""
+        : sigTecnico.current.toDataURL(),
+      cliente: sigCliente.current?.isEmpty()
+        ? ""
+        : sigCliente.current.toDataURL(),
+    },
+  },
+};
+
 
     localStorage.setItem("serviceReports", JSON.stringify([...stored, report]));
     localStorage.setItem("currentReport", JSON.stringify(report));
