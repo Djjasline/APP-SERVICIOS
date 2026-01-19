@@ -156,50 +156,50 @@ export default function InspectionLayoutHidro({
         </table>
       </section>
 
-      {/* ================= FIRMAS ================= */}
-      <table className="pdf-table">
-        <thead>
-          <tr>
-            <th>FIRMA TÉCNICO</th>
-            <th>FIRMA CLIENTE</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={{ height: 140 }}>
-              {readOnly ? (
-                data.firmas?.tecnico && (
-                  <img
-                    src={data.firmas.tecnico}
-                    className="max-h-32 mx-auto"
-                  />
-                )
-              ) : (
-                <SignatureCanvas
-                  ref={firmasRef?.tecnico}
-                  canvasProps={{ className: "w-full h-full" }}
-                />
-              )}
-            </td>
+{/* ================= FIRMAS ================= */}
+<table className="pdf-table">
+  <thead>
+    <tr>
+      <th>FIRMA TÉCNICO</th>
+      <th>FIRMA CLIENTE</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style={{ height: 140 }}>
+        {readOnly ? (
+          data.firmas?.tecnico && (
+            <img
+              src={data.firmas.tecnico}
+              className="max-h-32 mx-auto"
+            />
+          )
+        ) : (
+          <SignatureCanvas
+            ref={firmasRef?.tecnico}
+            canvasProps={{ className: "w-full h-full" }}
+          />
+        )}
+      </td>
 
-            <td style={{ height: 140 }}>
-              {readOnly ? (
-                data.firmas?.cliente && (
-                  <img
-                    src={data.firmas.cliente}
-                    className="max-h-32 mx-auto"
-                  />
-                )
-              ) : (
-                <SignatureCanvas
-                  ref={firmasRef?.cliente}
-                  canvasProps={{ className: "w-full h-full" }}
-                />
-              )}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <td style={{ height: 140 }}>
+        {readOnly ? (
+          data.firmas?.cliente && (
+            <img
+              src={data.firmas.cliente}
+              className="max-h-32 mx-auto"
+            />
+          )
+        ) : (
+          <SignatureCanvas
+            ref={firmasRef?.cliente}
+            canvasProps={{ className: "w-full h-full" }}
+          />
+        )}
+      </td>
+    </tr>
+  </tbody>
+</table>
     </div>
   );
 }
