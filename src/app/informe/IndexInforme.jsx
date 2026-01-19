@@ -83,9 +83,11 @@ export default function IndexInforme() {
                 className="border rounded p-3 flex justify-between items-center text-sm"
               >
                 <div>
-                  <p className="font-semibold">
-                    {inf.data?.cliente || "Sin cliente"}
-                  </p>
+                 <p className="font-semibold">
+  {inf.data?.cliente && inf.data?.codInf
+    ? `${inf.data.cliente} / ${inf.data.codInf}`
+    : inf.data?.cliente || inf.data?.codInf || "Sin cliente"}
+</p>
                   <p className="text-xs text-gray-500">
                     {new Date(inf.createdAt).toLocaleString()}
                   </p>
