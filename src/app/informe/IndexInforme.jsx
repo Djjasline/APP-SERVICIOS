@@ -22,6 +22,23 @@ export default function IndexInforme() {
     return inf.estado === filtro;
   });
 
+  /* ===========================
+     TITULO DEL HISTORIAL
+     (AQUÍ ESTABA EL PROBLEMA)
+  =========================== */
+  const getTitulo = (inf) => {
+    const cliente = inf.data?.cliente?.trim();
+    const codInf = inf.data?.codInf?.trim();
+    const ref = inf.data?.referenciaContrato?.trim();
+
+    if (cliente && codInf) return `${cliente} / ${codInf}`;
+    if (cliente && ref) return `${cliente} / ${ref}`;
+    if (codInf) return codInf;
+    if (ref) return ref;
+
+    return "Sin referencia";
+  };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -39,9 +56,6 @@ export default function IndexInforme() {
 
         {/* CREAR */}
         <div className="bg-white p-6 rounded shadow space-y-4">
-          <p className="text-sm text-gray-600">
-            Crear informes técnicos con actividades, imágenes, conclusiones y firmas.
-          </p>
 
           <button
             onClick={() => navigate("/informe/nuevo")}
@@ -52,21 +66,17 @@ export default function IndexInforme() {
 
           {/* SUBMENÚ */}
           <div className="flex gap-2 pt-4">
-            {[
-              ["todos", "Todos"],
-              ["borrador", "Borrador"],
-              ["completado", "Completado"],
-            ].map(([key, label]) => (
+            {["todos", "borrador", "completado"].map((f) => (
               <button
-                key={key}
-                onClick={() => setFiltro(key)}
+                key={f}
+                onClick={() => setFiltro(f)}
                 className={`px-3 py-1 text-xs border rounded ${
-                  filtro === key
+                  filtro === f
                     ? "bg-black text-white"
                     : "bg-white text-black"
                 }`}
               >
-                {label}
+                {f}
               </button>
             ))}
           </div>
@@ -83,20 +93,12 @@ export default function IndexInforme() {
                 className="border rounded p-3 flex justify-between items-center text-sm"
               >
                 <div>
-                  {/* CLIENTE / COD-INF */}
                   <p className="font-semibold">
-                    {(inf.data?.cliente || inf.cliente || "Sin cliente")}
-                    {(inf.data?.codInf || inf.codInf)
-                      ? ` / ${inf.data?.codInf || inf.codInf}`
-                      : ""}
+                    {getTitulo(inf)}
                   </p>
-
                   <p className="text-xs text-gray-500">
-                    {inf.createdAt
-                      ? new Date(inf.createdAt).toLocaleString()
-                      : "—"}
+                    {new Date(inf.createdAt).toLocaleString()}
                   </p>
-
                   <span
                     className={`text-xs font-semibold ${
                       inf.estado === "completado"
@@ -109,7 +111,6 @@ export default function IndexInforme() {
                 </div>
 
                 <div className="flex gap-2">
-                  {/* ABRIR */}
                   <button
                     className="border px-2 py-1 text-xs rounded"
                     onClick={() => navigate(`/informe/${inf.id}`)}
@@ -117,7 +118,6 @@ export default function IndexInforme() {
                     Abrir
                   </button>
 
-                  {/* PDF SOLO COMPLETADO */}
                   {inf.estado === "completado" && (
                     <button
                       className="bg-green-600 text-white px-2 py-1 text-xs rounded"
@@ -127,30 +127,25 @@ export default function IndexInforme() {
                     </button>
                   )}
 
-                  {/* ELIMINAR (si ya lo tienes implementado) */}
-                  {typeof inf.id !== "undefined" && (
-                    <button
-                      className="text-red-600 text-xs underline"
-                      onClick={() => {
-                        const updated = informes.filter(
-                          (i) => i.id !== inf.id
-                        );
-                        localStorage.setItem(
-                          "serviceReports",
-                          JSON.stringify(updated)
-                        );
-                        setInformes(updated);
-                      }}
-                    >
-                      Eliminar
-                    </button>
-                  )}
+                  <button
+                    className="text-red-600 text-xs"
+                    onClick={() => {
+                      const next = informes.filter(i => i.id !== inf.id);
+                      setInformes(next);
+                      localStorage.setItem(
+                        "serviceReports",
+                        JSON.stringify(next)
+                      );
+                    }}
+                  >
+                    Eliminar
+                  </button>
                 </div>
               </div>
             ))}
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   );
