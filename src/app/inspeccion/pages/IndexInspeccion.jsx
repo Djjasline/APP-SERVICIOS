@@ -29,10 +29,15 @@ const Card = ({ title, type, description }) => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("todas");
 
-  const inspections = getAllInspections()
-    .filter((i) => i.type === type)
+  const inspections = getAllInspections().filter(
+    (i) => i.type === type
+  );
+
+  const filteredInspections = inspections
     .filter((i) => (filter === "todas" ? true : i.estado === filter))
-    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    .sort(
+      (a, b) => new Date(b.fecha || b.createdAt) - new Date(a.fecha || a.createdAt)
+    );
 
   const crearNuevaInspeccion = () => {
     const id = crypto.randomUUID();
@@ -72,15 +77,17 @@ const Card = ({ title, type, description }) => {
 
       {/* HISTORIAL */}
       <div>
-        <p className="text-xs font-medium text-slate-500 mb-2">Historial</p>
+        <p className="text-xs font-medium text-slate-500 mb-2">
+          Historial
+        </p>
 
-        {inspections.length === 0 ? (
+        {filteredInspections.length === 0 ? (
           <p className="text-xs text-slate-400">
             No hay inspecciones aún.
           </p>
         ) : (
           <ul className="space-y-2 text-sm">
-            {inspections.map((item) => (
+            {filteredInspections.map((item) => (
               <li
                 key={item.id}
                 className="flex justify-between items-center border rounded px-2 py-1"
@@ -92,7 +99,7 @@ const Card = ({ title, type, description }) => {
                 <div className="flex items-center gap-2">
                   <StatusBadge estado={item.estado} />
 
-                  {/* PDF SOLO COMPLETADA */}
+                  {/* PDF – SOLO COMPLETADA */}
                   {item.estado === "completada" && (
                     <button
                       onClick={() =>
@@ -124,7 +131,7 @@ const Card = ({ title, type, description }) => {
 };
 
 /* =========================
-   INDEX INSPECCIÓN
+   INDEX INSPECCIÓN (MENÚ)
 ========================= */
 export default function IndexInspeccion() {
   const navigate = useNavigate();
@@ -133,6 +140,7 @@ export default function IndexInspeccion() {
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
 
+        {/* VOLVER */}
         <button
           onClick={() => navigate("/")}
           className="text-sm text-blue-600 hover:underline"
@@ -150,11 +158,13 @@ export default function IndexInspeccion() {
             type="hidro"
             description="Inspección general del equipo hidrosuccionador."
           />
+
           <Card
             title="Barredora"
             type="barredora"
             description="Inspección y valoración de barredoras."
           />
+
           <Card
             title="Cámara (VCAM / Metrotech)"
             type="camara"
