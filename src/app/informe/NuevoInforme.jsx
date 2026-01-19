@@ -186,7 +186,6 @@ const saveReport = () => {
 
   navigate("/informe");
 };
-
         {/* ENCABEZADO */}
         <ReportHeader data={data} onChange={update} />
 
