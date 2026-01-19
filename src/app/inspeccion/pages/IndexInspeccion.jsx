@@ -40,15 +40,98 @@ export default function IndexInspeccion() {
 
       {/* ================= BOTÓN VOLVER ================= */}
       <button
-        onClick={() => navigate("/inspeccion")}
+        onClick={() => navigate(-1)}
         className="text-sm border px-3 py-1 rounded hover:bg-gray-100"
       >
         ← Volver
-     but would loop; actually this page is /inspeccion/hidro index? Wait menu shows only hidro card; but there are other cards earlier page likely /inspeccion. Actually IndexInspeccion.jsx is the menu with cards; going back should go to previous page showing multiple cards maybe /inspeccion/home. Hm.
+      </button>
 
-User says button returns to main initial and not show other inspection options. That implies IndexInspeccion.jsx is nested route like /inspeccion/hidro; parent menu is /inspeccion. So back should navigate(-1) or to "/inspeccion". But currently this file already is /inspeccion? The screenshot shows only hidro card, but earlier there were 3 cards. Maybe this IndexInspeccion.jsx was changed to only hidro. To show others need different component. However question is button returns wrong. Simpler: use navigate(-1). That will go back to previous route which showed all options.
+      <h1 className="text-xl font-bold">Inspección y valoración</h1>
 
-So set onClick={() => navigate(-1)}.
+      {/* ================= CARD HIDRO ================= */}
+      <section className="border rounded-xl p-4 space-y-4 bg-white">
+        <h2 className="font-semibold">Hidrosuccionador</h2>
+        <p className="text-sm text-gray-500">
+          Inspección del equipo hidrosuccionador.
+        </p>
 
-Need correct code; but my partial got cut. I'll redo full file with navigate(-1).
+        <button
+          onClick={handleNueva}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          + Nueva inspección
+        </button>
 
+        {/* ================= FILTROS ================= */}
+        <div className="flex gap-2 text-xs">
+          {["todas", "borrador", "completada"].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFiltro(f)}
+              className={`px-2 py-1 border rounded ${
+                filtro === f ? "bg-blue-600 text-white" : ""
+              }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+
+        {/* ================= HISTORIAL ================= */}
+        <div className="space-y-2">
+          {filtradas.length === 0 && (
+            <p className="text-sm text-gray-400">
+              No hay inspecciones aún.
+            </p>
+          )}
+
+          {filtradas.map((ins) => (
+            <div
+              key={ins.id}
+              className="flex justify-between items-center border rounded px-3 py-2 text-sm"
+            >
+              <div>
+                <div className="font-medium">
+                  {ins.data?.cliente || "Sin cliente"}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {new Date(ins.fecha).toLocaleDateString()}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-xs px-2 py-1 rounded ${
+                    ins.estado === "completada"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  {ins.estado}
+                </span>
+
+                <button
+                  onClick={() =>
+                    navigate(`/inspeccion/hidro/${ins.id}`)
+                  }
+                  className="text-blue-600 text-sm"
+                >
+                  Abrir
+                </button>
+
+                <button
+                  onClick={() =>
+                    navigate(`/inspeccion/hidro/${ins.id}?pdf=1`)
+                  }
+                  className="bg-red-600 text-white text-xs px-2 py-1 rounded"
+                >
+                  PDF
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
