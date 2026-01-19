@@ -8,16 +8,16 @@ import HojaInspeccionCamara from "./HojaInspeccionCamara";
 import HistorialInspecciones from "./HistorialInspecciones";
 import HojaFirma from "./HojaFirma";
 
-// 👉 NUEVO PDF
-import InspeccionPdf from "./pages/InspeccionPdf";
+/* ✅ PDF SOLO HIDRO */
+import InspeccionHidroPDF from "./pages/InspeccionHidroPDF";
 
 export default function InspectionRoutes() {
   return (
     <Routes>
-      {/* MENÚ */}
+      {/* MENÚ PRINCIPAL */}
       <Route index element={<IndexInspeccion />} />
 
-      {/* HISTORIAL HIDRO (si lo usas aparte) */}
+      {/* HISTORIAL (si lo usas) */}
       <Route path="hidro/historial" element={<HistorialInspecciones />} />
 
       {/* FORMULARIOS */}
@@ -28,8 +28,8 @@ export default function InspectionRoutes() {
       {/* FIRMA */}
       <Route path="hidro/:id/firma" element={<HojaFirma />} />
 
-      {/* ✅ PDF (VISTA PREVIA / DESCARGA) */}
-      <Route path=":type/:id/pdf" element={<InspeccionPdf />} />
+      {/* ✅ PDF HIDRO */}
+      <Route path="hidro/:id/pdf" element={<InspeccionHidroPDF />} />
     </Routes>
   );
 }
