@@ -44,10 +44,7 @@ export default function IndexInforme() {
           </p>
 
           <button
-            onClick={() => {
-              localStorage.removeItem("currentReport");
-              navigate("/informe/nuevo");
-            }}
+            onClick={() => navigate("/informe/nuevo")}
             className="bg-blue-600 text-white w-full py-2 rounded"
           >
             Nuevo informe
@@ -87,7 +84,7 @@ export default function IndexInforme() {
               >
                 <div>
                   <p className="font-semibold">
-                    {inf.data.cliente || "Sin cliente"}
+                    {inf.data?.cliente || "Sin cliente"}
                   </p>
                   <p className="text-xs text-gray-500">
                     {new Date(inf.createdAt).toLocaleString()}
@@ -104,16 +101,12 @@ export default function IndexInforme() {
                 </div>
 
                 <div className="flex gap-2">
-                  {/* EDITAR */}
+                  {/* ABRIR / EDITAR */}
                   <button
                     className="border px-2 py-1 text-xs rounded"
-                    onClick={() => {
-                      localStorage.setItem(
-                        "currentReport",
-                        JSON.stringify(inf)
-                      );
-                      navigate("/informe/nuevo");
-                    }}
+                    onClick={() =>
+                      navigate(`/informe/${inf.id}`)
+                    }
                   >
                     Abrir
                   </button>
@@ -122,13 +115,9 @@ export default function IndexInforme() {
                   {inf.estado === "completado" && (
                     <button
                       className="bg-green-600 text-white px-2 py-1 text-xs rounded"
-                      onClick={() => {
-                        localStorage.setItem(
-                          "currentReport",
-                          JSON.stringify(inf)
-                        );
-                        navigate("/informe/pdf");
-                      }}
+                      onClick={() =>
+                        navigate(`/informe/pdf/${inf.id}`)
+                      }
                     >
                       PDF
                     </button>
