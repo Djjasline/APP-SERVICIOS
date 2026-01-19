@@ -58,21 +58,29 @@ const Card = ({ title, type, description }) => {
       </button>
 
       {/* FILTROS */}
-      <div className="flex gap-2 text-xs">
-        {["todas", "borrador", "completada"].map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-2 py-1 rounded border ${
-              filter === f
-                ? "bg-slate-900 text-white"
-                : "bg-white text-slate-600"
-            }`}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
+     <div className="flex items-center gap-2">
+  <StatusBadge estado={item.estado} />
+
+  {item.estado === "completada" && (
+    <button
+      onClick={() =>
+        navigate(`/inspeccion/${type}/${item.id}/pdf`)
+      }
+      className="text-xs text-red-600 hover:underline"
+    >
+      PDF
+    </button>
+  )}
+
+  <button
+    onClick={() =>
+      navigate(`/inspeccion/${type}/${item.id}`)
+    }
+    className="text-xs text-blue-600 hover:underline"
+  >
+    Abrir
+  </button>
+</div>
 
       {/* HISTORIAL */}
       <div>
