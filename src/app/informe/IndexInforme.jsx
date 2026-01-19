@@ -83,14 +83,20 @@ export default function IndexInforme() {
                 className="border rounded p-3 flex justify-between items-center text-sm"
               >
                 <div>
-                 <p className="font-semibold">
-  {inf.data?.cliente && inf.data?.codInf
-    ? `${inf.data.cliente} / ${inf.data.codInf}`
-    : inf.data?.cliente || inf.data?.codInf || "Sin cliente"}
-</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(inf.createdAt).toLocaleString()}
+                  {/* CLIENTE / COD-INF */}
+                  <p className="font-semibold">
+                    {(inf.data?.cliente || inf.cliente || "Sin cliente")}
+                    {(inf.data?.codInf || inf.codInf)
+                      ? ` / ${inf.data?.codInf || inf.codInf}`
+                      : ""}
                   </p>
+
+                  <p className="text-xs text-gray-500">
+                    {inf.createdAt
+                      ? new Date(inf.createdAt).toLocaleString()
+                      : "—"}
+                  </p>
+
                   <span
                     className={`text-xs font-semibold ${
                       inf.estado === "completado"
@@ -103,12 +109,10 @@ export default function IndexInforme() {
                 </div>
 
                 <div className="flex gap-2">
-                  {/* ABRIR / EDITAR */}
+                  {/* ABRIR */}
                   <button
                     className="border px-2 py-1 text-xs rounded"
-                    onClick={() =>
-                      navigate(`/informe/${inf.id}`)
-                    }
+                    onClick={() => navigate(`/informe/${inf.id}`)}
                   >
                     Abrir
                   </button>
@@ -117,11 +121,28 @@ export default function IndexInforme() {
                   {inf.estado === "completado" && (
                     <button
                       className="bg-green-600 text-white px-2 py-1 text-xs rounded"
-                      onClick={() =>
-                        navigate(`/informe/pdf/${inf.id}`)
-                      }
+                      onClick={() => navigate(`/informe/pdf/${inf.id}`)}
                     >
                       PDF
+                    </button>
+                  )}
+
+                  {/* ELIMINAR (si ya lo tienes implementado) */}
+                  {typeof inf.id !== "undefined" && (
+                    <button
+                      className="text-red-600 text-xs underline"
+                      onClick={() => {
+                        const updated = informes.filter(
+                          (i) => i.id !== inf.id
+                        );
+                        localStorage.setItem(
+                          "serviceReports",
+                          JSON.stringify(updated)
+                        );
+                        setInformes(updated);
+                      }}
+                    >
+                      Eliminar
                     </button>
                   )}
                 </div>
