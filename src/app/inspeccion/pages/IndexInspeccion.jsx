@@ -46,9 +46,7 @@ const Card = ({ title, type, description }) => {
   return (
     <div className="border rounded-xl p-4 space-y-4 bg-white shadow-sm">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">
-          {title}
-        </h2>
+        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
         <p className="text-sm text-slate-600">{description}</p>
       </div>
 
@@ -59,6 +57,7 @@ const Card = ({ title, type, description }) => {
         + Nueva inspección
       </button>
 
+      {/* FILTROS */}
       <div className="flex gap-2 text-xs">
         {["todas", "borrador", "completada"].map((f) => (
           <button
@@ -75,6 +74,7 @@ const Card = ({ title, type, description }) => {
         ))}
       </div>
 
+      {/* HISTORIAL */}
       <div>
         <p className="text-xs font-medium text-slate-500 mb-2">
           Historial
@@ -98,15 +98,13 @@ const Card = ({ title, type, description }) => {
                 <div className="flex items-center gap-2">
                   <StatusBadge estado={item.estado} />
 
-                  {/* PDF SOLO PARA COMPLETADAS */}
+                  {/* PDF – SOLO COMPLETADA */}
                   {item.estado === "completada" && (
                     <button
                       onClick={() =>
-                        navigate(
-                          `/inspeccion/${type}/${item.id}/pdf`
-                        )
+                        navigate(`/inspeccion/${type}/${item.id}/pdf`)
                       }
-                      className="text-xs text-green-600 hover:underline"
+                      className="text-xs text-red-600 hover:underline"
                     >
                       PDF
                     </button>
@@ -141,7 +139,7 @@ export default function IndexInspeccion() {
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
 
-        {/* BOTÓN VOLVER */}
+        {/* VOLVER */}
         <button
           onClick={() => navigate("/")}
           className="text-sm text-blue-600 hover:underline"
