@@ -27,6 +27,7 @@ const StatusBadge = ({ estado }) => {
 ========================= */
 const Card = ({ title, type, description }) => {
   const navigate = useNavigate();
+
   const inspections = getAllInspections().filter(
     (i) => i.type === type
   );
@@ -35,10 +36,7 @@ const Card = ({ title, type, description }) => {
 
   const filteredInspections = inspections
     .filter((i) => (filter === "todas" ? true : i.estado === filter))
-    .sort(
-      (a, b) =>
-        new Date(b.fecha) - new Date(a.fecha)
-    );
+    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
   const crearNuevaInspeccion = () => {
     const id = crypto.randomUUID();
@@ -48,7 +46,9 @@ const Card = ({ title, type, description }) => {
   return (
     <div className="border rounded-xl p-4 space-y-4 bg-white shadow-sm">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+        <h2 className="text-lg font-semibold text-slate-900">
+          {title}
+        </h2>
         <p className="text-sm text-slate-600">{description}</p>
       </div>
 
@@ -98,6 +98,21 @@ const Card = ({ title, type, description }) => {
                 <div className="flex items-center gap-2">
                   <StatusBadge estado={item.estado} />
 
+                  {/* PDF SOLO PARA COMPLETADAS */}
+                  {item.estado === "completada" && (
+                    <button
+                      onClick={() =>
+                        navigate(
+                          `/inspeccion/${type}/${item.id}/pdf`
+                        )
+                      }
+                      className="text-xs text-green-600 hover:underline"
+                    >
+                      PDF
+                    </button>
+                  )}
+
+                  {/* ABRIR */}
                   <button
                     onClick={() =>
                       navigate(`/inspeccion/${type}/${item.id}`)
