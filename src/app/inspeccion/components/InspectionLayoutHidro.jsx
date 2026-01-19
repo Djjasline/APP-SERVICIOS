@@ -122,7 +122,7 @@ export default function InspectionLayoutHidro({
               <span>{pt.id})</span>
               <input
                 className="pdf-input flex-1"
-                value={pt.nota}
+                value={pt.nota || ""}
                 disabled={readOnly}
                 onChange={(e) =>
                   onNotaChange(pt.id, e.target.value)
@@ -145,15 +145,13 @@ export default function InspectionLayoutHidro({
             </tr>
           </thead>
           <tbody>
-            {Object.entries(data.items || {}).map(
-              ([codigo, item]) => (
-                <tr key={codigo}>
-                  <td>{codigo}</td>
-                  <td>{item.estado}</td>
-                  <td>{item.observacion}</td>
-                </tr>
-              )
-            )}
+            {Object.entries(data.items || {}).map(([codigo, item]) => (
+              <tr key={codigo}>
+                <td>{codigo}</td>
+                <td>{item.estado}</td>
+                <td>{item.observacion}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </section>
@@ -171,7 +169,10 @@ export default function InspectionLayoutHidro({
             <td style={{ height: 140 }}>
               {readOnly ? (
                 data.firmas?.tecnico && (
-                  <img src={data.firmas.tecnico} className="max-h-32 mx-auto" />
+                  <img
+                    src={data.firmas.tecnico}
+                    className="max-h-32 mx-auto"
+                  />
                 )
               ) : (
                 <SignatureCanvas
@@ -180,16 +181,25 @@ export default function InspectionLayoutHidro({
                 />
               )}
             </td>
+
             <td style={{ height: 140 }}>
               {readOnly ? (
                 data.firmas?.cliente && (
-                  <img src={data.firmas.cliente} className="max-h-32 mx-auto" />
+                  <img
+                    src={data.firmas.cliente}
+                    className="max-h-32 mx-auto"
+                  />
                 )
               ) : (
                 <SignatureCanvas
-                  ref={firmasRe
-                          </div>
+                  ref={firmasRef?.cliente}
+                  canvasProps={{ className: "w-full h-full" }}
+                />
+              )}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 }
-
