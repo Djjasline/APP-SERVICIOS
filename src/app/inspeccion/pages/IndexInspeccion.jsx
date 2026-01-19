@@ -58,29 +58,21 @@ const Card = ({ title, type, description }) => {
       </button>
 
       {/* FILTROS */}
-     <div className="flex items-center gap-2">
-  <StatusBadge estado={item.estado} />
-
-  {item.estado === "completada" && (
-    <button
-      onClick={() =>
-        navigate(`/inspeccion/${type}/${item.id}/pdf`)
-      }
-      className="text-xs text-red-600 hover:underline"
-    >
-      PDF
-    </button>
-  )}
-
-  <button
-    onClick={() =>
-      navigate(`/inspeccion/${type}/${item.id}`)
-    }
-    className="text-xs text-blue-600 hover:underline"
-  >
-    Abrir
-  </button>
-</div>
+      <div className="flex gap-2 text-xs">
+        {["todas", "borrador", "completada"].map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-2 py-1 rounded border ${
+              filter === f
+                ? "bg-slate-900 text-white"
+                : "bg-white text-slate-600"
+            }`}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
 
       {/* HISTORIAL */}
       <div>
@@ -138,7 +130,7 @@ const Card = ({ title, type, description }) => {
 };
 
 /* =========================
-   INDEX INSPECCIÓN (MENÚ)
+   INDEX INSPECCIÓN
 ========================= */
 export default function IndexInspeccion() {
   const navigate = useNavigate();
@@ -147,7 +139,6 @@ export default function IndexInspeccion() {
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
 
-        {/* VOLVER */}
         <button
           onClick={() => navigate("/")}
           className="text-sm text-blue-600 hover:underline"
