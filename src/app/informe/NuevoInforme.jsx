@@ -66,7 +66,7 @@ export default function NuevoInforme() {
   };
 
   /* ===========================
-     CARGAR BORRADOR
+     CARGAR BORRADOR (SOLO SI EXISTE)
   =========================== */
   useEffect(() => {
     const current = JSON.parse(localStorage.getItem("currentReport"));
@@ -143,58 +143,46 @@ export default function NuevoInforme() {
   /* ===========================
      GUARDAR INFORME
   =========================== */
-const saveReport = () => {
-  const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
+  const saveReport = () => {
+    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
 
-  const report = {
-    id: Date.now(),
-    createdAt: new Date().toISOString(),
-
-    // 🔴 ESTADO OBLIGATORIO PARA FILTROS Y UI
-    estado: "borrador",
-
-    data: {
-      ...data,
-
-      // 🔴 ASEGURAR CLIENTE
-      cliente: data.cliente?.trim() || "Sin cliente",
-
-      // 🔴 CODIGO INGRESADO MANUALMENTE
-      codInf:
-        data.codInf?.trim() ||
-        `INF-${new Date().getFullYear()}-${Date.now()
-          .toString()
-          .slice(-4)}`,
-
-      firmas: {
-        tecnico: sigTecnico.current?.isEmpty()
-          ? ""
-          : sigTecnico.current.toDataURL(),
-        cliente: sigCliente.current?.isEmpty()
-          ? ""
-          : sigCliente.current.toDataURL(),
+    const report = {
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      estado: "borrador",
+      data: {
+        ...data,
+        cliente: data.cliente?.trim() || "Sin cliente",
+        codInf:
+          data.codInf?.trim() ||
+          `INF-${new Date().getFullYear()}-${Date.now()
+            .toString()
+            .slice(-4)}`,
+        firmas: {
+          tecnico: sigTecnico.current?.isEmpty()
+            ? ""
+            : sigTecnico.current.toDataURL(),
+          cliente: sigCliente.current?.isEmpty()
+            ? ""
+            : sigCliente.current.toDataURL(),
+        },
       },
-    },
+    };
+
+    localStorage.setItem(
+      "serviceReports",
+      JSON.stringify([...stored, report])
+    );
+
+    localStorage.setItem("currentReport", JSON.stringify(report));
+
+    navigate("/informe");
   };
 
-  localStorage.setItem(
-    "serviceReports",
-    JSON.stringify([...stored, report])
-  );
+  return (
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
 
-  localStorage.setItem("currentReport", JSON.stringify(report));
-
-  navigate("/informe");
-};
-return (
-  <div className="p-6 bg-gray-100 min-h-screen">
-    <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
-
-
-<h3 className="font-bold text-sm">
-  ACTIVIDADES REALIZADAS
-</h3>
-      
         {/* ENCABEZADO */}
         <ReportHeader data={data} onChange={update} />
 
@@ -335,28 +323,9 @@ return (
           </tbody>
         </table>
 
-        <div className="flex justify-between">
-          <button
-            type="button"
-            onClick={addConclusionRow}
-            className="border px-3 py-1 rounded text-sm"
-          >
-            + Agregar fila
-          </button>
-
-          {data.conclusiones.length > 1 && (
-            <button
-              type="button"
-              onClick={() => removeConclusionRow(data.conclusiones.length - 1)}
-              className="border px-3 py-1 rounded text-sm text-red-600"
-            >
-              Eliminar última fila
-            </button>
-          )}
-        </div>
-
         {/* DESCRIPCIÓN DEL EQUIPO */}
         <h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
+
         <table className="pdf-table">
           <tbody>
             {[
