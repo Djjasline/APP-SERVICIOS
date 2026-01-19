@@ -37,9 +37,18 @@ export default function IndexInspeccion() {
 
   return (
     <div className="max-w-5xl mx-auto p-4 space-y-6">
+
+      {/* ================= BOTÓN VOLVER ================= */}
+      <button
+        onClick={() => navigate("/")}
+        className="text-sm border px-3 py-1 rounded hover:bg-gray-100"
+      >
+        ← Volver
+      </button>
+
       <h1 className="text-xl font-bold">Inspección y valoración</h1>
 
-      {/* CARD HIDRO */}
+      {/* ================= CARD HIDRO ================= */}
       <section className="border rounded-xl p-4 space-y-4 bg-white">
         <h2 className="font-semibold">Hidrosuccionador</h2>
         <p className="text-sm text-gray-500">
@@ -53,7 +62,7 @@ export default function IndexInspeccion() {
           + Nueva inspección
         </button>
 
-        {/* FILTROS */}
+        {/* ================= FILTROS ================= */}
         <div className="flex gap-2 text-xs">
           {["todas", "borrador", "completada"].map((f) => (
             <button
@@ -68,7 +77,7 @@ export default function IndexInspeccion() {
           ))}
         </div>
 
-        {/* HISTORIAL */}
+        {/* ================= HISTORIAL ================= */}
         <div className="space-y-2">
           {filtradas.length === 0 && (
             <p className="text-sm text-gray-400">
