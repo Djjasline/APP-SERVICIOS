@@ -9,7 +9,7 @@ import HistorialInspecciones from "./HistorialInspecciones";
 import HojaFirma from "./HojaFirma";
 
 // 👉 NUEVO PDF
-import InspeccionPdf from "./pdf/InspeccionPdf";
+import InspeccionPdf from "./pages/InspeccionPdf";
 
 export default function InspectionRoutes() {
   return (
