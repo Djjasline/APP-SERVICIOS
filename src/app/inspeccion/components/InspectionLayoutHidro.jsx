@@ -188,3 +188,8 @@ export default function InspectionLayoutHidro({
               ) : (
                 <SignatureCanvas
                   ref={firmasRe
+                          </div>
+    </div>
+  );
+}
+
