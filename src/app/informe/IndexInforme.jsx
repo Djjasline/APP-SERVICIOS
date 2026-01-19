@@ -24,7 +24,6 @@ export default function IndexInforme() {
 
   /* ===========================
      TITULO DEL HISTORIAL
-     (AQUÍ ESTABA EL PROBLEMA)
   =========================== */
   const getTitulo = (inf) => {
     const cliente = inf.data?.cliente?.trim();
@@ -37,6 +36,14 @@ export default function IndexInforme() {
     if (ref) return ref;
 
     return "Sin referencia";
+  };
+
+  /* ===========================
+     NUEVO INFORME (LIMPIO)
+  =========================== */
+  const nuevoInforme = () => {
+    localStorage.removeItem("currentReport"); // 🔴 LIMPIA BORRADOR
+    navigate("/informe/nuevo");
   };
 
   return (
@@ -54,11 +61,12 @@ export default function IndexInforme() {
           </button>
         </div>
 
-        {/* CREAR */}
+        {/* CONTENEDOR */}
         <div className="bg-white p-6 rounded shadow space-y-4">
 
+          {/* NUEVO */}
           <button
-            onClick={() => navigate("/informe/nuevo")}
+            onClick={nuevoInforme}
             className="bg-blue-600 text-white w-full py-2 rounded"
           >
             Nuevo informe
@@ -113,7 +121,13 @@ export default function IndexInforme() {
                 <div className="flex gap-2">
                   <button
                     className="border px-2 py-1 text-xs rounded"
-                    onClick={() => navigate(`/informe/${inf.id}`)}
+                    onClick={() => {
+                      localStorage.setItem(
+                        "currentReport",
+                        JSON.stringify(inf)
+                      );
+                      navigate(`/informe/${inf.id}`);
+                    }}
                   >
                     Abrir
                   </button>
@@ -121,7 +135,9 @@ export default function IndexInforme() {
                   {inf.estado === "completado" && (
                     <button
                       className="bg-green-600 text-white px-2 py-1 text-xs rounded"
-                      onClick={() => navigate(`/informe/pdf/${inf.id}`)}
+                      onClick={() =>
+                        navigate(`/informe/pdf/${inf.id}`)
+                      }
                     >
                       PDF
                     </button>
