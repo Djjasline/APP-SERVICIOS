@@ -133,28 +133,79 @@ export default function InspectionLayoutHidro({
         </section>
       )}
 
-      {/* ================= CHECKLIST ================= */}
-      <section>
-        <h3 className="font-semibold mb-2">Evaluación de sistemas</h3>
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th>Ítem</th>
-              <th>Estado</th>
-              <th>Observación</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(data.items || {}).map(([codigo, item]) => (
-              <tr key={codigo}>
-                <td>{codigo}</td>
-                <td>{item.estado}</td>
-                <td>{item.observacion}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+ {/* ================= CHECKLIST ================= */}
+<section>
+  <h3 className="font-semibold mb-2">Evaluación de sistemas</h3>
+
+  <table className="pdf-table">
+    <thead>
+      <tr>
+        <th>Ítem</th>
+        <th>Estado</th>
+        <th>Observación</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {Object.entries(data.items || {}).map(([codigo, item]) => (
+        <tr key={codigo}>
+          <td>{codigo}</td>
+
+          {/* ===== SI / NO ===== */}
+          <td>
+            <label className="mr-3">
+              <input
+                type="radio"
+                name={`estado-${codigo}`}
+                checked={item.estado === "SI"}
+                disabled={readOnly}
+                onChange={() =>
+                  onItemChange(codigo, {
+                    ...item,
+                    estado: "SI",
+                  })
+                }
+              />
+              <span className="ml-1">SI</span>
+            </label>
+
+            <label>
+              <input
+                type="radio"
+                name={`estado-${codigo}`}
+                checked={item.estado === "NO"}
+                disabled={readOnly}
+                onChange={() =>
+                  onItemChange(codigo, {
+                    ...item,
+                    estado: "NO",
+                  })
+                }
+              />
+              <span className="ml-1">NO</span>
+            </label>
+          </td>
+
+          {/* ===== OBSERVACIÓN ===== */}
+          <td>
+            <input
+              className="pdf-input"
+              value={item.observacion || ""}
+              disabled={readOnly}
+              onChange={(e) =>
+                onItemChange(codigo, {
+                  ...item,
+                  observacion: e.target.value,
+                })
+              }
+            />
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</section>
+     
 
 {/* ================= FIRMAS ================= */}
 <table className="pdf-table">
