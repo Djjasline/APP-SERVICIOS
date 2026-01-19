@@ -27,8 +27,9 @@ const StatusBadge = ({ estado }) => {
 ========================= */
 const Card = ({ title, type, description }) => {
   const navigate = useNavigate();
-  const history = getInspectionHistory();
-const inspections = getAllInspections();
+  const inspections = getAllInspections().filter(
+    (i) => i.type === type
+  );
 
   const [filter, setFilter] = useState("todas");
 
@@ -36,8 +37,7 @@ const inspections = getAllInspections();
     .filter((i) => (filter === "todas" ? true : i.estado === filter))
     .sort(
       (a, b) =>
-        new Date(b.fecha || b.fechaCompletada) -
-        new Date(a.fecha || a.fechaCompletada)
+        new Date(b.fecha) - new Date(a.fecha)
     );
 
   const crearNuevaInspeccion = () => {
@@ -76,7 +76,9 @@ const inspections = getAllInspections();
       </div>
 
       <div>
-        <p className="text-xs font-medium text-slate-500 mb-2">Historial</p>
+        <p className="text-xs font-medium text-slate-500 mb-2">
+          Historial
+        </p>
 
         {filteredInspections.length === 0 ? (
           <p className="text-xs text-slate-400">
@@ -90,7 +92,7 @@ const inspections = getAllInspections();
                 className="flex justify-between items-center border rounded px-2 py-1"
               >
                 <span className="truncate">
-                  {item.cliente || "Sin cliente"}
+                  {item.data?.cliente || "Sin cliente"}
                 </span>
 
                 <div className="flex items-center gap-2">
@@ -115,7 +117,7 @@ const inspections = getAllInspections();
 };
 
 /* =========================
-   INDEX INSPECCIÓN
+   INDEX INSPECCIÓN (MENÚ)
 ========================= */
 export default function IndexInspeccion() {
   const navigate = useNavigate();
@@ -124,7 +126,7 @@ export default function IndexInspeccion() {
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
 
-        {/* BOTÓN VOLVER AL MENÚ PRINCIPAL */}
+        {/* BOTÓN VOLVER */}
         <button
           onClick={() => navigate("/")}
           className="text-sm text-blue-600 hover:underline"
