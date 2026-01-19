@@ -95,9 +95,7 @@ const Card = ({ title, type, description }) => {
                   {item.data?.cliente || "Sin cliente"}
                 </span>
 
-                <div className="flex items-center gap-2">
-                  <StatusBadge estado={item.estado} />
-
+            
                   {/* PDF – SOLO COMPLETADA */}
                   {item.estado === "completada" && (
                     <button
