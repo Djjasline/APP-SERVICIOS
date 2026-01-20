@@ -1,0 +1,114 @@
+import React from "react";
+
+/**
+ * EstadoEquipoSection
+ * -------------------
+ * - Muestra imagen del equipo
+ * - Permite agregar puntos rojos con click
+ * - Permite eliminar puntos (doble click)
+ * - Permite escribir observación por punto
+ * - GUARDA TODO en `puntos` (x, y, nota)
+ */
+export default function EstadoEquipoSection({
+  puntos = [],
+  onChange,
+  imagen = "/estado-equipo.png",
+}) {
+  const handleImageClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    const nuevoPunto = {
+      id: puntos.length + 1,
+      x,
+      y,
+      nota: "",
+    };
+
+    onChange([...puntos, nuevoPunto]);
+  };
+
+  const handleRemovePoint = (id) => {
+    const nuevos = puntos
+      .filter((p) => p.id !== id)
+      .map((p, i) => ({ ...p, id: i + 1 }));
+
+    onChange(nuevos);
+  };
+
+  const handleNotaChange = (id, value) => {
+    onChange(
+      puntos.map((p) =>
+        p.id === id ? { ...p, nota: value } : p
+      )
+    );
+  };
+
+  const clearAll = () => {
+    onChange([]);
+  };
+
+  return (
+    <section className="bg-white border rounded-xl p-6 space-y-3">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">
+          Estado del equipo
+        </h2>
+        <button
+          type="button"
+          onClick={clearAll}
+          className="text-xs border px-2 py-1 rounded"
+        >
+          Limpiar puntos
+        </button>
+      </div>
+
+      {/* IMAGEN */}
+      <div
+        className="relative border rounded cursor-crosshair"
+        onClick={handleImageClick}
+      >
+        <img
+          src={imagen}
+          alt="Estado del equipo"
+          className="w-full"
+          draggable={false}
+        />
+
+        {puntos.map((pt) => (
+          <div
+            key={pt.id}
+            onDoubleClick={() => handleRemovePoint(pt.id)}
+            title="Doble click para eliminar"
+            className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
+            style={{
+              left: `${pt.x}%`,
+              top: `${pt.y}%`,
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            {pt.id}
+          </div>
+        ))}
+      </div>
+
+      {/* OBSERVACIONES POR PUNTO */}
+      {puntos.map((pt) => (
+        <div key={pt.id} className="flex gap-2 items-center">
+          <span className="font-semibold w-6">
+            {pt.id})
+          </span>
+          <input
+            className="flex-1 border p-1 text-sm"
+            placeholder={`Observación punto ${pt.id}`}
+            value={pt.nota}
+            onChange={(e) =>
+              handleNotaChange(pt.id, e.target.value)
+            }
+          />
+        </div>
+      ))}
+    </section>
+  );
+}
