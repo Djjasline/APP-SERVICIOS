@@ -180,6 +180,6 @@ export default function HojaInspeccionHidro() {
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
       {/* AQUÍ VA TODO TU JSX REAL, EL MISMO QUE YA TENÍAS Y FUNCIONABA */}
-    </form>
-  );
+    </form>.
+  }
 }
