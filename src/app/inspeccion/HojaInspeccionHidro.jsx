@@ -344,11 +344,6 @@ export default function HojaInspeccionHidro() {
                 <td>{texto}</td>
                 <td>
                  input
-  type="radio"
-  name={`${codigo}-estado`}
-  checked={formData.items[codigo]?.estado === "SI"}
-  onChange={() => handleItemChange(codigo, "estado", "SI")}
-/>
 <td>
   <input
     type="radio"
@@ -365,6 +360,7 @@ export default function HojaInspeccionHidro() {
     onChange={() => handleItemChange(codigo, "estado", "NO")}
   />
 </td>
+
               </tr>
             ))}
           </tbody>
