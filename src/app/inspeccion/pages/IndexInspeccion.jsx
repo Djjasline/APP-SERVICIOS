@@ -1,45 +1,51 @@
 <li
   key={item.id}
-  className="flex justify-between items-center border rounded px-2 py-2"
+  className="border rounded px-3 py-2 flex justify-between items-center"
 >
   {/* INFO */}
-  <div className="flex flex-col">
-    <span className="font-medium truncate">
+  <div>
+    <p className="font-medium">
       {item.data?.cliente || "Sin cliente"}
-    </span>
+    </p>
 
-    <span className="text-xs text-slate-500">
+    <p className="text-xs text-slate-500">
       {new Date(item.fecha || item.createdAt).toLocaleString()}
-    </span>
+    </p>
+
+    <p className="text-xs">
+      Estado:{" "}
+      <strong className={
+        item.estado === "completada"
+          ? "text-green-600"
+          : "text-yellow-600"
+      }>
+        {item.estado}
+      </strong>
+    </p>
   </div>
 
   {/* ACCIONES */}
-  <div className="flex items-center gap-2">
-    <StatusBadge estado={item.estado} />
+  <div className="flex items-center gap-3 text-sm">
+    <button
+      onClick={() =>
+        navigate(`/inspeccion/${type}/${item.id}`)
+      }
+      className="text-blue-600 hover:underline"
+    >
+      Abrir
+    </button>
 
-    {/* PDF – SOLO COMPLETADA */}
     {item.estado === "completada" && (
       <button
         onClick={() =>
           navigate(`/inspeccion/${type}/${item.id}/pdf`)
         }
-        className="text-xs text-green-600 hover:underline"
+        className="text-green-600 hover:underline"
       >
         PDF
       </button>
     )}
 
-    {/* ABRIR */}
-    <button
-      onClick={() =>
-        navigate(`/inspeccion/${type}/${item.id}`)
-      }
-      className="text-xs text-blue-600 hover:underline"
-    >
-      Abrir
-    </button>
-
-    {/* ELIMINAR */}
     <button
       onClick={() => {
         const all = getAllInspections();
@@ -49,7 +55,7 @@
         localStorage.setItem("inspections", JSON.stringify(next));
         window.location.reload();
       }}
-      className="text-xs text-red-600 hover:underline"
+      className="text-red-600 hover:underline"
     >
       Eliminar
     </button>
