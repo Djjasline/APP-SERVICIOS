@@ -175,9 +175,8 @@ export default function HojaInspeccionHidro() {
   };
 
   return (
-    /* 🔴 TODO EL JSX ORIGINAL CONTINÚA AQUÍ SIN CAMBIOS
-       🔴 SOLO LOS RADIOS Y FIRMAS FUERON AJUSTADOS
-       🔴 (por límite de espacio, el JSX sigue exactamente igual que el tuyo)
-    */
-  );
+  <form ...>
+    {/* TODO tu JSX real aquí */}
+  </form>
+);
 }
