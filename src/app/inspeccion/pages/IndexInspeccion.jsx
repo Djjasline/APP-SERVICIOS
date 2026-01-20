@@ -1,63 +1,41 @@
-<li
-  key={item.id}
-  className="border rounded px-3 py-2 flex justify-between items-center"
->
-  {/* INFO */}
-  <div>
-    <p className="font-medium">
-      {item.data?.cliente || "Sin cliente"}
-    </p>
+function IndexInspeccion() {
+  const navigate = useNavigate();
 
-    <p className="text-xs text-slate-500">
-      {new Date(item.fecha || item.createdAt).toLocaleString()}
-    </p>
+  return (
+    <div className="min-h-screen bg-slate-50 px-4 py-8">
+      <div className="max-w-6xl mx-auto space-y-6">
 
-    <p className="text-xs">
-      Estado:{" "}
-      <strong className={
-        item.estado === "completada"
-          ? "text-green-600"
-          : "text-yellow-600"
-      }>
-        {item.estado}
-      </strong>
-    </p>
-  </div>
+        <button
+          onClick={() => navigate("/")}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          ← Volver al panel principal
+        </button>
 
-  {/* ACCIONES */}
-  <div className="flex items-center gap-3 text-sm">
-    <button
-      onClick={() =>
-        navigate(`/inspeccion/${type}/${item.id}`)
-      }
-      className="text-blue-600 hover:underline"
-    >
-      Abrir
-    </button>
+        <h1 className="text-2xl font-semibold text-slate-900">
+          Inspección y valoración
+        </h1>
 
-    {item.estado === "completada" && (
-      <button
-        onClick={() =>
-          navigate(`/inspeccion/${type}/${item.id}/pdf`)
-        }
-        className="text-green-600 hover:underline"
-      >
-        PDF
-      </button>
-    )}
+        <div className="grid md:grid-cols-3 gap-6">
+          <Card
+            title="Hidrosuccionador"
+            type="hidro"
+            description="Inspección general del equipo hidrosuccionador."
+          />
+          <Card
+            title="Barredora"
+            type="barredora"
+            description="Inspección y valoración de barredoras."
+          />
+          <Card
+            title="Cámara (VCAM / Metrotech)"
+            type="camara"
+            description="Inspección con sistema de cámara."
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-    <button
-      onClick={() => {
-        const all = getAllInspections();
-        const next = all.filter(
-          (i) => !(i.id === item.id && i.type === type)
-        );
-        localStorage.setItem("inspections", JSON.stringify(next));
-        window.location.reload();
-      }}
-      className="text-red-600 hover:underline"
-    >
-      Eliminar
-    </button>
-  </div>
-</li>
+export default IndexInspeccion;
