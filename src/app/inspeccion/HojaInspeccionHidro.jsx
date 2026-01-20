@@ -160,7 +160,7 @@ export default function HojaInspeccionHidro() {
     }));
   };
 
-  const handleSubmit = (e) => {
+   const handleSubmit = (e) => {
     e.preventDefault();
 
     markInspectionCompleted("hidro", id, {
@@ -175,8 +175,11 @@ export default function HojaInspeccionHidro() {
   };
 
   return (
-  <form ...>
-    {/* TODO tu JSX real aquí */}
-  </form>
-);
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
+    >
+      {/* AQUÍ VA TODO TU JSX REAL, EL MISMO QUE YA TENÍAS Y FUNCIONABA */}
+    </form>
+  );
 }
