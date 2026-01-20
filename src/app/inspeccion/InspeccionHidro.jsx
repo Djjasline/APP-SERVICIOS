@@ -45,12 +45,12 @@ export default function InspeccionHidro() {
     autoCapitalize: "sentences",
   };
 
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
     // 1. Finaliza y guarda usando la lógica existente
     finalize();
 
     // 2. Genera el PDF usando EXACTAMENTE el mismo objeto guardado
-    generateReportPdf(data);
+    await generateReportPdf(data);
   };
 
   return (
