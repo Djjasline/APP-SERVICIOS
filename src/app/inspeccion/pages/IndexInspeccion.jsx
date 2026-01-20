@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 function IndexInspeccion() {
   const navigate = useNavigate();
 
