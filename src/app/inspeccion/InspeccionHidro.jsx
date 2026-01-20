@@ -6,6 +6,7 @@ import ClientDataSection from "@components/common/ClientDataSection";
 import EquipmentDataSection from "@components/common/EquipmentDataSection";
 import SignaturesSection from "@components/common/SignaturesSection";
 import ChecklistSection from "@components/common/ChecklistSection";
+import EstadoEquipoSection from "@components/common/EstadoEquipoSection";
 
 import {
   preServicio,
@@ -25,6 +26,7 @@ export default function InspeccionHidro() {
     save,
     finalize,
   } = useFormStorage("inspeccion_hidro", {
+    tipoFormulario: "hidro",          // 🔑 CLAVE PARA EL PDF
     cliente: {},
     equipo: {},
     inspeccion: {
@@ -34,6 +36,7 @@ export default function InspeccionHidro() {
       sistemaElectrico: [],
       sistemaSuccion: [],
     },
+    estadoEquipoPuntos: [],           // 🔑 CLAVE PARA EL PDF
     observaciones: "",
     estadoEquipo: "",
     firmas: {},
@@ -46,10 +49,7 @@ export default function InspeccionHidro() {
   };
 
   const handleFinalize = async () => {
-    // 1. Finaliza y guarda usando la lógica existente
     finalize();
-
-    // 2. Genera el PDF usando EXACTAMENTE el mismo objeto guardado
     await generateReportPdf(data);
   };
 
@@ -83,6 +83,17 @@ export default function InspeccionHidro() {
               ...prev.equipo,
               [e.target.name]: e.target.value,
             },
+          }))
+        }
+      />
+
+      {/* 🔴 ESTADO DEL EQUIPO (PUNTOS ROJOS) */}
+      <EstadoEquipoSection
+        puntos={data.estadoEquipoPuntos}
+        onChange={(puntos) =>
+          setData((prev) => ({
+            ...prev,
+            estadoEquipoPuntos: puntos,
           }))
         }
       />
