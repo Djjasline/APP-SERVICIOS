@@ -1,34 +1,52 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { getInspectionById } from "@/utils/inspectionStorage";
 
-/* ========= MAPA DE IMÁGENES ========= */
+import {
+  preServicio,
+  sistemaHidraulicoAceite,
+  sistemaHidraulicoAgua,
+  sistemaElectrico,
+  sistemaSuccion,
+} from "../schemas/inspeccionHidroSchema";
+
+/* ================= CONFIG ================= */
+const TYPE = "hidro";
+
 const ESTADO_IMAGEN = {
   hidro: "/estado-equipo.png",
-  barredora: "/estado equipo barredora.png",
-  camara: "/estado equipo camara.png",
 };
 
-/* ========= TÍTULOS FORMATO ========= */
-const TITULOS = {
-  preServicio: "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS",
-  sistemaHidraulicoAceite: "A) SISTEMA HIDRÁULICO (ACEITES)",
-  sistemaHidraulicoAgua: "B) SISTEMA HIDRÁULICO (AGUA)",
-  sistemaElectrico: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
-  sistemaSuccion: "D) SISTEMA DE SUCCIÓN",
-};
-
-/* ========= NORMALIZADOR (CLAVE) ========= */
-const normalizarItem = (it = {}) => ({
-  codigo: it.codigo || it.id || it.item || "",
-  detalle: it.detalle || it.texto || it.label || "",
-  estado: it.estado || it.value || "",
-  observacion: it.observacion || it.note || "",
-});
+const SECCIONES = [
+  {
+    key: "preServicio",
+    titulo: "1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO",
+    schema: preServicio,
+  },
+  {
+    key: "sistemaHidraulicoAceite",
+    titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
+    schema: sistemaHidraulicoAceite,
+  },
+  {
+    key: "sistemaHidraulicoAgua",
+    titulo: "B) SISTEMA HIDRÁULICO (AGUA)",
+    schema: sistemaHidraulicoAgua,
+  },
+  {
+    key: "sistemaElectrico",
+    titulo: "C) SISTEMA ELÉCTRICO / ELECTRÓNICO",
+    schema: sistemaElectrico,
+  },
+  {
+    key: "sistemaSuccion",
+    titulo: "D) SISTEMA DE SUCCIÓN",
+    schema: sistemaSuccion,
+  },
+];
 
 export default function InspeccionPdf() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const TYPE = "hidro";
 
   const inspection = getInspectionById(TYPE, id);
   if (!inspection) {
@@ -42,7 +60,6 @@ export default function InspeccionPdf() {
 
   const data = inspection.data || {};
   const puntos = data.estadoEquipoPuntos || [];
-  const imagenEstado = ESTADO_IMAGEN[data.tipoFormulario || TYPE];
 
   return (
     <div className="p-6 bg-white text-xs">
@@ -58,7 +75,7 @@ export default function InspeccionPdf() {
           </button>
         </div>
 
-        {/* ================= ENCABEZADO (IGUAL AL FORMULARIO) ================= */}
+        {/* ================= ENCABEZADO ================= */}
         <table className="w-full border border-collapse">
           <tbody>
             <tr>
@@ -70,7 +87,7 @@ export default function InspeccionPdf() {
               </td>
             </tr>
             <tr>
-              <td className="border p-1 font-semibold">REFERENCIA DE CONTRATO</td>
+              <td className="border p-1 font-semibold">REFERENCIA CONTRATO</td>
               <td colSpan={2} className="border p-1">
                 {data.referenciaContrato || ""}
               </td>
@@ -90,25 +107,6 @@ export default function InspeccionPdf() {
           </tbody>
         </table>
 
-        {/* ================= DATOS DE SERVICIO ================= */}
-        <table className="w-full border border-collapse mt-2">
-          <tbody>
-            {[
-              ["CLIENTE", data.cliente?.nombre],
-              ["DIRECCIÓN", data.cliente?.direccion],
-              ["CONTACTO", data.cliente?.contacto],
-              ["TELÉFONO", data.cliente?.telefono],
-              ["CORREO", data.cliente?.correo],
-              ["FECHA DE SERVICIO", data.fechaServicio],
-            ].map(([l, v]) => (
-              <tr key={l}>
-                <td className="border p-1 font-semibold w-40">{l}</td>
-                <td className="border p-1">{v || ""}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
         {/* ================= ESTADO DEL EQUIPO ================= */}
         <table className="w-full border border-collapse mt-3">
           <tbody>
@@ -120,7 +118,7 @@ export default function InspeccionPdf() {
             <tr>
               <td className="border p-2">
                 <div className="relative">
-                  <img src={imagenEstado} className="w-full" />
+                  <img src={ESTADO_IMAGEN.hidro} className="w-full" />
                   {puntos.map((pt) => (
                     <div
                       key={pt.id}
@@ -159,13 +157,13 @@ export default function InspeccionPdf() {
           </table>
         )}
 
-        {/* ================= PRUEBAS Y EVALUACIONES ================= */}
-        {Object.entries(data.inspeccion || {}).map(([key, lista]) => (
-          <table key={key} className="w-full border border-collapse mt-3">
+        {/* ================= PRUEBAS Y EVALUACIÓN ================= */}
+        {SECCIONES.map(({ key, titulo, schema }) => (
+          <table key={key} className="w-full border border-collapse mt-4">
             <thead>
               <tr>
                 <th colSpan={4} className="border p-1 text-center font-bold">
-                  {TITULOS[key] || key}
+                  {titulo}
                 </th>
               </tr>
               <tr>
@@ -176,75 +174,24 @@ export default function InspeccionPdf() {
               </tr>
             </thead>
             <tbody>
-              {lista.map((raw, i) => {
-                const it = normalizarItem(raw);
+              {schema.map((item, i) => {
+                const respuesta = data.inspeccion?.[key]?.[i] || {};
                 return (
-                  <tr key={i}>
-                    <td className="border p-1">{it.codigo}</td>
-                    <td className="border p-1">{it.detalle}</td>
-                    <td className="border p-1 text-center">{it.estado}</td>
-                    <td className="border p-1">{it.observacion}</td>
+                  <tr key={item.codigo}>
+                    <td className="border p-1">{item.codigo}</td>
+                    <td className="border p-1">{item.descripcion}</td>
+                    <td className="border p-1 text-center">
+                      {respuesta.value || ""}
+                    </td>
+                    <td className="border p-1">
+                      {respuesta.note || ""}
+                    </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         ))}
-
-        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-        <table className="w-full border border-collapse mt-3">
-          <thead>
-            <tr>
-              <th colSpan={2} className="border p-1 text-center font-bold">
-                DESCRIPCIÓN DEL EQUIPO
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              ["MARCA", data.equipo?.marca],
-              ["MODELO", data.equipo?.modelo],
-              ["SERIE", data.equipo?.serie],
-              ["AÑO MODELO", data.equipo?.anioModelo],
-              ["VIN / CHASIS", data.equipo?.vin],
-              ["PLACA", data.equipo?.placa],
-              ["HORAS MÓDULO", data.equipo?.horasModulo],
-              ["HORAS CHASIS", data.equipo?.horasChasis],
-              ["KILOMETRAJE", data.equipo?.kilometraje],
-            ].map(([l, v]) => (
-              <tr key={l}>
-                <td className="border p-1 font-semibold w-40">{l}</td>
-                <td className="border p-1">{v || ""}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* ================= FIRMAS ================= */}
-        <table className="w-full border border-collapse mt-3">
-          <tbody>
-            <tr>
-              <td className="border p-2 text-center font-semibold">
-                FIRMA TÉCNICO
-              </td>
-              <td className="border p-2 text-center font-semibold">
-                FIRMA CLIENTE
-              </td>
-            </tr>
-            <tr>
-              <td className="border p-2 text-center">
-                {data.firmas?.tecnico && (
-                  <img src={data.firmas.tecnico} className="mx-auto max-h-24" />
-                )}
-              </td>
-              <td className="border p-2 text-center">
-                {data.firmas?.cliente && (
-                  <img src={data.firmas.cliente} className="mx-auto max-h-24" />
-                )}
-              </td>
-            </tr>
-          </tbody>
-        </table>
 
       </div>
     </div>
