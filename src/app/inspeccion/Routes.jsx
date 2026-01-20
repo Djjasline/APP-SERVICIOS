@@ -6,8 +6,8 @@ import HojaInspeccionBarredora from "./HojaInspeccionBarredora";
 import HojaInspeccionCamara from "./HojaInspeccionCamara";
 import HojaFirma from "./HojaFirma";
 
-// PDF HIDRO
-import InspeccionHidroPDF from "./pages/InspeccionHidroPDF";
+// ✅ PDF NUEVO (EL CORRECTO)
+import InspeccionPdf from "./pdf/InspeccionPdf";
 
 export default function InspectionRoutes() {
   return (
@@ -20,8 +20,8 @@ export default function InspectionRoutes() {
 
       <Route path="hidro/:id/firma" element={<HojaFirma />} />
 
-      {/* PDF */}
-      <Route path="hidro/:id/pdf" element={<InspeccionHidroPDF />} />
+      {/* ✅ PDF REAL */}
+      <Route path="hidro/:id/pdf" element={<InspeccionPdf />} />
     </Routes>
   );
 }
