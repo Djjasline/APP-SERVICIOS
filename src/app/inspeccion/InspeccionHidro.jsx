@@ -15,6 +15,8 @@ import {
   sistemaSuccion,
 } from "./schemas/inspeccionHidroSchema";
 
+import { generateReportPdf } from "./utils/generateReportPdf";
+
 export default function InspeccionHidro() {
   const {
     data,
@@ -43,13 +45,21 @@ export default function InspeccionHidro() {
     autoCapitalize: "sentences",
   };
 
+  const handleFinalize = () => {
+    // 1. Finaliza y guarda usando la lógica existente
+    finalize();
+
+    // 2. Genera el PDF usando EXACTAMENTE el mismo objeto guardado
+    generateReportPdf(data);
+  };
+
   return (
     <FormLayout
       title="Inspección Hidrosuccionador"
       description="Hoja de inspección técnica del equipo hidrosuccionador"
       status={status}
       onSave={save}
-      onFinalize={finalize}
+      onFinalize={handleFinalize}
     >
       <ClientDataSection
         data={data.cliente}
