@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getAllInspections } from "@/utils/inspectionStorage";
 
 /* =========================
-   Badge visual de estado
+   Badge de estado
 ========================= */
 const StatusBadge = ({ estado }) => {
   const styles = {
@@ -13,8 +13,8 @@ const StatusBadge = ({ estado }) => {
 
   return (
     <span
-      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-        styles[estado] || "bg-gray-100 text-gray-700"
+      className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+        styles[estado] || "bg-gray-100 text-gray-600"
       }`}
     >
       {estado || "—"}
@@ -23,7 +23,7 @@ const StatusBadge = ({ estado }) => {
 };
 
 /* =========================
-   Card reutilizable
+   Card por tipo de inspección
 ========================= */
 const Card = ({ title, type, description }) => {
   const navigate = useNavigate();
@@ -33,13 +33,15 @@ const Card = ({ title, type, description }) => {
     (i) => i.type === type
   );
 
-  const filteredInspections = inspections
+  const filtered = inspections
     .filter((i) => (filter === "todas" ? true : i.estado === filter))
     .sort(
-      (a, b) => new Date(b.fecha || b.createdAt) - new Date(a.fecha || a.createdAt)
+      (a, b) =>
+        new Date(b.fecha || b.createdAt) -
+        new Date(a.fecha || a.createdAt)
     );
 
-  const crearNuevaInspeccion = () => {
+  const crearNueva = () => {
     const id = crypto.randomUUID();
     navigate(`/inspeccion/${type}/${id}`);
   };
@@ -47,13 +49,13 @@ const Card = ({ title, type, description }) => {
   return (
     <div className="border rounded-xl p-4 space-y-4 bg-white shadow-sm">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+        <h2 className="text-lg font-semibold">{title}</h2>
         <p className="text-sm text-slate-600">{description}</p>
       </div>
 
       <button
-        onClick={crearNuevaInspeccion}
-        className="px-3 py-2 text-sm rounded-md bg-slate-900 text-white hover:bg-slate-800"
+        onClick={crearNueva}
+        className="px-3 py-2 text-sm rounded bg-slate-900 text-white"
       >
         + Nueva inspección
       </button>
@@ -81,13 +83,13 @@ const Card = ({ title, type, description }) => {
           Historial
         </p>
 
-        {filteredInspections.length === 0 ? (
+        {filtered.length === 0 ? (
           <p className="text-xs text-slate-400">
             No hay inspecciones aún.
           </p>
         ) : (
           <ul className="space-y-2 text-sm">
-            {filteredInspections.map((item) => (
+            {filtered.map((item) => (
               <li
                 key={item.id}
                 className="flex justify-between items-center border rounded px-2 py-1"
@@ -99,7 +101,7 @@ const Card = ({ title, type, description }) => {
                 <div className="flex items-center gap-2">
                   <StatusBadge estado={item.estado} />
 
-                  {/* PDF – SOLO COMPLETADA */}
+                  {/* PDF (solo completada) */}
                   {item.estado === "completada" && (
                     <button
                       onClick={() =>
@@ -131,7 +133,7 @@ const Card = ({ title, type, description }) => {
 };
 
 /* =========================
-   INDEX INSPECCIÓN (MENÚ)
+   INDEX INSPECCIÓN
 ========================= */
 export default function IndexInspeccion() {
   const navigate = useNavigate();
@@ -140,7 +142,6 @@ export default function IndexInspeccion() {
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
 
-        {/* VOLVER */}
         <button
           onClick={() => navigate("/")}
           className="text-sm text-blue-600 hover:underline"
@@ -148,7 +149,7 @@ export default function IndexInspeccion() {
           ← Volver al panel principal
         </button>
 
-        <h1 className="text-2xl font-semibold text-slate-900">
+        <h1 className="text-2xl font-semibold">
           Inspección y valoración
         </h1>
 
