@@ -10,10 +10,13 @@ const ESTADO_IMAGEN = {
 };
 
 export default function InspeccionPdf() {
-  const { type, id } = useParams();
+  const { id } = useParams();        // 🔑 SOLO id
   const navigate = useNavigate();
 
-  const inspection = getInspectionById(type, id);
+  // 🔑 FORZAMOS EL TIPO SEGÚN LA RUTA
+  const TYPE = "hidro";
+
+  const inspection = getInspectionById(TYPE, id);
 
   if (!inspection) {
     return (
@@ -26,7 +29,7 @@ export default function InspeccionPdf() {
 
   const data = inspection.data || {};
   const puntos = data.estadoEquipoPuntos || [];
-  const imagenEstado = ESTADO_IMAGEN[data.tipoFormulario || type];
+  const imagenEstado = ESTADO_IMAGEN[data.tipoFormulario || TYPE];
 
   return (
     <div className="p-6 bg-white text-sm">
@@ -44,8 +47,12 @@ export default function InspeccionPdf() {
               </td>
             </tr>
             <tr>
-              <td className="border p-1 font-semibold">REFERENCIA DE CONTRATO</td>
-              <td className="border p-1">{data.referenciaContrato || ""}</td>
+              <td className="border p-1 font-semibold">
+                REFERENCIA DE CONTRATO
+              </td>
+              <td className="border p-1">
+                {data.referenciaContrato || ""}
+              </td>
             </tr>
             <tr>
               <td className="border p-1 font-semibold">COD. INF.</td>
@@ -72,7 +79,9 @@ export default function InspeccionPdf() {
               ["FECHA DE SERVICIO", data.fechaServicio],
             ].map(([label, value]) => (
               <tr key={label}>
-                <td className="border p-1 font-semibold w-40">{label}</td>
+                <td className="border p-1 font-semibold w-40">
+                  {label}
+                </td>
                 <td className="border p-1">{value || ""}</td>
               </tr>
             ))}
@@ -109,7 +118,9 @@ export default function InspeccionPdf() {
                 <thead>
                   <tr>
                     <th className="border p-1 w-12">#</th>
-                    <th className="border p-1">OBSERVACIÓN</th>
+                    <th className="border p-1">
+                      OBSERVACIÓN
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -142,15 +153,23 @@ export default function InspeccionPdf() {
                   <tr>
                     <th className="border p-1">Ítem</th>
                     <th className="border p-1">Detalle</th>
-                    <th className="border p-1 w-16">Estado</th>
-                    <th className="border p-1">Observación</th>
+                    <th className="border p-1 w-16">
+                      Estado
+                    </th>
+                    <th className="border p-1">
+                      Observación
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {lista.map((it, i) => (
                     <tr key={i}>
-                      <td className="border p-1">{it.codigo}</td>
-                      <td className="border p-1">{it.detalle}</td>
+                      <td className="border p-1">
+                        {it.codigo}
+                      </td>
+                      <td className="border p-1">
+                        {it.detalle}
+                      </td>
                       <td className="border p-1 text-center">
                         {it.estado || ""}
                       </td>
@@ -174,7 +193,6 @@ export default function InspeccionPdf() {
             {data.firmas?.tecnico && (
               <img
                 src={data.firmas.tecnico}
-                alt="Firma técnico"
                 className="mx-auto max-h-32"
               />
             )}
@@ -187,7 +205,6 @@ export default function InspeccionPdf() {
             {data.firmas?.cliente && (
               <img
                 src={data.firmas.cliente}
-                alt="Firma cliente"
                 className="mx-auto max-h-32"
               />
             )}
