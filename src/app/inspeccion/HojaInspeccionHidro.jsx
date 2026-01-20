@@ -349,22 +349,22 @@ export default function HojaInspeccionHidro() {
   checked={formData.items[codigo]?.estado === "SI"}
   onChange={() => handleItemChange(codigo, "estado", "SI")}
 />
-
-<input
-  type="radio"
-  name={`${codigo}-estado`}
-  checked={formData.items[codigo]?.estado === "NO"}
-  onChange={() => handleItemChange(codigo, "estado", "NO")}
-/>
-                </td>
-                <td>
-                  <input
-                    className="w-full border px-1"
-                    onChange={(e) =>
-                      handleItemChange(codigo, "observacion", e.target.value)
-                    }
-                  />
-                </td>
+<td>
+  <input
+    type="radio"
+    name={`${codigo}-estado`}
+    checked={formData.items[codigo]?.estado === "SI"}
+    onChange={() => handleItemChange(codigo, "estado", "SI")}
+  />
+</td>
+<td>
+  <input
+    type="radio"
+    name={`${codigo}-estado`}
+    checked={formData.items[codigo]?.estado === "NO"}
+    onChange={() => handleItemChange(codigo, "estado", "NO")}
+  />
+</td>
               </tr>
             ))}
           </tbody>
