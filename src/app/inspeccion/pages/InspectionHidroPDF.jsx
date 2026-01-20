@@ -2,14 +2,90 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getInspectionById } from "@/utils/inspectionStorage";
 
-export default function InspeccionPdfHidro() {
+/* =============================
+   DEFINICIÓN DE ESTRUCTURA
+============================= */
+const pruebasPrevias = [
+  ["1.1", "Prueba de encendido general del equipo"],
+  ["1.2", "Verificación de funcionamiento de controles principales"],
+  ["1.3", "Revisión de alarmas o mensajes de fallo"],
+];
+
+const secciones = [
+  {
+    titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
+    items: [
+      ["A.1", "Fugas de aceite hidráulico (mangueras - acoples - bancos)"],
+      ["A.2", "Nivel de aceite del soplador"],
+      ["A.3", "Nivel de aceite hidráulico"],
+      ["A.4", "Nivel de aceite en la caja de transferencia"],
+      ["A.5", "Manómetro de filtro hidráulico de retorno"],
+      ["A.6", "Filtro hidráulico de retorno, presenta fugas o daños"],
+      ["A.7", "Filtros de succión del tanque hidráulico"],
+      ["A.8", "Cilindros hidráulicos, presentan fugas o daños"],
+      ["A.9", "Tapones de drenaje de lubricantes"],
+      ["A.10", "Bancos hidráulicos, presentan fugas o daños"],
+    ],
+  },
+  {
+    titulo: "B) SISTEMA HIDRÁULICO (AGUA)",
+    items: [
+      ["B.1", "Filtros malla de agua 2” y 3”"],
+      ["B.2", "Empaques de tapa de filtros de agua"],
+      ["B.3", "Fugas de agua (mangueras / acoples)"],
+      ["B.4", "Válvula de alivio de la pistola"],
+      ["B.5", "Golpes o fugas en tanque de aluminio"],
+      ["B.6", "Medidor de nivel del tanque"],
+      ["B.7", "Tapón de expansión del tanque"],
+      ["B.8", "Drenaje de la bomba Rodder"],
+      ["B.9", "Válvulas check internas"],
+      ["B.10", "Manómetros de presión"],
+      ["B.11", "Carrete de manguera de agua"],
+      ["B.12", "Soporte del carrete"],
+      ["B.13", "Codo giratorio del carrete"],
+      ["B.14", "Sistema de trinquete y seguros"],
+      ["B.15", "Válvula de alivio de bomba de agua"],
+      ["B.16", "Válvulas de 1”"],
+      ["B.17", "Válvulas de 3/4”"],
+      ["B.18", "Válvulas de 1/2”"],
+      ["B.19", "Boquillas"],
+    ],
+  },
+  {
+    titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
+    items: [
+      ["C.1", "Funciones del tablero frontal"],
+      ["C.2", "Tablero de control en cabina"],
+      ["C.3", "Control remoto"],
+      ["C.4", "Electroválvulas"],
+      ["C.5", "Humedad en componentes"],
+      ["C.6", "Luces y accesorios externos"],
+    ],
+  },
+  {
+    titulo: "D) SISTEMA DE SUCCIÓN",
+    items: [
+      ["D.1", "Sellos del tanque de desperdicios"],
+      ["D.2", "Interior del tanque de desechos"],
+      ["D.3", "Microfiltro de succión"],
+      ["D.4", "Tapón de drenaje del filtro de succión"],
+      ["D.5", "Mangueras de succión"],
+      ["D.6", "Seguros de compuerta"],
+      ["D.7", "Sistema de desfogue"],
+      ["D.8", "Válvulas de alivio Kunkle"],
+      ["D.9", "Operación del soplador"],
+    ],
+  },
+];
+
+export default function InspectionHidroPDF() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [inspection, setInspection] = useState(null);
 
   useEffect(() => {
-    const stored = getInspectionById("hidro", id);
-    if (stored) setInspection(stored);
+    const found = getInspectionById("hidro", id);
+    if (found) setInspection(found);
   }, [id]);
 
   if (!inspection) {
@@ -34,7 +110,7 @@ export default function InspeccionPdfHidro() {
               </td>
             </tr>
             <tr>
-              <td>REFERENCIA CONTRATO</td>
+              <td>REFERENCIA DE CONTRATO</td>
               <td>{data.referenciaContrato}</td>
             </tr>
             <tr>
@@ -53,7 +129,7 @@ export default function InspeccionPdfHidro() {
               ["CONTACTO", data.contacto],
               ["TELÉFONO", data.telefono],
               ["CORREO", data.correo],
-              ["FECHA SERVICIO", data.fechaServicio],
+              ["FECHA DE SERVICIO", data.fechaServicio],
             ].map(([l, v], i) => (
               <tr key={i}>
                 <td className="pdf-label">{l}</td>
@@ -63,46 +139,65 @@ export default function InspeccionPdfHidro() {
           </tbody>
         </table>
 
-        {/* ================= ESTADO DEL EQUIPO ================= */}
-        {data.estadoEquipoPuntos?.length > 0 && (
-          <>
-            <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
-
-            <img src="/estado-equipo.png" className="w-full mb-2" />
-
-            {data.estadoEquipoPuntos.map((pt) => (
-              <p key={pt.id} className="text-sm">
-                <strong>{pt.id})</strong> {pt.nota}
-              </p>
-            ))}
-          </>
-        )}
-
-        {/* ================= CHECKLIST ================= */}
+        {/* ================= PRUEBAS PREVIAS ================= */}
         <h3 className="pdf-title mt-4">
-          PRUEBAS Y EVALUACIÓN DE SISTEMAS
+          1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO
         </h3>
 
         <table className="pdf-table">
           <thead>
             <tr>
               <th>Ítem</th>
+              <th>Detalle</th>
               <th>Estado</th>
               <th>Observación</th>
             </tr>
           </thead>
           <tbody>
-            {Object.entries(data.items || {}).map(
-              ([codigo, item]) => (
+            {pruebasPrevias.map(([codigo, texto]) => {
+              const item = data.items?.[codigo] || {};
+              return (
                 <tr key={codigo}>
                   <td>{codigo}</td>
-                  <td>{item.estado}</td>
-                  <td>{item.observacion}</td>
+                  <td>{texto}</td>
+                  <td>{item.estado || "—"}</td>
+                  <td>{item.observacion || ""}</td>
                 </tr>
-              )
-            )}
+              );
+            })}
           </tbody>
         </table>
+
+        {/* ================= SECCIONES ================= */}
+        {secciones.map((sec) => (
+          <div key={sec.titulo}>
+            <h3 className="pdf-title mt-4">{sec.titulo}</h3>
+
+            <table className="pdf-table">
+              <thead>
+                <tr>
+                  <th>Ítem</th>
+                  <th>Detalle</th>
+                  <th>Estado</th>
+                  <th>Observación</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sec.items.map(([codigo, texto]) => {
+                  const item = data.items?.[codigo] || {};
+                  return (
+                    <tr key={codigo}>
+                      <td>{codigo}</td>
+                      <td>{texto}</td>
+                      <td>{item.estado || "—"}</td>
+                      <td>{item.observacion || ""}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ))}
 
         {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
         <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
@@ -113,8 +208,8 @@ export default function InspeccionPdfHidro() {
               ["MARCA", data.marca],
               ["MODELO", data.modelo],
               ["SERIE", data.serie],
-              ["AÑO", data.anioModelo],
-              ["VIN", data.vin],
+              ["AÑO MODELO", data.anioModelo],
+              ["VIN / CHASIS", data.vin],
               ["PLACA", data.placa],
               ["HORAS MÓDULO", data.horasModulo],
               ["HORAS CHASIS", data.horasChasis],
