@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getInspections } from "@/utils/inspectionStorage";
+import { generateReportPdf } from "./utils/generateReportPdf";
 
 export default function HistorialInspecciones() {
   const navigate = useNavigate();
@@ -10,6 +11,11 @@ export default function HistorialInspecciones() {
     const data = getInspections("hidro");
     setInspecciones(data);
   }, []);
+
+  const handleGeneratePdf = (item) => {
+    // Fuente única de verdad: lo que se guardó
+    generateReportPdf(item.data);
+  };
 
   return (
     <div className="max-w-6xl mx-auto my-6 bg-white shadow-lg rounded-2xl p-6 space-y-4">
@@ -64,9 +70,7 @@ export default function HistorialInspecciones() {
                     {/* PDF SOLO SI ESTÁ COMPLETADO */}
                     {item.status === "completado" && (
                       <button
-                        onClick={() =>
-                          navigate(`/inspeccion/hidro/${item.id}?pdf=true`)
-                        }
+                        onClick={() => handleGeneratePdf(item)}
                         className="px-3 py-1 rounded bg-gray-700 text-white text-xs"
                       >
                         PDF
