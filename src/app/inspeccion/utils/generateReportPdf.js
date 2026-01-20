@@ -4,22 +4,22 @@ import "jspdf-autotable";
 // Logo
 const ASTAP_LOGO = "/astap-logo.jpg";
 
-// Imágenes por tipo
+// Rutas públicas reales
 const ESTADO_IMAGEN = {
   hidro: "/estado-equipo.png",
   mantenimiento_hidro: "/estado-equipo.png",
+
   barredora: "/estado equipo barredora.png",
   mantenimiento_barredora: "/estado equipo barredora.png",
+
   camara: "/estado equipo camara.png",
 };
 
-// Colores
 const COLORS = {
   headerBg: [0, 59, 102],
   headerText: [255, 255, 255],
 };
 
-// 🔑 FUNCIÓN PRINCIPAL (ASÍNCRONA)
 export const generateReportPdf = async (inspectionData) => {
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
@@ -56,11 +56,10 @@ export const generateReportPdf = async (inspectionData) => {
 
   /* ================= ESTADO DEL EQUIPO ================= */
   const tipo = inspectionData.tipoFormulario || "hidro";
-  const imgSrc = ESTADO_IMAGEN[tipo];
+  const rawSrc = ESTADO_IMAGEN[tipo];
   const puntos = inspectionData.estadoEquipoPuntos || [];
 
-  if (imgSrc) {
-    // Título sección
+  if (rawSrc) {
     pdf.setFillColor(...COLORS.headerBg);
     pdf.setTextColor(...COLORS.headerText);
     pdf.rect(marginLeft, cursorY, pageWidth - 28, 7, "F");
@@ -69,12 +68,14 @@ export const generateReportPdf = async (inspectionData) => {
 
     cursorY += 10;
 
-    // 🔑 CARGA REAL DE LA IMAGEN
+    // 🔑 CARGA CORRECTA DE IMAGEN
     const img = new Image();
-    img.src = imgSrc;
+    img.crossOrigin = "anonymous";
+    img.src = encodeURI(rawSrc);
 
-    await new Promise((resolve) => {
+    await new Promise((resolve, reject) => {
       img.onload = resolve;
+      img.onerror = reject;
     });
 
     const imgWidth = pageWidth - 40;
@@ -84,7 +85,7 @@ export const generateReportPdf = async (inspectionData) => {
 
     pdf.addImage(img, "PNG", imgX, imgY, imgWidth, imgHeight);
 
-    // 🔴 PUNTOS
+    // 🔴 PUNTOS ROJOS
     puntos.forEach((pt, idx) => {
       const x = imgX + (pt.x / 100) * imgWidth;
       const y = imgY + (pt.y / 100) * imgHeight;
@@ -100,7 +101,7 @@ export const generateReportPdf = async (inspectionData) => {
 
     cursorY += imgHeight + 6;
 
-    // 📝 OBSERVACIONES DE PUNTOS
+    // 📝 OBSERVACIONES DE LOS PUNTOS
     if (puntos.length > 0) {
       pdf.autoTable({
         startY: cursorY,
