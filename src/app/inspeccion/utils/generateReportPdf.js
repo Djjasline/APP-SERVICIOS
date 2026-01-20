@@ -4,7 +4,7 @@ import "jspdf-autotable";
 // Logo
 const ASTAP_LOGO = "/astap-logo.jpg";
 
-// Rutas públicas reales
+// Imágenes reales del proyecto (public)
 const ESTADO_IMAGEN = {
   hidro: "/estado-equipo.png",
   mantenimiento_hidro: "/estado-equipo.png",
@@ -15,11 +15,38 @@ const ESTADO_IMAGEN = {
   camara: "/estado equipo camara.png",
 };
 
+// Colores corporativos
 const COLORS = {
   headerBg: [0, 59, 102],
   headerText: [255, 255, 255],
 };
 
+/* ======================================================
+   Helper: cargar imagen y convertirla a Base64
+====================================================== */
+const loadImageAsBase64 = (src) =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = encodeURI(src);
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+
+      resolve(canvas.toDataURL("image/png"));
+    };
+
+    img.onerror = reject;
+  });
+
+/* ======================================================
+   FUNCIÓN PRINCIPAL
+====================================================== */
 export const generateReportPdf = async (inspectionData) => {
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
@@ -56,10 +83,11 @@ export const generateReportPdf = async (inspectionData) => {
 
   /* ================= ESTADO DEL EQUIPO ================= */
   const tipo = inspectionData.tipoFormulario || "hidro";
-  const rawSrc = ESTADO_IMAGEN[tipo];
+  const imgSrc = ESTADO_IMAGEN[tipo];
   const puntos = inspectionData.estadoEquipoPuntos || [];
 
-  if (rawSrc) {
+  if (imgSrc) {
+    // Título
     pdf.setFillColor(...COLORS.headerBg);
     pdf.setTextColor(...COLORS.headerText);
     pdf.rect(marginLeft, cursorY, pageWidth - 28, 7, "F");
@@ -68,22 +96,15 @@ export const generateReportPdf = async (inspectionData) => {
 
     cursorY += 10;
 
-    // 🔑 CARGA CORRECTA DE IMAGEN
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = encodeURI(rawSrc);
-
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-    });
+    // 🔑 Imagen base64 (CLAVE)
+    const base64Img = await loadImageAsBase64(imgSrc);
 
     const imgWidth = pageWidth - 40;
     const imgHeight = 80;
     const imgX = 20;
     const imgY = cursorY;
 
-    pdf.addImage(img, "PNG", imgX, imgY, imgWidth, imgHeight);
+    pdf.addImage(base64Img, "PNG", imgX, imgY, imgWidth, imgHeight);
 
     // 🔴 PUNTOS ROJOS
     puntos.forEach((pt, idx) => {
@@ -101,7 +122,7 @@ export const generateReportPdf = async (inspectionData) => {
 
     cursorY += imgHeight + 6;
 
-    // 📝 OBSERVACIONES DE LOS PUNTOS
+    // 📝 OBSERVACIONES DE CADA PUNTO
     if (puntos.length > 0) {
       pdf.autoTable({
         startY: cursorY,
