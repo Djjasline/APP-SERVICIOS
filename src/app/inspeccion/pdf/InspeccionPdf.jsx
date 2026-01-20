@@ -9,17 +9,12 @@ import {
   sistemaSuccion,
 } from "../schemas/inspeccionHidroSchema";
 
-/* ================= CONFIG ================= */
 const TYPE = "hidro";
-
-const ESTADO_IMAGEN = {
-  hidro: "/estado-equipo.png",
-};
 
 const SECCIONES = [
   {
     key: "preServicio",
-    titulo: "1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO",
+    titulo: "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS",
     schema: preServicio,
   },
   {
@@ -34,7 +29,7 @@ const SECCIONES = [
   },
   {
     key: "sistemaElectrico",
-    titulo: "C) SISTEMA ELÉCTRICO / ELECTRÓNICO",
+    titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
     schema: sistemaElectrico,
   },
   {
@@ -65,7 +60,7 @@ export default function InspeccionPdf() {
     <div className="p-6 bg-white text-xs">
       <div className="max-w-6xl mx-auto">
 
-        {/* BOTONES SOLO PANTALLA */}
+        {/* BOTONES SOLO EN PANTALLA */}
         <div className="flex justify-between mb-4 print:hidden">
           <button onClick={() => navigate(-1)} className="border px-3 py-1 rounded">
             ← Volver
@@ -75,7 +70,7 @@ export default function InspeccionPdf() {
           </button>
         </div>
 
-        {/* ================= ENCABEZADO ================= */}
+        {/* ================= ENCABEZADO (IGUAL AL FORMULARIO) ================= */}
         <table className="w-full border border-collapse">
           <tbody>
             <tr>
@@ -87,7 +82,7 @@ export default function InspeccionPdf() {
               </td>
             </tr>
             <tr>
-              <td className="border p-1 font-semibold">REFERENCIA CONTRATO</td>
+              <td className="border p-1 font-semibold">REFERENCIA DE CONTRATO</td>
               <td colSpan={2} className="border p-1">
                 {data.referenciaContrato || ""}
               </td>
@@ -107,6 +102,25 @@ export default function InspeccionPdf() {
           </tbody>
         </table>
 
+        {/* ================= DATOS DE SERVICIO ================= */}
+        <table className="w-full border border-collapse mt-2">
+          <tbody>
+            {[
+              ["CLIENTE", data.cliente?.nombre],
+              ["DIRECCIÓN", data.cliente?.direccion],
+              ["CONTACTO", data.cliente?.contacto],
+              ["TELÉFONO", data.cliente?.telefono],
+              ["CORREO", data.cliente?.correo],
+              ["FECHA DE SERVICIO", data.fechaServicio],
+            ].map(([l, v]) => (
+              <tr key={l}>
+                <td className="border p-1 font-semibold w-40">{l}</td>
+                <td className="border p-1">{v || ""}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
         {/* ================= ESTADO DEL EQUIPO ================= */}
         <table className="w-full border border-collapse mt-3">
           <tbody>
@@ -118,7 +132,7 @@ export default function InspeccionPdf() {
             <tr>
               <td className="border p-2">
                 <div className="relative">
-                  <img src={ESTADO_IMAGEN.hidro} className="w-full" />
+                  <img src="/estado-equipo.png" className="w-full" />
                   {puntos.map((pt) => (
                     <div
                       key={pt.id}
@@ -157,7 +171,7 @@ export default function InspeccionPdf() {
           </table>
         )}
 
-        {/* ================= PRUEBAS Y EVALUACIÓN ================= */}
+        {/* ================= PRUEBAS Y EVALUACIÓN (SCHEMA-DRIVEN) ================= */}
         {SECCIONES.map(({ key, titulo, schema }) => (
           <table key={key} className="w-full border border-collapse mt-4">
             <thead>
@@ -181,10 +195,10 @@ export default function InspeccionPdf() {
                     <td className="border p-1">{item.codigo}</td>
                     <td className="border p-1">{item.descripcion}</td>
                     <td className="border p-1 text-center">
-                      {respuesta.value || ""}
+                      {respuesta.estado || ""}
                     </td>
                     <td className="border p-1">
-                      {respuesta.note || ""}
+                      {respuesta.observacion || ""}
                     </td>
                   </tr>
                 );
@@ -192,6 +206,61 @@ export default function InspeccionPdf() {
             </tbody>
           </table>
         ))}
+
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        <table className="w-full border border-collapse mt-4">
+          <thead>
+            <tr>
+              <th colSpan={2} className="border p-1 text-center font-bold">
+                DESCRIPCIÓN DEL EQUIPO
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ["MARCA", data.equipo?.marca],
+              ["MODELO", data.equipo?.modelo],
+              ["SERIE", data.equipo?.serie],
+              ["AÑO MODELO", data.equipo?.anioModelo],
+              ["VIN / CHASIS", data.equipo?.vin],
+              ["PLACA", data.equipo?.placa],
+              ["HORAS MÓDULO", data.equipo?.horasModulo],
+              ["HORAS CHASIS", data.equipo?.horasChasis],
+              ["KILOMETRAJE", data.equipo?.kilometraje],
+            ].map(([l, v]) => (
+              <tr key={l}>
+                <td className="border p-1 font-semibold w-40">{l}</td>
+                <td className="border p-1">{v || ""}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* ================= FIRMAS ================= */}
+        <table className="w-full border border-collapse mt-4">
+          <tbody>
+            <tr>
+              <td className="border p-2 text-center font-semibold">
+                FIRMA TÉCNICO
+              </td>
+              <td className="border p-2 text-center font-semibold">
+                FIRMA CLIENTE
+              </td>
+            </tr>
+            <tr>
+              <td className="border p-2 text-center">
+                {data.firmas?.tecnico && (
+                  <img src={data.firmas.tecnico} className="mx-auto max-h-24" />
+                )}
+              </td>
+              <td className="border p-2 text-center">
+                {data.firmas?.cliente && (
+                  <img src={data.firmas.cliente} className="mx-auto max-h-24" />
+                )}
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
       </div>
     </div>
