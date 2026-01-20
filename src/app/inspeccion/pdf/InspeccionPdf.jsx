@@ -1,19 +1,29 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { getInspectionById } from "@/utils/inspectionStorage";
 
+/* ========= MAPA DE IMÁGENES ========= */
 const ESTADO_IMAGEN = {
   hidro: "/estado-equipo.png",
   barredora: "/estado equipo barredora.png",
   camara: "/estado equipo camara.png",
 };
 
+/* ========= TÍTULOS FORMATO ========= */
 const TITULOS = {
-  preServicio: "1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO",
+  preServicio: "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS",
   sistemaHidraulicoAceite: "A) SISTEMA HIDRÁULICO (ACEITES)",
   sistemaHidraulicoAgua: "B) SISTEMA HIDRÁULICO (AGUA)",
-  sistemaElectrico: "C) SISTEMA ELÉCTRICO / ELECTRÓNICO",
+  sistemaElectrico: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
   sistemaSuccion: "D) SISTEMA DE SUCCIÓN",
 };
+
+/* ========= NORMALIZADOR (CLAVE) ========= */
+const normalizarItem = (it = {}) => ({
+  codigo: it.codigo || it.id || it.item || "",
+  detalle: it.detalle || it.texto || it.label || "",
+  estado: it.estado || it.value || "",
+  observacion: it.observacion || it.note || "",
+});
 
 export default function InspeccionPdf() {
   const { id } = useParams();
@@ -40,48 +50,48 @@ export default function InspeccionPdf() {
 
         {/* BOTONES SOLO PANTALLA */}
         <div className="flex justify-between mb-4 print:hidden">
-          <button
-            onClick={() => navigate(-1)}
-            className="px-4 py-2 border rounded text-sm"
-          >
+          <button onClick={() => navigate(-1)} className="border px-3 py-1 rounded">
             ← Volver
           </button>
-          <button
-            onClick={() => window.print()}
-            className="px-4 py-2 bg-blue-600 text-white rounded text-sm"
-          >
+          <button onClick={() => window.print()} className="bg-blue-600 text-white px-3 py-1 rounded">
             Imprimir
           </button>
         </div>
 
-        {/* ================= ENCABEZADO ================= */}
-        <table className="w-full border-collapse border">
+        {/* ================= ENCABEZADO (IGUAL AL FORMULARIO) ================= */}
+        <table className="w-full border border-collapse">
           <tbody>
             <tr>
-              <td rowSpan={3} className="border p-2 w-32 text-center">
+              <td rowSpan={4} className="border p-2 w-32 text-center">
                 <img src="/astap-logo.jpg" className="mx-auto max-h-16" />
               </td>
-              <td colSpan={4} className="border p-2 font-bold text-center">
+              <td colSpan={3} className="border p-2 text-center font-bold">
                 HOJA DE INSPECCIÓN HIDROSUCCIONADOR
               </td>
             </tr>
             <tr>
-              <td className="border p-1 font-semibold">REFERENCIA CONTRATO</td>
-              <td className="border p-1">{data.referenciaContrato || ""}</td>
-              <td className="border p-1 font-semibold">COD. INF.</td>
-              <td className="border p-1">{data.codInf || ""}</td>
+              <td className="border p-1 font-semibold">REFERENCIA DE CONTRATO</td>
+              <td colSpan={2} className="border p-1">
+                {data.referenciaContrato || ""}
+              </td>
             </tr>
             <tr>
               <td className="border p-1 font-semibold">DESCRIPCIÓN</td>
-              <td colSpan={3} className="border p-1">
+              <td colSpan={2} className="border p-1">
                 {data.descripcion || ""}
+              </td>
+            </tr>
+            <tr>
+              <td className="border p-1 font-semibold">COD. INF.</td>
+              <td colSpan={2} className="border p-1">
+                {data.codInf || ""}
               </td>
             </tr>
           </tbody>
         </table>
 
-        {/* ================= DATOS CLIENTE ================= */}
-        <table className="w-full border-collapse border mt-2">
+        {/* ================= DATOS DE SERVICIO ================= */}
+        <table className="w-full border border-collapse mt-2">
           <tbody>
             {[
               ["CLIENTE", data.cliente?.nombre],
@@ -100,10 +110,10 @@ export default function InspeccionPdf() {
         </table>
 
         {/* ================= ESTADO DEL EQUIPO ================= */}
-        <table className="w-full border-collapse border mt-4">
+        <table className="w-full border border-collapse mt-3">
           <tbody>
             <tr>
-              <td className="border p-1 font-bold text-center">
+              <td className="border p-1 text-center font-bold">
                 ESTADO DEL EQUIPO
               </td>
             </tr>
@@ -131,7 +141,7 @@ export default function InspeccionPdf() {
         </table>
 
         {puntos.length > 0 && (
-          <table className="w-full border-collapse border mt-2">
+          <table className="w-full border border-collapse mt-1">
             <thead>
               <tr>
                 <th className="border p-1 w-12">#</th>
@@ -149,9 +159,9 @@ export default function InspeccionPdf() {
           </table>
         )}
 
-        {/* ================= PRUEBAS / EVALUACIÓN ================= */}
+        {/* ================= PRUEBAS Y EVALUACIONES ================= */}
         {Object.entries(data.inspeccion || {}).map(([key, lista]) => (
-          <table key={key} className="w-full border-collapse border mt-4">
+          <table key={key} className="w-full border border-collapse mt-3">
             <thead>
               <tr>
                 <th colSpan={4} className="border p-1 text-center font-bold">
@@ -161,25 +171,28 @@ export default function InspeccionPdf() {
               <tr>
                 <th className="border p-1 w-16">Ítem</th>
                 <th className="border p-1">Detalle</th>
-                <th className="border p-1 w-16">Estado</th>
+                <th className="border p-1 w-16">SI / NO</th>
                 <th className="border p-1">Observación</th>
               </tr>
             </thead>
             <tbody>
-              {lista.map((it, i) => (
-                <tr key={i}>
-                  <td className="border p-1">{it.codigo || ""}</td>
-                  <td className="border p-1">{it.detalle || it.texto || ""}</td>
-                  <td className="border p-1 text-center">{it.estado || ""}</td>
-                  <td className="border p-1">{it.observacion || ""}</td>
-                </tr>
-              ))}
+              {lista.map((raw, i) => {
+                const it = normalizarItem(raw);
+                return (
+                  <tr key={i}>
+                    <td className="border p-1">{it.codigo}</td>
+                    <td className="border p-1">{it.detalle}</td>
+                    <td className="border p-1 text-center">{it.estado}</td>
+                    <td className="border p-1">{it.observacion}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         ))}
 
         {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-        <table className="w-full border-collapse border mt-4">
+        <table className="w-full border border-collapse mt-3">
           <thead>
             <tr>
               <th colSpan={2} className="border p-1 text-center font-bold">
@@ -192,7 +205,7 @@ export default function InspeccionPdf() {
               ["MARCA", data.equipo?.marca],
               ["MODELO", data.equipo?.modelo],
               ["SERIE", data.equipo?.serie],
-              ["AÑO", data.equipo?.anioModelo],
+              ["AÑO MODELO", data.equipo?.anioModelo],
               ["VIN / CHASIS", data.equipo?.vin],
               ["PLACA", data.equipo?.placa],
               ["HORAS MÓDULO", data.equipo?.horasModulo],
@@ -208,7 +221,7 @@ export default function InspeccionPdf() {
         </table>
 
         {/* ================= FIRMAS ================= */}
-        <table className="w-full border-collapse border mt-4">
+        <table className="w-full border border-collapse mt-3">
           <tbody>
             <tr>
               <td className="border p-2 text-center font-semibold">
