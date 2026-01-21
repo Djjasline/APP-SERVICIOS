@@ -45,6 +45,7 @@ export default function InspeccionPdf() {
   const navigate = useNavigate();
 
   const inspection = getInspectionById(TYPE, id);
+
   if (!inspection) {
     return (
       <div className="p-6">
@@ -70,23 +71,6 @@ export default function InspeccionPdf() {
   return (
     <div className="p-6 bg-white text-xs">
       <div className="max-w-6xl mx-auto">
-
-       {/* ================= BOTONES ================= */}
-<div className="flex justify-between mt-6 print:hidden">
-  <button
-    onClick={() => navigate(-1)}
-    className="border px-4 py-2 rounded text-sm"
-  >
-    Volver
-  </button>
-
-  <button
-    onClick={() => window.print()}
-    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm"
-  >
-    Descargar PDF
-  </button>
-</div>
 
         {/* ================= ENCABEZADO ================= */}
         <table className="w-full border border-collapse text-xs">
@@ -197,20 +181,14 @@ export default function InspeccionPdf() {
             <thead>
               <tr>
                 <th className="border p-1 w-12">#</th>
-                <th className="border p-1">
-                  OBSERVACIÓN
-                </th>
+                <th className="border p-1">OBSERVACIÓN</th>
               </tr>
             </thead>
             <tbody>
               {puntos.map((pt) => (
                 <tr key={pt.id}>
-                  <td className="border p-1 text-center">
-                    {pt.id}
-                  </td>
-                  <td className="border p-1">
-                    {pt.nota || ""}
-                  </td>
+                  <td className="border p-1 text-center">{pt.id}</td>
+                  <td className="border p-1">{pt.nota || ""}</td>
                 </tr>
               ))}
             </tbody>
@@ -225,24 +203,15 @@ export default function InspeccionPdf() {
           >
             <thead>
               <tr>
-                <th
-                  colSpan={4}
-                  className="border p-1 text-center font-bold"
-                >
+                <th colSpan={4} className="border p-1 text-center font-bold">
                   {titulo}
                 </th>
               </tr>
               <tr>
                 <th className="border p-1 w-16">Ítem</th>
-                <th className="border p-1 w-2/3">
-                  Detalle
-                </th>
-                <th className="border p-1 w-16">
-                  SI / NO
-                </th>
-                <th className="border p-1 w-1/3">
-                  Observación
-                </th>
+                <th className="border p-1">Detalle</th>
+                <th className="border p-1 w-20">SI / NO</th>
+                <th className="border p-1">Observación</th>
               </tr>
             </thead>
             <tbody>
@@ -250,12 +219,8 @@ export default function InspeccionPdf() {
                 const r = data.inspeccion?.[key]?.[i] || {};
                 return (
                   <tr key={item.codigo}>
-                    <td className="border p-1">
-                      {item.codigo}
-                    </td>
-                    <td className="border p-1">
-                      {item.descripcion}
-                    </td>
+                    <td className="border p-1">{item.codigo}</td>
+                    <td className="border p-1">{item.descripcion}</td>
                     <td className="border p-1 text-center">
                       {r.estado || ""}
                     </td>
@@ -269,7 +234,7 @@ export default function InspeccionPdf() {
           </table>
         ))}
 
-        {/* ================= DESCRIPCIÓN DEL EQUIPO (SOLO AQUÍ) ================= */}
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
         <table className="w-full border border-collapse mt-4 text-xs">
           <tbody>
             <tr>
@@ -278,12 +243,8 @@ export default function InspeccionPdf() {
               </td>
             </tr>
             <tr>
-              <td className="border p-1 font-semibold w-56">
-                NOTA
-              </td>
-              <td className="border p-1">
-                {data.nota || ""}
-              </td>
+              <td className="border p-1 font-semibold w-56">NOTA</td>
+              <td className="border p-1">{data.nota || ""}</td>
             </tr>
             {[
               ["MARCA", data.marca],
@@ -300,9 +261,7 @@ export default function InspeccionPdf() {
                 <td className="border p-1 font-semibold w-56">
                   {label}
                 </td>
-                <td className="border p-1">
-                  {value || ""}
-                </td>
+                <td className="border p-1">{value || ""}</td>
               </tr>
             ))}
           </tbody>
@@ -322,25 +281,34 @@ export default function InspeccionPdf() {
             <tr>
               <td className="border p-2 text-center">
                 {firmaTecnico && (
-                  <img
-                    src={firmaTecnico}
-                    className="mx-auto max-h-24"
-                    alt="Firma técnico"
-                  />
+                  <img src={firmaTecnico} className="mx-auto max-h-24" />
                 )}
               </td>
               <td className="border p-2 text-center">
                 {firmaCliente && (
-                  <img
-                    src={firmaCliente}
-                    className="mx-auto max-h-24"
-                    alt="Firma cliente"
-                  />
+                  <img src={firmaCliente} className="mx-auto max-h-24" />
                 )}
               </td>
             </tr>
           </tbody>
         </table>
+
+        {/* ================= BOTONES (ABAJO) ================= */}
+        <div className="flex justify-between mt-6 print:hidden">
+          <button
+            onClick={() => navigate(-1)}
+            className="border px-4 py-2 rounded text-sm"
+          >
+            Volver
+          </button>
+
+          <button
+            onClick={() => window.print()}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm"
+          >
+            Descargar PDF
+          </button>
+        </div>
 
       </div>
     </div>
