@@ -151,22 +151,14 @@ export default function HojaInspeccionHidro() {
 useEffect(() => {
   if (!formData?.firmas) return;
 
-  if (
-    formData.firmas.tecnico &&
-    firmaTecnicoRef.current
-  ) {
-    firmaTecnicoRef.current.fromDataURL(
-      formData.firmas.tecnico
-    );
+  if (formData.firmas.tecnico && firmaTecnicoRef.current) {
+    firmaTecnicoRef.current.clear();
+    firmaTecnicoRef.current.fromDataURL(formData.firmas.tecnico);
   }
 
-  if (
-    formData.firmas.cliente &&
-    firmaClienteRef.current
-  ) {
-    firmaClienteRef.current.fromDataURL(
-      formData.firmas.cliente
-    );
+  if (formData.firmas.cliente && firmaClienteRef.current) {
+    firmaClienteRef.current.clear();
+    firmaClienteRef.current.fromDataURL(formData.firmas.cliente);
   }
 }, [formData.firmas]);
 
@@ -493,8 +485,8 @@ useEffect(() => {
             <SignatureCanvas
   ref={firmaTecnicoRef}
   canvasProps={{
-    width: 420,
-    height: 150,
+    width: 500,
+    height: 180,
     className: "border w-full"
   }}
 />
@@ -502,11 +494,11 @@ useEffect(() => {
           </div>
           <div>
             <p className="font-semibold mb-1">FIRMA CLIENTE</p>
-            <SignatureCanvas
-  ref={firmaTecnicoRef}
+           <SignatureCanvas
+  ref={firmaClienteRef}
   canvasProps={{
-    width: 420,
-    height: 150,
+    width: 500,
+    height: 180,
     className: "border w-full"
   }}
 />
