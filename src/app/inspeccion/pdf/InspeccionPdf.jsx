@@ -45,7 +45,6 @@ export default function InspeccionPdf() {
   const navigate = useNavigate();
 
   const inspection = getInspectionById(TYPE, id);
-
   if (!inspection) {
     return (
       <div className="p-6">
@@ -88,11 +87,11 @@ export default function InspeccionPdf() {
           </button>
         </div>
 
-        {/* ================= ENCABEZADO ================= */}
+        {/* ================= ENCABEZADO (COPIADO DE INFORME) ================= */}
         <table className="w-full border border-collapse text-xs">
           <tbody>
             <tr>
-              <td rowSpan={5} className="border p-2 w-36 text-center">
+              <td rowSpan={3} className="border p-2 w-36 text-center">
                 <img
                   src="/astap-logo.jpg"
                   className="mx-auto max-h-16"
@@ -112,30 +111,24 @@ export default function InspeccionPdf() {
               </td>
             </tr>
             <tr>
-              <td className="border p-1 font-semibold">DESCRIPCIÓN</td>
-              <td colSpan={3} className="border p-1">
+              <td className="border p-1 font-semibold">
+                DESCRIPCIÓN
+              </td>
+              <td className="border p-1">
                 {data.descripcion || ""}
               </td>
-            </tr>
-            <tr>
-              <td className="border p-1 font-semibold">COD. INF.</td>
-              <td className="border p-1">{data.codInf || ""}</td>
-              <td className="border p-1 font-semibold">VERSIÓN</td>
-              <td className="border p-1">01</td>
-            </tr>
-            <tr>
               <td className="border p-1 font-semibold">
-                FECHA VERSIÓN
+                COD. INF.
               </td>
-              <td colSpan={3} className="border p-1">
-                01-01-26
+              <td className="border p-1">
+                {data.codInf || ""}
               </td>
             </tr>
           </tbody>
         </table>
 
         {/* ================= DATOS DEL SERVICIO ================= */}
-        <table className="w-full border border-collapse mt-3 text-xs">
+        <table className="w-full border border-collapse text-xs">
           <tbody>
             {[
               ["CLIENTE", data.cliente],
@@ -218,37 +211,6 @@ export default function InspeccionPdf() {
           </table>
         )}
 
-        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-        <table className="w-full border border-collapse mt-4 text-xs">
-          <tbody>
-            <tr>
-              <td colSpan={2} className="border p-1 text-center font-bold">
-                DESCRIPCIÓN DEL EQUIPO
-              </td>
-            </tr>
-            {[
-              ["MARCA", data.marca],
-              ["MODELO", data.modelo],
-              ["SERIE", data.serie],
-              ["AÑO MODELO", data.anioModelo],
-              ["VIN / CHASIS", data.vin],
-              ["PLACA", data.placa],
-              ["HORAS MÓDULO", data.horasModulo],
-              ["HORAS CHASIS", data.horasChasis],
-              ["KILOMETRAJE", data.kilometraje],
-            ].map(([label, value]) => (
-              <tr key={label}>
-                <td className="border p-1 font-semibold w-48">
-                  {label}
-                </td>
-                <td className="border p-1">
-                  {value || ""}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
         {/* ================= CHECKLIST ================= */}
         {SECCIONES.map(({ key, titulo, schema }) => (
           <table
@@ -300,6 +262,37 @@ export default function InspeccionPdf() {
             </tbody>
           </table>
         ))}
+
+        {/* ================= DESCRIPCIÓN DEL EQUIPO (AL FINAL) ================= */}
+        <table className="w-full border border-collapse mt-4 text-xs">
+          <tbody>
+            <tr>
+              <td colSpan={2} className="border p-1 text-center font-bold">
+                DESCRIPCIÓN DEL EQUIPO
+              </td>
+            </tr>
+            {[
+              ["MARCA", data.marca],
+              ["MODELO", data.modelo],
+              ["SERIE", data.serie],
+              ["AÑO MODELO", data.anioModelo],
+              ["VIN / CHASIS", data.vin],
+              ["PLACA", data.placa],
+              ["HORAS MÓDULO", data.horasModulo],
+              ["HORAS CHASIS", data.horasChasis],
+              ["KILOMETRAJE", data.kilometraje],
+            ].map(([label, value]) => (
+              <tr key={label}>
+                <td className="border p-1 font-semibold w-48">
+                  {label}
+                </td>
+                <td className="border p-1">
+                  {value || ""}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         {/* ================= FIRMAS ================= */}
         <table className="w-full border border-collapse mt-4">
