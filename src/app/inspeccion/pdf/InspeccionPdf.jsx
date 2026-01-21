@@ -87,26 +87,53 @@ export default function InspeccionPdf() {
           </button>
         </div>
 
-        {/* ================= ENCABEZADO (COPIADO DE INFORME) ================= */}
-<tr>
-  <td className="border p-1 font-semibold w-48">
-    DESCRIPCIÓN
-  </td>
-  <td colSpan={3} className="border p-1">
-    {data.descripcion || ""}
-  </td>
-</tr>
-<tr>
-  <td className="border p-1 font-semibold">
-    COD. INF.
-  </td>
-  <td colSpan={3} className="border p-1">
-    {data.codInf || ""}
-  </td>
-</tr>
+        {/* ================= ENCABEZADO ================= */}
+        <table className="w-full border border-collapse text-xs">
+          <tbody>
+            <tr>
+              <td rowSpan={4} className="border p-2 w-36 text-center">
+                <img
+                  src="/astap-logo.jpg"
+                  className="mx-auto max-h-16"
+                  alt="ASTAP"
+                />
+              </td>
+              <td colSpan={2} className="border p-2 text-center font-bold">
+                HOJA DE INSPECCIÓN HIDROSUCCIONADOR
+              </td>
+            </tr>
+
+            <tr>
+              <td className="border p-1 font-semibold w-56">
+                REFERENCIA DE CONTRATO
+              </td>
+              <td className="border p-1">
+                {data.referenciaContrato || ""}
+              </td>
+            </tr>
+
+            <tr>
+              <td className="border p-1 font-semibold">
+                DESCRIPCIÓN
+              </td>
+              <td className="border p-1">
+                {data.descripcion || ""}
+              </td>
+            </tr>
+
+            <tr>
+              <td className="border p-1 font-semibold">
+                COD. INF.
+              </td>
+              <td className="border p-1">
+                {data.codInf || ""}
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         {/* ================= DATOS DEL SERVICIO ================= */}
-        <table className="w-full border border-collapse text-xs">
+        <table className="w-full border border-collapse text-xs mt-2">
           <tbody>
             {[
               ["CLIENTE", data.cliente],
@@ -117,7 +144,7 @@ export default function InspeccionPdf() {
               ["FECHA DE SERVICIO", data.fechaServicio],
             ].map(([label, value]) => (
               <tr key={label}>
-                <td className="border p-1 font-semibold w-48">
+                <td className="border p-1 font-semibold w-56">
                   {label}
                 </td>
                 <td className="border p-1">
@@ -241,7 +268,7 @@ export default function InspeccionPdf() {
           </table>
         ))}
 
-        {/* ================= DESCRIPCIÓN DEL EQUIPO (AL FINAL) ================= */}
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
         <table className="w-full border border-collapse mt-4 text-xs">
           <tbody>
             <tr>
@@ -261,7 +288,7 @@ export default function InspeccionPdf() {
               ["KILOMETRAJE", data.kilometraje],
             ].map(([label, value]) => (
               <tr key={label}>
-                <td className="border p-1 font-semibold w-48">
+                <td className="border p-1 font-semibold w-56">
                   {label}
                 </td>
                 <td className="border p-1">
