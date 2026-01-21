@@ -89,16 +89,18 @@ export default function InspeccionPdf() {
 
         {/* ================= ENCABEZADO (COPIADO DE INFORME) ================= */}
 <tr>
-  <td className="border p-1 font-semibold">
+  <td className="border p-1 font-semibold w-48">
     DESCRIPCIÓN
   </td>
-  <td className="border p-1">
+  <td colSpan={3} className="border p-1">
     {data.descripcion || ""}
   </td>
+</tr>
+<tr>
   <td className="border p-1 font-semibold">
     COD. INF.
   </td>
-  <td className="border p-1">
+  <td colSpan={3} className="border p-1">
     {data.codInf || ""}
   </td>
 </tr>
