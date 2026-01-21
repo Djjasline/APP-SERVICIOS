@@ -6,6 +6,7 @@ import { FORM_STATES } from "@utils/formStates";
  * - Guarda en localStorage
  * - Maneja estado (borrador / finalizado)
  * - Permite editar incluso después de finalizar
+ * - Rehidrata correctamente datos complejos (checklists, firmas, puntos)
  */
 export default function useFormStorage(key, initialData) {
   const STORAGE_KEY = `form_${key}`;
@@ -18,12 +19,37 @@ export default function useFormStorage(key, initialData) {
   ========================= */
   useEffect(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
+    if (!raw) return;
+
+    try {
       const parsed = JSON.parse(raw);
-      setData(parsed.data || initialData);
-      setStatus(parsed.status || FORM_STATES.BORRADOR);
+
+      setData((prev) => ({
+        ...initialData,
+        ...parsed.data,
+
+        // 🔑 merge seguro para estructuras complejas
+        inspeccion: {
+          ...initialData.inspeccion,
+          ...parsed.data?.inspeccion,
+        },
+
+        firmas: parsed.data?.firmas || {},
+
+        estadoEquipoPuntos:
+          parsed.data?.estadoEquipoPuntos || [],
+      }));
+
+      setStatus(
+        parsed.status || FORM_STATES.BORRADOR
+      );
+    } catch (e) {
+      console.error(
+        "Error al cargar formulario:",
+        e
+      );
     }
-  }, []);
+  }, [STORAGE_KEY]);
 
   /* =========================
      Guardar automáticamente
@@ -33,7 +59,7 @@ export default function useFormStorage(key, initialData) {
       STORAGE_KEY,
       JSON.stringify({ data, status })
     );
-  }, [data, status]);
+  }, [data, status, STORAGE_KEY]);
 
   /* =========================
      Acciones
