@@ -215,8 +215,12 @@ export default function InspeccionPdf() {
               </tr>
             </thead>
             <tbody>
-              {schema.map((item, i) => {
-                const r = data.inspeccion?.[key]?.[i] || {};
+             {schema.map((item) => {
+  const r =
+    data.inspeccion?.[key]?.find(
+      (x) => x.codigo === item.codigo
+    ) || {};
+
                 return (
                   <tr key={item.codigo}>
                     <td className="border p-1">{item.codigo}</td>
