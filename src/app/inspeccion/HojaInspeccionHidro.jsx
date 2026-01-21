@@ -141,6 +141,30 @@ export default function HojaInspeccionHidro() {
       });
     }
   }, [id]);
+/* =========================
+   RECARGAR FIRMAS AL ABRIR
+========================= */
+useEffect(() => {
+  if (!formData?.firmas) return;
+
+  if (
+    formData.firmas.tecnico &&
+    firmaTecnicoRef.current
+  ) {
+    firmaTecnicoRef.current.fromDataURL(
+      formData.firmas.tecnico
+    );
+  }
+
+  if (
+    formData.firmas.cliente &&
+    firmaClienteRef.current
+  ) {
+    firmaClienteRef.current.fromDataURL(
+      formData.firmas.cliente
+    );
+  }
+}, [formData.firmas]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -346,6 +370,7 @@ export default function HojaInspeccionHidro() {
                   <input
                     type="radio"
                     name={`${codigo}-estado`}
+                    checked={formData.items[codigo]?.estado === "SI"}
                     onChange={() => handleItemChange(codigo, "estado", "SI")}
                   />
                 </td>
@@ -353,6 +378,7 @@ export default function HojaInspeccionHidro() {
                   <input
                     type="radio"
                     name={`${codigo}-estado`}
+                    checked={formData.items[codigo]?.estado === "NO"}
                     onChange={() => handleItemChange(codigo, "estado", "NO")}
                   />
                 </td>
@@ -410,6 +436,7 @@ export default function HojaInspeccionHidro() {
                   <td>
                     <input
                       className="w-full border px-1"
+                      value={formData.items[codigo]?.observacion || ""}
                       onChange={(e) =>
                         handleItemChange(codigo, "observacion", e.target.value)
                       }
