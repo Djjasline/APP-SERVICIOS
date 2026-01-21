@@ -153,7 +153,7 @@ export default function InspeccionPdf() {
     {[
       ["MARCA", data.marca],
       ["MODELO", data.modelo],
-      ["°SERIE", data.°serie],
+      ["SERIE", data.serie],
       ["AÑO MODELO", data.anioModelo],
       ["VIN / CHASIS", data.vin],
       ["PLACA", data.placa],
