@@ -137,12 +137,15 @@ export default function InspeccionPdf() {
           <tbody>
             {[
               ["CLIENTE", data.cliente],
-              ["DIRECCIÓN", data.direccion],
-              ["CONTACTO", data.contacto],
-              ["TELÉFONO", data.telefono],
-              ["CORREO", data.correo],
-              ["FECHA DE SERVICIO", data.fechaServicio],
-            ].map(([label, value]) => (
+      ["DIRECCIÓN", data.direccion],
+      ["CONTACTO", data.contacto],
+      ["TELÉFONO", data.telefono],
+      ["CORREO", data.correo],
+      ["TÉCNICO RESPONSABLE", data.tecnicoResponsable],
+      ["TELÉFONO TÉCNICO", data.telefonoTecnico],
+      ["CORREO TÉCNICO", data.correoTecnico],
+      ["FECHA DE SERVICIO", data.fechaServicio],
+                  ].map(([label, value]) => (
               <tr key={label}>
                 <td className="border p-1 font-semibold w-56">
                   {label}
