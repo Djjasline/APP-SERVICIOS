@@ -88,44 +88,20 @@ export default function InspeccionPdf() {
         </div>
 
         {/* ================= ENCABEZADO (COPIADO DE INFORME) ================= */}
-        <table className="w-full border border-collapse text-xs">
-          <tbody>
-            <tr>
-              <td rowSpan={3} className="border p-2 w-36 text-center">
-                <img
-                  src="/astap-logo.jpg"
-                  className="mx-auto max-h-16"
-                  alt="ASTAP"
-                />
-              </td>
-              <td colSpan={4} className="border p-2 text-center font-bold">
-                HOJA DE INSPECCIÓN HIDROSUCCIONADOR
-              </td>
-            </tr>
-            <tr>
-              <td className="border p-1 font-semibold w-48">
-                REFERENCIA DE CONTRATO
-              </td>
-              <td colSpan={3} className="border p-1">
-                {data.referenciaContrato || ""}
-              </td>
-            </tr>
-            <tr>
-              <td className="border p-1 font-semibold">
-                DESCRIPCIÓN
-              </td>
-              <td className="border p-1">
-                {data.descripcion || ""}
-              </td>
-              <td className="border p-1 font-semibold">
-                COD. INF.
-              </td>
-              <td className="border p-1">
-                {data.codInf || ""}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+<tr>
+  <td className="border p-1 font-semibold">
+    DESCRIPCIÓN
+  </td>
+  <td className="border p-1">
+    {data.descripcion || ""}
+  </td>
+  <td className="border p-1 font-semibold">
+    COD. INF.
+  </td>
+  <td className="border p-1">
+    {data.codInf || ""}
+  </td>
+</tr>
 
         {/* ================= DATOS DEL SERVICIO ================= */}
         <table className="w-full border border-collapse text-xs">
