@@ -236,33 +236,43 @@ export default function InspeccionPdf() {
           </tbody>
         </table>
 
-        {/* ================= FIRMAS ================= */}
-        <table className="w-full border border-collapse mt-4">
-          <tbody>
-            <tr>
-              <td className="border p-2 text-center font-semibold">
-                FIRMA TÉCNICO
-              </td>
-              <td className="border p-2 text-center font-semibold">
-                FIRMA CLIENTE
-              </td>
-            </tr>
-            <tr>
-              <td className="border p-2 text-center">
-                {data.firmas?.tecnico && (
-                  <img src={data.firmas.tecnico} className="mx-auto max-h-24" />
-                )}
-              </td>
-              <td className="border p-2 text-center">
-                {data.firmas?.cliente && (
-                  <img src={data.firmas.cliente} className="mx-auto max-h-24" />
-                )}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-      </div>
-    </div>
-  );
+   {/* ================= FIRMAS ================= */}
+<table className="w-full border border-collapse mt-4">
+  <tbody>
+    <tr>
+      <td className="border p-2 text-center font-semibold">
+        FIRMA TÉCNICO
+      </td>
+      <td className="border p-2 text-center font-semibold">
+        FIRMA CLIENTE
+      </td>
+    </tr>
+    <tr>
+      <td className="border p-2 text-center">
+        {data.firmas?.tecnico && (
+          <img
+            src={
+              typeof data.firmas.tecnico === "string"
+                ? data.firmas.tecnico
+                : data.firmas.tecnico.imagen
+            }
+            className="mx-auto max-h-24"
+          />
+        )}
+      </td>
+      <td className="border p-2 text-center">
+        {data.firmas?.cliente && (
+          <img
+            src={
+              typeof data.firmas.cliente === "string"
+                ? data.firmas.cliente
+                : data.firmas.cliente.imagen
+            }
+            className="mx-auto max-h-24"
+          />
+        )}
+      </td>
+    </tr>
+  </tbody>
+</table>
 }
