@@ -125,6 +125,10 @@ export default function HojaInspeccionHidro() {
     kilometraje: "",
 
     items: {},
+    firmas: {
+    tecnico: "",
+    cliente: "",
+  },
   };
 
   const [formData, setFormData] = useState(baseState);
@@ -333,16 +337,16 @@ useEffect(() => {
         </div>
 
         {formData.estadoEquipoPuntos.map((pt) => (
-          <div key={pt.id} className="flex gap-2">
-            <span className="font-semibold">{pt.id})</span>
-            <input
-              className="flex-1 border p-1"
-              placeholder={`Observación punto ${pt.id}`}
-              value={pt.nota}
-              onChange={(e) => handleNotaChange(pt.id, e.target.value)}
-            />
-          </div>
-        ))}
+  <div key={pt.id} className="flex gap-2">
+    <span className="font-semibold">{pt.id})</span>
+    <input
+      className="w-full border px-1"
+      placeholder={`Observación punto ${pt.id}`}
+      value={pt.nota}
+      onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+    />
+  </div>
+))}
       </section>
 
       {/* ================= PRUEBAS PREVIAS ================= */}
@@ -385,6 +389,7 @@ useEffect(() => {
                 <td>
                   <input
                     className="w-full border px-1"
+                    value={formData.items[codigo]?.observacion || ""}
                     onChange={(e) =>
                       handleItemChange(codigo, "observacion", e.target.value)
                     }
@@ -423,6 +428,7 @@ useEffect(() => {
                     <input
                       type="radio"
                       name={`${codigo}-estado`}
+                      checked={formData.items[codigo]?.estado === "SI"}
                       onChange={() => handleItemChange(codigo, "estado", "SI")}
                     />
                   </td>
@@ -430,6 +436,7 @@ useEffect(() => {
                     <input
                       type="radio"
                       name={`${codigo}-estado`}
+                      checked={formData.items[codigo]?.estado === "NO"}
                       onChange={() => handleItemChange(codigo, "estado", "NO")}
                     />
                   </td>
