@@ -491,16 +491,26 @@ useEffect(() => {
           <div>
             <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
             <SignatureCanvas
-              ref={firmaTecnicoRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
+  ref={firmaTecnicoRef}
+  canvasProps={{
+    width: 420,
+    height: 150,
+    className: "border w-full"
+  }}
+/>
+
           </div>
           <div>
             <p className="font-semibold mb-1">FIRMA CLIENTE</p>
             <SignatureCanvas
-              ref={firmaClienteRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
+  ref={firmaTecnicoRef}
+  canvasProps={{
+    width: 420,
+    height: 150,
+    className: "border w-full"
+  }}
+/>
+
           </div>
         </div>
       </section>
