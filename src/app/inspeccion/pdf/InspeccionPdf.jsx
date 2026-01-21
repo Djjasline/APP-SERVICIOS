@@ -134,6 +134,29 @@ export default function InspeccionPdf() {
           </tbody>
         </table>
 
+        {/* ================= DATOS DEL SERVICIO ================= */}
+        <table className="w-full border border-collapse mt-3 text-xs">
+          <tbody>
+            {[
+              ["CLIENTE", data.cliente],
+              ["DIRECCIÓN", data.direccion],
+              ["CONTACTO", data.contacto],
+              ["TELÉFONO", data.telefono],
+              ["CORREO", data.correo],
+              ["FECHA DE SERVICIO", data.fechaServicio],
+            ].map(([label, value]) => (
+              <tr key={label}>
+                <td className="border p-1 font-semibold w-48">
+                  {label}
+                </td>
+                <td className="border p-1">
+                  {value || ""}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
         {/* ================= ESTADO DEL EQUIPO ================= */}
         <table className="w-full border border-collapse mt-3">
           <tbody>
@@ -169,6 +192,7 @@ export default function InspeccionPdf() {
           </tbody>
         </table>
 
+        {/* ================= OBSERVACIONES ESTADO ================= */}
         {puntos.length > 0 && (
           <table className="w-full border border-collapse mt-1">
             <thead>
@@ -193,6 +217,37 @@ export default function InspeccionPdf() {
             </tbody>
           </table>
         )}
+
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        <table className="w-full border border-collapse mt-4 text-xs">
+          <tbody>
+            <tr>
+              <td colSpan={2} className="border p-1 text-center font-bold">
+                DESCRIPCIÓN DEL EQUIPO
+              </td>
+            </tr>
+            {[
+              ["MARCA", data.marca],
+              ["MODELO", data.modelo],
+              ["SERIE", data.serie],
+              ["AÑO MODELO", data.anioModelo],
+              ["VIN / CHASIS", data.vin],
+              ["PLACA", data.placa],
+              ["HORAS MÓDULO", data.horasModulo],
+              ["HORAS CHASIS", data.horasChasis],
+              ["KILOMETRAJE", data.kilometraje],
+            ].map(([label, value]) => (
+              <tr key={label}>
+                <td className="border p-1 font-semibold w-48">
+                  {label}
+                </td>
+                <td className="border p-1">
+                  {value || ""}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         {/* ================= CHECKLIST ================= */}
         {SECCIONES.map(({ key, titulo, schema }) => (
