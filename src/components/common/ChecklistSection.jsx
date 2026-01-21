@@ -3,73 +3,110 @@ import React from "react";
 export default function ChecklistSection({
   title,
   items,
-  data,
+  data = [],
   onChange,
 }) {
-  const textProps = {
-    spellCheck: true,
-    autoCorrect: "on",
-    autoCapitalize: "sentences",
-  };
-
-  const updateItem = (index, field, value) => {
+  const handleChange = (codigo, field, value) => {
     const updated = [...data];
-    updated[index][field] = value;
+    const index = updated.findIndex(
+      (i) => i.codigo === codigo
+    );
+
+    if (index >= 0) {
+      updated[index] = {
+        ...updated[index],
+        [field]: value,
+      };
+    } else {
+      updated.push({
+        codigo,
+        estado: field === "estado" ? value : "",
+        observacion: field === "observacion" ? value : "",
+      });
+    }
+
     onChange(updated);
   };
 
   return (
-    <section className="bg-white border rounded-xl p-6 space-y-4">
-      <h2 className="text-lg font-semibold text-slate-900">
-        {title}
-      </h2>
+    <section className="bg-white border rounded-xl p-6 space-y-3">
+      <h2 className="text-lg font-semibold">{title}</h2>
 
-      <div className="space-y-3">
-        {items.map((item, i) => (
-          <div
-            key={item.codigo}
-            className="border rounded p-3 space-y-2"
-          >
-            <p className="text-sm font-medium text-slate-800">
-              {item.codigo} — {item.descripcion}
-            </p>
+      <table className="w-full border border-collapse text-sm">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="border p-1 w-20">Ítem</th>
+            <th className="border p-1">Detalle</th>
+            <th className="border p-1 w-16">SI</th>
+            <th className="border p-1 w-16">NO</th>
+            <th className="border p-1">Observación</th>
+          </tr>
+        </thead>
 
-            <div className="flex gap-4 text-sm">
-              {["si", "no"].map((opt) => (
-                <label
-                  key={opt}
-                  className="flex items-center gap-1"
-                >
+        <tbody>
+          {items.map((item) => {
+            const row =
+              data.find((d) => d.codigo === item.codigo) ||
+              {};
+
+            return (
+              <tr key={item.codigo}>
+                <td className="border p-1">
+                  {item.codigo}
+                </td>
+
+                <td className="border p-1">
+                  {item.descripcion}
+                </td>
+
+                <td className="border p-1 text-center">
                   <input
                     type="radio"
-                    name={`${title}-${i}`}
-                    checked={data[i]?.resultado === opt}
+                    name={`${item.codigo}-estado`}
+                    checked={row.estado === "SI"}
                     onChange={() =>
-                      updateItem(i, "resultado", opt)
+                      handleChange(
+                        item.codigo,
+                        "estado",
+                        "SI"
+                      )
                     }
                   />
-                  {opt.toUpperCase()}
-                </label>
-              ))}
-            </div>
+                </td>
 
-            <textarea
-              {...textProps}
-              rows={2}
-              placeholder="Observación / novedad"
-              value={data[i]?.observacion || ""}
-              onChange={(e) =>
-                updateItem(
-                  i,
-                  "observacion",
-                  e.target.value
-                )
-              }
-              className="input resize-y"
-            />
-          </div>
-        ))}
-      </div>
+                <td className="border p-1 text-center">
+                  <input
+                    type="radio"
+                    name={`${item.codigo}-estado`}
+                    checked={row.estado === "NO"}
+                    onChange={() =>
+                      handleChange(
+                        item.codigo,
+                        "estado",
+                        "NO"
+                      )
+                    }
+                  />
+                </td>
+
+                <td className="border p-1">
+                  <input
+                    className="w-full border px-1"
+                    value={row.observacion || ""}
+                    onChange={(e) =>
+                      handleChange(
+                        item.codigo,
+                        "observacion",
+                        e.target.value
+                      )
+                    }
+                  />
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </section>
   );
 }
