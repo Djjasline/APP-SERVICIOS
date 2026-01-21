@@ -71,21 +71,22 @@ export default function InspeccionPdf() {
     <div className="p-6 bg-white text-xs">
       <div className="max-w-6xl mx-auto">
 
-        {/* BOTONES SOLO PANTALLA */}
-        <div className="flex justify-between mb-4 print:hidden">
-          <button
-            onClick={() => navigate(-1)}
-            className="border px-3 py-1 rounded"
-          >
-            ← Volver
-          </button>
-          <button
-            onClick={() => window.print()}
-            className="bg-blue-600 text-white px-3 py-1 rounded"
-          >
-            Imprimir
-          </button>
-        </div>
+       {/* ================= BOTONES ================= */}
+<div className="flex justify-between mt-6 print:hidden">
+  <button
+    onClick={() => navigate(-1)}
+    className="border px-4 py-2 rounded text-sm"
+  >
+    Volver
+  </button>
+
+  <button
+    onClick={() => window.print()}
+    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm"
+  >
+    Descargar PDF
+  </button>
+</div>
 
         {/* ================= ENCABEZADO ================= */}
         <table className="w-full border border-collapse text-xs">
@@ -102,7 +103,6 @@ export default function InspeccionPdf() {
                 HOJA DE INSPECCIÓN HIDROSUCCIONADOR
               </td>
             </tr>
-
             <tr>
               <td className="border p-1 font-semibold w-56">
                 REFERENCIA DE CONTRATO
@@ -111,7 +111,6 @@ export default function InspeccionPdf() {
                 {data.referenciaContrato || ""}
               </td>
             </tr>
-
             <tr>
               <td className="border p-1 font-semibold">
                 DESCRIPCIÓN
@@ -120,7 +119,6 @@ export default function InspeccionPdf() {
                 {data.descripcion || ""}
               </td>
             </tr>
-
             <tr>
               <td className="border p-1 font-semibold">
                 COD. INF.
@@ -132,46 +130,31 @@ export default function InspeccionPdf() {
           </tbody>
         </table>
 
-{/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-<table className="w-full border border-collapse mt-4 text-xs">
-  <tbody>
-    <tr>
-      <td colSpan={2} className="border p-1 text-center font-bold">
-        DESCRIPCIÓN DEL EQUIPO
-      </td>
-    </tr>
-
-    <tr>
-      <td className="border p-1 font-semibold w-56">
-        NOTA
-      </td>
-      <td className="border p-1">
-        {data.nota || ""}
-      </td>
-    </tr>
-
-    {[
-      ["MARCA", data.marca],
-      ["MODELO", data.modelo],
-      ["SERIE", data.serie],
-      ["AÑO MODELO", data.anioModelo],
-      ["VIN / CHASIS", data.vin],
-      ["PLACA", data.placa],
-      ["HORAS MÓDULO", data.horasModulo],
-      ["HORAS CHASIS", data.horasChasis],
-      ["KILOMETRAJE", data.kilometraje],
-    ].map(([label, value]) => (
-      <tr key={label}>
-        <td className="border p-1 font-semibold w-56">
-          {label}
-        </td>
-        <td className="border p-1">
-          {value || ""}
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+        {/* ================= DATOS DEL SERVICIO ================= */}
+        <table className="w-full border border-collapse text-xs mt-2">
+          <tbody>
+            {[
+              ["CLIENTE", data.cliente],
+              ["DIRECCIÓN", data.direccion],
+              ["CONTACTO", data.contacto],
+              ["TELÉFONO", data.telefono],
+              ["CORREO", data.correo],
+              ["TÉCNICO RESPONSABLE", data.tecnicoResponsable],
+              ["TELÉFONO TÉCNICO", data.telefonoTecnico],
+              ["CORREO TÉCNICO", data.correoTecnico],
+              ["FECHA DE SERVICIO", data.fechaServicio],
+            ].map(([label, value]) => (
+              <tr key={label}>
+                <td className="border p-1 font-semibold w-56">
+                  {label}
+                </td>
+                <td className="border p-1">
+                  {value || ""}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         {/* ================= ESTADO DEL EQUIPO ================= */}
         <table className="w-full border border-collapse mt-3">
@@ -286,12 +269,20 @@ export default function InspeccionPdf() {
           </table>
         ))}
 
-        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        {/* ================= DESCRIPCIÓN DEL EQUIPO (SOLO AQUÍ) ================= */}
         <table className="w-full border border-collapse mt-4 text-xs">
           <tbody>
             <tr>
               <td colSpan={2} className="border p-1 text-center font-bold">
                 DESCRIPCIÓN DEL EQUIPO
+              </td>
+            </tr>
+            <tr>
+              <td className="border p-1 font-semibold w-56">
+                NOTA
+              </td>
+              <td className="border p-1">
+                {data.nota || ""}
               </td>
             </tr>
             {[
