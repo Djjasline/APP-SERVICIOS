@@ -60,19 +60,19 @@ export default function InspeccionPdf() {
 
   const firmaTecnico =
     typeof data.firmas?.tecnico === "string"
-      ? data.firmas?.tecnico
+      ? data.firmas.tecnico
       : data.firmas?.tecnico?.imagen;
 
   const firmaCliente =
     typeof data.firmas?.cliente === "string"
-      ? data.firmas?.cliente
+      ? data.firmas.cliente
       : data.firmas?.cliente?.imagen;
 
   return (
     <div className="p-6 bg-white text-xs">
       <div className="max-w-6xl mx-auto">
 
-        {/* BOTONES SOLO EN PANTALLA */}
+        {/* BOTONES SOLO PANTALLA */}
         <div className="flex justify-between mb-4 print:hidden">
           <button
             onClick={() => navigate(-1)}
@@ -89,38 +89,46 @@ export default function InspeccionPdf() {
         </div>
 
         {/* ================= ENCABEZADO ================= */}
-        <table className="w-full border border-collapse">
+        <table className="w-full border border-collapse text-xs">
           <tbody>
             <tr>
-              <td rowSpan={4} className="border p-2 w-32 text-center">
+              <td rowSpan={5} className="border p-2 w-36 text-center">
                 <img
                   src="/astap-logo.jpg"
                   className="mx-auto max-h-16"
                   alt="ASTAP"
                 />
               </td>
-              <td colSpan={3} className="border p-2 text-center font-bold">
+              <td colSpan={4} className="border p-2 text-center font-bold">
                 HOJA DE INSPECCIÓN HIDROSUCCIONADOR
               </td>
             </tr>
             <tr>
-              <td className="border p-1 font-semibold">
+              <td className="border p-1 font-semibold w-48">
                 REFERENCIA DE CONTRATO
               </td>
-              <td colSpan={2} className="border p-1">
+              <td colSpan={3} className="border p-1">
                 {data.referenciaContrato || ""}
               </td>
             </tr>
             <tr>
               <td className="border p-1 font-semibold">DESCRIPCIÓN</td>
-              <td colSpan={2} className="border p-1">
+              <td colSpan={3} className="border p-1">
                 {data.descripcion || ""}
               </td>
             </tr>
             <tr>
               <td className="border p-1 font-semibold">COD. INF.</td>
-              <td colSpan={2} className="border p-1">
-                {data.codInf || ""}
+              <td className="border p-1">{data.codInf || ""}</td>
+              <td className="border p-1 font-semibold">VERSIÓN</td>
+              <td className="border p-1">01</td>
+            </tr>
+            <tr>
+              <td className="border p-1 font-semibold">
+                FECHA VERSIÓN
+              </td>
+              <td colSpan={3} className="border p-1">
+                01-01-26
               </td>
             </tr>
           </tbody>
@@ -166,21 +174,27 @@ export default function InspeccionPdf() {
             <thead>
               <tr>
                 <th className="border p-1 w-12">#</th>
-                <th className="border p-1">OBSERVACIÓN</th>
+                <th className="border p-1">
+                  OBSERVACIÓN
+                </th>
               </tr>
             </thead>
             <tbody>
               {puntos.map((pt) => (
                 <tr key={pt.id}>
-                  <td className="border p-1 text-center">{pt.id}</td>
-                  <td className="border p-1">{pt.nota || ""}</td>
+                  <td className="border p-1 text-center">
+                    {pt.id}
+                  </td>
+                  <td className="border p-1">
+                    {pt.nota || ""}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
 
-        {/* ================= PRUEBAS Y EVALUACIÓN ================= */}
+        {/* ================= CHECKLIST ================= */}
         {SECCIONES.map(({ key, titulo, schema }) => (
           <table
             key={key}
@@ -188,15 +202,24 @@ export default function InspeccionPdf() {
           >
             <thead>
               <tr>
-                <th colSpan={4} className="border p-1 text-center font-bold">
+                <th
+                  colSpan={4}
+                  className="border p-1 text-center font-bold"
+                >
                   {titulo}
                 </th>
               </tr>
               <tr>
                 <th className="border p-1 w-16">Ítem</th>
-                <th className="border p-1">Detalle</th>
-                <th className="border p-1 w-16">SI / NO</th>
-                <th className="border p-1">Observación</th>
+                <th className="border p-1 w-2/3">
+                  Detalle
+                </th>
+                <th className="border p-1 w-16">
+                  SI / NO
+                </th>
+                <th className="border p-1 w-1/3">
+                  Observación
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -204,7 +227,9 @@ export default function InspeccionPdf() {
                 const r = data.inspeccion?.[key]?.[i] || {};
                 return (
                   <tr key={item.codigo}>
-                    <td className="border p-1">{item.codigo}</td>
+                    <td className="border p-1">
+                      {item.codigo}
+                    </td>
                     <td className="border p-1">
                       {item.descripcion}
                     </td>
