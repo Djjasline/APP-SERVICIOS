@@ -132,31 +132,46 @@ export default function InspeccionPdf() {
           </tbody>
         </table>
 
-        {/* ================= DATOS DEL SERVICIO ================= */}
-        <table className="w-full border border-collapse text-xs mt-2">
-          <tbody>
-            {[
-              ["CLIENTE", data.cliente],
-      ["DIRECCIÓN", data.direccion],
-      ["CONTACTO", data.contacto],
-      ["TELÉFONO", data.telefono],
-      ["CORREO", data.correo],
-      ["TÉCNICO RESPONSABLE", data.tecnicoResponsable],
-      ["TELÉFONO TÉCNICO", data.telefonoTecnico],
-      ["CORREO TÉCNICO", data.correoTecnico],
-      ["FECHA DE SERVICIO", data.fechaServicio],
-                  ].map(([label, value]) => (
-              <tr key={label}>
-                <td className="border p-1 font-semibold w-56">
-                  {label}
-                </td>
-                <td className="border p-1">
-                  {value || ""}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+{/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+<table className="w-full border border-collapse mt-4 text-xs">
+  <tbody>
+    <tr>
+      <td colSpan={2} className="border p-1 text-center font-bold">
+        DESCRIPCIÓN DEL EQUIPO
+      </td>
+    </tr>
+
+    <tr>
+      <td className="border p-1 font-semibold w-56">
+        NOTA
+      </td>
+      <td className="border p-1">
+        {data.nota || ""}
+      </td>
+    </tr>
+
+    {[
+      ["MARCA", data.marca],
+      ["MODELO", data.modelo],
+      ["°SERIE", data.°serie],
+      ["AÑO MODELO", data.anioModelo],
+      ["VIN / CHASIS", data.vin],
+      ["PLACA", data.placa],
+      ["HORAS MÓDULO", data.horasModulo],
+      ["HORAS CHASIS", data.horasChasis],
+      ["KILOMETRAJE", data.kilometraje],
+    ].map(([label, value]) => (
+      <tr key={label}>
+        <td className="border p-1 font-semibold w-56">
+          {label}
+        </td>
+        <td className="border p-1">
+          {value || ""}
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
 
         {/* ================= ESTADO DEL EQUIPO ================= */}
         <table className="w-full border border-collapse mt-3">
