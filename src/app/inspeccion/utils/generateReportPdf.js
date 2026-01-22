@@ -139,7 +139,10 @@ export const generateReportPdf = async (inspectionData) => {
     }
   }
 /* ================= CHECKLIST ================= */
-if (inspectionData.items && Object.keys(inspectionData.items).length > 0) {
+const items = inspectionData.items || {};
+const itemEntries = Object.entries(items);
+
+if (itemEntries.length > 0) {
   pdf.setFillColor(...COLORS.headerBg);
   pdf.setTextColor(...COLORS.headerText);
   pdf.rect(marginLeft, cursorY, pageWidth - 28, 7, "F");
@@ -148,26 +151,21 @@ if (inspectionData.items && Object.keys(inspectionData.items).length > 0) {
 
   cursorY += 8;
 
-  const rows = Object.entries(inspectionData.items).map(
-    ([codigo, data]) => [
-      codigo,
-      data.estado || "",
-      data.observacion || "",
-    ]
-  );
-
   pdf.autoTable({
     startY: cursorY,
     theme: "grid",
     styles: { fontSize: 8 },
     head: [["Ítem", "Estado", "Observación"]],
-    body: rows,
+    body: itemEntries.map(([codigo, data]) => [
+      codigo,
+      data.estado || "",
+      data.observacion || "",
+    ]),
   });
 
   cursorY = pdf.lastAutoTable.finalY + 6;
 }
 
- 
   /* ================= FIRMAS ================= */
   const boxWidth = 70;
   const boxHeight = 30;
