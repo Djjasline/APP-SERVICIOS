@@ -55,12 +55,6 @@ export default function NuevoInforme() {
   const sigCliente = useRef(null);
 
   /* ===========================
-     CONTROL SCROLL FIRMA
-  =========================== */
-  const disableScroll = () => (document.body.style.overflow = "hidden");
-  const enableScroll = () => (document.body.style.overflow = "");
-
-  /* ===========================
      CARGAR BORRADOR
   =========================== */
   useEffect(() => {
@@ -136,7 +130,7 @@ export default function NuevoInforme() {
     }));
 
   /* ===========================
-     GUARDAR
+     GUARDAR INFORME
   =========================== */
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
@@ -147,12 +141,6 @@ export default function NuevoInforme() {
       estado: "borrador",
       data: {
         ...data,
-        cliente: data.cliente?.trim() || "Sin cliente",
-        codInf:
-          data.codInf?.trim() ||
-          `INF-${new Date().getFullYear()}-${Date.now()
-            .toString()
-            .slice(-4)}`,
         firmas: {
           tecnico: sigTecnico.current?.isEmpty()
             ? ""
@@ -173,7 +161,36 @@ export default function NuevoInforme() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
 
+        {/* ENCABEZADO */}
         <ReportHeader data={data} onChange={update} />
+
+        {/* DATOS CLIENTE */}
+        <table className="pdf-table">
+          <tbody>
+            {[
+              ["CLIENTE", "cliente"],
+              ["DIRECCIÓN", "direccion"],
+              ["CONTACTO", "contacto"],
+              ["TELÉFONO", "telefono"],
+              ["CORREO", "correo"],
+              ["TÉCNICO RESPONSABLE", "tecnicoNombre"],
+              ["TELÉFONO TÉCNICO", "tecnicoTelefono"],
+              ["CORREO TÉCNICO", "tecnicoCorreo"],
+              ["FECHA DE SERVICIO", "fechaServicio"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="pdf-label">{label}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data[key]}
+                    onChange={(e) => update([key], e.target.value)}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         {/* ACTIVIDADES */}
         <h3 className="font-bold text-sm">ACTIVIDADES REALIZADAS</h3>
@@ -249,7 +266,7 @@ export default function NuevoInforme() {
           + Agregar actividad
         </button>
 
-        {/* CONCLUSIONES */}
+        {/* CONCLUSIONES Y RECOMENDACIONES */}
         <h3 className="font-bold text-sm">CONCLUSIONES Y RECOMENDACIONES</h3>
 
         <table className="pdf-table">
@@ -262,7 +279,7 @@ export default function NuevoInforme() {
           <tbody>
             {data.conclusiones.map((_, i) => (
               <tr key={i}>
-                <td>{i + 1}</td>
+                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
                 <td>
                   <textarea
                     className="pdf-textarea"
@@ -272,7 +289,7 @@ export default function NuevoInforme() {
                     }
                   />
                 </td>
-                <td>{i + 1}</td>
+                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
                 <td>
                   <textarea
                     className="pdf-textarea"
@@ -285,7 +302,7 @@ export default function NuevoInforme() {
                     <button
                       type="button"
                       onClick={() => removeConclusionRow(i)}
-                      className="text-red-600 text-xs"
+                      className="text-red-600 text-xs mt-1"
                     >
                       Eliminar
                     </button>
@@ -304,6 +321,39 @@ export default function NuevoInforme() {
           + Agregar conclusión / recomendación
         </button>
 
+        {/* DESCRIPCIÓN DEL EQUIPO */}
+        <h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
+
+        <table className="pdf-table">
+          <tbody>
+            {[
+              ["NOTA", "nota"],
+              ["MARCA", "marca"],
+              ["MODELO", "modelo"],
+              ["N° SERIE", "serie"],
+              ["AÑO MODELO", "anio"],
+              ["VIN / CHASIS", "vin"],
+              ["PLACA", "placa"],
+              ["HORAS MÓDULO", "horasModulo"],
+              ["HORAS CHASIS", "horasChasis"],
+              ["KILOMETRAJE", "kilometraje"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="pdf-label">{label}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data.equipo[key]}
+                    onChange={(e) =>
+                      update(["equipo", key], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
         {/* FIRMAS */}
         <table className="pdf-table">
           <thead>
@@ -314,20 +364,16 @@ export default function NuevoInforme() {
           </thead>
           <tbody>
             <tr>
-              <td style={{ height: 160 }}>
+              <td style={{ height: 160, padding: 0 }}>
                 <SignatureCanvas
                   ref={sigTecnico}
-                  onBegin={disableScroll}
-                  onEnd={enableScroll}
-                  canvasProps={{ className: "w-full h-full" }}
+                  canvasProps={{ className: "w-full h-full block" }}
                 />
               </td>
-              <td style={{ height: 160 }}>
+              <td style={{ height: 160, padding: 0 }}>
                 <SignatureCanvas
                   ref={sigCliente}
-                  onBegin={disableScroll}
-                  onEnd={enableScroll}
-                  canvasProps={{ className: "w-full h-full" }}
+                  canvasProps={{ className: "w-full h-full block" }}
                 />
               </td>
             </tr>
@@ -343,6 +389,7 @@ export default function NuevoInforme() {
           >
             Volver
           </button>
+
           <button
             type="button"
             onClick={saveReport}
