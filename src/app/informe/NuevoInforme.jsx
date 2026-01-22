@@ -354,47 +354,41 @@ export default function NuevoInforme() {
           </tbody>
         </table>
 
-        {/* FIRMAS */}
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th>FIRMA TÉCNICO ASTAP</th>
-              <th>FIRMA CLIENTE</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style={{ height: 160, padding: 0 }}>
-               <SignatureCanvas
-  ref={sigTecnico}
-  penColor="black"
-  minWidth={0.8}
-  maxWidth={1.4}
-  throttle={4}
-  velocityFilterWeight={0.7}               
-  canvasProps={{
-        className: "w-full h-full block",
-  }}
-/>
+       {/* ================= FIRMAS ================= */}
+<table className="pdf-table">
+  <thead>
+    <tr>
+      <th>FIRMA TÉCNICO ASTAP</th>
+      <th>FIRMA CLIENTE</th>
+    </tr>
+  </thead>
 
-              </td>
-              <td style={{ height: 160, padding: 0 }}>
-                <SignatureCanvas
-  ref={sigCliente}
-  penColor="black"
-  minWidth={0.8}
-  maxWidth={1.4}
-  throttle={4}
-  velocityFilterWeight={0.7}                
-  canvasProps={{
-        className: "w-full h-full block",
-  }}
-/>
+  <tbody>
+    <tr>
+      <td style={{ height: 160, padding: 0 }}>
+        <SignatureCanvas
+          ref={sigTecnico}
+          onBegin={disableScroll}
+          onEnd={enableScroll}
+          canvasProps={{
+            className: "w-full h-full block"
+          }}
+        />
+      </td>
 
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <td style={{ height: 160, padding: 0 }}>
+        <SignatureCanvas
+          ref={sigCliente}
+          onBegin={disableScroll}
+          onEnd={enableScroll}
+          canvasProps={{
+            className: "w-full h-full block"
+          }}
+        />
+      </td>
+    </tr>
+  </tbody>
+</table>
 
         {/* BOTONES */}
         <div className="flex justify-between pt-6">
