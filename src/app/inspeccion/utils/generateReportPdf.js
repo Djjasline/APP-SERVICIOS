@@ -164,7 +164,8 @@ if (itemEntries.length > 0) {
   });
 
   cursorY = pdf.lastAutoTable.finalY + 6;
-}
+  }
+);
 
   /* ================= FIRMAS ================= */
   const boxWidth = 70;
