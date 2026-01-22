@@ -128,13 +128,14 @@ export const generateInspectionPdf = async (inspectionData) => {
   }
 
   /* ================= CHECKLIST (SI / NO) ================= */
-  const items = inspectionData.items || {};
+  const items = inspectionData.items || inspectionData.data?.items || {};
 
   if (Object.keys(items).length > 0) {
     pdf.setFillColor(...COLORS.headerBg);
     pdf.setTextColor(...COLORS.headerText);
     pdf.rect(marginLeft, cursorY, pageWidth - 28, 7, "F");
     pdf.text(
+      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O SISTEMAS",
       "PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS",
       marginLeft + 2,
       cursorY + 5
