@@ -138,35 +138,36 @@ export const generateReportPdf = async (inspectionData) => {
       cursorY = pdf.lastAutoTable.finalY + 6;
     }
   }
+/* ================= CHECKLIST ================= */
+if (inspectionData.items && Object.keys(inspectionData.items).length > 0) {
+  pdf.setFillColor(...COLORS.headerBg);
+  pdf.setTextColor(...COLORS.headerText);
+  pdf.rect(marginLeft, cursorY, pageWidth - 28, 7, "F");
+  pdf.text("CHECKLIST DE INSPECCIÓN", marginLeft + 2, cursorY + 5);
+  pdf.setTextColor(0, 0, 0);
 
-  /* ================= CHECKLIST ================= */
-  Object.entries(inspectionData.inspeccion || {}).forEach(
-    ([titulo, lista]) => {
-      pdf.setFillColor(...COLORS.headerBg);
-      pdf.setTextColor(...COLORS.headerText);
-      pdf.rect(marginLeft, cursorY, pageWidth - 28, 7, "F");
-      pdf.text(titulo.toUpperCase(), marginLeft + 2, cursorY + 5);
-      pdf.setTextColor(0, 0, 0);
+  cursorY += 8;
 
-      cursorY += 8;
-
-      pdf.autoTable({
-        startY: cursorY,
-        theme: "grid",
-        styles: { fontSize: 8 },
-        head: [["Ítem", "Detalle", "Estado", "Observación"]],
-        body: lista.map((it) => [
-          it.codigo,
-          it.detalle,
-          it.estado || "",
-          it.observacion || "",
-        ]),
-      });
-
-      cursorY = pdf.lastAutoTable.finalY + 6;
-    }
+  const rows = Object.entries(inspectionData.items).map(
+    ([codigo, data]) => [
+      codigo,
+      data.estado || "",
+      data.observacion || "",
+    ]
   );
 
+  pdf.autoTable({
+    startY: cursorY,
+    theme: "grid",
+    styles: { fontSize: 8 },
+    head: [["Ítem", "Estado", "Observación"]],
+    body: rows,
+  });
+
+  cursorY = pdf.lastAutoTable.finalY + 6;
+}
+
+ 
   /* ================= FIRMAS ================= */
   const boxWidth = 70;
   const boxHeight = 30;
