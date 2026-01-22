@@ -55,18 +55,13 @@ export default function NuevoInforme() {
   const sigCliente = useRef(null);
 
   /* ===========================
-     CONTROL DE SCROLL AL FIRMAR
+     CONTROL SCROLL FIRMA
   =========================== */
-  const disableScroll = () => {
-    document.body.style.overflow = "hidden";
-  };
-
-  const enableScroll = () => {
-    document.body.style.overflow = "";
-  };
+  const disableScroll = () => (document.body.style.overflow = "hidden");
+  const enableScroll = () => (document.body.style.overflow = "");
 
   /* ===========================
-     CARGAR BORRADOR (SOLO SI EXISTE)
+     CARGAR BORRADOR
   =========================== */
   useEffect(() => {
     const current = JSON.parse(localStorage.getItem("currentReport"));
@@ -141,7 +136,7 @@ export default function NuevoInforme() {
     }));
 
   /* ===========================
-     GUARDAR INFORME
+     GUARDAR
   =========================== */
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
@@ -169,13 +164,8 @@ export default function NuevoInforme() {
       },
     };
 
-    localStorage.setItem(
-      "serviceReports",
-      JSON.stringify([...stored, report])
-    );
-
+    localStorage.setItem("serviceReports", JSON.stringify([...stored, report]));
     localStorage.setItem("currentReport", JSON.stringify(report));
-
     navigate("/informe");
   };
 
@@ -183,36 +173,7 @@ export default function NuevoInforme() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
 
-        {/* ENCABEZADO */}
         <ReportHeader data={data} onChange={update} />
-
-        {/* DATOS CLIENTE */}
-        <table className="pdf-table">
-          <tbody>
-            {[
-              ["CLIENTE", "cliente"],
-              ["DIRECCIÓN", "direccion"],
-              ["CONTACTO", "contacto"],
-              ["TELÉFONO", "telefono"],
-              ["CORREO", "correo"],
-              ["TÉCNICO RESPONSABLE", "tecnicoNombre"],
-              ["TELÉFONO TÉCNICO", "tecnicoTelefono"],
-              ["CORREO TÉCNICO", "tecnicoCorreo"],
-              ["FECHA DE SERVICIO", "fechaServicio"],
-            ].map(([label, key]) => (
-              <tr key={key}>
-                <td className="pdf-label">{label}</td>
-                <td>
-                  <input
-                    className="pdf-input"
-                    value={data[key]}
-                    onChange={(e) => update([key], e.target.value)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
 
         {/* ACTIVIDADES */}
         <h3 className="font-bold text-sm">ACTIVIDADES REALIZADAS</h3>
@@ -249,15 +210,15 @@ export default function NuevoInforme() {
                 </td>
                 <td className="text-center">
                   <input
-  type="file"
-  accept="image/*"
-  capture="environment"
-  onChange={(e) =>
-    fileToBase64(e.target.files[0], (b64) =>
-      update(["actividades", i, "imagen"], b64)
-    )
-  }
-/>
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) =>
+                      fileToBase64(e.target.files[0], (b64) =>
+                        update(["actividades", i, "imagen"], b64)
+                      )
+                    }
+                  />
                   {a.imagen && (
                     <img
                       src={a.imagen}
@@ -288,7 +249,9 @@ export default function NuevoInforme() {
           + Agregar actividad
         </button>
 
-        {/* CONCLUSIONES Y RECOMENDACIONES */}
+        {/* CONCLUSIONES */}
+        <h3 className="font-bold text-sm">CONCLUSIONES Y RECOMENDACIONES</h3>
+
         <table className="pdf-table">
           <thead>
             <tr>
@@ -299,7 +262,7 @@ export default function NuevoInforme() {
           <tbody>
             {data.conclusiones.map((_, i) => (
               <tr key={i}>
-                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
+                <td>{i + 1}</td>
                 <td>
                   <textarea
                     className="pdf-textarea"
@@ -309,7 +272,7 @@ export default function NuevoInforme() {
                     }
                   />
                 </td>
-                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
+                <td>{i + 1}</td>
                 <td>
                   <textarea
                     className="pdf-textarea"
@@ -318,44 +281,28 @@ export default function NuevoInforme() {
                       update(["recomendaciones", i], e.target.value)
                     }
                   />
+                  {data.conclusiones.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeConclusionRow(i)}
+                      className="text-red-600 text-xs"
+                    >
+                      Eliminar
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        {/* DESCRIPCIÓN DEL EQUIPO */}
-        <h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
-
-        <table className="pdf-table">
-          <tbody>
-            {[
-              ["NOTA", "nota"],
-              ["MARCA", "marca"],
-              ["MODELO", "modelo"],
-              ["N° SERIE", "serie"],
-              ["AÑO MODELO", "anio"],
-              ["VIN / CHASIS", "vin"],
-              ["PLACA", "placa"],
-              ["HORAS MÓDULO", "horasModulo"],
-              ["HORAS CHASIS", "horasChasis"],
-              ["KILOMETRAJE", "kilometraje"],
-            ].map(([label, key]) => (
-              <tr key={key}>
-                <td className="pdf-label">{label}</td>
-                <td>
-                  <input
-                    className="pdf-input"
-                    value={data.equipo[key]}
-                    onChange={(e) =>
-                      update(["equipo", key], e.target.value)
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <button
+          type="button"
+          onClick={addConclusionRow}
+          className="border px-3 py-1 text-xs rounded"
+        >
+          + Agregar conclusión / recomendación
+        </button>
 
         {/* FIRMAS */}
         <table className="pdf-table">
@@ -367,20 +314,20 @@ export default function NuevoInforme() {
           </thead>
           <tbody>
             <tr>
-              <td style={{ height: 160, padding: 0 }}>
+              <td style={{ height: 160 }}>
                 <SignatureCanvas
                   ref={sigTecnico}
                   onBegin={disableScroll}
                   onEnd={enableScroll}
-                  canvasProps={{ className: "w-full h-full block" }}
+                  canvasProps={{ className: "w-full h-full" }}
                 />
               </td>
-              <td style={{ height: 160, padding: 0 }}>
+              <td style={{ height: 160 }}>
                 <SignatureCanvas
                   ref={sigCliente}
                   onBegin={disableScroll}
                   onEnd={enableScroll}
-                  canvasProps={{ className: "w-full h-full block" }}
+                  canvasProps={{ className: "w-full h-full" }}
                 />
               </td>
             </tr>
@@ -396,7 +343,6 @@ export default function NuevoInforme() {
           >
             Volver
           </button>
-
           <button
             type="button"
             onClick={saveReport}
