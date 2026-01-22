@@ -53,6 +53,17 @@ export default function NuevoInforme() {
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
+  /* ===========================
+   CONTROL DE SCROLL AL FIRMAR
+=========================== */
+const disableScroll = () => {
+  document.body.style.overflow = "hidden";
+};
+
+const enableScroll = () => {
+  document.body.style.overflow = "";
+};
+
 
   /* ===========================
      CARGAR BORRADOR
