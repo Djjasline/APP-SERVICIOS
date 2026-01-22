@@ -48,6 +48,7 @@ const loadImageAsBase64 = (src) =>
    FUNCIÓN PRINCIPAL
 ====================================================== */
 export const generateReportPdf = async (inspectionData) => {
+  console.log("PDF inspectionData:", inspectionData);
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
   const marginLeft = 14;
