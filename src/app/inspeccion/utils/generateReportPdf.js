@@ -1,3 +1,4 @@
+alert("🔥 PDF INSPECCIÓN EJECUTADO");
 console.log("🔥 generateReportPdf INSPECCION CARGADO");
 import jsPDF from "jspdf";
 import "jspdf-autotable";
