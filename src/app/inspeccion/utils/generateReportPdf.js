@@ -139,31 +139,30 @@ export const generateReportPdf = async (inspectionData) => {
     }
   }
 /* ================= CHECKLIST ================= */
-const items = inspectionData.items || {};
-const itemEntries = Object.entries(items);
+Object.entries(inspectionData.inspeccion || {}).forEach(
+  ([titulo, lista]) => {
+    pdf.setFillColor(...COLORS.headerBg);
+    pdf.setTextColor(...COLORS.headerText);
+    pdf.rect(marginLeft, cursorY, pageWidth - 28, 7, "F");
+    pdf.text(titulo.toUpperCase(), marginLeft + 2, cursorY + 5);
+    pdf.setTextColor(0, 0, 0);
 
-if (itemEntries.length > 0) {
-  pdf.setFillColor(...COLORS.headerBg);
-  pdf.setTextColor(...COLORS.headerText);
-  pdf.rect(marginLeft, cursorY, pageWidth - 28, 7, "F");
-  pdf.text("CHECKLIST DE INSPECCIÓN", marginLeft + 2, cursorY + 5);
-  pdf.setTextColor(0, 0, 0);
+    cursorY += 8;
 
-  cursorY += 8;
+    pdf.autoTable({
+      startY: cursorY,
+      theme: "grid",
+      styles: { fontSize: 8 },
+      head: [["Ítem", "Detalle", "Estado", "Observación"]],
+      body: lista.map((it) => [
+        it.codigo,
+        it.detalle,
+        it.estado || "",
+        it.observacion || "",
+      ]),
+    });
 
-  pdf.autoTable({
-    startY: cursorY,
-    theme: "grid",
-    styles: { fontSize: 8 },
-    head: [["Ítem", "Estado", "Observación"]],
-    body: itemEntries.map(([codigo, data]) => [
-      codigo,
-      data.estado || "",
-      data.observacion || "",
-    ]),
-  });
-
-  cursorY = pdf.lastAutoTable.finalY + 6;
+    cursorY = pdf.lastAutoTable.finalY + 6;
   }
 );
 
