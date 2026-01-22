@@ -368,13 +368,12 @@ export default function NuevoInforme() {
                <SignatureCanvas
   ref={sigTecnico}
   penColor="black"
-  minWidth={0.6}
-  maxWidth={1.2}
-  throttle={8}
+  minWidth={0.8}
+  maxWidth={1.4}
+  throttle={4}
+  velocityFilterWeight={0.7}               
   canvasProps={{
-    width: 800,
-    height: 300,
-    className: "w-full h-full block",
+        className: "w-full h-full block",
   }}
 />
 
@@ -383,13 +382,12 @@ export default function NuevoInforme() {
                 <SignatureCanvas
   ref={sigCliente}
   penColor="black"
-  minWidth={0.6}
-  maxWidth={1.2}
-  throttle={8}
+  minWidth={0.8}
+  maxWidth={1.4}
+  throttle={4}
+  velocityFilterWeight={0.7}                
   canvasProps={{
-    width: 800,
-    height: 300,
-    className: "w-full h-full block",
+        className: "w-full h-full block",
   }}
 />
 
