@@ -365,16 +365,34 @@ export default function NuevoInforme() {
           <tbody>
             <tr>
               <td style={{ height: 160, padding: 0 }}>
-                <SignatureCanvas
-                  ref={sigTecnico}
-                  canvasProps={{ className: "w-full h-full block" }}
-                />
+               <SignatureCanvas
+  ref={sigTecnico}
+  penColor="black"
+  minWidth={0.6}
+  maxWidth={1.2}
+  throttle={8}
+  canvasProps={{
+    width: 800,
+    height: 300,
+    className: "w-full h-full block",
+  }}
+/>
+
               </td>
               <td style={{ height: 160, padding: 0 }}>
                 <SignatureCanvas
-                  ref={sigCliente}
-                  canvasProps={{ className: "w-full h-full block" }}
-                />
+  ref={sigCliente}
+  penColor="black"
+  minWidth={0.6}
+  maxWidth={1.2}
+  throttle={8}
+  canvasProps={{
+    width: 800,
+    height: 300,
+    className: "w-full h-full block",
+  }}
+/>
+
               </td>
             </tr>
           </tbody>
