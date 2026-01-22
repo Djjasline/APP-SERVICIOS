@@ -1,22 +1,46 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getInspections } from "@/utils/inspectionStorage";
-import { generateReportPdf } from "./utils/generateReportPdf";
+import { generateReportPdf } from "@/utils/generateReportPdf";
 
 export default function HistorialInspecciones() {
   const navigate = useNavigate();
   const [inspecciones, setInspecciones] = useState([]);
 
-  useEffect(() => {
+  /* =============================
+     CARGAR / RECARGAR HISTORIAL
+  ============================== */
+  const loadData = () => {
     const data = getInspections("hidro");
-    setInspecciones(data);
+
+    // Ordenar por última actualización (más reciente arriba)
+    const ordered = [...data].sort((a, b) => {
+      const dateA = new Date(a.updatedAt || a.fecha).getTime();
+      const dateB = new Date(b.updatedAt || b.fecha).getTime();
+      return dateB - dateA;
+    });
+
+    setInspecciones(ordered);
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
+  /* =============================
+     ACCIONES
+  ============================== */
+  const handleOpen = (id) => {
+    navigate(`/inspeccion/hidro/${id}`);
+  };
+
   const handleGeneratePdf = (item) => {
-    // Fuente única de verdad: lo que se guardó
     generateReportPdf(item.data);
   };
 
+  /* =============================
+     RENDER
+  ============================== */
   return (
     <div className="max-w-6xl mx-auto my-6 bg-white shadow-lg rounded-2xl p-6 space-y-4">
       <h1 className="text-lg font-bold">
@@ -32,7 +56,9 @@ export default function HistorialInspecciones() {
           <table className="w-full border border-gray-300 border-collapse text-xs md:text-sm">
             <thead>
               <tr className="bg-gray-100">
-                <th className="border px-3 py-2 text-left">Fecha</th>
+                <th className="border px-3 py-2 text-left">
+                  Última actualización
+                </th>
                 <th className="border px-3 py-2 text-left">Estado</th>
                 <th className="border px-3 py-2 text-center">Acciones</th>
               </tr>
@@ -40,35 +66,34 @@ export default function HistorialInspecciones() {
             <tbody>
               {inspecciones.map((item) => (
                 <tr key={item.id}>
+                  {/* FECHA */}
                   <td className="border px-3 py-2">
-                    {new Date(item.createdAt).toLocaleString()}
+                    {new Date(item.updatedAt || item.fecha).toLocaleString()}
                   </td>
 
+                  {/* ESTADO */}
                   <td className="border px-3 py-2">
                     <span
                       className={`px-2 py-1 rounded text-xs font-semibold ${
-                        item.status === "completado"
+                        item.estado === "completada"
                           ? "bg-green-100 text-green-700"
                           : "bg-yellow-100 text-yellow-700"
                       }`}
                     >
-                      {item.status}
+                      {item.estado}
                     </span>
                   </td>
 
+                  {/* ACCIONES */}
                   <td className="border px-3 py-2 text-center space-x-2">
-                    {/* SIEMPRE SE PUEDE ABRIR */}
                     <button
-                      onClick={() =>
-                        navigate(`/inspeccion/hidro/${item.id}`)
-                      }
+                      onClick={() => handleOpen(item.id)}
                       className="px-3 py-1 rounded bg-blue-600 text-white text-xs"
                     >
                       Abrir
                     </button>
 
-                    {/* PDF SOLO SI ESTÁ COMPLETADO */}
-                    {item.status === "completado" && (
+                    {item.estado === "completada" && (
                       <button
                         onClick={() => handleGeneratePdf(item)}
                         className="px-3 py-1 rounded bg-gray-700 text-white text-xs"
