@@ -149,7 +149,7 @@ if (Object.keys(items).length > 0) {
   pdf.setTextColor(...COLORS.headerText);
   pdf.rect(marginLeft, cursorY, pageWidth - 28, 7, "F");
   pdf.text(
-    "PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS",
+    "PRUEBAS DE ENCENDIDO Y EVALUACIÓN DE SISTEMAS",
     marginLeft + 2,
     cursorY + 5
   );
@@ -164,7 +164,7 @@ if (Object.keys(items).length > 0) {
     head: [["Ítem", "Estado", "Observación"]],
     body: Object.entries(items).map(([codigo, data]) => [
       codigo,
-      data.estado || "",
+      data.estado === "SI" ? "SI" : data.estado === "NO" ? "NO" : "",
       data.observacion || "",
     ]),
   });
