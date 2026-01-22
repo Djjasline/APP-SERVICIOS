@@ -34,8 +34,12 @@ export default function HistorialInspecciones() {
   };
 
   const handleGeneratePdf = (item) => {
-    generateInspectionPdf(item.data);
-  };
+  generateInspectionPdf({
+    ...item.data,
+    items: item.items || {}
+  });
+};
+
 
   /* =============================
      RENDER
