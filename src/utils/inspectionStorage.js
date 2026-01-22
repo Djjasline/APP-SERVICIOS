@@ -68,6 +68,7 @@ export function saveInspectionDraft(type, id, data) {
     if (all[i].type === type && String(all[i].id) === String(id)) {
       all[i].data = data;
       all[i].estado = "borrador";
+      all[i].updatedAt = new Date().toISOString(); // 🟢 NUEVO 
       found = true;
       break;
     }
@@ -79,6 +80,7 @@ export function saveInspectionDraft(type, id, data) {
       type: type,
       estado: "borrador",
       fecha: new Date().toISOString(),
+      updatedAt: new Date().toISOString(), 
       data: data,
     });
   }
@@ -94,6 +96,7 @@ export function markInspectionCompleted(type, id, data) {
     if (all[i].type === type && String(all[i].id) === String(id)) {
       all[i].data = data;
       all[i].estado = "completada";
+      all[i].updatedAt = new Date().toISOString(); 
       found = true;
       break;
     }
@@ -105,6 +108,7 @@ export function markInspectionCompleted(type, id, data) {
       type: type,
       estado: "completada",
       fecha: new Date().toISOString(),
+      updatedAt: new Date().toISOString(), 
       data: data,
     });
   }
