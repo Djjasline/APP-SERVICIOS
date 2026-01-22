@@ -39,7 +39,7 @@ export default function InformePDF() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="pdf-container max-w-6xl mx-auto">
 
-       {/* ================= ENCABEZADO ================= */}
+{/* ================= ENCABEZADO ================= */}
 <table className="pdf-table">
   <tbody>
     <tr>
@@ -80,6 +80,7 @@ export default function InformePDF() {
     </tr>
   </tbody>
 </table>
+
 
         {/* ================= DATOS CLIENTE ================= */}
         <table className="pdf-table mt-4">
