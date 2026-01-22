@@ -1,5 +1,3 @@
-alert("🔥 PDF INSPECCIÓN EJECUTADO");
-console.log("🔥 generateReportPdf INSPECCION CARGADO");
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
@@ -10,10 +8,8 @@ const ASTAP_LOGO = "/astap-logo.jpg";
 const ESTADO_IMAGEN = {
   hidro: "/estado-equipo.png",
   mantenimiento_hidro: "/estado-equipo.png",
-
   barredora: "/estado equipo barredora.png",
   mantenimiento_barredora: "/estado equipo barredora.png",
-
   camara: "/estado equipo camara.png",
 };
 
@@ -36,10 +32,8 @@ const loadImageAsBase64 = (src) =>
       const canvas = document.createElement("canvas");
       canvas.width = img.width;
       canvas.height = img.height;
-
       const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0);
-
       resolve(canvas.toDataURL("image/png"));
     };
 
@@ -47,10 +41,11 @@ const loadImageAsBase64 = (src) =>
   });
 
 /* ======================================================
-   FUNCIÓN PRINCIPAL
+   FUNCIÓN PRINCIPAL PDF INSPECCIÓN
 ====================================================== */
 export const generateInspectionPdf = async (inspectionData) => {
-  console.log("PDF inspectionData:", inspectionData);
+  console.log("📄 PDF inspectionData:", inspectionData);
+
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
   const marginLeft = 14;
@@ -61,12 +56,9 @@ export const generateInspectionPdf = async (inspectionData) => {
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(11);
-  pdf.text(
-    "HOJA DE INSPECCIÓN",
-    pageWidth / 2,
-    cursorY + 10,
-    { align: "center" }
-  );
+  pdf.text("HOJA DE INSPECCIÓN", pageWidth / 2, cursorY + 10, {
+    align: "center",
+  });
 
   cursorY += 22;
 
@@ -75,10 +67,10 @@ export const generateInspectionPdf = async (inspectionData) => {
     theme: "grid",
     styles: { fontSize: 8 },
     body: [
-      ["Cliente", inspectionData.cliente?.nombre || ""],
-      ["Dirección", inspectionData.cliente?.direccion || ""],
-      ["Contacto", inspectionData.cliente?.contacto || ""],
-      ["Fecha servicio", inspectionData.fechaServicio || ""],
+      ["Cliente", inspectionData.client || inspectionData.cliente || ""],
+      ["Dirección", inspectionData.address || ""],
+      ["Contacto", inspectionData.clientContact || ""],
+      ["Fecha servicio", inspectionData.serviceDate || inspectionData.fechaServicio || ""],
     ],
   });
 
@@ -90,7 +82,6 @@ export const generateInspectionPdf = async (inspectionData) => {
   const puntos = inspectionData.estadoEquipoPuntos || [];
 
   if (imgSrc) {
-    // Título
     pdf.setFillColor(...COLORS.headerBg);
     pdf.setTextColor(...COLORS.headerText);
     pdf.rect(marginLeft, cursorY, pageWidth - 28, 7, "F");
@@ -99,7 +90,6 @@ export const generateInspectionPdf = async (inspectionData) => {
 
     cursorY += 10;
 
-    // 🔑 Imagen base64 (CLAVE)
     const base64Img = await loadImageAsBase64(imgSrc);
 
     const imgWidth = pageWidth - 40;
@@ -109,7 +99,6 @@ export const generateInspectionPdf = async (inspectionData) => {
 
     pdf.addImage(base64Img, "PNG", imgX, imgY, imgWidth, imgHeight);
 
-    // 🔴 PUNTOS ROJOS
     puntos.forEach((pt, idx) => {
       const x = imgX + (pt.x / 100) * imgWidth;
       const y = imgY + (pt.y / 100) * imgHeight;
@@ -125,52 +114,49 @@ export const generateInspectionPdf = async (inspectionData) => {
 
     cursorY += imgHeight + 6;
 
-    // 📝 OBSERVACIONES DE CADA PUNTO
     if (puntos.length > 0) {
       pdf.autoTable({
         startY: cursorY,
         theme: "grid",
         styles: { fontSize: 8 },
         head: [["#", "Observación"]],
-        body: puntos.map((pt, idx) => [
-          idx + 1,
-          pt.nota || "",
-        ]),
+        body: puntos.map((pt, idx) => [idx + 1, pt.nota || ""]),
       });
 
       cursorY = pdf.lastAutoTable.finalY + 6;
     }
   }
-/* ================= CHECKLIST ================= */
-const items = inspectionData.items || {};
 
-if (Object.keys(items).length > 0) {
-  pdf.setFillColor(...COLORS.headerBg);
-  pdf.setTextColor(...COLORS.headerText);
-  pdf.rect(marginLeft, cursorY, pageWidth - 28, 7, "F");
-  pdf.text(
-    "PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS",
-    marginLeft + 2,
-    cursorY + 5
-  );
-  pdf.setTextColor(0, 0, 0);
+  /* ================= CHECKLIST (SI / NO) ================= */
+  const items = inspectionData.items || {};
 
-  cursorY += 8;
+  if (Object.keys(items).length > 0) {
+    pdf.setFillColor(...COLORS.headerBg);
+    pdf.setTextColor(...COLORS.headerText);
+    pdf.rect(marginLeft, cursorY, pageWidth - 28, 7, "F");
+    pdf.text(
+      "PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS",
+      marginLeft + 2,
+      cursorY + 5
+    );
+    pdf.setTextColor(0, 0, 0);
 
-  pdf.autoTable({
-    startY: cursorY,
-    theme: "grid",
-    styles: { fontSize: 8 },
-    head: [["Ítem", "Estado", "Observación"]],
-    body: Object.entries(items).map(([codigo, data]) => [
-      codigo,
-      data.estado || "",
-      data.observacion || "",
-    ]),
-  });
+    cursorY += 8;
 
-  cursorY = pdf.lastAutoTable.finalY + 6;
-}
+    pdf.autoTable({
+      startY: cursorY,
+      theme: "grid",
+      styles: { fontSize: 8 },
+      head: [["Ítem", "Estado", "Observación"]],
+      body: Object.entries(items).map(([codigo, data]) => [
+        codigo,
+        data.estado || "",
+        data.observacion || "",
+      ]),
+    });
+
+    cursorY = pdf.lastAutoTable.finalY + 6;
+  }
 
   /* ================= FIRMAS ================= */
   const boxWidth = 70;
@@ -213,8 +199,6 @@ if (Object.keys(items).length > 0) {
 
   /* ================= GUARDAR ================= */
   pdf.save(
-    `ASTAP_${inspectionData.tipoFormulario || "INSPECCION"}_${
-      inspectionData.id || Date.now()
-    }.pdf`
+    `ASTAP_INSPECCION_${inspectionData.id || Date.now()}.pdf`
   );
 };
