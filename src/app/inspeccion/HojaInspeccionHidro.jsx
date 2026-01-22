@@ -220,8 +220,11 @@ useEffect(() => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const now = new Date().toISOString(); // 👈 NUEVO
+    
     markInspectionCompleted("hidro", id, {
       ...formData,
+     updatedAt: now, // 👈 NUEVO 
       firmas: {
         tecnico: firmaTecnicoRef.current?.toDataURL() || "",
         cliente: firmaClienteRef.current?.toDataURL() || "",
