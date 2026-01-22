@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getInspections } from "@/utils/inspectionStorage";
-import { generateReportPdf } from "@/app/inspeccion/utils/generateReportPdf";
-
+import { generateReportPdf as generateInspectionPdf } 
+from "@/app/inspeccion/utils/generateReportPdf";
 export default function HistorialInspecciones() {
   const navigate = useNavigate();
   const [inspecciones, setInspecciones] = useState([]);
@@ -35,7 +35,7 @@ export default function HistorialInspecciones() {
   };
 
   const handleGeneratePdf = (item) => {
-    generateReportPdf(item.data);
+    generateInspectionPdf(item.data);
   };
 
   /* =============================
