@@ -4,9 +4,6 @@ import { useNavigate } from "react-router-dom";
 // STORAGE
 import { getAllInspections } from "@/app/inspeccion/utils/reportStorage";
 
-// PDF REAL
-import { generateInspectionPdf } from "@/app/inspeccion/utils/generateInspectionPdf";
-
 export default function IndexInspeccion() {
   const navigate = useNavigate();
   const [inspections, setInspections] = useState([]);
