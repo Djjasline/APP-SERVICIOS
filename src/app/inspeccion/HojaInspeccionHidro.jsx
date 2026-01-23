@@ -237,9 +237,17 @@ useEffect(() => {
 
   return (
     <form
-      onSubmit={handleSubmit}
-      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
-    >
+  onSubmit={handleSubmit}
+  className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
+>
+  <div id="pdf-inspeccion-hidro">
+
+    {/* TODO TU FORMULARIO COMPLETO */}
+    {/* NO BORRAR NADA */}
+    {/* NO MOVER NADA */}
+
+  </div>
+
 
       {/* ================= ENCABEZADO ================= */}
       <section className="border rounded overflow-hidden">
