@@ -113,7 +113,10 @@ export const generateInspectionPdf = async (inspectionData) => {
   }
 
   /* ================= CHECKLIST (EL PROBLEMA) ================= */
-  const items = data.items || {};
+  const items =
+  data.items ||
+  data.formData?.items ||
+  {};
 
   if (Object.keys(items).length > 0) {
     pdf.setFillColor(...COLORS.headerBg);
