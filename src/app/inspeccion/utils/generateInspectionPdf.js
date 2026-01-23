@@ -12,14 +12,19 @@ import {
 const LOGO_ASTAP = "/astap-logo.jpg";
 const IMG_EQUIPO = "/equipo-hidro.png"; // misma imagen base del formulario
 
+// ======================================================
+// GENERADOR PDF – FORMATO COMPLETO (REGLA DE ORO)
+// ======================================================
 export function generateInspectionPdf(data = {}) {
+  console.log("PDF GENERATE DATA:", data);
+
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
   const marginLeft = 12;
   let y = 12;
 
   /* ======================================================
-     ENCABEZADO FIJO DEL FORMATO
+     ENCABEZADO FIJO
   ====================================================== */
   pdf.addImage(LOGO_ASTAP, "JPEG", marginLeft, y, 22, 14);
 
@@ -35,7 +40,7 @@ export function generateInspectionPdf(data = {}) {
   y += 18;
 
   /* ======================================================
-     DATOS GENERALES (SIEMPRE SE DIBUJAN)
+     DATOS GENERALES (SIEMPRE)
   ====================================================== */
   pdf.autoTable({
     startY: y,
@@ -87,9 +92,9 @@ export function generateInspectionPdf(data = {}) {
   y += imgH + 6;
 
   /* ======================================================
-     CHECKLIST COMPLETO (FORMATO MANDA)
+     CHECKLIST COMPLETO – FORMATO MANDA
   ====================================================== */
-  const items = data.items || {};
+  const respuestas = data.items || {};
 
   const renderChecklist = (titulo, schema) => {
     pdf.setFont("helvetica", "bold");
@@ -97,7 +102,7 @@ export function generateInspectionPdf(data = {}) {
     y += 2;
 
     const body = schema.map((i) => {
-      const val = items[i.codigo] || {};
+      const val = respuestas[i.codigo] || {};
       return [
         i.codigo,
         i.descripcion,
@@ -210,7 +215,12 @@ export function generateInspectionPdf(data = {}) {
   );
 
   /* ======================================================
-     GUARDAR
+     VISTA PREVIA + DESCARGA (OBLIGATORIO)
   ====================================================== */
-  pdf.save(`ASTAP_INSPECCION_HIDRO_${Date.now()}.pdf`);
+  const blobUrl = pdf.output("bloburl");
+  window.open(blobUrl, "_blank");
+
+  setTimeout(() => {
+    pdf.save(`ASTAP_INSPECCION_HIDRO_${Date.now()}.pdf`);
+  }, 500);
 }
