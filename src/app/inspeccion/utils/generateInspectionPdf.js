@@ -1,7 +1,6 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
-// IMPORTA TODO EL ESQUEMA (YA LO TIENES)
 import {
   preServicio,
   sistemaHidraulicoAceite,
@@ -10,67 +9,65 @@ import {
   sistemaSuccion,
 } from "../schemas/InspeccionHidroSchema";
 
-/**
- * GENERADOR PDF INSPECCIÓN HIDRO
- * REGLA DE ORO:
- * - Todo el formulario SIEMPRE aparece
- * - Lleno o vacío
- * - Sin imágenes (por ahora)
- */
-export function generateInspectionPdf(data = {}) {
-  console.log("PDF GENERATE DATA:", data);
+import ASTAP_LOGO from "/astap-logo.jpg";
+
+export default function generateInspectionPdf(formData, preview = true) {
+  console.log("PDF GENERATE DATA:", formData);
 
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
-  let y = 14;
+  const margin = 14;
+  let y = 15;
 
-  /* ======================================================
-     TÍTULO
-  ====================================================== */
+  /* ================= ENCABEZADO ================= */
+  try {
+    pdf.addImage(ASTAP_LOGO, "JPEG", margin, y, 30, 15);
+  } catch (e) {
+    console.warn("Logo no cargado:", e);
+  }
+
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(12);
-  pdf.text("HOJA DE INSPECCIÓN HIDROSUCCIONADOR", pageWidth / 2, y, {
-    align: "center",
-  });
+  pdf.text(
+    "HOJA DE INSPECCIÓN HIDROSUCCIONADOR",
+    pageWidth / 2,
+    y + 10,
+    { align: "center" }
+  );
 
-  y += 8;
+  y += 22;
 
-  /* ======================================================
-     DATOS GENERALES
-  ====================================================== */
+  /* ================= DATOS GENERALES ================= */
   pdf.autoTable({
     startY: y,
     theme: "grid",
     styles: { fontSize: 8 },
     body: [
-      ["Referencia contrato", data.referenciaContrato || ""],
-      ["Descripción", data.descripcion || ""],
-      ["Código interno", data.codInf || ""],
-      ["Cliente", data.cliente || ""],
-      ["Dirección", data.direccion || ""],
-      ["Fecha servicio", data.fechaServicio || ""],
+      ["Referencia contrato", formData.referenciaContrato || ""],
+      ["Descripción", formData.descripcion || ""],
+      ["Código interno", formData.codInf || ""],
+      ["Cliente", formData.cliente || ""],
+      ["Dirección", formData.direccion || ""],
+      ["Fecha servicio", formData.fechaServicio || ""],
     ],
   });
 
   y = pdf.lastAutoTable.finalY + 6;
 
-  /* ======================================================
-     FUNCIÓN PARA TABLAS DE CHECKLIST
-  ====================================================== */
-  const renderChecklist = (titulo, esquema, valores = {}) => {
+  /* ================= FUNCIÓN CHECKLIST ================= */
+  const renderChecklist = (titulo, schema) => {
     pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(10);
-    pdf.text(titulo, 14, y);
+    pdf.text(titulo, margin, y);
     y += 3;
 
-    const rows = esquema.map((item) => {
-      const v = valores[item.codigo] || {};
+    const rows = schema.map((item) => {
+      const saved = formData.items?.[item.codigo] || {};
       return [
         item.codigo,
         item.descripcion,
-        v.estado === "SI" ? "✔" : "",
-        v.estado === "NO" ? "✔" : "",
-        v.observacion || "",
+        saved.estado === "SI" ? "✔" : "",
+        saved.estado === "NO" ? "✔" : "",
+        saved.observacion || "",
       ];
     });
 
@@ -85,44 +82,16 @@ export function generateInspectionPdf(data = {}) {
     y = pdf.lastAutoTable.finalY + 6;
   };
 
-  /* ======================================================
-     CHECKLIST COMPLETO (TODAS LAS SECCIONES)
-  ====================================================== */
-  renderChecklist(
-    "1. PRUEBAS PREVIAS AL SERVICIO",
-    preServicio,
-    data.items
-  );
+  /* ================= SECCIONES ================= */
+  renderChecklist("1. PRUEBAS PREVIAS AL SERVICIO", preServicio);
+  renderChecklist("A. SISTEMA HIDRÁULICO (ACEITES)", sistemaHidraulicoAceite);
+  renderChecklist("B. SISTEMA HIDRÁULICO (AGUA)", sistemaHidraulicoAgua);
+  renderChecklist("C. SISTEMA ELÉCTRICO / ELECTRÓNICO", sistemaElectrico);
+  renderChecklist("D. SISTEMA DE SUCCIÓN", sistemaSuccion);
 
-  renderChecklist(
-    "A. SISTEMA HIDRÁULICO (ACEITES)",
-    sistemaHidraulicoAceite,
-    data.items
-  );
-
-  renderChecklist(
-    "B. SISTEMA HIDRÁULICO (AGUA)",
-    sistemaHidraulicoAgua,
-    data.items
-  );
-
-  renderChecklist(
-    "C. SISTEMA ELÉCTRICO / ELECTRÓNICO",
-    sistemaElectrico,
-    data.items
-  );
-
-  renderChecklist(
-    "D. SISTEMA DE SUCCIÓN",
-    sistemaSuccion,
-    data.items
-  );
-
-  /* ======================================================
-     DESCRIPCIÓN DEL EQUIPO
-  ====================================================== */
+  /* ================= DESCRIPCIÓN DEL EQUIPO ================= */
   pdf.setFont("helvetica", "bold");
-  pdf.text("DESCRIPCIÓN DEL EQUIPO", 14, y);
+  pdf.text("DESCRIPCIÓN DEL EQUIPO", margin, y);
   y += 4;
 
   pdf.autoTable({
@@ -130,35 +99,55 @@ export function generateInspectionPdf(data = {}) {
     theme: "grid",
     styles: { fontSize: 8 },
     body: [
-      ["Marca", data.marca || ""],
-      ["Modelo", data.modelo || ""],
-      ["Serie", data.serie || ""],
-      ["Año modelo", data.anioModelo || ""],
-      ["VIN / Chasis", data.vin || ""],
-      ["Placa", data.placa || ""],
-      ["Horas módulo", data.horasModulo || ""],
-      ["Horas chasis", data.horasChasis || ""],
-      ["Kilometraje", data.kilometraje || ""],
-      ["Nota", data.nota || ""],
+      ["Marca", formData.marca || ""],
+      ["Modelo", formData.modelo || ""],
+      ["Serie", formData.serie || ""],
+      ["Año modelo", formData.anioModelo || ""],
+      ["VIN / Chasis", formData.vin || ""],
+      ["Placa", formData.placa || ""],
+      ["Horas módulo", formData.horasModulo || ""],
+      ["Horas chasis", formData.horasChasis || ""],
+      ["Kilometraje", formData.kilometraje || ""],
+      ["Nota", formData.nota || ""],
     ],
   });
 
-  y = pdf.lastAutoTable.finalY + 8;
+  y = pdf.lastAutoTable.finalY + 10;
 
-  /* ======================================================
-     FIRMAS (CAJAS VACÍAS)
-  ====================================================== */
-  pdf.setFont("helvetica", "bold");
-  pdf.text("Firma técnico ASTAP", 35, y);
-  pdf.text("Firma cliente", pageWidth - 60, y);
+  /* ================= FIRMAS ================= */
+  const boxW = 70;
+  const boxH = 28;
 
-  y += 2;
+  if (formData.firmas?.tecnico?.startsWith("data:image")) {
+    pdf.addImage(formData.firmas.tecnico, "PNG", margin, y, boxW, boxH);
+  }
 
-  pdf.rect(20, y, 70, 30);
-  pdf.rect(pageWidth - 90, y, 70, 30);
+  if (formData.firmas?.cliente?.startsWith("data:image")) {
+    pdf.addImage(
+      formData.firmas.cliente,
+      "PNG",
+      margin + boxW + 20,
+      y,
+      boxW,
+      boxH
+    );
+  }
 
-  /* ======================================================
-     GUARDAR
-  ====================================================== */
-  pdf.save(`ASTAP_INSPECCION_HIDRO_${Date.now()}.pdf`);
+  pdf.text("Firma técnico ASTAP", margin + boxW / 2, y + boxH + 5, {
+    align: "center",
+  });
+  pdf.text(
+    "Firma cliente",
+    margin + boxW + 20 + boxW / 2,
+    y + boxH + 5,
+    { align: "center" }
+  );
+
+  /* ================= PREVIEW / DOWNLOAD ================= */
+  if (preview) {
+    const url = pdf.output("bloburl");
+    window.open(url, "_blank");
+  } else {
+    pdf.save(`ASTAP_INSPECCION_HIDRO_${Date.now()}.pdf`);
+  }
 }
