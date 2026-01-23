@@ -50,55 +50,41 @@ export default function generateInspectionPdf(formData) {
   y = pdf.lastAutoTable.finalY + 6;
 
   /* =============================
-     CHECKLISTS
-  ============================== */
-  const secciones = [
-    {
-      titulo: "1. Pruebas de encendido",
-      data: formData.inspeccion?.preServicio,
-    },
-    {
-      titulo: "A. Sistema hidráulico (Aceite)",
-      data: formData.inspeccion?.sistemaHidraulicoAceite,
-    },
-    {
-      titulo: "B. Sistema hidráulico (Agua)",
-      data: formData.inspeccion?.sistemaHidraulicoAgua,
-    },
-    {
-      titulo: "C. Sistema eléctrico / electrónico",
-      data: formData.inspeccion?.sistemaElectrico,
-    },
-    {
-      titulo: "D. Sistema de succión",
-      data: formData.inspeccion?.sistemaSuccion,
-    },
-  ];
+   CHECKLISTS (FORMATO REAL)
+============================== */
+const secciones = [
+  { titulo: "1. Pruebas de encendido", key: "preServicio" },
+  { titulo: "A. Sistema hidráulico (Aceite)", key: "sistemaHidraulicoAceite" },
+  { titulo: "B. Sistema hidráulico (Agua)", key: "sistemaHidraulicoAgua" },
+  { titulo: "C. Sistema eléctrico / electrónico", key: "sistemaElectrico" },
+  { titulo: "D. Sistema de succión", key: "sistemaSuccion" },
+];
 
-  secciones.forEach((sec) => {
-    if (!Array.isArray(sec.data) || sec.data.length === 0) return;
+secciones.forEach(({ titulo, key }) => {
+  const lista = formData.inspeccion?.[key];
+  if (!Array.isArray(lista) || lista.length === 0) return;
 
-    pdf.setFont("helvetica", "bold");
-    pdf.text(sec.titulo, marginLeft, y);
-    y += 4;
+  pdf.setFont("helvetica", "bold");
+  pdf.text(titulo, marginLeft, y);
+  y += 4;
 
-    const rows = sec.data.map((item, index) => [
-      index + 1,
-      item.label || item.nombre || "Ítem",
-      item.estado || "",
-      item.observacion || "",
-    ]);
+  const rows = lista.map((item, index) => [
+    index + 1,
+    item.nombre || item.label || item.descripcion || "Ítem",
+    item.valor || item.estado || item.checked ? "OK" : "NO OK",
+    item.observacion || "",
+  ]);
 
-    pdf.autoTable({
-      startY: y,
-      theme: "grid",
-      styles: { fontSize: 8 },
-      head: [["#", "Ítem", "Estado", "Observación"]],
-      body: rows,
-    });
-
-    y = pdf.lastAutoTable.finalY + 6;
+  pdf.autoTable({
+    startY: y,
+    theme: "grid",
+    styles: { fontSize: 8 },
+    head: [["#", "Ítem", "Resultado", "Observación"]],
+    body: rows,
   });
+
+  y = pdf.lastAutoTable.finalY + 6;
+});
 
   /* =============================
      OBSERVACIONES
