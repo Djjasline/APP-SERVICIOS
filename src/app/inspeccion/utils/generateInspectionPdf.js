@@ -1,5 +1,4 @@
-export function generateInspectionPdf(formData) {
-  alert("PDF FUNCTION EJECUTADA"); // 🔥 PRUEBA DEFINITIVA
+export default function generateInspectionPdf(data) { ... }
 
 import jsPDF from "jspdf";
 import "jspdf-autotable";
