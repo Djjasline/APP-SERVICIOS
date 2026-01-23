@@ -6,7 +6,8 @@ const ASTAP_LOGO = "/astap-logo.jpg";
 export const generateReportPdf = async (inspectionData) => {
   console.log("🔥 PDF EJECUTADO - DATA:", inspectionData);
 
-  const data = inspectionData.data || inspectionData; // 🔑 CLAVE
+  // 🔑 NORMALIZACIÓN CORRECTA (esto ya lo tenías bien)
+  const data = inspectionData.data || inspectionData;
 
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
@@ -39,12 +40,40 @@ export const generateReportPdf = async (inspectionData) => {
 
   y = pdf.lastAutoTable.finalY + 6;
 
-  /* ===== CHECKLIST (ESTE ERA EL PROBLEMA) ===== */
-  const items = data.items || {};
+  /* ===== CHECKLIST (FIX REAL) ===== */
 
-  console.log("✅ ITEMS PDF:", items);
+  // ❌ ANTES: variables cruzadas (checklist / items)
+  // ❌ ANTES: console.log de variable inexistente
+  // ✅ AHORA: lectura segura y coherente
 
-  if (Object.keys(items).length > 0) {
+  const checklist = data.items || data.checklist || {};
+  console.log("✅ CHECKLIST PDF:", checklist);
+
+  // Construimos filas de forma segura
+  const rows = [];
+
+  Object.entries(checklist).forEach(([key, value]) => {
+    // Caso 1: checklist plano
+    if (value?.estado !== undefined) {
+      rows.push([
+        key,
+        value.estado || "",
+        value.observacion || "",
+      ]);
+    }
+    // Caso 2: checklist por secciones
+    else if (typeof value === "object") {
+      Object.entries(value).forEach(([codigo, item]) => {
+        rows.push([
+          codigo,
+          item.estado || "",
+          item.observacion || "",
+        ]);
+      });
+    }
+  });
+
+  if (rows.length > 0) {
     pdf.setFont("helvetica", "bold");
     pdf.text("CHECKLIST DE INSPECCIÓN", marginLeft, y);
     y += 4;
@@ -54,11 +83,7 @@ export const generateReportPdf = async (inspectionData) => {
       theme: "grid",
       styles: { fontSize: 8 },
       head: [["Ítem", "Estado", "Observación"]],
-      body: Object.entries(items).map(([codigo, item]) => [
-        codigo,
-        item.estado || "",
-        item.observacion || "",
-      ]),
+      body: rows,
     });
 
     y = pdf.lastAutoTable.finalY + 6;
