@@ -19,7 +19,7 @@ export default function PdfInspeccionButtons() {
     }
 
     const options = {
-      margin: 5,
+      margin: [8, 8, 10, 8], // arriba, izquierda, abajo, derecha
       filename: "ASTAP_INSPECCION_HIDRO.pdf",
       image: {
         type: "jpeg",
@@ -34,6 +34,9 @@ export default function PdfInspeccionButtons() {
         unit: "mm",
         format: "a4",
         orientation: "portrait",
+      },
+      pagebreak: {
+        mode: ["css", "legacy"],
       },
     };
 
@@ -61,8 +64,10 @@ export default function PdfInspeccionButtons() {
         zIndex: 9999,
       }}
     >
+      {/* 👁 BOTÓN CLAVE PARA AUTO-PDF */}
       <button
         type="button"
+        data-pdf-preview="true"
         onClick={() => generatePdf(true)}
         style={{
           background: "#2563eb",
