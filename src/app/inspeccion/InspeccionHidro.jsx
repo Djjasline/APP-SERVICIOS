@@ -26,7 +26,7 @@ export default function InspeccionHidro() {
     save,
     finalize,
   } = useFormStorage("inspeccion_hidro", {
-    tipoFormulario: "hidro",          // 🔑 CLAVE PARA EL PDF
+    tipoFormulario: "hidro",
     cliente: {},
     equipo: {},
     inspeccion: {
@@ -36,7 +36,7 @@ export default function InspeccionHidro() {
       sistemaElectrico: [],
       sistemaSuccion: [],
     },
-    estadoEquipoPuntos: [],           // 🔑 CLAVE PARA EL PDF
+    estadoEquipoPuntos: [],
     observaciones: "",
     estadoEquipo: "",
     firmas: {},
@@ -48,9 +48,13 @@ export default function InspeccionHidro() {
     autoCapitalize: "sentences",
   };
 
+  /* =============================
+     FINALIZAR INSPECCIÓN (FIX)
+     PDF → luego finalize()
+  ============================== */
   const handleFinalize = async () => {
-    finalize();
-    generateInspectionPdf(data);
+    generateInspectionPdf(data); // ✅ primero PDF
+    finalize();                  // ✅ luego navegación / guardado
   };
 
   return (
@@ -61,6 +65,7 @@ export default function InspeccionHidro() {
       onSave={save}
       onFinalize={handleFinalize}
     >
+      {/* DATOS DEL CLIENTE */}
       <ClientDataSection
         data={data.cliente}
         onChange={(e) =>
@@ -74,6 +79,7 @@ export default function InspeccionHidro() {
         }
       />
 
+      {/* DATOS DEL EQUIPO */}
       <EquipmentDataSection
         data={data.equipo}
         onChange={(e) =>
@@ -87,7 +93,7 @@ export default function InspeccionHidro() {
         }
       />
 
-      {/* 🔴 ESTADO DEL EQUIPO (PUNTOS ROJOS) */}
+      {/* ESTADO DEL EQUIPO (PUNTOS) */}
       <EstadoEquipoSection
         puntos={data.estadoEquipoPuntos}
         onChange={(puntos) =>
@@ -98,6 +104,7 @@ export default function InspeccionHidro() {
         }
       />
 
+      {/* CHECKLISTS */}
       <ChecklistSection
         title="1. Pruebas de encendido"
         items={preServicio}
@@ -218,6 +225,7 @@ export default function InspeccionHidro() {
         </select>
       </section>
 
+      {/* FIRMAS */}
       <SignaturesSection
         data={data.firmas}
         onChange={(val) =>
