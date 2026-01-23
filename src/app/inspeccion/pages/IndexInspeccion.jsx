@@ -1,4 +1,4 @@
-import { generateInspectionPdf } from "@/app/inspeccion/utils/generateInspectionPdf";
+import generateInspectionPdf from "@/app/inspeccion/utils/generateInspectionPdf";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllInspections } from "@/utils/inspectionStorage";
