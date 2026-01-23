@@ -1,105 +1,59 @@
-import React, { useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
-
+import React from "react";
 import FormLayout from "@components/FormLayout";
 import useFormStorage from "@/hooks/useFormStorage";
 
-// Secciones
+/* SECCIONES */
 import ClientDataSection from "@components/common/ClientDataSection";
 import EquipmentDataSection from "@components/common/EquipmentDataSection";
-import SignaturesSection from "@components/common/SignaturesSection";
-import ChecklistSection from "@components/common/ChecklistSection";
 import EstadoEquipoSection from "@components/common/EstadoEquipoSection";
+import ChecklistSection from "@components/common/ChecklistSection";
+import SignaturesSection from "@components/common/SignaturesSection";
 
-// Schemas
+/* SCHEMA */
 import {
   preServicio,
   sistemaHidraulicoAceite,
   sistemaHidraulicoAgua,
   sistemaElectrico,
   sistemaSuccion,
-} from "./schemas/InspeccionHidroSchema";
+} from "./schemas/inspeccionHidroSchema";
 
-// Botones PDF
+/* ✅ BOTONES PDF */
 import PdfInspeccionButtons from "./components/PdfInspeccionButtons";
 
 export default function InspeccionHidro() {
-  const [params] = useSearchParams();
-  const autoPdfTriggered = useRef(false);
-
-  const {
-    data,
-    setData,
-    status,
-    save,
-    finalize,
-  } = useFormStorage("inspeccion_hidro", {
-    tipoFormulario: "hidro",
-
-    cliente: {},
-    equipo: {},
-
-    inspeccion: {
-      preServicio: [],
-      sistemaHidraulicoAceite: [],
-      sistemaHidraulicoAgua: [],
-      sistemaElectrico: [],
-      sistemaSuccion: [],
-    },
-
-    estadoEquipoPuntos: [],
-    observaciones: "",
-    estadoEquipo: "",
-    firmas: {},
-  });
-
-  const textProps = {
-    spellCheck: true,
-    autoCorrect: "on",
-    autoCapitalize: "sentences",
-  };
-
-  const handleFinalize = () => {
-    finalize();
-  };
-
-  /* ======================================================
-     AUTO PDF SI VIENE DESDE HISTORIAL (?pdf=1)
-     Abre automáticamente la vista previa
-  ====================================================== */
-  useEffect(() => {
-    if (
-      params.get("pdf") === "1" &&
-      status === "completado" &&
-      !autoPdfTriggered.current
-    ) {
-      autoPdfTriggered.current = true;
-
-      // Esperamos a que todo el DOM esté renderizado
-      setTimeout(() => {
-        const btn = document.querySelector(
-          '[data-pdf-preview="true"]'
-        );
-        btn?.click();
-      }, 700);
+  const { data, setData, status, save, finalize } = useFormStorage(
+    "inspeccion_hidro",
+    {
+      tipoFormulario: "hidro",
+      cliente: {},
+      equipo: {},
+      inspeccion: {
+        preServicio: [],
+        sistemaHidraulicoAceite: [],
+        sistemaHidraulicoAgua: [],
+        sistemaElectrico: [],
+        sistemaSuccion: [],
+      },
+      estadoEquipoPuntos: [],
+      observaciones: "",
+      estadoEquipo: "",
+      firmas: {},
     }
-  }, [params, status]);
+  );
 
   return (
     <>
-      {/* ======================================================
-          CONTENEDOR PDF (REGLA DE ORO)
-          TODO lo que esté aquí SALE en el PDF
-      ====================================================== */}
+      {/* 🔴 CONTENEDOR ÚNICO PARA EL PDF */}
       <div id="pdf-inspeccion-hidro">
+
         <FormLayout
           title="Inspección Hidrosuccionador"
           description="Hoja de inspección técnica del equipo hidrosuccionador"
           status={status}
           onSave={save}
-          onFinalize={handleFinalize}
+          onFinalize={finalize}
         >
-          {/* ================= CLIENTE ================= */}
           <ClientDataSection
             data={data.cliente}
             onChange={(e) =>
@@ -113,7 +67,6 @@ export default function InspeccionHidro() {
             }
           />
 
-          {/* ================= EQUIPO ================= */}
           <EquipmentDataSection
             data={data.equipo}
             onChange={(e) =>
@@ -127,7 +80,6 @@ export default function InspeccionHidro() {
             }
           />
 
-          {/* ============ ESTADO DEL EQUIPO (IMAGEN + PUNTOS) ============ */}
           <EstadoEquipoSection
             puntos={data.estadoEquipoPuntos}
             onChange={(puntos) =>
@@ -138,7 +90,6 @@ export default function InspeccionHidro() {
             }
           />
 
-          {/* ================= CHECKLISTS ================= */}
           <ChecklistSection
             title="1. Pruebas de encendido"
             items={preServicio}
@@ -214,52 +165,6 @@ export default function InspeccionHidro() {
             }
           />
 
-          {/* ================= OBSERVACIONES ================= */}
-          <section className="bg-white border rounded-xl p-6 space-y-2">
-            <h2 className="text-lg font-semibold">
-              Observaciones generales
-            </h2>
-            <textarea
-              {...textProps}
-              rows={3}
-              className="input resize-y"
-              value={data.observaciones}
-              onChange={(e) =>
-                setData((prev) => ({
-                  ...prev,
-                  observaciones: e.target.value,
-                }))
-              }
-            />
-          </section>
-
-          {/* ================= ESTADO FINAL ================= */}
-          <section className="bg-white border rounded-xl p-6 space-y-2">
-            <h2 className="text-lg font-semibold">
-              Estado final del equipo
-            </h2>
-            <select
-              className="input"
-              value={data.estadoEquipo}
-              onChange={(e) =>
-                setData((prev) => ({
-                  ...prev,
-                  estadoEquipo: e.target.value,
-                }))
-              }
-            >
-              <option value="">Seleccione</option>
-              <option value="operativo">Operativo</option>
-              <option value="operativo_observaciones">
-                Operativo con observaciones
-              </option>
-              <option value="no_operativo">
-                No operativo
-              </option>
-            </select>
-          </section>
-
-          {/* ================= FIRMAS ================= */}
           <SignaturesSection
             data={data.firmas}
             onChange={(val) =>
@@ -272,11 +177,8 @@ export default function InspeccionHidro() {
         </FormLayout>
       </div>
 
-      {/* ======================================================
-          BOTONES PDF
-          SOLO visibles cuando está COMPLETADO
-      ====================================================== */}
-      {status === "completado" && <PdfInspeccionButtons />}
+      {/* ✅ BOTONES SIEMPRE VISIBLES */}
+      <PdfInspeccionButtons />
     </>
   );
 }
