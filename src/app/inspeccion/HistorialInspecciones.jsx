@@ -34,7 +34,8 @@ export default function HistorialInspecciones() {
   };
 
   const handleGeneratePdf = (inspection) => {
-    // 🔑 SOLO EL FORMULARIO
+   console.log("🧪 INSPECTION COMPLETA:", inspection);
+  console.log("🧪 DATA PARA PDF:", inspection.data);
     generateInspectionPdf(inspection.data);
   };
 
