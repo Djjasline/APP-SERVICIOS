@@ -1,12 +1,15 @@
-export default function generateInspectionPdf(data) { ... }
-
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
 const ASTAP_LOGO = "/astap-logo.jpg";
 
-export function generateInspectionPdf(formData) {
+export default function generateInspectionPdf(formData) {
   console.log("📄 PDF DATA:", formData);
+
+  if (!formData) {
+    alert("No hay datos para generar el PDF");
+    return;
+  }
 
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
@@ -109,6 +112,7 @@ export function generateInspectionPdf(formData) {
   pdf.text("Firma técnico", marginLeft + boxW / 2, y + boxH + 5, {
     align: "center",
   });
+
   pdf.text(
     "Firma cliente",
     marginLeft + boxW + 10 + boxW / 2,
