@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import FormLayout from "@components/FormLayout";
@@ -11,7 +11,7 @@ import SignaturesSection from "@components/common/SignaturesSection";
 import ChecklistSection from "@components/common/ChecklistSection";
 import EstadoEquipoSection from "@components/common/EstadoEquipoSection";
 
-// Schema
+// Schemas
 import {
   preServicio,
   sistemaHidraulicoAceite,
@@ -20,11 +20,12 @@ import {
   sistemaSuccion,
 } from "./schemas/InspeccionHidroSchema";
 
-// Botones PDF (se agregan luego, no rompen nada)
+// Botones PDF
 import PdfInspeccionButtons from "./components/PdfInspeccionButtons";
 
 export default function InspeccionHidro() {
   const [params] = useSearchParams();
+  const autoPdfTriggered = useRef(false);
 
   const {
     data,
@@ -64,14 +65,25 @@ export default function InspeccionHidro() {
 
   /* ======================================================
      AUTO PDF SI VIENE DESDE HISTORIAL (?pdf=1)
-     (NO genera PDF aquí, solo prepara el HTML)
+     Abre automáticamente la vista previa
   ====================================================== */
   useEffect(() => {
-    if (params.get("pdf") === "1" && status === "completado") {
-      // No hacemos nada aquí todavía
-      // El PDF se genera SOLO desde html2pdf
+    if (
+      params.get("pdf") === "1" &&
+      status === "completado" &&
+      !autoPdfTriggered.current
+    ) {
+      autoPdfTriggered.current = true;
+
+      // Esperamos a que todo el DOM esté renderizado
+      setTimeout(() => {
+        const btn = document.querySelector(
+          '[data-pdf-preview="true"]'
+        );
+        btn?.click();
+      }, 700);
     }
-  }, [status, params]);
+  }, [params, status]);
 
   return (
     <>
@@ -80,7 +92,6 @@ export default function InspeccionHidro() {
           TODO lo que esté aquí SALE en el PDF
       ====================================================== */}
       <div id="pdf-inspeccion-hidro">
-
         <FormLayout
           title="Inspección Hidrosuccionador"
           description="Hoja de inspección técnica del equipo hidrosuccionador"
@@ -116,7 +127,7 @@ export default function InspeccionHidro() {
             }
           />
 
-          {/* ============ ESTADO DEL EQUIPO (PUNTOS) ============ */}
+          {/* ============ ESTADO DEL EQUIPO (IMAGEN + PUNTOS) ============ */}
           <EstadoEquipoSection
             puntos={data.estadoEquipoPuntos}
             onChange={(puntos) =>
@@ -262,7 +273,8 @@ export default function InspeccionHidro() {
       </div>
 
       {/* ======================================================
-          BOTONES PDF (SOLO VISUALES, NO AFECTAN FORMULARIO)
+          BOTONES PDF
+          SOLO visibles cuando está COMPLETADO
       ====================================================== */}
       {status === "completado" && <PdfInspeccionButtons />}
     </>
