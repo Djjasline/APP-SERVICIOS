@@ -16,7 +16,7 @@ import {
   sistemaSuccion,
 } from "./schemas/inspeccionHidroSchema";
 
-import { generateInspectionPdf } from "@/app/inspeccion/utils/generateInspectionPdf";
+import { generateInspectionPdf } from "./utils/generateInspectionPdf";
 
 export default function InspeccionHidro() {
   const {
