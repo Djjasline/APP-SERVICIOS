@@ -1,3 +1,5 @@
+console.log("🚨 EJECUTANDO generateInspectionPdf.js");
+
 /* ================= CHECKLIST (SI / NO) ================= */
 
 // 1. PRUEBAS PREVIAS
