@@ -110,4 +110,58 @@ export default function generateInspectionPdf(formData) {
 
     pdf.setFont("helvetica", "normal");
     pdf.text(formData.observaciones, marginLeft, y, {
-      maxWidth: pa
+      maxWidth: pageWidth - marginLeft * 2,
+    });
+
+    y += 10;
+  }
+
+  /* =============================
+     FIRMAS
+  ============================== */
+  const boxW = 70;
+  const boxH = 30;
+
+  if (formData.firmas?.tecnico) {
+    pdf.addImage(
+      formData.firmas.tecnico,
+      "PNG",
+      marginLeft,
+      y,
+      boxW,
+      boxH
+    );
+  }
+
+  if (formData.firmas?.cliente) {
+    pdf.addImage(
+      formData.firmas.cliente,
+      "PNG",
+      marginLeft + boxW + 10,
+      y,
+      boxW,
+      boxH
+    );
+  }
+
+  pdf.text("Firma técnico", marginLeft + boxW / 2, y + boxH + 5, {
+    align: "center",
+  });
+
+  pdf.text(
+    "Firma cliente",
+    marginLeft + boxW + 10 + boxW / 2,
+    y + boxH + 5,
+    { align: "center" }
+  );
+
+  /* =============================
+     👁️ VER + 📄 DESCARGAR
+  ============================== */
+  const pdfUrl = pdf.output("bloburl");
+  window.open(pdfUrl, "_blank");
+
+  setTimeout(() => {
+    pdf.save(`ASTAP_INSPECCION_HIDRO_${Date.now()}.pdf`);
+  }, 500);
+}
