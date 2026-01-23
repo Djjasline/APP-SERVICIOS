@@ -84,6 +84,7 @@ export function generateInspectionPdf(data = {}) {
 
   pdf.addImage(EQUIPO_HIDRO_BASE64, "PNG", marginLeft, y, imgW, imgH);
 
+
   const puntos = Array.isArray(data.estadoEquipoPuntos)
     ? data.estadoEquipoPuntos
     : [];
