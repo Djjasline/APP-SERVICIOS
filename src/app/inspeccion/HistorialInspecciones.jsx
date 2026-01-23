@@ -1,3 +1,5 @@
+console.log("🔥 HISTORIAL HIDRO CARGADO 🔥");
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
