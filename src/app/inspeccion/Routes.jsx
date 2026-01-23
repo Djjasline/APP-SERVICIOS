@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import IndexInspeccion from "./pages/IndexInspeccion";
 import HojaInspeccionHidro from "./HojaInspeccionHidro";
@@ -17,6 +17,11 @@ export default function InspectionRoutes() {
 
       <Route path="hidro/:id/firma" element={<HojaFirma />} />
 
+      {/* 🔒 CAPTURA DE RUTA PDF INVÁLIDA */}
+      <Route
+        path="hidro/:id/pdf"
+        element={<Navigate to="/inspeccion" replace />}
+      />
     </Routes>
   );
 }
