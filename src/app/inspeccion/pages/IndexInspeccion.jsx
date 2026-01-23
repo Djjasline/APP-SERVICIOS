@@ -1,3 +1,4 @@
+import generateInspectionPdf from "@/app/inspeccion/utils/generateInspectionPdf";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllInspections } from "@/utils/inspectionStorage";
@@ -125,17 +126,15 @@ const Card = ({ title, type, description }) => {
                   <StatusBadge estado={item.estado} />
 
                   {item.estado === "completada" && (
-                    <button
-                      onClick={() =>
-                        navigate(
-                          `/inspeccion/${type}/${item.id}/pdf`
-                        )
-                      }
-                      className="text-xs text-green-600 hover:underline"
-                    >
-                      PDF
-                    </button>
-                  )}
+  <button
+    type="button"
+    onClick={() => generateInspectionPdf(item.data)}
+    className="text-xs text-green-600 hover:underline"
+  >
+    PDF
+  </button>
+)}
+
 
                   <button
                     onClick={() =>
