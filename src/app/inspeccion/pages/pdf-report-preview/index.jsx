@@ -1,4 +1,4 @@
-// src/pages/pdf-report-preview/index.jsx
+// src/app/inspeccion/pages/pdf-report-preview/index.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
@@ -9,19 +9,32 @@ const PDFReportPreview = () => {
   const navigate = useNavigate();
   const { currentReport } = useReports ? useReports() : { currentReport: null };
 
-  const general = currentReport?.generalInfo || {};
+  /* =============================
+     🔴 PROTECCIÓN CLAVE
+     Evita pantalla blanca si no hay contexto
+  ============================== */
+  if (!currentReport) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-sm text-slate-600">
+        <p>No hay datos de reporte para mostrar.</p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate("/")}
+        >
+          Volver
+        </Button>
+      </div>
+    );
+  }
+
+  const general = currentReport.generalInfo || {};
 
   const handleBack = () => {
-    // volver al formulario inicial
     navigate("/");
   };
 
   const handleGeneratePdf = async () => {
-    if (!currentReport) {
-      alert("No hay datos de reporte cargados.");
-      return;
-    }
-
     try {
       await generateReportPdf(currentReport);
     } catch (error) {
@@ -40,9 +53,8 @@ const PDFReportPreview = () => {
               Vista previa / generación de PDF
             </h1>
             <p className="text-xs text-slate-600 max-w-xl">
-              El PDF se genera con el esquema: información general (cliente y
-              técnico), pruebas antes, actividades e incidentes, pruebas
-              después, datos del equipo y firmas con nombres automáticos.
+              El PDF se genera con el esquema: información general, pruebas,
+              actividades, datos del equipo y firmas.
             </p>
           </div>
 
