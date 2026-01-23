@@ -1,3 +1,5 @@
+console.log("🔥 generateInspectionPdf.js CARGADO 🔥");
+
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
