@@ -9,12 +9,21 @@ import {
   sistemaSuccion,
 } from "../schemas/InspeccionHidroSchema";
 
-const LOGO_ASTAP = "/astap-logo.jpg";
-const IMG_EQUIPO = "/equipo-hidro.png"; // misma imagen base del formulario
+/* ======================================================
+   IMÁGENES BASE64 (OBLIGATORIO PARA jsPDF EN PRODUCCIÓN)
+====================================================== */
 
-// ======================================================
-// GENERADOR PDF – FORMATO COMPLETO (REGLA DE ORO)
-// ======================================================
+// 🔵 LOGO ASTAP (ejemplo, reemplaza por el tuyo real)
+const LOGO_ASTAP_BASE64 =
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wCEAAkGBxISEhUTEhIVFRUVFRUVFRUVFRUVFRUWFhUVFRUYHSggGBolGxUVITEhJSkrLi4uFx8zODMsNygtLisBCgoKDg0OGhAQGy0lHyUtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAOEA4QMBIgACEQEDEQH/xAAbAAEAAgMBAQAAAAAAAAAAAAAABQYBBAcDAv/EADkQAAIBAgQDBgQEBQQDAQAAAAECAAMRBBIhMQVBUQYiYXGBEzKRobHR8BQjQlJy0fEVFjNTgpL/xAAZAQEAAwEBAAAAAAAAAAAAAAAAAQIDBAX/xAAoEQEAAQQBAwMDBQAAAAAAAAAAAQACAxESITEEQVEiMlFhcbH/2gAMAwEAAhEDEQA/AP3yREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREH//Z";
+
+// 🔵 IMAGEN ESTADO DEL EQUIPO (REEMPLAZA POR TU BASE64 REAL)
+const EQUIPO_HIDRO_BASE64 =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...PEGAR_AQUI_COMPLETO...";
+
+/* ======================================================
+   GENERADOR PDF – FORMATO COMPLETO (REGLA DE ORO)
+====================================================== */
 export function generateInspectionPdf(data = {}) {
   console.log("PDF GENERATE DATA:", data);
 
@@ -24,9 +33,9 @@ export function generateInspectionPdf(data = {}) {
   let y = 12;
 
   /* ======================================================
-     ENCABEZADO FIJO
+     ENCABEZADO
   ====================================================== */
-  pdf.addImage(LOGO_ASTAP, "JPEG", marginLeft, y, 22, 14);
+  pdf.addImage(LOGO_ASTAP_BASE64, "JPEG", marginLeft, y, 22, 14);
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(11);
@@ -65,7 +74,6 @@ export function generateInspectionPdf(data = {}) {
 
   /* ======================================================
      ESTADO DEL EQUIPO (IMAGEN + PUNTOS)
-     SIEMPRE PRESENTE
   ====================================================== */
   pdf.setFont("helvetica", "bold");
   pdf.text("Estado del equipo", marginLeft, y);
@@ -74,7 +82,7 @@ export function generateInspectionPdf(data = {}) {
   const imgW = 170;
   const imgH = 70;
 
-  pdf.addImage(IMG_EQUIPO, "PNG", marginLeft, y, imgW, imgH);
+  pdf.addImage(EQUIPO_HIDRO_BASE64, "PNG", marginLeft, y, imgW, imgH);
 
   const puntos = Array.isArray(data.estadoEquipoPuntos)
     ? data.estadoEquipoPuntos
@@ -92,7 +100,7 @@ export function generateInspectionPdf(data = {}) {
   y += imgH + 6;
 
   /* ======================================================
-     CHECKLIST COMPLETO – FORMATO MANDA
+     CHECKLIST COMPLETO (FORMATO MANDA)
   ====================================================== */
   const respuestas = data.items || {};
 
@@ -127,29 +135,13 @@ export function generateInspectionPdf(data = {}) {
     "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS",
     preServicio
   );
-
-  renderChecklist(
-    "A. SISTEMA HIDRÁULICO (ACEITES)",
-    sistemaHidraulicoAceite
-  );
-
-  renderChecklist(
-    "B. SISTEMA HIDRÁULICO (AGUA)",
-    sistemaHidraulicoAgua
-  );
-
-  renderChecklist(
-    "C. SISTEMA ELÉCTRICO / ELECTRÓNICO",
-    sistemaElectrico
-  );
-
-  renderChecklist(
-    "D. SISTEMA DE SUCCIÓN",
-    sistemaSuccion
-  );
+  renderChecklist("A. SISTEMA HIDRÁULICO (ACEITES)", sistemaHidraulicoAceite);
+  renderChecklist("B. SISTEMA HIDRÁULICO (AGUA)", sistemaHidraulicoAgua);
+  renderChecklist("C. SISTEMA ELÉCTRICO / ELECTRÓNICO", sistemaElectrico);
+  renderChecklist("D. SISTEMA DE SUCCIÓN", sistemaSuccion);
 
   /* ======================================================
-     DESCRIPCIÓN DEL EQUIPO (SIEMPRE)
+     DESCRIPCIÓN DEL EQUIPO
   ====================================================== */
   pdf.setFont("helvetica", "bold");
   pdf.text("Descripción del equipo", marginLeft, y);
@@ -176,7 +168,7 @@ export function generateInspectionPdf(data = {}) {
   y = pdf.lastAutoTable.finalY + 8;
 
   /* ======================================================
-     FIRMAS (SIEMPRE)
+     FIRMAS
   ====================================================== */
   const boxW = 70;
   const boxH = 28;
@@ -215,7 +207,7 @@ export function generateInspectionPdf(data = {}) {
   );
 
   /* ======================================================
-     VISTA PREVIA + DESCARGA (OBLIGATORIO)
+     VISTA PREVIA + DESCARGA
   ====================================================== */
   const blobUrl = pdf.output("bloburl");
   window.open(blobUrl, "_blank");
