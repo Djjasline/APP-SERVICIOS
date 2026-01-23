@@ -7,7 +7,7 @@ import {
   sistemaHidraulicoAgua,
   sistemaElectrico,
   sistemaSuccion,
-} from "../schemas/inspeccionHidroSchema";
+} from "../schemas/InspeccionHidroSchema";
 
 const LOGO_ASTAP = "/astap-logo.jpg";
 const IMG_EQUIPO = "/equipo-hidro.png"; // misma imagen base del formulario
