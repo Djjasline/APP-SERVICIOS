@@ -1,23 +1,21 @@
-console.log("🔥 HISTORIAL HIDRO CARGADO 🔥");
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// ✅ STORAGE CORRECTO
-import { getInspectionsByType } from "@/app/inspeccion/utils/reportStorage";
+// STORAGE
+import { getAllInspections } from "@/app/inspeccion/utils/reportStorage";
 
-// ✅ PDF CORRECTO
+// PDF REAL
 import { generateInspectionPdf } from "@/app/inspeccion/utils/generateInspectionPdf";
 
-export default function HistorialInspecciones() {
+export default function IndexInspeccion() {
   const navigate = useNavigate();
-  const [inspecciones, setInspecciones] = useState([]);
+  const [inspections, setInspections] = useState([]);
 
   /* =============================
-     CARGAR HISTORIAL
+     CARGAR INSPECCIONES
   ============================== */
   useEffect(() => {
-    const data = getInspectionsByType("hidro");
+    const data = getAllInspections();
 
     const ordered = [...data].sort((a, b) => {
       const dateA = new Date(a.updatedAt || a.createdAt).getTime();
@@ -25,97 +23,146 @@ export default function HistorialInspecciones() {
       return dateB - dateA;
     });
 
-    setInspecciones(ordered);
+    setInspections(ordered);
   }, []);
+
+  /* =============================
+     AGRUPAR POR TIPO
+  ============================== */
+  const byType = {
+    hidro: inspections.filter((i) => i.type === "hidro"),
+    barredora: inspections.filter((i) => i.type === "barredora"),
+    camara: inspections.filter((i) => i.type === "camara"),
+  };
 
   /* =============================
      ACCIONES
   ============================== */
-  const handleOpen = (id) => {
-    navigate(`/inspeccion/hidro/${id}`);
+  const handleOpen = (type, id) => {
+    navigate(`/inspeccion/${type}/${id}`);
   };
 
   const handleGeneratePdf = (inspection) => {
-   console.log("🧪 INSPECTION COMPLETA:", inspection);
-  console.log("🧪 DATA PARA PDF:", inspection.data);
+    if (!inspection?.data) {
+      alert("No hay datos para generar el PDF.");
+      return;
+    }
+
     generateInspectionPdf(inspection.data);
   };
 
   /* =============================
      RENDER
   ============================== */
+  const renderColumn = (title, type, description) => (
+    <div className="space-y-4">
+      <h2 className="text-lg font-semibold">{title}</h2>
+      <p className="text-xs text-gray-500">{description}</p>
+
+      <button
+        onClick={() => navigate(`/inspeccion/${type}/new`)}
+        className="px-3 py-2 bg-black text-white rounded text-sm"
+      >
+        + Nueva inspección
+      </button>
+
+      <div className="space-y-2">
+        {byType[type].length === 0 ? (
+          <p className="text-xs text-gray-400">
+            No hay inspecciones registradas.
+          </p>
+        ) : (
+          byType[type].map((item) => (
+            <div
+              key={item.id}
+              className="border rounded p-2 text-xs flex flex-col gap-1"
+            >
+              <div className="flex justify-between">
+                <span className="font-medium">
+                  {item.data?.cliente?.nombre || "Sin cliente"}
+                </span>
+                <span
+                  className={`px-2 py-0.5 rounded text-[10px] ${
+                    item.status === "completado"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  {item.status}
+                </span>
+              </div>
+
+              <span className="text-[10px] text-gray-500">
+                {new Date(item.updatedAt || item.createdAt).toLocaleString()}
+              </span>
+
+              <div className="flex gap-3 pt-1">
+                {item.status === "completado" && (
+                  <button
+                    type="button"
+                    onClick={() => handleGeneratePdf(item)}
+                    className="text-green-600 hover:underline"
+                  >
+                    PDF
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => handleOpen(type, item.id)}
+                  className="text-blue-600 hover:underline"
+                >
+                  Abrir
+                </button>
+
+                <button
+                  type="button"
+                  className="text-red-600 hover:underline"
+                  onClick={() => {
+                    if (confirm("¿Eliminar inspección?")) {
+                      const filtered = inspections.filter(
+                        (i) => i.id !== item.id
+                      );
+                      localStorage.setItem(
+                        "inspections",
+                        JSON.stringify(filtered)
+                      );
+                      setInspections(filtered);
+                    }
+                  }}
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="max-w-6xl mx-auto my-6 bg-white shadow-lg rounded-2xl p-6 space-y-4">
-      <h1 className="text-lg font-bold">
-        Historial de inspecciones – Hidrosuccionador
-      </h1>
+    <div className="max-w-7xl mx-auto p-6 space-y-6">
+      <h1 className="text-xl font-bold">Inspección y valoración</h1>
 
-      {inspecciones.length === 0 ? (
-        <p className="text-sm text-gray-500">
-          No existen inspecciones registradas.
-        </p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border border-gray-300 border-collapse text-xs md:text-sm">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border px-3 py-2 text-left">
-                  Última actualización
-                </th>
-                <th className="border px-3 py-2 text-left">Estado</th>
-                <th className="border px-3 py-2 text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {inspecciones.map((item) => (
-                <tr key={item.id}>
-                  <td className="border px-3 py-2">
-                    {new Date(item.updatedAt || item.createdAt).toLocaleString()}
-                  </td>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {renderColumn(
+          "Hidrosuccionador",
+          "hidro",
+          "Inspección general del equipo hidrosuccionador"
+        )}
 
-                  <td className="border px-3 py-2">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-semibold ${
-                        item.status === "completado"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {item.status}
-                    </span>
-                  </td>
+        {renderColumn(
+          "Barredora",
+          "barredora",
+          "Inspección y valoración de barredoras"
+        )}
 
-                  <td className="border px-3 py-2 text-center space-x-2">
-                    <button
-                      onClick={() => handleOpen(item.id)}
-                      className="px-3 py-1 rounded bg-blue-600 text-white text-xs"
-                    >
-                      Abrir
-                    </button>
-
-                    {item.status === "completado" && (
-                      <button
-                        onClick={() => handleGeneratePdf(item)}
-                        className="px-3 py-1 rounded bg-gray-700 text-white text-xs"
-                      >
-                        PDF
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      <div className="flex justify-end pt-4">
-        <button
-          onClick={() => navigate("/inspeccion")}
-          className="px-4 py-2 rounded border text-sm"
-        >
-          Volver
-        </button>
+        {renderColumn(
+          "Cámara (VCAM / Metrotech)",
+          "camara",
+          "Inspección con sistema de cámara"
+        )}
       </div>
     </div>
   );
