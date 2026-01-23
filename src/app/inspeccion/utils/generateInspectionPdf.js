@@ -19,40 +19,20 @@ export default function generateInspectionPdf(formData, preview = true) {
   const margin = 14;
   let y = 15;
 
-  /* ================= ENCABEZADO ================= */
-  try {
-    pdf.addImage(ASTAP_LOGO, "JPEG", margin, y, 30, 15);
-  } catch (e) {
-    console.warn("Logo no cargado:", e);
-  }
+  // ================= ENCABEZADO =================
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(11);
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(12);
-  pdf.text(
-    "HOJA DE INSPECCIÓN HIDROSUCCIONADOR",
-    pageWidth / 2,
-    y + 10,
-    { align: "center" }
-  );
+pdf.text("ASTAP", 14, 10);
+pdf.text("HOJA DE INSPECCIÓN HIDROSUCCIONADOR", pageWidth / 2, 10, {
+  align: "center",
+});
 
-  y += 22;
+pdf.setFontSize(8);
+pdf.text("Fecha versión: 01-01-26", pageWidth - 60, 8);
+pdf.text("Versión: 01", pageWidth - 60, 12);
 
-  /* ================= DATOS GENERALES ================= */
-  pdf.autoTable({
-    startY: y,
-    theme: "grid",
-    styles: { fontSize: 8 },
-    body: [
-      ["Referencia contrato", formData.referenciaContrato || ""],
-      ["Descripción", formData.descripcion || ""],
-      ["Código interno", formData.codInf || ""],
-      ["Cliente", formData.cliente || ""],
-      ["Dirección", formData.direccion || ""],
-      ["Fecha servicio", formData.fechaServicio || ""],
-    ],
-  });
-
-  y = pdf.lastAutoTable.finalY + 6;
+y = 16;
 
   /* ================= FUNCIÓN CHECKLIST ================= */
   const renderChecklist = (titulo, schema) => {
@@ -90,29 +70,29 @@ export default function generateInspectionPdf(formData, preview = true) {
   renderChecklist("D. SISTEMA DE SUCCIÓN", sistemaSuccion);
 
   /* ================= DESCRIPCIÓN DEL EQUIPO ================= */
-  pdf.setFont("helvetica", "bold");
-  pdf.text("DESCRIPCIÓN DEL EQUIPO", margin, y);
-  y += 4;
+pdf.setFont("helvetica", "bold");
+pdf.text("DESCRIPCIÓN DEL EQUIPO", margin, y);
+y += 4;
 
-  pdf.autoTable({
-    startY: y,
-    theme: "grid",
-    styles: { fontSize: 8 },
-    body: [
-      ["Marca", formData.marca || ""],
-      ["Modelo", formData.modelo || ""],
-      ["Serie", formData.serie || ""],
-      ["Año modelo", formData.anioModelo || ""],
-      ["VIN / Chasis", formData.vin || ""],
-      ["Placa", formData.placa || ""],
-      ["Horas módulo", formData.horasModulo || ""],
-      ["Horas chasis", formData.horasChasis || ""],
-      ["Kilometraje", formData.kilometraje || ""],
-      ["Nota", formData.nota || ""],
-    ],
-  });
+pdf.autoTable({
+  startY: y,
+  theme: "grid",
+  styles: { fontSize: 8 },
+  body: [
+    ["Marca", formData.marca || ""],
+    ["Modelo", formData.modelo || ""],
+    ["N° Serie", formData.serie || ""],
+    ["Año modelo", formData.anioModelo || ""],
+    ["VIN / Chasis", formData.vin || ""],
+    ["Placa", formData.placa || ""],
+    ["Horas módulo", formData.horasModulo || ""],
+    ["Horas chasis", formData.horasChasis || ""],
+    ["Kilometraje", formData.kilometraje || ""],
+  ],
+});
 
-  y = pdf.lastAutoTable.finalY + 10;
+y = pdf.lastAutoTable.finalY + 6;
+
 
   /* ================= FIRMAS ================= */
   const boxW = 70;
