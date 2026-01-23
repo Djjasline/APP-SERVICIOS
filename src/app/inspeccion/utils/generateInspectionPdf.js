@@ -4,8 +4,8 @@ import "jspdf-autotable";
 const ASTAP_LOGO = "/astap-logo.jpg";
 
 export function generateInspectionPdf(formData) {
-  alert("🔥 ESTA FUNCIÓN SÍ SE EJECUTA");
-
+  console.log("📋 CHECKLIST:", formData.items);
+  
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
   const marginLeft = 14;
