@@ -1,184 +1,265 @@
-import React from "react";
-import FormLayout from "@components/FormLayout";
-import useFormStorage from "@/hooks/useFormStorage";
-
-/* SECCIONES */
-import ClientDataSection from "@components/common/ClientDataSection";
-import EquipmentDataSection from "@components/common/EquipmentDataSection";
-import EstadoEquipoSection from "@components/common/EstadoEquipoSection";
-import ChecklistSection from "@components/common/ChecklistSection";
-import SignaturesSection from "@components/common/SignaturesSection";
-
-/* SCHEMA */
-import {
-  preServicio,
-  sistemaHidraulicoAceite,
-  sistemaHidraulicoAgua,
-  sistemaElectrico,
-  sistemaSuccion,
-} from "./schemas/inspeccionHidroSchema";
-
-/* ✅ BOTONES PDF */
 import PdfInspeccionButtons from "./components/PdfInspeccionButtons";
+import { useState, useRef, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import SignatureCanvas from "react-signature-canvas";
+import {
+  markInspectionCompleted,
+  getInspectionById,
+} from "@/utils/inspectionStorage";
+
+/* =============================
+   PRUEBAS PREVIAS
+============================= */
+const pruebasPrevias = [
+  ["1.1", "Prueba de encendido general del equipo"],
+  ["1.2", "Verificación de funcionamiento de controles principales"],
+  ["1.3", "Revisión de alarmas o mensajes de fallo"],
+];
+
+/* =============================
+   SECCIONES
+============================= */
+const secciones = [
+  {
+    id: "A",
+    titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
+    items: [
+      ["A.1", "Fugas de aceite hidráulico"],
+      ["A.2", "Nivel de aceite del soplador"],
+      ["A.3", "Nivel de aceite hidráulico"],
+      ["A.4", "Nivel de aceite caja transferencia"],
+      ["A.5", "Manómetro filtro hidráulico"],
+      ["A.6", "Filtro hidráulico retorno"],
+      ["A.7", "Filtros succión tanque"],
+      ["A.8", "Cilindros hidráulicos"],
+      ["A.9", "Tapones drenaje"],
+      ["A.10", "Bancos hidráulicos"],
+    ],
+  },
+  {
+    id: "B",
+    titulo: "B) SISTEMA HIDRÁULICO (AGUA)",
+    items: [
+      ["B.1", "Filtros malla agua"],
+      ["B.2", "Empaques filtros"],
+      ["B.3", "Fugas agua"],
+      ["B.4", "Válvula alivio pistola"],
+      ["B.5", "Tanque aluminio"],
+      ["B.6", "Medidor nivel"],
+      ["B.7", "Tapón expansión"],
+      ["B.8", "Drenaje bomba"],
+      ["B.9", "Válvulas check"],
+      ["B.10", "Manómetros presión"],
+    ],
+  },
+  {
+    id: "C",
+    titulo: "C) SISTEMA ELÉCTRICO",
+    items: [
+      ["C.1", "Tablero frontal"],
+      ["C.2", "Tablero cabina"],
+      ["C.3", "Control remoto"],
+      ["C.4", "Electroválvulas"],
+      ["C.5", "Humedad"],
+      ["C.6", "Luces externas"],
+    ],
+  },
+  {
+    id: "D",
+    titulo: "D) SISTEMA DE SUCCIÓN",
+    items: [
+      ["D.1", "Sellos tanque"],
+      ["D.2", "Interior tanque"],
+      ["D.3", "Microfiltro"],
+      ["D.4", "Tapón drenaje"],
+      ["D.5", "Mangueras"],
+      ["D.6", "Seguros compuerta"],
+      ["D.7", "Sistema desfogue"],
+      ["D.8", "Válvulas alivio"],
+      ["D.9", "Soplador"],
+    ],
+  },
+];
 
 export default function InspeccionHidro() {
-  const { data, setData, status, save, finalize } = useFormStorage(
-    "inspeccion_hidro",
-    {
-      tipoFormulario: "hidro",
-      cliente: {},
-      equipo: {},
-      inspeccion: {
-        preServicio: [],
-        sistemaHidraulicoAceite: [],
-        sistemaHidraulicoAgua: [],
-        sistemaElectrico: [],
-        sistemaSuccion: [],
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const firmaTecnicoRef = useRef(null);
+  const firmaClienteRef = useRef(null);
+
+  const [formData, setFormData] = useState({
+    cliente: "",
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
+    tecnicoResponsable: "",
+    fechaServicio: "",
+    estadoEquipoPuntos: [],
+    items: {},
+    descripcionEquipo: "",
+    firmas: { tecnico: "", cliente: "" },
+  });
+
+  useEffect(() => {
+    if (!id) return;
+    const stored = getInspectionById("hidro", id);
+    if (stored?.data) setFormData(stored.data);
+  }, [id]);
+
+  const handleItemChange = (codigo, campo, valor) => {
+    setFormData((p) => ({
+      ...p,
+      items: {
+        ...p.items,
+        [codigo]: {
+          ...p.items[codigo],
+          [campo]: valor,
+        },
       },
-      estadoEquipoPuntos: [],
-      observaciones: "",
-      estadoEquipo: "",
-      firmas: {},
-    }
-  );
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    markInspectionCompleted("hidro", id, {
+      ...formData,
+      firmas: {
+        tecnico: firmaTecnicoRef.current?.toDataURL() || "",
+        cliente: firmaClienteRef.current?.toDataURL() || "",
+      },
+    });
+
+    navigate("/inspeccion");
+  };
 
   return (
     <>
-      {/* 🔴 CONTENEDOR ÚNICO PARA EL PDF */}
-      <div id="pdf-inspeccion-hidro">
-
-        <FormLayout
-          title="Inspección Hidrosuccionador"
-          description="Hoja de inspección técnica del equipo hidrosuccionador"
-          status={status}
-          onSave={save}
-          onFinalize={finalize}
-        >
-          <ClientDataSection
-            data={data.cliente}
-            onChange={(e) =>
-              setData((prev) => ({
-                ...prev,
-                cliente: {
-                  ...prev.cliente,
-                  [e.target.name]: e.target.value,
-                },
-              }))
-            }
-          />
-
-          <EquipmentDataSection
-            data={data.equipo}
-            onChange={(e) =>
-              setData((prev) => ({
-                ...prev,
-                equipo: {
-                  ...prev.equipo,
-                  [e.target.name]: e.target.value,
-                },
-              }))
-            }
-          />
-
-          <EstadoEquipoSection
-            puntos={data.estadoEquipoPuntos}
-            onChange={(puntos) =>
-              setData((prev) => ({
-                ...prev,
-                estadoEquipoPuntos: puntos,
-              }))
-            }
-          />
-
-          <ChecklistSection
-            title="1. Pruebas de encendido"
-            items={preServicio}
-            data={data.inspeccion.preServicio}
-            onChange={(val) =>
-              setData((prev) => ({
-                ...prev,
-                inspeccion: {
-                  ...prev.inspeccion,
-                  preServicio: val,
-                },
-              }))
-            }
-          />
-
-          <ChecklistSection
-            title="A. Sistema hidráulico (Aceite)"
-            items={sistemaHidraulicoAceite}
-            data={data.inspeccion.sistemaHidraulicoAceite}
-            onChange={(val) =>
-              setData((prev) => ({
-                ...prev,
-                inspeccion: {
-                  ...prev.inspeccion,
-                  sistemaHidraulicoAceite: val,
-                },
-              }))
-            }
-          />
-
-          <ChecklistSection
-            title="B. Sistema hidráulico (Agua)"
-            items={sistemaHidraulicoAgua}
-            data={data.inspeccion.sistemaHidraulicoAgua}
-            onChange={(val) =>
-              setData((prev) => ({
-                ...prev,
-                inspeccion: {
-                  ...prev.inspeccion,
-                  sistemaHidraulicoAgua: val,
-                },
-              }))
-            }
-          />
-
-          <ChecklistSection
-            title="C. Sistema eléctrico / electrónico"
-            items={sistemaElectrico}
-            data={data.inspeccion.sistemaElectrico}
-            onChange={(val) =>
-              setData((prev) => ({
-                ...prev,
-                inspeccion: {
-                  ...prev.inspeccion,
-                  sistemaElectrico: val,
-                },
-              }))
-            }
-          />
-
-          <ChecklistSection
-            title="D. Sistema de succión"
-            items={sistemaSuccion}
-            data={data.inspeccion.sistemaSuccion}
-            onChange={(val) =>
-              setData((prev) => ({
-                ...prev,
-                inspeccion: {
-                  ...prev.inspeccion,
-                  sistemaSuccion: val,
-                },
-              }))
-            }
-          />
-
-          <SignaturesSection
-            data={data.firmas}
-            onChange={(val) =>
-              setData((prev) => ({
-                ...prev,
-                firmas: val,
-              }))
-            }
-          />
-        </FormLayout>
-      </div>
-
-      {/* ✅ BOTONES SIEMPRE VISIBLES */}
+      {/* 🔑 BOTONES PDF */}
       <PdfInspeccionButtons />
+
+      {/* 🔑 CONTENEDOR PDF */}
+      <div id="pdf-inspeccion-hidro">
+        <form
+          onSubmit={handleSubmit}
+          className="max-w-6xl mx-auto my-6 bg-white p-6 space-y-6 text-sm"
+        >
+          {/* ENCABEZADO */}
+          <div className="flex items-center gap-4 border-b pb-4">
+            <img src="/astap-logo.jpg" className="h-16" />
+            <h1 className="text-xl font-bold">
+              HOJA DE INSPECCIÓN HIDROSUCCIONADOR
+            </h1>
+          </div>
+
+          {/* DATOS */}
+          <div className="grid grid-cols-2 gap-3">
+            {["cliente", "direccion", "contacto", "telefono", "correo"].map(
+              (f) => (
+                <input
+                  key={f}
+                  placeholder={f}
+                  value={formData[f]}
+                  onChange={(e) =>
+                    setFormData({ ...formData, [f]: e.target.value })
+                  }
+                  className="border p-2"
+                />
+              )
+            )}
+          </div>
+
+          {/* PRUEBAS */}
+          <table className="w-full border">
+            <thead>
+              <tr>
+                <th>Ítem</th>
+                <th>Detalle</th>
+                <th>SI</th>
+                <th>NO</th>
+                <th>Obs</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pruebasPrevias.map(([c, t]) => (
+                <tr key={c}>
+                  <td>{c}</td>
+                  <td>{t}</td>
+                  <td>
+                    <input
+                      type="radio"
+                      checked={formData.items[c]?.estado === "SI"}
+                      onChange={() => handleItemChange(c, "estado", "SI")}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="radio"
+                      checked={formData.items[c]?.estado === "NO"}
+                      onChange={() => handleItemChange(c, "estado", "NO")}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      className="border"
+                      value={formData.items[c]?.observacion || ""}
+                      onChange={(e) =>
+                        handleItemChange(c, "observacion", e.target.value)
+                      }
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* SECCIONES */}
+          {secciones.map((s) => (
+            <div key={s.id}>
+              <h2 className="font-semibold mt-4">{s.titulo}</h2>
+              {s.items.map(([c, t]) => (
+                <div key={c} className="grid grid-cols-5 gap-2">
+                  <span>{c}</span>
+                  <span className="col-span-2">{t}</span>
+                  <input
+                    type="radio"
+                    checked={formData.items[c]?.estado === "SI"}
+                    onChange={() => handleItemChange(c, "estado", "SI")}
+                  />
+                  <input
+                    type="radio"
+                    checked={formData.items[c]?.estado === "NO"}
+                    onChange={() => handleItemChange(c, "estado", "NO")}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+
+          {/* FIRMAS */}
+          <div className="grid grid-cols-2 gap-6">
+            <SignatureCanvas
+              ref={firmaTecnicoRef}
+              canvasProps={{ width: 400, height: 150, className: "border" }}
+            />
+            <SignatureCanvas
+              ref={firmaClienteRef}
+              canvasProps={{ width: 400, height: 150, className: "border" }}
+            />
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <button type="button" onClick={() => navigate("/inspeccion")}>
+              Volver
+            </button>
+            <button type="submit" className="bg-blue-600 text-white px-4 py-2">
+              Guardar informe
+            </button>
+          </div>
+        </form>
+      </div>
     </>
   );
 }
