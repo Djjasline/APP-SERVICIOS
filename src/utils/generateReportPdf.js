@@ -4,10 +4,16 @@ import "jspdf-autotable";
 const ASTAP_LOGO = "/astap-logo.jpg";
 
 export const generateReportPdf = async (inspectionData) => {
-  console.log("🔥 PDF EJECUTADO - DATA:", inspectionData);
+  console.log("🔥 PDF EJECUTADO - inspectionData:", inspectionData);
 
-  // 🔑 NORMALIZACIÓN CORRECTA (esto ya lo tenías bien)
+  // 🔑 Normalización (NO se toca)
   const data = inspectionData.data || inspectionData;
+
+  // 🧪 DIAGNÓSTICO DEFINITIVO
+  console.log(
+    "🧪 DEBUG DATA COMPLETA:",
+    JSON.stringify(data, null, 2)
+  );
 
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
@@ -40,29 +46,20 @@ export const generateReportPdf = async (inspectionData) => {
 
   y = pdf.lastAutoTable.finalY + 6;
 
-  /* ===== CHECKLIST (FIX REAL) ===== */
-
-  // ❌ ANTES: variables cruzadas (checklist / items)
-  // ❌ ANTES: console.log de variable inexistente
-  // ✅ AHORA: lectura segura y coherente
-
+  /* ===== CHECKLIST (SIN CAMBIOS FUNCIONALES) ===== */
   const checklist = data.items || data.checklist || {};
-  console.log("✅ CHECKLIST PDF:", checklist);
+  console.log("🧪 CHECKLIST DETECTADO:", checklist);
 
-  // Construimos filas de forma segura
   const rows = [];
 
   Object.entries(checklist).forEach(([key, value]) => {
-    // Caso 1: checklist plano
     if (value?.estado !== undefined) {
       rows.push([
         key,
         value.estado || "",
         value.observacion || "",
       ]);
-    }
-    // Caso 2: checklist por secciones
-    else if (typeof value === "object") {
+    } else if (typeof value === "object") {
       Object.entries(value).forEach(([codigo, item]) => {
         rows.push([
           codigo,
