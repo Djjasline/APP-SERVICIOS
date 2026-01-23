@@ -16,7 +16,7 @@ import {
   sistemaSuccion,
 } from "./schemas/inspeccionHidroSchema";
 
-import { generateReportPdf } from "./utils/generateReportPdf";
+import { generateInspectionPdf } from "@/app/inspeccion/utils/generateInspectionPdf";
 
 export default function InspeccionHidro() {
   const {
@@ -50,7 +50,7 @@ export default function InspeccionHidro() {
 
   const handleFinalize = async () => {
     finalize();
-    await generateReportPdf(data);
+    generateInspectionPdf(data);
   };
 
   return (
