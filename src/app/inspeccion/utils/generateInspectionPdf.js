@@ -1,21 +1,32 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
+import {
+  preServicio,
+  sistemaHidraulicoAceite,
+  sistemaHidraulicoAgua,
+  sistemaElectrico,
+  sistemaSuccion,
+} from "../schemas/InspeccionHidroSchema";
+
 const ASTAP_LOGO = "/astap-logo.jpg";
 
 export default function generateInspectionPdf(data) {
   console.log("PDF DATA:", data);
 
-  if (!data) return;
+  if (!data) {
+    alert("No hay datos para generar el PDF");
+    return;
+  }
 
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
   const marginLeft = 14;
   let y = 14;
 
-  /* =============================
+  /* ======================================================
      ENCABEZADO
-  ============================== */
+  ====================================================== */
   pdf.addImage(ASTAP_LOGO, "JPEG", marginLeft, y, 28, 16);
 
   pdf.setFont("helvetica", "bold");
@@ -29,72 +40,100 @@ export default function generateInspectionPdf(data) {
 
   y += 22;
 
-  /* =============================
+  /* ======================================================
      DATOS GENERALES
-  ============================== */
+  ====================================================== */
   pdf.autoTable({
     startY: y,
     theme: "grid",
     styles: { fontSize: 8 },
     body: [
-      ["Referencia contrato", data.referenciaContrato || "—"],
-      ["Descripción", data.descripcion || "—"],
-      ["Código informe", data.codInf || "—"],
-      ["Cliente", data.cliente || "—"],
-      ["Dirección", data.direccion || "—"],
-      ["Fecha servicio", data.fechaservicio || "—"],
+      ["Referencia contrato", data.referenciaContrato || ""],
+      ["Descripción", data.descripcion || ""],
+      ["Código informe", data.codInf || ""],
+      ["Cliente", data.cliente || ""],
+      ["Dirección", data.direccion || ""],
+      ["Fecha servicio", data.fechaservicio || ""],
     ],
   });
 
   y = pdf.lastAutoTable.finalY + 6;
 
-  /* =============================
-     CHECKLIST REAL (items)
-  ============================== */
-  const items = data.items || {};
+  /* ======================================================
+     CHECKLIST (FORMATO FIJO – SCHEMA OFICIAL)
+  ====================================================== */
+  const RESPUESTAS = data.items || {};
 
-  if (Object.keys(items).length > 0) {
+  const SECTIONS = [
+    {
+      titulo: "1. PRUEBAS PREVIAS AL SERVICIO",
+      items: preServicio,
+    },
+    {
+      titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
+      items: sistemaHidraulicoAceite,
+    },
+    {
+      titulo: "B) SISTEMA HIDRÁULICO (AGUA)",
+      items: sistemaHidraulicoAgua,
+    },
+    {
+      titulo: "C) SISTEMA ELÉCTRICO / ELECTRÓNICO",
+      items: sistemaElectrico,
+    },
+    {
+      titulo: "D) SISTEMA DE SUCCIÓN",
+      items: sistemaSuccion,
+    },
+  ];
+
+  SECTIONS.forEach((section) => {
     pdf.setFont("helvetica", "bold");
-    pdf.text("CHECKLIST DE INSPECCIÓN", marginLeft, y);
+    pdf.text(section.titulo, marginLeft, y);
     y += 4;
 
-    const rows = Object.entries(items).map(([codigo, item]) => [
-      codigo,
-      item.titulo || item.descripcion || "Ítem",
-      item.estado || "",
-      item.observacion || "",
-    ]);
+    const rows = section.items.map((def) => {
+      const resp = RESPUESTAS[def.codigo] || {};
+
+      return [
+        def.codigo,
+        def.descripcion,
+        resp.estado === "SI" ? "✔" : "",
+        resp.estado === "NO" ? "✖" : "",
+        resp.observacion || "",
+      ];
+    });
 
     pdf.autoTable({
       startY: y,
       theme: "grid",
-      styles: { fontSize: 8 },
-      head: [["Código", "Ítem", "Estado", "Observación"]],
+      styles: { fontSize: 7 },
+      head: [["Ítem", "Detalle", "SI", "NO", "Observación"]],
       body: rows,
     });
 
-    y = pdf.lastAutoTable.finalY + 8;
-  }
+    y = pdf.lastAutoTable.finalY + 6;
+  });
 
-  /* =============================
-     ESTADO DEL EQUIPO (PUNTOS)
-  ============================== */
+  /* ======================================================
+     ESTADO DEL EQUIPO (OBSERVACIONES)
+  ====================================================== */
   if (Array.isArray(data.estadoEquipoPuntos) && data.estadoEquipoPuntos.length) {
     pdf.setFont("helvetica", "bold");
     pdf.text("Estado del equipo (observaciones)", marginLeft, y);
     y += 4;
 
     data.estadoEquipoPuntos.forEach((p, i) => {
-      pdf.text(`${i + 1}. ${p}`, marginLeft, y);
+      pdf.text(`${i + 1}. ${p.descripcion || ""}`, marginLeft, y);
       y += 4;
     });
 
     y += 4;
   }
 
-  /* =============================
+  /* ======================================================
      FIRMAS
-  ============================== */
+  ====================================================== */
   const boxW = 70;
   const boxH = 30;
 
@@ -116,6 +155,7 @@ export default function generateInspectionPdf(data) {
   pdf.text("Firma técnico", marginLeft + boxW / 2, y + boxH + 5, {
     align: "center",
   });
+
   pdf.text(
     "Firma cliente",
     marginLeft + boxW + 10 + boxW / 2,
@@ -123,9 +163,9 @@ export default function generateInspectionPdf(data) {
     { align: "center" }
   );
 
-  /* =============================
+  /* ======================================================
      VER + DESCARGAR
-  ============================== */
+  ====================================================== */
   const url = pdf.output("bloburl");
   window.open(url, "_blank");
 
