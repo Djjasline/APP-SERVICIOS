@@ -21,62 +21,18 @@ const pruebasPrevias = [
 ============================= */
 const secciones = [
   {
-    id: "A",
     titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
     items: [
       ["A.1", "Fugas de aceite hidráulico"],
       ["A.2", "Nivel de aceite del soplador"],
       ["A.3", "Nivel de aceite hidráulico"],
-      ["A.4", "Nivel de aceite caja transferencia"],
-      ["A.5", "Manómetro filtro hidráulico"],
-      ["A.6", "Filtro hidráulico retorno"],
-      ["A.7", "Filtros succión tanque"],
-      ["A.8", "Cilindros hidráulicos"],
-      ["A.9", "Tapones drenaje"],
-      ["A.10", "Bancos hidráulicos"],
     ],
   },
   {
-    id: "B",
     titulo: "B) SISTEMA HIDRÁULICO (AGUA)",
     items: [
       ["B.1", "Filtros malla agua"],
       ["B.2", "Empaques filtros"],
-      ["B.3", "Fugas agua"],
-      ["B.4", "Válvula alivio pistola"],
-      ["B.5", "Tanque aluminio"],
-      ["B.6", "Medidor nivel"],
-      ["B.7", "Tapón expansión"],
-      ["B.8", "Drenaje bomba"],
-      ["B.9", "Válvulas check"],
-      ["B.10", "Manómetros presión"],
-    ],
-  },
-  {
-    id: "C",
-    titulo: "C) SISTEMA ELÉCTRICO",
-    items: [
-      ["C.1", "Tablero frontal"],
-      ["C.2", "Tablero cabina"],
-      ["C.3", "Control remoto"],
-      ["C.4", "Electroválvulas"],
-      ["C.5", "Humedad"],
-      ["C.6", "Luces externas"],
-    ],
-  },
-  {
-    id: "D",
-    titulo: "D) SISTEMA DE SUCCIÓN",
-    items: [
-      ["D.1", "Sellos tanque"],
-      ["D.2", "Interior tanque"],
-      ["D.3", "Microfiltro"],
-      ["D.4", "Tapón drenaje"],
-      ["D.5", "Mangueras"],
-      ["D.6", "Seguros compuerta"],
-      ["D.7", "Sistema desfogue"],
-      ["D.8", "Válvulas alivio"],
-      ["D.9", "Soplador"],
     ],
   },
 ];
@@ -91,10 +47,6 @@ export default function InspeccionHidro() {
   const [formData, setFormData] = useState({
     cliente: "",
     direccion: "",
-    contacto: "",
-    telefono: "",
-    correo: "",
-    tecnicoResponsable: "",
     fechaServicio: "",
     items: {},
     firmas: { tecnico: "", cliente: "" },
@@ -135,78 +87,104 @@ export default function InspeccionHidro() {
 
   return (
     <>
-      {/* BOTONES PDF (flotantes) */}
+      {/* ================= BOTONES PDF ================= */}
       <PdfInspeccionButtons />
 
-      {/* =============================
-          CONTENEDOR PDF (SOLO HTML)
-      ============================== */}
-      <div
-        id="pdf-inspeccion-hidro"
-        style={{ background: "#fff", padding: "24px" }}
-      >
-        <div className="flex items-center gap-4 border-b pb-4 mb-4">
-          <img src="/astap-logo.jpg" className="h-16" />
-          <h1 className="text-xl font-bold">
-            HOJA DE INSPECCIÓN HIDROSUCCIONADOR
-          </h1>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 text-sm mb-6">
-          <div><strong>Cliente:</strong> {formData.cliente || "—"}</div>
-          <div><strong>Dirección:</strong> {formData.direccion || "—"}</div>
-          <div><strong>Contacto:</strong> {formData.contacto || "—"}</div>
-          <div><strong>Teléfono:</strong> {formData.telefono || "—"}</div>
-          <div><strong>Correo:</strong> {formData.correo || "—"}</div>
-          <div><strong>Fecha servicio:</strong> {formData.fechaServicio || "—"}</div>
-        </div>
-
-        {[...pruebasPrevias, ...secciones.flatMap(s => s.items)].map(
-          ([codigo, texto]) => (
-            <div key={codigo} className="grid grid-cols-5 gap-2 border-b py-1 text-sm">
-              <span>{codigo}</span>
-              <span className="col-span-2">{texto}</span>
-              <span>{formData.items[codigo]?.estado || "—"}</span>
-              <span>{formData.items[codigo]?.observacion || ""}</span>
-            </div>
-          )
-        )}
-
-        <div className="grid grid-cols-2 gap-6 mt-8 text-center">
-          <div>
-            <p className="font-semibold mb-2">Firma técnico</p>
-            {formData.firmas.tecnico && (
-              <img src={formData.firmas.tecnico} className="border mx-auto h-32" />
-            )}
-          </div>
-          <div>
-            <p className="font-semibold mb-2">Firma cliente</p>
-            {formData.firmas.cliente && (
-              <img src={formData.firmas.cliente} className="border mx-auto h-32" />
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* =============================
-          FORMULARIO REAL (INTERACTIVO)
-      ============================== */}
+      {/* ================= FORMULARIO ================= */}
       <form
         onSubmit={handleSubmit}
         className="max-w-6xl mx-auto my-6 bg-white p-6 space-y-6 text-sm"
       >
-        {/* AQUÍ SIGUE TU FORMULARIO TAL CUAL LO TENÍAS */}
-        {/* inputs, radios, firmas canvas, etc */}
+        <h1 className="text-xl font-bold">
+          HOJA DE INSPECCIÓN HIDROSUCCIONADOR
+        </h1>
 
-        <div className="flex justify-end gap-4">
-          <button type="button" onClick={() => navigate("/inspeccion")}>
-            Volver
-          </button>
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2">
-            Guardar informe
-          </button>
+        <input
+          placeholder="Cliente"
+          value={formData.cliente}
+          onChange={(e) =>
+            setFormData({ ...formData, cliente: e.target.value })
+          }
+          className="border p-2 w-full"
+        />
+
+        <input
+          placeholder="Dirección"
+          value={formData.direccion}
+          onChange={(e) =>
+            setFormData({ ...formData, direccion: e.target.value })
+          }
+          className="border p-2 w-full"
+        />
+
+        <input
+          type="date"
+          value={formData.fechaServicio}
+          onChange={(e) =>
+            setFormData({ ...formData, fechaServicio: e.target.value })
+          }
+          className="border p-2 w-full"
+        />
+
+        {pruebasPrevias.map(([c, t]) => (
+          <div key={c} className="grid grid-cols-4 gap-2">
+            <span>{c}</span>
+            <span className="col-span-2">{t}</span>
+            <input
+              type="radio"
+              checked={formData.items[c]?.estado === "SI"}
+              onChange={() => handleItemChange(c, "estado", "SI")}
+            />
+            <input
+              type="radio"
+              checked={formData.items[c]?.estado === "NO"}
+              onChange={() => handleItemChange(c, "estado", "NO")}
+            />
+          </div>
+        ))}
+
+        <div className="grid grid-cols-2 gap-6">
+          <SignatureCanvas
+            ref={firmaTecnicoRef}
+            canvasProps={{ width: 300, height: 120, className: "border" }}
+          />
+          <SignatureCanvas
+            ref={firmaClienteRef}
+            canvasProps={{ width: 300, height: 120, className: "border" }}
+          />
         </div>
+
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2">
+          Guardar
+        </button>
       </form>
+
+      {/* ================= VISTA PDF (OBLIGATORIA) ================= */}
+      <div className="max-w-6xl mx-auto my-12 bg-white border-t pt-10">
+        <h2 className="text-center text-gray-400 mb-4">
+          Vista PDF (NO borrar)
+        </h2>
+
+        <div id="pdf-inspeccion-hidro" className="p-6 text-sm bg-white">
+          <img src="/astap-logo.jpg" className="h-14 mb-4" />
+
+          <p><strong>Cliente:</strong> {formData.cliente || "—"}</p>
+          <p><strong>Dirección:</strong> {formData.direccion || "—"}</p>
+          <p><strong>Fecha:</strong> {formData.fechaServicio || "—"}</p>
+
+          <hr className="my-4" />
+
+          {[...pruebasPrevias, ...secciones.flatMap(s => s.items)].map(
+            ([c, t]) => (
+              <div key={c} className="grid grid-cols-4 gap-2 border-b py-1">
+                <span>{c}</span>
+                <span className="col-span-2">{t}</span>
+                <span>{formData.items[c]?.estado || "—"}</span>
+              </div>
+            )
+          )}
+        </div>
+      </div>
     </>
   );
 }
