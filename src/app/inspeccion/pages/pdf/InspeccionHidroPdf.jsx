@@ -3,61 +3,89 @@ import { useParams, useNavigate } from "react-router-dom";
 import html2pdf from "html2pdf.js";
 import { getInspectionById } from "@/utils/inspectionStorage";
 
-/* =============================
-   PDF – INSPECCIÓN HIDRO
-   SOLO LECTURA
-============================= */
+/* =====================================================
+   PDF INSPECCIÓN HIDROSUCCIONADOR
+   - SOLO LECTURA
+   - HTML REAL
+   - VISTA PREVIA + DESCARGA
+===================================================== */
+
 export default function InspeccionHidroPdf() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
+  const [ready, setReady] = useState(false);
 
   /* =============================
-     CARGAR DATOS
+     CARGAR INSPECCIÓN
   ============================= */
   useEffect(() => {
     const stored = getInspectionById("hidro", id);
-    if (!stored?.data) {
-      alert("No se encontró la inspección");
+
+    if (!stored || !stored.data) {
+      alert("No se encontró la inspección.");
       navigate("/inspeccion");
       return;
     }
-    setData(stored.data);
-  }, [id, navigate]);
 
-  if (!data) return null;
+    setData(stored.data);
+
+    // 👇 clave: esperamos a que React renderice TODO
+    setTimeout(() => {
+      setReady(true);
+    }, 500);
+  }, [id, navigate]);
 
   /* =============================
      GENERAR PDF
   ============================= */
-  const generatePdf = (preview = true) => {
+  const generatePdf = async (preview = true) => {
+    if (!ready) {
+      alert("El PDF aún se está preparando, intenta de nuevo.");
+      return;
+    }
+
     const element = document.getElementById("pdf-hidro");
+
+    if (!element) {
+      alert("No se encontró el contenido del PDF.");
+      return;
+    }
 
     const options = {
       margin: 5,
       filename: `ASTAP_INSPECCION_HIDRO_${id}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      },
+      jsPDF: {
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+      },
     };
 
     const worker = html2pdf().set(options).from(element);
 
     if (preview) {
-      worker.outputPdf("bloburl").then((url) => {
-        window.open(url, "_blank");
-      });
+      const url = await worker.outputPdf("bloburl");
+      window.open(url, "_blank");
     } else {
-      worker.save();
+      await worker.save();
     }
   };
+
+  if (!data) return null;
 
   /* =============================
      RENDER
   ============================= */
   return (
     <div className="min-h-screen bg-slate-100 p-6">
-      {/* BOTONES */}
+      {/* ================= BOTONES ================= */}
       <div className="flex gap-3 mb-4">
         <button
           onClick={() => generatePdf(true)}
@@ -65,12 +93,14 @@ export default function InspeccionHidroPdf() {
         >
           👁 Ver PDF
         </button>
+
         <button
           onClick={() => generatePdf(false)}
           className="px-4 py-2 bg-green-600 text-white rounded"
         >
           ⬇ Descargar PDF
         </button>
+
         <button
           onClick={() => navigate("/inspeccion")}
           className="px-4 py-2 border rounded"
@@ -79,9 +109,7 @@ export default function InspeccionHidroPdf() {
         </button>
       </div>
 
-      {/* =============================
-         CONTENIDO PDF
-      ============================= */}
+      {/* ================= CONTENIDO PDF ================= */}
       <div
         id="pdf-hidro"
         className="bg-white p-6 text-sm text-black"
@@ -91,13 +119,17 @@ export default function InspeccionHidroPdf() {
           <tbody>
             <tr>
               <td className="border p-2 text-center w-32">
-                <img src="/astap-logo.jpg" className="mx-auto h-16" />
+                <img
+                  src="/astap-logo.jpg"
+                  className="mx-auto h-16"
+                />
               </td>
               <td className="border p-2 text-center font-bold text-lg">
                 HOJA DE INSPECCIÓN HIDROSUCCIONADOR
               </td>
               <td className="border p-2 text-xs">
-                Fecha versión: 01-01-26<br />
+                Fecha versión: 01-01-26
+                <br />
                 Versión: 01
               </td>
             </tr>
@@ -115,19 +147,30 @@ export default function InspeccionHidroPdf() {
               ["Correo", data.correo],
               ["Técnico", data.tecnicoResponsable],
               ["Fecha servicio", data.fechaServicio],
-            ].map(([l, v]) => (
-              <tr key={l}>
-                <td className="border p-2 font-semibold w-48">{l}</td>
-                <td className="border p-2">{v || "—"}</td>
+            ].map(([label, value]) => (
+              <tr key={label}>
+                <td className="border p-2 font-semibold w-48">
+                  {label}
+                </td>
+                <td className="border p-2">
+                  {value || "—"}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
 
         {/* ===== ESTADO DEL EQUIPO ===== */}
-        <h3 className="font-semibold mb-2">Estado del equipo</h3>
+        <h3 className="font-semibold mb-2">
+          Estado del equipo
+        </h3>
+
         <div className="relative border mb-3">
-          <img src="/estado-equipo.png" className="w-full" />
+          <img
+            src="/estado-equipo.png"
+            className="w-full"
+          />
+
           {data.estadoEquipoPuntos?.map((pt) => (
             <div
               key={pt.id}
@@ -145,7 +188,8 @@ export default function InspeccionHidroPdf() {
 
         {data.estadoEquipoPuntos?.map((pt) => (
           <div key={pt.id} className="text-xs mb-1">
-            <strong>{pt.id})</strong> {pt.nota || "—"}
+            <strong>{pt.id})</strong>{" "}
+            {pt.nota || "—"}
           </div>
         ))}
 
@@ -166,8 +210,12 @@ export default function InspeccionHidroPdf() {
             {Object.entries(data.items || {}).map(
               ([codigo, item]) => (
                 <tr key={codigo}>
-                  <td className="border p-1">{codigo}</td>
-                  <td className="border p-1">{item.estado || "—"}</td>
+                  <td className="border p-1">
+                    {codigo}
+                  </td>
+                  <td className="border p-1">
+                    {item.estado || "—"}
+                  </td>
                   <td className="border p-1">
                     {item.observacion || "—"}
                   </td>
@@ -191,10 +239,14 @@ export default function InspeccionHidroPdf() {
               ["Año", data.anioModelo],
               ["VIN", data.vin],
               ["Placa", data.placa],
-            ].map(([l, v]) => (
-              <tr key={l}>
-                <td className="border p-2 font-semibold w-48">{l}</td>
-                <td className="border p-2">{v || "—"}</td>
+            ].map(([label, value]) => (
+              <tr key={label}>
+                <td className="border p-2 font-semibold w-48">
+                  {label}
+                </td>
+                <td className="border p-2">
+                  {value || "—"}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -203,7 +255,9 @@ export default function InspeccionHidroPdf() {
         {/* ===== FIRMAS ===== */}
         <div className="grid grid-cols-2 gap-6 mt-6 text-center">
           <div>
-            <p className="font-semibold mb-2">Firma técnico</p>
+            <p className="font-semibold mb-2">
+              Firma técnico
+            </p>
             {data.firmas?.tecnico ? (
               <img
                 src={data.firmas.tecnico}
@@ -217,7 +271,9 @@ export default function InspeccionHidroPdf() {
           </div>
 
           <div>
-            <p className="font-semibold mb-2">Firma cliente</p>
+            <p className="font-semibold mb-2">
+              Firma cliente
+            </p>
             {data.firmas?.cliente ? (
               <img
                 src={data.firmas.cliente}
