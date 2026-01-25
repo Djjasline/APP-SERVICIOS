@@ -1,215 +1,171 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { getInspectionById } from "@/utils/inspectionStorage";
 
-export default function InformePDF() {
-  const navigate = useNavigate();
+export default function InspeccionHidroPdf() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const [inspection, setInspection] = useState(null);
 
-  const [report, setReport] = useState(null);
-
-  /* ===========================
-     CARGAR INFORME
-  =========================== */
+  /* =============================
+     CARGAR INSPECCIÓN
+  ============================== */
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
-    const found = stored.find((r) => String(r.id) === String(id));
+    const stored = getInspectionById("hidro", id);
 
-    if (found) {
-      setReport(found);
+    // 🔒 SOLO COMPLETADAS
+    if (!stored || stored.estado !== "completada") {
+      navigate("/inspeccion");
+      return;
     }
-  }, [id]);
 
-  if (!report) {
-    return (
-      <div className="p-6 text-center">
-        <p>No se encontró el informe.</p>
-        <button
-          onClick={() => navigate("/informe")}
-          className="border px-4 py-2 rounded mt-4"
-        >
-          Volver
-        </button>
-      </div>
-    );
+    setInspection(stored.data);
+  }, [id, navigate]);
+
+  if (!inspection) {
+    return <div className="p-6">Cargando…</div>;
   }
 
-  const { data } = report;
+  const {
+    cliente = "",
+    direccion = "",
+    contacto = "",
+    telefono = "",
+    correo = "",
+    tecnicoResponsable = "",
+    telefonoTecnico = "",
+    correoTecnico = "",
+    fechaServicio = "",
+    estadoEquipoPuntos = [],
+    items = {},
+    nota = "",
+    marca = "",
+    modelo = "",
+    serie = "",
+    anioModelo = "",
+    vin = "",
+    placa = "",
+    horasModulo = "",
+    horasChasis = "",
+    kilometraje = "",
+    firmas = {},
+  } = inspection;
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="pdf-container max-w-6xl mx-auto">
+    <div className="bg-gray-100 min-h-screen p-6">
+      <div className="max-w-6xl mx-auto bg-white p-6">
 
-{/* ================= ENCABEZADO ================= */}
-<table className="pdf-table">
-  <tbody>
-    <tr>
-      <td
-        rowSpan={4}
-        style={{ width: 140, textAlign: "center" }}
-      >
-        <img
-          src="/astap-logo.jpg"
-          alt="ASTAP"
-          style={{ maxHeight: 70, margin: "0 auto" }}
-        />
-      </td>
+        {/* ================= ENCABEZADO ================= */}
+        <table className="w-full border-collapse border text-sm mb-4">
+          <tbody>
+            <tr>
+              <td rowSpan={4} className="border w-32 text-center p-2">
+                <img
+                  src="/astap-logo.jpg"
+                  alt="ASTAP"
+                  style={{ maxHeight: 70, margin: "0 auto" }}
+                />
+              </td>
+              <td colSpan={2} className="border text-center font-bold">
+                HOJA DE INSPECCIÓN HIDROSUCCIONADOR
+              </td>
+              <td className="border p-2">
+                <div>Fecha versión: <strong>01-01-26</strong></div>
+                <div>Versión: <strong>01</strong></div>
+              </td>
+            </tr>
+            <tr>
+              <td className="border font-semibold p-2">CLIENTE</td>
+              <td colSpan={2} className="border p-2">{cliente}</td>
+            </tr>
+            <tr>
+              <td className="border font-semibold p-2">DIRECCIÓN</td>
+              <td colSpan={2} className="border p-2">{direccion}</td>
+            </tr>
+            <tr>
+              <td className="border font-semibold p-2">FECHA SERVICIO</td>
+              <td colSpan={2} className="border p-2">{fechaServicio}</td>
+            </tr>
+          </tbody>
+        </table>
 
-      <td colSpan={2} className="pdf-title">
-        INFORME GENERAL DE SERVICIOS
-      </td>
+        {/* ================= ESTADO DEL EQUIPO ================= */}
+        <h3 className="font-semibold mb-2">ESTADO DEL EQUIPO</h3>
 
-      <td style={{ width: 180, fontSize: 12 }}>
-        <div>Fecha versión: <strong>01-01-26</strong></div>
-        <div>Versión: <strong>01</strong></div>
-      </td>
-    </tr>
+        <div className="relative border mb-2">
+          <img src="/estado-equipo.png" className="w-full" />
+          {estadoEquipoPuntos.map((pt) => (
+            <div
+              key={pt.id}
+              style={{
+                position: "absolute",
+                left: `${pt.x}%`,
+                top: `${pt.y}%`,
+                transform: "translate(-50%, -50%)",
+                background: "red",
+                color: "#fff",
+                width: 20,
+                height: 20,
+                borderRadius: "50%",
+                fontSize: 12,
+                textAlign: "center",
+                lineHeight: "20px",
+              }}
+            >
+              {pt.id}
+            </div>
+          ))}
+        </div>
 
-    <tr>
-      <td className="pdf-label">REFERENCIA CONTRATO</td>
-      <td colSpan={2}>{data.referenciaContrato}</td>
-    </tr>
+        {estadoEquipoPuntos.map((pt) => (
+          <p key={pt.id} className="text-sm">
+            <strong>{pt.id})</strong> {pt.nota || "—"}
+          </p>
+        ))}
 
-    <tr>
-      <td className="pdf-label">DESCRIPCIÓN</td>
-      <td colSpan={2}>{data.descripcion}</td>
-    </tr>
+        {/* ================= DESCRIPCIÓN EQUIPO ================= */}
+        <h3 className="font-semibold mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
 
-    <tr>
-      <td className="pdf-label">COD. INF.</td>
-      <td colSpan={2}>{data.codInf}</td>
-    </tr>
-  </tbody>
-</table>
-
-
-        {/* ================= DATOS CLIENTE ================= */}
-        <table className="pdf-table mt-4">
+        <table className="w-full border text-sm border-collapse">
           <tbody>
             {[
-              ["CLIENTE", data.cliente],
-              ["DIRECCIÓN", data.direccion],
-              ["CONTACTO", data.contacto],
-              ["TELÉFONO", data.telefono],
-              ["CORREO", data.correo],
-              ["TÉCNICO RESPONSABLE", data.tecnicoNombre],
-              ["TELÉFONO TÉCNICO", data.tecnicoTelefono],
-              ["CORREO TÉCNICO", data.tecnicoCorreo],
-              ["FECHA DE SERVICIO", data.fechaServicio],
-            ].map(([label, value], i) => (
+              ["NOTA", nota],
+              ["MARCA", marca],
+              ["MODELO", modelo],
+              ["SERIE", serie],
+              ["AÑO MODELO", anioModelo],
+              ["VIN", vin],
+              ["PLACA", placa],
+              ["HORAS MÓDULO", horasModulo],
+              ["HORAS CHASIS", horasChasis],
+              ["KILOMETRAJE", kilometraje],
+            ].map(([l, v], i) => (
               <tr key={i}>
-                <td className="pdf-label">{label}</td>
-                <td>{value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* ================= ACTIVIDADES ================= */}
-        <h3 className="pdf-title mt-4">ACTIVIDADES REALIZADAS</h3>
-
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th style={{ width: 40 }}>ÍTEM</th>
-              <th>DESCRIPCIÓN</th>
-              <th style={{ width: 220 }}>IMAGEN</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.actividades.map((a, i) => (
-              <tr key={i}>
-                <td className="text-center">{i + 1}</td>
-                <td>
-                  <strong>{a.titulo}</strong>
-                  <div style={{ whiteSpace: "pre-wrap" }}>{a.detalle}</div>
-                </td>
-                <td className="text-center">
-                  {a.imagen && (
-                    <img
-                      src={a.imagen}
-                      alt="actividad"
-                      style={{ maxWidth: 180 }}
-                    />
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
-        <table className="pdf-table mt-4">
-          <thead>
-            <tr>
-              <th colSpan={2}>CONCLUSIONES</th>
-              <th colSpan={2}>RECOMENDACIONES</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.conclusiones.map((c, i) => (
-              <tr key={i}>
-                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
-                <td style={{ whiteSpace: "pre-wrap" }}>{c}</td>
-                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
-                <td style={{ whiteSpace: "pre-wrap" }}>
-                  {data.recomendaciones[i]}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-        <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
-
-        <table className="pdf-table">
-          <tbody>
-            {[
-              ["NOTA", data.equipo.nota],
-              ["MARCA", data.equipo.marca],
-              ["MODELO", data.equipo.modelo],
-              ["N° SERIE", data.equipo.serie],
-              ["AÑO MODELO", data.equipo.anio],
-              ["VIN / CHASIS", data.equipo.vin],
-              ["PLACA", data.equipo.placa],
-              ["HORAS MÓDULO", data.equipo.horasModulo],
-              ["HORAS CHASIS", data.equipo.horasChasis],
-              ["KILOMETRAJE", data.equipo.kilometraje],
-            ].map(([label, value], i) => (
-              <tr key={i}>
-                <td className="pdf-label">{label}</td>
-                <td>{value}</td>
+                <td className="border font-semibold p-2">{l}</td>
+                <td className="border p-2">{v}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
         {/* ================= FIRMAS ================= */}
-        <table className="pdf-table mt-4">
+        <table className="w-full border-collapse border text-sm mt-6">
           <thead>
             <tr>
-              <th>FIRMA TÉCNICO ASTAP</th>
-              <th>FIRMA CLIENTE</th>
+              <th className="border p-2">FIRMA TÉCNICO ASTAP</th>
+              <th className="border p-2">FIRMA CLIENTE</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td style={{ height: 140, textAlign: "center" }}>
-                {data.firmas.tecnico && (
-                  <img
-                    src={data.firmas.tecnico}
-                    alt="firma tecnico"
-                    style={{ maxHeight: 120 }}
-                  />
+              <td className="border text-center p-4">
+                {firmas.tecnico && (
+                  <img src={firmas.tecnico} style={{ maxHeight: 120 }} />
                 )}
               </td>
-              <td style={{ height: 140, textAlign: "center" }}>
-                {data.firmas.cliente && (
-                  <img
-                    src={data.firmas.cliente}
-                    alt="firma cliente"
-                    style={{ maxHeight: 120 }}
-                  />
+              <td className="border text-center p-4">
+                {firmas.cliente && (
+                  <img src={firmas.cliente} style={{ maxHeight: 120 }} />
                 )}
               </td>
             </tr>
@@ -219,7 +175,7 @@ export default function InformePDF() {
         {/* ================= BOTONES ================= */}
         <div className="no-print flex justify-between mt-6">
           <button
-            onClick={() => navigate("/informe")}
+            onClick={() => navigate("/inspeccion")}
             className="border px-6 py-2 rounded"
           >
             Volver
@@ -227,7 +183,7 @@ export default function InformePDF() {
 
           <button
             onClick={() => window.print()}
-            className="bg-green-600 text-white px-6 py-2 rounded"
+            className="bg-blue-600 text-white px-6 py-2 rounded"
           >
             Descargar PDF
           </button>
