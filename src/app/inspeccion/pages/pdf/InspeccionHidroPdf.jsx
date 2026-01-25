@@ -1,292 +1,236 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import html2pdf from "html2pdf.js";
-import { getInspectionById } from "@/utils/inspectionStorage";
+import { useNavigate, useParams } from "react-router-dom";
 
-/* =====================================================
-   PDF INSPECCIÓN HIDROSUCCIONADOR
-   - SOLO LECTURA
-   - HTML REAL
-   - VISTA PREVIA + DESCARGA
-===================================================== */
-
-export default function InspeccionHidroPdf() {
-  const { id } = useParams();
+export default function InformePDF() {
   const navigate = useNavigate();
-  const [data, setData] = useState(null);
-  const [ready, setReady] = useState(false);
+  const { id } = useParams();
 
-  /* =============================
-     CARGAR INSPECCIÓN
-  ============================= */
+  const [report, setReport] = useState(null);
+
+  /* ===========================
+     CARGAR INFORME
+  =========================== */
   useEffect(() => {
-    const stored = getInspectionById("hidro", id);
+    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
+    const found = stored.find((r) => String(r.id) === String(id));
 
-    if (!stored || !stored.data) {
-      alert("No se encontró la inspección.");
-      navigate("/inspeccion");
-      return;
+    if (found) {
+      setReport(found);
     }
+  }, [id]);
 
-    setData(stored.data);
-
-    // 👇 clave: esperamos a que React renderice TODO
-    setTimeout(() => {
-      setReady(true);
-    }, 500);
-  }, [id, navigate]);
-
-  /* =============================
-     GENERAR PDF
-  ============================= */
-  const generatePdf = async (preview = true) => {
-    if (!ready) {
-      alert("El PDF aún se está preparando, intenta de nuevo.");
-      return;
-    }
-
-    const element = document.getElementById("pdf-hidro");
-
-    if (!element) {
-      alert("No se encontró el contenido del PDF.");
-      return;
-    }
-
-    const options = {
-      margin: 5,
-      filename: `ASTAP_INSPECCION_HIDRO_${id}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-      },
-      jsPDF: {
-        unit: "mm",
-        format: "a4",
-        orientation: "portrait",
-      },
-    };
-
-    const worker = html2pdf().set(options).from(element);
-
-    if (preview) {
-      const url = await worker.outputPdf("bloburl");
-      window.open(url, "_blank");
-    } else {
-      await worker.save();
-    }
-  };
-
-  if (!data) return null;
-
-  /* =============================
-     RENDER
-  ============================= */
-  return (
-    <div className="min-h-screen bg-slate-100 p-6">
-      {/* ================= BOTONES ================= */}
-      <div className="flex gap-3 mb-4">
+  if (!report) {
+    return (
+      <div className="p-6 text-center">
+        <p>No se encontró el informe.</p>
         <button
-          onClick={() => generatePdf(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded"
+          onClick={() => navigate("/informe")}
+          className="border px-4 py-2 rounded mt-4"
         >
-          👁 Ver PDF
+          Volver
         </button>
-
-        <button
-          onClick={() => generatePdf(false)}
-          className="px-4 py-2 bg-green-600 text-white rounded"
-        >
-          ⬇ Descargar PDF
-        </button>
-
-       <button
-  type="button"
-  onClick={() => navigate(`/inspeccion/hidro/${id}/pdf`)}
-  className="px-4 py-2 bg-green-600 text-white rounded"
->
-  Ver PDF
-</button>
-
       </div>
+    );
+  }
 
-      {/* ================= CONTENIDO PDF ================= */}
-      <div
-        id="pdf-hidro"
-        className="bg-white p-6 text-sm text-black"
+  const { data } = report;
+
+  return (
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="pdf-container max-w-6xl mx-auto">
+
+{/* ================= ENCABEZADO ================= */}
+<table className="pdf-table">
+  <tbody>
+    <tr>
+      <td
+        rowSpan={4}
+        style={{ width: 140, textAlign: "center" }}
       >
-        {/* ===== ENCABEZADO ===== */}
-        <table className="w-full border-collapse border mb-4">
-          <tbody>
-            <tr>
-              <td className="border p-2 text-center w-32">
-                <img
-                  src="/astap-logo.jpg"
-                  className="mx-auto h-16"
-                />
-              </td>
-              <td className="border p-2 text-center font-bold text-lg">
-                HOJA DE INSPECCIÓN HIDROSUCCIONADOR
-              </td>
-              <td className="border p-2 text-xs">
-                Fecha versión: 01-01-26
-                <br />
-                Versión: 01
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <img
+          src="/astap-logo.jpg"
+          alt="ASTAP"
+          style={{ maxHeight: 70, margin: "0 auto" }}
+        />
+      </td>
 
-        {/* ===== DATOS GENERALES ===== */}
-        <table className="w-full border mb-4">
+      <td colSpan={2} className="pdf-title">
+        INFORME GENERAL DE SERVICIOS
+      </td>
+
+      <td style={{ width: 180, fontSize: 12 }}>
+        <div>Fecha versión: <strong>01-01-26</strong></div>
+        <div>Versión: <strong>01</strong></div>
+      </td>
+    </tr>
+
+    <tr>
+      <td className="pdf-label">REFERENCIA CONTRATO</td>
+      <td colSpan={2}>{data.referenciaContrato}</td>
+    </tr>
+
+    <tr>
+      <td className="pdf-label">DESCRIPCIÓN</td>
+      <td colSpan={2}>{data.descripcion}</td>
+    </tr>
+
+    <tr>
+      <td className="pdf-label">COD. INF.</td>
+      <td colSpan={2}>{data.codInf}</td>
+    </tr>
+  </tbody>
+</table>
+
+
+        {/* ================= DATOS CLIENTE ================= */}
+        <table className="pdf-table mt-4">
           <tbody>
             {[
-              ["Cliente", data.cliente],
-              ["Dirección", data.direccion],
-              ["Contacto", data.contacto],
-              ["Teléfono", data.telefono],
-              ["Correo", data.correo],
-              ["Técnico", data.tecnicoResponsable],
-              ["Fecha servicio", data.fechaServicio],
-            ].map(([label, value]) => (
-              <tr key={label}>
-                <td className="border p-2 font-semibold w-48">
-                  {label}
-                </td>
-                <td className="border p-2">
-                  {value || "—"}
-                </td>
+              ["CLIENTE", data.cliente],
+              ["DIRECCIÓN", data.direccion],
+              ["CONTACTO", data.contacto],
+              ["TELÉFONO", data.telefono],
+              ["CORREO", data.correo],
+              ["TÉCNICO RESPONSABLE", data.tecnicoNombre],
+              ["TELÉFONO TÉCNICO", data.tecnicoTelefono],
+              ["CORREO TÉCNICO", data.tecnicoCorreo],
+              ["FECHA DE SERVICIO", data.fechaServicio],
+            ].map(([label, value], i) => (
+              <tr key={i}>
+                <td className="pdf-label">{label}</td>
+                <td>{value}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        {/* ===== ESTADO DEL EQUIPO ===== */}
-        <h3 className="font-semibold mb-2">
-          Estado del equipo
-        </h3>
+        {/* ================= ACTIVIDADES ================= */}
+        <h3 className="pdf-title mt-4">ACTIVIDADES REALIZADAS</h3>
 
-        <div className="relative border mb-3">
-          <img
-            src="/estado-equipo.png"
-            className="w-full"
-          />
-
-          {data.estadoEquipoPuntos?.map((pt) => (
-            <div
-              key={pt.id}
-              className="absolute bg-red-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full"
-              style={{
-                left: `${pt.x}%`,
-                top: `${pt.y}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              {pt.id}
-            </div>
-          ))}
-        </div>
-
-        {data.estadoEquipoPuntos?.map((pt) => (
-          <div key={pt.id} className="text-xs mb-1">
-            <strong>{pt.id})</strong>{" "}
-            {pt.nota || "—"}
-          </div>
-        ))}
-
-        {/* ===== CHECKLIST ===== */}
-        <h3 className="font-semibold mt-4 mb-2">
-          Evaluación de sistemas
-        </h3>
-
-        <table className="w-full border text-xs">
-          <thead className="bg-gray-100">
+        <table className="pdf-table">
+          <thead>
             <tr>
-              <th className="border p-1">Ítem</th>
-              <th className="border p-1">Estado</th>
-              <th className="border p-1">Observación</th>
+              <th style={{ width: 40 }}>ÍTEM</th>
+              <th>DESCRIPCIÓN</th>
+              <th style={{ width: 220 }}>IMAGEN</th>
             </tr>
           </thead>
           <tbody>
-            {Object.entries(data.items || {}).map(
-              ([codigo, item]) => (
-                <tr key={codigo}>
-                  <td className="border p-1">
-                    {codigo}
-                  </td>
-                  <td className="border p-1">
-                    {item.estado || "—"}
-                  </td>
-                  <td className="border p-1">
-                    {item.observacion || "—"}
-                  </td>
-                </tr>
-              )
-            )}
-          </tbody>
-        </table>
-
-        {/* ===== DESCRIPCIÓN EQUIPO ===== */}
-        <h3 className="font-semibold mt-4 mb-2">
-          Descripción del equipo
-        </h3>
-
-        <table className="w-full border">
-          <tbody>
-            {[
-              ["Marca", data.marca],
-              ["Modelo", data.modelo],
-              ["Serie", data.serie],
-              ["Año", data.anioModelo],
-              ["VIN", data.vin],
-              ["Placa", data.placa],
-            ].map(([label, value]) => (
-              <tr key={label}>
-                <td className="border p-2 font-semibold w-48">
-                  {label}
+            {data.actividades.map((a, i) => (
+              <tr key={i}>
+                <td className="text-center">{i + 1}</td>
+                <td>
+                  <strong>{a.titulo}</strong>
+                  <div style={{ whiteSpace: "pre-wrap" }}>{a.detalle}</div>
                 </td>
-                <td className="border p-2">
-                  {value || "—"}
+                <td className="text-center">
+                  {a.imagen && (
+                    <img
+                      src={a.imagen}
+                      alt="actividad"
+                      style={{ maxWidth: 180 }}
+                    />
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        {/* ===== FIRMAS ===== */}
-        <div className="grid grid-cols-2 gap-6 mt-6 text-center">
-          <div>
-            <p className="font-semibold mb-2">
-              Firma técnico
-            </p>
-            {data.firmas?.tecnico ? (
-              <img
-                src={data.firmas.tecnico}
-                className="mx-auto h-24 border"
-              />
-            ) : (
-              <div className="h-24 border flex items-center justify-center">
-                —
-              </div>
-            )}
-          </div>
+        {/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
+        <table className="pdf-table mt-4">
+          <thead>
+            <tr>
+              <th colSpan={2}>CONCLUSIONES</th>
+              <th colSpan={2}>RECOMENDACIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.conclusiones.map((c, i) => (
+              <tr key={i}>
+                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
+                <td style={{ whiteSpace: "pre-wrap" }}>{c}</td>
+                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
+                <td style={{ whiteSpace: "pre-wrap" }}>
+                  {data.recomendaciones[i]}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-          <div>
-            <p className="font-semibold mb-2">
-              Firma cliente
-            </p>
-            {data.firmas?.cliente ? (
-              <img
-                src={data.firmas.cliente}
-                className="mx-auto h-24 border"
-              />
-            ) : (
-              <div className="h-24 border flex items-center justify-center">
-                —
-              </div>
-            )}
-          </div>
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
+
+        <table className="pdf-table">
+          <tbody>
+            {[
+              ["NOTA", data.equipo.nota],
+              ["MARCA", data.equipo.marca],
+              ["MODELO", data.equipo.modelo],
+              ["N° SERIE", data.equipo.serie],
+              ["AÑO MODELO", data.equipo.anio],
+              ["VIN / CHASIS", data.equipo.vin],
+              ["PLACA", data.equipo.placa],
+              ["HORAS MÓDULO", data.equipo.horasModulo],
+              ["HORAS CHASIS", data.equipo.horasChasis],
+              ["KILOMETRAJE", data.equipo.kilometraje],
+            ].map(([label, value], i) => (
+              <tr key={i}>
+                <td className="pdf-label">{label}</td>
+                <td>{value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* ================= FIRMAS ================= */}
+        <table className="pdf-table mt-4">
+          <thead>
+            <tr>
+              <th>FIRMA TÉCNICO ASTAP</th>
+              <th>FIRMA CLIENTE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ height: 140, textAlign: "center" }}>
+                {data.firmas.tecnico && (
+                  <img
+                    src={data.firmas.tecnico}
+                    alt="firma tecnico"
+                    style={{ maxHeight: 120 }}
+                  />
+                )}
+              </td>
+              <td style={{ height: 140, textAlign: "center" }}>
+                {data.firmas.cliente && (
+                  <img
+                    src={data.firmas.cliente}
+                    alt="firma cliente"
+                    style={{ maxHeight: 120 }}
+                  />
+                )}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* ================= BOTONES ================= */}
+        <div className="no-print flex justify-between mt-6">
+          <button
+            onClick={() => navigate("/informe")}
+            className="border px-6 py-2 rounded"
+          >
+            Volver
+          </button>
+
+          <button
+            onClick={() => window.print()}
+            className="bg-green-600 text-white px-6 py-2 rounded"
+          >
+            Descargar PDF
+          </button>
         </div>
       </div>
     </div>
