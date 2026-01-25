@@ -101,12 +101,14 @@ export default function InspeccionHidroPdf() {
           ⬇ Descargar PDF
         </button>
 
-        <button
-          onClick={() => navigate("/inspeccion")}
-          className="px-4 py-2 border rounded"
-        >
-          Volver
-        </button>
+       <button
+  type="button"
+  onClick={() => navigate(`/inspeccion/hidro/${id}/pdf`)}
+  className="px-4 py-2 bg-green-600 text-white rounded"
+>
+  Ver PDF
+</button>
+
       </div>
 
       {/* ================= CONTENIDO PDF ================= */}
