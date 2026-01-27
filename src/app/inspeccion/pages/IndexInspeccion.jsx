@@ -124,13 +124,13 @@ const Card = ({ title, type, description }) => {
                 <div className="flex items-center gap-2">
                   <StatusBadge estado={item.estado} />
 
-                  {/* PDF SOLO PARA COMPLETADOS (HTML → PDF) */}
+                  {/* ✅ PDF SOLO PARA COMPLETADOS */}
                   {item.estado === "completada" && (
                     <button
                       type="button"
                       onClick={() =>
                         navigate(
-                          `/inspeccion/${type}/${item.id}?pdf=1`
+                          `/inspeccion/${type}/${item.id}/pdf`
                         )
                       }
                       className="text-xs text-green-600 hover:underline"
