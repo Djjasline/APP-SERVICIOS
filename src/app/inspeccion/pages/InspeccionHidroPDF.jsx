@@ -78,7 +78,7 @@ const secciones = [
   },
 ];
 
-export default function InspectionHidroPDF() {
+export default function InspeccionHidroPdf() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [inspection, setInspection] = useState(null);
@@ -110,12 +110,12 @@ export default function InspectionHidroPDF() {
               </td>
             </tr>
             <tr>
-              <td>REFERENCIA DE CONTRATO</td>
-              <td>{data.referenciaContrato}</td>
+              <td className="pdf-label">REFERENCIA DE CONTRATO</td>
+              <td>{data.referenciaContrato || "—"}</td>
             </tr>
             <tr>
-              <td>COD. INF.</td>
-              <td>{data.codInf}</td>
+              <td className="pdf-label">COD. INF.</td>
+              <td>{data.codInf || "—"}</td>
             </tr>
           </tbody>
         </table>
@@ -133,7 +133,7 @@ export default function InspectionHidroPDF() {
             ].map(([l, v], i) => (
               <tr key={i}>
                 <td className="pdf-label">{l}</td>
-                <td>{v}</td>
+                <td>{v || "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -172,7 +172,6 @@ export default function InspectionHidroPDF() {
         {secciones.map((sec) => (
           <div key={sec.titulo}>
             <h3 className="pdf-title mt-4">{sec.titulo}</h3>
-
             <table className="pdf-table">
               <thead>
                 <tr>
@@ -204,6 +203,10 @@ export default function InspectionHidroPDF() {
 
         <table className="pdf-table">
           <tbody>
+            <tr>
+              <td className="pdf-label">NOTA</td>
+              <td>{data.nota || "—"}</td>
+            </tr>
             {[
               ["MARCA", data.marca],
               ["MODELO", data.modelo],
@@ -217,7 +220,7 @@ export default function InspectionHidroPDF() {
             ].map(([l, v], i) => (
               <tr key={i}>
                 <td className="pdf-label">{l}</td>
-                <td>{v}</td>
+                <td>{v || "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -235,12 +238,26 @@ export default function InspectionHidroPDF() {
             <tr>
               <td style={{ height: 120, textAlign: "center" }}>
                 {data.firmas?.tecnico && (
-                  <img src={data.firmas.tecnico} style={{ maxHeight: 100 }} />
+                  <img
+                    src={data.firmas.tecnico}
+                    style={{
+                      maxHeight: "100px",
+                      maxWidth: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
                 )}
               </td>
               <td style={{ height: 120, textAlign: "center" }}>
                 {data.firmas?.cliente && (
-                  <img src={data.firmas.cliente} style={{ maxHeight: 100 }} />
+                  <img
+                    src={data.firmas.cliente}
+                    style={{
+                      maxHeight: "100px",
+                      maxWidth: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
                 )}
               </td>
             </tr>
