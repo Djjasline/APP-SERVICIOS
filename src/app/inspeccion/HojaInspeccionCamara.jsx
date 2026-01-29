@@ -60,11 +60,16 @@ export default function HojaInspeccionCamara() {
   referenciaContrato: "",
   descripcion: "",
   codInf: "",
-  fechaInspeccion: "",
-  ubicacion: "",
+    
   cliente: "",
-  tecnicoAstap: "",
-  responsableCliente: "",
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
+    tecnicoResponsable: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
+    fechaServicio: "",
 
   // 👉 ESTADO DEL EQUIPO (puntos rojos)
   estadoEquipoPuntos: [],
@@ -224,10 +229,14 @@ export default function HojaInspeccionCamara() {
       {/* ================= DATOS SERVICIO ================= */}
 <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
   {[
-    ["cliente", "Cliente"],
-    ["ubicacion", "Ubicación"],
-    ["tecnicoAstap", "Técnico ASTAP"],
-    ["responsableCliente", "Responsable cliente"],
+  "cliente", "Cliente"],
+          ["direccion", "Dirección"],
+          ["contacto", "Contacto"],
+          ["telefono", "Teléfono"],
+          ["correo", "Correo"],
+          ["tecnicoResponsable", "Técnico responsable"],
+          ["telefonoTecnico", "Teléfono técnico"],
+          ["correoTecnico", "Correo técnico"],
   ].map(([name, placeholder]) => (
     <input
       key={name}
