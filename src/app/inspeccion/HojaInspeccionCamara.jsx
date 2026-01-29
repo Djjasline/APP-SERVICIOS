@@ -43,9 +43,30 @@ export default function HojaInspeccionBarredora() {
   const firmaClienteRef = useRef(null);
 
   const baseState = {
+    referenciaContrato: "",
+    descripcion: "",
+    codInf: "",
+
     cliente: "",
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
     fechaServicio: "",
+
     estadoEquipoPuntos: [],
+
+    nota: "",
+    marca: "",
+    modelo: "",
+    serie: "",
+    anioModelo: "",
+    vin: "",
+    placa: "",
+    horasModulo: "",
+    horasChasis: "",
+    kilometraje: "",
+
     items: {},
     firmas: { tecnico: "", cliente: "" },
   };
@@ -66,9 +87,11 @@ export default function HojaInspeccionBarredora() {
   ========================= */
   useEffect(() => {
     if (formData.firmas?.tecnico && firmaTecnicoRef.current) {
+      firmaTecnicoRef.current.clear();
       firmaTecnicoRef.current.fromDataURL(formData.firmas.tecnico);
     }
     if (formData.firmas?.cliente && firmaClienteRef.current) {
+      firmaClienteRef.current.clear();
       firmaClienteRef.current.fromDataURL(formData.firmas.cliente);
     }
   }, [formData.firmas]);
@@ -76,6 +99,11 @@ export default function HojaInspeccionBarredora() {
   /* =========================
      HANDLERS
   ========================= */
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
+
   const handleItemChange = (codigo, campo, valor) => {
     setFormData((p) => ({
       ...p,
@@ -89,6 +117,7 @@ export default function HojaInspeccionBarredora() {
     }));
   };
 
+  /* ===== PUNTOS ROJOS ===== */
   const handleImageClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -103,6 +132,9 @@ export default function HojaInspeccionBarredora() {
     }));
   };
 
+  /* =========================
+     SUBMIT
+  ========================= */
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -120,10 +152,10 @@ export default function HojaInspeccionBarredora() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-6xl mx-auto my-6 bg-white p-6 space-y-6"
+      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
       {/* ESTADO DEL EQUIPO */}
-      <section className="border p-4">
+      <section className="border rounded p-4">
         <h2 className="font-semibold mb-2">Estado del equipo</h2>
 
         <div
@@ -131,7 +163,7 @@ export default function HojaInspeccionBarredora() {
           onClick={handleImageClick}
         >
           <img
-            src="/estado equipo barredora.png"
+            src="/estado-equipo-barredora.png"
             className="w-full"
             draggable={false}
           />
@@ -152,40 +184,33 @@ export default function HojaInspeccionBarredora() {
         </div>
       </section>
 
-      {/* SECCIONES */}
-      {secciones.map((sec) => (
-        <section key={sec.id} className="border p-4">
-          <h3 className="font-semibold mb-2">{sec.titulo}</h3>
-          <table className="w-full border text-sm">
-            <tbody>
-              {sec.items.map(([codigo, texto]) => (
-                <tr key={codigo}>
-                  <td>{codigo}</td>
-                  <td>{texto}</td>
-                  <td>
-                    <input
-                      type="radio"
-                      checked={formData.items[codigo]?.estado === "SI"}
-                      onChange={() =>
-                        handleItemChange(codigo, "estado", "SI")
-                      }
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="radio"
-                      checked={formData.items[codigo]?.estado === "NO"}
-                      onChange={() =>
-                        handleItemChange(codigo, "estado", "NO")
-                      }
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      ))}
+      {/* DESCRIPCIÓN DEL EQUIPO */}
+      <section className="border rounded p-4">
+        <h2 className="font-semibold mb-2">DESCRIPCIÓN DEL EQUIPO</h2>
+
+        {[
+          ["nota", "NOTA"],
+          ["marca", "MARCA"],
+          ["modelo", "MODELO"],
+          ["serie", "SERIE"],
+          ["anioModelo", "AÑO MODELO"],
+          ["vin", "VIN / CHASIS"],
+          ["placa", "PLACA"],
+          ["horasModulo", "HORAS MÓDULO"],
+          ["horasChasis", "HORAS CHASIS"],
+          ["kilometraje", "KILOMETRAJE"],
+        ].map(([name, label]) => (
+          <div key={name} className="grid grid-cols-4 gap-2 mb-2">
+            <label className="font-semibold">{label}</label>
+            <input
+              name={name}
+              value={formData[name]}
+              onChange={handleChange}
+              className="col-span-3 border p-1"
+            />
+          </div>
+        ))}
+      </section>
 
       {/* FIRMAS */}
       <section className="grid grid-cols-2 gap-6">
