@@ -14,11 +14,11 @@ const secciones = [
     id: "A",
     titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
     items: [
-      ["A.1", "Fugas de aceite hidráulico (mangueras, acoples, bancos, cilindros y solenoides)"],
-      ["A.2", "Nivel de aceite del tanque AW68, ¿se visualiza la mirilla?"],
-      ["A.3", "Fugas de aceite en motores de cepillos"],
-      ["A.4", "Fugas de aceite en motor de banda"],
-      ["A.5", "Fugas de bombas hidráulicas"],
+      ["A.1", "Fugas de aceite hidráulico"],
+      ["A.2", "Nivel de aceite del tanque AW68"],
+      ["A.3", "Fugas en motores de cepillos"],
+      ["A.4", "Fugas en motor de banda"],
+      ["A.5", "Fugas en bombas hidráulicas"],
       ["A.6", "Fugas en motor John Deere"],
     ],
   },
@@ -26,29 +26,29 @@ const secciones = [
     id: "B",
     titulo: "B) SISTEMA DE CONTROL DE POLVO (AGUA)",
     items: [
-      ["B.1", "Inspección de fugas de agua (mangueras, acoples)"],
-      ["B.2", "Estado del filtro para agua"],
+      ["B.1", "Fugas de agua"],
+      ["B.2", "Estado del filtro de agua"],
       ["B.3", "Estado de válvulas check"],
-      ["B.4", "Estado de solenoides de apertura de agua"],
-      ["B.5", "Estado de la bomba eléctrica de agua"],
-      ["B.6", "Estado de los aspersores de cepillos"],
-      ["B.7", "Estado de la manguera de carga de agua hidrante"],
-      ["B.8", "Inspección del medidor de nivel del tanque"],
-      ["B.9", "Inspección del sistema de llenado de agua"],
+      ["B.4", "Solenoides de apertura"],
+      ["B.5", "Bomba eléctrica de agua"],
+      ["B.6", "Aspersores de cepillos"],
+      ["B.7", "Manguera de carga de agua"],
+      ["B.8", "Medidor de nivel"],
+      ["B.9", "Sistema de llenado"],
     ],
   },
   {
     id: "C",
     titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
     items: [
-      ["C.1", "Inspección visual de conectores de bancos de control"],
-      ["C.2", "Evaluar funcionamiento al encender el equipo"],
-      ["C.3", "Estado del tablero de control de cabina"],
-      ["C.4", "Inspección de batería"],
-      ["C.5", "Inspección de luces externas"],
-      ["C.6", "Diagnóstico con service tool (opcional)"],
-      ["C.7", "Estado del limpia parabrisas"],
-      ["C.8", "Conexiones externas (GPS / radio)"],
+      ["C.1", "Conectores de bancos de control"],
+      ["C.2", "Encendido del equipo"],
+      ["C.3", "Tablero de cabina"],
+      ["C.4", "Estado de batería"],
+      ["C.5", "Luces externas"],
+      ["C.6", "Diagnóstico con service tool"],
+      ["C.7", "Limpia parabrisas"],
+      ["C.8", "Conexiones externas"],
     ],
   },
   {
@@ -56,27 +56,52 @@ const secciones = [
     titulo: "D) SISTEMA DE SUCCIÓN",
     items: [
       ["D.1", "Estado de la banda"],
-      ["D.2", "Estado de las cerdas de los cepillos"],
+      ["D.2", "Cerdas de cepillos"],
       ["D.3", "Estado de la tolva"],
-      ["D.4", "Funcionamiento de la tolva"],
-      ["D.5", "Funcionamiento de la banda"],
-      ["D.6", "Estado de zapatas de arrastre"],
-    ],
-  },
-  {
-    id: "E",
-    titulo: "E) MOTOR JOHN DEERE",
-    items: [
-      ["E.1", "Estado de filtros de aire 1° y 2°"],
-      ["E.2", "Filtro combustible trampa de agua"],
-      ["E.3", "Filtro de combustible"],
-      ["E.4", "Filtro de aceite"],
-      ["E.5", "Nivel de aceite de motor"],
-      ["E.6", "Estado y nivel del refrigerante"],
-      ["E.7", "Filtro A/C cabina"],
+      ["D.4", "Funcionamiento de tolva"],
+      ["D.5", "Funcionamiento de banda"],
+      ["D.6", "Zapatas de arrastre"],
     ],
   },
 ];
+
+/* =============================
+   BASE STATE — REGLA DE ORO
+============================= */
+const baseState = {
+  referenciaContrato: "",
+  descripcion: "",
+  codInf: "",
+
+  cliente: "",
+  direccion: "",
+  contacto: "",
+  telefono: "",
+  correo: "",
+  tecnicoResponsable: "",
+  telefonoTecnico: "",
+  correoTecnico: "",
+  fechaServicio: "",
+
+  estadoEquipoPuntos: [],
+
+  nota: "",
+  marca: "",
+  modelo: "",
+  serie: "",
+  anioModelo: "",
+  vin: "",
+  placa: "",
+  horasModulo: "",
+  horasChasis: "",
+  kilometraje: "",
+
+  items: {},
+  firmas: {
+    tecnico: "",
+    cliente: "",
+  },
+};
 
 export default function HojaInspeccionBarredora() {
   const { id } = useParams();
@@ -85,59 +110,23 @@ export default function HojaInspeccionBarredora() {
   const firmaTecnicoRef = useRef(null);
   const firmaClienteRef = useRef(null);
 
-  /* =============================
-     ESTADO BASE (IGUAL A HIDRO)
-  ============================= */
-  const baseState = {
-    referenciaContrato: "",
-    descripcion: "",
-    codInf: "",
-
-    cliente: "",
-    direccion: "",
-    contacto: "",
-    telefono: "",
-    correo: "",
-    tecnicoResponsable: "",
-    telefonoTecnico: "",
-    correoTecnico: "",
-    fechaServicio: "",
-
-    estadoEquipoPuntos: [],
-
-    nota: "",
-    marca: "",
-    modelo: "",
-    serie: "",
-    anioModelo: "",
-    vin: "",
-    placa: "",
-    horasModulo: "",
-    horasChasis: "",
-    kilometraje: "",
-
-    items: {},
-    firmas: {
-      tecnico: "",
-      cliente: "",
-    },
-  };
-
   const [formData, setFormData] = useState(baseState);
 
   /* =============================
-     CARGAR INSPECCIÓN
+     CARGAR INSPECCIÓN (EDITAR)
   ============================= */
   useEffect(() => {
     if (!id) return;
+
     const stored = getInspectionById("barredora", id);
+
     if (stored?.data) {
       setFormData({
         ...baseState,
         ...stored.data,
         estadoEquipoPuntos: stored.data.estadoEquipoPuntos || [],
         items: stored.data.items || {},
-        firmas: stored.data.firmas || { tecnico: "", cliente: "" },
+        firmas: stored.data.firmas || baseState.firmas,
       });
     }
   }, [id]);
@@ -146,11 +135,11 @@ export default function HojaInspeccionBarredora() {
      RECARGAR FIRMAS
   ============================= */
   useEffect(() => {
-    if (formData.firmas?.tecnico && firmaTecnicoRef.current) {
+    if (formData.firmas.tecnico && firmaTecnicoRef.current) {
       firmaTecnicoRef.current.clear();
       firmaTecnicoRef.current.fromDataURL(formData.firmas.tecnico);
     }
-    if (formData.firmas?.cliente && firmaClienteRef.current) {
+    if (formData.firmas.cliente && firmaClienteRef.current) {
       firmaClienteRef.current.clear();
       firmaClienteRef.current.fromDataURL(formData.firmas.cliente);
     }
@@ -178,7 +167,7 @@ export default function HojaInspeccionBarredora() {
   };
 
   /* =============================
-     PUNTOS ROJOS
+     ESTADO DEL EQUIPO (PUNTOS)
   ============================= */
   const handleImageClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -194,20 +183,11 @@ export default function HojaInspeccionBarredora() {
     }));
   };
 
-  const handleRemovePoint = (pid) => {
-    setFormData((p) => ({
-      ...p,
-      estadoEquipoPuntos: p.estadoEquipoPuntos
-        .filter((pt) => pt.id !== pid)
-        .map((pt, i) => ({ ...pt, id: i + 1 })),
-    }));
-  };
-
-  const handleNotaChange = (pid, value) => {
+  const handleNotaChange = (id, value) => {
     setFormData((p) => ({
       ...p,
       estadoEquipoPuntos: p.estadoEquipoPuntos.map((pt) =>
-        pt.id === pid ? { ...pt, nota: value } : pt
+        pt.id === id ? { ...pt, nota: value } : pt
       ),
     }));
   };
@@ -233,55 +213,121 @@ export default function HojaInspeccionBarredora() {
      RENDER
   ============================= */
   return (
-    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
+    >
+      {/* === ENCABEZADO === */}
+      <h1 className="text-lg font-bold text-center">
+        HOJA DE INSPECCIÓN BARREDORA
+      </h1>
 
-      {/* ESTADO DEL EQUIPO */}
-      <section className="border rounded p-4 space-y-3">
-        <p className="font-semibold">Estado del equipo</p>
-
-        <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
-          <img src="/estado equipo barredora.png" className="w-full" draggable={false} />
-          {formData.estadoEquipoPuntos.map((pt) => (
-            <div
-              key={pt.id}
-              onDoubleClick={() => handleRemovePoint(pt.id)}
-              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
-              style={{ left: `${pt.x}%`, top: `${pt.y}%`, transform: "translate(-50%, -50%)" }}
-            >
-              {pt.id}
-            </div>
-          ))}
-        </div>
-
-        {formData.estadoEquipoPuntos.map((pt) => (
+      {/* === DATOS CLIENTE === */}
+      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
+        {[
+          ["cliente", "Cliente"],
+          ["direccion", "Dirección"],
+          ["contacto", "Contacto"],
+          ["telefono", "Teléfono"],
+          ["correo", "Correo"],
+        ].map(([n, p]) => (
           <input
-            key={pt.id}
-            className="w-full border p-1"
-            placeholder={`Observación punto ${pt.id}`}
-            value={pt.nota}
-            onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+            key={n}
+            name={n}
+            placeholder={p}
+            value={formData[n]}
+            onChange={handleChange}
+            className="border p-2"
           />
+        ))}
+        <input
+          type="date"
+          name="fechaServicio"
+          value={formData.fechaServicio}
+          onChange={handleChange}
+          className="border p-2 md:col-span-2"
+        />
+      </section>
+
+      {/* === ESTADO DEL EQUIPO === */}
+      <section className="border rounded p-4">
+        <img
+          src="/estado-equipo-barredora.png"
+          className="w-full cursor-crosshair"
+          onClick={handleImageClick}
+        />
+        {formData.estadoEquipoPuntos.map((pt) => (
+          <div key={pt.id} className="mt-1">
+            <strong>{pt.id})</strong>
+            <input
+              className="w-full border p-1"
+              value={pt.nota}
+              onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+            />
+          </div>
         ))}
       </section>
 
-      {/* FIRMAS */}
-      <section className="border rounded p-4 grid md:grid-cols-2 gap-6 text-center">
-        <div>
-          <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
-          <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
-        </div>
-        <div>
-          <p className="font-semibold mb-1">FIRMA CLIENTE</p>
-          <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
-        </div>
+      {/* === TABLAS === */}
+      {secciones.map((sec) => (
+        <section key={sec.id} className="border rounded p-4">
+          <h2 className="font-semibold mb-2">{sec.titulo}</h2>
+          <table className="w-full text-sm border">
+            <tbody>
+              {sec.items.map(([codigo, texto]) => (
+                <tr key={codigo}>
+                  <td>{codigo}</td>
+                  <td>{texto}</td>
+                  <td>
+                    <input
+                      type="radio"
+                      checked={formData.items[codigo]?.estado === "SI"}
+                      onChange={() =>
+                        handleItemChange(codigo, "estado", "SI")
+                      }
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="radio"
+                      checked={formData.items[codigo]?.estado === "NO"}
+                      onChange={() =>
+                        handleItemChange(codigo, "estado", "NO")
+                      }
+                    />
+                  </td>
+                  <td>
+                    <input
+                      className="w-full border"
+                      value={formData.items[codigo]?.observacion || ""}
+                      onChange={(e) =>
+                        handleItemChange(
+                          codigo,
+                          "observacion",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      ))}
+
+      {/* === FIRMAS === */}
+      <section className="grid grid-cols-2 gap-4">
+        <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
+        <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
       </section>
 
-      {/* BOTONES */}
+      {/* === BOTONES === */}
       <div className="flex justify-end gap-4">
-        <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
+        <button type="button" onClick={() => navigate("/inspeccion")}>
           Volver
         </button>
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2">
           Guardar informe
         </button>
       </div>
