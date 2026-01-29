@@ -1,7 +1,10 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import { markInspectionCompleted } from "@utils/inspectionStorage";
+import {
+  markInspectionCompleted,
+  getInspectionById,
+} from "@/utils/inspectionStorage";
 
 /* =============================
    SECCIONES – BARREDORA
@@ -82,7 +85,10 @@ export default function HojaInspeccionBarredora() {
   const firmaTecnicoRef = useRef(null);
   const firmaClienteRef = useRef(null);
 
-  const [formData, setFormData] = useState({
+  /* =============================
+     ESTADO BASE (IGUAL A HIDRO)
+  ============================= */
+  const baseState = {
     referenciaContrato: "",
     descripcion: "",
     codInf: "",
@@ -111,7 +117,44 @@ export default function HojaInspeccionBarredora() {
     kilometraje: "",
 
     items: {},
-  });
+    firmas: {
+      tecnico: "",
+      cliente: "",
+    },
+  };
+
+  const [formData, setFormData] = useState(baseState);
+
+  /* =============================
+     CARGAR INSPECCIÓN
+  ============================= */
+  useEffect(() => {
+    if (!id) return;
+    const stored = getInspectionById("barredora", id);
+    if (stored?.data) {
+      setFormData({
+        ...baseState,
+        ...stored.data,
+        estadoEquipoPuntos: stored.data.estadoEquipoPuntos || [],
+        items: stored.data.items || {},
+        firmas: stored.data.firmas || { tecnico: "", cliente: "" },
+      });
+    }
+  }, [id]);
+
+  /* =============================
+     RECARGAR FIRMAS
+  ============================= */
+  useEffect(() => {
+    if (formData.firmas?.tecnico && firmaTecnicoRef.current) {
+      firmaTecnicoRef.current.clear();
+      firmaTecnicoRef.current.fromDataURL(formData.firmas.tecnico);
+    }
+    if (formData.firmas?.cliente && firmaClienteRef.current) {
+      firmaClienteRef.current.clear();
+      firmaClienteRef.current.fromDataURL(formData.firmas.cliente);
+    }
+  }, [formData.firmas]);
 
   /* =============================
      HANDLERS
@@ -135,7 +178,7 @@ export default function HojaInspeccionBarredora() {
   };
 
   /* =============================
-     PUNTOS ROJOS – ESTADO EQUIPO
+     PUNTOS ROJOS
   ============================= */
   const handleImageClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -151,24 +194,20 @@ export default function HojaInspeccionBarredora() {
     }));
   };
 
-  const handleRemovePoint = (id) => {
+  const handleRemovePoint = (pid) => {
     setFormData((p) => ({
       ...p,
       estadoEquipoPuntos: p.estadoEquipoPuntos
-        .filter((pt) => pt.id !== id)
+        .filter((pt) => pt.id !== pid)
         .map((pt, i) => ({ ...pt, id: i + 1 })),
     }));
   };
 
-  const clearAllPoints = () => {
-    setFormData((p) => ({ ...p, estadoEquipoPuntos: [] }));
-  };
-
-  const handleNotaChange = (id, value) => {
+  const handleNotaChange = (pid, value) => {
     setFormData((p) => ({
       ...p,
       estadoEquipoPuntos: p.estadoEquipoPuntos.map((pt) =>
-        pt.id === id ? { ...pt, nota: value } : pt
+        pt.id === pid ? { ...pt, nota: value } : pt
       ),
     }));
   };
@@ -190,69 +229,15 @@ export default function HojaInspeccionBarredora() {
     navigate("/inspeccion");
   };
 
+  /* =============================
+     RENDER
+  ============================= */
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
-    >
+    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
 
-      {/* ================= ENCABEZADO ================= */}
-      <section className="border rounded overflow-hidden">
-        <table className="w-full text-sm border-collapse">
-          <tbody>
-            <tr className="border-b">
-              <td rowSpan={4} className="w-32 border-r p-3 text-center">
-                <img src="/astap-logo.jpg" className="mx-auto max-h-20" />
-              </td>
-              <td colSpan={2} className="border-r text-center font-bold">
-                HOJA DE INSPECCIÓN BARREDORA
-              </td>
-              <td className="p-2">
-                <div>Fecha versión: <strong>01-01-26</strong></div>
-                <div>Versión: <strong>01</strong></div>
-              </td>
-            </tr>
-            {[
-              ["REFERENCIA DE CONTRATO", "referenciaContrato"],
-              ["DESCRIPCIÓN", "descripcion"],
-              ["COD. INF.", "codInf"],
-            ].map(([label, name]) => (
-              <tr key={name} className="border-b">
-                <td className="border-r p-2 font-semibold">{label}</td>
-                <td colSpan={2} className="p-2">
-                  <input name={name} onChange={handleChange} className="w-full border p-1" />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-
-      {/* ================= DATOS SERVICIO ================= */}
-      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
-        {[
-          ["cliente", "Cliente"],
-          ["direccion", "Dirección"],
-          ["contacto", "Contacto"],
-          ["telefono", "Teléfono"],
-          ["correo", "Correo"],
-          ["tecnicoResponsable", "Técnico responsable"],
-          ["telefonoTecnico", "Teléfono técnico"],
-          ["correoTecnico", "Correo técnico"],
-        ].map(([n, p]) => (
-          <input key={n} name={n} placeholder={p} onChange={handleChange} className="input" />
-        ))}
-        <input type="date" name="fechaServicio" onChange={handleChange} className="input md:col-span-2" />
-      </section>
-
-      {/* ================= ESTADO DEL EQUIPO ================= */}
+      {/* ESTADO DEL EQUIPO */}
       <section className="border rounded p-4 space-y-3">
-        <div className="flex justify-between items-center">
-          <p className="font-semibold">Estado del equipo</p>
-          <button type="button" onClick={clearAllPoints} className="text-xs border px-2 py-1 rounded">
-            Limpiar puntos
-          </button>
-        </div>
+        <p className="font-semibold">Estado del equipo</p>
 
         <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
           <img src="/estado equipo barredora.png" className="w-full" draggable={false} />
@@ -260,9 +245,8 @@ export default function HojaInspeccionBarredora() {
             <div
               key={pt.id}
               onDoubleClick={() => handleRemovePoint(pt.id)}
-              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
+              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
               style={{ left: `${pt.x}%`, top: `${pt.y}%`, transform: "translate(-50%, -50%)" }}
-              title="Doble click para eliminar"
             >
               {pt.id}
             </div>
@@ -270,145 +254,34 @@ export default function HojaInspeccionBarredora() {
         </div>
 
         {formData.estadoEquipoPuntos.map((pt) => (
-          <div key={pt.id} className="flex gap-2">
-            <span className="font-semibold">{pt.id})</span>
-            <input
-              className="flex-1 border p-1"
-              placeholder={`Observación punto ${pt.id}`}
-              value={pt.nota}
-              onChange={(e) => handleNotaChange(pt.id, e.target.value)}
-            />
-          </div>
+          <input
+            key={pt.id}
+            className="w-full border p-1"
+            placeholder={`Observación punto ${pt.id}`}
+            value={pt.nota}
+            onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+          />
         ))}
       </section>
-{/* ================= PRUEBAS PREVIAS AL SERVICIO ================= */}
-<section className="border rounded p-4">
-  <h2 className="font-semibold mb-2">
-    1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO
-  </h2>
 
-  <table className="w-full text-sm border">
-    <thead className="bg-gray-100">
-      <tr>
-        <th>Artículo</th>
-        <th>Detalle</th>
-        <th>SI</th>
-        <th>NO</th>
-        <th>Observación</th>
-      </tr>
-    </thead>
-    <tbody>
-      {[
-        ["1.1", "Prueba de encendido general del equipo"],
-        ["1.2", "Verificación de funcionamiento de controles principales"],
-        ["1.3", "Revisión de alarmas o mensajes de fallo"],
-      ].map(([codigo, texto]) => (
-        <tr key={codigo}>
-          <td>{codigo}</td>
-          <td>{texto}</td>
-          <td>
-            <input
-              type="radio"
-              onChange={() => handleItemChange(codigo, "estado", "SI")}
-            />
-          </td>
-          <td>
-            <input
-              type="radio"
-              onChange={() => handleItemChange(codigo, "estado", "NO")}
-            />
-          </td>
-          <td>
-            <input
-              className="w-full border px-1"
-              onChange={(e) =>
-                handleItemChange(codigo, "observacion", e.target.value)
-              }
-            />
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</section>
-      <h2 className="font-semibold text-sm px-2">
-  2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS
-</h2>
-
-
-      {/* ================= TABLAS ================= */}
-      {secciones.map((sec) => (
-        <section key={sec.id} className="border rounded p-4">
-          <h2 className="font-semibold mb-2">{sec.titulo}</h2>
-          <table className="w-full text-sm border">
-            <thead className="bg-gray-100">
-              <tr>
-                <th>Ítem</th>
-                <th>Detalle</th>
-                <th>SI</th>
-                <th>NO</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sec.items.map(([codigo, texto]) => (
-                <tr key={codigo}>
-                  <td>{codigo}</td>
-                  <td>{texto}</td>
-                  <td><input type="radio" /></td>
-                  <td><input type="radio" /></td>
-                  <td><input className="w-full border px-1" /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      ))}
-
-      {/* ================= DATOS EQUIPO ================= */}
-      <section className="border rounded p-4">
-        <h2 className="font-semibold text-center mb-2">DESCRIPCIÓN DEL EQUIPO</h2>
-        <div className="grid grid-cols-4 gap-2 text-sm">
-          {[
-            ["nota", "NOTA"],
-            ["marca", "MARCA"],
-            ["modelo", "MODELO"],
-            ["serie", "N° SERIE"],
-            ["anioModelo", "AÑO MODELO"],
-            ["vin", "VIN / CHASIS"],
-            ["placa", "PLACA"],
-            ["horasModulo", "HORAS MÓDULO"],
-            ["horasChasis", "HORAS CHASIS"],
-            ["kilometraje", "KILOMETRAJE"],
-          ].map(([n, l]) => (
-            <div key={n} className="contents">
-              <label className="font-semibold">{l}</label>
-              <input name={n} onChange={handleChange} className="col-span-3 border p-1" />
-            </div>
-          ))}
+      {/* FIRMAS */}
+      <section className="border rounded p-4 grid md:grid-cols-2 gap-6 text-center">
+        <div>
+          <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
+          <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
+        </div>
+        <div>
+          <p className="font-semibold mb-1">FIRMA CLIENTE</p>
+          <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
         </div>
       </section>
 
-      {/* ================= FIRMAS ================= */}
-      <section className="border rounded p-4">
-        <div className="grid md:grid-cols-2 gap-6 text-center">
-          <div>
-            <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
-            <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
-          </div>
-          <div>
-            <p className="font-semibold mb-1">FIRMA CLIENTE</p>
-            <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
-          </div>
-        </div>
-      </section>
-
-      {/* ================= BOTONES ================= */}
+      {/* BOTONES */}
       <div className="flex justify-end gap-4">
         <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
           Volver
         </button>
-         <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
           Guardar informe
         </button>
       </div>
