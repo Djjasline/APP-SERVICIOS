@@ -1,38 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getInspectionById } from "@/utils/inspectionStorage";
-
-/* =============================
-   CHECKLIST BARREDORA
-============================= */
-const secciones = [
-  {
-    titulo: "A) SISTEMA DE BARRIDO",
-    items: [
-      ["A.1", "Cepillo central"],
-      ["A.2", "Cepillos laterales"],
-      ["A.3", "Sistema de elevación"],
-      ["A.4", "Tolva de residuos"],
-      ["A.5", "Sistema de aspiración"],
-    ],
-  },
-  {
-    titulo: "B) SISTEMA HIDRÁULICO",
-    items: [
-      ["B.1", "Fugas hidráulicas"],
-      ["B.2", "Nivel de aceite hidráulico"],
-      ["B.3", "Mangueras y acoples"],
-    ],
-  },
-  {
-    titulo: "C) SISTEMA ELÉCTRICO",
-    items: [
-      ["C.1", "Tablero de control"],
-      ["C.2", "Sensores"],
-      ["C.3", "Luces y señalización"],
-    ],
-  },
-];
 
 export default function InspeccionBarredoraPdf() {
   const { id } = useParams();
@@ -41,14 +9,14 @@ export default function InspeccionBarredoraPdf() {
 
   useEffect(() => {
     const found = getInspectionById("barredora", id);
-    if (found) setInspection(found);
+    if (found?.data) setInspection(found.data);
   }, [id]);
 
   if (!inspection) {
     return <div className="p-6">Cargando inspección…</div>;
   }
 
-  const { data } = inspection;
+  const { items = {}, estadoEquipoPuntos = [], firmas = {} } = inspection;
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -58,34 +26,45 @@ export default function InspeccionBarredoraPdf() {
         <table className="pdf-table">
           <tbody>
             <tr>
-              <td rowSpan={3} style={{ width: 140, textAlign: "center" }}>
+              <td rowSpan={4} style={{ width: 140, textAlign: "center" }}>
                 <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
               </td>
               <td colSpan={2} className="pdf-title">
                 HOJA DE INSPECCIÓN BARREDORA
               </td>
+              <td style={{ width: 180, fontSize: 12 }}>
+                <div>Fecha versión: <strong>01-01-26</strong></div>
+                <div>Versión: <strong>01</strong></div>
+              </td>
             </tr>
             <tr>
-              <td className="pdf-label">REFERENCIA DE CONTRATO</td>
-              <td>{data.referenciaContrato || "—"}</td>
+              <td>REFERENCIA CONTRATO</td>
+              <td colSpan={2}>{inspection.referenciaContrato}</td>
             </tr>
             <tr>
-              <td className="pdf-label">COD. INF.</td>
-              <td>{data.codInf || "—"}</td>
+              <td>DESCRIPCIÓN</td>
+              <td colSpan={2}>{inspection.descripcion}</td>
+            </tr>
+            <tr>
+              <td>COD. INF.</td>
+              <td colSpan={2}>{inspection.codInf}</td>
             </tr>
           </tbody>
         </table>
 
-        {/* ================= DATOS CLIENTE ================= */}
+        {/* ================= DATOS SERVICIO ================= */}
         <table className="pdf-table mt-4">
           <tbody>
             {[
-              ["CLIENTE", data.cliente],
-              ["DIRECCIÓN", data.direccion],
-              ["CONTACTO", data.contacto],
-              ["TELÉFONO", data.telefono],
-              ["CORREO", data.correo],
-              ["FECHA DE SERVICIO", data.fechaServicio],
+              ["CLIENTE", inspection.cliente],
+              ["DIRECCIÓN", inspection.direccion],
+              ["CONTACTO", inspection.contacto],
+              ["TELÉFONO", inspection.telefono],
+              ["CORREO", inspection.correo],
+              ["TÉCNICO", inspection.tecnicoResponsable],
+              ["TEL. TÉCNICO", inspection.telefonoTecnico],
+              ["CORREO TÉCNICO", inspection.correoTecnico],
+              ["FECHA SERVICIO", inspection.fechaServicio],
             ].map(([l, v], i) => (
               <tr key={i}>
                 <td className="pdf-label">{l}</td>
@@ -95,56 +74,76 @@ export default function InspeccionBarredoraPdf() {
           </tbody>
         </table>
 
-        {/* ================= CHECKLIST ================= */}
-        {secciones.map((sec) => (
-          <div key={sec.titulo}>
-            <h3 className="pdf-title mt-4">{sec.titulo}</h3>
+        {/* ================= ESTADO DEL EQUIPO ================= */}
+        <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
+
+        <div className="relative border rounded p-2">
+          <img src="/estado equipo barredora.png" className="w-full" />
+          {estadoEquipoPuntos.map((pt) => (
+            <div
+              key={pt.id}
+              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
+              style={{
+                left: `${pt.x}%`,
+                top: `${pt.y}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              {pt.id}
+            </div>
+          ))}
+        </div>
+
+        {estadoEquipoPuntos.map((pt) => (
+          <p key={pt.id} style={{ fontSize: 12 }}>
+            <strong>{pt.id})</strong> {pt.nota}
+          </p>
+        ))}
+
+        {/* ================= TABLAS ================= */}
+        {Object.entries(items).length > 0 && (
+          <>
+            <h3 className="pdf-title mt-4">
+              EVALUACIÓN DEL ESTADO DE LOS SISTEMAS
+            </h3>
 
             <table className="pdf-table">
               <thead>
                 <tr>
                   <th>Ítem</th>
-                  <th>Detalle</th>
                   <th>Estado</th>
                   <th>Observación</th>
                 </tr>
               </thead>
               <tbody>
-                {sec.items.map(([codigo, texto]) => {
-                  const item = data.items?.[codigo] || {};
-                  return (
-                    <tr key={codigo}>
-                      <td>{codigo}</td>
-                      <td>{texto}</td>
-                      <td>{item.estado || "—"}</td>
-                      <td>{item.observacion || ""}</td>
-                    </tr>
-                  );
-                })}
+                {Object.entries(items).map(([codigo, obj]) => (
+                  <tr key={codigo}>
+                    <td>{codigo}</td>
+                    <td>{obj.estado}</td>
+                    <td>{obj.observacion}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
-          </div>
-        ))}
+          </>
+        )}
 
-        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        {/* ================= DESCRIPCIÓN EQUIPO ================= */}
         <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
 
         <table className="pdf-table">
           <tbody>
-            <tr>
-              <td className="pdf-label">NOTA</td>
-              <td>{data.nota || "—"}</td>
-            </tr>
             {[
-              ["MARCA", data.marca],
-              ["MODELO", data.modelo],
-              ["SERIE", data.serie],
-              ["AÑO MODELO", data.anioModelo],
-              ["VIN / CHASIS", data.vin],
-              ["PLACA", data.placa],
-              ["HORAS MÓDULO", data.horasModulo],
-              ["HORAS CHASIS", data.horasChasis],
-              ["KILOMETRAJE", data.kilometraje],
+              ["NOTA", inspection.nota],
+              ["MARCA", inspection.marca],
+              ["MODELO", inspection.modelo],
+              ["SERIE", inspection.serie],
+              ["AÑO", inspection.anioModelo],
+              ["VIN", inspection.vin],
+              ["PLACA", inspection.placa],
+              ["HORAS MÓDULO", inspection.horasModulo],
+              ["HORAS CHASIS", inspection.horasChasis],
+              ["KILOMETRAJE", inspection.kilometraje],
             ].map(([l, v], i) => (
               <tr key={i}>
                 <td className="pdf-label">{l}</td>
@@ -165,27 +164,13 @@ export default function InspeccionBarredoraPdf() {
           <tbody>
             <tr>
               <td style={{ height: 120, textAlign: "center" }}>
-                {data.firmas?.tecnico && (
-                  <img
-                    src={data.firmas.tecnico}
-                    style={{
-                      maxHeight: "100px",
-                      maxWidth: "100%",
-                      objectFit: "contain",
-                    }}
-                  />
+                {firmas.tecnico && (
+                  <img src={firmas.tecnico} style={{ maxHeight: 100 }} />
                 )}
               </td>
               <td style={{ height: 120, textAlign: "center" }}>
-                {data.firmas?.cliente && (
-                  <img
-                    src={data.firmas.cliente}
-                    style={{
-                      maxHeight: "100px",
-                      maxWidth: "100%",
-                      objectFit: "contain",
-                    }}
-                  />
+                {firmas.cliente && (
+                  <img src={firmas.cliente} style={{ maxHeight: 100 }} />
                 )}
               </td>
             </tr>
