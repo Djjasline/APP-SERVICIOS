@@ -1,48 +1,50 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import { markInspectionCompleted } from "@utils/inspectionStorage";
+import {
+  markInspectionCompleted,
+  getInspectionById,
+} from "@/utils/inspectionStorage";
 
 /* =============================
    SECCIONES – CÁMARA V-CAM
 ============================= */
 const secciones = [
   {
-    id: "sec1",
+    id: "1",
     titulo:
-      "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
+      "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS",
     items: [
-      { codigo: "1.1", texto: "Prueba de encendido general del equipo" },
-      { codigo: "1.2", texto: "Verificación de funcionamiento de controles principales" },
-      { codigo: "1.3", texto: "Revisión de alarmas o mensajes de fallo" },
+      ["1.1", "Prueba de encendido general del equipo"],
+      ["1.2", "Verificación de funcionamiento de controles principales"],
+      ["1.3", "Revisión de alarmas o mensajes de fallo"],
     ],
   },
   {
-    id: "secA",
-    titulo:
-      "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS",
+    id: "2",
+    titulo: "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O SISTEMAS",
     items: [
-      { codigo: "A.1", texto: "Estructura del carrete sin deformaciones" },
-      { codigo: "A.2", texto: "Pintura y acabado sin corrosión" },
-      { codigo: "A.3", texto: "Manivela y freno en buen estado" },
-      { codigo: "A.4", texto: "Base estable sin vibraciones" },
-      { codigo: "A.5", texto: "Ruedas en buen estado" },
-      { codigo: "A.6", texto: "Cable sin cortes ni aplastamientos" },
-      { codigo: "A.7", texto: "Recubrimiento sin grietas" },
-      { codigo: "A.8", texto: "Longitud correcta del cable" },
-      { codigo: "A.9", texto: "Marcadores visibles" },
-      { codigo: "A.10", texto: "Enrollado uniforme" },
-      { codigo: "A.11", texto: "Cable limpio" },
-      { codigo: "A.12", texto: "Lubricación correcta" },
-      { codigo: "A.13", texto: "Protecciones instaladas" },
-      { codigo: "A.14", texto: "Empaque en buen estado" },
-      { codigo: "A.15", texto: "Sin fugas" },
-      { codigo: "A.16", texto: "Protección frontal intacta" },
-      { codigo: "A.17", texto: "Lente sin rayaduras" },
-      { codigo: "A.18", texto: "Iluminación LED funcional" },
-      { codigo: "A.19", texto: "Imagen estable" },
-      { codigo: "A.20", texto: "Sin interferencias" },
-      { codigo: "A.21", texto: "Control de intensidad LED" },
+      ["A.1", "Estructura del carrete sin deformaciones"],
+      ["A.2", "Pintura y acabado sin corrosión"],
+      ["A.3", "Manivela y freno en buen estado"],
+      ["A.4", "Base estable sin vibraciones"],
+      ["A.5", "Ruedas en buen estado"],
+      ["A.6", "Cable sin cortes ni aplastamientos"],
+      ["A.7", "Recubrimiento sin grietas"],
+      ["A.8", "Longitud correcta del cable"],
+      ["A.9", "Marcadores visibles"],
+      ["A.10", "Enrollado uniforme"],
+      ["A.11", "Cable limpio"],
+      ["A.12", "Lubricación correcta"],
+      ["A.13", "Protecciones instaladas"],
+      ["A.14", "Empaque en buen estado"],
+      ["A.15", "Sin fugas"],
+      ["A.16", "Protección frontal intacta"],
+      ["A.17", "Lente sin rayaduras"],
+      ["A.18", "Iluminación LED funcional"],
+      ["A.19", "Imagen estable"],
+      ["A.20", "Sin interferencias"],
+      ["A.21", "Control de intensidad LED"],
     ],
   },
 ];
@@ -54,18 +56,64 @@ export default function HojaInspeccionCamara() {
   const firmaTecnicoRef = useRef(null);
   const firmaClienteRef = useRef(null);
 
-  const [formData, setFormData] = useState({
+  /* =============================
+     ESTADO BASE (IGUAL A HIDRO)
+  ============================= */
+  const baseState = {
     referenciaContrato: "",
     descripcion: "",
     codInf: "",
     fechaInspeccion: "",
-    ubicacion: "",
+
     cliente: "",
-    tecnicoAstap: "",
-    responsableCliente: "",
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
+    tecnicoResponsable: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
+
     estadoEquipoPuntos: [],
     items: {},
-  });
+    firmas: {
+      tecnico: "",
+      cliente: "",
+    },
+  };
+
+  const [formData, setFormData] = useState(baseState);
+
+  /* =============================
+     CARGAR INSPECCIÓN
+  ============================= */
+  useEffect(() => {
+    if (!id) return;
+    const stored = getInspectionById("camara", id);
+    if (stored?.data) {
+      setFormData({
+        ...baseState,
+        ...stored.data,
+        estadoEquipoPuntos: stored.data.estadoEquipoPuntos || [],
+        items: stored.data.items || {},
+        firmas: stored.data.firmas || { tecnico: "", cliente: "" },
+      });
+    }
+  }, [id]);
+
+  /* =============================
+     RECARGAR FIRMAS
+  ============================= */
+  useEffect(() => {
+    if (formData.firmas?.tecnico && firmaTecnicoRef.current) {
+      firmaTecnicoRef.current.clear();
+      firmaTecnicoRef.current.fromDataURL(formData.firmas.tecnico);
+    }
+    if (formData.firmas?.cliente && firmaClienteRef.current) {
+      firmaClienteRef.current.clear();
+      firmaClienteRef.current.fromDataURL(formData.firmas.cliente);
+    }
+  }, [formData.firmas]);
 
   /* =============================
      HANDLERS
@@ -88,7 +136,9 @@ export default function HojaInspeccionCamara() {
     }));
   };
 
-  /* ===== PUNTOS ROJOS ===== */
+  /* =============================
+     PUNTOS ROJOS
+  ============================= */
   const handleImageClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -103,26 +153,22 @@ export default function HojaInspeccionCamara() {
     }));
   };
 
-  const handleRemovePoint = (id) => {
+  const handleRemovePoint = (pid) => {
     setFormData((p) => ({
       ...p,
       estadoEquipoPuntos: p.estadoEquipoPuntos
-        .filter((pt) => pt.id !== id)
+        .filter((pt) => pt.id !== pid)
         .map((pt, i) => ({ ...pt, id: i + 1 })),
     }));
   };
 
-  const handleNotaChange = (id, value) => {
+  const handleNotaChange = (pid, value) => {
     setFormData((p) => ({
       ...p,
       estadoEquipoPuntos: p.estadoEquipoPuntos.map((pt) =>
-        pt.id === id ? { ...pt, nota: value } : pt
+        pt.id === pid ? { ...pt, nota: value } : pt
       ),
     }));
-  };
-
-  const clearAllPoints = () => {
-    setFormData((p) => ({ ...p, estadoEquipoPuntos: [] }));
   };
 
   /* =============================
@@ -142,79 +188,15 @@ export default function HojaInspeccionCamara() {
     navigate("/inspeccion");
   };
 
+  /* =============================
+     RENDER
+  ============================= */
   return (
     <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
 
-      {/* ENCABEZADO */}
-      <section className="border rounded overflow-hidden">
-        <table className="w-full text-xs border-collapse">
-          <tbody>
-            <tr className="border-b">
-              <td rowSpan={4} className="w-32 border-r p-3 text-center">
-                <img src="/astap-logo.jpg" className="mx-auto max-h-20" />
-              </td>
-              <td colSpan={2} className="border-r text-center font-bold">
-                HOJA DE INSPECCIÓN CÁMARA V-CAM
-              </td>
-              <td className="p-2">
-                <div>Fecha versión: <strong>25-11-2025</strong></div>
-                <div>Versión: <strong>01</strong></div>
-              </td>
-            </tr>
-            {[
-              ["REFERENCIA DE CONTRATO", "referenciaContrato"],
-              ["DESCRIPCIÓN", "descripcion"],
-              ["COD. INF.", "codInf"],
-            ].map(([label, name]) => (
-              <tr key={name} className="border-b">
-                <td className="border-r p-2 font-semibold">{label}</td>
-                <td colSpan={2} className="p-2">
-                  <input name={name} onChange={handleChange} className="w-full border p-1" />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-
-     {/* DATOS SERVICIO */}
-<section className="grid md:grid-cols-2 gap-3 border rounded p-4">
-  {[
-    ["cliente", "Cliente"],
-    ["direccion", "Dirección"],
-    ["contacto", "Contacto"],
-    ["telefono", "Teléfono"],
-    ["correo", "Correo"],
-    ["tecnicoResponsable", "Técnico responsable"],
-    ["telefonoTecnico", "Teléfono técnico"],
-    ["correoTecnico", "Correo técnico"],
-  ].map(([name, placeholder]) => (
-    <input
-      key={name}
-      name={name}
-      placeholder={placeholder}
-      onChange={handleChange}
-      className="input"
-    />
-  ))}
-
-  <input
-    type="date"
-    name="fechaInspeccion"
-    onChange={handleChange}
-    className="input md:col-span-2"
-  />
-</section>
-      
-
       {/* ESTADO DEL EQUIPO */}
       <section className="border rounded p-4 space-y-3">
-        <div className="flex justify-between items-center">
-          <p className="font-semibold">Estado del equipo</p>
-          <button type="button" onClick={clearAllPoints} className="text-xs border px-2 py-1 rounded">
-            Limpiar puntos
-          </button>
-        </div>
+        <p className="font-semibold">Estado del equipo</p>
 
         <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
           <img src="/estado equipo camara.png" className="w-full" draggable={false} />
@@ -222,7 +204,7 @@ export default function HojaInspeccionCamara() {
             <div
               key={pt.id}
               onDoubleClick={() => handleRemovePoint(pt.id)}
-              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
+              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
               style={{ left: `${pt.x}%`, top: `${pt.y}%`, transform: "translate(-50%, -50%)" }}
             >
               {pt.id}
@@ -231,15 +213,13 @@ export default function HojaInspeccionCamara() {
         </div>
 
         {formData.estadoEquipoPuntos.map((pt) => (
-          <div key={pt.id} className="flex gap-2">
-            <span className="font-semibold">{pt.id})</span>
-            <input
-              className="flex-1 border p-1"
-              placeholder={`Observación punto ${pt.id}`}
-              value={pt.nota}
-              onChange={(e) => handleNotaChange(pt.id, e.target.value)}
-            />
-          </div>
+          <input
+            key={pt.id}
+            className="w-full border p-1"
+            placeholder={`Observación punto ${pt.id}`}
+            value={pt.nota}
+            onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+          />
         ))}
       </section>
 
@@ -252,21 +232,23 @@ export default function HojaInspeccionCamara() {
               <tr>
                 <th>Ítem</th>
                 <th>Detalle</th>
-                <th>SI</th>
-                <th>NO</th>
+                <th>Estado</th>
                 <th>Observación</th>
               </tr>
             </thead>
             <tbody>
-              {sec.items.map((item) => (
-                <tr key={item.codigo}>
-                  <td>{item.codigo}</td>
-                  <td>{item.texto}</td>
-                  <td><input type="radio" onChange={() => handleItemChange(item.codigo, "estado", "SI")} /></td>
-                  <td><input type="radio" onChange={() => handleItemChange(item.codigo, "estado", "NO")} /></td>
+              {sec.items.map(([codigo, texto]) => (
+                <tr key={codigo}>
+                  <td>{codigo}</td>
+                  <td>{texto}</td>
+                  <td>{formData.items[codigo]?.estado || "—"}</td>
                   <td>
-                    <input className="w-full border px-1"
-                      onChange={(e) => handleItemChange(item.codigo, "observacion", e.target.value)}
+                    <input
+                      className="w-full border px-1"
+                      value={formData.items[codigo]?.observacion || ""}
+                      onChange={(e) =>
+                        handleItemChange(codigo, "observacion", e.target.value)
+                      }
                     />
                   </td>
                 </tr>
@@ -277,16 +259,14 @@ export default function HojaInspeccionCamara() {
       ))}
 
       {/* FIRMAS */}
-      <section className="border rounded p-4">
-        <div className="grid md:grid-cols-2 gap-6 text-center">
-          <div>
-            <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
-            <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
-          </div>
-          <div>
-            <p className="font-semibold mb-1">FIRMA CLIENTE</p>
-            <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
-          </div>
+      <section className="border rounded p-4 grid md:grid-cols-2 gap-6 text-center">
+        <div>
+          <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
+          <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
+        </div>
+        <div>
+          <p className="font-semibold mb-1">FIRMA CLIENTE</p>
+          <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
         </div>
       </section>
 
@@ -295,7 +275,7 @@ export default function HojaInspeccionCamara() {
         <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
           Volver
         </button>
-        <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
           Guardar informe
         </button>
       </div>
