@@ -229,7 +229,7 @@ export default function HojaInspeccionCamara() {
       {/* ================= DATOS SERVICIO ================= */}
 <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
   {[
-  "cliente", "Cliente"],
+  ["cliente", "Cliente"],
           ["direccion", "Dirección"],
           ["contacto", "Contacto"],
           ["telefono", "Teléfono"],
