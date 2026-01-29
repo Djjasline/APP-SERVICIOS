@@ -1,128 +1,218 @@
-import React from "react";
-import FormLayout from "@components/FormLayout";
-import useFormStorage from "@/hooks/useFormStorage";
+import { useState, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import SignatureCanvas from "react-signature-canvas";
+import { markInspectionCompleted } from "@/utils/inspectionStorage";
 
-import ClientDataSection from "@components/common/ClientDataSection";
-import EquipmentDataSection from "@components/common/EquipmentDataSection";
-import SignaturesSection from "@components/common/SignaturesSection";
-import ChecklistSection from "@components/common/ChecklistSection";
+/* =============================
+   SECCIONES – BARREDORA
+============================= */
+const secciones = [
+  {
+    id: "A",
+    titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
+    items: [
+      ["A.1", "Fugas de aceite hidráulico"],
+      ["A.2", "Nivel de aceite del tanque AW68"],
+      ["A.3", "Fugas de aceite en motores de cepillos"],
+      ["A.4", "Fugas de aceite en motor de banda"],
+      ["A.5", "Fugas de bombas hidráulicas"],
+      ["A.6", "Fugas en motor John Deere"],
+    ],
+  },
+  {
+    id: "B",
+    titulo: "B) SISTEMA DE CONTROL DE POLVO (AGUA)",
+    items: [
+      ["B.1", "Fugas de agua"],
+      ["B.2", "Estado del filtro de agua"],
+      ["B.3", "Estado de válvulas check"],
+      ["B.4", "Solenoides de agua"],
+      ["B.5", "Bomba eléctrica de agua"],
+      ["B.6", "Aspersores de cepillos"],
+    ],
+  },
+  {
+    id: "C",
+    titulo: "C) SISTEMA ELÉCTRICO",
+    items: [
+      ["C.1", "Tablero de control"],
+      ["C.2", "Batería"],
+      ["C.3", "Luces externas"],
+    ],
+  },
+];
 
-import {
-  preServicio,
-  sistemaBarrido,
-  sistemaHidraulico,
-  sistemaElectrico,
-} from "./schemas/inspeccionBarredoraSchema";
+export default function HojaInspeccionBarredora() {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-export default function InspeccionBarredora() {
-  const { data, setData, status, save, finalize } =
-    useFormStorage("inspeccion_barredora", {
-      cliente: {},
-      equipo: {},
-      inspeccion: {
-        preServicio: [],
-        sistemaBarrido: [],
-        sistemaHidraulico: [],
-        sistemaElectrico: [],
+  const firmaTecnicoRef = useRef(null);
+  const firmaClienteRef = useRef(null);
+
+  const [formData, setFormData] = useState({
+    cliente: "",
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
+    fechaServicio: "",
+
+    estadoEquipoPuntos: [],
+
+    nota: "",
+    marca: "",
+    modelo: "",
+    serie: "",
+    anioModelo: "",
+    vin: "",
+    placa: "",
+    horasModulo: "",
+    horasChasis: "",
+    kilometraje: "",
+
+    items: {},
+  });
+
+  /* =============================
+     HANDLERS
+  ============================= */
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((p) => ({ ...p, [name]: value }));
+  };
+
+  const handleItemChange = (codigo, campo, valor) => {
+    setFormData((p) => ({
+      ...p,
+      items: {
+        ...p.items,
+        [codigo]: {
+          ...p.items[codigo],
+          [campo]: valor,
+        },
       },
-      observaciones: "",
-      estadoEquipo: "",
-      firmas: {},
+    }));
+  };
+
+  /* =============================
+     ESTADO DEL EQUIPO (PUNTOS)
+  ============================= */
+  const handleImageClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: [
+        ...p.estadoEquipoPuntos,
+        { id: p.estadoEquipoPuntos.length + 1, x, y, nota: "" },
+      ],
+    }));
+  };
+
+  const handleNotaChange = (id, value) => {
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: p.estadoEquipoPuntos.map((pt) =>
+        pt.id === id ? { ...pt, nota: value } : pt
+      ),
+    }));
+  };
+
+  /* =============================
+     SUBMIT
+  ============================= */
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    markInspectionCompleted("barredora", id, {
+      ...formData,
+      firmas: {
+        tecnico: firmaTecnicoRef.current?.toDataURL() || "",
+        cliente: firmaClienteRef.current?.toDataURL() || "",
+      },
     });
 
-  const textProps = {
-    spellCheck: true,
-    autoCorrect: "on",
-    autoCapitalize: "sentences",
+    navigate("/inspeccion");
   };
 
   return (
-    <FormLayout
-      title="Inspección Barredora"
-      description="Hoja de inspección técnica del equipo barredora"
-      status={status}
-      onSave={save}
-      onFinalize={finalize}
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-6xl mx-auto my-6 bg-white p-6 space-y-6"
     >
-      <ClientDataSection
-        data={data.cliente}
-        onChange={(e) =>
-          setData((p) => ({ ...p, cliente: { ...p.cliente, [e.target.name]: e.target.value } }))
-        }
-      />
+      {/* ESTADO DEL EQUIPO */}
+      <section className="border p-4">
+        <h2 className="font-semibold mb-2">Estado del equipo</h2>
 
-      <EquipmentDataSection
-        data={data.equipo}
-        onChange={(e) =>
-          setData((p) => ({ ...p, equipo: { ...p.equipo, [e.target.name]: e.target.value } }))
-        }
-      />
-
-      <ChecklistSection
-        title="1. Pruebas pre-servicio"
-        items={preServicio}
-        data={data.inspeccion.preServicio}
-        onChange={(v) =>
-          setData((p) => ({ ...p, inspeccion: { ...p.inspeccion, preServicio: v } }))
-        }
-      />
-
-      <ChecklistSection
-        title="A. Sistema de barrido"
-        items={sistemaBarrido}
-        data={data.inspeccion.sistemaBarrido}
-        onChange={(v) =>
-          setData((p) => ({ ...p, inspeccion: { ...p.inspeccion, sistemaBarrido: v } }))
-        }
-      />
-
-      <ChecklistSection
-        title="B. Sistema hidráulico"
-        items={sistemaHidraulico}
-        data={data.inspeccion.sistemaHidraulico}
-        onChange={(v) =>
-          setData((p) => ({ ...p, inspeccion: { ...p.inspeccion, sistemaHidraulico: v } }))
-        }
-      />
-
-      <ChecklistSection
-        title="C. Sistema eléctrico"
-        items={sistemaElectrico}
-        data={data.inspeccion.sistemaElectrico}
-        onChange={(v) =>
-          setData((p) => ({ ...p, inspeccion: { ...p.inspeccion, sistemaElectrico: v } }))
-        }
-      />
-
-      <section className="bg-white border rounded-xl p-6 space-y-2">
-        <h2 className="text-lg font-semibold">Observaciones generales</h2>
-        <textarea
-          {...textProps}
-          rows={3}
-          className="input resize-y"
-          value={data.observaciones}
-          onChange={(e) => setData((p) => ({ ...p, observaciones: e.target.value }))}
-        />
-      </section>
-
-      <section className="bg-white border rounded-xl p-6 space-y-2">
-        <h2 className="text-lg font-semibold">Estado final del equipo</h2>
-        <select
-          className="input"
-          value={data.estadoEquipo}
-          onChange={(e) => setData((p) => ({ ...p, estadoEquipo: e.target.value }))}
+        <div
+          className="relative border cursor-crosshair"
+          onClick={handleImageClick}
         >
-          <option value="">Seleccione</option>
-          <option value="operativo">Operativo</option>
-          <option value="operativo_observaciones">Operativo con observaciones</option>
-          <option value="no_operativo">No operativo</option>
-        </select>
+          <img src="/estado-equipo-barredora.png" className="w-full" />
+          {formData.estadoEquipoPuntos.map((pt) => (
+            <div
+              key={pt.id}
+              className="absolute bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs"
+              style={{
+                left: `${pt.x}%`,
+                top: `${pt.y}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              {pt.id}
+            </div>
+          ))}
+        </div>
+
+        {formData.estadoEquipoPuntos.map((pt) => (
+          <input
+            key={pt.id}
+            className="w-full border mt-2 p-1"
+            placeholder={`Observación punto ${pt.id}`}
+            value={pt.nota}
+            onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+          />
+        ))}
       </section>
 
-      <SignaturesSection
-        data={data.firmas}
-        onChange={(v) => setData((p) => ({ ...p, firmas: v }))}
-      />
-    </FormLayout>
+      {/* SECCIONES */}
+      {secciones.map((sec) => (
+        <section key={sec.id} className="border p-4">
+          <h2 className="font-semibold mb-2">{sec.titulo}</h2>
+          {sec.items.map(([codigo, texto]) => (
+            <div key={codigo} className="grid grid-cols-5 gap-2 mb-1">
+              <span>{codigo}</span>
+              <span className="col-span-2">{texto}</span>
+              <input
+                type="radio"
+                onChange={() => handleItemChange(codigo, "estado", "SI")}
+              />
+              <input
+                type="radio"
+                onChange={() => handleItemChange(codigo, "estado", "NO")}
+              />
+            </div>
+          ))}
+        </section>
+      ))}
+
+      {/* FIRMAS */}
+      <section className="grid grid-cols-2 gap-4">
+        <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border h-32" }} />
+        <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border h-32" }} />
+      </section>
+
+      {/* BOTONES */}
+      <div className="flex justify-end gap-4">
+        <button type="button" onClick={() => navigate("/inspeccion")}>
+          Volver
+        </button>
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2">
+          Guardar informe
+        </button>
+      </div>
+    </form>
   );
 }
