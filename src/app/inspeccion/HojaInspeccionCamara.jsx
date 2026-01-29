@@ -69,7 +69,7 @@ export default function HojaInspeccionCamara() {
     tecnicoResponsable: "",
     telefonoTecnico: "",
     correoTecnico: "",
-    fechaServicio: "",
+    fechaInspeccion: "",
 
   // 👉 ESTADO DEL EQUIPO (puntos rojos)
   estadoEquipoPuntos: [],
