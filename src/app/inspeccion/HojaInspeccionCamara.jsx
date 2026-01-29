@@ -57,42 +57,49 @@ export default function HojaInspeccionCamara() {
   const firmaClienteRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    referenciaContrato: "",
-    descripcion: "",
-    codInf: "",
-    cliente: "",
-    direccion: "",
-    contacto: "",
-    telefono: "",
-    correo: "",
-    tecnicoResponsable: "",
-    telefonoTecnico: "",
-    correoTecnico: "",
-    fechaInspeccion: "",
-    estadoEquipoPuntos: [],
-    items: {},
-    firmas: {
-      tecnico: "",
-      cliente: "",
-    },
-  });
+  referenciaContrato: "",
+  descripcion: "",
+  codInf: "",
+  fechaInspeccion: "",
+  ubicacion: "",
+  cliente: "",
+  tecnicoAstap: "",
+  responsableCliente: "",
+
+  // 👉 ESTADO DEL EQUIPO (puntos rojos)
+  estadoEquipoPuntos: [],
+
+  // 👉 DESCRIPCIÓN DEL EQUIPO (NUEVO, IGUAL A BARREDORA)
+  nota: "",
+  marca: "",
+  modelo: "",
+  serieModulo: "",
+  serieCarrete: "",
+  serieCabezal: "",
+  anioModelo: "",
+
+  // 👉 TABLAS
+  items: {},
+});
 
   /* =============================
      CARGA DESDE HISTORIAL (CLAVE)
   ============================= */
   useEffect(() => {
-    const saved = getInspectionById("camara", id);
-    if (saved) {
-      setFormData(saved);
+  const saved = getInspectionById("camara", id);
+  if (saved?.data) {
+    setFormData(saved.data);
 
-      if (saved.firmas?.tecnico && firmaTecnicoRef.current) {
-        firmaTecnicoRef.current.fromDataURL(saved.firmas.tecnico);
-      }
-      if (saved.firmas?.cliente && firmaClienteRef.current) {
-        firmaClienteRef.current.fromDataURL(saved.firmas.cliente);
-      }
+    if (saved.data.firmas?.tecnico && firmaTecnicoRef.current) {
+      firmaTecnicoRef.current.fromDataURL(saved.data.firmas.tecnico);
     }
-  }, [id]);
+
+    if (saved.data.firmas?.cliente && firmaClienteRef.current) {
+      firmaClienteRef.current.fromDataURL(saved.data.firmas.cliente);
+    }
+  }
+}, [id]);
+
 
   /* =============================
      HANDLERS GENERALES
@@ -176,39 +183,71 @@ export default function HojaInspeccionCamara() {
       onSubmit={handleSubmit}
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
-      {/* ENCABEZADO */}
-      <section className="border rounded overflow-hidden">
-        <table className="w-full text-sm">
-          <tbody>
-            <tr>
-              <td rowSpan={3} className="w-32 p-3 text-center border-r">
-                <img src="/astap-logo.jpg" className="mx-auto max-h-20" />
-              </td>
-              <td colSpan={2} className="text-center font-bold border-r">
-                HOJA DE INSPECCIÓN CÁMARA
-              </td>
-              <td className="p-2">Versión 01</td>
-            </tr>
-            {[
-              ["REFERENCIA DE CONTRATO", "referenciaContrato"],
-              ["DESCRIPCIÓN", "descripcion"],
-              ["COD. INF.", "codInf"],
-            ].map(([l, n]) => (
-              <tr key={n}>
-                <td className="font-semibold p-2 border-r">{l}</td>
-                <td colSpan={2} className="p-2">
-                  <input
-                    name={n}
-                    value={formData[n]}
-                    onChange={handleChange}
-                    className="w-full border p-1"
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      {/* ================= ENCABEZADO ================= */}
+<section className="border rounded overflow-hidden">
+  <table className="w-full text-sm border-collapse">
+    <tbody>
+      <tr className="border-b">
+        <td rowSpan={4} className="w-32 border-r p-3 text-center">
+          <img src="/astap-logo.jpg" className="mx-auto max-h-20" />
+        </td>
+        <td colSpan={2} className="border-r text-center font-bold">
+          HOJA DE INSPECCIÓN CÁMARA
+        </td>
+        <td className="p-2">
+          <div>Fecha versión: <strong>01-01-26</strong></div>
+          <div>Versión: <strong>01</strong></div>
+        </td>
+      </tr>
+
+      {[
+        ["REFERENCIA DE CONTRATO", "referenciaContrato"],
+        ["DESCRIPCIÓN", "descripcion"],
+        ["COD. INF.", "codInf"],
+      ].map(([label, name]) => (
+        <tr key={name} className="border-b">
+          <td className="border-r p-2 font-semibold">{label}</td>
+          <td colSpan={2} className="p-2">
+            <input
+              name={name}
+              value={formData[name] || ""}
+              onChange={handleChange}
+              className="w-full border p-1"
+            />
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</section>
+
+      {/* ================= DATOS SERVICIO ================= */}
+<section className="grid md:grid-cols-2 gap-3 border rounded p-4">
+  {[
+    ["cliente", "Cliente"],
+    ["ubicacion", "Ubicación"],
+    ["tecnicoAstap", "Técnico ASTAP"],
+    ["responsableCliente", "Responsable cliente"],
+  ].map(([name, placeholder]) => (
+    <input
+      key={name}
+      name={name}
+      value={formData[name] || ""}
+      placeholder={placeholder}
+      onChange={handleChange}
+      className="input"
+    />
+  ))}
+
+  <input
+    type="date"
+    name="fechaInspeccion"
+    value={formData.fechaInspeccion || ""}
+    onChange={handleChange}
+    className="input md:col-span-2"
+  />
+</section>
+
 
       {/* ESTADO DEL EQUIPO */}
       <section className="border rounded p-4 space-y-3">
@@ -296,6 +335,33 @@ export default function HojaInspeccionCamara() {
           </table>
         </section>
       ))}
+{/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+<section className="border rounded p-4">
+  <h2 className="font-semibold text-center mb-2">
+    DESCRIPCIÓN DEL EQUIPO
+  </h2>
+
+  <div className="grid grid-cols-4 gap-2 text-sm">
+    {[
+      ["marca", "MARCA"],
+      ["modelo", "MODELO"],
+      ["serieModulo", "N° SERIE MÓDULO"],
+      ["serieCarrete", "N° SERIE CARRETE"],
+      ["serieCabezal", "N° SERIE CABEZAL"],
+      ["anioModelo", "AÑO MODELO"],
+    ].map(([name, label]) => (
+      <div key={name} className="contents">
+        <label className="font-semibold">{label}</label>
+        <input
+          name={name}
+          value={formData[name] || ""}
+          onChange={handleChange}
+          className="col-span-3 border p-1"
+        />
+      </div>
+    ))}
+  </div>
+</section>
 
       {/* FIRMAS */}
       <section className="border rounded p-4 grid md:grid-cols-2 gap-6 text-center">
