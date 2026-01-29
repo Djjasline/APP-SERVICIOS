@@ -4,7 +4,7 @@ import SignatureCanvas from "react-signature-canvas";
 import {
   markInspectionCompleted,
   getInspectionById,
-} from "@utils/inspectionStorage";
+} from "@/utils/inspectionStorage";
 
 /* =============================
    SECCIONES – BARREDORA
@@ -78,38 +78,6 @@ const secciones = [
   },
 ];
 
-const baseState = {
-  referenciaContrato: "",
-  descripcion: "",
-  codInf: "",
-
-  cliente: "",
-  direccion: "",
-  contacto: "",
-  telefono: "",
-  correo: "",
-  tecnicoResponsable: "",
-  telefonoTecnico: "",
-  correoTecnico: "",
-  fechaServicio: "",
-
-  estadoEquipoPuntos: [],
-
-  nota: "",
-  marca: "",
-  modelo: "",
-  serie: "",
-  anioModelo: "",
-  vin: "",
-  placa: "",
-  horasModulo: "",
-  horasChasis: "",
-  kilometraje: "",
-
-  items: {},
-  firmas: { tecnico: "", cliente: "" },
-};
-
 export default function HojaInspeccionBarredora() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -117,18 +85,63 @@ export default function HojaInspeccionBarredora() {
   const firmaTecnicoRef = useRef(null);
   const firmaClienteRef = useRef(null);
 
+  const baseState = {
+    referenciaContrato: "",
+    descripcion: "",
+    codInf: "",
+
+    cliente: "",
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
+    tecnicoResponsable: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
+    fechaServicio: "",
+
+    estadoEquipoPuntos: [],
+
+    nota: "",
+    marca: "",
+    modelo: "",
+    serie: "",
+    anioModelo: "",
+    vin: "",
+    placa: "",
+    horasModulo: "",
+    horasChasis: "",
+    kilometraje: "",
+
+    items: {},
+    firmas: {
+      tecnico: "",
+      cliente: "",
+    },
+  };
+
   const [formData, setFormData] = useState(baseState);
 
-  /* ===== CARGA PARA EDITAR ===== */
+  /* =============================
+     CARGAR AL EDITAR
+  ============================= */
   useEffect(() => {
     if (!id) return;
     const stored = getInspectionById("barredora", id);
     if (stored?.data) {
-      setFormData({ ...baseState, ...stored.data });
+      setFormData({
+        ...baseState,
+        ...stored.data,
+        estadoEquipoPuntos: stored.data.estadoEquipoPuntos || [],
+        items: stored.data.items || {},
+        firmas: stored.data.firmas || { tecnico: "", cliente: "" },
+      });
     }
   }, [id]);
 
-  /* ===== RECARGA DE FIRMAS ===== */
+  /* =============================
+     RECARGAR FIRMAS
+  ============================= */
   useEffect(() => {
     if (formData.firmas?.tecnico && firmaTecnicoRef.current) {
       firmaTecnicoRef.current.clear();
@@ -140,7 +153,9 @@ export default function HojaInspeccionBarredora() {
     }
   }, [formData.firmas]);
 
-  /* ===== HANDLERS ===== */
+  /* =============================
+     HANDLERS
+  ============================= */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
@@ -159,7 +174,9 @@ export default function HojaInspeccionBarredora() {
     }));
   };
 
-  /* ===== ESTADO DEL EQUIPO ===== */
+  /* =============================
+     ESTADO DEL EQUIPO
+  ============================= */
   const handleImageClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -183,7 +200,13 @@ export default function HojaInspeccionBarredora() {
     }));
   };
 
-  /* ===== SUBMIT ===== */
+  const clearAllPoints = () => {
+    setFormData((p) => ({ ...p, estadoEquipoPuntos: [] }));
+  };
+
+  /* =============================
+     SUBMIT
+  ============================= */
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -198,13 +221,69 @@ export default function HojaInspeccionBarredora() {
     navigate("/inspeccion");
   };
 
-  /* ===== RENDER ===== */
   return (
-    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm">
-      {/* TODO EL JSX ORIGINAL SIGUE IGUAL */}
-      {/* lo único cambiado fue value / checked / carga */}
-      {/* por longitud, aquí no se elimina ninguna sección */}
-      {/* tu UI queda intacta */}
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
+    >
+
+      {/* ================= ESTADO DEL EQUIPO ================= */}
+      <section className="border rounded p-4 space-y-3">
+        <div className="flex justify-between items-center">
+          <p className="font-semibold">Estado del equipo</p>
+          <button type="button" onClick={clearAllPoints} className="text-xs border px-2 py-1 rounded">
+            Limpiar puntos
+          </button>
+        </div>
+
+        <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
+          <img src="/estado equipo barredora.png" className="w-full" draggable={false} />
+          {formData.estadoEquipoPuntos.map((pt) => (
+            <div
+              key={pt.id}
+              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
+              style={{ left: `${pt.x}%`, top: `${pt.y}%`, transform: "translate(-50%, -50%)" }}
+            >
+              {pt.id}
+            </div>
+          ))}
+        </div>
+
+        {formData.estadoEquipoPuntos.map((pt) => (
+          <div key={pt.id} className="flex gap-2">
+            <span className="font-semibold">{pt.id})</span>
+            <input
+              className="flex-1 border p-1"
+              value={pt.nota}
+              onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+            />
+          </div>
+        ))}
+      </section>
+
+      {/* ================= FIRMAS ================= */}
+      <section className="border rounded p-4">
+        <div className="grid md:grid-cols-2 gap-6 text-center">
+          <div>
+            <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
+            <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
+          </div>
+          <div>
+            <p className="font-semibold mb-1">FIRMA CLIENTE</p>
+            <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
+          </div>
+        </div>
+      </section>
+
+      {/* ================= BOTONES ================= */}
+      <div className="flex justify-end gap-4">
+        <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
+          Volver
+        </button>
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+          Guardar informe
+        </button>
+      </div>
     </form>
   );
 }
