@@ -158,7 +158,7 @@ export default function InspeccionHidroPdf() {
             <tr>
               <td colSpan={2} style={{ position: "relative" }}>
                 <img
-                  src="/estado equipo hidro.png"
+                  src="/estado-equipo.png"
                   style={{ width: "100%" }}
                 />
                 {data.estadoEquipoPuntos?.map((pt) => (
