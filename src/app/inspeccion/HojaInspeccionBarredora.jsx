@@ -1,7 +1,10 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import { markInspectionCompleted } from "@utils/inspectionStorage";
+import {
+  markInspectionCompleted,
+  getInspectionById,
+} from "@utils/inspectionStorage";
 
 /* =============================
    SECCIONES – BARREDORA
@@ -75,6 +78,37 @@ const secciones = [
   },
 ];
 
+const initialFormData = {
+  referenciaContrato: "",
+  descripcion: "",
+  codInf: "",
+
+  cliente: "",
+  direccion: "",
+  contacto: "",
+  telefono: "",
+  correo: "",
+  tecnicoResponsable: "",
+  telefonoTecnico: "",
+  correoTecnico: "",
+  fechaServicio: "",
+
+  estadoEquipoPuntos: [],
+
+  nota: "",
+  marca: "",
+  modelo: "",
+  serie: "",
+  anioModelo: "",
+  vin: "",
+  placa: "",
+  horasModulo: "",
+  horasChasis: "",
+  kilometraje: "",
+
+  items: {},
+};
+
 export default function HojaInspeccionBarredora() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -82,36 +116,22 @@ export default function HojaInspeccionBarredora() {
   const firmaTecnicoRef = useRef(null);
   const firmaClienteRef = useRef(null);
 
-  const [formData, setFormData] = useState({
-    referenciaContrato: "",
-    descripcion: "",
-    codInf: "",
+  const [formData, setFormData] = useState(initialFormData);
 
-    cliente: "",
-    direccion: "",
-    contacto: "",
-    telefono: "",
-    correo: "",
-    tecnicoResponsable: "",
-    telefonoTecnico: "",
-    correoTecnico: "",
-    fechaServicio: "",
-
-    estadoEquipoPuntos: [],
-
-    nota: "",
-    marca: "",
-    modelo: "",
-    serie: "",
-    anioModelo: "",
-    vin: "",
-    placa: "",
-    horasModulo: "",
-    horasChasis: "",
-    kilometraje: "",
-
-    items: {},
-  });
+  /* =============================
+     CARGA DE INSPECCIÓN (IGUAL HIDRO)
+  ============================= */
+  useEffect(() => {
+    const found = getInspectionById("barredora", id);
+    if (found?.data) {
+      setFormData({
+        ...initialFormData,
+        ...found.data,
+        items: found.data.items || {},
+        estadoEquipoPuntos: found.data.estadoEquipoPuntos || [],
+      });
+    }
+  }, [id]);
 
   /* =============================
      HANDLERS
@@ -295,7 +315,6 @@ export default function HojaInspeccionBarredora() {
                 top: `${pt.y}%`,
                 transform: "translate(-50%, -50%)",
               }}
-              title="Doble click para eliminar"
             >
               {pt.id}
             </div>
@@ -307,7 +326,6 @@ export default function HojaInspeccionBarredora() {
             <span className="font-semibold">{pt.id})</span>
             <input
               className="flex-1 border p-1"
-              placeholder={`Observación punto ${pt.id}`}
               value={pt.nota}
               onChange={(e) => handleNotaChange(pt.id, e.target.value)}
             />
