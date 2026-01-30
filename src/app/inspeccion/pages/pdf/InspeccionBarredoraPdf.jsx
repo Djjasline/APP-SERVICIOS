@@ -1,216 +1,136 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getInspectionById } from "@utils/inspectionStorage";
 
-/* =============================
-   PDF – INSPECCIÓN BARREDORA
-============================= */
-export default function InspeccionBarredoraPdf() {
+export default function InspeccionBarredoraPDF() {
   const { id } = useParams();
-  const [inspection, setInspection] = useState(null);
+  const saved = getInspectionById("barredora", id);
 
-  useEffect(() => {
-    const saved = getInspectionById("barredora", id);
-    if (saved?.data) {
-      setInspection(saved.data);
-    }
-  }, [id]);
+  if (!saved?.data) {
+    return <p>No hay datos para mostrar</p>;
+  }
 
-  if (!inspection) return null;
-
-  const {
-    referenciaContrato,
-    descripcion,
-    codInf,
-
-    cliente,
-    direccion,
-    contacto,
-    telefono,
-    correo,
-    tecnicoResponsable,
-    telefonoTecnico,
-    correoTecnico,
-    fechaServicio,
-
-    estadoEquipoPuntos = [],
-    items = {},
-
-    nota,
-    marca,
-    modelo,
-    serie,
-    anioModelo,
-    vin,
-    placa,
-    horasModulo,
-    horasChasis,
-    kilometraje,
-
-    firmas = {},
-  } = inspection;
+  const data = saved.data;
 
   return (
-    <div className="p-6 text-xs font-sans">
+    <div className="p-6 text-xs">
       {/* ================= ENCABEZADO ================= */}
-      <table className="w-full border mb-4">
+      <table className="w-full border-collapse border mb-4">
         <tbody>
           <tr>
             <td rowSpan={3} className="border p-2 w-32 text-center">
-              <img src="/astap-logo.jpg" className="h-16 mx-auto" />
+              <img src="/astap-logo.jpg" className="mx-auto h-16" />
             </td>
-            <td colSpan={2} className="border text-center font-bold">
+            <td className="border p-2 font-bold text-center">
               HOJA DE INSPECCIÓN BARREDORA
             </td>
             <td className="border p-2">
-              <div>Versión: 01</div>
-              <div>Fecha: 01-01-26</div>
+              Fecha versión: 01-01-26<br />
+              Versión: 01
             </td>
           </tr>
           <tr>
-            <td className="border p-1 font-semibold">REFERENCIA</td>
-            <td colSpan={2} className="border p-1">{referenciaContrato}</td>
+            <td className="border p-2">REFERENCIA DE CONTRATO</td>
+            <td className="border p-2">{data.referenciaContrato}</td>
           </tr>
           <tr>
-            <td className="border p-1 font-semibold">DESCRIPCIÓN</td>
-            <td colSpan={2} className="border p-1">{descripcion}</td>
+            <td className="border p-2">DESCRIPCIÓN</td>
+            <td className="border p-2">{data.descripcion}</td>
           </tr>
         </tbody>
       </table>
 
-      {/* ================= DATOS SERVICIO ================= */}
-      <table className="w-full border mb-4">
+      {/* ================= DATOS DE SERVICIO ================= */}
+      <table className="w-full border-collapse border mb-4">
         <tbody>
           {[
-            ["Cliente", cliente],
-            ["Dirección", direccion],
-            ["Contacto", contacto],
-            ["Teléfono", telefono],
-            ["Correo", correo],
-            ["Técnico", tecnicoResponsable],
-            ["Fecha servicio", fechaServicio],
-          ].map(([l, v]) => (
-            <tr key={l}>
-              <td className="border p-1 font-semibold w-40">{l}</td>
-              <td className="border p-1">{v}</td>
+            ["Cliente", data.cliente],
+            ["Dirección", data.direccion],
+            ["Contacto", data.contacto],
+            ["Teléfono", data.telefono],
+            ["Correo", data.correo],
+            ["Técnico responsable", data.tecnicoResponsable],
+            ["Fecha de servicio", data.fechaServicio],
+          ].map(([label, value], i) => (
+            <tr key={i}>
+              <td className="border p-2 font-semibold w-48">{label}</td>
+              <td className="border p-2">{value}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
       {/* ================= ESTADO DEL EQUIPO ================= */}
-      <h3 className="font-bold mb-1">ESTADO DEL EQUIPO</h3>
-      <div className="relative border mb-3">
-        <img src="/estado equipo barredora.png" className="w-full" />
-        {estadoEquipoPuntos.map((pt) => (
-          <div
-            key={pt.id}
-            className="absolute bg-red-600 text-white w-5 h-5 text-[10px] flex items-center justify-center rounded-full"
-            style={{
-              left: `${pt.x}%`,
-              top: `${pt.y}%`,
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            {pt.id}
+      <h3 className="font-bold mb-2">ESTADO DEL EQUIPO</h3>
+      <div className="border p-2 mb-4">
+        <img src="/estado equipo barredora.png" className="w-full mb-2" />
+        {data.estadoEquipoPuntos?.map((pt) => (
+          <div key={pt.id}>
+            <strong>{pt.id})</strong> {pt.nota}
           </div>
         ))}
       </div>
 
-      {estadoEquipoPuntos.map((pt) => (
-        <div key={pt.id} className="mb-1">
-          <strong>{pt.id})</strong> {pt.nota}
-        </div>
-      ))}
-
-      {/* ================= PRUEBAS PREVIAS ================= */}
-      <h3 className="font-bold mt-4 mb-1">
-        PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO
-      </h3>
-
-      <table className="w-full border mb-4">
+      {/* ================= TABLAS DE INSPECCIÓN ================= */}
+      <h3 className="font-bold mb-2">EVALUACIÓN DE SISTEMAS</h3>
+      <table className="w-full border-collapse border mb-4">
         <thead>
-          <tr className="bg-gray-100">
+          <tr>
             <th className="border p-1">Ítem</th>
+            <th className="border p-1">Detalle</th>
             <th className="border p-1">Estado</th>
             <th className="border p-1">Observación</th>
           </tr>
         </thead>
         <tbody>
-          {["1.1", "1.2", "1.3"].map((codigo) => (
+          {Object.entries(data.items || {}).map(([codigo, item]) => (
             <tr key={codigo}>
               <td className="border p-1">{codigo}</td>
-              <td className="border p-1">{items[codigo]?.estado}</td>
-              <td className="border p-1">{items[codigo]?.observacion}</td>
+              <td className="border p-1">{item.detalle || ""}</td>
+              <td className="border p-1">{item.estado}</td>
+              <td className="border p-1">{item.observacion}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* ================= TABLAS A–E ================= */}
-      <h3 className="font-bold mb-1">EVALUACIÓN DE SISTEMAS</h3>
-
-      <table className="w-full border mb-4">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-1">Ítem</th>
-            <th className="border p-1">Estado</th>
-            <th className="border p-1">Observación</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(items).map(([codigo, item]) => (
-            codigo.startsWith("A.") ||
-            codigo.startsWith("B.") ||
-            codigo.startsWith("C.") ||
-            codigo.startsWith("D.") ||
-            codigo.startsWith("E.") ? (
-              <tr key={codigo}>
-                <td className="border p-1">{codigo}</td>
-                <td className="border p-1">{item.estado}</td>
-                <td className="border p-1">{item.observacion}</td>
-              </tr>
-            ) : null
-          ))}
-        </tbody>
-      </table>
-
       {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-      <h3 className="font-bold mb-1">DESCRIPCIÓN DEL EQUIPO</h3>
-
-      <table className="w-full border mb-4">
+      <h3 className="font-bold mb-2">DESCRIPCIÓN DEL EQUIPO</h3>
+      <table className="w-full border-collapse border mb-4">
         <tbody>
           {[
-            ["Nota", nota],
-            ["Marca", marca],
-            ["Modelo", modelo],
-            ["Serie", serie],
-            ["Año modelo", anioModelo],
-            ["VIN", vin],
-            ["Placa", placa],
-            ["Horas módulo", horasModulo],
-            ["Horas chasis", horasChasis],
-            ["Kilometraje", kilometraje],
-          ].map(([l, v]) => (
-            <tr key={l}>
-              <td className="border p-1 font-semibold w-40">{l}</td>
-              <td className="border p-1">{v}</td>
+            ["Marca", data.marca],
+            ["Modelo", data.modelo],
+            ["Serie", data.serie],
+            ["Año modelo", data.anioModelo],
+            ["VIN", data.vin],
+            ["Placa", data.placa],
+            ["Horas módulo", data.horasModulo],
+            ["Horas chasis", data.horasChasis],
+            ["Kilometraje", data.kilometraje],
+          ].map(([label, value], i) => (
+            <tr key={i}>
+              <td className="border p-2 font-semibold w-48">{label}</td>
+              <td className="border p-2">{value}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
       {/* ================= FIRMAS ================= */}
-      <table className="w-full border">
+      <table className="w-full border-collapse border">
         <tbody>
           <tr>
-            <td className="border p-2 text-center">
-              <img src={firmas.tecnico} className="h-24 mx-auto" />
-              <div>Firma Técnico</div>
+            <td className="border p-4 text-center">
+              <strong>Firma Técnico</strong><br />
+              {data.firmas?.tecnico && (
+                <img src={data.firmas.tecnico} className="h-24 mx-auto" />
+              )}
             </td>
-            <td className="border p-2 text-center">
-              <img src={firmas.cliente} className="h-24 mx-auto" />
-              <div>Firma Cliente</div>
+            <td className="border p-4 text-center">
+              <strong>Firma Cliente</strong><br />
+              {data.firmas?.cliente && (
+                <img src={data.firmas.cliente} className="h-24 mx-auto" />
+              )}
             </td>
           </tr>
         </tbody>
