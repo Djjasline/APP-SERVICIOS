@@ -22,57 +22,59 @@ export default function InspeccionCamaraPdf() {
 
   return (
     <div className="max-w-6xl mx-auto p-6 text-sm bg-white space-y-6">
+
       {/* ================= ENCABEZADO ================= */}
-      <section className="border rounded overflow-hidden">
-        <table className="w-full border-collapse">
-          <tbody>
-            <tr className="border-b">
-              <td rowSpan={4} className="w-32 border-r p-3 text-center">
-                <img src="/astap-logo.jpg" className="mx-auto max-h-20" />
-              </td>
-              <td colSpan={2} className="border-r text-center font-bold">
-                HOJA DE INSPECCIÓN CÁMARA
-              </td>
-              <td className="p-2">
-                <div>Fecha versión: <strong>01-01-26</strong></div>
-                <div>Versión: <strong>01</strong></div>
+      <table className="w-full border-collapse border">
+        <tbody>
+          <tr>
+            <td rowSpan={4} className="w-32 border p-2 text-center">
+              <img src="/astap-logo.jpg" className="mx-auto max-h-20" />
+            </td>
+            <td colSpan={2} className="border font-bold text-center">
+              HOJA DE INSPECCIÓN CÁMARA CCTV
+            </td>
+            <td className="border p-2 text-xs">
+              Fecha versión: <strong>01-01-26</strong><br />
+              Versión: <strong>01</strong>
+            </td>
+          </tr>
+
+          {[
+            ["REFERENCIA DE CONTRATO", data.referenciaContrato],
+            ["DESCRIPCIÓN", data.descripcion],
+            ["COD. INF.", data.codInf],
+          ].map(([label, value]) => (
+            <tr key={label}>
+              <td className="border p-2 font-semibold">{label}</td>
+              <td colSpan={3} className="border p-2">
+                {value || "—"}
               </td>
             </tr>
-
-            {[
-              ["REFERENCIA DE CONTRATO", data.referenciaContrato],
-              ["DESCRIPCIÓN", data.descripcion],
-              ["COD. INF.", data.codInf],
-            ].map(([label, value]) => (
-              <tr key={label} className="border-b">
-                <td className="border-r p-2 font-semibold">{label}</td>
-                <td colSpan={3} className="p-2">
-                  {value || "-"}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+          ))}
+        </tbody>
+      </table>
 
       {/* ================= DATOS SERVICIO ================= */}
-      <section className="border rounded p-4 grid grid-cols-2 gap-2">
-        {[
-          ["Cliente", data.cliente],
-          ["Ubicación", data.ubicacion],
-          ["Técnico ASTAP", data.tecnicoAstap],
-          ["Responsable cliente", data.responsableCliente],
-          ["Fecha inspección", data.fechaInspeccion],
-        ].map(([label, value]) => (
-          <div key={label}>
-            <strong>{label}:</strong> {value || "-"}
-          </div>
-        ))}
-      </section>
+      <table className="w-full border-collapse border">
+        <tbody>
+          {[
+            ["Cliente", data.cliente],
+            ["Ubicación", data.ubicacion],
+            ["Técnico ASTAP", data.tecnicoAstap],
+            ["Responsable cliente", data.responsableCliente],
+            ["Fecha inspección", data.fechaInspeccion],
+          ].map(([label, value]) => (
+            <tr key={label}>
+              <td className="border p-2 font-semibold w-64">{label}</td>
+              <td className="border p-2">{value || "—"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       {/* ================= ESTADO DEL EQUIPO ================= */}
-      <section className="border rounded p-4 space-y-3">
-        <h2 className="font-semibold">Estado del equipo</h2>
+      <section className="border p-4 space-y-3">
+        <h3 className="font-bold">ESTADO DEL EQUIPO</h3>
 
         <div className="relative border">
           <img src="/estado equipo camara.png" className="w-full" />
@@ -91,80 +93,100 @@ export default function InspeccionCamaraPdf() {
           ))}
         </div>
 
-        {data.estadoEquipoPuntos?.map((pt) => (
-          <div key={pt.id}>
-            <strong>{pt.id})</strong> {pt.nota || "-"}
-          </div>
-        ))}
+        {data.estadoEquipoPuntos?.length > 0 ? (
+          data.estadoEquipoPuntos.map((pt) => (
+            <div key={pt.id}>
+              <strong>{pt.id})</strong> {pt.nota || "—"}
+            </div>
+          ))
+        ) : (
+          <p className="italic text-gray-500">
+            No se registraron observaciones del estado del equipo.
+          </p>
+        )}
       </section>
 
-      {/* ================= TABLAS ================= */}
-      {Object.entries(data.items || {}).length > 0 && (
-        <section className="border rounded p-4">
-          <h2 className="font-semibold mb-2">
-            Evaluación de componentes / sistemas
-          </h2>
+      {/* ================= EVALUACIÓN DE SISTEMAS ================= */}
+      <section className="border p-4">
+        <h3 className="font-bold mb-2">
+          EVALUACIÓN DE COMPONENTES / SISTEMAS
+        </h3>
 
-          <table className="w-full border text-sm">
-            <thead className="bg-gray-100">
-              <tr>
-                <th>Ítem</th>
-                <th>Estado</th>
-                <th>Observación</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(data.items).map(([codigo, item]) => (
+        <table className="w-full border-collapse border">
+          <thead>
+            <tr>
+              <th className="border p-1">Ítem</th>
+              <th className="border p-1">Estado</th>
+              <th className="border p-1">Observación</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(data.items || {}).length > 0 ? (
+              Object.entries(data.items).map(([codigo, item]) => (
                 <tr key={codigo}>
-                  <td className="border px-2">{codigo}</td>
-                  <td className="border px-2">{item.estado || "-"}</td>
-                  <td className="border px-2">{item.observacion || "-"}</td>
+                  <td className="border p-1">{codigo}</td>
+                  <td className="border p-1">{item.estado || "—"}</td>
+                  <td className="border p-1">{item.observacion || "—"}</td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      )}
+              ))
+            ) : (
+              <tr>
+                <td colSpan={3} className="border p-2 text-center italic">
+                  No se registraron ítems de evaluación.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </section>
 
       {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-      <section className="border rounded p-4">
-        <h2 className="font-semibold text-center mb-2">
+      <section className="border p-4">
+        <h3 className="font-bold text-center mb-2">
           DESCRIPCIÓN DEL EQUIPO
-        </h2>
+        </h3>
 
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            ["Marca", data.marca],
-            ["Modelo", data.modelo],
-            ["Serie módulo", data.serieModulo],
-            ["Serie carrete", data.serieCarrete],
-            ["Serie cabezal", data.serieCabezal],
-            ["Año modelo", data.anioModelo],
-          ].map(([label, value]) => (
-            <div key={label}>
-              <strong>{label}:</strong> {value || "-"}
-            </div>
-          ))}
-        </div>
+        <table className="w-full border-collapse border">
+          <tbody>
+            {[
+              ["Marca", data.marca],
+              ["Modelo", data.modelo],
+              ["Serie módulo", data.serieModulo],
+              ["Serie carrete", data.serieCarrete],
+              ["Serie cabezal", data.serieCabezal],
+              ["Año modelo", data.anioModelo],
+            ].map(([label, value]) => (
+              <tr key={label}>
+                <td className="border p-2 font-semibold w-64">{label}</td>
+                <td className="border p-2">{value || "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </section>
 
       {/* ================= FIRMAS ================= */}
-      <section className="border rounded p-4 grid grid-cols-2 gap-6 text-center">
-        <div>
-          <strong>Firma Técnico</strong>
-          {data.firmas?.tecnico && (
-            <img src={data.firmas.tecnico} className="mx-auto h-32 border" />
-          )}
-        </div>
-        <div>
-          <strong>Firma Cliente</strong>
-          {data.firmas?.cliente && (
-            <img src={data.firmas.cliente} className="mx-auto h-32 border" />
-          )}
-        </div>
-      </section>
+      <table className="w-full border-collapse border">
+        <tbody>
+          <tr>
+            <td className="border p-4 text-center">
+              <strong>Firma Técnico</strong><br />
+              {data.firmas?.tecnico && (
+                <img src={data.firmas.tecnico} className="h-32 mx-auto" />
+              )}
+            </td>
+            <td className="border p-4 text-center">
+              <strong>Firma Cliente</strong><br />
+              {data.firmas?.cliente && (
+                <img src={data.firmas.cliente} className="h-32 mx-auto" />
+              )}
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-      <div className="text-right">
+      {/* ================= BOTÓN ================= */}
+      <div className="no-print text-right">
         <button
           onClick={() => navigate(-1)}
           className="border px-4 py-2"
