@@ -106,7 +106,7 @@ export default function InspeccionBarredoraPdf() {
                 <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
               </td>
               <td colSpan={2} className="pdf-title">
-                HOJA DE INSPECCIÓN HIDROSUCCIONADOR
+                HOJA DE INSPECCIÓN BARREDORA
               </td>
               <td>
                 <strong>Fecha versión:</strong> 01-01-26<br />
