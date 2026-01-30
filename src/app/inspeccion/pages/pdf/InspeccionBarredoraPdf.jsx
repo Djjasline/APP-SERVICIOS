@@ -98,56 +98,33 @@ export default function InspeccionBarredoraPdf() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="pdf-container max-w-6xl mx-auto">
 
-           {/* ================= ESTADO DEL EQUIPO ================= */}
-        <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
-
+{/* ================= ENCABEZADO ================= */}
         <table className="pdf-table">
           <tbody>
             <tr>
-              <td colSpan={2} style={{ position: "relative" }}>
-                <img
-                  src="/estado-equipo.png"
-                  style={{ width: "100%" }}
-                />
-                {data.estadoEquipoPuntos?.map((pt) => (
-                  <div
-                    key={pt.id}
-                    style={{
-                      position: "absolute",
-                      left: `${pt.x}%`,
-                      top: `${pt.y}%`,
-                      transform: "translate(-50%, -50%)",
-                      background: "red",
-                      color: "white",
-                      width: 18,
-                      height: 18,
-                      borderRadius: "50%",
-                      fontSize: 10,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {pt.id}
-                  </div>
-                ))}
+              <td rowSpan={5} style={{ width: 140, textAlign: "center" }}>
+                <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
+              </td>
+              <td colSpan={2} className="pdf-title">
+                HOJA DE INSPECCIÓN HIDROSUCCIONADOR
+              </td>
+              <td>
+                <strong>Fecha versión:</strong> 01-01-26<br />
+                <strong>Versión:</strong> 01
               </td>
             </tr>
-
-            {data.estadoEquipoPuntos?.length > 0 ? (
-              data.estadoEquipoPuntos.map((pt) => (
-                <tr key={pt.id}>
-                  <td className="pdf-label">{pt.id}</td>
-                  <td>{pt.nota || "—"}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={2} style={{ textAlign: "center" }}>
-                  — Sin observaciones —
-                </td>
-              </tr>
-            )}
+            <tr>
+              <td className="pdf-label">REFERENCIA DE CONTRATO</td>
+              <td colSpan={2}>{data.referenciaContrato || "—"}</td>
+            </tr>
+            <tr>
+              <td className="pdf-label">DESCRIPCIÓN</td>
+              <td colSpan={2}>{data.descripcion || "—"}</td>
+            </tr>
+            <tr>
+              <td className="pdf-label">COD. INF.</td>
+              <td colSpan={2}>{data.codInf || "—"}</td>
+            </tr>
           </tbody>
         </table>
 
