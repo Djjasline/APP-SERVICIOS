@@ -146,37 +146,7 @@ export default function InspeccionBarredoraPdf() {
   </tbody>
 </table>
 
-
-        {/* ================= PRUEBAS PREVIAS ================= */}
-        <h3 className="pdf-title mt-4">
-          1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO
-        </h3>
-
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th>Ítem</th>
-              <th>Detalle</th>
-              <th>Estado</th>
-              <th>Observación</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pruebasPrevias.map(([codigo, texto]) => {
-              const item = data.items?.[codigo] || {};
-              return (
-                <tr key={codigo}>
-                  <td>{codigo}</td>
-                  <td>{texto}</td>
-                  <td>{item.estado || "—"}</td>
-                  <td>{item.observacion || ""}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-
-        {/* ================= ESTADO DEL EQUIPO ================= */}
+ {/* ================= ESTADO DEL EQUIPO ================= */}
         <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
 
         <table className="pdf-table">
@@ -220,6 +190,37 @@ export default function InspeccionBarredoraPdf() {
             ))}
           </tbody>
         </table>
+         
+        {/* ================= PRUEBAS PREVIAS ================= */}
+        <h3 className="pdf-title mt-4">
+          1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO
+        </h3>
+
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>Ítem</th>
+              <th>Detalle</th>
+              <th>Estado</th>
+              <th>Observación</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pruebasPrevias.map(([codigo, texto]) => {
+              const item = data.items?.[codigo] || {};
+              return (
+                <tr key={codigo}>
+                  <td>{codigo}</td>
+                  <td>{texto}</td>
+                  <td>{item.estado || "—"}</td>
+                  <td>{item.observacion || ""}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+       
 
         {/* ================= SECCIONES ================= */}
         {secciones.map((sec) => (
