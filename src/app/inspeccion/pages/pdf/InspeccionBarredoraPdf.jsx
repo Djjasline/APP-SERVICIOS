@@ -3,14 +3,20 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getInspectionById } from "@/utils/inspectionStorage";
 
 /* =============================
-   DEFINICIÓN DE ESTRUCTURA
-   (MISMO CONCEPTO QUE HIDRO)
+   UTILIDAD: APLANAR ITEMS A–B–C–D
+   (MISMA IDEA QUE HIDRO)
 ============================= */
-
-const seccionEvaluacion = {
-  titulo: "EVALUACIÓN DE SISTEMAS",
-  items: [], // se llenan dinámicamente desde data.items
-};
+function flattenItems(items = {}) {
+  const result = [];
+  Object.values(items).forEach((grupo) => {
+    if (typeof grupo === "object") {
+      Object.entries(grupo).forEach(([codigo, item]) => {
+        result.push({ codigo, ...item });
+      });
+    }
+  });
+  return result;
+}
 
 export default function InspeccionBarredoraPdf() {
   const { id } = useParams();
@@ -18,7 +24,7 @@ export default function InspeccionBarredoraPdf() {
   const [inspection, setInspection] = useState(null);
 
   /* =============================
-     CARGA DE INSPECCIÓN (IGUAL HIDRO)
+     CARGA (IGUAL HIDRO)
   ============================= */
   useEffect(() => {
     const found = getInspectionById("barredora", id);
@@ -30,7 +36,7 @@ export default function InspeccionBarredoraPdf() {
   }
 
   const { data } = inspection;
-  const items = data.items || {};
+  const flatItems = flattenItems(data.items);
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -84,13 +90,38 @@ export default function InspeccionBarredoraPdf() {
         <table className="pdf-table">
           <tbody>
             <tr>
-              <td colSpan={2}>
+              <td colSpan={2} style={{ position: "relative" }}>
                 <img
                   src="/estado equipo barredora.png"
                   style={{ width: "100%" }}
                 />
+
+                {/* === PUNTOS ROJOS === */}
+                {data.estadoEquipoPuntos?.map((pt) => (
+                  <div
+                    key={pt.id}
+                    style={{
+                      position: "absolute",
+                      left: `${pt.x}%`,
+                      top: `${pt.y}%`,
+                      transform: "translate(-50%, -50%)",
+                      background: "red",
+                      color: "white",
+                      width: 18,
+                      height: 18,
+                      borderRadius: "50%",
+                      fontSize: 10,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {pt.id}
+                  </div>
+                ))}
               </td>
             </tr>
+
             {data.estadoEquipoPuntos?.length > 0 ? (
               data.estadoEquipoPuntos.map((pt) => (
                 <tr key={pt.id}>
@@ -109,9 +140,7 @@ export default function InspeccionBarredoraPdf() {
         </table>
 
         {/* ================= EVALUACIÓN DE SISTEMAS ================= */}
-        <h3 className="pdf-title mt-4">
-          {seccionEvaluacion.titulo}
-        </h3>
+        <h3 className="pdf-title mt-4">EVALUACIÓN DE SISTEMAS</h3>
 
         <table className="pdf-table">
           <thead>
@@ -123,10 +152,10 @@ export default function InspeccionBarredoraPdf() {
             </tr>
           </thead>
           <tbody>
-            {Object.keys(items).length > 0 ? (
-              Object.entries(items).map(([codigo, item]) => (
-                <tr key={codigo}>
-                  <td>{codigo}</td>
+            {flatItems.length > 0 ? (
+              flatItems.map((item, i) => (
+                <tr key={i}>
+                  <td>{item.codigo}</td>
                   <td>{item.detalle || "—"}</td>
                   <td>{item.estado || "—"}</td>
                   <td>{item.observacion || ""}</td>
