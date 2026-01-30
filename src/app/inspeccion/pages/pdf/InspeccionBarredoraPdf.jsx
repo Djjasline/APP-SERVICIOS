@@ -124,24 +124,28 @@ export default function InspeccionBarredoraPdf() {
           </tbody>
         </table>
 
-        {/* ================= DATOS CLIENTE ================= */}
-        <table className="pdf-table mt-4">
-          <tbody>
-            {[
-              ["CLIENTE", data.cliente],
-              ["DIRECCIÓN", data.direccion],
-              ["CONTACTO", data.contacto],
-              ["TELÉFONO", data.telefono],
-              ["CORREO", data.correo],
-              ["FECHA DE SERVICIO", data.fechaServicio],
-            ].map(([l, v], i) => (
-              <tr key={i}>
-                <td className="pdf-label">{l}</td>
-                <td>{v || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+{/* ================= DATOS CLIENTE ================= */}
+<table className="pdf-table mt-4">
+  <tbody>
+    {[
+      ["CLIENTE", data.cliente],
+      ["DIRECCIÓN", data.direccion],
+      ["CONTACTO", data.contacto],
+      ["TELÉFONO", data.telefono],
+      ["CORREO", data.correo],
+      ["TÉCNICO RESPONSABLE", data.tecnicoResponsable],
+      ["TELÉFONO TÉCNICO", data.telefonoTecnico],
+      ["CORREO TÉCNICO", data.correoTecnico],
+      ["FECHA DE SERVICIO", data.fechaServicio],
+    ].map(([l, v], i) => (
+      <tr key={i}>
+        <td className="pdf-label">{l}</td>
+        <td>{v || "—"}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
 
         {/* ================= PRUEBAS PREVIAS ================= */}
         <h3 className="pdf-title mt-4">
