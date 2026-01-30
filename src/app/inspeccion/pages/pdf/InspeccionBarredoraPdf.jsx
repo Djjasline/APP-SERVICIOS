@@ -3,7 +3,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getInspectionById } from "@/utils/inspectionStorage";
 
 /* =============================
-   DEFINICIÓN DE SECCIONES (IGUAL FORMULARIO)
+   PRUEBAS PREVIAS (IGUAL HIDRO)
+============================= */
+const pruebasPrevias = [
+  ["1.1", "Prueba de encendido general del equipo"],
+  ["1.2", "Verificación de funcionamiento de controles principales"],
+  ["1.3", "Revisión de alarmas o mensajes de fallo"],
+];
+
+/* =============================
+   SECCIONES – BARREDORA
 ============================= */
 const secciones = [
   {
@@ -120,7 +129,6 @@ export default function InspeccionBarredoraPdf() {
               ["CONTACTO", data.contacto],
               ["TELÉFONO", data.telefono],
               ["CORREO", data.correo],
-              ["TÉCNICO RESPONSABLE", data.tecnicoResponsable],
               ["FECHA DE SERVICIO", data.fechaServicio],
             ].map(([l, v], i) => (
               <tr key={i}>
@@ -131,7 +139,36 @@ export default function InspeccionBarredoraPdf() {
           </tbody>
         </table>
 
-        {/* ================= EVALUACIÓN DE SISTEMAS ================= */}
+        {/* ================= PRUEBAS PREVIAS ================= */}
+        <h3 className="pdf-title mt-4">
+          1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO
+        </h3>
+
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>Ítem</th>
+              <th>Detalle</th>
+              <th>Estado</th>
+              <th>Observación</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pruebasPrevias.map(([codigo, texto]) => {
+              const item = data.items?.[codigo] || {};
+              return (
+                <tr key={codigo}>
+                  <td>{codigo}</td>
+                  <td>{texto}</td>
+                  <td>{item.estado || "—"}</td>
+                  <td>{item.observacion || ""}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        {/* ================= SECCIONES ================= */}
         {secciones.map((sec) => (
           <div key={sec.titulo}>
             <h3 className="pdf-title mt-4">{sec.titulo}</h3>
@@ -160,6 +197,34 @@ export default function InspeccionBarredoraPdf() {
             </table>
           </div>
         ))}
+
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
+
+        <table className="pdf-table">
+          <tbody>
+            <tr>
+              <td className="pdf-label">NOTA</td>
+              <td>{data.nota || "—"}</td>
+            </tr>
+            {[
+              ["MARCA", data.marca],
+              ["MODELO", data.modelo],
+              ["SERIE", data.serie],
+              ["AÑO MODELO", data.anioModelo],
+              ["VIN / CHASIS", data.vin],
+              ["PLACA", data.placa],
+              ["HORAS MÓDULO", data.horasModulo],
+              ["HORAS CHASIS", data.horasChasis],
+              ["KILOMETRAJE", data.kilometraje],
+            ].map(([l, v], i) => (
+              <tr key={i}>
+                <td className="pdf-label">{l}</td>
+                <td>{v || "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         {/* ================= FIRMAS ================= */}
         <table className="pdf-table mt-4">
