@@ -105,20 +105,28 @@ export default function InspeccionHidroPdf() {
         <table className="pdf-table">
           <tbody>
             <tr>
-              <td rowSpan={3} style={{ width: 140, textAlign: "center" }}>
+              <td rowSpan={5} style={{ width: 140, textAlign: "center" }}>
                 <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
               </td>
               <td colSpan={2} className="pdf-title">
                 HOJA DE INSPECCIÓN HIDROSUCCIONADOR
               </td>
+              <td>
+                <strong>Fecha versión:</strong> 01-01-26<br />
+                <strong>Versión:</strong> 01
+              </td>
             </tr>
             <tr>
               <td className="pdf-label">REFERENCIA DE CONTRATO</td>
-              <td>{data.referenciaContrato || "—"}</td>
+              <td colSpan={2}>{data.referenciaContrato || "—"}</td>
+            </tr>
+            <tr>
+              <td className="pdf-label">DESCRIPCIÓN</td>
+              <td colSpan={2}>{data.descripcion || "—"}</td>
             </tr>
             <tr>
               <td className="pdf-label">COD. INF.</td>
-              <td>{data.codInf || "—"}</td>
+              <td colSpan={2}>{data.codInf || "—"}</td>
             </tr>
           </tbody>
         </table>
@@ -150,7 +158,7 @@ export default function InspeccionHidroPdf() {
             <tr>
               <td colSpan={2} style={{ position: "relative" }}>
                 <img
-                  src="/estado-equipo.png"
+                  src="/estado equipo hidro.png"
                   style={{ width: "100%" }}
                 />
                 {data.estadoEquipoPuntos?.map((pt) => (
@@ -314,7 +322,6 @@ export default function InspeccionHidroPdf() {
           >
             Volver
           </button>
-
           <button
             onClick={() => window.print()}
             className="bg-green-600 text-white px-4 py-2 rounded"
@@ -322,6 +329,7 @@ export default function InspeccionHidroPdf() {
             Descargar PDF
           </button>
         </div>
+
       </div>
     </div>
   );
