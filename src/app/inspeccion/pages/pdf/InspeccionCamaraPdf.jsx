@@ -2,18 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getInspectionById } from "@/utils/inspectionStorage";
 
-/* =============================
-   DEFINICIÓN DE ESTRUCTURA
-   (MISMO ENFOQUE QUE HIDRO)
-============================= */
-
 export default function InspeccionCamaraPdf() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [inspection, setInspection] = useState(null);
 
   /* =============================
-     CARGA DE INSPECCIÓN (IGUAL HIDRO)
+     CARGA (IGUAL HIDRO)
   ============================= */
   useEffect(() => {
     const found = getInspectionById("camara", id);
@@ -77,11 +72,35 @@ export default function InspeccionCamaraPdf() {
         <table className="pdf-table">
           <tbody>
             <tr>
-              <td colSpan={2}>
+              <td colSpan={2} style={{ position: "relative" }}>
                 <img
                   src="/estado equipo camara.png"
                   style={{ width: "100%" }}
                 />
+
+                {/* === PUNTOS ROJOS === */}
+                {data.estadoEquipoPuntos?.map((pt) => (
+                  <div
+                    key={pt.id}
+                    style={{
+                      position: "absolute",
+                      left: `${pt.x}%`,
+                      top: `${pt.y}%`,
+                      transform: "translate(-50%, -50%)",
+                      background: "red",
+                      color: "white",
+                      width: 18,
+                      height: 18,
+                      borderRadius: "50%",
+                      fontSize: 10,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {pt.id}
+                  </div>
+                ))}
               </td>
             </tr>
 
@@ -102,7 +121,7 @@ export default function InspeccionCamaraPdf() {
           </tbody>
         </table>
 
-        {/* ================= EVALUACIÓN DE COMPONENTES ================= */}
+        {/* ================= EVALUACIÓN DE SISTEMAS ================= */}
         <h3 className="pdf-title mt-4">
           EVALUACIÓN DE COMPONENTES / SISTEMAS
         </h3>
