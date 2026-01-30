@@ -7,6 +7,15 @@ import {
 } from "@/utils/inspectionStorage";
 
 /* =============================
+   PRUEBAS PREVIAS AL SERVICIO
+============================= */
+const pruebasPrevias = [
+  ["1.1", "Prueba de encendido general del equipo"],
+  ["1.2", "Verificación de funcionamiento de controles principales"],
+  ["1.3", "Revisión de alarmas o mensajes de fallo"],
+];
+
+/* =============================
    SECCIONES – BARREDORA
 ============================= */
 const secciones = [
