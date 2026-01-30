@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getInspectionById } from "@/utils/inspectionStorage";
 
 /* =============================
@@ -144,7 +144,10 @@ export default function InspeccionBarredoraPdf() {
         </table>
 
         {/* ================= PRUEBAS PREVIAS ================= */}
-        <h3 className="pdf-title mt-4">1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO</h3>
+        <h3 className="pdf-title mt-4">
+          1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO
+        </h3>
+
         <table className="pdf-table">
           <thead>
             <tr>
@@ -171,12 +174,16 @@ export default function InspeccionBarredoraPdf() {
 
         {/* ================= ESTADO DEL EQUIPO ================= */}
         <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
+
         <table className="pdf-table">
           <tbody>
             <tr>
               <td colSpan={2} style={{ position: "relative" }}>
-                <img src="/estado equipo barredora.png" style={{ width: "100%" }} />
-                {data.estadoEquipoPuntos?.map(pt => (
+                <img
+                  src="/estado equipo barredora.png"
+                  style={{ width: "100%" }}
+                />
+                {data.estadoEquipoPuntos?.map((pt) => (
                   <div
                     key={pt.id}
                     style={{
@@ -201,23 +208,17 @@ export default function InspeccionBarredoraPdf() {
               </td>
             </tr>
 
-            {data.estadoEquipoPuntos?.length > 0 ? (
-              data.estadoEquipoPuntos.map(pt => (
-                <tr key={pt.id}>
-                  <td className="pdf-label">{pt.id}</td>
-                  <td>{pt.nota || "—"}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={2} style={{ textAlign: "center" }}>— Sin observaciones —</td>
+            {data.estadoEquipoPuntos?.map((pt) => (
+              <tr key={pt.id}>
+                <td className="pdf-label">{pt.id}</td>
+                <td>{pt.nota || "—"}</td>
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
 
         {/* ================= SECCIONES ================= */}
-        {secciones.map(sec => (
+        {secciones.map((sec) => (
           <div key={sec.titulo}>
             <h3 className="pdf-title mt-4">{sec.titulo}</h3>
             <table className="pdf-table">
@@ -248,6 +249,7 @@ export default function InspeccionBarredoraPdf() {
 
         {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
         <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
+
         <table className="pdf-table">
           <tbody>
             {[
@@ -281,10 +283,20 @@ export default function InspeccionBarredoraPdf() {
           <tbody>
             <tr>
               <td style={{ height: 120, textAlign: "center" }}>
-                {data.firmas?.tecnico && <img src={data.firmas.tecnico} style={{ maxHeight: 100 }} />}
+                {data.firmas?.tecnico && (
+                  <img
+                    src={data.firmas.tecnico}
+                    style={{ maxHeight: "100px", maxWidth: "100%" }}
+                  />
+                )}
               </td>
               <td style={{ height: 120, textAlign: "center" }}>
-                {data.firmas?.cliente && <img src={data.firmas.cliente} style={{ maxHeight: 100 }} />}
+                {data.firmas?.cliente && (
+                  <img
+                    src={data.firmas.cliente}
+                    style={{ maxHeight: "100px", maxWidth: "100%" }}
+                  />
+                )}
               </td>
             </tr>
           </tbody>
@@ -292,13 +304,21 @@ export default function InspeccionBarredoraPdf() {
 
         {/* ================= BOTONES ================= */}
         <div className="no-print flex justify-between mt-6">
-          <button onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
+          <button
+            onClick={() => navigate("/inspeccion")}
+            className="border px-4 py-2 rounded"
+          >
             Volver
           </button>
-          <button onClick={() => window.print()} className="bg-green-600 text-white px-4 py-2 rounded">
+
+          <button
+            onClick={() => window.print()}
+            className="bg-green-600 text-white px-4 py-2 rounded"
+          >
             Descargar PDF
           </button>
         </div>
+
       </div>
     </div>
   );
