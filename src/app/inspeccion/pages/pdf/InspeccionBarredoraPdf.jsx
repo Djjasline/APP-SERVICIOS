@@ -98,31 +98,40 @@ export default function InspeccionBarredoraPdf() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="pdf-container max-w-6xl mx-auto">
 
-        {/* ================= ENCABEZADO ================= */}
-        <table className="pdf-table">
-          <tbody>
-            <tr>
-              <td rowSpan={4} style={{ width: 140, textAlign: "center" }}>
-                <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
-              </td>
-              <td colSpan={2} className="pdf-title">
-                HOJA DE INSPECCIÓN BARREDORA
-              </td>
-            </tr>
-            <tr>
-              <td className="pdf-label">REFERENCIA DE CONTRATO</td>
-              <td>{data.referenciaContrato || "—"}</td>
-            </tr>
-            <tr>
-              <td className="pdf-label">DESCRIPCIÓN</td>
-              <td>{data.descripcion || "—"}</td>
-            </tr>
-            <tr>
-              <td className="pdf-label">COD. INF.</td>
-              <td>{data.codInf || "—"}</td>
-            </tr>
-          </tbody>
-        </table>
+       {/* ================= ENCABEZADO ================= */}
+<table className="pdf-table">
+  <tbody>
+    <tr>
+      <td rowSpan={4} style={{ width: 140, textAlign: "center" }}>
+        <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
+      </td>
+
+      <td colSpan={2} className="pdf-title">
+        HOJA DE INSPECCIÓN BARREDORA
+      </td>
+
+      <td rowSpan={4} style={{ width: 180, fontSize: 10 }}>
+        <div>Fecha versión: <strong>01-01-26</strong></div>
+        <div>Versión: <strong>01</strong></div>
+      </td>
+    </tr>
+
+    <tr>
+      <td className="pdf-label">REFERENCIA DE CONTRATO</td>
+      <td>{data.referenciaContrato || "—"}</td>
+    </tr>
+
+    <tr>
+      <td className="pdf-label">DESCRIPCIÓN</td>
+      <td>{data.descripcion || "—"}</td>
+    </tr>
+
+    <tr>
+      <td className="pdf-label">COD. INF.</td>
+      <td>{data.codInf || "—"}</td>
+    </tr>
+  </tbody>
+</table>
 
 {/* ================= DATOS CLIENTE ================= */}
 <table className="pdf-table mt-4">
