@@ -119,7 +119,7 @@ export default function InspeccionBarredoraPdf() {
             </tr>
             <tr>
               <td className="pdf-label">COD. INF.</td>
-              <td>{data.codInf || "—"}</td>
+              <td colSpan={2}>{data.codInf || "—"}</td>
             </tr>
           </tbody>
         </table>
