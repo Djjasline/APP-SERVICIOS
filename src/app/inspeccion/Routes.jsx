@@ -25,17 +25,13 @@ export default function InspectionRoutes() {
 
       {/* ================= BARREDORA ================= */}
       <Route path="barredora/:id" element={<HojaInspeccionBarredora />} />
-      <Route
-        path="barredora/:id/pdf"
-        element={<InspeccionBarredoraPdf />}
-      />
+      <Route path="barredora/:id/pdf" element={<InspeccionBarredoraPdf />} /> 
+      <Route path="barredora/:id/firma" element={<HojaFirma />} />
 
       {/* ================= CÁMARA ================= */}
       <Route path="camara/:id" element={<HojaInspeccionCamara />} />
-      <Route
-        path="camara/:id/pdf"
-        element={<InspeccionCamaraPdf />}
-      />
+      <Route path="camara/:id/pdf" element={<InspeccionCamaraPdf />} />
+      <Route path="camara/:id/firma" element={<HojaFirma />} />
     </Routes>
   );
 }
