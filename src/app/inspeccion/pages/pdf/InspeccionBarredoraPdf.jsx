@@ -98,48 +98,58 @@ export default function InspeccionBarredoraPdf() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="pdf-container max-w-6xl mx-auto">
 
-     {/* ================= ENCABEZADO ================= */}
-<table className="pdf-table">
-  <tbody>
-    <tr>
-      <td rowSpan={4} style={{ width: 140, textAlign: "center" }}>
-        <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
-      </td>
+           {/* ================= ESTADO DEL EQUIPO ================= */}
+        <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
 
-      {/* 👇 TÍTULO OCUPA SOLO 1 COLUMNA, COMO HIDRO */}
-      <td className="pdf-title">
-        HOJA DE INSPECCIÓN BARREDORA
-      </td>
-
-      {/* 👇 COLUMNA DERECHA DE VERSIONES */}
-      <td rowSpan={4} style={{ width: 180, fontSize: 10 }}>
-        <div>Fecha versión: <strong>01-01-26</strong></div>
-        <div>Versión: <strong>01</strong></div>
-      </td>
-    </tr>
-
-    <tr>
-      <td>
-        <table className="pdf-table" style={{ border: "none" }}>
+        <table className="pdf-table">
           <tbody>
             <tr>
-              <td className="pdf-label">REFERENCIA DE CONTRATO</td>
-              <td>{data.referenciaContrato || "—"}</td>
+              <td colSpan={2} style={{ position: "relative" }}>
+                <img
+                  src="/estado-equipo.png"
+                  style={{ width: "100%" }}
+                />
+                {data.estadoEquipoPuntos?.map((pt) => (
+                  <div
+                    key={pt.id}
+                    style={{
+                      position: "absolute",
+                      left: `${pt.x}%`,
+                      top: `${pt.y}%`,
+                      transform: "translate(-50%, -50%)",
+                      background: "red",
+                      color: "white",
+                      width: 18,
+                      height: 18,
+                      borderRadius: "50%",
+                      fontSize: 10,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {pt.id}
+                  </div>
+                ))}
+              </td>
             </tr>
-            <tr>
-              <td className="pdf-label">DESCRIPCIÓN</td>
-              <td>{data.descripcion || "—"}</td>
-            </tr>
-            <tr>
-              <td className="pdf-label">COD. INF.</td>
-              <td>{data.codInf || "—"}</td>
-            </tr>
+
+            {data.estadoEquipoPuntos?.length > 0 ? (
+              data.estadoEquipoPuntos.map((pt) => (
+                <tr key={pt.id}>
+                  <td className="pdf-label">{pt.id}</td>
+                  <td>{pt.nota || "—"}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={2} style={{ textAlign: "center" }}>
+                  — Sin observaciones —
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
-      </td>
-    </tr>
-  </tbody>
-</table>
 
 
 {/* ================= DATOS CLIENTE ================= */}
