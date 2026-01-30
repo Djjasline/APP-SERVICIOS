@@ -535,7 +535,6 @@ useEffect(() => {
           Guardar informe
         </button>
       </div>
-      <PdfInspeccionButtons />
     </form>
   );
 }
