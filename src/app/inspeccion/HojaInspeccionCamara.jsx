@@ -353,6 +353,7 @@ export default function HojaInspeccionCamara() {
 
   <div className="grid grid-cols-4 gap-2 text-sm">
     {[
+      ["nota", "NOTA"],
       ["marca", "MARCA"],
       ["modelo", "MODELO"],
       ["serieModulo", "N° SERIE MÓDULO"],
@@ -372,6 +373,7 @@ export default function HojaInspeccionCamara() {
     ))}
   </div>
 </section>
+
 
       {/* FIRMAS */}
       <section className="border rounded p-4 grid md:grid-cols-2 gap-6 text-center">
