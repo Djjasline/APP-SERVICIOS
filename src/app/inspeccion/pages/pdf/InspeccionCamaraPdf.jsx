@@ -2,14 +2,43 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getInspectionById } from "@/utils/inspectionStorage";
 
+/* =============================
+   PRUEBAS PREVIAS
+============================= */
+const pruebasPrevias = [
+  ["1.1", "Encendido general del equipo"],
+  ["1.2", "Funcionamiento del monitor"],
+  ["1.3", "Funcionamiento del cabezal"],
+];
+
+/* =============================
+   SECCIONES – CÁMARA
+============================= */
+const secciones = [
+  {
+    titulo: "A) SISTEMA DE CÁMARA",
+    items: [
+      ["A.1", "Estado del cabezal"],
+      ["A.2", "Estado del cable"],
+      ["A.3", "Estado del carrete"],
+      ["A.4", "Funcionamiento del contador de metros"],
+    ],
+  },
+  {
+    titulo: "B) SISTEMA ELÉCTRICO",
+    items: [
+      ["B.1", "Fuente de poder"],
+      ["B.2", "Conectores"],
+      ["B.3", "Iluminación del cabezal"],
+    ],
+  },
+];
+
 export default function InspeccionCamaraPdf() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [inspection, setInspection] = useState(null);
 
-  /* =============================
-     CARGA (IGUAL HIDRO)
-  ============================= */
   useEffect(() => {
     const found = getInspectionById("camara", id);
     if (found) setInspection(found);
@@ -20,7 +49,6 @@ export default function InspeccionCamaraPdf() {
   }
 
   const { data } = inspection;
-  const items = data.items || {};
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -30,16 +58,24 @@ export default function InspeccionCamaraPdf() {
         <table className="pdf-table">
           <tbody>
             <tr>
-              <td rowSpan={3} style={{ width: 140, textAlign: "center" }}>
+              <td rowSpan={4} style={{ width: 140, textAlign: "center" }}>
                 <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
               </td>
-              <td colSpan={2} className="pdf-title">
-                HOJA DE INSPECCIÓN CÁMARA CCTV
+              <td className="pdf-title">
+                HOJA DE INSPECCIÓN CÁMARA
+              </td>
+              <td rowSpan={4} style={{ width: 180, fontSize: 10 }}>
+                <div>Fecha versión: <strong>01-01-26</strong></div>
+                <div>Versión: <strong>01</strong></div>
               </td>
             </tr>
             <tr>
               <td className="pdf-label">REFERENCIA DE CONTRATO</td>
               <td>{data.referenciaContrato || "—"}</td>
+            </tr>
+            <tr>
+              <td className="pdf-label">DESCRIPCIÓN</td>
+              <td>{data.descripcion || "—"}</td>
             </tr>
             <tr>
               <td className="pdf-label">COD. INF.</td>
@@ -53,10 +89,11 @@ export default function InspeccionCamaraPdf() {
           <tbody>
             {[
               ["CLIENTE", data.cliente],
-              ["UBICACIÓN", data.ubicacion],
-              ["TÉCNICO ASTAP", data.tecnicoAstap],
-              ["RESPONSABLE CLIENTE", data.responsableCliente],
-              ["FECHA DE INSPECCIÓN", data.fechaInspeccion],
+              ["DIRECCIÓN", data.direccion],
+              ["CONTACTO", data.contacto],
+              ["TELÉFONO", data.telefono],
+              ["CORREO", data.correo],
+              ["FECHA DE SERVICIO", data.fechaServicio],
             ].map(([l, v], i) => (
               <tr key={i}>
                 <td className="pdf-label">{l}</td>
@@ -73,12 +110,7 @@ export default function InspeccionCamaraPdf() {
           <tbody>
             <tr>
               <td colSpan={2} style={{ position: "relative" }}>
-                <img
-                  src="/estado equipo camara.png"
-                  style={{ width: "100%" }}
-                />
-
-                {/* === PUNTOS ROJOS === */}
+                <img src="/estado equipo camara.png" style={{ width: "100%" }} />
                 {data.estadoEquipoPuntos?.map((pt) => (
                   <div
                     key={pt.id}
@@ -103,76 +135,71 @@ export default function InspeccionCamaraPdf() {
                 ))}
               </td>
             </tr>
-
-            {data.estadoEquipoPuntos?.length > 0 ? (
-              data.estadoEquipoPuntos.map((pt) => (
-                <tr key={pt.id}>
-                  <td className="pdf-label">{pt.id}</td>
-                  <td>{pt.nota || "—"}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={2} style={{ textAlign: "center" }}>
-                  — Sin observaciones —
-                </td>
+            {data.estadoEquipoPuntos?.map((pt) => (
+              <tr key={pt.id}>
+                <td className="pdf-label">{pt.id}</td>
+                <td>{pt.nota || "—"}</td>
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
 
-        {/* ================= EVALUACIÓN DE SISTEMAS ================= */}
-        <h3 className="pdf-title mt-4">
-          EVALUACIÓN DE COMPONENTES / SISTEMAS
-        </h3>
+        {/* ================= PRUEBAS PREVIAS ================= */}
+        <h3 className="pdf-title mt-4">1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO</h3>
 
         <table className="pdf-table">
           <thead>
             <tr>
               <th>Ítem</th>
+              <th>Detalle</th>
               <th>Estado</th>
               <th>Observación</th>
             </tr>
           </thead>
           <tbody>
-            {Object.keys(items).length > 0 ? (
-              Object.entries(items).map(([codigo, item]) => (
+            {pruebasPrevias.map(([codigo, texto]) => {
+              const item = data.items?.[codigo] || {};
+              return (
                 <tr key={codigo}>
                   <td>{codigo}</td>
+                  <td>{texto}</td>
                   <td>{item.estado || "—"}</td>
                   <td>{item.observacion || ""}</td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={3} style={{ textAlign: "center" }}>
-                  — Sin ítems evaluados —
-                </td>
-              </tr>
-            )}
+              );
+            })}
           </tbody>
         </table>
 
-        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-        <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
-
-        <table className="pdf-table">
-          <tbody>
-            {[
-              ["MARCA", data.marca],
-              ["MODELO", data.modelo],
-              ["SERIE MÓDULO", data.serieModulo],
-              ["SERIE CARRETE", data.serieCarrete],
-              ["SERIE CABEZAL", data.serieCabezal],
-              ["AÑO MODELO", data.anioModelo],
-            ].map(([l, v], i) => (
-              <tr key={i}>
-                <td className="pdf-label">{l}</td>
-                <td>{v || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {/* ================= SECCIONES ================= */}
+        {secciones.map((sec) => (
+          <div key={sec.titulo}>
+            <h3 className="pdf-title mt-4">{sec.titulo}</h3>
+            <table className="pdf-table">
+              <thead>
+                <tr>
+                  <th>Ítem</th>
+                  <th>Detalle</th>
+                  <th>Estado</th>
+                  <th>Observación</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sec.items.map(([codigo, texto]) => {
+                  const item = data.items?.[codigo] || {};
+                  return (
+                    <tr key={codigo}>
+                      <td>{codigo}</td>
+                      <td>{texto}</td>
+                      <td>{item.estado || "—"}</td>
+                      <td>{item.observacion || ""}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ))}
 
         {/* ================= FIRMAS ================= */}
         <table className="pdf-table mt-4">
@@ -186,18 +213,12 @@ export default function InspeccionCamaraPdf() {
             <tr>
               <td style={{ height: 120, textAlign: "center" }}>
                 {data.firmas?.tecnico && (
-                  <img
-                    src={data.firmas.tecnico}
-                    style={{ maxHeight: 100 }}
-                  />
+                  <img src={data.firmas.tecnico} style={{ maxHeight: 100 }} />
                 )}
               </td>
               <td style={{ height: 120, textAlign: "center" }}>
                 {data.firmas?.cliente && (
-                  <img
-                    src={data.firmas.cliente}
-                    style={{ maxHeight: 100 }}
-                  />
+                  <img src={data.firmas.cliente} style={{ maxHeight: 100 }} />
                 )}
               </td>
             </tr>
@@ -206,17 +227,10 @@ export default function InspeccionCamaraPdf() {
 
         {/* ================= BOTONES ================= */}
         <div className="no-print flex justify-between mt-6">
-          <button
-            onClick={() => navigate("/inspeccion")}
-            className="border px-4 py-2 rounded"
-          >
+          <button onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
             Volver
           </button>
-
-          <button
-            onClick={() => window.print()}
-            className="bg-green-600 text-white px-4 py-2 rounded"
-          >
+          <button onClick={() => window.print()} className="bg-green-600 text-white px-4 py-2 rounded">
             Descargar PDF
           </button>
         </div>
