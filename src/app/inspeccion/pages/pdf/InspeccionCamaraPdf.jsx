@@ -54,65 +54,58 @@ export default function InspeccionCamaraPdf() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="pdf-container max-w-6xl mx-auto">
 
-    {/* ================= ENCABEZADO ================= */}
-<table className="pdf-table">
-  <tbody>
-    <tr>
-      <td rowSpan={4} style={{ width: 140, textAlign: "center" }}>
-        <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
-      </td>
-
-      <td className="pdf-title">
-        HOJA DE INSPECCIÓN CÁMARA
-      </td>
-
-      <td rowSpan={4} style={{ width: 180, fontSize: 10 }}>
-        <div>Fecha versión: <strong>01-01-26</strong></div>
-        <div>Versión: <strong>01</strong></div>
-      </td>
-    </tr>
-
-    <tr>
-      <td>
-        <table className="pdf-table" style={{ border: "none" }}>
+{/* ================= ENCABEZADO ================= */}
+        <table className="pdf-table">
           <tbody>
             <tr>
+              <td rowSpan={5} style={{ width: 140, textAlign: "center" }}>
+                <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
+              </td>
+              <td colSpan={2} className="pdf-title">
+                HOJA DE INSPECCIÓN BARREDORA
+              </td>
+              <td>
+                <strong>Fecha versión:</strong> 01-01-26<br />
+                <strong>Versión:</strong> 01
+              </td>
+            </tr>
+            <tr>
               <td className="pdf-label">REFERENCIA DE CONTRATO</td>
-              <td>{data.referenciaContrato || "—"}</td>
+              <td colSpan={2}>{data.referenciaContrato || "—"}</td>
             </tr>
             <tr>
               <td className="pdf-label">DESCRIPCIÓN</td>
-              <td>{data.descripcion || "—"}</td>
+              <td colSpan={2}>{data.descripcion || "—"}</td>
             </tr>
             <tr>
               <td className="pdf-label">COD. INF.</td>
-              <td>{data.codInf || "—"}</td>
+              <td colSpan={2}>{data.codInf || "—"}</td>
             </tr>
           </tbody>
         </table>
-      </td>
-    </tr>
+
+
+{/* ================= DATOS CLIENTE ================= */}
+<table className="pdf-table mt-4">
+  <tbody>
+    {[
+      ["CLIENTE", data.cliente],
+      ["DIRECCIÓN", data.direccion],
+      ["CONTACTO", data.contacto],
+      ["TELÉFONO", data.telefono],
+      ["CORREO", data.correo],
+      ["TÉCNICO RESPONSABLE", data.tecnicoResponsable],
+      ["TELÉFONO TÉCNICO", data.telefonoTecnico],
+      ["CORREO TÉCNICO", data.correoTecnico],
+      ["FECHA DE SERVICIO", data.fechaServicio],
+    ].map(([l, v], i) => (
+      <tr key={i}>
+        <td className="pdf-label">{l}</td>
+        <td>{v || "—"}</td>
+      </tr>
+    ))}
   </tbody>
 </table>
-
-        {/* ================= DATOS CLIENTE ================= */}
-        <table className="pdf-table mt-4">
-          <tbody>
-            {[
-              ["CLIENTE", data.cliente],
-              ["DIRECCIÓN", data.direccion],
-              ["CONTACTO", data.contacto],
-              ["TELÉFONO", data.telefono],
-              ["CORREO", data.correo],
-              ["FECHA DE SERVICIO", data.fechaServicio],
-            ].map(([l, v], i) => (
-              <tr key={i}>
-                <td className="pdf-label">{l}</td>
-                <td>{v || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
 
         {/* ================= ESTADO DEL EQUIPO ================= */}
         <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
