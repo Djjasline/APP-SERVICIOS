@@ -3,33 +3,42 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getInspectionById } from "@/utils/inspectionStorage";
 
 /* =============================
-   PRUEBAS PREVIAS
+   PRUEBAS PREVIAS – CÁMARA
 ============================= */
 const pruebasPrevias = [
-  ["1.1", "Encendido general del equipo"],
-  ["1.2", "Funcionamiento del monitor"],
-  ["1.3", "Funcionamiento del cabezal"],
+  ["1.1", "PRUEBA DE ENCENDIDO GENERAL DEL EQUIPO."],
+  ["1.2", "VERIFICACIÓN DE FUNCIONAMIENTO DE CONTROLES PRINCIPALES."],
+  ["1.3", "REVISIÓN DE ALARMAS O MENSAJES DE FALLO."],
 ];
 
 /* =============================
-   SECCIONES – CÁMARA
+   SECCIONES – CÁMARA (OFICIAL)
 ============================= */
 const secciones = [
   {
-    titulo: "A) SISTEMA DE CÁMARA",
+    titulo: "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS",
     items: [
-      ["A.1", "Estado del cabezal"],
-      ["A.2", "Estado del cable"],
-      ["A.3", "Estado del carrete"],
-      ["A.4", "Funcionamiento del contador de metros"],
-    ],
-  },
-  {
-    titulo: "B) SISTEMA ELÉCTRICO",
-    items: [
-      ["B.1", "Fuente de poder"],
-      ["B.2", "Conectores"],
-      ["B.3", "Iluminación del cabezal"],
+      ["A.1", "ESTRUCTURA DEL CARRETE SIN DEFORMACIONES NI SOLDADURAS ROTAS."],
+      ["A.2", "PINTURA Y ACABADO SIN CORROSIÓN NI DESPRENDIMIENTOS."],
+      ["A.3", "MANGO, MANIVELA O FRENO EN BUEN ESTADO Y FUNCIONAMIENTO SUAVE."],
+      ["A.4", "BASE ESTABLE, SIN VIBRACIONES AL GIRAR EL TAMBOR."],
+      ["A.5", "RUEDAS (SI APLICA) SIN DESGASTE."],
+      ["A.6", "CABLE LIMPIO, LIBRE DE CORTES, DOBLECES O SECCIONES PLANAS."],
+      ["A.7", "RECUBRIMIENTO SIN GRIETAS NI DESGASTE VISIBLE."],
+      ["A.8", "LONGITUD TOTAL VERIFICADA (SEGÚN ESPECIFICACIÓN)."],
+      ["A.9", "MARCADORES DE LONGITUD VISIBLES Y LEGIBLES."],
+      ["A.10", "GIRO LIBRE DEL CABLE EN AMBOS SENTIDOS AL ENROLLAR / DESENROLLAR."],
+      ["A.11", "CABLE Y CARRETE COMPLETAMENTE LIMPIOS."],
+      ["A.12", "LUBRICACIÓN LIGERA DE EJES Y RODAMIENTOS."],
+      ["A.13", "TAPONES Y PROTECCIONES INSTALADOS PARA TRANSPORTE."],
+      ["A.14", "EMPAQUE O CAJA EN BUEN ESTADO."],
+      ["A.15", "LENTE LIMPIO Y SIN RAYADURAS."],
+      ["A.16", "ILUMINACIÓN LED FUNCIONAL (PROBAR CON FUENTE)."],
+      ["A.17", "ALINEACIÓN Y ESTANQUEIDAD VERIFICADA (SIN FUGAS)."],
+      ["A.18", "PROTECCIÓN FRONTAL Y RESORTE DE ENTRADA INTACTOS."],
+      ["A.19", "IMAGEN ESTABLE Y CENTRADA."],
+      ["A.20", "LEDS RESPONDEN A CONTROL DE INTENSIDAD."],
+      ["A.21", "SIN INTERFERENCIAS NI PÉRDIDA DE SEÑAL AL ENROLLAR CABLE."],
     ],
   },
 ];
@@ -44,9 +53,7 @@ export default function InspeccionCamaraPdf() {
     if (found) setInspection(found);
   }, [id]);
 
-  if (!inspection) {
-    return <div className="p-6">Cargando inspección…</div>;
-  }
+  if (!inspection) return <div className="p-6">Cargando inspección…</div>;
 
   const { data } = inspection;
 
@@ -54,62 +61,92 @@ export default function InspeccionCamaraPdf() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="pdf-container max-w-6xl mx-auto">
 
-{/* ================= ENCABEZADO ================= */}
+        {/* ================= ENCABEZADO ================= */}
         <table className="pdf-table">
           <tbody>
             <tr>
-              <td rowSpan={5} style={{ width: 140, textAlign: "center" }}>
+              <td rowSpan={4} style={{ width: 140, textAlign: "center" }}>
                 <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
               </td>
-              <td colSpan={2} className="pdf-title">
-                HOJA DE INSPECCIÓN BARREDORA
+              <td className="pdf-title">HOJA DE INSPECCIÓN CÁMARA</td>
+              <td rowSpan={4} style={{ width: 180, fontSize: 10 }}>
+                <div>Fecha versión: <strong>01-01-26</strong></div>
+                <div>Versión: <strong>01</strong></div>
               </td>
+            </tr>
+            <tr>
               <td>
-                <strong>Fecha versión:</strong> 01-01-26<br />
-                <strong>Versión:</strong> 01
+                <table className="pdf-table">
+                  <tbody>
+                    <tr>
+                      <td className="pdf-label">REFERENCIA DE CONTRATO</td>
+                      <td>{data.referenciaContrato || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td className="pdf-label">DESCRIPCIÓN</td>
+                      <td>{data.descripcion || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td className="pdf-label">COD. INF.</td>
+                      <td>{data.codInf || "—"}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </td>
-            </tr>
-            <tr>
-              <td className="pdf-label">REFERENCIA DE CONTRATO</td>
-              <td colSpan={2}>{data.referenciaContrato || "—"}</td>
-            </tr>
-            <tr>
-              <td className="pdf-label">DESCRIPCIÓN</td>
-              <td colSpan={2}>{data.descripcion || "—"}</td>
-            </tr>
-            <tr>
-              <td className="pdf-label">COD. INF.</td>
-              <td colSpan={2}>{data.codInf || "—"}</td>
             </tr>
           </tbody>
         </table>
 
+        {/* ================= DATOS CLIENTE ================= */}
+        <table className="pdf-table mt-4">
+          <tbody>
+            {[
+              ["CLIENTE", data.cliente],
+              ["DIRECCIÓN", data.direccion],
+              ["CONTACTO", data.contacto],
+              ["TELÉFONO", data.telefono],
+              ["CORREO", data.correo],
+              ["TÉCNICO RESPONSABLE", data.tecnicoResponsable],
+              ["TELÉFONO TÉCNICO", data.telefonoTecnico],
+              ["CORREO TÉCNICO", data.correoTecnico],
+              ["FECHA DE SERVICIO", data.fechaInspeccion],
+            ].map(([l, v], i) => (
+              <tr key={i}>
+                <td className="pdf-label">{l}</td>
+                <td>{v || "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-{/* ================= DATOS CLIENTE ================= */}
-<table className="pdf-table mt-4">
-  <tbody>
-    {[
-      ["CLIENTE", data.cliente],
-      ["DIRECCIÓN", data.direccion],
-      ["CONTACTO", data.contacto],
-      ["TELÉFONO", data.telefono],
-      ["CORREO", data.correo],
-      ["TÉCNICO RESPONSABLE", data.tecnicoResponsable],
-      ["TELÉFONO TÉCNICO", data.telefonoTecnico],
-      ["CORREO TÉCNICO", data.correoTecnico],
-      ["FECHA DE SERVICIO", data.fechaServicio],
-    ].map(([l, v], i) => (
-      <tr key={i}>
-        <td className="pdf-label">{l}</td>
-        <td>{v || "—"}</td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+        {/* ================= PRUEBAS ================= */}
+        <h3 className="pdf-title mt-4">1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO</h3>
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>Ítem</th>
+              <th>Detalle</th>
+              <th>Estado</th>
+              <th>Observación</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pruebasPrevias.map(([codigo, texto]) => {
+              const item = data.items?.[codigo] || {};
+              return (
+                <tr key={codigo}>
+                  <td>{codigo}</td>
+                  <td>{texto}</td>
+                  <td>{item.estado || "—"}</td>
+                  <td>{item.observacion || ""}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
 
         {/* ================= ESTADO DEL EQUIPO ================= */}
         <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
-
         <table className="pdf-table">
           <tbody>
             <tr>
@@ -148,34 +185,7 @@ export default function InspeccionCamaraPdf() {
           </tbody>
         </table>
 
-        {/* ================= PRUEBAS PREVIAS ================= */}
-        <h3 className="pdf-title mt-4">1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO</h3>
-
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th>Ítem</th>
-              <th>Detalle</th>
-              <th>Estado</th>
-              <th>Observación</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pruebasPrevias.map(([codigo, texto]) => {
-              const item = data.items?.[codigo] || {};
-              return (
-                <tr key={codigo}>
-                  <td>{codigo}</td>
-                  <td>{texto}</td>
-                  <td>{item.estado || "—"}</td>
-                  <td>{item.observacion || ""}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-
-        {/* ================= SECCIONES ================= */}
+        {/* ================= EVALUACIÓN ================= */}
         {secciones.map((sec) => (
           <div key={sec.titulo}>
             <h3 className="pdf-title mt-4">{sec.titulo}</h3>
@@ -205,32 +215,27 @@ export default function InspeccionCamaraPdf() {
           </div>
         ))}
 
-{/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-<h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
+        <table className="pdf-table">
+          <tbody>
+            {[
+              ["NOTA", data.nota],
+              ["MARCA", data.marca],
+              ["MODELO", data.modelo],
+              ["N° SERIE MÓDULO", data.serieModulo],
+              ["N° SERIE CARRETE", data.serieCarrete],
+              ["N° SERIE CABEZAL", data.serieCabezal],
+              ["AÑO MODELO", data.anioModelo],
+            ].map(([l, v], i) => (
+              <tr key={i}>
+                <td className="pdf-label">{l}</td>
+                <td>{v || "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-<table className="pdf-table">
-  <tbody>
-    {[
-      ["NOTA", data.nota],
-      ["MARCA", data.marca],
-      ["MODELO", data.modelo],
-      ["SERIE", data.serie],
-      ["AÑO MODELO", data.anioModelo],
-      ["VIN / CHASIS", data.vin],
-      ["PLACA", data.placa],
-      ["HORAS MÓDULO", data.horasModulo],
-      ["HORAS CHASIS", data.horasChasis],
-      ["KILOMETRAJE", data.kilometraje],
-    ].map(([l, v], i) => (
-      <tr key={i}>
-        <td className="pdf-label">{l}</td>
-        <td>{v || "—"}</td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-
-         
         {/* ================= FIRMAS ================= */}
         <table className="pdf-table mt-4">
           <thead>
@@ -255,16 +260,14 @@ export default function InspeccionCamaraPdf() {
           </tbody>
         </table>
 
-        {/* ================= BOTONES ================= */}
         <div className="no-print flex justify-between mt-6">
-          <button onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded">
+          <button onClick={() => navigate("/inspeccion")} className="border px-4 py-2">
             Volver
           </button>
           <button onClick={() => window.print()} className="bg-green-600 text-white px-4 py-2 rounded">
             Descargar PDF
           </button>
         </div>
-
       </div>
     </div>
   );
