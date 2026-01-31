@@ -54,21 +54,28 @@ export default function InspeccionCamaraPdf() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="pdf-container max-w-6xl mx-auto">
 
-        {/* ================= ENCABEZADO ================= */}
-        <table className="pdf-table">
+    {/* ================= ENCABEZADO ================= */}
+<table className="pdf-table">
+  <tbody>
+    <tr>
+      <td rowSpan={4} style={{ width: 140, textAlign: "center" }}>
+        <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
+      </td>
+
+      <td className="pdf-title">
+        HOJA DE INSPECCIÓN CÁMARA
+      </td>
+
+      <td rowSpan={4} style={{ width: 180, fontSize: 10 }}>
+        <div>Fecha versión: <strong>01-01-26</strong></div>
+        <div>Versión: <strong>01</strong></div>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <table className="pdf-table" style={{ border: "none" }}>
           <tbody>
-            <tr>
-              <td rowSpan={4} style={{ width: 140, textAlign: "center" }}>
-                <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
-              </td>
-              <td className="pdf-title">
-                HOJA DE INSPECCIÓN CÁMARA
-              </td>
-              <td rowSpan={4} style={{ width: 180, fontSize: 10 }}>
-                <div>Fecha versión: <strong>01-01-26</strong></div>
-                <div>Versión: <strong>01</strong></div>
-              </td>
-            </tr>
             <tr>
               <td className="pdf-label">REFERENCIA DE CONTRATO</td>
               <td>{data.referenciaContrato || "—"}</td>
@@ -83,6 +90,10 @@ export default function InspeccionCamaraPdf() {
             </tr>
           </tbody>
         </table>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
         {/* ================= DATOS CLIENTE ================= */}
         <table className="pdf-table mt-4">
