@@ -7,7 +7,7 @@ import {
 } from "@utils/inspectionStorage";
 
 /* =============================
-   SECCIONES – CÁMARA
+   SECCIONES – CÁMARA (OFICIAL)
 ============================= */
 const secciones = [
   {
@@ -15,39 +15,40 @@ const secciones = [
     titulo:
       "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
     items: [
-      ["1.1", "Prueba de encendido general del equipo"],
-      ["1.2", "Verificación de funcionamiento de controles principales"],
-      ["1.3", "Revisión de alarmas o mensajes de fallo"],
+      ["1.1", "PRUEBA DE ENCENDIDO GENERAL DEL EQUIPO."],
+      ["1.2", "VERIFICACIÓN DE FUNCIONAMIENTO DE CONTROLES PRINCIPALES."],
+      ["1.3", "REVISIÓN DE ALARMAS O MENSAJES DE FALLO."],
     ],
   },
   {
     id: "secA",
-    titulo: "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O SISTEMAS",
+    titulo: "2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O ESTADO DE LOS SISTEMAS",
     items: [
-      ["A.1", "Estructura del carrete sin deformaciones"],
-      ["A.2", "Pintura y acabado sin corrosión"],
-      ["A.3", "Manivela y freno en buen estado"],
-      ["A.4", "Base estable sin vibraciones"],
-      ["A.5", "Ruedas en buen estado"],
-      ["A.6", "Cable sin cortes ni aplastamientos"],
-      ["A.7", "Recubrimiento sin grietas"],
-      ["A.8", "Longitud correcta del cable"],
-      ["A.9", "Marcadores visibles"],
-      ["A.10", "Enrollado uniforme"],
-      ["A.11", "Cable limpio"],
-      ["A.12", "Lubricación correcta"],
-      ["A.13", "Protecciones instaladas"],
-      ["A.14", "Empaque en buen estado"],
-      ["A.15", "Sin fugas"],
-      ["A.16", "Protección frontal intacta"],
-      ["A.17", "Lente sin rayaduras"],
-      ["A.18", "Iluminación LED funcional"],
-      ["A.19", "Imagen estable"],
-      ["A.20", "Sin interferencias"],
-      ["A.21", "Control de intensidad LED"],
+      ["A.1", "ESTRUCTURA DEL CARRETE SIN DEFORMACIONES NI SOLDADURAS ROTAS."],
+      ["A.2", "PINTURA Y ACABADO SIN CORROSIÓN NI DESPRENDIMIENTOS."],
+      ["A.3", "MANGO, MANIVELA O FRENO EN BUEN ESTADO Y FUNCIONAMIENTO SUAVE."],
+      ["A.4", "BASE ESTABLE, SIN VIBRACIONES AL GIRAR EL TAMBOR."],
+      ["A.5", "RUEDAS (SI APLICA) SIN DESGASTE."],
+      ["A.6", "CABLE LIMPIO, LIBRE DE CORTES, DOBLECES O SECCIONES PLANAS."],
+      ["A.7", "RECUBRIMIENTO SIN GRIETAS NI DESGASTE VISIBLE."],
+      ["A.8", "LONGITUD TOTAL VERIFICADA (SEGÚN ESPECIFICACIÓN)."],
+      ["A.9", "MARCADORES DE LONGITUD VISIBLES Y LEGIBLES."],
+      ["A.10", "GIRO LIBRE DEL CABLE EN AMBOS SENTIDOS AL ENROLLAR / DESENROLLAR."],
+      ["A.11", "CABLE Y CARRETE COMPLETAMENTE LIMPIOS."],
+      ["A.12", "LUBRICACIÓN LIGERA DE EJES Y RODAMIENTOS."],
+      ["A.13", "TAPONES Y PROTECCIONES INSTALADOS PARA TRANSPORTE."],
+      ["A.14", "EMPAQUE O CAJA EN BUEN ESTADO."],
+      ["A.15", "LENTE LIMPIO Y SIN RAYADURAS."],
+      ["A.16", "ILUMINACIÓN LED FUNCIONAL (PROBAR CON FUENTE)."],
+      ["A.17", "ALINEACIÓN Y ESTANQUEIDAD VERIFICADA (SIN FUGAS)."],
+      ["A.18", "PROTECCIÓN FRONTAL Y RESORTE DE ENTRADA INTACTOS."],
+      ["A.19", "IMAGEN ESTABLE Y CENTRADA."],
+      ["A.20", "LEDS RESPONDEN A CONTROL DE INTENSIDAD."],
+      ["A.21", "SIN INTERFERENCIAS NI PÉRDIDA DE SEÑAL AL ENROLLAR CABLE."],
     ],
   },
 ];
+
 
 export default function HojaInspeccionCamara() {
   const { id } = useParams();
