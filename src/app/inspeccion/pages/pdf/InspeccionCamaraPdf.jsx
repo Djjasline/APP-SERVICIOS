@@ -205,6 +205,32 @@ export default function InspeccionCamaraPdf() {
           </div>
         ))}
 
+{/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+<h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
+
+<table className="pdf-table">
+  <tbody>
+    {[
+      ["NOTA", data.nota],
+      ["MARCA", data.marca],
+      ["MODELO", data.modelo],
+      ["SERIE", data.serie],
+      ["AÑO MODELO", data.anioModelo],
+      ["VIN / CHASIS", data.vin],
+      ["PLACA", data.placa],
+      ["HORAS MÓDULO", data.horasModulo],
+      ["HORAS CHASIS", data.horasChasis],
+      ["KILOMETRAJE", data.kilometraje],
+    ].map(([l, v], i) => (
+      <tr key={i}>
+        <td className="pdf-label">{l}</td>
+        <td>{v || "—"}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+         
         {/* ================= FIRMAS ================= */}
         <table className="pdf-table mt-4">
           <thead>
