@@ -201,7 +201,7 @@ export default function HojaMantenimientoHidro() {
                 HOJA DE MANTENIMIENTO HIDROSUCCIONADOR
               </td>
               <td className="p-2">
-                <div>Fecha versión: <strong>25-11-2025</strong></div>
+                <div>Fecha versión: <strong>01-1-2026</strong></div>
                 <div>Versión: <strong>01</strong></div>
               </td>
             </tr>
@@ -270,12 +270,7 @@ export default function HojaMantenimientoHidro() {
           </div>
         ))}
 
-        <textarea
-          name="estadoEquipoDetalle"
-          placeholder="Observaciones generales del estado del equipo"
-          onChange={handleChange}
-          className="w-full border rounded p-2 min-h-[80px]"
-        />
+   
       </section>
 
       {/* ================= TABLAS ================= */}
