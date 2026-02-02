@@ -19,12 +19,58 @@ export default function IndexMantenimiento() {
     );
   }, []);
 
+  /* =============================
+     ELIMINAR REGISTROS
+  ============================= */
+  const handleDeleteHidro = (id) => {
+    if (!window.confirm("¿Eliminar este mantenimiento?")) return;
+
+    const stored =
+      JSON.parse(localStorage.getItem("mantenimiento-hidro")) || [];
+
+    const updated = stored.filter((r) => r.id !== id);
+
+    localStorage.setItem(
+      "mantenimiento-hidro",
+      JSON.stringify(updated)
+    );
+
+    setHidro(updated);
+  };
+
+  const handleDeleteBarredora = (id) => {
+    if (!window.confirm("¿Eliminar este mantenimiento?")) return;
+
+    const stored =
+      JSON.parse(localStorage.getItem("mantenimiento-barredora")) || [];
+
+    const updated = stored.filter((r) => r.id !== id);
+
+    localStorage.setItem(
+      "mantenimiento-barredora",
+      JSON.stringify(updated)
+    );
+
+    setBarredora(updated);
+  };
+
+  /* =============================
+     FILTRO
+  ============================= */
   const filtrar = (data, filtro) => {
     if (filtro === "todos") return data;
     return data.filter((i) => i.estado === filtro);
   };
 
-  const renderHistorico = (data, basePath, filtro) => {
+  /* =============================
+     RENDER HISTORIAL
+  ============================= */
+  const renderHistorico = (
+    data,
+    basePath,
+    filtro,
+    onDelete
+  ) => {
     const lista = filtrar(data, filtro);
 
     if (lista.length === 0) {
@@ -53,19 +99,26 @@ export default function IndexMantenimiento() {
         </div>
 
         {/* BOTONES */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 text-xs">
           <button
             onClick={() => navigate(`${basePath}/${item.id}`)}
-            className="text-xs border px-3 py-1 rounded"
+            className="border px-3 py-1 rounded"
           >
             Abrir
           </button>
 
           <button
             onClick={() => navigate(`${basePath}/${item.id}/pdf`)}
-            className="text-xs bg-blue-600 text-white px-3 py-1 rounded"
+            className="bg-blue-600 text-white px-3 py-1 rounded"
           >
             Ver PDF
+          </button>
+
+          <button
+            onClick={() => onDelete(item.id)}
+            className="text-red-600"
+          >
+            Eliminar
           </button>
         </div>
       </div>
@@ -74,7 +127,6 @@ export default function IndexMantenimiento() {
 
   return (
     <div className="max-w-6xl mx-auto my-8 space-y-6">
-
       {/* VOLVER */}
       <button
         onClick={() => navigate("/")}
@@ -83,13 +135,16 @@ export default function IndexMantenimiento() {
         ← Volver
       </button>
 
-      <h1 className="text-xl font-semibold">Servicio de mantenimiento</h1>
+      <h1 className="text-xl font-semibold">
+        Servicio de mantenimiento
+      </h1>
 
       <div className="grid md:grid-cols-2 gap-6">
-
         {/* ================= HIDRO ================= */}
         <section className="border rounded-xl p-4 space-y-4">
-          <h2 className="font-semibold">Mantenimiento Hidrosuccionador</h2>
+          <h2 className="font-semibold">
+            Mantenimiento Hidrosuccionador
+          </h2>
 
           <button
             onClick={() => navigate("/mantenimiento/hidro/crear")}
@@ -113,13 +168,20 @@ export default function IndexMantenimiento() {
           </div>
 
           <div className="space-y-2">
-            {renderHistorico(hidro, "/mantenimiento/hidro", filtroHidro)}
+            {renderHistorico(
+              hidro,
+              "/mantenimiento/hidro",
+              filtroHidro,
+              handleDeleteHidro
+            )}
           </div>
         </section>
 
         {/* ================= BARREDORA ================= */}
         <section className="border rounded-xl p-4 space-y-4">
-          <h2 className="font-semibold">Mantenimiento Barredora</h2>
+          <h2 className="font-semibold">
+            Mantenimiento Barredora
+          </h2>
 
           <button
             onClick={() => navigate("/mantenimiento/barredora/crear")}
@@ -146,11 +208,11 @@ export default function IndexMantenimiento() {
             {renderHistorico(
               barredora,
               "/mantenimiento/barredora",
-              filtroBarredora
+              filtroBarredora,
+              handleDeleteBarredora
             )}
           </div>
         </section>
-
       </div>
     </div>
   );
