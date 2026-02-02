@@ -1,22 +1,27 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { getInspectionById } from "@/utils/inspectionStorage";
+import { useNavigate, useParams } from "react-router-dom";
 
+/* =============================
+   PDF MANTENIMIENTO HIDRO
+============================= */
 export default function MantenimientoHidroPdf() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [registro, setRegistro] = useState(null);
+  const [record, setRecord] = useState(null);
 
   useEffect(() => {
-    const data = getInspectionById("mantenimiento-hidro", id);
-    if (data) setRegistro(data);
+    const stored =
+      JSON.parse(localStorage.getItem("mantenimiento-hidro")) || [];
+
+    const found = stored.find((r) => r.id === id);
+    if (found) setRecord(found);
   }, [id]);
 
-  if (!registro) {
+  if (!record) {
     return <div className="p-6">Cargando mantenimiento…</div>;
   }
 
-  const { data } = registro;
+  const { data } = record;
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -26,14 +31,14 @@ export default function MantenimientoHidroPdf() {
         <table className="pdf-table">
           <tbody>
             <tr>
-              <td rowSpan={5} style={{ width: 140, textAlign: "center" }}>
+              <td rowSpan={4} style={{ width: 140, textAlign: "center" }}>
                 <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
               </td>
               <td colSpan={2} className="pdf-title">
                 HOJA DE MANTENIMIENTO HIDROSUCCIONADOR
               </td>
               <td>
-                <strong>Fecha versión:</strong> 25-11-2025<br />
+                <strong>Fecha versión:</strong> 01-01-26<br />
                 <strong>Versión:</strong> 01
               </td>
             </tr>
@@ -107,24 +112,16 @@ export default function MantenimientoHidroPdf() {
               </td>
             </tr>
 
-            {data.estadoEquipoPuntos?.length ? (
-              data.estadoEquipoPuntos.map((pt) => (
-                <tr key={pt.id}>
-                  <td className="pdf-label">{pt.id}</td>
-                  <td>{pt.nota || "—"}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={2} style={{ textAlign: "center" }}>
-                  — Sin observaciones —
-                </td>
+            {data.estadoEquipoPuntos?.map((pt) => (
+              <tr key={pt.id}>
+                <td className="pdf-label">{pt.id}</td>
+                <td>{pt.nota || "—"}</td>
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
 
-        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        {/* ================= DESCRIPCIÓN EQUIPO ================= */}
         <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
 
         <table className="pdf-table">
