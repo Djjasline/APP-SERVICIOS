@@ -112,7 +112,7 @@ export default function MantenimientoBarredoraPdf() {
                 HOJA DE MANTENIMIENTO BARREDORA
               </td>
               <td>
-                <strong>Fecha versión:</strong> 25-11-2025<br />
+                <strong>Fecha versión:</strong> 015-01-2026<br />
                 <strong>Versión:</strong> 01
               </td>
             </tr>
@@ -131,23 +131,28 @@ export default function MantenimientoBarredoraPdf() {
           </tbody>
         </table>
 
-        {/* ================= DATOS ================= */}
-        <table className="pdf-table mt-4">
-          <tbody>
-            {[
-              ["CLIENTE", data.cliente],
-              ["UBICACIÓN", data.ubicacion],
-              ["TÉCNICO ASTAP", data.tecnicoAstap],
-              ["RESPONSABLE CLIENTE", data.responsableCliente],
-              ["FECHA DE SERVICIO", data.fechaServicio],
-            ].map(([l, v], i) => (
-              <tr key={i}>
-                <td className="pdf-label">{l}</td>
-                <td>{v || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+{/* ================= DATOS CLIENTE / TÉCNICO ================= */}
+<table className="pdf-table mt-4">
+  <tbody>
+    {[
+      ["CLIENTE", data.cliente],
+      ["DIRECCIÓN", data.direccion],
+      ["CONTACTO", data.contacto],
+      ["TELÉFONO", data.telefono],
+      ["CORREO", data.correo],
+      ["TÉCNICO RESPONSABLE", data.tecnicoResponsable],
+      ["TELÉFONO TÉCNICO", data.telefonoTecnico],
+      ["CORREO TÉCNICO", data.correoTecnico],
+      ["FECHA DE SERVICIO", data.fechaServicio],
+    ].map(([label, value], i) => (
+      <tr key={i}>
+        <td className="pdf-label">{label}</td>
+        <td>{value || "—"}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
 
         {/* ================= ESTADO DEL EQUIPO ================= */}
         <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
