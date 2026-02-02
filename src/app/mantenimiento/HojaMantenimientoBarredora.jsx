@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { nanoid } from "nanoid";
@@ -81,7 +81,7 @@ const secciones = [
   },
 ];
 
-export function HojaMantenimientoBarredora() {
+export default function HojaMantenimientoBarredora() {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -94,13 +94,9 @@ export function HojaMantenimientoBarredora() {
     codInf: "",
 
     cliente: "",
-    direccion: "",
-    contacto: "",
-    telefono: "",
-    correo: "",
-    tecnicoResponsable: "",
-    telefonoTecnico: "",
-    correoTecnico: "",
+    ubicacion: "",
+    tecnicoAstap: "",
+    responsableCliente: "",
     fechaServicio: "",
 
     estadoEquipoPuntos: [],
@@ -118,14 +114,15 @@ export function HojaMantenimientoBarredora() {
     horasChasis: "",
     kilometraje: "",
   });
+
   /* =============================
-     CARGA DESDE LOCALSTORAGE (EDITAR)
+     CARGA DESDE LOCALSTORAGE
   ============================= */
   useEffect(() => {
     if (!id) return;
 
     const stored =
-      JSON.parse(localStorage.getItem("mantenimiento-hidro")) || [];
+      JSON.parse(localStorage.getItem("mantenimiento-barredora")) || [];
 
     const found = stored.find((r) => r.id === id);
 
@@ -135,14 +132,13 @@ export function HojaMantenimientoBarredora() {
       if (found.data.firmas?.tecnico && firmaTecnicoRef.current) {
         firmaTecnicoRef.current.fromDataURL(found.data.firmas.tecnico);
       }
-
       if (found.data.firmas?.cliente && firmaClienteRef.current) {
         firmaClienteRef.current.fromDataURL(found.data.firmas.cliente);
       }
     }
   }, [id]);
 
-    /* =============================
+  /* =============================
      HANDLERS
   ============================= */
   const handleChange = (e) =>
@@ -157,36 +153,50 @@ export function HojaMantenimientoBarredora() {
       },
     }));
   };
- /* =============================
-     PUNTOS ROJOS
-  ============================= */
+
   const handleImageClick = (e) => {
-  const r = e.currentTarget.getBoundingClientRect();
-  const x = ((e.clientX - r.left) / r.width) * 100;
-  const y = ((e.clientY - r.top) / r.height) * 100;
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width) * 100;
+    const y = ((e.clientY - r.top) / r.height) * 100;
 
-  setFormData((p) => ({
-    ...p,
-    estadoEquipoPuntos: [
-      ...p.estadoEquipoPuntos,
-      {
-        id: p.estadoEquipoPuntos.length + 1,
-        x,
-        y,
-        nota: "",
-      },
-    ],
-  }));
-};
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: [
+        ...p.estadoEquipoPuntos,
+        { id: p.estadoEquipoPuntos.length + 1, x, y, nota: "" },
+      ],
+    }));
+  };
 
- /* =============================
-     SUBMIT (CLON INSPECCIÓN)
+  const handleRemovePoint = (id) => {
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: p.estadoEquipoPuntos
+        .filter((pt) => pt.id !== id)
+        .map((pt, i) => ({ ...pt, id: i + 1 })),
+    }));
+  };
+
+  const clearAllPoints = () =>
+    setFormData((p) => ({ ...p, estadoEquipoPuntos: [] }));
+
+  const handleNotaChange = (id, value) => {
+    setFormData((p) => ({
+      ...p,
+      estadoEquipoPuntos: p.estadoEquipoPuntos.map((pt) =>
+        pt.id === id ? { ...pt, nota: value } : pt
+      ),
+    }));
+  };
+
+  /* =============================
+     SUBMIT
   ============================= */
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const stored =
-      JSON.parse(localStorage.getItem("mantenimiento-hidro")) || [];
+      JSON.parse(localStorage.getItem("mantenimiento-barredora")) || [];
 
     const record = {
       id: id || nanoid(),
@@ -208,13 +218,16 @@ export function HojaMantenimientoBarredora() {
       : [...stored, record];
 
     localStorage.setItem(
-      "mantenimiento-hidro",
+      "mantenimiento-barredora",
       JSON.stringify(updated)
     );
 
     navigate("/mantenimiento");
   };
 
+  /* =============================
+     JSX COMPLETO
+  ============================= */
   return (
     <form
       onSubmit={handleSubmit}
@@ -245,7 +258,12 @@ export function HojaMantenimientoBarredora() {
               <tr key={name} className="border-b">
                 <td className="border-r p-2 font-semibold">{label}</td>
                 <td colSpan={2} className="p-2">
-                  <input name={name} onChange={handleChange} className="w-full border p-1" />
+                  <input
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleChange}
+                    className="w-full border p-1"
+                  />
                 </td>
               </tr>
             ))}
@@ -255,69 +273,79 @@ export function HojaMantenimientoBarredora() {
 
       {/* DATOS */}
       <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
-        <input name="cliente" placeholder="Cliente" onChange={handleChange} className="input" />
-        <input name="ubicacion" placeholder="Ubicación" onChange={handleChange} className="input" />
-        <input name="tecnicoAstap" placeholder="Técnico ASTAP" onChange={handleChange} className="input" />
-        <input name="responsableCliente" placeholder="Responsable cliente" onChange={handleChange} className="input" />
-        <input type="date" name="fechaServicio" onChange={handleChange} className="input md:col-span-2" />
+        {[
+          ["cliente", "Cliente"],
+          ["ubicacion", "Ubicación"],
+          ["tecnicoAstap", "Técnico ASTAP"],
+          ["responsableCliente", "Responsable cliente"],
+        ].map(([name, ph]) => (
+          <input
+            key={name}
+            name={name}
+            placeholder={ph}
+            value={formData[name]}
+            onChange={handleChange}
+            className="input"
+          />
+        ))}
+        <input
+          type="date"
+          name="fechaServicio"
+          value={formData.fechaServicio}
+          onChange={handleChange}
+          className="input md:col-span-2"
+        />
       </section>
 
       {/* ESTADO DEL EQUIPO */}
-<section className="border rounded p-4 space-y-3">
-  <div className="flex justify-between items-center">
-    <p className="font-semibold">Estado del equipo</p>
-    <button
-      type="button"
-      onClick={clearAllPoints}
-      className="text-xs border px-2 py-1 rounded"
-    >
-      Limpiar puntos
-    </button>
-  </div>
+      <section className="border rounded p-4 space-y-3">
+        <div className="flex justify-between items-center">
+          <p className="font-semibold">Estado del equipo</p>
+          <button type="button" onClick={clearAllPoints} className="text-xs border px-2 py-1 rounded">
+            Limpiar puntos
+          </button>
+        </div>
 
-  <div
-    className="relative border rounded cursor-crosshair"
-    onClick={handleImageClick}
-  >
-    <img src="/estado equipo barredora.png" className="w-full" draggable={false} />
+        <div
+          className="relative border rounded cursor-crosshair"
+          onClick={handleImageClick}
+        >
+          <img src="/estado equipo barredora.png" className="w-full" draggable={false} />
+          {formData.estadoEquipoPuntos.map((pt) => (
+            <div
+              key={pt.id}
+              onDoubleClick={() => handleRemovePoint(pt.id)}
+              className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full"
+              style={{
+                left: `${pt.x}%`,
+                top: `${pt.y}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              {pt.id}
+            </div>
+          ))}
+        </div>
 
-    {formData.estadoEquipoPuntos.map((pt) => (
-      <div
-        key={pt.id}
-        onDoubleClick={() => handleRemovePoint(pt.id)}
-        className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer"
-        style={{
-          left: `${pt.x}%`,
-          top: `${pt.y}%`,
-          transform: "translate(-50%, -50%)",
-        }}
-        title="Doble click para eliminar"
-      >
-        {pt.id}
-      </div>
-    ))}
-  </div>
+        {formData.estadoEquipoPuntos.map((pt) => (
+          <div key={pt.id} className="flex gap-2">
+            <span className="font-semibold">{pt.id})</span>
+            <input
+              className="flex-1 border p-1"
+              value={pt.nota}
+              onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+            />
+          </div>
+        ))}
 
-  {formData.estadoEquipoPuntos.map((pt) => (
-    <div key={pt.id} className="flex gap-2">
-      <span className="font-semibold">{pt.id})</span>
-      <input
-        className="flex-1 border p-1"
-        placeholder={`Observación punto ${pt.id}`}
-        value={pt.nota}
-        onChange={(e) => handleNotaChange(pt.id, e.target.value)}
-      />
-    </div>
-  ))}
-
-  <textarea
-    name="estadoEquipoDetalle"
-    placeholder="Observaciones generales del estado del equipo"
-    onChange={handleChange}
-    className="w-full border rounded p-2 min-h-[80px]"
-  />
-</section>
-
+        <textarea
+          name="estadoEquipoDetalle"
+          value={formData.estadoEquipoDetalle}
+          onChange={handleChange}
+          className="w-full border rounded p-2 min-h-[80px]"
+          placeholder="Observaciones generales"
+        />
+      </section>
 
       {/* TABLAS */}
       {secciones.map((sec) => (
@@ -343,28 +371,32 @@ export function HojaMantenimientoBarredora() {
                     <td>
                       <input
                         type="number"
-                        className="border w-16"
+                        value={formData.items[codigo]?.cantidad || ""}
                         onChange={(e) =>
                           handleItemChange(codigo, "cantidad", e.target.value)
                         }
+                        className="border w-16"
                       />
                     </td>
                   )}
                   <td>
                     <input
                       type="radio"
+                      checked={formData.items[codigo]?.estado === "SI"}
                       onChange={() => handleItemChange(codigo, "estado", "SI")}
                     />
                   </td>
                   <td>
                     <input
                       type="radio"
+                      checked={formData.items[codigo]?.estado === "NO"}
                       onChange={() => handleItemChange(codigo, "estado", "NO")}
                     />
                   </td>
                   <td>
                     <input
                       className="border w-full"
+                      value={formData.items[codigo]?.observacion || ""}
                       onChange={(e) =>
                         handleItemChange(codigo, "observacion", e.target.value)
                       }
@@ -382,20 +414,25 @@ export function HojaMantenimientoBarredora() {
         <h2 className="font-semibold text-center mb-2">DESCRIPCIÓN DEL EQUIPO</h2>
         <div className="grid grid-cols-4 gap-2 text-xs">
           {[
-            ["NOTA", "nota"],
-            ["MARCA", "marca"],
-            ["MODELO", "modelo"],
-            ["N° SERIE", "serie"],
-            ["AÑO MODELO", "anioModelo"],
-            ["VIN / CHASIS", "vin"],
-            ["PLACA", "placa"],
-            ["HORAS MÓDULO", "horasModulo"],
-            ["HORAS CHASIS", "horasChasis"],
-            ["KILOMETRAJE", "kilometraje"],
-          ].map(([label, name]) => (
+            ["nota", "NOTA"],
+            ["marca", "MARCA"],
+            ["modelo", "MODELO"],
+            ["serie", "N° SERIE"],
+            ["anioModelo", "AÑO MODELO"],
+            ["vin", "VIN / CHASIS"],
+            ["placa", "PLACA"],
+            ["horasModulo", "HORAS MÓDULO"],
+            ["horasChasis", "HORAS CHASIS"],
+            ["kilometraje", "KILOMETRAJE"],
+          ].map(([name, label]) => (
             <div key={name} className="contents">
               <label className="font-semibold">{label}</label>
-              <input name={name} onChange={handleChange} className="col-span-3 border p-1" />
+              <input
+                name={name}
+                value={formData[name]}
+                onChange={handleChange}
+                className="col-span-3 border p-1"
+              />
             </div>
           ))}
         </div>
@@ -406,39 +443,24 @@ export function HojaMantenimientoBarredora() {
         <div className="grid md:grid-cols-2 gap-6 text-center">
           <div>
             <p className="font-semibold mb-1">Firma Técnico ASTAP</p>
-            <SignatureCanvas
-              ref={firmaTecnicoRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
+            <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
           </div>
           <div>
             <p className="font-semibold mb-1">Firma Cliente</p>
-            <SignatureCanvas
-              ref={firmaClienteRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
+            <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
           </div>
         </div>
       </section>
 
       {/* BOTONES */}
       <div className="flex justify-end gap-4">
-        <button
-          type="button"
-          onClick={() => navigate("/mantenimiento")}
-          className="border px-4 py-2 rounded"
-        >
+        <button type="button" onClick={() => navigate("/mantenimiento")} className="border px-4 py-2 rounded">
           Volver
         </button>
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
           Guardar mantenimiento
         </button>
       </div>
     </form>
   );
 }
-
-export default HojaMantenimientoBarredora;
