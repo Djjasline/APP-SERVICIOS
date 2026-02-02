@@ -7,14 +7,14 @@ import IndexMantenimiento from "./IndexMantenimiento";
 // =============================
 import MantenimientoHidroHome from "./MantenimientoHidroHome";
 import HojaMantenimientoHidro from "./HojaMantenimientoHidro";
-import MantenimientoHidroPdf from "./pdf/MantenimientoHidroPdf";
+import MantenimientoHidroPdf from "./pages/pdf/MantenimientoHidroPdf";
 
 // =============================
 // BARREDORA
 // =============================
 import MantenimientoBarredoraHome from "./MantenimientoBarredoraHome";
 import HojaMantenimientoBarredora from "./HojaMantenimientoBarredora";
-import MantenimientoBarredoraPdf from "./pdf/MantenimientoBarredoraPdf";
+import MantenimientoBarredoraPdf from "./pages/pdf/MantenimientoBarredoraPdf";
 
 export default function RoutesMantenimiento() {
   return (
