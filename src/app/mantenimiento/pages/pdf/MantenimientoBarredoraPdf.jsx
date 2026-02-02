@@ -205,10 +205,6 @@ export default function MantenimientoBarredoraPdf() {
               </tr>
             )}
 
-            <tr>
-              <td className="pdf-label">OBSERVACIONES GENERALES</td>
-              <td>{data.estadoEquipoDetalle || "—"}</td>
-            </tr>
           </tbody>
         </table>
 
