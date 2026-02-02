@@ -229,17 +229,15 @@ export default function HojaMantenimientoBarredora() {
     navigate("/mantenimiento");
   };
 
+  /* =============================
+     JSX
+  ============================= */
   return (
     <form
       onSubmit={handleSubmit}
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
-      {/* TODO EL JSX QUE YA TIENES SE MANTIENE */}
-    </form>
-  );
-}
-
-      {/* ENCABEZADO */}
+      {/* ================= ENCABEZADO ================= */}
       <section className="border rounded overflow-hidden">
         <table className="w-full text-xs border-collapse">
           <tbody>
@@ -277,42 +275,15 @@ export default function HojaMantenimientoBarredora() {
         </table>
       </section>
 
-      {/* DATOS */}
-  <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
-        {[
-          ["cliente", "Cliente"],
-          ["direccion", "Dirección"],
-          ["contacto", "Contacto"],
-          ["telefono", "Teléfono"],
-          ["correo", "Correo"],
-          ["tecnicoResponsable", "Técnico responsable"],
-          ["telefonoTecnico", "Teléfono técnico"],
-          ["correoTecnico", "Correo técnico"],
-        ].map(([n, p]) => (
-          <input
-            key={n}
-            name={n}
-            value={formData[n]}
-            placeholder={p}
-            onChange={handleChange}
-            className="input"
-          />
-        ))}
-
-        <input
-          type="date"
-          name="fechaServicio"
-          value={formData.fechaServicio}
-          onChange={handleChange}
-          className="input md:col-span-2"
-        />
-      </section>
-
-      {/* ESTADO DEL EQUIPO */}
+      {/* ================= ESTADO DEL EQUIPO ================= */}
       <section className="border rounded p-4 space-y-3">
         <div className="flex justify-between items-center">
           <p className="font-semibold">Estado del equipo</p>
-          <button type="button" onClick={clearAllPoints} className="text-xs border px-2 py-1 rounded">
+          <button
+            type="button"
+            onClick={clearAllPoints}
+            className="text-xs border px-2 py-1 rounded"
+          >
             Limpiar puntos
           </button>
         </div>
@@ -321,7 +292,11 @@ export default function HojaMantenimientoBarredora() {
           className="relative border rounded cursor-crosshair"
           onClick={handleImageClick}
         >
-          <img src="/estado equipo barredora.png" className="w-full" draggable={false} />
+          <img
+            src="/estado equipo barredora.png"
+            className="w-full"
+            draggable={false}
+          />
           {formData.estadoEquipoPuntos.map((pt) => (
             <div
               key={pt.id}
@@ -350,7 +325,7 @@ export default function HojaMantenimientoBarredora() {
         ))}
       </section>
 
-      {/* TABLAS */}
+      {/* ================= TABLAS ================= */}
       {secciones.map((sec) => (
         <section key={sec.id} className="border rounded p-4">
           <h2 className="font-semibold mb-2">{sec.titulo}</h2>
@@ -386,22 +361,32 @@ export default function HojaMantenimientoBarredora() {
                     <input
                       type="radio"
                       checked={formData.items[codigo]?.estado === "SI"}
-                      onChange={() => handleItemChange(codigo, "estado", "SI")}
+                      onChange={() =>
+                        handleItemChange(codigo, "estado", "SI")
+                      }
                     />
                   </td>
                   <td>
                     <input
                       type="radio"
                       checked={formData.items[codigo]?.estado === "NO"}
-                      onChange={() => handleItemChange(codigo, "estado", "NO")}
+                      onChange={() =>
+                        handleItemChange(codigo, "estado", "NO")
+                      }
                     />
                   </td>
                   <td>
                     <input
                       className="border w-full"
-                      value={formData.items[codigo]?.observacion || ""}
+                      value={
+                        formData.items[codigo]?.observacion || ""
+                      }
                       onChange={(e) =>
-                        handleItemChange(codigo, "observacion", e.target.value)
+                        handleItemChange(
+                          codigo,
+                          "observacion",
+                          e.target.value
+                        )
                       }
                     />
                   </td>
@@ -412,55 +397,39 @@ export default function HojaMantenimientoBarredora() {
         </section>
       ))}
 
-      {/* DESCRIPCIÓN DEL EQUIPO */}
-      <section className="border rounded p-4">
-        <h2 className="font-semibold text-center mb-2">DESCRIPCIÓN DEL EQUIPO</h2>
-        <div className="grid grid-cols-4 gap-2 text-xs">
-          {[
-            ["nota", "NOTA"],
-            ["marca", "MARCA"],
-            ["modelo", "MODELO"],
-            ["serie", "N° SERIE"],
-            ["anioModelo", "AÑO MODELO"],
-            ["vin", "VIN / CHASIS"],
-            ["placa", "PLACA"],
-            ["horasModulo", "HORAS MÓDULO"],
-            ["horasChasis", "HORAS CHASIS"],
-            ["kilometraje", "KILOMETRAJE"],
-          ].map(([name, label]) => (
-            <div key={name} className="contents">
-              <label className="font-semibold">{label}</label>
-              <input
-                name={name}
-                value={formData[name]}
-                onChange={handleChange}
-                className="col-span-3 border p-1"
-              />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* FIRMAS */}
+      {/* ================= FIRMAS ================= */}
       <section className="border rounded p-4">
         <div className="grid md:grid-cols-2 gap-6 text-center">
           <div>
             <p className="font-semibold mb-1">Firma Técnico ASTAP</p>
-            <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
+            <SignatureCanvas
+              ref={firmaTecnicoRef}
+              canvasProps={{ className: "border w-full h-32" }}
+            />
           </div>
           <div>
             <p className="font-semibold mb-1">Firma Cliente</p>
-            <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
+            <SignatureCanvas
+              ref={firmaClienteRef}
+              canvasProps={{ className: "border w-full h-32" }}
+            />
           </div>
         </div>
       </section>
 
-      {/* BOTONES */}
+      {/* ================= BOTONES ================= */}
       <div className="flex justify-end gap-4">
-        <button type="button" onClick={() => navigate("/mantenimiento")} className="border px-4 py-2 rounded">
+        <button
+          type="button"
+          onClick={() => navigate("/mantenimiento")}
+          className="border px-4 py-2 rounded"
+        >
           Volver
         </button>
-        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+        <button
+          type="submit"
+          className="bg-green-600 text-white px-4 py-2 rounded"
+        >
           Guardar mantenimiento
         </button>
       </div>
