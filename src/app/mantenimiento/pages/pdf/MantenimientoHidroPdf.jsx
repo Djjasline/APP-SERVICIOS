@@ -121,6 +121,45 @@ export default function MantenimientoHidroPdf() {
           </tbody>
         </table>
 
+{/* ================= TABLAS DE MANTENIMIENTO ================= */}
+{secciones.map((sec) => (
+  <div key={sec.id} className="mt-4">
+    <h3 className="pdf-title">{sec.titulo}</h3>
+
+    <table className="pdf-table">
+      <thead>
+        <tr>
+          <th>Ítem</th>
+          <th>Detalle</th>
+          {sec.tipo === "cantidad" && <th>Cantidad</th>}
+          <th>Estado</th>
+          <th>Observación</th>
+        </tr>
+      </thead>
+      <tbody>
+        {sec.items.map((it) => {
+          const codigo = Array.isArray(it) ? it[0] : it;
+          const texto = Array.isArray(it) ? it[1] : "";
+          const item = data.items?.[codigo] || {};
+
+          return (
+            <tr key={codigo}>
+              <td>{codigo}</td>
+              <td>{sec.tipo === "otros" ? item.detalle || "—" : texto}</td>
+              {sec.tipo === "cantidad" && (
+                <td>{item.cantidad || "—"}</td>
+              )}
+              <td>{item.estado || "—"}</td>
+              <td>{item.observacion || "—"}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+))}
+
+         
         {/* ================= DESCRIPCIÓN EQUIPO ================= */}
         <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
 
