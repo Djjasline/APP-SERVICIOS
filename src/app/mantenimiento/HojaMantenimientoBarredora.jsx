@@ -245,7 +245,7 @@ export default function HojaMantenimientoBarredora() {
                 HOJA DE MANTENIMIENTO BARREDORA
               </td>
               <td className="p-2">
-                <div>Fecha versión: <strong>25-11-2025</strong></div>
+                <div>Fecha versión: <strong>01-1-2026</strong></div>
                 <div>Versión: <strong>01</strong></div>
               </td>
             </tr>
