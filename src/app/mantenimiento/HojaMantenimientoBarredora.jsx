@@ -342,14 +342,6 @@ export default function HojaMantenimientoBarredora() {
             />
           </div>
         ))}
-
-        <textarea
-          name="estadoEquipoDetalle"
-          value={formData.estadoEquipoDetalle}
-          onChange={handleChange}
-          className="w-full border rounded p-2 min-h-[80px]"
-          placeholder="Observaciones generales"
-        />
       </section>
 
       {/* TABLAS */}
