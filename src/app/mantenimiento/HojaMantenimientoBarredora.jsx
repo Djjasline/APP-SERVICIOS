@@ -94,9 +94,13 @@ export default function HojaMantenimientoBarredora() {
     codInf: "",
 
     cliente: "",
-    ubicacion: "",
-    tecnicoAstap: "",
-    responsableCliente: "",
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
+    tecnicoResponsable: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
     fechaServicio: "",
 
     estadoEquipoPuntos: [],
@@ -225,14 +229,16 @@ export default function HojaMantenimientoBarredora() {
     navigate("/mantenimiento");
   };
 
-  /* =============================
-     JSX COMPLETO
-  ============================= */
   return (
     <form
       onSubmit={handleSubmit}
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
+      {/* TODO EL JSX QUE YA TIENES SE MANTIENE */}
+    </form>
+  );
+}
+
       {/* ENCABEZADO */}
       <section className="border rounded overflow-hidden">
         <table className="w-full text-xs border-collapse">
