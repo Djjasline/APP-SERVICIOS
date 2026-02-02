@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import { markInspectionCompleted } from "@utils/inspectionStorage";
+import { nanoid } from "nanoid";
 
 /* =============================
    SECCIONES – MANTENIMIENTO BARREDORA
@@ -81,7 +81,7 @@ const secciones = [
   },
 ];
 
-function HojaMantenimientoBarredora() {
+export function HojaMantenimientoBarredora() {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -94,13 +94,17 @@ function HojaMantenimientoBarredora() {
     codInf: "",
 
     cliente: "",
-    ubicacion: "",
-    tecnicoAstap: "",
-    responsableCliente: "",
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
+    tecnicoResponsable: "",
+    telefonoTecnico: "",
+    correoTecnico: "",
     fechaServicio: "",
 
-    estadoEquipoDetalle: "",
     estadoEquipoPuntos: [],
+    estadoEquipoDetalle: "",
     items: {},
 
     nota: "",
@@ -114,7 +118,33 @@ function HojaMantenimientoBarredora() {
     horasChasis: "",
     kilometraje: "",
   });
+  /* =============================
+     CARGA DESDE LOCALSTORAGE (EDITAR)
+  ============================= */
+  useEffect(() => {
+    if (!id) return;
 
+    const stored =
+      JSON.parse(localStorage.getItem("mantenimiento-hidro")) || [];
+
+    const found = stored.find((r) => r.id === id);
+
+    if (found?.data) {
+      setFormData(found.data);
+
+      if (found.data.firmas?.tecnico && firmaTecnicoRef.current) {
+        firmaTecnicoRef.current.fromDataURL(found.data.firmas.tecnico);
+      }
+
+      if (found.data.firmas?.cliente && firmaClienteRef.current) {
+        firmaClienteRef.current.fromDataURL(found.data.firmas.cliente);
+      }
+    }
+  }, [id]);
+
+    /* =============================
+     HANDLERS
+  ============================= */
   const handleChange = (e) =>
     setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -127,7 +157,9 @@ function HojaMantenimientoBarredora() {
       },
     }));
   };
-
+ /* =============================
+     PUNTOS ROJOS
+  ============================= */
   const handleImageClick = (e) => {
   const r = e.currentTarget.getBoundingClientRect();
   const x = ((e.clientX - r.left) / r.width) * 100;
@@ -147,39 +179,38 @@ function HojaMantenimientoBarredora() {
   }));
 };
 
-const handleRemovePoint = (id) => {
-  setFormData((p) => ({
-    ...p,
-    estadoEquipoPuntos: p.estadoEquipoPuntos
-      .filter((pt) => pt.id !== id)
-      .map((pt, i) => ({ ...pt, id: i + 1 })),
-  }));
-};
-
-const clearAllPoints = () => {
-  setFormData((p) => ({ ...p, estadoEquipoPuntos: [] }));
-};
-
-const handleNotaChange = (id, value) => {
-  setFormData((p) => ({
-    ...p,
-    estadoEquipoPuntos: p.estadoEquipoPuntos.map((pt) =>
-      pt.id === id ? { ...pt, nota: value } : pt
-    ),
-  }));
-};
-
-   
+ /* =============================
+     SUBMIT (CLON INSPECCIÓN)
+  ============================= */
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    markInspectionCompleted("mantenimiento-barredora", id, {
-      ...formData,
-      firmas: {
-        tecnico: firmaTecnicoRef.current?.toDataURL() || "",
-        cliente: firmaClienteRef.current?.toDataURL() || "",
+    const stored =
+      JSON.parse(localStorage.getItem("mantenimiento-hidro")) || [];
+
+    const record = {
+      id: id || nanoid(),
+      estado: "completado",
+      codInf: formData.codInf || "",
+      cliente: formData.cliente || "",
+      data: {
+        ...formData,
+        firmas: {
+          tecnico: firmaTecnicoRef.current?.toDataURL() || "",
+          cliente: firmaClienteRef.current?.toDataURL() || "",
+        },
       },
-    });
+      createdAt: new Date().toISOString(),
+    };
+
+    const updated = id
+      ? stored.map((r) => (r.id === id ? record : r))
+      : [...stored, record];
+
+    localStorage.setItem(
+      "mantenimiento-hidro",
+      JSON.stringify(updated)
+    );
 
     navigate("/mantenimiento");
   };
