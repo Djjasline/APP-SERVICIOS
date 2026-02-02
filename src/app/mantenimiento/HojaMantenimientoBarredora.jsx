@@ -272,22 +272,27 @@ export default function HojaMantenimientoBarredora() {
       </section>
 
       {/* DATOS */}
-      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
+  <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
         {[
           ["cliente", "Cliente"],
-          ["ubicacion", "Ubicación"],
-          ["tecnicoAstap", "Técnico ASTAP"],
-          ["responsableCliente", "Responsable cliente"],
-        ].map(([name, ph]) => (
+          ["direccion", "Dirección"],
+          ["contacto", "Contacto"],
+          ["telefono", "Teléfono"],
+          ["correo", "Correo"],
+          ["tecnicoResponsable", "Técnico responsable"],
+          ["telefonoTecnico", "Teléfono técnico"],
+          ["correoTecnico", "Correo técnico"],
+        ].map(([n, p]) => (
           <input
-            key={name}
-            name={name}
-            placeholder={ph}
-            value={formData[name]}
+            key={n}
+            name={n}
+            value={formData[n]}
+            placeholder={p}
             onChange={handleChange}
             className="input"
           />
         ))}
+
         <input
           type="date"
           name="fechaServicio"
