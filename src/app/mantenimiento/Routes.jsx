@@ -29,16 +29,20 @@ export default function RoutesMantenimiento() {
       ============================== */}
       <Route path="hidro" element={<MantenimientoHidroHome />} />
       <Route path="hidro/crear" element={<HojaMantenimientoHidro />} />
-      <Route path="hidro/:id" element={<HojaMantenimientoHidro />} />
+
+      {/* 🔑 PDF SIEMPRE ANTES DEL :id */}
       <Route path="hidro/:id/pdf" element={<MantenimientoHidroPdf />} />
+      <Route path="hidro/:id" element={<HojaMantenimientoHidro />} />
 
       {/* =============================
           BARREDORA
       ============================== */}
       <Route path="barredora" element={<MantenimientoBarredoraHome />} />
       <Route path="barredora/crear" element={<HojaMantenimientoBarredora />} />
-      <Route path="barredora/:id" element={<HojaMantenimientoBarredora />} />
+
+      {/* 🔑 PDF SIEMPRE ANTES DEL :id */}
       <Route path="barredora/:id/pdf" element={<MantenimientoBarredoraPdf />} />
+      <Route path="barredora/:id" element={<HojaMantenimientoBarredora />} />
 
       {/* =============================
           FALLBACK
