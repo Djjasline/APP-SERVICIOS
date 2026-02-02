@@ -1,5 +1,6 @@
-import { useNavigate } from "react-router-dom";
+     import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { getAllInspections } from "@/utils/inspectionStorage";
 
 export default function IndexMantenimiento() {
   const navigate = useNavigate();
@@ -10,13 +11,12 @@ export default function IndexMantenimiento() {
   const [hidro, setHidro] = useState([]);
   const [barredora, setBarredora] = useState([]);
 
+  /* =============================
+     CARGA HISTORIAL (CLON INSPECCIÓN)
+  ============================== */
   useEffect(() => {
-    setHidro(
-      JSON.parse(localStorage.getItem("mantenimiento-hidro") || "[]")
-    );
-    setBarredora(
-      JSON.parse(localStorage.getItem("mantenimiento-barredora") || "[]")
-    );
+    setHidro(getAllInspections("mantenimiento-hidro"));
+    setBarredora(getAllInspections("mantenimiento-barredora"));
   }, []);
 
   const filtrar = (data, filtro) => {
@@ -27,44 +27,27 @@ export default function IndexMantenimiento() {
   const renderHistorico = (data, basePath, filtro) => {
     const lista = filtrar(data, filtro);
 
-    if (lista.length === 0) {
+    if (!lista || lista.length === 0) {
       return <p className="text-xs text-gray-400">Sin registros</p>;
     }
 
     return lista.map((item) => (
       <div
         key={item.id}
-        className="border rounded px-3 py-2 text-sm flex justify-between items-center hover:bg-gray-50"
+        className="border rounded px-3 py-2 text-sm flex justify-between items-center cursor-pointer hover:bg-gray-50"
+        onClick={() => navigate(`${basePath}/${item.id}`)}
       >
-        {/* CLICK → FORMULARIO */}
-        <div
-          className="flex-1 cursor-pointer"
-          onClick={() => navigate(`${basePath}/${item.id}`)}
-        >
-          <div className="font-medium">
-            {item.codInf || "Sin código"}
-          </div>
-          <div
-            className={`inline-block mt-1 text-xs px-2 py-1 rounded ${
-              item.estado === "completado"
-                ? "bg-green-100 text-green-700"
-                : "bg-yellow-100 text-yellow-700"
-            }`}
-          >
-            {item.estado}
-          </div>
-        </div>
+        <span>{item.data?.codInf || "Sin código"}</span>
 
-        {/* BOTÓN PDF */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`${basePath}/${item.id}/pdf`);
-          }}
-          className="ml-4 text-xs border px-3 py-1 rounded hover:bg-gray-100"
+        <span
+          className={`text-xs px-2 py-1 rounded ${
+            item.estado === "completado"
+              ? "bg-green-100 text-green-700"
+              : "bg-yellow-100 text-yellow-700"
+          }`}
         >
-          PDF
-        </button>
+          {item.estado}
+        </span>
       </div>
     ));
   };
