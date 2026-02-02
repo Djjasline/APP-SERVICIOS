@@ -34,19 +34,37 @@ export default function IndexMantenimiento() {
     return lista.map((item) => (
       <div
         key={item.id}
-        className="border rounded px-3 py-2 text-sm flex justify-between items-center cursor-pointer hover:bg-gray-50"
-        onClick={() => navigate(`${basePath}/${item.id}`)}
+        className="border rounded px-3 py-2 text-sm flex justify-between items-center hover:bg-gray-50"
       >
-        <span>{item.codInf || "Sin código"}</span>
-        <span
-          className={`text-xs px-2 py-1 rounded ${
-            item.estado === "completado"
-              ? "bg-green-100 text-green-700"
-              : "bg-yellow-100 text-yellow-700"
-          }`}
+        {/* CLICK → FORMULARIO */}
+        <div
+          className="flex-1 cursor-pointer"
+          onClick={() => navigate(`${basePath}/${item.id}`)}
         >
-          {item.estado}
-        </span>
+          <div className="font-medium">
+            {item.codInf || "Sin código"}
+          </div>
+          <div
+            className={`inline-block mt-1 text-xs px-2 py-1 rounded ${
+              item.estado === "completado"
+                ? "bg-green-100 text-green-700"
+                : "bg-yellow-100 text-yellow-700"
+            }`}
+          >
+            {item.estado}
+          </div>
+        </div>
+
+        {/* BOTÓN PDF */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`${basePath}/${item.id}/pdf`);
+          }}
+          className="ml-4 text-xs border px-3 py-1 rounded hover:bg-gray-100"
+        >
+          PDF
+        </button>
       </div>
     ));
   };
