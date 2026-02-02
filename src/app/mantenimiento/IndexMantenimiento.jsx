@@ -52,7 +52,16 @@ export default function IndexMantenimiento() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto my-8 space-y-8">
+    <div className="max-w-6xl mx-auto my-8 space-y-6">
+
+      {/* ================= BOTÓN VOLVER ================= */}
+      <button
+        onClick={() => navigate("/")}
+        className="text-sm border px-4 py-2 rounded hover:bg-gray-100"
+      >
+        ← Volver
+      </button>
+
       <h1 className="text-xl font-semibold">Servicio de mantenimiento</h1>
 
       <div className="grid md:grid-cols-2 gap-6">
