@@ -274,6 +274,36 @@ export default function HojaMantenimientoBarredora() {
           </tbody>
         </table>
       </section>
+{/* ================= DATOS DEL CLIENTE / TÉCNICO ================= */}
+<section className="grid md:grid-cols-2 gap-3 border rounded p-4">
+  {[
+    ["cliente", "Cliente"],
+    ["direccion", "Dirección"],
+    ["contacto", "Contacto"],
+    ["telefono", "Teléfono"],
+    ["correo", "Correo"],
+    ["tecnicoResponsable", "Técnico responsable"],
+    ["telefonoTecnico", "Teléfono técnico"],
+    ["correoTecnico", "Correo técnico"],
+  ].map(([name, label]) => (
+    <input
+      key={name}
+      name={name}
+      value={formData[name]}
+      placeholder={label}
+      onChange={handleChange}
+      className="input"
+    />
+  ))}
+
+  <input
+    type="date"
+    name="fechaServicio"
+    value={formData.fechaServicio}
+    onChange={handleChange}
+    className="input md:col-span-2"
+  />
+</section>
 
       {/* ================= ESTADO DEL EQUIPO ================= */}
       <section className="border rounded p-4 space-y-3">
@@ -396,6 +426,37 @@ export default function HojaMantenimientoBarredora() {
           </table>
         </section>
       ))}
+{/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+<section className="border rounded p-4">
+  <h2 className="font-semibold text-center mb-2">
+    DESCRIPCIÓN DEL EQUIPO
+  </h2>
+
+  <div className="grid grid-cols-4 gap-2 text-xs">
+    {[
+      ["nota", "NOTA"],
+      ["marca", "MARCA"],
+      ["modelo", "MODELO"],
+      ["serie", "N° SERIE"],
+      ["anioModelo", "AÑO MODELO"],
+      ["vin", "VIN / CHASIS"],
+      ["placa", "PLACA"],
+      ["horasModulo", "HORAS MÓDULO"],
+      ["horasChasis", "HORAS CHASIS"],
+      ["kilometraje", "KILOMETRAJE"],
+    ].map(([name, label]) => (
+      <div key={name} className="contents">
+        <label className="font-semibold">{label}</label>
+        <input
+          name={name}
+          value={formData[name]}
+          onChange={handleChange}
+          className="col-span-3 border p-1"
+        />
+      </div>
+    ))}
+  </div>
+</section>
 
       {/* ================= FIRMAS ================= */}
       <section className="border rounded p-4">
