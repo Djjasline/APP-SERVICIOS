@@ -13,8 +13,8 @@ export default function InformeRoutes() {
       {/* NUEVO */}
       <Route path="nuevo" element={<NuevoInforme />} />
 
-      {/* PDF (SIEMPRE ANTES DE :id) */}
-      <Route path=":id/pdf" element={<InformePDF />} />
+      {/* PDF → SIEMPRE ANTES */}
+      <Route path="pdf/:id" element={<InformePDF />} />
 
       {/* ABRIR / EDITAR */}
       <Route path=":id" element={<NuevoInforme />} />
