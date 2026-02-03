@@ -8,14 +8,26 @@ export default function InformePDF() {
   const [report, setReport] = useState(null);
 
   /* ===========================
-     CARGAR INFORME
+     CARGAR INFORME (MISMO FLUJO QUE INSPECCIÓN)
   =========================== */
   useEffect(() => {
+    // 1️⃣ Intentar desde currentReport
+    const current = JSON.parse(localStorage.getItem("currentReport"));
+
+    if (current?.id && String(current.id) === String(id)) {
+      setReport(current);
+      return;
+    }
+
+    // 2️⃣ Fallback: buscar en historial
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
-    const found = stored.find((r) => String(r.id) === String(id));
+    const found = stored.find(
+      (r) => String(r.id) === String(id)
+    );
 
     if (found) {
       setReport(found);
+      localStorage.setItem("currentReport", JSON.stringify(found));
     }
   }, [id]);
 
@@ -39,48 +51,47 @@ export default function InformePDF() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="pdf-container max-w-6xl mx-auto">
 
-{/* ================= ENCABEZADO ================= */}
-<table className="pdf-table">
-  <tbody>
-    <tr>
-      <td
-        rowSpan={4}
-        style={{ width: 140, textAlign: "center" }}
-      >
-        <img
-          src="/astap-logo.jpg"
-          alt="ASTAP"
-          style={{ maxHeight: 70, margin: "0 auto" }}
-        />
-      </td>
+        {/* ================= ENCABEZADO ================= */}
+        <table className="pdf-table">
+          <tbody>
+            <tr>
+              <td
+                rowSpan={4}
+                style={{ width: 140, textAlign: "center" }}
+              >
+                <img
+                  src="/astap-logo.jpg"
+                  alt="ASTAP"
+                  style={{ maxHeight: 70, margin: "0 auto" }}
+                />
+              </td>
 
-      <td colSpan={2} className="pdf-title">
-        INFORME GENERAL DE SERVICIOS
-      </td>
+              <td colSpan={2} className="pdf-title">
+                INFORME GENERAL DE SERVICIOS
+              </td>
 
-      <td style={{ width: 180, fontSize: 12 }}>
-        <div>Fecha versión: <strong>01-01-26</strong></div>
-        <div>Versión: <strong>01</strong></div>
-      </td>
-    </tr>
+              <td style={{ width: 180, fontSize: 12 }}>
+                <div>Fecha versión: <strong>01-01-26</strong></div>
+                <div>Versión: <strong>01</strong></div>
+              </td>
+            </tr>
 
-    <tr>
-      <td className="pdf-label">REFERENCIA CONTRATO</td>
-      <td colSpan={2}>{data.referenciaContrato}</td>
-    </tr>
+            <tr>
+              <td className="pdf-label">REFERENCIA CONTRATO</td>
+              <td colSpan={2}>{data.referenciaContrato || "—"}</td>
+            </tr>
 
-    <tr>
-      <td className="pdf-label">DESCRIPCIÓN</td>
-      <td colSpan={2}>{data.descripcion}</td>
-    </tr>
+            <tr>
+              <td className="pdf-label">DESCRIPCIÓN</td>
+              <td colSpan={2}>{data.descripcion || "—"}</td>
+            </tr>
 
-    <tr>
-      <td className="pdf-label">COD. INF.</td>
-      <td colSpan={2}>{data.codInf}</td>
-    </tr>
-  </tbody>
-</table>
-
+            <tr>
+              <td className="pdf-label">COD. INF.</td>
+              <td colSpan={2}>{data.codInf || "—"}</td>
+            </tr>
+          </tbody>
+        </table>
 
         {/* ================= DATOS CLIENTE ================= */}
         <table className="pdf-table mt-4">
@@ -98,7 +109,7 @@ export default function InformePDF() {
             ].map(([label, value], i) => (
               <tr key={i}>
                 <td className="pdf-label">{label}</td>
-                <td>{value}</td>
+                <td>{value || "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -116,12 +127,14 @@ export default function InformePDF() {
             </tr>
           </thead>
           <tbody>
-            {data.actividades.map((a, i) => (
+            {data.actividades?.map((a, i) => (
               <tr key={i}>
                 <td className="text-center">{i + 1}</td>
                 <td>
                   <strong>{a.titulo}</strong>
-                  <div style={{ whiteSpace: "pre-wrap" }}>{a.detalle}</div>
+                  <div style={{ whiteSpace: "pre-wrap" }}>
+                    {a.detalle}
+                  </div>
                 </td>
                 <td className="text-center">
                   {a.imagen && (
@@ -146,13 +159,13 @@ export default function InformePDF() {
             </tr>
           </thead>
           <tbody>
-            {data.conclusiones.map((c, i) => (
+            {data.conclusiones?.map((c, i) => (
               <tr key={i}>
                 <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
                 <td style={{ whiteSpace: "pre-wrap" }}>{c}</td>
                 <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
                 <td style={{ whiteSpace: "pre-wrap" }}>
-                  {data.recomendaciones[i]}
+                  {data.recomendaciones?.[i]}
                 </td>
               </tr>
             ))}
@@ -165,20 +178,20 @@ export default function InformePDF() {
         <table className="pdf-table">
           <tbody>
             {[
-              ["NOTA", data.equipo.nota],
-              ["MARCA", data.equipo.marca],
-              ["MODELO", data.equipo.modelo],
-              ["N° SERIE", data.equipo.serie],
-              ["AÑO MODELO", data.equipo.anio],
-              ["VIN / CHASIS", data.equipo.vin],
-              ["PLACA", data.equipo.placa],
-              ["HORAS MÓDULO", data.equipo.horasModulo],
-              ["HORAS CHASIS", data.equipo.horasChasis],
-              ["KILOMETRAJE", data.equipo.kilometraje],
+              ["NOTA", data.equipo?.nota],
+              ["MARCA", data.equipo?.marca],
+              ["MODELO", data.equipo?.modelo],
+              ["N° SERIE", data.equipo?.serie],
+              ["AÑO MODELO", data.equipo?.anio],
+              ["VIN / CHASIS", data.equipo?.vin],
+              ["PLACA", data.equipo?.placa],
+              ["HORAS MÓDULO", data.equipo?.horasModulo],
+              ["HORAS CHASIS", data.equipo?.horasChasis],
+              ["KILOMETRAJE", data.equipo?.kilometraje],
             ].map(([label, value], i) => (
               <tr key={i}>
                 <td className="pdf-label">{label}</td>
-                <td>{value}</td>
+                <td>{value || "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -195,7 +208,7 @@ export default function InformePDF() {
           <tbody>
             <tr>
               <td style={{ height: 140, textAlign: "center" }}>
-                {data.firmas.tecnico && (
+                {data.firmas?.tecnico && (
                   <img
                     src={data.firmas.tecnico}
                     alt="firma tecnico"
@@ -204,7 +217,7 @@ export default function InformePDF() {
                 )}
               </td>
               <td style={{ height: 140, textAlign: "center" }}>
-                {data.firmas.cliente && (
+                {data.firmas?.cliente && (
                   <img
                     src={data.firmas.cliente}
                     alt="firma cliente"
@@ -232,6 +245,7 @@ export default function InformePDF() {
             Descargar PDF
           </button>
         </div>
+
       </div>
     </div>
   );
