@@ -136,7 +136,7 @@ export default function IndexInforme() {
                     <button
                       className="bg-green-600 text-white px-2 py-1 text-xs rounded"
                       onClick={() =>
-                        navigate(`/informe/pdf/${inf.id}`)
+                        navigate(`/informe/${inf.id}pdf`)
                       }
                     >
                       PDF
