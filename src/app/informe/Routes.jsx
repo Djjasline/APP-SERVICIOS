@@ -13,11 +13,11 @@ export default function InformeRoutes() {
       {/* NUEVO */}
       <Route path="nuevo" element={<NuevoInforme />} />
 
+      {/* PDF (SIEMPRE ANTES DE :id) */}
+      <Route path=":id/pdf" element={<InformePDF />} />
+
       {/* ABRIR / EDITAR */}
       <Route path=":id" element={<NuevoInforme />} />
-
-      {/* PDF (CORREGIDO) */}
-      <Route path=":id/pdf" element={<InformePDF />} />
 
       {/* FALLBACK */}
       <Route path="*" element={<Navigate to="/informe" replace />} />
