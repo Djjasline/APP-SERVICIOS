@@ -165,7 +165,7 @@ const enableScroll = () => {
 
     localStorage.setItem("serviceReports", JSON.stringify([...stored, report]));
     localStorage.setItem("currentReport", JSON.stringify(report));
-    navigate("/informe");
+    navigate(`/informe/${report.id}/pdf`);
   };
 
   return (
