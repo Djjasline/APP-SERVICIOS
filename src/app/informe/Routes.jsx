@@ -16,8 +16,8 @@ export default function InformeRoutes() {
       {/* ABRIR / EDITAR */}
       <Route path=":id" element={<NuevoInforme />} />
 
-      {/* PDF */}
-      <Route path="pdf/:id" element={<InformePDF />} />
+      {/* PDF (CORREGIDO) */}
+      <Route path=":id/pdf" element={<InformePDF />} />
 
       {/* FALLBACK */}
       <Route path="*" element={<Navigate to="/informe" replace />} />
