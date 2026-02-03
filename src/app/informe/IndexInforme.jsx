@@ -134,13 +134,11 @@ export default function IndexInforme() {
 
                   {inf.estado === "completado" && (
                     <button
-                      className="bg-green-600 text-white px-2 py-1 text-xs rounded"
-                      onClick={() =>
-                        navigate(`/informe/${inf.id}pdf`)
-                      }
-                    >
-                      PDF
-                    </button>
+  className="bg-green-600 text-white px-2 py-1 text-xs rounded"
+  onClick={() => navigate(`/informe/${inf.id}/pdf`)}
+>
+  PDF
+</button>
                   )}
 
                   <button
