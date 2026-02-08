@@ -53,17 +53,23 @@ export default function NuevoInforme() {
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
+
   /* ===========================
-   CONTROL DE SCROLL AL FIRMAR
-=========================== */
-const disableScroll = () => {
-  document.body.style.overflow = "hidden";
-};
+     CONTROL DE SCROLL / FOCO
+  =========================== */
+  const blurActiveElement = () => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  };
 
-const enableScroll = () => {
-  document.body.style.overflow = "";
-};
+  const disableScroll = () => {
+    document.body.style.overflow = "hidden";
+  };
 
+  const enableScroll = () => {
+    document.body.style.overflow = "";
+  };
 
   /* ===========================
      CARGAR BORRADOR
@@ -365,41 +371,42 @@ const enableScroll = () => {
           </tbody>
         </table>
 
-       {/* ================= FIRMAS ================= */}
-<table className="pdf-table">
-  <thead>
-    <tr>
-      <th>FIRMA TÉCNICO ASTAP</th>
-      <th>FIRMA CLIENTE</th>
-    </tr>
-  </thead>
+        {/* ================= FIRMAS ================= */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>FIRMA TÉCNICO ASTAP</th>
+              <th>FIRMA CLIENTE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ height: 160, padding: 0 }}>
+                <SignatureCanvas
+                  ref={sigTecnico}
+                  onBegin={() => {
+                    blurActiveElement();
+                    disableScroll();
+                  }}
+                  onEnd={enableScroll}
+                  canvasProps={{ className: "w-full h-full block" }}
+                />
+              </td>
 
-  <tbody>
-    <tr>
-      <td style={{ height: 160, padding: 0 }}>
-        <SignatureCanvas
-          ref={sigTecnico}
-          onBegin={disableScroll}
-          onEnd={enableScroll}
-          canvasProps={{
-            className: "w-full h-full block"
-          }}
-        />
-      </td>
-
-      <td style={{ height: 160, padding: 0 }}>
-        <SignatureCanvas
-          ref={sigCliente}
-          onBegin={disableScroll}
-          onEnd={enableScroll}
-          canvasProps={{
-            className: "w-full h-full block"
-          }}
-        />
-      </td>
-    </tr>
-  </tbody>
-</table>
+              <td style={{ height: 160, padding: 0 }}>
+                <SignatureCanvas
+                  ref={sigCliente}
+                  onBegin={() => {
+                    blurActiveElement();
+                    disableScroll();
+                  }}
+                  onEnd={enableScroll}
+                  canvasProps={{ className: "w-full h-full block" }}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         {/* BOTONES */}
         <div className="flex justify-between pt-6">
@@ -422,4 +429,4 @@ const enableScroll = () => {
       </div>
     </div>
   );
-}
+                  }
