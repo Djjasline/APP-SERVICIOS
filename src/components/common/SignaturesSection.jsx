@@ -80,7 +80,7 @@ export default function SignaturesSection({ data = {}, onChange }) {
           <button
             type="button"
             onClick={clearTecnico}
-            className="text-xs text-red-600 mt-2"
+            className="text-xs text-red-600 mt-2 relative z-50 block"
           >
             Borrar firma
           </button>
