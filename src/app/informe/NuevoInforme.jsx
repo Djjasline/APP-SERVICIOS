@@ -243,16 +243,15 @@ export default function NuevoInforme() {
                   />
                 </td>
                 <td className="text-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={(e) =>
-                      fileToBase64(e.target.files[0], (b64) =>
-                        update(["actividades", i, "imagen"], b64)
-                      )
-                    }
-                  />
+                 <input
+  type="file"
+  accept="image/*"
+  onChange={(e) =>
+    fileToBase64(e.target.files[0], (b64) =>
+      update(["actividades", i, "imagen"], b64)
+    )
+  }
+/>
                   {a.imagen && (
                     <img
                       src={a.imagen}
