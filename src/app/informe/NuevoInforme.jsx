@@ -129,23 +129,71 @@ export default function NuevoInforme() {
       actividades: p.actividades.filter((_, i) => i !== index),
     }));
 
-  /* ===========================
-     CONCLUSIONES / RECOMENDACIONES
-  =========================== */
-  const addConclusionRow = () =>
-    setData((p) => ({
-      ...p,
-      conclusiones: [...p.conclusiones, ""],
-      recomendaciones: [...p.recomendaciones, ""],
-    }));
+  {/* ================= CONCLUSIONES ================= */}
+<h3 className="font-bold text-sm">
+  CONCLUSIONES Y RECOMENDACIONES
+</h3>
 
-  const removeConclusionRow = (index) =>
-    setData((p) => ({
-      ...p,
-      conclusiones: p.conclusiones.filter((_, i) => i !== index),
-      recomendaciones: p.recomendaciones.filter((_, i) => i !== index),
-    }));
+<table className="pdf-table">
+  <thead>
+    <tr>
+      <th colSpan={2}>CONCLUSIONES</th>
+      <th colSpan={2}>RECOMENDACIONES</th>
+    </tr>
+  </thead>
+  <tbody>
+    {data.conclusiones.map((_, i) => (
+      <tr key={i}>
+        <td style={{ width: 40, textAlign: "center" }}>
+          {i + 1}
+        </td>
 
+        <td>
+          <textarea
+            className="pdf-textarea"
+            value={data.conclusiones[i]}
+            onChange={(e) =>
+              update(["conclusiones", i], e.target.value)
+            }
+          />
+        </td>
+
+        <td style={{ width: 40, textAlign: "center" }}>
+          {i + 1}
+        </td>
+
+        <td>
+          <textarea
+            className="pdf-textarea"
+            value={data.recomendaciones[i]}
+            onChange={(e) =>
+              update(["recomendaciones", i], e.target.value)
+            }
+          />
+
+          {data.conclusiones.length > 1 && (
+            <button
+              type="button"
+              onClick={() => removeConclusionRow(i)}
+              className="text-red-600 text-xs mt-1"
+            >
+              Eliminar
+            </button>
+          )}
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+{/* BOTÓN AGREGAR */}
+<button
+  type="button"
+  onClick={addConclusionRow}
+  className="border px-3 py-1 text-xs rounded mt-2"
+>
+  + Agregar conclusión / recomendación
+</button>
   /* ===========================
      GUARDAR INFORME
   =========================== */
