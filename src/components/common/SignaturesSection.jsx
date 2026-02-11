@@ -5,25 +5,25 @@ export default function SignaturesSection({ data = {}, onChange }) {
   const tecnicoRef = useRef(null);
   const clienteRef = useRef(null);
 
-  /* =============================
-     RECARGAR FIRMAS SI EXISTEN
-  ============================= */
+  /* ============================
+     RECARGAR FIRMA SI EXISTE
+  ============================ */
   useEffect(() => {
-    if (data.tecnico && tecnicoRef.current) {
+    if (data?.tecnico && tecnicoRef.current) {
       tecnicoRef.current.clear();
       tecnicoRef.current.fromDataURL(data.tecnico);
     }
 
-    if (data.cliente && clienteRef.current) {
+    if (data?.cliente && clienteRef.current) {
       clienteRef.current.clear();
       clienteRef.current.fromDataURL(data.cliente);
     }
   }, [data]);
 
-  /* =============================
-     GUARDAR FIRMA EN ESTADO PADRE
-  ============================= */
-  const handleEnd = () => {
+  /* ============================
+     ACTUALIZAR ESTADO
+  ============================ */
+  const updateState = () => {
     if (!onChange) return;
 
     onChange({
@@ -36,9 +36,9 @@ export default function SignaturesSection({ data = {}, onChange }) {
     });
   };
 
-  /* =============================
-     BORRAR FIRMA INDIVIDUAL
-  ============================= */
+  /* ============================
+     BORRAR FIRMA
+  ============================ */
   const clearTecnico = () => {
     tecnicoRef.current?.clear();
     onChange?.({
@@ -57,18 +57,20 @@ export default function SignaturesSection({ data = {}, onChange }) {
 
   return (
     <section className="bg-white border rounded-xl p-6 space-y-6">
-      <h2 className="text-lg font-semibold">Firmas</h2>
+      <h2 className="text-lg font-semibold">
+        Firmas
+      </h2>
 
       <div className="grid md:grid-cols-2 gap-6 text-center">
         {/* ================= TÉCNICO ================= */}
         <div>
           <p className="font-semibold mb-2">
-            Firma Técnico
+            Firma Técnico ASTAP
           </p>
 
           <SignatureCanvas
             ref={tecnicoRef}
-            onEnd={handleEnd}
+            onEnd={updateState}
             canvasProps={{
               className:
                 "border w-full h-32 rounded-md bg-white",
@@ -92,7 +94,7 @@ export default function SignaturesSection({ data = {}, onChange }) {
 
           <SignatureCanvas
             ref={clienteRef}
-            onEnd={handleEnd}
+            onEnd={updateState}
             canvasProps={{
               className:
                 "border w-full h-32 rounded-md bg-white",
