@@ -55,61 +55,60 @@ export default function SignaturesSection({ data = {}, onChange }) {
     });
   };
 
-  return (
-    <section className="bg-white border rounded-xl p-6 space-y-6">
-      <h2 className="text-lg font-semibold">
-        Firmas
-      </h2>
+ return (
+  <section className="bg-white border rounded-xl p-6 space-y-6 relative">
+    <h2 className="text-lg font-semibold">
+      Firmas
+    </h2>
 
-      <div className="grid md:grid-cols-2 gap-6 text-center">
-        {/* ================= TÉCNICO ================= */}
-        <div>
-          <p className="font-semibold mb-2">
-            Firma Técnico ASTAP
-          </p>
+    <div className="grid md:grid-cols-2 gap-6 text-center">
+      {/* ================= TÉCNICO ================= */}
+      <div className="relative">
+        <p className="font-semibold mb-2">
+          Firma Técnico ASTAP
+        </p>
 
-          <SignatureCanvas
-            ref={tecnicoRef}
-            onEnd={updateState}
-            canvasProps={{
-              className:
-                "border w-full h-32 rounded-md bg-white relative z-0",
-            }}
-          />
+        <SignatureCanvas
+          ref={tecnicoRef}
+          onEnd={updateState}
+          canvasProps={{
+            className:
+              "border w-full h-32 rounded-md bg-white",
+          }}
+        />
 
-          <button
-            type="button"
-            onClick={clearTecnico}
-            className="text-xs text-red-600 mt-2 relative z-50 block"
-          >
-            Borrar firma
-          </button>
-        </div>
-
-        {/* ================= CLIENTE ================= */}
-        <div>
-          <p className="font-semibold mb-2">
-            Firma Cliente
-          </p>
-
-          <SignatureCanvas
-            ref={clienteRef}
-            onEnd={updateState}
-            canvasProps={{
-              className:
-                "border w-full h-32 rounded-md bg-white",
-            }}
-          />
-
-          <button
-            type="button"
-            onClick={clearCliente}
-            className="text-xs text-red-600 mt-2"
-          >
-            Borrar firma
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={clearTecnico}
+          className="text-xs text-red-600 mt-2 block"
+        >
+          Borrar firma
+        </button>
       </div>
-    </section>
-  );
-}
+
+      {/* ================= CLIENTE ================= */}
+      <div className="relative">
+        <p className="font-semibold mb-2">
+          Firma Cliente
+        </p>
+
+        <SignatureCanvas
+          ref={clienteRef}
+          onEnd={updateState}
+          canvasProps={{
+            className:
+              "border w-full h-32 rounded-md bg-white",
+          }}
+        />
+
+        <button
+          type="button"
+          onClick={clearCliente}
+          className="text-xs text-red-600 mt-2 block"
+        >
+          Borrar firma
+        </button>
+      </div>
+    </div>
+  </section>
+); 
