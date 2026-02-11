@@ -489,7 +489,7 @@ useEffect(() => {
         </div>
       </section>
 
-      {/* ================= FIRMAS ================= */}
+     {/* ================= FIRMAS ================= */}
 <table className="pdf-table">
   <thead>
     <tr>
@@ -501,19 +501,21 @@ useEffect(() => {
     <tr>
       <td style={{ height: 160 }}>
         <SignatureCanvas
-          ref={sigTecnico}
+          ref={firmaTecnicoRef}
           onBegin={() => {
-            blurActiveElement();
-            disableScroll();
+            document.activeElement?.blur();
+            document.body.style.overflow = "hidden";
           }}
-          onEnd={enableScroll}
+          onEnd={() => {
+            document.body.style.overflow = "";
+          }}
           canvasProps={{ className: "w-full h-full" }}
         />
 
         <div className="text-center">
           <button
             type="button"
-            onClick={() => sigTecnico.current?.clear()}
+            onClick={() => firmaTecnicoRef.current?.clear()}
             className="text-xs text-red-600 mt-2"
           >
             Borrar firma
@@ -523,19 +525,21 @@ useEffect(() => {
 
       <td style={{ height: 160 }}>
         <SignatureCanvas
-          ref={sigCliente}
+          ref={firmaClienteRef}
           onBegin={() => {
-            blurActiveElement();
-            disableScroll();
+            document.activeElement?.blur();
+            document.body.style.overflow = "hidden";
           }}
-          onEnd={enableScroll}
+          onEnd={() => {
+            document.body.style.overflow = "";
+          }}
           canvasProps={{ className: "w-full h-full" }}
         />
 
         <div className="text-center">
           <button
             type="button"
-            onClick={() => sigCliente.current?.clear()}
+            onClick={() => firmaClienteRef.current?.clear()}
             className="text-xs text-red-600 mt-2"
           >
             Borrar firma
@@ -545,7 +549,6 @@ useEffect(() => {
     </tr>
   </tbody>
 </table>
-
       {/* ================= BOTONES ================= */}
       <div className="flex justify-end gap-4">
         <button
