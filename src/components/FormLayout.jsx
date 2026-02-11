@@ -1,62 +1,141 @@
 import React from "react";
-import PdfButton from "@components/pdf/PdfButton";
-import { FORM_STATE_LABELS, FORM_STATE_STYLES } from "@utils/formStates";
+import FormLayout from "@components/FormLayout";
+import useFormStorage from "@/hooks/useFormStorage";
 
-export default function FormLayout({
-  title,
-  description,
-  status,
-  onSave,
-  onFinalize,
-  children,
-}) {
-  const pdfId = "pdf-content";
+import ClientDataSection from "@components/common/ClientDataSection";
+import EquipmentDataSection from "@components/common/EquipmentDataSection";
+import SignaturesSection from "@components/common/SignaturesSection";
+import ChecklistSection from "@components/common/ChecklistSection";
+import RepuestosTable from "@components/mantenimiento/RepuestosTable";
+
+import {
+  preServicio,
+  sistemaBarrido,
+  sistemaHidraulico,
+  sistemaElectrico,
+  postServicio,
+} from "./schemas/mantenimientoBarredoraSchema";
+
+export default function MantenimientoBarredora() {
+  const { data, setData, status, save, finalize } =
+    useFormStorage("mantenimiento_barredora", {
+      cliente: {},
+      equipo: {},
+      mantenimiento: {
+        preServicio: [],
+        sistemaBarrido: [],
+        sistemaHidraulico: [],
+        sistemaElectrico: [],
+        postServicio: [],
+        repuestos: [],
+      },
+      manoObra: "",
+      observaciones: "",
+      estadoEquipo: "",
+      // ✅ CORRECCIÓN AQUÍ
+      firmas: {
+        tecnico: "",
+        cliente: "",
+      },
+    });
+
+  const textProps = {
+    spellCheck: true,
+    autoCorrect: "on",
+    autoCapitalize: "sentences",
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8">
-      <div className="max-w-5xl mx-auto space-y-4">
-        {/* HEADER */}
-        <div className="bg-white border rounded-xl p-6 flex justify-between items-start">
-          <div>
-            <h1 className="text-xl font-semibold">{title}</h1>
-            <p className="text-sm text-slate-500">
-              {description}
-            </p>
+    <FormLayout
+      title="Mantenimiento Barredora"
+      description="Formato de servicio de mantenimiento del equipo barredora"
+      status={status}
+      onSave={save}
+      onFinalize={finalize}
+    >
+      {/* CLIENTE */}
+      <ClientDataSection
+        data={data.cliente}
+        onChange={(e) =>
+          setData((p) => ({
+            ...p,
+            cliente: { ...p.cliente, [e.target.name]: e.target.value },
+          }))
+        }
+      />
 
-            <span
-              className={`inline-block mt-2 px-2 py-0.5 rounded-full text-xs font-medium ${FORM_STATE_STYLES[status]}`}
-            >
-              {FORM_STATE_LABELS[status]}
-            </span>
-          </div>
+      {/* EQUIPO */}
+      <EquipmentDataSection
+        data={data.equipo}
+        onChange={(e) =>
+          setData((p) => ({
+            ...p,
+            equipo: { ...p.equipo, [e.target.name]: e.target.value },
+          }))
+        }
+      />
 
-          <div className="flex gap-2">
-            <PdfButton
-              targetId={pdfId}
-              filename={`${title}.pdf`}
-            />
+      {/* PRE SERVICIO */}
+      <ChecklistSection
+        title="1. Pruebas pre-servicio"
+        items={preServicio}
+        data={data.mantenimiento.preServicio}
+        onChange={(v) =>
+          setData((p) => ({
+            ...p,
+            mantenimiento: { ...p.mantenimiento, preServicio: v },
+          }))
+        }
+      />
 
-            <button
-              onClick={onSave}
-              className="px-3 py-2 text-sm rounded bg-slate-900 text-white"
-            >
-              Guardar
-            </button>
+      {/* SISTEMA BARRIDO */}
+      <ChecklistSection
+        title="A. Sistema de barrido"
+        items={sistemaBarrido}
+        data={data.mantenimiento.sistemaBarrido}
+        onChange={(v) =>
+          setData((p) => ({
+            ...p,
+            mantenimiento: { ...p.mantenimiento, sistemaBarrido: v },
+          }))
+        }
+      />
 
-            <button
-              onClick={onFinalize}
-              className="px-3 py-2 text-sm rounded border"
-            >
-              Finalizar
-            </button>
-          </div>
-        </div>
+      {/* SISTEMA HIDRÁULICO */}
+      <ChecklistSection
+        title="B. Sistema hidráulico"
+        items={sistemaHidraulico}
+        data={data.mantenimiento.sistemaHidraulico}
+        onChange={(v) =>
+          setData((p) => ({
+            ...p,
+            mantenimiento: { ...p.mantenimiento, sistemaHidraulico: v },
+          }))
+        }
+      />
 
-        {/* CONTENIDO EXPORTABLE */}
-        <div id={pdfId} className="space-y-6">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-}
+      {/* SISTEMA ELÉCTRICO */}
+      <ChecklistSection
+        title="C. Sistema eléctrico"
+        items={sistemaElectrico}
+        data={data.mantenimiento.sistemaElectrico}
+        onChange={(v) =>
+          setData((p) => ({
+            ...p,
+            mantenimiento: { ...p.mantenimiento, sistemaElectrico: v },
+          }))
+        }
+      />
+
+      {/* REPUESTOS */}
+      <RepuestosTable
+        data={data.mantenimiento.repuestos}
+        onChange={(v) =>
+          setData((p) => ({
+            ...p,
+            mantenimiento: { ...p.mantenimiento, repuestos: v },
+          }))
+        }
+      />
+
+      {/* POST SERV
