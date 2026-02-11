@@ -28,7 +28,12 @@ export default function useFormStorage(key, initialData) {
         ...initialData,
         ...parsed.data,
 
-        // 🔑 merge seguro para estructuras complejas
+        // 🔥 merge seguro dinámico
+        mantenimiento: {
+          ...initialData.mantenimiento,
+          ...parsed.data?.mantenimiento,
+        },
+
         inspeccion: {
           ...initialData.inspeccion,
           ...parsed.data?.inspeccion,
