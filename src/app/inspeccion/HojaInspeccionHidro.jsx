@@ -490,34 +490,61 @@ useEffect(() => {
       </section>
 
       {/* ================= FIRMAS ================= */}
-      <section className="border rounded p-4">
-        <div className="grid md:grid-cols-2 gap-6 text-center">
-          <div>
-            <p className="font-semibold mb-1">FIRMA TÉCNICO ASTAP</p>
-            <SignatureCanvas
-  ref={firmaTecnicoRef}
-  canvasProps={{
-    width: 500,
-    height: 180,
-    className: "border w-full"
-  }}
-/>
+<table className="pdf-table">
+  <thead>
+    <tr>
+      <th>FIRMA TÉCNICO ASTAP</th>
+      <th>FIRMA CLIENTE</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style={{ height: 160 }}>
+        <SignatureCanvas
+          ref={sigTecnico}
+          onBegin={() => {
+            blurActiveElement();
+            disableScroll();
+          }}
+          onEnd={enableScroll}
+          canvasProps={{ className: "w-full h-full" }}
+        />
 
-          </div>
-          <div>
-            <p className="font-semibold mb-1">FIRMA CLIENTE</p>
-           <SignatureCanvas
-  ref={firmaClienteRef}
-  canvasProps={{
-    width: 500,
-    height: 180,
-    className: "border w-full"
-  }}
-/>
-
-          </div>
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => sigTecnico.current?.clear()}
+            className="text-xs text-red-600 mt-2"
+          >
+            Borrar firma
+          </button>
         </div>
-      </section>
+      </td>
+
+      <td style={{ height: 160 }}>
+        <SignatureCanvas
+          ref={sigCliente}
+          onBegin={() => {
+            blurActiveElement();
+            disableScroll();
+          }}
+          onEnd={enableScroll}
+          canvasProps={{ className: "w-full h-full" }}
+        />
+
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => sigCliente.current?.clear()}
+            className="text-xs text-red-600 mt-2"
+          >
+            Borrar firma
+          </button>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
       {/* ================= BOTONES ================= */}
       <div className="flex justify-end gap-4">
