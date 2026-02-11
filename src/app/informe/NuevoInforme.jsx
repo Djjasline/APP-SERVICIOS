@@ -400,41 +400,61 @@ export default function NuevoInforme() {
         </table>
 
         {/* ================= FIRMAS ================= */}
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th>FIRMA TÉCNICO ASTAP</th>
-              <th>FIRMA CLIENTE</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style={{ height: 160 }}>
-                <SignatureCanvas
-                  ref={sigTecnico}
-                  onBegin={() => {
-                    blurActiveElement();
-                    disableScroll();
-                  }}
-                  onEnd={enableScroll}
-                  canvasProps={{ className: "w-full h-full" }}
-                />
-              </td>
+<table className="pdf-table">
+  <thead>
+    <tr>
+      <th>FIRMA TÉCNICO ASTAP</th>
+      <th>FIRMA CLIENTE</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style={{ height: 160 }}>
+        <SignatureCanvas
+          ref={sigTecnico}
+          onBegin={() => {
+            blurActiveElement();
+            disableScroll();
+          }}
+          onEnd={enableScroll}
+          canvasProps={{ className: "w-full h-full" }}
+        />
 
-              <td style={{ height: 160 }}>
-                <SignatureCanvas
-                  ref={sigCliente}
-                  onBegin={() => {
-                    blurActiveElement();
-                    disableScroll();
-                  }}
-                  onEnd={enableScroll}
-                  canvasProps={{ className: "w-full h-full" }}
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => sigTecnico.current?.clear()}
+            className="text-xs text-red-600 mt-2"
+          >
+            Borrar firma
+          </button>
+        </div>
+      </td>
+
+      <td style={{ height: 160 }}>
+        <SignatureCanvas
+          ref={sigCliente}
+          onBegin={() => {
+            blurActiveElement();
+            disableScroll();
+          }}
+          onEnd={enableScroll}
+          canvasProps={{ className: "w-full h-full" }}
+        />
+
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => sigCliente.current?.clear()}
+            className="text-xs text-red-600 mt-2"
+          >
+            Borrar firma
+          </button>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
         {/* BOTONES */}
         <div className="flex justify-between pt-6">
