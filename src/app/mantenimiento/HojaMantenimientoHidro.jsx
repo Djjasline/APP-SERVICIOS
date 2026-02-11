@@ -473,26 +473,48 @@ export default function HojaMantenimientoHidro() {
         </div>
       </section>
 
-      {/* ================= FIRMAS ================= */}
-      <section className="border rounded p-4">
-        <div className="grid md:grid-cols-2 gap-6 text-center">
-          <div>
-            <p className="font-semibold mb-1">Firma Técnico ASTAP</p>
-            <SignatureCanvas
-              ref={firmaTecnicoRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
-          </div>
-          <div>
-            <p className="font-semibold mb-1">Firma Cliente</p>
-            <SignatureCanvas
-              ref={firmaClienteRef}
-              canvasProps={{ className: "border w-full h-32" }}
-            />
-          </div>
-        </div>
-      </section>
+     {/* ================= FIRMAS ================= */}
+<section className="border rounded p-4">
+  <div className="grid md:grid-cols-2 gap-6 text-center">
 
+    {/* FIRMA TÉCNICO */}
+    <div>
+      <p className="font-semibold mb-1">Firma Técnico ASTAP</p>
+
+      <SignatureCanvas
+        ref={firmaTecnicoRef}
+        canvasProps={{ className: "border w-full h-32" }}
+      />
+
+      <button
+        type="button"
+        onClick={() => firmaTecnicoRef.current?.clear()}
+        className="text-xs text-red-600 mt-2"
+      >
+        Borrar firma
+      </button>
+    </div>
+
+    {/* FIRMA CLIENTE */}
+    <div>
+      <p className="font-semibold mb-1">Firma Cliente</p>
+
+      <SignatureCanvas
+        ref={firmaClienteRef}
+        canvasProps={{ className: "border w-full h-32" }}
+      />
+
+      <button
+        type="button"
+        onClick={() => firmaClienteRef.current?.clear()}
+        className="text-xs text-red-600 mt-2"
+      >
+        Borrar firma
+      </button>
+    </div>
+
+  </div>
+</section>
       {/* ================= BOTONES ================= */}
       <div className="flex justify-end gap-4">
         <button
