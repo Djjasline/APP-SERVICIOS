@@ -55,7 +55,7 @@ export default function NuevoInforme() {
   const sigCliente = useRef(null);
 
   /* ===========================
-     CONTROL DE FOCO Y SCROLL
+     CONTROL FOCO Y SCROLL
   =========================== */
   const blurActiveElement = () => {
     if (document.activeElement instanceof HTMLElement) {
@@ -129,71 +129,23 @@ export default function NuevoInforme() {
       actividades: p.actividades.filter((_, i) => i !== index),
     }));
 
-  {/* ================= CONCLUSIONES ================= */}
-<h3 className="font-bold text-sm">
-  CONCLUSIONES Y RECOMENDACIONES
-</h3>
+  /* ===========================
+     CONCLUSIONES / RECOMENDACIONES
+  =========================== */
+  const addConclusionRow = () =>
+    setData((p) => ({
+      ...p,
+      conclusiones: [...p.conclusiones, ""],
+      recomendaciones: [...p.recomendaciones, ""],
+    }));
 
-<table className="pdf-table">
-  <thead>
-    <tr>
-      <th colSpan={2}>CONCLUSIONES</th>
-      <th colSpan={2}>RECOMENDACIONES</th>
-    </tr>
-  </thead>
-  <tbody>
-    {data.conclusiones.map((_, i) => (
-      <tr key={i}>
-        <td style={{ width: 40, textAlign: "center" }}>
-          {i + 1}
-        </td>
+  const removeConclusionRow = (index) =>
+    setData((p) => ({
+      ...p,
+      conclusiones: p.conclusiones.filter((_, i) => i !== index),
+      recomendaciones: p.recomendaciones.filter((_, i) => i !== index),
+    }));
 
-        <td>
-          <textarea
-            className="pdf-textarea"
-            value={data.conclusiones[i]}
-            onChange={(e) =>
-              update(["conclusiones", i], e.target.value)
-            }
-          />
-        </td>
-
-        <td style={{ width: 40, textAlign: "center" }}>
-          {i + 1}
-        </td>
-
-        <td>
-          <textarea
-            className="pdf-textarea"
-            value={data.recomendaciones[i]}
-            onChange={(e) =>
-              update(["recomendaciones", i], e.target.value)
-            }
-          />
-
-          {data.conclusiones.length > 1 && (
-            <button
-              type="button"
-              onClick={() => removeConclusionRow(i)}
-              className="text-red-600 text-xs mt-1"
-            >
-              Eliminar
-            </button>
-          )}
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-
-{/* BOTÓN AGREGAR */}
-<button
-  type="button"
-  onClick={addConclusionRow}
-  className="border px-3 py-1 text-xs rounded mt-2"
->
-  + Agregar conclusión / recomendación
-</button>
   /* ===========================
      GUARDAR INFORME
   =========================== */
@@ -290,6 +242,7 @@ export default function NuevoInforme() {
                     }
                   />
                 </td>
+
                 <td className="text-center space-y-2">
                   <div className="flex gap-2 justify-center">
 
@@ -331,18 +284,33 @@ export default function NuevoInforme() {
                       style={{ maxWidth: 120 }}
                     />
                   )}
+
+                  {data.actividades.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeActividad(i)}
+                      className="text-red-600 text-xs"
+                    >
+                      Eliminar
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <button onClick={addActividad} className="border px-3 py-1 text-xs rounded">
+        <button
+          onClick={addActividad}
+          className="border px-3 py-1 text-xs rounded"
+        >
           + Agregar actividad
         </button>
 
         {/* ================= CONCLUSIONES ================= */}
-        <h3 className="font-bold text-sm">CONCLUSIONES Y RECOMENDACIONES</h3>
+        <h3 className="font-bold text-sm">
+          CONCLUSIONES Y RECOMENDACIONES
+        </h3>
 
         <table className="pdf-table">
           <thead>
@@ -364,6 +332,7 @@ export default function NuevoInforme() {
                     }
                   />
                 </td>
+
                 <td>{i + 1}</td>
                 <td>
                   <textarea
@@ -373,11 +342,29 @@ export default function NuevoInforme() {
                       update(["recomendaciones", i], e.target.value)
                     }
                   />
+
+                  {data.conclusiones.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeConclusionRow(i)}
+                      className="text-red-600 text-xs mt-1"
+                    >
+                      Eliminar
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        <button
+          type="button"
+          onClick={addConclusionRow}
+          className="border px-3 py-1 text-xs rounded"
+        >
+          + Agregar conclusión / recomendación
+        </button>
 
         {/* ================= DESCRIPCIÓN EQUIPO ================= */}
         <h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
@@ -387,7 +374,7 @@ export default function NuevoInforme() {
             {[
               ["NOTA", "nota"],
               ["MARCA", "marca"],
-              ["MODELO", "model"],
+              ["MODELO", "modelo"],
               ["N° SERIE", "serie"],
               ["AÑO MODELO", "anio"],
               ["VIN / CHASIS", "vin"],
@@ -451,11 +438,17 @@ export default function NuevoInforme() {
 
         {/* BOTONES */}
         <div className="flex justify-between pt-6">
-          <button onClick={() => navigate("/informe")} className="border px-6 py-2 rounded">
+          <button
+            onClick={() => navigate("/informe")}
+            className="border px-6 py-2 rounded"
+          >
             Volver
           </button>
 
-          <button onClick={saveReport} className="bg-blue-600 text-white px-6 py-2 rounded">
+          <button
+            onClick={saveReport}
+            className="bg-blue-600 text-white px-6 py-2 rounded"
+          >
             Guardar informe
           </button>
         </div>
