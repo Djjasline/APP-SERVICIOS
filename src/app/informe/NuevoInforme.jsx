@@ -55,7 +55,7 @@ export default function NuevoInforme() {
   const sigCliente = useRef(null);
 
   /* ===========================
-     CONTROL DE SCROLL / FOCO
+     CONTROL DE FOCO Y SCROLL
   =========================== */
   const blurActiveElement = () => {
     if (document.activeElement instanceof HTMLElement) {
@@ -179,10 +179,9 @@ export default function NuevoInforme() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
 
-        {/* ENCABEZADO */}
         <ReportHeader data={data} onChange={update} />
 
-        {/* DATOS CLIENTE */}
+        {/* ================= DATOS CLIENTE ================= */}
         <table className="pdf-table">
           <tbody>
             {[
@@ -210,21 +209,21 @@ export default function NuevoInforme() {
           </tbody>
         </table>
 
-        {/* ACTIVIDADES */}
+        {/* ================= ACTIVIDADES ================= */}
         <h3 className="font-bold text-sm">ACTIVIDADES REALIZADAS</h3>
 
         <table className="pdf-table">
           <thead>
             <tr>
-              <th style={{ width: 40 }}>ÍTEM</th>
+              <th>ÍTEM</th>
               <th>DESCRIPCIÓN</th>
-              <th style={{ width: 260 }}>IMAGEN</th>
+              <th>IMAGEN</th>
             </tr>
           </thead>
           <tbody>
             {data.actividades.map((a, i) => (
               <tr key={i}>
-                <td className="text-center">{i + 1}</td>
+                <td>{i + 1}</td>
                 <td>
                   <input
                     className="pdf-input"
@@ -243,8 +242,6 @@ export default function NuevoInforme() {
                     }
                   />
                 </td>
-
-                {/* CÁMARA + GALERÍA */}
                 <td className="text-center space-y-2">
                   <div className="flex gap-2 justify-center">
 
@@ -283,18 +280,8 @@ export default function NuevoInforme() {
                     <img
                       src={a.imagen}
                       alt="actividad"
-                      style={{ maxWidth: 120, margin: "0 auto" }}
+                      style={{ maxWidth: 120 }}
                     />
-                  )}
-
-                  {data.actividades.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeActividad(i)}
-                      className="text-red-600 text-xs"
-                    >
-                      Eliminar
-                    </button>
                   )}
                 </td>
               </tr>
@@ -302,16 +289,80 @@ export default function NuevoInforme() {
           </tbody>
         </table>
 
-        <button
-          type="button"
-          onClick={addActividad}
-          className="border px-3 py-1 text-xs rounded"
-        >
+        <button onClick={addActividad} className="border px-3 py-1 text-xs rounded">
           + Agregar actividad
         </button>
 
-        {/* RESTO DEL FORMULARIO (conclusiones, equipo, firmas, botones) */}
-        {/* 🔴 No se eliminó absolutamente nada */}
+        {/* ================= CONCLUSIONES ================= */}
+        <h3 className="font-bold text-sm">CONCLUSIONES Y RECOMENDACIONES</h3>
+
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th colSpan={2}>CONCLUSIONES</th>
+              <th colSpan={2}>RECOMENDACIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.conclusiones.map((_, i) => (
+              <tr key={i}>
+                <td>{i + 1}</td>
+                <td>
+                  <textarea
+                    className="pdf-textarea"
+                    value={data.conclusiones[i]}
+                    onChange={(e) =>
+                      update(["conclusiones", i], e.target.value)
+                    }
+                  />
+                </td>
+                <td>{i + 1}</td>
+                <td>
+                  <textarea
+                    className="pdf-textarea"
+                    value={data.recomendaciones[i]}
+                    onChange={(e) =>
+                      update(["recomendaciones", i], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* ================= DESCRIPCIÓN EQUIPO ================= */}
+        <h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
+
+        <table className="pdf-table">
+          <tbody>
+            {[
+              ["NOTA", "nota"],
+              ["MARCA", "marca"],
+              ["MODELO", "model"],
+              ["N° SERIE", "serie"],
+              ["AÑO MODELO", "anio"],
+              ["VIN / CHASIS", "vin"],
+              ["PLACA", "placa"],
+              ["HORAS MÓDULO", "horasModulo"],
+              ["HORAS CHASIS", "horasChasis"],
+              ["KILOMETRAJE", "kilometraje"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="pdf-label">{label}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data.equipo[key]}
+                    onChange={(e) =>
+                      update(["equipo", key], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         {/* ================= FIRMAS ================= */}
         <table className="pdf-table">
@@ -323,7 +374,7 @@ export default function NuevoInforme() {
           </thead>
           <tbody>
             <tr>
-              <td style={{ height: 160, padding: 0 }}>
+              <td style={{ height: 160 }}>
                 <SignatureCanvas
                   ref={sigTecnico}
                   onBegin={() => {
@@ -331,11 +382,11 @@ export default function NuevoInforme() {
                     disableScroll();
                   }}
                   onEnd={enableScroll}
-                  canvasProps={{ className: "w-full h-full block" }}
+                  canvasProps={{ className: "w-full h-full" }}
                 />
               </td>
 
-              <td style={{ height: 160, padding: 0 }}>
+              <td style={{ height: 160 }}>
                 <SignatureCanvas
                   ref={sigCliente}
                   onBegin={() => {
@@ -343,7 +394,7 @@ export default function NuevoInforme() {
                     disableScroll();
                   }}
                   onEnd={enableScroll}
-                  canvasProps={{ className: "w-full h-full block" }}
+                  canvasProps={{ className: "w-full h-full" }}
                 />
               </td>
             </tr>
@@ -352,19 +403,11 @@ export default function NuevoInforme() {
 
         {/* BOTONES */}
         <div className="flex justify-between pt-6">
-          <button
-            type="button"
-            onClick={() => navigate("/informe")}
-            className="border px-6 py-2 rounded"
-          >
+          <button onClick={() => navigate("/informe")} className="border px-6 py-2 rounded">
             Volver
           </button>
 
-          <button
-            type="button"
-            onClick={saveReport}
-            className="bg-blue-600 text-white px-6 py-2 rounded"
-          >
+          <button onClick={saveReport} className="bg-blue-600 text-white px-6 py-2 rounded">
             Guardar informe
           </button>
         </div>
