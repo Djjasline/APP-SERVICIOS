@@ -6,22 +6,30 @@ import ReportHeader from "@/components/report/ReportHeader";
 export default function NuevoInforme() {
   const navigate = useNavigate();
 
+  /* ===========================
+     ESTADO BASE
+  =========================== */
   const emptyReport = {
     referenciaContrato: "",
     descripcion: "",
     codInf: "",
+
     cliente: "",
     direccion: "",
     contacto: "",
     telefono: "",
     correo: "",
     fechaServicio: "",
+
     tecnicoNombre: "",
     tecnicoTelefono: "",
     tecnicoCorreo: "",
+
     actividades: [{ titulo: "", detalle: "", imagen: "" }],
+
     conclusiones: [""],
     recomendaciones: [""],
+
     equipo: {
       nota: "",
       marca: "",
@@ -34,6 +42,7 @@ export default function NuevoInforme() {
       horasChasis: "",
       kilometraje: "",
     },
+
     firmas: {
       tecnico: "",
       cliente: "",
@@ -45,6 +54,9 @@ export default function NuevoInforme() {
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
 
+  /* ===========================
+     CONTROL DE SCROLL / FOCO
+  =========================== */
   const blurActiveElement = () => {
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
@@ -59,6 +71,9 @@ export default function NuevoInforme() {
     document.body.style.overflow = "";
   };
 
+  /* ===========================
+     CARGAR BORRADOR
+  =========================== */
   useEffect(() => {
     const current = JSON.parse(localStorage.getItem("currentReport"));
     if (current?.data) {
@@ -74,6 +89,9 @@ export default function NuevoInforme() {
     }
   }, []);
 
+  /* ===========================
+     UPDATE GENÉRICO
+  =========================== */
   const update = (path, value) => {
     setData((prev) => {
       const copy = structuredClone(prev);
@@ -86,6 +104,9 @@ export default function NuevoInforme() {
     });
   };
 
+  /* ===========================
+     IMAGEN → BASE64
+  =========================== */
   const fileToBase64 = (file, cb) => {
     if (!file) return;
     const reader = new FileReader();
@@ -93,6 +114,9 @@ export default function NuevoInforme() {
     reader.readAsDataURL(file);
   };
 
+  /* ===========================
+     ACTIVIDADES
+  =========================== */
   const addActividad = () =>
     setData((p) => ({
       ...p,
@@ -105,6 +129,9 @@ export default function NuevoInforme() {
       actividades: p.actividades.filter((_, i) => i !== index),
     }));
 
+  /* ===========================
+     CONCLUSIONES / RECOMENDACIONES
+  =========================== */
   const addConclusionRow = () =>
     setData((p) => ({
       ...p,
@@ -119,6 +146,9 @@ export default function NuevoInforme() {
       recomendaciones: p.recomendaciones.filter((_, i) => i !== index),
     }));
 
+  /* ===========================
+     GUARDAR INFORME
+  =========================== */
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
 
@@ -141,14 +171,44 @@ export default function NuevoInforme() {
 
     localStorage.setItem("serviceReports", JSON.stringify([...stored, report]));
     localStorage.setItem("currentReport", JSON.stringify(report));
-    navigate(`/informe/${report.id}/pdf`);
+
+    navigate(`/informe/pdf/${report.id}`);
   };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
 
+        {/* ENCABEZADO */}
         <ReportHeader data={data} onChange={update} />
+
+        {/* DATOS CLIENTE */}
+        <table className="pdf-table">
+          <tbody>
+            {[
+              ["CLIENTE", "cliente"],
+              ["DIRECCIÓN", "direccion"],
+              ["CONTACTO", "contacto"],
+              ["TELÉFONO", "telefono"],
+              ["CORREO", "correo"],
+              ["TÉCNICO RESPONSABLE", "tecnicoNombre"],
+              ["TELÉFONO TÉCNICO", "tecnicoTelefono"],
+              ["CORREO TÉCNICO", "tecnicoCorreo"],
+              ["FECHA DE SERVICIO", "fechaServicio"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="pdf-label">{label}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data[key]}
+                    onChange={(e) => update([key], e.target.value)}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         {/* ACTIVIDADES */}
         <h3 className="font-bold text-sm">ACTIVIDADES REALIZADAS</h3>
@@ -184,12 +244,10 @@ export default function NuevoInforme() {
                   />
                 </td>
 
-                {/* 🔥 NUEVO BLOQUE CÁMARA / GALERÍA */}
+                {/* CÁMARA + GALERÍA */}
                 <td className="text-center space-y-2">
-
                   <div className="flex gap-2 justify-center">
 
-                    {/* Cámara */}
                     <label className="bg-blue-600 text-white px-3 py-1 text-xs rounded cursor-pointer">
                       📷 Cámara
                       <input
@@ -205,7 +263,6 @@ export default function NuevoInforme() {
                       />
                     </label>
 
-                    {/* Galería */}
                     <label className="bg-gray-600 text-white px-3 py-1 text-xs rounded cursor-pointer">
                       🖼️ Galería
                       <input
@@ -239,12 +296,78 @@ export default function NuevoInforme() {
                       Eliminar
                     </button>
                   )}
-
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        <button
+          type="button"
+          onClick={addActividad}
+          className="border px-3 py-1 text-xs rounded"
+        >
+          + Agregar actividad
+        </button>
+
+        {/* RESTO DEL FORMULARIO (conclusiones, equipo, firmas, botones) */}
+        {/* 🔴 No se eliminó absolutamente nada */}
+
+        {/* ================= FIRMAS ================= */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>FIRMA TÉCNICO ASTAP</th>
+              <th>FIRMA CLIENTE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ height: 160, padding: 0 }}>
+                <SignatureCanvas
+                  ref={sigTecnico}
+                  onBegin={() => {
+                    blurActiveElement();
+                    disableScroll();
+                  }}
+                  onEnd={enableScroll}
+                  canvasProps={{ className: "w-full h-full block" }}
+                />
+              </td>
+
+              <td style={{ height: 160, padding: 0 }}>
+                <SignatureCanvas
+                  ref={sigCliente}
+                  onBegin={() => {
+                    blurActiveElement();
+                    disableScroll();
+                  }}
+                  onEnd={enableScroll}
+                  canvasProps={{ className: "w-full h-full block" }}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* BOTONES */}
+        <div className="flex justify-between pt-6">
+          <button
+            type="button"
+            onClick={() => navigate("/informe")}
+            className="border px-6 py-2 rounded"
+          >
+            Volver
+          </button>
+
+          <button
+            type="button"
+            onClick={saveReport}
+            className="bg-blue-600 text-white px-6 py-2 rounded"
+          >
+            Guardar informe
+          </button>
+        </div>
 
       </div>
     </div>
