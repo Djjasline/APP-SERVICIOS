@@ -375,17 +375,46 @@ export default function HojaInspeccionCamara() {
 </section>
 
 
-      {/* FIRMAS */}
-      <section className="border rounded p-4 grid md:grid-cols-2 gap-6 text-center">
-        <div>
-          <strong>Firma Técnico</strong>
-          <SignatureCanvas ref={firmaTecnicoRef} canvasProps={{ className: "border w-full h-32" }} />
-        </div>
-        <div>
-          <strong>Firma Cliente</strong>
-          <SignatureCanvas ref={firmaClienteRef} canvasProps={{ className: "border w-full h-32" }} />
-        </div>
-      </section>
+{/* ================= FIRMAS ================= */}
+<section className="border rounded p-4 grid md:grid-cols-2 gap-6 text-center">
+
+  {/* FIRMA TÉCNICO */}
+  <div>
+    <strong>Firma Técnico</strong>
+
+    <SignatureCanvas
+      ref={firmaTecnicoRef}
+      canvasProps={{ className: "border w-full h-32" }}
+    />
+
+    <button
+      type="button"
+      onClick={() => firmaTecnicoRef.current?.clear()}
+      className="text-xs text-red-600 mt-2"
+    >
+      Borrar firma
+    </button>
+  </div>
+
+  {/* FIRMA CLIENTE */}
+  <div>
+    <strong>Firma Cliente</strong>
+
+    <SignatureCanvas
+      ref={firmaClienteRef}
+      canvasProps={{ className: "border w-full h-32" }}
+    />
+
+    <button
+      type="button"
+      onClick={() => firmaClienteRef.current?.clear()}
+      className="text-xs text-red-600 mt-2"
+    >
+      Borrar firma
+    </button>
+  </div>
+
+</section>
 
       <div className="flex justify-end gap-4">
         <button type="button" onClick={() => navigate("/inspeccion")} className="border px-4 py-2">
