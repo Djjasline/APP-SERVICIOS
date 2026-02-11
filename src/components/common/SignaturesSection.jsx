@@ -73,7 +73,7 @@ export default function SignaturesSection({ data = {}, onChange }) {
             onEnd={updateState}
             canvasProps={{
               className:
-                "border w-full h-32 rounded-md bg-white",
+                "border w-full h-32 rounded-md bg-white relative z-0",
             }}
           />
 
