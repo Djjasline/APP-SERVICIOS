@@ -1,118 +1,112 @@
-import React, { useEffect, useRef } from "react";
+import { useRef, useEffect } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
-export default function SignaturesSection({ data, onChange }) {
-  const sigTecnicoRef = useRef(null);
-  const sigClienteRef = useRef(null);
+export default function SignaturesSection({ data = {}, onChange }) {
+  const tecnicoRef = useRef(null);
+  const clienteRef = useRef(null);
 
-  // Restaurar firmas si existen
+  /* =============================
+     RECARGAR FIRMAS SI EXISTEN
+  ============================= */
   useEffect(() => {
-    if (data?.tecnico && sigTecnicoRef.current) {
-      sigTecnicoRef.current.fromDataURL(data.tecnico);
+    if (data.tecnico && tecnicoRef.current) {
+      tecnicoRef.current.clear();
+      tecnicoRef.current.fromDataURL(data.tecnico);
     }
-    if (data?.cliente && sigClienteRef.current) {
-      sigClienteRef.current.fromDataURL(data.cliente);
+
+    if (data.cliente && clienteRef.current) {
+      clienteRef.current.clear();
+      clienteRef.current.fromDataURL(data.cliente);
     }
-  }, []);
+  }, [data]);
 
-  const saveSignature = (tipo, ref) => {
-    if (!ref.current || ref.current.isEmpty()) return;
-
-    const dataUrl = ref.current
-      .getTrimmedCanvas()
-      .toDataURL("image/png");
+  /* =============================
+     GUARDAR FIRMA EN ESTADO PADRE
+  ============================= */
+  const handleEnd = () => {
+    if (!onChange) return;
 
     onChange({
-      ...data,
-      [tipo]: dataUrl,
+      tecnico: tecnicoRef.current?.isEmpty()
+        ? ""
+        : tecnicoRef.current.toDataURL(),
+      cliente: clienteRef.current?.isEmpty()
+        ? ""
+        : clienteRef.current.toDataURL(),
     });
   };
 
-  const clearSignature = (tipo, ref) => {
-    if (!ref.current) return;
-
-    ref.current.clear();
-
-    onChange({
+  /* =============================
+     BORRAR FIRMA INDIVIDUAL
+  ============================= */
+  const clearTecnico = () => {
+    tecnicoRef.current?.clear();
+    onChange?.({
       ...data,
-      [tipo]: null,
+      tecnico: "",
+    });
+  };
+
+  const clearCliente = () => {
+    clienteRef.current?.clear();
+    onChange?.({
+      ...data,
+      cliente: "",
     });
   };
 
   return (
     <section className="bg-white border rounded-xl p-6 space-y-6">
-      {/* ================= HEADER ================= */}
-      <div>
-        <h2 className="text-lg font-semibold text-slate-900">
-          Firmas
-        </h2>
-        <p className="text-sm text-slate-600">
-          Firma del técnico responsable y del cliente.
-        </p>
-      </div>
+      <h2 className="text-lg font-semibold">Firmas</h2>
 
-      {/* ================= FIRMA TÉCNICO ================= */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-slate-700">
-          Firma técnico ASTAP
-        </p>
+      <div className="grid md:grid-cols-2 gap-6 text-center">
+        {/* ================= TÉCNICO ================= */}
+        <div>
+          <p className="font-semibold mb-2">
+            Firma Técnico
+          </p>
 
-        <div className="border rounded bg-slate-50">
           <SignatureCanvas
-            ref={sigTecnicoRef}
-            penColor="black"
+            ref={tecnicoRef}
+            onEnd={handleEnd}
             canvasProps={{
-              width: 500,
-              height: 180,
-              className: "w-full",
+              className:
+                "border w-full h-32 rounded-md bg-white",
             }}
-            onEnd={() =>
-              saveSignature("tecnico", sigTecnicoRef)
-            }
           />
+
+          <button
+            type="button"
+            onClick={clearTecnico}
+            className="text-xs text-red-600 mt-2"
+          >
+            Borrar firma
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={() =>
-            clearSignature("tecnico", sigTecnicoRef)
-          }
-          className="text-xs px-3 py-1 rounded border hover:bg-slate-100"
-        >
-          Limpiar firma técnico
-        </button>
-      </div>
+        {/* ================= CLIENTE ================= */}
+        <div>
+          <p className="font-semibold mb-2">
+            Firma Cliente
+          </p>
 
-      {/* ================= FIRMA CLIENTE ================= */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-slate-700">
-          Firma cliente
-        </p>
-
-        <div className="border rounded bg-slate-50">
           <SignatureCanvas
-            ref={sigClienteRef}
-            penColor="black"
+            ref={clienteRef}
+            onEnd={handleEnd}
             canvasProps={{
-              width: 500,
-              height: 180,
-              className: "w-full",
+              className:
+                "border w-full h-32 rounded-md bg-white",
             }}
-            onEnd={() =>
-              saveSignature("cliente", sigClienteRef)
-            }
           />
-        </div>
 
-        <button
-          type="button"
-          onClick={() =>
-            clearSignature("cliente", sigClienteRef)
-          }
-          className="text-xs px-3 py-1 rounded border hover:bg-slate-100"
-        >
-          Limpiar firma cliente
-        </button>
+          <button
+            type="button"
+            onClick={clearCliente}
+            className="text-xs text-red-600 mt-2"
+          >
+            Borrar firma
+          </button>
+        </div>
       </div>
     </section>
   );
