@@ -54,32 +54,33 @@ export default function NuevoInforme() {
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
 
-  /* ===========================
-     CARGAR SOLO SI VIENE DESDE HISTORIAL
-  =========================== */
-  useEffect(() => {
-    const current =
-      JSON.parse(localStorage.getItem("currentReport"));
+ /* ===========================
+   CARGAR BORRADOR SOLO SI EXISTE
+=========================== */
+useEffect(() => {
+  const current = JSON.parse(
+    localStorage.getItem("currentReport")
+  );
 
-    if (current?.id && current?.data) {
-      setData(current.data);
+  // Solo cargar si realmente viene desde historial
+  if (current && current.id && current.data) {
+    setData(current.data);
 
-      setTimeout(() => {
-        if (current.data.firmas?.tecnico) {
-          sigTecnico.current?.fromDataURL(
-            current.data.firmas.tecnico
-          );
-        }
+    setTimeout(() => {
+      if (current.data.firmas?.tecnico) {
+        sigTecnico.current?.fromDataURL(
+          current.data.firmas.tecnico
+        );
+      }
 
-        if (current.data.firmas?.cliente) {
-          sigCliente.current?.fromDataURL(
-            current.data.firmas.cliente
-          );
-        }
-      }, 0);
-    }
-  }, []);
-
+      if (current.data.firmas?.cliente) {
+        sigCliente.current?.fromDataURL(
+          current.data.firmas.cliente
+        );
+      }
+    }, 0);
+  }
+}, []);
   /* ===========================
      UPDATE GENÉRICO
   =========================== */
