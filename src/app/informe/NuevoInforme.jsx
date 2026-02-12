@@ -54,41 +54,43 @@ export default function NuevoInforme() {
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
 
- /* ===========================
-   CARGAR BORRADOR SOLO SI EXISTE
-=========================== */
-useEffect(() => {
-  const current = JSON.parse(
-    localStorage.getItem("currentReport")
-  );
-
-  if (current && current.id && current.data) {
-    setData(current.data);
-
-    setTimeout(() => {
-      if (current.data.firmas?.tecnico) {
-        sigTecnico.current?.fromDataURL(
-          current.data.firmas.tecnico
-        );
-      }
-
-      if (current.data.firmas?.cliente) {
-        sigCliente.current?.fromDataURL(
-          current.data.firmas.cliente
-        );
-      }
-    }, 0);
-  }
-}, []);
   /* ===========================
-     UPDATE GENÉRICO
+     CARGAR BORRADOR SOLO SI EXISTE
+  =========================== */
+  useEffect(() => {
+    const current = JSON.parse(
+      localStorage.getItem("currentReport")
+    );
+
+    if (current && current.id && current.data) {
+      setData(current.data);
+
+      setTimeout(() => {
+        if (current.data.firmas?.tecnico) {
+          sigTecnico.current?.fromDataURL(
+            current.data.firmas.tecnico
+          );
+        }
+
+        if (current.data.firmas?.cliente) {
+          sigCliente.current?.fromDataURL(
+            current.data.firmas.cliente
+          );
+        }
+      }, 0);
+    }
+  }, []);
+
+  /* ===========================
+     UPDATE SEGURO (SIN structuredClone)
   =========================== */
   const update = (path, value) => {
     setData((prev) => {
-      const copy = structuredClone(prev);
+      const copy = JSON.parse(JSON.stringify(prev));
       let ref = copy;
 
       for (let i = 0; i < path.length - 1; i++) {
+        if (!ref[path[i]]) ref[path[i]] = {};
         ref = ref[path[i]];
       }
 
@@ -98,63 +100,11 @@ useEffect(() => {
   };
 
   /* ===========================
-     IMAGEN → BASE64
-  =========================== */
-  const fileToBase64 = (file, cb) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => cb(reader.result);
-    reader.readAsDataURL(file);
-  };
-
-  /* ===========================
-     ACTIVIDADES
-  =========================== */
-  const addActividad = () =>
-    setData((p) => ({
-      ...p,
-      actividades: [
-        ...p.actividades,
-        { titulo: "", detalle: "", imagen: "" },
-      ],
-    }));
-
-  const removeActividad = (index) =>
-    setData((p) => ({
-      ...p,
-      actividades: p.actividades.filter(
-        (_, i) => i !== index
-      ),
-    }));
-
-  /* ===========================
-     CONCLUSIONES / RECOMENDACIONES
-  =========================== */
-  const addConclusionRow = () =>
-    setData((p) => ({
-      ...p,
-      conclusiones: [...p.conclusiones, ""],
-      recomendaciones: [...p.recomendaciones, ""],
-    }));
-
-  const removeConclusionRow = (index) =>
-    setData((p) => ({
-      ...p,
-      conclusiones: p.conclusiones.filter(
-        (_, i) => i !== index
-      ),
-      recomendaciones: p.recomendaciones.filter(
-        (_, i) => i !== index
-      ),
-    }));
-
-  /* ===========================
      GUARDAR / ACTUALIZAR
   =========================== */
   const saveReport = () => {
     const stored =
-      JSON.parse(localStorage.getItem("serviceReports")) ||
-      [];
+      JSON.parse(localStorage.getItem("serviceReports")) || [];
 
     const current =
       JSON.parse(localStorage.getItem("currentReport"));
@@ -165,28 +115,16 @@ useEffect(() => {
         current?.createdAt ||
         new Date().toISOString(),
       estado: "borrador",
-      data: {
-        ...data,
-        firmas: {
-          tecnico: sigTecnico.current?.isEmpty()
-            ? ""
-            : sigTecnico.current.toDataURL(),
-          cliente: sigCliente.current?.isEmpty()
-            ? ""
-            : sigCliente.current.toDataURL(),
-        },
-      },
+      data: data,
     };
 
     let updated;
 
     if (current?.id) {
-      // 🔥 ACTUALIZAR EXISTENTE
       updated = stored.map((r) =>
         r.id === current.id ? report : r
       );
     } else {
-      // 🔥 NUEVO
       updated = [...stored, report];
     }
 
@@ -249,6 +187,47 @@ useEffect(() => {
                 </td>
               </tr>
             ))}
+          </tbody>
+        </table>
+
+        {/* ================= FIRMAS ================= */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>FIRMA TÉCNICO ASTAP</th>
+              <th>FIRMA CLIENTE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ height: 150 }}>
+                <SignatureCanvas
+                  ref={sigTecnico}
+                  canvasProps={{ className: "w-full h-full border" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => sigTecnico.current?.clear()}
+                  className="text-xs text-red-600 mt-2"
+                >
+                  Borrar firma
+                </button>
+              </td>
+
+              <td style={{ height: 150 }}>
+                <SignatureCanvas
+                  ref={sigCliente}
+                  canvasProps={{ className: "w-full h-full border" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => sigCliente.current?.clear()}
+                  className="text-xs text-red-600 mt-2"
+                >
+                  Borrar firma
+                </button>
+              </td>
+            </tr>
           </tbody>
         </table>
 
