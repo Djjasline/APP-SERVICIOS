@@ -71,11 +71,12 @@ export default function NuevoInforme() {
     document.body.style.overflow = "";
   };
 
-  /* ===========================
-     CARGAR BORRADOR
-  =========================== */
-  useEffect(() => 
-  // Solo cargar si viene desde historial (tiene id)
+/* ===========================
+   CARGAR BORRADOR SOLO SI EXISTE
+=========================== */
+useEffect(() => {
+  const current = JSON.parse(localStorage.getItem("currentReport"));
+
   if (current?.id && current?.data) {
     setData(current.data);
 
@@ -83,22 +84,13 @@ export default function NuevoInforme() {
       if (current.data.firmas?.tecnico) {
         sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
       }
+
       if (current.data.firmas?.cliente) {
         sigCliente.current?.fromDataURL(current.data.firmas.cliente);
       }
     }, 0);
   }
 }, []);
-      setTimeout(() => {
-        if (current.data.firmas?.tecnico) {
-          sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
-        }
-        if (current.data.firmas?.cliente) {
-          sigCliente.current?.fromDataURL(current.data.firmas.cliente);
-        }
-      }, 0);
-    }
-  }, []);
 
   /* ===========================
      UPDATE GENÉRICO
