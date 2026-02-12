@@ -62,7 +62,6 @@ useEffect(() => {
     localStorage.getItem("currentReport")
   );
 
-  // Solo cargar si realmente viene desde historial
   if (current && current.id && current.data) {
     setData(current.data);
 
