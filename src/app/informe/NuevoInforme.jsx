@@ -74,10 +74,21 @@ export default function NuevoInforme() {
   /* ===========================
      CARGAR BORRADOR
   =========================== */
-  useEffect(() => {
-    const current = JSON.parse(localStorage.getItem("currentReport"));
-    if (current?.data) {
-      setData(current.data);
+  useEffect(() => 
+  // Solo cargar si viene desde historial (tiene id)
+  if (current?.id && current?.data) {
+    setData(current.data);
+
+    setTimeout(() => {
+      if (current.data.firmas?.tecnico) {
+        sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
+      }
+      if (current.data.firmas?.cliente) {
+        sigCliente.current?.fromDataURL(current.data.firmas.cliente);
+      }
+    }, 0);
+  }
+}, []);
       setTimeout(() => {
         if (current.data.firmas?.tecnico) {
           sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
