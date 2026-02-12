@@ -41,10 +41,10 @@ export default function IndexInforme() {
     const codInf = inf.data?.codInf?.trim();
     const ref = inf.data?.referenciaContrato?.trim();
 
-    if (cliente && codInf) return `${cliente} / ${codInf}`;
-    if (cliente && ref) return `${cliente} / ${ref}`;
-    if (codInf) return codInf;
-    if (ref) return ref;
+    if (cliente) return cliente;
+
+  if (codInf) return codInf;
+  if (ref) return ref;
 
     return "Sin referencia";
   };
