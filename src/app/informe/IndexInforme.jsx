@@ -10,9 +10,20 @@ export default function IndexInforme() {
      CARGAR INFORMES
   =========================== */
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
+  const loadReports = () => {
+    const stored =
+      JSON.parse(localStorage.getItem("serviceReports")) || [];
     setInformes(stored);
-  }, []);
+  };
+
+  loadReports(); // primera carga
+
+  window.addEventListener("focus", loadReports);
+
+  return () => {
+    window.removeEventListener("focus", loadReports);
+  };
+}, []);
 
   /* ===========================
      FILTRO
