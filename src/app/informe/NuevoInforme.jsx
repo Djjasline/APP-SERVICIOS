@@ -77,19 +77,16 @@ export default function NuevoInforme() {
 useEffect(() => {
   const current = JSON.parse(localStorage.getItem("currentReport"));
 
-  if (current?.id && current?.data) {
-    setData(current.data);
+  // Solo cargar si NO estamos en /nuevo
+  if (!window.location.pathname.includes("nuevo")) return;
 
-    setTimeout(() => {
-      if (current.data.firmas?.tecnico) {
-        sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
-      }
+  // Si es nuevo, limpiar estado completamente
+  setData(emptyReport);
 
-      if (current.data.firmas?.cliente) {
-        sigCliente.current?.fromDataURL(current.data.firmas.cliente);
-      }
-    }, 0);
-  }
+  // Limpiar cualquier firma anterior
+  sigTecnico.current?.clear();
+  sigCliente.current?.clear();
+
 }, []);
   /* ===========================
      UPDATE GENÉRICO
