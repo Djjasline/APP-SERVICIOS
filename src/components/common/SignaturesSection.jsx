@@ -27,12 +27,14 @@ export default function SignaturesSection({ data = {}, onChange }) {
     if (!onChange) return;
 
     onChange({
-      tecnico: tecnicoRef.current?.isEmpty()
-        ? ""
-        : tecnicoRef.current.toDataURL(),
-      cliente: clienteRef.current?.isEmpty()
-        ? ""
-        : clienteRef.current.toDataURL(),
+      tecnico:
+        tecnicoRef.current && !tecnicoRef.current.isEmpty()
+          ? tecnicoRef.current.toDataURL()
+          : "",
+      cliente:
+        clienteRef.current && !clienteRef.current.isEmpty()
+          ? clienteRef.current.toDataURL()
+          : "",
     });
   };
 
@@ -41,6 +43,7 @@ export default function SignaturesSection({ data = {}, onChange }) {
   ============================ */
   const clearTecnico = () => {
     tecnicoRef.current?.clear();
+
     onChange?.({
       ...data,
       tecnico: "",
@@ -49,66 +52,83 @@ export default function SignaturesSection({ data = {}, onChange }) {
 
   const clearCliente = () => {
     clienteRef.current?.clear();
+
     onChange?.({
       ...data,
       cliente: "",
     });
   };
 
- return (
-  <section className="bg-white border rounded-xl p-6 space-y-6 relative">
-    <h2 className="text-lg font-semibold">
-      Firmas
-    </h2>
+  /* ============================
+     BLOQUEO SCROLL AL FIRMAR
+  ============================ */
+  const handleBegin = () => {
+    document.activeElement?.blur();
+    document.body.style.overflow = "hidden";
+  };
 
-    <div className="grid md:grid-cols-2 gap-6 text-center">
-      {/* ================= TÉCNICO ================= */}
-      <div className="relative">
-        <p className="font-semibold mb-2">
-          Firma Técnico ASTAP
-        </p>
+  const handleEnd = () => {
+    document.body.style.overflow = "";
+    updateState();
+  };
 
-        <SignatureCanvas
-          ref={tecnicoRef}
-          onEnd={updateState}
-          canvasProps={{
-            className:
-              "border w-full h-32 rounded-md bg-white",
-          }}
-        />
+  return (
+    <section className="bg-white border rounded-xl p-6 space-y-6">
+      <h2 className="text-lg font-semibold">Firmas</h2>
 
-        <button
-          type="button"
-          onClick={clearTecnico}
-          className="text-xs text-red-600 mt-2 block"
-        >
-          Borrar firma
-        </button>
+      <div className="grid md:grid-cols-2 gap-6 text-center">
+
+        {/* ================= TÉCNICO ================= */}
+        <div>
+          <p className="font-semibold mb-2">
+            Firma Técnico ASTAP
+          </p>
+
+          <SignatureCanvas
+            ref={tecnicoRef}
+            onBegin={handleBegin}
+            onEnd={handleEnd}
+            canvasProps={{
+              className:
+                "border w-full h-32 rounded-md bg-white",
+            }}
+          />
+
+          <button
+            type="button"
+            onClick={clearTecnico}
+            className="mt-2 bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded"
+          >
+            Borrar firma
+          </button>
+        </div>
+
+        {/* ================= CLIENTE ================= */}
+        <div>
+          <p className="font-semibold mb-2">
+            Firma Cliente
+          </p>
+
+          <SignatureCanvas
+            ref={clienteRef}
+            onBegin={handleBegin}
+            onEnd={handleEnd}
+            canvasProps={{
+              className:
+                "border w-full h-32 rounded-md bg-white",
+            }}
+          />
+
+          <button
+            type="button"
+            onClick={clearCliente}
+            className="mt-2 bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded"
+          >
+            Borrar firma
+          </button>
+        </div>
+
       </div>
-
-      {/* ================= CLIENTE ================= */}
-      <div className="relative">
-        <p className="font-semibold mb-2">
-          Firma Cliente
-        </p>
-
-        <SignatureCanvas
-          ref={clienteRef}
-          onEnd={updateState}
-          canvasProps={{
-            className:
-              "border w-full h-32 rounded-md bg-white",
-          }}
-        />
-
-        <button
-          type="button"
-          onClick={clearCliente}
-          className="text-xs text-red-600 mt-2 block"
-        >
-          Borrar firma
-        </button>
-      </div>
-    </div>
-  </section>
-); 
+    </section>
+  );
+}
