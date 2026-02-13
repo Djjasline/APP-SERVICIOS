@@ -242,106 +242,93 @@ export default function NuevoInforme() {
                   />
                 </td>
                 <td className="text-center">
+  <div className="flex flex-col gap-2 mb-2">
 
-                  <div className="flex flex-col gap-2 mb-2">
-                    <label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-  📁 Archivos / OneDrive
-  <input
-    type="file"
-    multiple
-    style={{ display: "none" }}
-    onChange={(e) => {
-      const files = Array.from(e.target.files);
-
-      files.forEach((file) => {
-        // Validamos que sea imagen
-        if (!file.type.startsWith("image/")) return;
-
-        fileToBase64(file, (b64) => {
-          setData((prev) => {
-            const copy = structuredClone(prev);
-            copy.actividades[i].imagenes.push(b64);
-            return copy;
+    {/* SELECTOR GENERAL (Archivos / OneDrive / Galería) */}
+    <label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+      📁 Archivos / OneDrive
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const files = Array.from(e.target.files || []);
+          files.forEach((file) => {
+            fileToBase64(file, (b64) => {
+              setData((prev) => {
+                const copy = structuredClone(prev);
+                copy.actividades[i].imagenes.push(b64);
+                return copy;
+              });
+            });
           });
-        });
-      });
-    }}
-  />
-</label>
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files);
-                          files.forEach((file) => {
-                            fileToBase64(file, (b64) => {
-                              setData((prev) => {
-                                const copy = structuredClone(prev);
-                                copy.actividades[i].imagenes.push(b64);
-                                return copy;
-                              });
-                            });
-                          });
-                        }}
-                      />
-                    </label>
+        }}
+      />
+    </label>
 
-                    <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-                      📷 Cámara
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        multiple
-                        style={{ display: "none" }}
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files);
-                          files.forEach((file) => {
-                            fileToBase64(file, (b64) => {
-                              setData((prev) => {
-                                const copy = structuredClone(prev);
-                                copy.actividades[i].imagenes.push(b64);
-                                return copy;
-                              });
-                            });
-                          });
-                        }}
-                      />
-                    </label>
-                  </div>
+    {/* CÁMARA */}
+    <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+      📷 Cámara
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        multiple
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const files = Array.from(e.target.files || []);
+          files.forEach((file) => {
+            fileToBase64(file, (b64) => {
+              setData((prev) => {
+                const copy = structuredClone(prev);
+                copy.actividades[i].imagenes.push(b64);
+                return copy;
+              });
+            });
+          });
+        }}
+      />
+    </label>
 
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {a.imagenes?.map((img, imgIndex) => (
-                      <div key={imgIndex} className="relative">
-                        <img
-                          src={img}
-                          alt="actividad"
-                          style={{ maxWidth: 120 }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setData((prev) => {
-                              const copy = structuredClone(prev);
-                              copy.actividades[i].imagenes.splice(imgIndex, 1);
-                              return copy;
-                            });
-                          }}
-                          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+  </div>
 
-                  {data.actividades.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeActividad(i)}
-                      className="text-red-600 text-xs mt-2"
-                    >
-                      Eliminar
-                    </button>
-                  )}
-                </td>
+  <div className="flex flex-wrap gap-2 justify-center">
+    {a.imagenes?.map((img, imgIndex) => (
+      <div key={imgIndex} className="relative">
+        <img
+          src={img}
+          alt="actividad"
+          style={{ maxWidth: 120 }}
+        />
+        <button
+          type="button"
+          onClick={() => {
+            setData((prev) => {
+              const copy = structuredClone(prev);
+              copy.actividades[i].imagenes.splice(imgIndex, 1);
+              return copy;
+            });
+          }}
+          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1"
+        >
+          ✕
+        </button>
+      </div>
+    ))}
+  </div>
+
+  {data.actividades.length > 1 && (
+    <button
+      type="button"
+      onClick={() => removeActividad(i)}
+      className="text-red-600 text-xs mt-2"
+    >
+      Eliminar
+    </button>
+  )}
+</td>
+
               </tr>
             ))}
           </tbody>
