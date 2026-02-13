@@ -118,7 +118,7 @@ export default function InformeHome() {
                 className="border rounded p-3 flex justify-between items-center"
               >
                 <div>
-                  <strong>ETAPA-EP</strong>
+                  <strong>{r.data?.cliente || "Sin cliente"}</strong>
                   <div className="text-xs">
                     {new Date(r.createdAt).toLocaleString()}
                   </div>
