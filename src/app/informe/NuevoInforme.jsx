@@ -338,8 +338,148 @@ export default function NuevoInforme() {
           + Agregar actividad
         </button>
 
-        {/* RESTO DEL FORMULARIO EXACTAMENTE IGUAL */}
-        {/* CONCLUSIONES, EQUIPO, FIRMAS Y BOTONES — NO SE MODIFICARON */}
+               {/* CONCLUSIONES Y RECOMENDACIONES */}
+        <h3 className="font-bold text-sm">CONCLUSIONES Y RECOMENDACIONES</h3>
+
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th colSpan={2}>CONCLUSIONES</th>
+              <th colSpan={2}>RECOMENDACIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.conclusiones.map((_, i) => (
+              <tr key={i}>
+                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
+                <td>
+                  <textarea
+                    className="pdf-textarea"
+                    value={data.conclusiones[i]}
+                    onChange={(e) =>
+                      update(["conclusiones", i], e.target.value)
+                    }
+                  />
+                </td>
+                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
+                <td>
+                  <textarea
+                    className="pdf-textarea"
+                    value={data.recomendaciones[i]}
+                    onChange={(e) =>
+                      update(["recomendaciones", i], e.target.value)
+                    }
+                  />
+                  {data.conclusiones.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeConclusionRow(i)}
+                      className="text-red-600 text-xs mt-1"
+                    >
+                      Eliminar
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <button
+          type="button"
+          onClick={addConclusionRow}
+          className="border px-3 py-1 text-xs rounded"
+        >
+          + Agregar conclusión / recomendación
+        </button>
+
+        {/* DESCRIPCIÓN DEL EQUIPO */}
+        <h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
+
+        <table className="pdf-table">
+          <tbody>
+            {[
+              ["NOTA", "nota"],
+              ["MARCA", "marca"],
+              ["MODELO", "modelo"],
+              ["N° SERIE", "serie"],
+              ["AÑO MODELO", "anio"],
+              ["VIN / CHASIS", "vin"],
+              ["PLACA", "placa"],
+              ["HORAS MÓDULO", "horasModulo"],
+              ["HORAS CHASIS", "horasChasis"],
+              ["KILOMETRAJE", "kilometraje"],
+            ].map(([label, key]) => (
+              <tr key={key}>
+                <td className="pdf-label">{label}</td>
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={data.equipo[key]}
+                    onChange={(e) =>
+                      update(["equipo", key], e.target.value)
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* ================= FIRMAS ================= */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>FIRMA TÉCNICO ASTAP</th>
+              <th>FIRMA CLIENTE</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td style={{ height: 160, padding: 0 }}>
+                <SignatureCanvas
+                  ref={sigTecnico}
+                  onBegin={disableScroll}
+                  onEnd={enableScroll}
+                  canvasProps={{
+                    className: "w-full h-full block"
+                  }}
+                />
+              </td>
+
+              <td style={{ height: 160, padding: 0 }}>
+                <SignatureCanvas
+                  ref={sigCliente}
+                  onBegin={disableScroll}
+                  onEnd={enableScroll}
+                  canvasProps={{
+                    className: "w-full h-full block"
+                  }}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* BOTONES */}
+        <div className="flex justify-between pt-6">
+          <button
+            type="button"
+            onClick={() => navigate("/informe")}
+            className="border px-6 py-2 rounded"
+          >
+            Volver
+          </button>
+
+          <button
+            type="button"
+            onClick={saveReport}
+            className="bg-blue-600 text-white px-6 py-2 rounded"
+          >
+            Guardar informe
+          </button>
+        </div>
 
       </div>
     </div>
