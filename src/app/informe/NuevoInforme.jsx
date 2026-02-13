@@ -25,7 +25,7 @@ export default function NuevoInforme() {
     tecnicoTelefono: "",
     tecnicoCorreo: "",
 
-    actividades: [{ titulo: "", detalle: "", imagen: "" }],
+    actividades: [{ titulo: "", detalle: "", imagenes: [] }],
 
     conclusiones: [""],
     recomendaciones: [""],
@@ -114,7 +114,7 @@ const enableScroll = () => {
   const addActividad = () =>
     setData((p) => ({
       ...p,
-      actividades: [...p.actividades, { titulo: "", detalle: "", imagen: "" }],
+     actividades: [...p.actividades, { titulo: "", detalle: "", imagenes: [] }],
     }));
 
   const removeActividad = (index) =>
@@ -255,39 +255,100 @@ const enableScroll = () => {
   </label>
 
   {/* BOTÓN CÁMARA */}
-  <label className="bg-blue-600 text-white px-2 py-1 text-xs rounded cursor-pointer">
-    📷 Cámara
-    <input
-      type="file"
-      accept="image/*"
-      capture="environment"
-      style={{ display: "none" }}
-      onChange={(e) =>
-        fileToBase64(e.target.files[0], (b64) =>
-          update(["actividades", i, "imagen"], b64)
-        )
-      }
-    />
-  </label>
+<td className="text-center">
 
-</div>
-                  {a.imagen && (
-                    <img
-                      src={a.imagen}
-                      alt="actividad"
-                      style={{ maxWidth: 120, marginTop: 6 }}
-                    />
-                  )}
-                  {data.actividades.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeActividad(i)}
-                      className="text-red-600 text-xs mt-2"
-                    >
-                      Eliminar
-                    </button>
-                  )}
-                </td>
+  {/* BOTONES SOLIDOS */}
+  <div className="flex flex-col gap-2 mb-3">
+
+    {/* GALERÍA */}
+    <label className="bg-gray-700 hover:bg-gray-800 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+      📁 Galería
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const files = Array.from(e.target.files);
+          files.forEach((file) => {
+            fileToBase64(file, (b64) => {
+              setData((prev) => {
+                const copy = structuredClone(prev);
+                copy.actividades[i].imagenes.push(b64);
+                return copy;
+              });
+            });
+          });
+        }}
+      />
+    </label>
+
+    {/* CÁMARA */}
+    <label className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+      📷 Cámara
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        multiple
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const files = Array.from(e.target.files);
+          files.forEach((file) => {
+            fileToBase64(file, (b64) => {
+              setData((prev) => {
+                const copy = structuredClone(prev);
+                copy.actividades[i].imagenes.push(b64);
+                return copy;
+              });
+            });
+          });
+        }}
+      />
+    </label>
+
+  </div>
+
+  {/* PREVIEW MULTIPLE */}
+  <div className="flex flex-wrap gap-2 justify-center">
+    {a.imagenes?.map((img, imgIndex) => (
+      <div key={imgIndex} className="relative">
+        <img
+          src={img}
+          alt="actividad"
+          className="w-24 h-24 object-cover border rounded"
+        />
+
+        {/* ELIMINAR IMAGEN */}
+        <button
+          type="button"
+          onClick={() => {
+            setData((prev) => {
+              const copy = structuredClone(prev);
+              copy.actividades[i].imagenes.splice(imgIndex, 1);
+              return copy;
+            });
+          }}
+          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center"
+        >
+          ✕
+        </button>
+      </div>
+    ))}
+  </div>
+
+  {/* ELIMINAR ACTIVIDAD */}
+  {data.actividades.length > 1 && (
+    <button
+      type="button"
+      onClick={() => removeActividad(i)}
+      className="text-red-600 text-xs mt-3"
+    >
+      Eliminar actividad
+    </button>
+  )}
+
+</td>
               </tr>
             ))}
           </tbody>
