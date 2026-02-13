@@ -53,17 +53,14 @@ export default function NuevoInforme() {
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
-  /* ===========================
-   CONTROL DE SCROLL AL FIRMAR
-=========================== */
-const disableScroll = () => {
-  document.body.style.overflow = "hidden";
-};
 
-const enableScroll = () => {
-  document.body.style.overflow = "";
-};
+  const disableScroll = () => {
+    document.body.style.overflow = "hidden";
+  };
 
+  const enableScroll = () => {
+    document.body.style.overflow = "";
+  };
 
   /* ===========================
      CARGAR BORRADOR
@@ -114,30 +111,16 @@ const enableScroll = () => {
   const addActividad = () =>
     setData((p) => ({
       ...p,
-     actividades: [...p.actividades, { titulo: "", detalle: "", imagenes: [] }],
+      actividades: [
+        ...p.actividades,
+        { titulo: "", detalle: "", imagenes: [] },
+      ],
     }));
 
   const removeActividad = (index) =>
     setData((p) => ({
       ...p,
       actividades: p.actividades.filter((_, i) => i !== index),
-    }));
-
-  /* ===========================
-     CONCLUSIONES / RECOMENDACIONES
-  =========================== */
-  const addConclusionRow = () =>
-    setData((p) => ({
-      ...p,
-      conclusiones: [...p.conclusiones, ""],
-      recomendaciones: [...p.recomendaciones, ""],
-    }));
-
-  const removeConclusionRow = (index) =>
-    setData((p) => ({
-      ...p,
-      conclusiones: p.conclusiones.filter((_, i) => i !== index),
-      recomendaciones: p.recomendaciones.filter((_, i) => i !== index),
     }));
 
   /* ===========================
@@ -163,7 +146,10 @@ const enableScroll = () => {
       },
     };
 
-    localStorage.setItem("serviceReports", JSON.stringify([...stored, report]));
+    localStorage.setItem(
+      "serviceReports",
+      JSON.stringify([...stored, report])
+    );
     localStorage.setItem("currentReport", JSON.stringify(report));
     navigate("/informe");
   };
@@ -172,36 +158,7 @@ const enableScroll = () => {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
 
-        {/* ENCABEZADO */}
         <ReportHeader data={data} onChange={update} />
-
-        {/* DATOS CLIENTE */}
-        <table className="pdf-table">
-          <tbody>
-            {[
-              ["CLIENTE", "cliente"],
-              ["DIRECCIÓN", "direccion"],
-              ["CONTACTO", "contacto"],
-              ["TELÉFONO", "telefono"],
-              ["CORREO", "correo"],
-              ["TÉCNICO RESPONSABLE", "tecnicoNombre"],
-              ["TELÉFONO TÉCNICO", "tecnicoTelefono"],
-              ["CORREO TÉCNICO", "tecnicoCorreo"],
-              ["FECHA DE SERVICIO", "fechaServicio"],
-            ].map(([label, key]) => (
-              <tr key={key}>
-                <td className="pdf-label">{label}</td>
-                <td>
-                  <input
-                    className="pdf-input"
-                    value={data[key]}
-                    onChange={(e) => update([key], e.target.value)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
 
         {/* ACTIVIDADES */}
         <h3 className="font-bold text-sm">ACTIVIDADES REALIZADAS</h3>
@@ -214,10 +171,12 @@ const enableScroll = () => {
               <th style={{ width: 260 }}>IMAGEN</th>
             </tr>
           </thead>
+
           <tbody>
             {data.actividades.map((a, i) => (
               <tr key={i}>
                 <td className="text-center">{i + 1}</td>
+
                 <td>
                   <input
                     className="pdf-input"
@@ -236,119 +195,96 @@ const enableScroll = () => {
                     }
                   />
                 </td>
+
+                {/* IMÁGENES MULTIPLES */}
                 <td className="text-center">
-                  <div className="flex flex-col gap-2 items-center">
 
-  {/* BOTÓN GALERÍA */}
-  <label className="bg-gray-200 px-2 py-1 text-xs rounded cursor-pointer">
-    📁 Galería
-    <input
-      type="file"
-      accept="image/*"
-      style={{ display: "none" }}
-      onChange={(e) =>
-        fileToBase64(e.target.files[0], (b64) =>
-          update(["actividades", i, "imagen"], b64)
-        )
-      }
-    />
-  </label>
+                  <div className="flex flex-col gap-2 mb-3">
 
-  {/* BOTÓN CÁMARA */}
-<td className="text-center">
+                    <label className="bg-gray-700 hover:bg-gray-800 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+                      📁 Galería
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        style={{ display: "none" }}
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files);
+                          files.forEach((file) => {
+                            fileToBase64(file, (b64) => {
+                              setData((prev) => {
+                                const copy = structuredClone(prev);
+                                copy.actividades[i].imagenes.push(b64);
+                                return copy;
+                              });
+                            });
+                          });
+                        }}
+                      />
+                    </label>
 
-  {/* BOTONES SOLIDOS */}
-  <div className="flex flex-col gap-2 mb-3">
+                    <label className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+                      📷 Cámara
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        multiple
+                        style={{ display: "none" }}
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files);
+                          files.forEach((file) => {
+                            fileToBase64(file, (b64) => {
+                              setData((prev) => {
+                                const copy = structuredClone(prev);
+                                copy.actividades[i].imagenes.push(b64);
+                                return copy;
+                              });
+                            });
+                          });
+                        }}
+                      />
+                    </label>
 
-    {/* GALERÍA */}
-    <label className="bg-gray-700 hover:bg-gray-800 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-      📁 Galería
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const files = Array.from(e.target.files);
-          files.forEach((file) => {
-            fileToBase64(file, (b64) => {
-              setData((prev) => {
-                const copy = structuredClone(prev);
-                copy.actividades[i].imagenes.push(b64);
-                return copy;
-              });
-            });
-          });
-        }}
-      />
-    </label>
+                  </div>
 
-    {/* CÁMARA */}
-    <label className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-      📷 Cámara
-      <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        multiple
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const files = Array.from(e.target.files);
-          files.forEach((file) => {
-            fileToBase64(file, (b64) => {
-              setData((prev) => {
-                const copy = structuredClone(prev);
-                copy.actividades[i].imagenes.push(b64);
-                return copy;
-              });
-            });
-          });
-        }}
-      />
-    </label>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {a.imagenes?.map((img, imgIndex) => (
+                      <div key={imgIndex} className="relative">
+                        <img
+                          src={img}
+                          alt="actividad"
+                          className="w-24 h-24 object-cover border rounded"
+                        />
 
-  </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setData((prev) => {
+                              const copy = structuredClone(prev);
+                              copy.actividades[i].imagenes.splice(imgIndex, 1);
+                              return copy;
+                            });
+                          }}
+                          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
 
-  {/* PREVIEW MULTIPLE */}
-  <div className="flex flex-wrap gap-2 justify-center">
-    {a.imagenes?.map((img, imgIndex) => (
-      <div key={imgIndex} className="relative">
-        <img
-          src={img}
-          alt="actividad"
-          className="w-24 h-24 object-cover border rounded"
-        />
+                  {data.actividades.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeActividad(i)}
+                      className="text-red-600 text-xs mt-3"
+                    >
+                      Eliminar actividad
+                    </button>
+                  )}
 
-        {/* ELIMINAR IMAGEN */}
-        <button
-          type="button"
-          onClick={() => {
-            setData((prev) => {
-              const copy = structuredClone(prev);
-              copy.actividades[i].imagenes.splice(imgIndex, 1);
-              return copy;
-            });
-          }}
-          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center"
-        >
-          ✕
-        </button>
-      </div>
-    ))}
-  </div>
-
-  {/* ELIMINAR ACTIVIDAD */}
-  {data.actividades.length > 1 && (
-    <button
-      type="button"
-      onClick={() => removeActividad(i)}
-      className="text-red-600 text-xs mt-3"
-    >
-      Eliminar actividad
-    </button>
-  )}
-
-</td>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -361,130 +297,6 @@ const enableScroll = () => {
         >
           + Agregar actividad
         </button>
-
-        {/* CONCLUSIONES Y RECOMENDACIONES */}
-        <h3 className="font-bold text-sm">CONCLUSIONES Y RECOMENDACIONES</h3>
-
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th colSpan={2}>CONCLUSIONES</th>
-              <th colSpan={2}>RECOMENDACIONES</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.conclusiones.map((_, i) => (
-              <tr key={i}>
-                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
-                <td>
-                  <textarea
-                    className="pdf-textarea"
-                    value={data.conclusiones[i]}
-                    onChange={(e) =>
-                      update(["conclusiones", i], e.target.value)
-                    }
-                  />
-                </td>
-                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
-                <td>
-                  <textarea
-                    className="pdf-textarea"
-                    value={data.recomendaciones[i]}
-                    onChange={(e) =>
-                      update(["recomendaciones", i], e.target.value)
-                    }
-                  />
-                  {data.conclusiones.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeConclusionRow(i)}
-                      className="text-red-600 text-xs mt-1"
-                    >
-                      Eliminar
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <button
-          type="button"
-          onClick={addConclusionRow}
-          className="border px-3 py-1 text-xs rounded"
-        >
-          + Agregar conclusión / recomendación
-        </button>
-
-        {/* DESCRIPCIÓN DEL EQUIPO */}
-        <h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
-
-        <table className="pdf-table">
-          <tbody>
-            {[
-              ["NOTA", "nota"],
-              ["MARCA", "marca"],
-              ["MODELO", "modelo"],
-              ["N° SERIE", "serie"],
-              ["AÑO MODELO", "anio"],
-              ["VIN / CHASIS", "vin"],
-              ["PLACA", "placa"],
-              ["HORAS MÓDULO", "horasModulo"],
-              ["HORAS CHASIS", "horasChasis"],
-              ["KILOMETRAJE", "kilometraje"],
-            ].map(([label, key]) => (
-              <tr key={key}>
-                <td className="pdf-label">{label}</td>
-                <td>
-                  <input
-                    className="pdf-input"
-                    value={data.equipo[key]}
-                    onChange={(e) =>
-                      update(["equipo", key], e.target.value)
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-       {/* ================= FIRMAS ================= */}
-<table className="pdf-table">
-  <thead>
-    <tr>
-      <th>FIRMA TÉCNICO ASTAP</th>
-      <th>FIRMA CLIENTE</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr>
-      <td style={{ height: 160, padding: 0 }}>
-        <SignatureCanvas
-          ref={sigTecnico}
-          onBegin={disableScroll}
-          onEnd={enableScroll}
-          canvasProps={{
-            className: "w-full h-full block"
-          }}
-        />
-      </td>
-
-      <td style={{ height: 160, padding: 0 }}>
-        <SignatureCanvas
-          ref={sigCliente}
-          onBegin={disableScroll}
-          onEnd={enableScroll}
-          canvasProps={{
-            className: "w-full h-full block"
-          }}
-        />
-      </td>
-    </tr>
-  </tbody>
-</table>
 
         {/* BOTONES */}
         <div className="flex justify-between pt-6">
@@ -504,6 +316,7 @@ const enableScroll = () => {
             Guardar informe
           </button>
         </div>
+
       </div>
     </div>
   );
