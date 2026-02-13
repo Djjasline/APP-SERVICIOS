@@ -78,13 +78,16 @@ export default function InformeHome() {
         </div>
 
         {/* NUEVO */}
-        <button
-          type="button"
-          onClick={() => navigate("/informe/nuevo")}
-          className="bg-blue-600 text-white w-full py-2 rounded"
-        >
-          Nuevo informe
-        </button>
+<button
+  type="button"
+  onClick={() => {
+    localStorage.removeItem("currentReport");
+    navigate("/informe/nuevo");
+  }}
+  className="bg-blue-600 text-white w-full py-2 rounded"
+>
+  Nuevo informe
+</button>
 
         {/* FILTROS */}
         <div className="flex gap-2">
