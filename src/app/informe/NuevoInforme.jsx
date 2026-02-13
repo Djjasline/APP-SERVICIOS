@@ -54,6 +54,9 @@ export default function NuevoInforme() {
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
 
+  /* ===========================
+     CONTROL SCROLL FIRMA
+  =========================== */
   const disableScroll = () => {
     document.body.style.overflow = "hidden";
   };
@@ -96,7 +99,7 @@ export default function NuevoInforme() {
   };
 
   /* ===========================
-     IMAGEN → BASE64
+     FILE → BASE64
   =========================== */
   const fileToBase64 = (file, cb) => {
     if (!file) return;
@@ -124,10 +127,37 @@ export default function NuevoInforme() {
     }));
 
   /* ===========================
+     CONCLUSIONES
+  =========================== */
+  const addConclusionRow = () =>
+    setData((p) => ({
+      ...p,
+      conclusiones: [...p.conclusiones, ""],
+      recomendaciones: [...p.recomendaciones, ""],
+    }));
+
+  const removeConclusionRow = (index) =>
+    setData((p) => ({
+      ...p,
+      conclusiones: p.conclusiones.filter((_, i) => i !== index),
+      recomendaciones: p.recomendaciones.filter((_, i) => i !== index),
+    }));
+
+  /* ===========================
      GUARDAR INFORME
   =========================== */
   const saveReport = () => {
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
+
+    const firmaTecnico =
+      sigTecnico.current && !sigTecnico.current.isEmpty()
+        ? sigTecnico.current.toDataURL()
+        : "";
+
+    const firmaCliente =
+      sigCliente.current && !sigCliente.current.isEmpty()
+        ? sigCliente.current.toDataURL()
+        : "";
 
     const report = {
       id: Date.now(),
@@ -136,12 +166,8 @@ export default function NuevoInforme() {
       data: {
         ...data,
         firmas: {
-          tecnico: sigTecnico.current?.isEmpty()
-            ? ""
-            : sigTecnico.current.toDataURL(),
-          cliente: sigCliente.current?.isEmpty()
-            ? ""
-            : sigCliente.current.toDataURL(),
+          tecnico: firmaTecnico,
+          cliente: firmaCliente,
         },
       },
     };
@@ -150,7 +176,9 @@ export default function NuevoInforme() {
       "serviceReports",
       JSON.stringify([...stored, report])
     );
+
     localStorage.setItem("currentReport", JSON.stringify(report));
+
     navigate("/informe");
   };
 
@@ -160,7 +188,7 @@ export default function NuevoInforme() {
 
         <ReportHeader data={data} onChange={update} />
 
-        {/* ACTIVIDADES */}
+        {/* ================= ACTIVIDADES ================= */}
         <h3 className="font-bold text-sm">ACTIVIDADES REALIZADAS</h3>
 
         <table className="pdf-table">
@@ -196,7 +224,6 @@ export default function NuevoInforme() {
                   />
                 </td>
 
-                {/* IMÁGENES MULTIPLES */}
                 <td className="text-center">
 
                   <div className="flex flex-col gap-2 mb-3">
@@ -297,6 +324,37 @@ export default function NuevoInforme() {
         >
           + Agregar actividad
         </button>
+
+        {/* ================= FIRMAS ================= */}
+        <table className="pdf-table">
+          <thead>
+            <tr>
+              <th>FIRMA TÉCNICO ASTAP</th>
+              <th>FIRMA CLIENTE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ height: 160, padding: 0 }}>
+                <SignatureCanvas
+                  ref={sigTecnico}
+                  onBegin={disableScroll}
+                  onEnd={enableScroll}
+                  canvasProps={{ className: "w-full h-full block" }}
+                />
+              </td>
+
+              <td style={{ height: 160, padding: 0 }}>
+                <SignatureCanvas
+                  ref={sigCliente}
+                  onBegin={disableScroll}
+                  onEnd={enableScroll}
+                  canvasProps={{ className: "w-full h-full block" }}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         {/* BOTONES */}
         <div className="flex justify-between pt-6">
