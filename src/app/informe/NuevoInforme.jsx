@@ -427,40 +427,83 @@ export default function NuevoInforme() {
         </table>
 
         {/* ================= FIRMAS ================= */}
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th>FIRMA TÉCNICO ASTAP</th>
-              <th>FIRMA CLIENTE</th>
-            </tr>
-          </thead>
+<table className="pdf-table">
+  <thead>
+    <tr>
+      <th>FIRMA TÉCNICO ASTAP</th>
+      <th>FIRMA CLIENTE</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style={{ height: 160 }}>
+        <SignatureCanvas
+          ref={sigTecnico}
+          onBegin={() => {
+            document.activeElement?.blur();
+            document.body.style.overflow = "hidden";
+          }}
+          onEnd={() => {
+            document.body.style.overflow = "";
+          }}
+          canvasProps={{ className: "w-full h-full" }}
+        />
 
-          <tbody>
-            <tr>
-              <td style={{ height: 160, padding: 0 }}>
-                <SignatureCanvas
-                  ref={sigTecnico}
-                  onBegin={disableScroll}
-                  onEnd={enableScroll}
-                  canvasProps={{
-                    className: "w-full h-full block"
-                  }}
-                />
-              </td>
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => {
+              sigTecnico.current?.clear();
+              setData((prev) => ({
+                ...prev,
+                firmas: {
+                  ...prev.firmas,
+                  tecnico: "",
+                },
+              }));
+            }}
+            className="text-xs text-red-600 mt-2"
+          >
+            Borrar firma
+          </button>
+        </div>
+      </td>
 
-              <td style={{ height: 160, padding: 0 }}>
-                <SignatureCanvas
-                  ref={sigCliente}
-                  onBegin={disableScroll}
-                  onEnd={enableScroll}
-                  canvasProps={{
-                    className: "w-full h-full block"
-                  }}
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <td style={{ height: 160 }}>
+        <SignatureCanvas
+          ref={sigCliente}
+          onBegin={() => {
+            document.activeElement?.blur();
+            document.body.style.overflow = "hidden";
+          }}
+          onEnd={() => {
+            document.body.style.overflow = "";
+          }}
+          canvasProps={{ className: "w-full h-full" }}
+        />
+
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => {
+              sigCliente.current?.clear();
+              setData((prev) => ({
+                ...prev,
+                firmas: {
+                  ...prev.firmas,
+                  cliente: "",
+                },
+              }));
+            }}
+            className="text-xs text-red-600 mt-2"
+          >
+            Borrar firma
+          </button>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
         {/* BOTONES */}
         <div className="flex justify-between pt-6">
