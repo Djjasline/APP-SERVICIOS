@@ -77,7 +77,9 @@ const clearCliente = () => {
 
   return (
     <section className="bg-white border rounded-xl p-6 space-y-6">
-      <h2 className="text-lg font-semibold">Firmas TEST</h2>
+     <h2 style={{ color: "red", fontSize: 40 }}>
+  COMPONENTE FIRMA CORRECTO
+</h2>
 
       <div className="grid md:grid-cols-2 gap-6 text-center">
 
