@@ -9,17 +9,22 @@ export default function SignaturesSection({ data = {}, onChange }) {
      RECARGAR FIRMA SI EXISTE
   ============================ */
   useEffect(() => {
-    if (data?.tecnico && tecnicoRef.current) {
-      tecnicoRef.current.clear();
-      tecnicoRef.current.fromDataURL(data.tecnico);
-    }
+  if (!tecnicoRef.current || !clienteRef.current) return;
 
-    if (data?.cliente && clienteRef.current) {
-      clienteRef.current.clear();
-      clienteRef.current.fromDataURL(data.cliente);
-    }
-  }, [data]);
+  // Técnico
+  if (data?.tecnico) {
+    tecnicoRef.current.fromDataURL(data.tecnico);
+  } else {
+    tecnicoRef.current.clear();
+  }
 
+  // Cliente
+  if (data?.cliente) {
+    clienteRef.current.fromDataURL(data.cliente);
+  } else {
+    clienteRef.current.clear();
+  }
+}, [data?.tecnico, data?.cliente]);
   /* ============================
      ACTUALIZAR ESTADO
   ============================ */
@@ -42,22 +47,20 @@ export default function SignaturesSection({ data = {}, onChange }) {
      BORRAR FIRMA
   ============================ */
   const clearTecnico = () => {
-    tecnicoRef.current?.clear();
+  tecnicoRef.current?.clear();
+  onChange?.({
+    ...data,
+    tecnico: "",
+  });
+};
 
-    onChange?.({
-      ...data,
-      tecnico: "",
-    });
-  };
-
-  const clearCliente = () => {
-    clienteRef.current?.clear();
-
-    onChange?.({
-      ...data,
-      cliente: "",
-    });
-  };
+const clearCliente = () => {
+  clienteRef.current?.clear();
+  onChange?.({
+    ...data,
+    cliente: "",
+  });
+};
 
   /* ============================
      BLOQUEO SCROLL AL FIRMAR
