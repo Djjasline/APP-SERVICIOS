@@ -244,13 +244,30 @@ export default function NuevoInforme() {
                 <td className="text-center">
 
                   <div className="flex flex-col gap-2 mb-2">
-                    <label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-                      📁 Galería
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        style={{ display: "none" }}
+                    <<label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+  📁 Archivos / OneDrive
+  <input
+    type="file"
+    multiple
+    style={{ display: "none" }}
+    onChange={(e) => {
+      const files = Array.from(e.target.files);
+
+      files.forEach((file) => {
+        // Validamos que sea imagen
+        if (!file.type.startsWith("image/")) return;
+
+        fileToBase64(file, (b64) => {
+          setData((prev) => {
+            const copy = structuredClone(prev);
+            copy.actividades[i].imagenes.push(b64);
+            return copy;
+          });
+        });
+      });
+    }}
+  />
+</label>
                         onChange={(e) => {
                           const files = Array.from(e.target.files);
                           files.forEach((file) => {
