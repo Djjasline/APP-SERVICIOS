@@ -244,7 +244,7 @@ export default function NuevoInforme() {
                 <td className="text-center">
 
                   <div className="flex flex-col gap-2 mb-2">
-                    <<label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+                    <label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
   📁 Archivos / OneDrive
   <input
     type="file"
