@@ -7,24 +7,11 @@ export default function IndexInforme() {
   const [informes, setInformes] = useState([]);
 
   /* ===========================
-     CARGAR INFORMES SIEMPRE ACTUALIZADO
+     CARGAR INFORMES
   =========================== */
   useEffect(() => {
-    const loadReports = () => {
-      const stored =
-        JSON.parse(localStorage.getItem("serviceReports")) || [];
-
-      setInformes(stored);
-    };
-
-    loadReports();
-
-    // 🔥 MUY IMPORTANTE PARA TABLET / ANDROID
-    window.addEventListener("focus", loadReports);
-
-    return () => {
-      window.removeEventListener("focus", loadReports);
-    };
+    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
+    setInformes(stored);
   }, []);
 
   /* ===========================
@@ -36,27 +23,15 @@ export default function IndexInforme() {
   });
 
   /* ===========================
-     TITULO CORRECTO DEL HISTORIAL
+     TITULO DEL HISTORIAL
   =========================== */
   const getTitulo = (inf) => {
-    if (!inf?.data) return "Sin referencia";
+    const cliente = inf.data?.cliente?.trim();
+    const codInf = inf.data?.codInf?.trim();
+    const ref = inf.data?.referenciaContrato?.trim();
 
-    const cliente =
-      typeof inf.data.cliente === "string"
-        ? inf.data.cliente.trim()
-        : "";
-
-    const codInf =
-      typeof inf.data.codInf === "string"
-        ? inf.data.codInf.trim()
-        : "";
-
-    const ref =
-      typeof inf.data.referenciaContrato === "string"
-        ? inf.data.referenciaContrato.trim()
-        : "";
-
-    if (cliente) return cliente;
+    if (cliente && codInf) return `${cliente} / ${codInf}`;
+    if (cliente && ref) return `${cliente} / ${ref}`;
     if (codInf) return codInf;
     if (ref) return ref;
 
@@ -64,10 +39,10 @@ export default function IndexInforme() {
   };
 
   /* ===========================
-     NUEVO INFORME LIMPIO
+     NUEVO INFORME (LIMPIO)
   =========================== */
   const nuevoInforme = () => {
-    localStorage.removeItem("currentReport");
+    localStorage.removeItem("currentReport"); // 🔴 LIMPIA BORRADOR
     navigate("/informe/nuevo");
   };
 
@@ -77,10 +52,7 @@ export default function IndexInforme() {
 
         {/* ENCABEZADO */}
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-semibold">
-            Informe general
-          </h1>
-
+          <h1 className="text-xl font-semibold">Informe general</h1>
           <button
             onClick={() => navigate("/")}
             className="border px-4 py-2 rounded"
@@ -100,7 +72,7 @@ export default function IndexInforme() {
             Nuevo informe
           </button>
 
-          {/* FILTROS */}
+          {/* SUBMENÚ */}
           <div className="flex gap-2 pt-4">
             {["todos", "borrador", "completado"].map((f) => (
               <button
@@ -119,11 +91,8 @@ export default function IndexInforme() {
 
           {/* HISTORIAL */}
           <div className="pt-4 space-y-2">
-
             {filtrados.length === 0 && (
-              <p className="text-xs text-gray-500">
-                Sin registros
-              </p>
+              <p className="text-xs text-gray-500">Sin registros</p>
             )}
 
             {filtrados.map((inf) => (
@@ -135,13 +104,9 @@ export default function IndexInforme() {
                   <p className="font-semibold">
                     {getTitulo(inf)}
                   </p>
-
                   <p className="text-xs text-gray-500">
-                    {new Date(
-                      inf.createdAt
-                    ).toLocaleString()}
+                    {new Date(inf.createdAt).toLocaleString()}
                   </p>
-
                   <span
                     className={`text-xs font-semibold ${
                       inf.estado === "completado"
@@ -171,7 +136,7 @@ export default function IndexInforme() {
                     <button
                       className="bg-green-600 text-white px-2 py-1 text-xs rounded"
                       onClick={() =>
-                        navigate(`/informe/${inf.id}/pdf`)
+                        navigate(`/informe/pdf/${inf.id}`)
                       }
                     >
                       PDF
@@ -181,13 +146,8 @@ export default function IndexInforme() {
                   <button
                     className="text-red-600 text-xs"
                     onClick={() => {
-                      const next =
-                        informes.filter(
-                          (i) => i.id !== inf.id
-                        );
-
+                      const next = informes.filter(i => i.id !== inf.id);
                       setInformes(next);
-
                       localStorage.setItem(
                         "serviceReports",
                         JSON.stringify(next)
@@ -199,7 +159,6 @@ export default function IndexInforme() {
                 </div>
               </div>
             ))}
-
           </div>
 
         </div>
