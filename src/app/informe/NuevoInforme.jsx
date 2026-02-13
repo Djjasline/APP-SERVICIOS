@@ -237,16 +237,40 @@ const enableScroll = () => {
                   />
                 </td>
                 <td className="text-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={(e) =>
-                      fileToBase64(e.target.files[0], (b64) =>
-                        update(["actividades", i, "imagen"], b64)
-                      )
-                    }
-                  />
+                  <div className="flex flex-col gap-2 items-center">
+
+  {/* BOTÓN GALERÍA */}
+  <label className="bg-gray-200 px-2 py-1 text-xs rounded cursor-pointer">
+    📁 Galería
+    <input
+      type="file"
+      accept="image/*"
+      style={{ display: "none" }}
+      onChange={(e) =>
+        fileToBase64(e.target.files[0], (b64) =>
+          update(["actividades", i, "imagen"], b64)
+        )
+      }
+    />
+  </label>
+
+  {/* BOTÓN CÁMARA */}
+  <label className="bg-blue-600 text-white px-2 py-1 text-xs rounded cursor-pointer">
+    📷 Cámara
+    <input
+      type="file"
+      accept="image/*"
+      capture="environment"
+      style={{ display: "none" }}
+      onChange={(e) =>
+        fileToBase64(e.target.files[0], (b64) =>
+          update(["actividades", i, "imagen"], b64)
+        )
+      }
+    />
+  </label>
+
+</div>
                   {a.imagen && (
                     <img
                       src={a.imagen}
