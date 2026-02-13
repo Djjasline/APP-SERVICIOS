@@ -137,14 +137,31 @@ export default function InformePDF() {
                   </div>
                 </td>
                 <td className="text-center">
-                  {a.imagen && (
-                    <img
-                      src={a.imagen}
-                      alt="actividad"
-                      style={{ maxWidth: 180 }}
-                    />
-                  )}
-                </td>
+  {a.imagenes && a.imagenes.length > 0 && (
+    <div
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 6,
+        justifyContent: "center",
+      }}
+    >
+      {a.imagenes.map((img, imgIndex) => (
+        <img
+          key={imgIndex}
+          src={img}
+          alt={`actividad-${imgIndex}`}
+          style={{
+            maxWidth: 90,
+            maxHeight: 90,
+            objectFit: "cover",
+            border: "1px solid #ccc",
+          }}
+        />
+      ))}
+    </div>
+  )}
+</td>
               </tr>
             ))}
           </tbody>
