@@ -63,44 +63,45 @@ export default function NuevoInforme() {
   };
 
   /* ===========================
-     CARGAR BORRADOR
-  =========================== */
-  useEffect(() => {
-    const auto = JSON.parse(localStorage.getItem("autoSaveInforme"));
-const current = JSON.parse(localStorage.getItem("currentReport"));
+   CARGAR BORRADOR
+=========================== */
+useEffect(() => {
+  const auto = JSON.parse(localStorage.getItem("autoSaveInforme"));
+  const current = JSON.parse(localStorage.getItem("currentReport"));
 
-if (auto) {
-  setData(auto);
-} else if (current?.data) {
-  setData(current.data);
-}
+  if (auto) {
+    setData(auto);
+  } else if (current?.data) {
+    setData(current.data);
 
-    /* ===========================
+    setTimeout(() => {
+      if (current.data.firmas?.tecnico) {
+        sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
+      }
+      if (current.data.firmas?.cliente) {
+        sigCliente.current?.fromDataURL(current.data.firmas.cliente);
+      }
+    }, 0);
+  }
+}, []);
+/* ===========================
    AUTOGUARDADO AUTOMÁTICO
 =========================== */
 useEffect(() => {
   const timeout = setTimeout(() => {
-    localStorage.setItem(
-      "autoSaveInforme",
-      JSON.stringify(data)
-    );
-  }, 1000); // guarda 1 segundo después del último cambio
+    try {
+      localStorage.setItem(
+        "autoSaveInforme",
+        JSON.stringify(data)
+      );
+    } catch (err) {
+      console.error("Error guardando autoSave:", err);
+    }
+  }, 1000);
 
   return () => clearTimeout(timeout);
 }, [data]);
 
-    if (current?.data) {
-      setData(current.data);
-      setTimeout(() => {
-        if (current.data.firmas?.tecnico) {
-          sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
-        }
-        if (current.data.firmas?.cliente) {
-          sigCliente.current?.fromDataURL(current.data.firmas.cliente);
-        }
-      }, 0);
-    }
-  }, []);
 
   /* ===========================
      UPDATE GENÉRICO
