@@ -62,7 +62,7 @@ export default function NuevoInforme() {
     document.body.style.overflow = "";
   };
 
-  /* ===========================
+ /* ===========================
    CARGAR BORRADOR
 =========================== */
 useEffect(() => {
@@ -85,6 +85,22 @@ useEffect(() => {
   }
 }, []);
 
+  /* ===========================
+   AUTOGUARDADO AUTOMÁTICO
+=========================== */
+useEffect(() => {
+  const timeout = setTimeout(() => {
+    localStorage.setItem(
+      "autoSaveInforme",
+      JSON.stringify(data)
+    );
+    } catch (err) {
+      console.error("Error guardando autoguardado:", err);
+    }
+  }, 800); 
+ 
+  return () => clearTimeout(timeout);
+}, [data]);
 
 
   /* ===========================
