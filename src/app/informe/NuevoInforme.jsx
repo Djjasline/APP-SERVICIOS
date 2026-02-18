@@ -91,10 +91,17 @@ useEffect(() => {
 useEffect(() => {
   const timeout = setTimeout(() => {
     try {
-      localStorage.setItem(
-        "autoSaveInforme",
-        JSON.stringify(data)
-      );
+      const json = JSON.stringify(data);
+
+      // ⚠️ Validar tamaño antes de guardar
+      const sizeInKB = new Blob([json]).size / 1024;
+
+      if (sizeInKB < 4500) { // margen seguro
+        localStorage.setItem("autoSaveInforme", json);
+      } else {
+        console.warn("Autoguardado omitido: tamaño demasiado grande");
+      }
+
     } catch (err) {
       console.error("Error guardando autoguardado:", err);
     }
@@ -295,13 +302,19 @@ const fileToBase64 = (file, cb) => {
                     }
                   />
                   <textarea
-                    className="pdf-textarea"
-                    placeholder="Detalle"
-                    value={a.detalle}
-                    onChange={(e) =>
-                      update(["actividades", i, "detalle"], e.target.value)
-                    }
-                  />
+  className="pdf-textarea w-full resize-none overflow-hidden"
+  placeholder="Detalle"
+  value={a.detalle}
+  rows={3}
+  onChange={(e) => {
+    update(["actividades", i, "detalle"], e.target.value);
+
+    // 🔥 Auto expandir altura
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
+  }}
+/>
+
                 </td>
              <td className="text-center">
 
