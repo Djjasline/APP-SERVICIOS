@@ -66,7 +66,29 @@ export default function NuevoInforme() {
      CARGAR BORRADOR
   =========================== */
   useEffect(() => {
-    const current = JSON.parse(localStorage.getItem("currentReport"));
+    const auto = JSON.parse(localStorage.getItem("autoSaveInforme"));
+const current = JSON.parse(localStorage.getItem("currentReport"));
+
+if (auto) {
+  setData(auto);
+} else if (current?.data) {
+  setData(current.data);
+}
+
+    /* ===========================
+   AUTOGUARDADO AUTOMÁTICO
+=========================== */
+useEffect(() => {
+  const timeout = setTimeout(() => {
+    localStorage.setItem(
+      "autoSaveInforme",
+      JSON.stringify(data)
+    );
+  }, 1000); // guarda 1 segundo después del último cambio
+
+  return () => clearTimeout(timeout);
+}, [data]);
+
     if (current?.data) {
       setData(current.data);
       setTimeout(() => {
