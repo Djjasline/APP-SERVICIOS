@@ -90,18 +90,18 @@ useEffect(() => {
 =========================== */
 useEffect(() => {
   const timeout = setTimeout(() => {
-    localStorage.setItem(
-      "autoSaveInforme",
-      JSON.stringify(data)
-    );
+    try {
+      localStorage.setItem(
+        "autoSaveInforme",
+        JSON.stringify(data)
+      );
     } catch (err) {
       console.error("Error guardando autoguardado:", err);
     }
-  }, 800); 
- 
+  }, 800);
+
   return () => clearTimeout(timeout);
 }, [data]);
-
 
   /* ===========================
      UPDATE GENÉRICO
