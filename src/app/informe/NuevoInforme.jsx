@@ -301,12 +301,17 @@ const fileToBase64 = (file, cb) => {
                       update(["actividades", i, "titulo"], e.target.value)
                     }
                   />
-                  <textarea
+                 <textarea
   className="pdf-textarea w-full resize-none overflow-hidden"
   placeholder="Detalle"
   value={a.detalle}
-  rows={3}
-  style={{ minHeight: "80px" }}
+  rows={1}
+  ref={(el) => {
+    if (el) {
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
+    }
+  }}
   onInput={(e) => {
     e.target.style.height = "auto";
     e.target.style.height = e.target.scrollHeight + "px";
