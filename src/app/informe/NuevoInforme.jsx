@@ -366,7 +366,10 @@ return copy;
             fileToBase64(file, (b64) => {
               setData((prev) => {
                 const copy = structuredClone(prev);
-                copy.actividades[i].imagenes.push(b64);
+               copy.actividades[i].imagenes = [
+  ...copy.actividades[i].imagenes,
+  b64
+];
                 return copy;
               });
             });
