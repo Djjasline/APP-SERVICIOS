@@ -241,12 +241,13 @@ export default function NuevoInforme() {
                     }
                   />
                 </td>
-                <td className="text-center">
+             <td className="text-center">
+
   <div className="flex flex-col gap-2 mb-2">
 
-    {/* SELECTOR GENERAL (Archivos / OneDrive / Galería) */}
+    {/* GALERÍA */}
     <label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-      📁 Archivos / OneDrive
+      📁 Galería
       <input
         type="file"
         accept="image/*"
@@ -293,6 +294,7 @@ export default function NuevoInforme() {
 
   </div>
 
+  {/* PREVISUALIZACIÓN */}
   <div className="flex flex-wrap gap-2 justify-center">
     {a.imagenes?.map((img, imgIndex) => (
       <div key={imgIndex} className="relative">
@@ -327,7 +329,9 @@ export default function NuevoInforme() {
       Eliminar
     </button>
   )}
+
 </td>
+
 
               </tr>
             ))}
