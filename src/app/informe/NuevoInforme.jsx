@@ -84,23 +84,7 @@ useEffect(() => {
     }, 0);
   }
 }, []);
-/* ===========================
-   AUTOGUARDADO AUTOMÁTICO
-=========================== */
-useEffect(() => {
-  const timeout = setTimeout(() => {
-    try {
-      localStorage.setItem(
-        "autoSaveInforme",
-        JSON.stringify(data)
-      );
-    } catch (err) {
-      console.error("Error guardando autoSave:", err);
-    }
-  }, 1000);
 
-  return () => clearTimeout(timeout);
-}, [data]);
 
 
   /* ===========================
