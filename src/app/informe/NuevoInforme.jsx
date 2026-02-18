@@ -306,17 +306,16 @@ const fileToBase64 = (file, cb) => {
   placeholder="Detalle"
   value={a.detalle}
   rows={3}
-  onChange={(e) => {
-    update(["actividades", i, "detalle"], e.target.value);
-
-    // 🔥 Auto expandir altura
+  style={{ minHeight: "80px" }}
+  onInput={(e) => {
     e.target.style.height = "auto";
     e.target.style.height = e.target.scrollHeight + "px";
   }}
+  onChange={(e) =>
+    update(["actividades", i, "detalle"], e.target.value)
+  }
 />
 
-                </td>
-             <td className="text-center">
 
   <div className="flex flex-col gap-2 mb-2">
 
@@ -334,8 +333,12 @@ const fileToBase64 = (file, cb) => {
             fileToBase64(file, (b64) => {
               setData((prev) => {
                 const copy = structuredClone(prev);
-                copy.actividades[i].imagenes.push(b64);
-                return copy;
+               copy.actividades[i].imagenes = [
+  ...copy.actividades[i].imagenes,
+  b64
+];
+return copy;
+
               });
             });
           });
