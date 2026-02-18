@@ -384,11 +384,18 @@ return copy;
   <div className="flex flex-wrap gap-2 justify-center">
     {a.imagenes?.map((img, imgIndex) => (
       <div key={imgIndex} className="relative">
-        <img
-          src={img}
-          alt="actividad"
-          style={{ maxWidth: 120 }}
-        />
+       <img
+  src={img}
+  alt="actividad"
+  style={{
+    width: "100%",
+    height: 120,
+    objectFit: "cover",
+    borderRadius: 8,
+    border: "1px solid #ccc",
+  }}
+/>
+
         <button
           type="button"
           onClick={() => {
