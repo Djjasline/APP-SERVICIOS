@@ -305,7 +305,7 @@ const fileToBase64 = (file, cb) => {
   className="pdf-textarea w-full resize-none overflow-hidden"
   placeholder="Detalle"
   value={a.detalle}
-  rows={1}
+  rows={2}
   ref={(el) => {
     if (el) {
       el.style.height = "auto";
