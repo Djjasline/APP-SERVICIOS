@@ -291,142 +291,150 @@ const fileToBase64 = (file, cb) => {
           <tbody>
             {data.actividades.map((a, i) => (
               <tr key={i}>
-                <td className="text-center">{i + 1}</td>
-                <td>
-                  <input
-                    className="pdf-input"
-                    placeholder="Título"
-                    value={a.titulo}
-                    onChange={(e) =>
-                      update(["actividades", i, "titulo"], e.target.value)
-                    }
-                  />
-                 <textarea
-  className="pdf-textarea w-full resize-none overflow-hidden"
-  placeholder="Detalle"
-  value={a.detalle}
-  rows={2}
-  ref={(el) => {
-    if (el) {
-      el.style.height = "auto";
-      el.style.height = el.scrollHeight + "px";
-    }
-  }}
-  onInput={(e) => {
-    e.target.style.height = "auto";
-    e.target.style.height = e.target.scrollHeight + "px";
-  }}
-  onChange={(e) =>
-    update(["actividades", i, "detalle"], e.target.value)
-  }
-/>
 
+  {/* ÍTEM */}
+  <td className="text-center align-top">
+    {i + 1}
+  </td>
 
-  <div className="flex flex-col gap-2 mb-2">
+  {/* DESCRIPCIÓN */}
+  <td className="align-top">
+    <input
+      className="pdf-input"
+      placeholder="Título"
+      value={a.titulo}
+      onChange={(e) =>
+        update(["actividades", i, "titulo"], e.target.value)
+      }
+    />
 
-    {/* GALERÍA */}
-    <label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-      📁 Galería
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const files = Array.from(e.target.files || []);
-          files.forEach((file) => {
-            fileToBase64(file, (b64) => {
-              setData((prev) => {
-                const copy = structuredClone(prev);
-               copy.actividades[i].imagenes = [
-  ...copy.actividades[i].imagenes,
-  b64
-];
-return copy;
+    <textarea
+      className="pdf-textarea w-full resize-none overflow-hidden"
+      placeholder="Detalle"
+      value={a.detalle}
+      rows={2}
+      ref={(el) => {
+        if (el) {
+          el.style.height = "auto";
+          el.style.height = el.scrollHeight + "px";
+        }
+      }}
+      onInput={(e) => {
+        e.target.style.height = "auto";
+        e.target.style.height = e.target.scrollHeight + "px";
+      }}
+      onChange={(e) =>
+        update(["actividades", i, "detalle"], e.target.value)
+      }
+    />
+  </td>
 
+  {/* IMAGEN */}
+  <td className="align-top">
+
+    <div className="flex flex-col gap-2 mb-2">
+
+      {/* GALERÍA */}
+      <label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+        📁 Galería
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          style={{ display: "none" }}
+          onChange={(e) => {
+            const files = Array.from(e.target.files || []);
+            files.forEach((file) => {
+              fileToBase64(file, (b64) => {
+                setData((prev) => {
+                  const copy = structuredClone(prev);
+                  copy.actividades[i].imagenes = [
+                    ...copy.actividades[i].imagenes,
+                    b64,
+                  ];
+                  return copy;
+                });
               });
-            });
-          });
-        }}
-      />
-    </label>
-
-    {/* CÁMARA */}
-    <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-      📷 Cámara
-      <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        multiple
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const files = Array.from(e.target.files || []);
-          files.forEach((file) => {
-            fileToBase64(file, (b64) => {
-              setData((prev) => {
-                const copy = structuredClone(prev);
-               copy.actividades[i].imagenes = [
-  ...copy.actividades[i].imagenes,
-  b64
-];
-                return copy;
-              });
-            });
-          });
-        }}
-      />
-    </label>
-
-  </div>
-
-  {/* PREVISUALIZACIÓN */}
-  <div className="flex flex-wrap gap-2 justify-center">
-    {a.imagenes?.map((img, imgIndex) => (
-      <div key={imgIndex} className="relative">
-       <img
-  src={img}
-  alt="actividad"
-  style={{
-    width: "100%",
-    height: 120,
-    objectFit: "cover",
-    borderRadius: 8,
-    border: "1px solid #ccc",
-  }}
-/>
-
-        <button
-          type="button"
-          onClick={() => {
-            setData((prev) => {
-              const copy = structuredClone(prev);
-              copy.actividades[i].imagenes.splice(imgIndex, 1);
-              return copy;
             });
           }}
-          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1"
-        >
-          ✕
-        </button>
-      </div>
-    ))}
-  </div>
+        />
+      </label>
 
-  {data.actividades.length > 1 && (
-    <button
-      type="button"
-      onClick={() => removeActividad(i)}
-      className="text-red-600 text-xs mt-2"
-    >
-      Eliminar
-    </button>
-  )}
+      {/* CÁMARA */}
+      <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+        📷 Cámara
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          multiple
+          style={{ display: "none" }}
+          onChange={(e) => {
+            const files = Array.from(e.target.files || []);
+            files.forEach((file) => {
+              fileToBase64(file, (b64) => {
+                setData((prev) => {
+                  const copy = structuredClone(prev);
+                  copy.actividades[i].imagenes = [
+                    ...copy.actividades[i].imagenes,
+                    b64,
+                  ];
+                  return copy;
+                });
+              });
+            });
+          }}
+        />
+      </label>
 
-</td>
+    </div>
 
+    {/* PREVISUALIZACIÓN */}
+    <div className="grid grid-cols-2 gap-2">
+      {a.imagenes?.map((img, imgIndex) => (
+        <div key={imgIndex} className="relative">
+          <img
+            src={img}
+            alt="actividad"
+            style={{
+              width: "100%",
+              height: 100,
+              objectFit: "cover",
+              borderRadius: 6,
+              border: "1px solid #ccc",
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => {
+              setData((prev) => {
+                const copy = structuredClone(prev);
+                copy.actividades[i].imagenes.splice(imgIndex, 1);
+                return copy;
+              });
+            }}
+            className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1"
+          >
+            ✕
+          </button>
+        </div>
+      ))}
+    </div>
 
-              </tr>
+    {data.actividades.length > 1 && (
+      <button
+        type="button"
+        onClick={() => removeActividad(i)}
+        className="text-red-600 text-xs mt-2"
+      >
+        Eliminar
+      </button>
+    )}
+
+  </td>
+
+</tr>
+
             ))}
           </tbody>
         </table>
