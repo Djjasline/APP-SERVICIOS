@@ -1,16 +1,18 @@
-const CACHE_NAME = "app-servicios-v3";
+const CACHE_NAME = "app-servicios-v4";
+
+const STATIC_ASSETS = [
+  "/",
+  "/index.html",
+  "/manifest.json",
+  "/favicon.ico",
+];
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
 
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll([
-        "/",
-        "/index.html",
-        "/manifest.json",
-        "/favicon.ico",
-      ]);
+      return cache.addAll(STATIC_ASSETS);
     })
   );
 });
@@ -40,10 +42,18 @@ self.addEventListener("fetch", (event) => {
 
       return fetch(event.request)
         .then((networkResponse) => {
-          return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
+          // Solo cachear si es válido
+          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== "basic") {
             return networkResponse;
+          }
+
+          const responseClone = networkResponse.clone();
+
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
           });
+
+          return networkResponse;
         })
         .catch(() => caches.match("/index.html"));
     })
