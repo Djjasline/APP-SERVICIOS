@@ -267,6 +267,7 @@ useEffect(() => {
 
   navigate("/informe");
 };
+ 
         {/* DATOS CLIENTE */}
         <table className="pdf-table">
           <tbody>
