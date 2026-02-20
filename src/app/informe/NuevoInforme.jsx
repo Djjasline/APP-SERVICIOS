@@ -128,7 +128,7 @@ useEffect(() => {
   /* ===========================
    COMPRESIÓN Y REDIMENSIÓN
 =========================== */
-const fileToBase64 = (file, cb) => {
+ const fileToBase64 = (file, cb) => {
   if (!file) return;
 
   const reader = new FileReader();
@@ -140,21 +140,19 @@ const fileToBase64 = (file, cb) => {
     img.onload = () => {
       const canvas = document.createElement("canvas");
 
-      const MAX_SIZE = 600; // 🔹 tamaño máximo 600x600 px
+      const MAX_WIDTH = 800;
+      const MAX_HEIGHT = 800;
 
       let width = img.width;
       let height = img.height;
 
-      if (width > height) {
-        if (width > MAX_SIZE) {
-          height *= MAX_SIZE / width;
-          width = MAX_SIZE;
-        }
-      } else {
-        if (height > MAX_SIZE) {
-          width *= MAX_SIZE / height;
-          height = MAX_SIZE;
-        }
+      if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+        const scale = Math.min(
+          MAX_WIDTH / width,
+          MAX_HEIGHT / height
+        );
+        width *= scale;
+        height *= scale;
       }
 
       canvas.width = width;
@@ -163,16 +161,14 @@ const fileToBase64 = (file, cb) => {
       const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, width, height);
 
-      // 🔹 Calidad 0.6 = buena calidad pero liviana
-      const compressedBase64 = canvas.toDataURL("image/jpeg", 0.6);
+      const compressed = canvas.toDataURL("image/jpeg", 0.7);
 
-      cb(compressedBase64);
+      cb(compressed);
     };
   };
 
   reader.readAsDataURL(file);
-};
-
+}; 
 
   /* ===========================
      ACTIVIDADES
