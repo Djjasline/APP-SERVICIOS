@@ -267,6 +267,11 @@ useEffect(() => {
 
   navigate("/informe");
 };
+  return (
+  <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
+
+      <ReportHeader data={data} onChange={update} />
  
         {/* DATOS CLIENTE */}
         <table className="pdf-table">
