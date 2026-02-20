@@ -376,6 +376,12 @@ const fileToBase64 = (file, cb) => {
                 setData((prev) => {
                   const copy = structuredClone(prev);
                   copy.actividades[i].imagenes = [
+                    ...copy.actividades[i].imagen.files || []);
+            files.forEach((file) => {
+              fileToBase64(file, (b64) => {
+                setData((prev) => {
+                  const copy = structuredClone(prev);
+                  copy.actividades[i].imagenes = [
                     ...copy.actividades[i].imagenes,
                     b64,
                   ];
@@ -394,25 +400,17 @@ const fileToBase64 = (file, cb) => {
       {a.imagenes?.map((img, imgIndex) => (
         <div key={imgIndex} className="relative">
           <img
-            src={img}
-            alt="actividad"
-            style={{
-              width: "100%",
-              height: 100,
-              objectFit: "cover",
-              borderRadius: 6,
-              border: "1px solid #ccc",
-            }}
-          />
-          <button
-            type="button"
-            onClick={() => {
-              setData((prev) => {
-                const copy = structuredClone(prev);
-                copy.actividades[i].imagenes.splice(imgIndex, 1);
-                return copy;
-              });
-            }}
+  src={img}
+  alt="actividad"
+  style={{
+    width: "100%",
+    height: 100,
+    objectFit: "contain",   // 👈 NO RECORTA
+    backgroundColor: "#f3f3f3",
+    borderRadius: 6,
+    border: "1px solid #ccc",
+  }}
+/>
             className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1"
           >
             ✕
