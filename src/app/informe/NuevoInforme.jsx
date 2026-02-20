@@ -209,19 +209,43 @@ useEffect(() => {
      GUARDAR INFORME
   =========================== */
   const saveReport = () => {
-    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
+  const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
+  const current = JSON.parse(localStorage.getItem("currentReport"));
 
-    const firmaTecnico =
-      sigTecnico.current && !sigTecnico.current.isEmpty()
-        ? sigTecnico.current.toDataURL()
-        : "";
+  const firmaTecnico =
+    sigTecnico.current && !sigTecnico.current.isEmpty()
+      ? sigTecnico.current.toDataURL()
+      : "";
 
-    const firmaCliente =
-      sigCliente.current && !sigCliente.current.isEmpty()
-        ? sigCliente.current.toDataURL()
-        : "";
+  const firmaCliente =
+    sigCliente.current && !sigCliente.current.isEmpty()
+      ? sigCliente.current.toDataURL()
+      : "";
 
-    const report = {
+  // 🔁 SI EXISTE → ACTUALIZAR
+  if (current?.id) {
+    const updatedReport = {
+      ...current,
+      data: {
+        ...data,
+        firmas: {
+          tecnico: firmaTecnico,
+          cliente: firmaCliente,
+        },
+      },
+      updatedAt: new Date().toISOString(),
+    };
+
+    const updatedList = stored.map((r) =>
+      r.id === current.id ? updatedReport : r
+    );
+
+    localStorage.setItem("serviceReports", JSON.stringify(updatedList));
+    localStorage.setItem("currentReport", JSON.stringify(updatedReport));
+
+  } else {
+    // 🆕 SI NO EXISTE → CREAR NUEVO
+    const newReport = {
       id: Date.now(),
       createdAt: new Date().toISOString(),
       estado: "borrador",
@@ -234,17 +258,15 @@ useEffect(() => {
       },
     };
 
-    localStorage.setItem("serviceReports", JSON.stringify([...stored, report]));
-    localStorage.setItem("currentReport", JSON.stringify(report));
-    navigate("/informe");
-  };
+    localStorage.setItem(
+      "serviceReports",
+      JSON.stringify([...stored, newReport])
+    );
+    localStorage.setItem("currentReport", JSON.stringify(newReport));
+  }
 
-  return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
-
-        <ReportHeader data={data} onChange={update} />
-
+  navigate("/informe");
+};
         {/* DATOS CLIENTE */}
         <table className="pdf-table">
           <tbody>
