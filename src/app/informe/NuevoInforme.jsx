@@ -50,6 +50,8 @@ export default function NuevoInforme() {
   };
 
   const [data, setData] = useState(emptyReport);
+  const currentReport = JSON.parse(localStorage.getItem("currentReport"));
+const isEditing = !!currentReport?.id;
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
@@ -651,12 +653,12 @@ useEffect(() => {
           </button>
 
           <button
-            type="button"
-            onClick={saveReport}
-            className="bg-blue-600 text-white px-6 py-2 rounded"
-          >
-            Guardar informe
-          </button>
+  type="button"
+  onClick={saveReport}
+  className="bg-blue-600 text-white px-6 py-2 rounded"
+>
+  {isEditing ? "Actualizar informe" : "Guardar informe"}
+</button>
         </div>
 
       </div>
