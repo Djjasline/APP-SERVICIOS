@@ -1,4 +1,3 @@
-import { useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
@@ -52,7 +51,7 @@ export default function NuevoInforme() {
 
   const [data, setData] = useState(emptyReport);
   const currentReport = JSON.parse(localStorage.getItem("currentReport"));
-const isEditing = !!currentReport?.id;
+const isEditing = location.state?.edit === true;
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
@@ -72,9 +71,7 @@ useEffect(() => {
   const auto = JSON.parse(localStorage.getItem("autoSaveInforme"));
   const current = JSON.parse(localStorage.getItem("currentReport"));
 
-  if (auto) {
-    setData(auto);
-  } else if (current?.data) {
+  if (isEditing && current?.data) {
     setData(current.data);
 
     setTimeout(() => {
@@ -85,9 +82,14 @@ useEffect(() => {
         sigCliente.current?.fromDataURL(current.data.firmas.cliente);
       }
     }, 0);
-  }
-}, []);
 
+  } else if (!isEditing && auto) {
+    setData(auto);
+  } else {
+    setData(emptyReport);
+  }
+
+}, [isEditing]);
   /* ===========================
    AUTOGUARDADO AUTOMÁTICO
 =========================== */
@@ -100,7 +102,7 @@ useEffect(() => {
       const sizeInKB = new Blob([json]).size / 1024;
 
       if (sizeInKB < 4500) { // margen seguro
-        localStorage.setItem("autoSaveInforme", json);
+        localStorage.removeItem("autoSaveInforme", json);
       } else {
         console.warn("Autoguardado omitido: tamaño demasiado grande");
       }
