@@ -69,7 +69,6 @@ const isEditing = location.state?.edit === true;
    CARGAR BORRADOR
 =========================== */
 useEffect(() => {
-  const auto = JSON.parse(localStorage.getItem("autoSaveInforme"));
   const current = JSON.parse(localStorage.getItem("currentReport"));
 
   if (isEditing && current?.data) {
@@ -84,14 +83,15 @@ useEffect(() => {
       }
     }, 0);
 
-  } else if (!isEditing && auto) {
-    setData(auto);
   } else {
+    // 🔒 Nuevo informe siempre limpio
     localStorage.removeItem("currentReport");
+    localStorage.removeItem("autoSaveInforme");
     setData(emptyReport);
   }
 
 }, [isEditing]);
+  
   /* ===========================
    AUTOGUARDADO AUTOMÁTICO
 =========================== */
