@@ -87,6 +87,7 @@ useEffect(() => {
   } else if (!isEditing && auto) {
     setData(auto);
   } else {
+    localStorage.removeItem("currentReport");
     setData(emptyReport);
   }
 
