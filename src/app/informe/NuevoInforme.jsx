@@ -104,7 +104,7 @@ useEffect(() => {
       const sizeInKB = new Blob([json]).size / 1024;
 
       if (sizeInKB < 4500) { // margen seguro
-        localStorage.removeItem("autoSaveInforme", json);
+        localStorage.setItem("autoSaveInforme", json);
       } else {
         console.warn("Autoguardado omitido: tamaño demasiado grande");
       }
@@ -271,7 +271,7 @@ useEffect(() => {
     );
     localStorage.setItem("currentReport", JSON.stringify(newReport));
   }
-
+localStorage.removeItem("autoSaveInforme");
   navigate("/informe");
 };
   return (
