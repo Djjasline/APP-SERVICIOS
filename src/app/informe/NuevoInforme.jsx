@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
 
 export default function NuevoInforme() {
   const navigate = useNavigate();
+  const location = useLocation();
+const isEditing = location.state?.edit === true;  
 
   /* ===========================
      ESTADO BASE
