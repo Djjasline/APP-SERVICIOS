@@ -53,7 +53,6 @@ const isEditing = location.state?.edit === true;
 
   const [data, setData] = useState(emptyReport);
   const currentReport = JSON.parse(localStorage.getItem("currentReport"));
-const isEditing = location.state?.edit === true;
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
@@ -230,7 +229,7 @@ useEffect(() => {
       : "";
 
   // 🔁 SI EXISTE → ACTUALIZAR
-  if (current?.id) {
+  if (isEditing && current?.id) {
     const updatedReport = {
       ...current,
       data: {
