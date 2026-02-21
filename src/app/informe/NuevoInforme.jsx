@@ -6,7 +6,8 @@ import ReportHeader from "@/components/report/ReportHeader";
 export default function NuevoInforme() {
   const navigate = useNavigate();
   const location = useLocation();
-const isEditing = location.state?.edit === true;  
+  const currentReport = JSON.parse(localStorage.getItem("currentReport"));
+const isEditing = !!currentReport?.id;
 
   /* ===========================
      ESTADO BASE
@@ -71,7 +72,7 @@ const isEditing = location.state?.edit === true;
 useEffect(() => {
   const current = JSON.parse(localStorage.getItem("currentReport"));
 
-  if (isEditing && current?.data) {
+  if (current?.data) {
     setData(current.data);
 
     setTimeout(() => {
@@ -84,13 +85,10 @@ useEffect(() => {
     }, 0);
 
   } else {
-    // 🔒 Nuevo informe siempre limpio
-    localStorage.removeItem("currentReport");
-    localStorage.removeItem("autoSaveInforme");
     setData(emptyReport);
   }
 
-}, [isEditing]);
+}, []);
   
   /* ===========================
    AUTOGUARDADO AUTOMÁTICO
