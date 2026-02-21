@@ -292,20 +292,33 @@ useEffect(() => {
               ["TÉCNICO RESPONSABLE", "tecnicoNombre"],
               ["TELÉFONO TÉCNICO", "tecnicoTelefono"],
               ["CORREO TÉCNICO", "tecnicoCorreo"],
-              ["FECHA DE SERVICIO", "fechaServicio"],
             ].map(([label, key]) => (
               <tr key={key}>
-                <td className="pdf-label">{label}</td>
-                <td>
-                  <input
-                    className="pdf-input"
-                    value={data[key]}
-                    onChange={(e) => update([key], e.target.value)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
+      <td className="pdf-label">{label}</td>
+      <td>
+        <input
+          className="pdf-input"
+          value={data[key]}
+          onChange={(e) => update([key], e.target.value)}
+        />
+      </td>
+    </tr>
+  ))}
+
+  <tr>
+    <td className="pdf-label">FECHA DE SERVICIO</td>
+    <td>
+      <input
+        type="date"
+        className="pdf-input"
+        value={data.fechaServicio}
+        onChange={(e) => update(["fechaServicio"], e.target.value)}
+      />
+    </td>
+  </tr>
+
+</tbody>
+              
         </table>
 
         {/* ACTIVIDADES */}
