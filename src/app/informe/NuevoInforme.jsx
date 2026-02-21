@@ -53,7 +53,6 @@ const isEditing = !!currentReport?.id;
   };
 
   const [data, setData] = useState(emptyReport);
-  const currentReport = JSON.parse(localStorage.getItem("currentReport"));
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
