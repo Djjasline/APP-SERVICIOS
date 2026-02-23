@@ -270,12 +270,26 @@ useEffect(() => {
     localStorage.setItem("currentReport", JSON.stringify(newReport));
   }
 localStorage.removeItem("autoSaveInforme");
-   await supabase.from("informes").insert([
+  const { error } = await supabase.from("informes").insert([
   {
     estado: "borrador",
-    datos: data
-  }
+    data: {
+      ...data,
+      firmas: {
+        tecnico: firmaTecnico,
+        cliente: firmaCliente,
+      },
+    },
+  },
 ]);
+
+if (error) {
+  console.error("Error insertando en Supabase:", error);
+  alert("Error guardando informe");
+  return;
+}
+
+alert("Informe guardado en Supabase ✅");
   navigate("/informe");
 };
   return (
