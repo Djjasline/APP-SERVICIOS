@@ -1,3 +1,4 @@
+import { supabase } from "@/lib/supabase";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
@@ -212,7 +213,7 @@ useEffect(() => {
   /* ===========================
      GUARDAR INFORME
   =========================== */
-  const saveReport = () => {
+  const saveReport = async () => {
   const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
   const current = JSON.parse(localStorage.getItem("currentReport"));
 
@@ -269,6 +270,12 @@ useEffect(() => {
     localStorage.setItem("currentReport", JSON.stringify(newReport));
   }
 localStorage.removeItem("autoSaveInforme");
+   await supabase.from("informes").insert([
+  {
+    estado: "borrador",
+    datos: data
+  }
+]);
   navigate("/informe");
 };
   return (
