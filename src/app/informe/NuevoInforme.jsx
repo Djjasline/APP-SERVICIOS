@@ -243,7 +243,7 @@ const saveReport = async () => {
   /* ===========================
      EDITAR
   =========================== */
-  if (isEditing && current?.id) {
+ if (isEditing && current?.id) {
   localReport = {
     ...current,
     ...reportData,
@@ -266,7 +266,7 @@ const saveReport = async () => {
 
     if (error) throw error;
 
-    // 🔥 AQUÍ ESTÁ EL ARREGLO REAL
+    // 🔥 ARREGLO REAL AQUÍ
     const finalList = updatedList.map((r) =>
       r.id === current.id ? { ...r, synced: true } : r
     );
@@ -284,8 +284,7 @@ const saveReport = async () => {
 
   navigate("/informe");
   return;
-}
-
+} 
   /* ===========================
      CREAR NUEVO
   =========================== */
