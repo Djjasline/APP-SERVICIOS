@@ -213,7 +213,7 @@ useEffect(() => {
   /* ===========================
      GUARDAR INFORME
   =========================== */
-  const saveReport = async () => {
+const saveReport = async () => {
   const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
   const current = JSON.parse(localStorage.getItem("currentReport"));
 
@@ -227,92 +227,95 @@ useEffect(() => {
       ? sigCliente.current.toDataURL()
       : "";
 
-  // 🔁 SI EXISTE → ACTUALIZAR
-  if (isEditing && current?.id) {
-    const updatedReport = {
-      ...current,
-      data: {
-        ...data,
-        firmas: {
-          tecnico: firmaTecnico,
-          cliente: firmaCliente,
-        },
+  const reportData = {
+    estado: "borrador",
+    data: {
+      ...data,
+      firmas: {
+        tecnico: firmaTecnico,
+        cliente: firmaCliente,
       },
+    },
+  };
+
+  let localReport;
+
+  /* ===========================
+     EDITAR
+  =========================== */
+  if (isEditing && current?.id) {
+    localReport = {
+      ...current,
+      ...reportData,
+      synced: false,
       updatedAt: new Date().toISOString(),
     };
 
     const updatedList = stored.map((r) =>
-      r.id === current.id ? updatedReport : r
+      r.id === current.id ? localReport : r
     );
 
     localStorage.setItem("serviceReports", JSON.stringify(updatedList));
-    localStorage.setItem("currentReport", JSON.stringify(updatedReport));
+    localStorage.setItem("currentReport", JSON.stringify(localReport));
 
-  } else {
-    // 🆕 SI NO EXISTE → CREAR NUEVO
-    const newReport = {
-      id: Date.now(),
-      createdAt: new Date().toISOString(),
-      estado: "borrador",
-      synced: false, //
-      data: {
-        ...data,
-        firmas: {
-          tecnico: firmaTecnico,
-          cliente: firmaCliente,
-        },
-      },
-    };
+    try {
+      const { error } = await supabase
+        .from("informes")
+        .update(reportData)
+        .eq("id", current.id);
 
-    localStorage.setItem(
-      "serviceReports",
-      JSON.stringify([...stored, newReport])
-    );
-    localStorage.setItem("currentReport", JSON.stringify(newReport));
+      if (error) throw error;
+
+      localReport.synced = true;
+      localStorage.setItem("serviceReports", JSON.stringify(updatedList));
+
+      alert("Informe actualizado en Supabase ✅");
+    } catch (err) {
+      alert("Actualizado localmente (pendiente de sincronizar)");
+    }
+
+    navigate("/informe");
+    return;
   }
-localStorage.removeItem("autoSaveInforme");
-const { error } = await supabase
-  .from("informes")
-  .insert([
-    {
-      estado: "borrador",
-      data: {
-        ...data,
-        firmas: {
-          tecnico: firmaTecnico,
-          cliente: firmaCliente,
-        },
-      },
-    },
-  ]);
 
-if (error) {
-  console.error("Error insertando en Supabase:", error);
-
-  // 🔴 Guardar como pendiente
-  newReport.synced = false;
+  /* ===========================
+     CREAR NUEVO
+  =========================== */
+  localReport = {
+    id: Date.now(),
+    createdAt: new Date().toISOString(),
+    synced: false,
+    ...reportData,
+  };
 
   localStorage.setItem(
     "serviceReports",
-    JSON.stringify([...stored, newReport])
+    JSON.stringify([...stored, localReport])
   );
 
-  alert("Guardado localmente (pendiente de sincronizar)");
+  try {
+    const { error } = await supabase
+      .from("informes")
+      .insert([localReport]);
+
+    if (error) throw error;
+
+    localReport.synced = true;
+
+    localStorage.setItem(
+      "serviceReports",
+      JSON.stringify([...stored, localReport])
+    );
+
+    alert("Informe guardado en Supabase ✅");
+  } catch (err) {
+    alert("Guardado localmente (pendiente de sincronizar)");
+  }
+
+  localStorage.removeItem("autoSaveInforme");
   navigate("/informe");
-  return;
-}
-
-// 🟢 Guardado exitoso en nube
-newReport.synced = true;
-
-localStorage.setItem(
-  "serviceReports",
-  JSON.stringify([...stored, newReport])
-);
-
-alert("Informe guardado en Supabase ✅");
-navigate("/informe");  
 };
+  
   return (
   <div className="p-6 bg-gray-100 min-h-screen">
     <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
