@@ -154,12 +154,12 @@ useEffect(() => {
                 <div>
                   <strong>{r.data?.cliente || "Sin cliente"}</strong>
                   <div className="text-xs">
-                    new Date(
+                    {new Date(
   r.updated_at ||
   r.updatedAt ||
   r.created_at ||
   r.createdAt
-).toLocaleString()
+).toLocaleString()}
                   </div>
                   <div className="text-xs">
                     Estado:{" "}
