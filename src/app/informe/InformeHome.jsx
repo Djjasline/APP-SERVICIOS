@@ -26,7 +26,8 @@ export default function InformeHome() {
       );
 
       setReports(stored);
-    } else {
+    } 
+    else {
       setReports([]);
     }
     } catch (e) {
