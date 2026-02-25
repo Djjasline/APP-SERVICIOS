@@ -254,6 +254,7 @@ useEffect(() => {
       id: Date.now(),
       createdAt: new Date().toISOString(),
       estado: "borrador",
+      synced: false, //
       data: {
         ...data,
         firmas: {
@@ -270,27 +271,47 @@ useEffect(() => {
     localStorage.setItem("currentReport", JSON.stringify(newReport));
   }
 localStorage.removeItem("autoSaveInforme");
-  const { error } = await supabase.from("informes").insert([
-  {
-    estado: "borrador",
-    data: {
-      ...data,
-      firmas: {
-        tecnico: firmaTecnico,
-        cliente: firmaCliente,
+const { error } = await supabase
+  .from("informes")
+  .insert([
+    {
+      estado: "borrador",
+      data: {
+        ...data,
+        firmas: {
+          tecnico: firmaTecnico,
+          cliente: firmaCliente,
+        },
       },
     },
-  },
-]);
+  ]);
 
 if (error) {
   console.error("Error insertando en Supabase:", error);
-  alert("Error guardando informe");
+
+  // 🔴 Guardar como pendiente
+  newReport.synced = false;
+
+  localStorage.setItem(
+    "serviceReports",
+    JSON.stringify([...stored, newReport])
+  );
+
+  alert("Guardado localmente (pendiente de sincronizar)");
+  navigate("/informe");
   return;
 }
 
+// 🟢 Guardado exitoso en nube
+newReport.synced = true;
+
+localStorage.setItem(
+  "serviceReports",
+  JSON.stringify([...stored, newReport])
+);
+
 alert("Informe guardado en Supabase ✅");
-  navigate("/informe");
+navigate("/informe");  
 };
   return (
   <div className="p-6 bg-gray-100 min-h-screen">
