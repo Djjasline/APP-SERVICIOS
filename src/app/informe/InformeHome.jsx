@@ -12,49 +12,61 @@ export default function InformeHome() {
   /* =============================
      CARGA SEGURA DESDE SUPABASE Y LOCALSTORE
   ============================== */
-useEffect(() => {
-  const loadReports = async () => {
-    try {
-      // 🔹 Intentar cargar desde Supabase primero
-      const { data, error } = await supabase
-        .from("informes")
-        .select("*")
-        .order("updated_at", { ascending: false });
+  useEffect(() => {
+    const loadReports = async () => {
 
-      if (!error && data) {
-        setReports(data);
-        return;
+      // 🔥 1️⃣ Sincronizar pendientes primero
+      await syncReports();
+
+      try {
+        // 🔥 2️⃣ Cargar desde Supabase (fuente principal)
+        const { data, error } = await supabase
+          .from("informes")
+          .select("*")
+          .order("updated_at", { ascending: false });
+
+        if (!error && data) {
+          setReports(data);
+          return;
+        }
+
+        console.warn("Supabase no disponible, usando localStorage");
+
+      } catch (err) {
+        console.warn("Sin conexión, usando localStorage");
       }
 
-      console.warn("Supabase no disponible, usando localStorage");
+      // 🔹 3️⃣ Fallback local
+      try {
+        const stored = JSON.parse(localStorage.getItem("serviceReports"));
 
-    } catch (err) {
-      console.warn("Sin conexión, usando localStorage");
-    }
+        if (Array.isArray(stored)) {
+          const sorted = [...stored].sort((a, b) =>
+            new Date(b.updatedAt || b.createdAt) -
+            new Date(a.updatedAt || a.createdAt)
+          );
 
-    // 🔹 Fallback local
-    try {
-      const stored = JSON.parse(localStorage.getItem("serviceReports"));
+          setReports(sorted);
+        } else {
+          setReports([]);
+        }
 
-      if (Array.isArray(stored)) {
-        const sorted = [...stored].sort((a, b) =>
-          new Date(b.updatedAt || b.createdAt) -
-          new Date(a.updatedAt || a.createdAt)
-        );
-
-        setReports(sorted);
-      } else {
+      } catch (e) {
+        console.error("Error leyendo localStorage", e);
         setReports([]);
       }
+    };
 
-    } catch (e) {
-      console.error("Error leyendo localStorage", e);
-      setReports([]);
-    }
-  };
+    loadReports();
 
-  loadReports();
-}, []);
+    // 🔥 Sincronización automática cuando vuelve internet
+    window.addEventListener("online", loadReports);
+
+    return () => {
+      window.removeEventListener("online", loadReports);
+    };
+
+  }, []);
 
   /* =============================
      FILTRO SEGURO
@@ -73,6 +85,7 @@ useEffect(() => {
   /* =============================
      ACCIONES
   ============================== */
+
   const openReport = (report) => {
     if (!report) return;
     localStorage.setItem("currentReport", JSON.stringify(report));
@@ -80,43 +93,26 @@ useEffect(() => {
   };
 
   const deleteReport = async (id) => {
-  if (!confirm("¿Eliminar este informe?")) return;
+    if (!confirm("¿Eliminar este informe?")) return;
 
-  try {
-    // 🔹 Intentar borrar en Supabase
-    const { error } = await supabase
-      .from("informes")
-      .delete()
-      .eq("id", id);
+    try {
+      const { error } = await supabase
+        .from("informes")
+        .delete()
+        .eq("id", id);
 
-    if (error) {
-      console.warn("No se pudo borrar en Supabase, borrando local");
+      if (error) {
+        console.warn("No se pudo borrar en Supabase");
+      }
+    } catch (err) {
+      console.warn("Sin conexión, solo borrado local");
     }
-  } catch (err) {
-    console.warn("Sin conexión, borrando local");
-  }
 
-  // 🔹 Borrado local (si existe)
-  const deleteReport = async (id) => {
-  if (!confirm("¿Eliminar este informe?")) return;
+    const updated = reports.filter((r) => r.id !== id);
+    localStorage.setItem("serviceReports", JSON.stringify(updated));
+    setReports(updated);
+  };
 
-  try {
-    const { error } = await supabase
-      .from("informes")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      console.warn("No se pudo borrar en Supabase");
-    }
-  } catch (err) {
-    console.warn("Sin conexión, solo borrado local");
-  }
-
-  const updated = reports.filter((r) => r.id !== id);
-  localStorage.setItem("serviceReports", JSON.stringify(updated));
-  setReports(updated);
-};
   const openPDF = (id) => {
     window.open(`/informe/pdf/${id}`, "_blank");
   };
@@ -141,16 +137,16 @@ useEffect(() => {
         </div>
 
         {/* NUEVO */}
-<button
-  type="button"
-  onClick={() => {
-    localStorage.removeItem("currentReport");
-    navigate("/informe/nuevo");
-  }}
-  className="bg-blue-600 text-white w-full py-2 rounded"
->
-  Nuevo informe
-</button>
+        <button
+          type="button"
+          onClick={() => {
+            localStorage.removeItem("currentReport");
+            navigate("/informe/nuevo");
+          }}
+          className="bg-blue-600 text-white w-full py-2 rounded"
+        >
+          Nuevo informe
+        </button>
 
         {/* FILTROS */}
         <div className="flex gap-2">
@@ -170,6 +166,7 @@ useEffect(() => {
 
         {/* LISTA */}
         <div className="space-y-2">
+
           {filteredReports.length === 0 && (
             <p className="text-sm text-gray-500">Sin registros</p>
           )}
@@ -185,14 +182,16 @@ useEffect(() => {
               >
                 <div>
                   <strong>{r.data?.cliente || "Sin cliente"}</strong>
+
                   <div className="text-xs">
                     {new Date(
-  r.updated_at ||
-  r.updatedAt ||
-  r.created_at ||
-  r.createdAt
-).toLocaleString()}
+                      r.updated_at ||
+                      r.updatedAt ||
+                      r.created_at ||
+                      r.createdAt
+                    ).toLocaleString()}
                   </div>
+
                   <div className="text-xs">
                     Estado:{" "}
                     <strong>
@@ -231,8 +230,8 @@ useEffect(() => {
               </div>
             );
           })}
-        </div>
 
+        </div>
       </div>
     </div>
   );
