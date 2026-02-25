@@ -11,6 +11,7 @@ export default function InformeHome() {
      CARGA SEGURA DESDE STORAGE
   ============================== */
   useEffect(() => {
+  const loadReports = () => {
     try {
       const stored = JSON.parse(localStorage.getItem("serviceReports"));
       if (Array.isArray(stored)) {
@@ -22,7 +23,16 @@ export default function InformeHome() {
       console.error("Error leyendo serviceReports", e);
       setReports([]);
     }
-  }, []);
+  };
+
+  loadReports();
+
+  window.addEventListener("focus", loadReports);
+
+  return () => {
+    window.removeEventListener("focus", loadReports);
+  };
+}, []);
 
   /* =============================
      FILTRO SEGURO
@@ -123,7 +133,7 @@ export default function InformeHome() {
                 <div>
                   <strong>{r.data?.cliente || "Sin cliente"}</strong>
                   <div className="text-xs">
-                    {new Date(report.updatedAt || report.createdAt).toLocaleString()}
+                    {new Date(r.updatedAt || r.createdAt).toLocaleString()}
                   </div>
                   <div className="text-xs">
                     Estado:{" "}
