@@ -13,12 +13,22 @@ export default function InformeHome() {
   useEffect(() => {
   const loadReports = () => {
     try {
-      const stored = JSON.parse(localStorage.getItem("serviceReports"));
-      if (Array.isArray(stored)) {
-        setReports(stored);
-      } else {
-        setReports([]);
-      }
+      const loadReports = () => {
+  try {
+    const stored = JSON.parse(localStorage.getItem("serviceReports"));
+
+    if (Array.isArray(stored)) {
+
+      // 🔥 ORDENAR POR ÚLTIMA MODIFICACIÓN
+      stored.sort((a, b) =>
+        new Date(b.updatedAt || b.createdAt) -
+        new Date(a.updatedAt || a.createdAt)
+      );
+
+      setReports(stored);
+    } else {
+      setReports([]);
+    }
     } catch (e) {
       console.error("Error leyendo serviceReports", e);
       setReports([]);
