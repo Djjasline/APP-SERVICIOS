@@ -244,39 +244,47 @@ const saveReport = async () => {
      EDITAR
   =========================== */
   if (isEditing && current?.id) {
-    localReport = {
-      ...current,
-      ...reportData,
-      synced: false,
-      updatedAt: new Date().toISOString(),
-    };
+  localReport = {
+    ...current,
+    ...reportData,
+    synced: false,
+    updatedAt: new Date().toISOString(),
+  };
 
-    const updatedList = stored.map((r) =>
-      r.id === current.id ? localReport : r
+  const updatedList = stored.map((r) =>
+    r.id === current.id ? localReport : r
+  );
+
+  localStorage.setItem("serviceReports", JSON.stringify(updatedList));
+  localStorage.setItem("currentReport", JSON.stringify(localReport));
+
+  try {
+    const { error } = await supabase
+      .from("informes")
+      .update(reportData)
+      .eq("id", current.id);
+
+    if (error) throw error;
+
+    // 🔥 AQUÍ ESTÁ EL ARREGLO REAL
+    const finalList = updatedList.map((r) =>
+      r.id === current.id ? { ...r, synced: true } : r
     );
 
-    localStorage.setItem("serviceReports", JSON.stringify(updatedList));
-    localStorage.setItem("currentReport", JSON.stringify(localReport));
+    localStorage.setItem("serviceReports", JSON.stringify(finalList));
+    localStorage.setItem(
+      "currentReport",
+      JSON.stringify({ ...localReport, synced: true })
+    );
 
-    try {
-      const { error } = await supabase
-        .from("informes")
-        .update(reportData)
-        .eq("id", current.id);
-
-      if (error) throw error;
-
-      localReport.synced = true;
-      localStorage.setItem("serviceReports", JSON.stringify(updatedList));
-
-      alert("Informe actualizado en Supabase ✅");
-    } catch (err) {
-      alert("Actualizado localmente (pendiente de sincronizar)");
-    }
-
-    navigate("/informe");
-    return;
+    alert("Informe actualizado en Supabase ✅");
+  } catch (err) {
+    alert("Actualizado localmente (pendiente de sincronizar)");
   }
+
+  navigate("/informe");
+  return;
+}
 
   /* ===========================
      CREAR NUEVO
