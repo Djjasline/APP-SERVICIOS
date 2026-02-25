@@ -78,12 +78,28 @@ useEffect(() => {
     navigate(`/informe/${report.id}`);
   };
 
-  const deleteReport = (id) => {
-    if (!confirm("¿Eliminar este informe?")) return;
-    const updated = reports.filter((r) => r.id !== id);
-    localStorage.setItem("serviceReports", JSON.stringify(updated));
-    setReports(updated);
-  };
+  const deleteReport = async (id) => {
+  if (!confirm("¿Eliminar este informe?")) return;
+
+  try {
+    // 🔹 Intentar borrar en Supabase
+    const { error } = await supabase
+      .from("informes")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.warn("No se pudo borrar en Supabase, borrando local");
+    }
+  } catch (err) {
+    console.warn("Sin conexión, borrando local");
+  }
+
+  // 🔹 Borrado local (si existe)
+  const updated = reports.filter((r) => r.id !== id);
+  localStorage.setItem("serviceReports", JSON.stringify(updated));
+  setReports(updated);
+};
 
   const openPDF = (id) => {
     window.open(`/informe/pdf/${id}`, "_blank");
