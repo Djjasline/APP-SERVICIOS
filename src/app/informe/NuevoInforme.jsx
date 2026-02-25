@@ -285,47 +285,45 @@ const saveReport = async () => {
   navigate("/informe");
   return;
 } 
-  /* ===========================
-     CREAR NUEVO
-  =========================== */
-  localReport = {
-    id: Date.now(),
-    createdAt: new Date().toISOString(),
-    synced: false,
-    ...reportData,
-  };
+/* ===========================
+   CREAR NUEVO
+=========================== */
+localReport = {
+  id: Date.now(),
+  createdAt: new Date().toISOString(),
+  synced: false,
+  ...reportData,
+};
 
-  localStorage.setItem(
-    "serviceReports",
-    JSON.stringify([...stored, localReport])
+// Guardado local inicial
+const initialList = [...stored, localReport];
+localStorage.setItem("serviceReports", JSON.stringify(initialList));
+
+try {
+  const { data: inserted, error } = await supabase
+    .from("informes")
+    .insert([reportData])
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  // 🔥 Reemplazar ID temporal por ID real
+  const finalList = initialList.map((r) =>
+    r.id === localReport.id
+      ? { ...r, id: inserted.id, synced: true }
+      : r
   );
 
-  try {
-    const { data: inserted, error } = await supabase
-  .from("informes")
-  .insert([reportData])
-  .select()
-  .single();
+  localStorage.setItem("serviceReports", JSON.stringify(finalList));
 
-    if (error) throw error;
+  alert("Informe guardado en Supabase ✅");
+} catch (err) {
+  alert("Guardado localmente (pendiente de sincronizar)");
+}
 
-// 🔥 Asignar ID REAL de Supabase
-localReport.id = inserted.id;
-localReport.synced = true;
-
-localStorage.setItem(
-  "serviceReports",
-  JSON.stringify([...stored, localReport])
-);
-
-    alert("Informe guardado en Supabase ✅");
-  } catch (err) {
-    alert("Guardado localmente (pendiente de sincronizar)");
-  }
-
-  localStorage.removeItem("autoSaveInforme");
-  navigate("/informe");
-};
+localStorage.removeItem("autoSaveInforme");
+navigate("/informe");
   
   return (
   <div className="p-6 bg-gray-100 min-h-screen">
