@@ -1,3 +1,4 @@
+import SyncStatus from "@/components/SyncStatus";
 import { syncReports } from "@/lib/sync";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
@@ -123,9 +124,21 @@ export default function InformeHome() {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-4">
-
+<div className="flex justify-between items-center">
+  <h1 className="text-lg font-semibold">Informe general</h1>
+  <div className="flex items-center gap-3">
+    <SyncStatus />
+    <button
+      type="button"
+      onClick={() => navigate("/")}
+      className="border px-4 py-1 rounded"
+    >
+      Volver
+    </button>
+  </div>
+</div>
         {/* HEADER */}
-        <div className="flex justify-between items-center">
+        
           <h1 className="text-lg font-semibold">Informe general</h1>
           <button
             type="button"
