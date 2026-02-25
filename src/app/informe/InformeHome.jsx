@@ -9,25 +9,45 @@ export default function InformeHome() {
   const [filter, setFilter] = useState("todos");
 
   /* =============================
-     CARGA SEGURA DESDE SUPABASE
+     CARGA SEGURA DESDE SUPABASE Y LOCALSTORE
   ============================== */
 useEffect(() => {
   const loadReports = async () => {
     try {
+      // 🔹 Intentar cargar desde Supabase primero
       const { data, error } = await supabase
         .from("informes")
         .select("*")
         .order("updated_at", { ascending: false });
 
-      if (error) {
-        console.error("Error cargando informes:", error);
-        setReports([]);
+      if (!error && data) {
+        setReports(data);
         return;
       }
 
-      setReports(data || []);
+      console.warn("Supabase no disponible, usando localStorage");
+
+    } catch (err) {
+      console.warn("Sin conexión, usando localStorage");
+    }
+
+    // 🔹 Fallback local
+    try {
+      const stored = JSON.parse(localStorage.getItem("serviceReports"));
+
+      if (Array.isArray(stored)) {
+        const sorted = [...stored].sort((a, b) =>
+          new Date(b.updatedAt || b.createdAt) -
+          new Date(a.updatedAt || a.createdAt)
+        );
+
+        setReports(sorted);
+      } else {
+        setReports([]);
+      }
+
     } catch (e) {
-      console.error("Error inesperado:", e);
+      console.error("Error leyendo localStorage", e);
       setReports([]);
     }
   };
@@ -134,7 +154,12 @@ useEffect(() => {
                 <div>
                   <strong>{r.data?.cliente || "Sin cliente"}</strong>
                   <div className="text-xs">
-                    {new Date(r.updated_at || r.created_at).toLocaleString()}
+                    new Date(
+  r.updated_at ||
+  r.updatedAt ||
+  r.created_at ||
+  r.createdAt
+).toLocaleString()
                   </div>
                   <div className="text-xs">
                     Estado:{" "}
