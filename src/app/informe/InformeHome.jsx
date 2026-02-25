@@ -123,7 +123,7 @@ export default function InformeHome() {
                 <div>
                   <strong>{r.data?.cliente || "Sin cliente"}</strong>
                   <div className="text-xs">
-                    {new Date(r.createdAt).toLocaleString()}
+                    {new Date(report.updatedAt || report.createdAt).toLocaleString()}
                   </div>
                   <div className="text-xs">
                     Estado:{" "}
