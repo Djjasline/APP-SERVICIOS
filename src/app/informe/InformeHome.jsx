@@ -9,40 +9,30 @@ export default function InformeHome() {
   const [filter, setFilter] = useState("todos");
 
   /* =============================
-     CARGA SEGURA DESDE STORAGE
+     CARGA SEGURA DESDE SUPABASE
   ============================== */
 useEffect(() => {
-  const loadReports = () => {
+  const loadReports = async () => {
     try {
-      const stored = JSON.parse(localStorage.getItem("serviceReports"));
+      const { data, error } = await supabase
+        .from("informes")
+        .select("*")
+        .order("updated_at", { ascending: false });
 
-      if (Array.isArray(stored)) {
-
-        // 🔥 ORDENAR POR ÚLTIMA MODIFICACIÓN
-        const sorted = [...stored].sort((a, b) =>
-          new Date(b.updatedAt || b.createdAt) -
-          new Date(a.updatedAt || a.createdAt)
-        );
-
-        setReports(sorted);
-
-      } else {
+      if (error) {
+        console.error("Error cargando informes:", error);
         setReports([]);
+        return;
       }
 
+      setReports(data || []);
     } catch (e) {
-      console.error("Error leyendo serviceReports", e);
+      console.error("Error inesperado:", e);
       setReports([]);
     }
   };
 
   loadReports();
-
-  window.addEventListener("focus", loadReports);
-
-  return () => {
-    window.removeEventListener("focus", loadReports);
-  };
 }, []);
 
   /* =============================
@@ -144,7 +134,7 @@ useEffect(() => {
                 <div>
                   <strong>{r.data?.cliente || "Sin cliente"}</strong>
                   <div className="text-xs">
-                    {new Date(r.updatedAt || r.createdAt).toLocaleString()}
+                    {new Date(r.updated_at || r.created_at).toLocaleString()}
                   </div>
                   <div className="text-xs">
                     Estado:{" "}
