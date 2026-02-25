@@ -294,18 +294,22 @@ const saveReport = async () => {
   );
 
   try {
-    const { error } = await supabase
-      .from("informes")
-      .insert([localReport]);
+    const { data: inserted, error } = await supabase
+  .from("informes")
+  .insert([reportData])
+  .select()
+  .single();
 
     if (error) throw error;
 
-    localReport.synced = true;
+// 🔥 Asignar ID REAL de Supabase
+localReport.id = inserted.id;
+localReport.synced = true;
 
-    localStorage.setItem(
-      "serviceReports",
-      JSON.stringify([...stored, localReport])
-    );
+localStorage.setItem(
+  "serviceReports",
+  JSON.stringify([...stored, localReport])
+);
 
     alert("Informe guardado en Supabase ✅");
   } catch (err) {
