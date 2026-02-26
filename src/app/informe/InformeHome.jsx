@@ -137,17 +137,6 @@ export default function InformeHome() {
     </button>
   </div>
 </div>
-        {/* HEADER */}
-        
-          <h1 className="text-lg font-semibold">Informe general</h1>
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="border px-4 py-1 rounded"
-          >
-            Volver
-          </button>
-        </div>
 
         {/* NUEVO */}
         <button
