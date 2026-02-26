@@ -271,11 +271,11 @@ const saveReport = async () => {
       r.id === current.id ? { ...r, synced: true } : r
     );
 
-    localStorage.setItem("serviceReports", JSON.stringify(finalList));
+    .setItem("serviceReports", JSON.stringify(finalList));
     localStorage.setItem(
       "currentReport",
       JSON.stringify({ ...localReport, synced: true })
-    );
+    );localStorage
 
     alert("Informe actualizado en Supabase ✅");
   } catch (err) {
@@ -315,9 +315,13 @@ try {
       : r
   );
 
-  localStorage.setItem("serviceReports", JSON.stringify(finalList));
+localStorage.setItem("serviceReports", JSON.stringify(finalList));
 
-  alert("Informe guardado en Supabase ✅");
+// 🔥 Actualizar currentReport con ID real
+const finalReport = finalList.find(r => r.id === inserted.id);
+localStorage.setItem("currentReport", JSON.stringify(finalReport));
+
+alert("Informe guardado en Supabase ✅");
 } catch (err) {
   alert("Guardado localmente (pendiente de sincronizar)");
 }
