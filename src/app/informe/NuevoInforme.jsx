@@ -213,7 +213,7 @@ useEffect(() => {
   /* ===========================
      GUARDAR INFORME
   =========================== */
-const saveReport = async () => {
+ const saveReport = async () => {
   const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
   const current = JSON.parse(localStorage.getItem("currentReport"));
 
@@ -243,126 +243,89 @@ const saveReport = async () => {
   /* ===========================
      EDITAR
   =========================== */
- if (isEditing && current?.id) {
+  if (isEditing && current?.id) {
+    localReport = {
+      ...current,
+      ...reportData,
+      synced: false,
+      updatedAt: new Date().toISOString(),
+    };
+
+    const updatedList = stored.map((r) =>
+      r.id === current.id ? localReport : r
+    );
+
+    localStorage.setItem("serviceReports", JSON.stringify(updatedList));
+    localStorage.setItem("currentReport", JSON.stringify(localReport));
+
+    try {
+      const { error } = await supabase
+        .from("informes")
+        .update(reportData)
+        .eq("id", current.id);
+
+      if (error) throw error;
+
+      const finalList = updatedList.map((r) =>
+        r.id === current.id ? { ...r, synced: true } : r
+      );
+
+      localStorage.setItem("serviceReports", JSON.stringify(finalList));
+      localStorage.setItem(
+        "currentReport",
+        JSON.stringify({ ...localReport, synced: true })
+      );
+
+      alert("Informe actualizado en Supabase ✅");
+    } catch (err) {
+      alert("Actualizado localmente (pendiente de sincronizar)");
+    }
+
+    navigate("/informe");
+    return;
+  }
+
+  /* ===========================
+     CREAR NUEVO
+  =========================== */
   localReport = {
-    ...current,
-    ...reportData,
+    id: Date.now(),
+    createdAt: new Date().toISOString(),
     synced: false,
-    updatedAt: new Date().toISOString(),
+    ...reportData,
   };
 
-  const updatedList = stored.map((r) =>
-    r.id === current.id ? localReport : r
-  );
-
-  localStorage.setItem("serviceReports", JSON.stringify(updatedList));
-  localStorage.setItem("currentReport", JSON.stringify(localReport));
+  const initialList = [...stored, localReport];
+  localStorage.setItem("serviceReports", JSON.stringify(initialList));
 
   try {
-    const { error } = await supabase
+    const { data: inserted, error } = await supabase
       .from("informes")
-      .update(reportData)
-      .eq("id", current.id);
+      .insert([reportData])
+      .select()
+      .single();
 
     if (error) throw error;
 
-    /* ===========================
-   EDITAR
-=========================== */
-if (isEditing && current?.id) {
-  localReport = {
-    ...current,
-    ...reportData,
-    synced: false,
-    updatedAt: new Date().toISOString(),
-  };
-
-  const updatedList = stored.map((r) =>
-    r.id === current.id ? localReport : r
-  );
-
-  localStorage.setItem("serviceReports", JSON.stringify(updatedList));
-  localStorage.setItem("currentReport", JSON.stringify(localReport));
-
-  try {
-    const { error } = await supabase
-      .from("informes")
-      .update(reportData)
-      .eq("id", current.id);
-
-    if (error) throw error;
-
-    const finalList = updatedList.map((r) =>
-      r.id === current.id ? { ...r, synced: true } : r
+    const finalList = initialList.map((r) =>
+      r.id === localReport.id
+        ? { ...r, id: inserted.id, synced: true }
+        : r
     );
 
     localStorage.setItem("serviceReports", JSON.stringify(finalList));
-    localStorage.setItem(
-      "currentReport",
-      JSON.stringify({ ...localReport, synced: true })
-    );
 
-    alert("Informe actualizado en Supabase ✅");
+    const finalReport = finalList.find((r) => r.id === inserted.id);
+    localStorage.setItem("currentReport", JSON.stringify(finalReport));
+
+    alert("Informe guardado en Supabase ✅");
   } catch (err) {
-    alert("Actualizado localmente (pendiente de sincronizar)");
+    alert("Guardado localmente (pendiente de sincronizar)");
   }
 
+  localStorage.removeItem("autoSaveInforme");
   navigate("/informe");
-  return;
-}
-
-    alert("Informe actualizado en Supabase ✅");
-  } catch (err) {
-    alert("Actualizado localmente (pendiente de sincronizar)");
-  }
-
-  navigate("/informe");
-  return;
-} 
-/* ===========================
-   CREAR NUEVO
-=========================== */
-localReport = {
-  id: Date.now(),
-  createdAt: new Date().toISOString(),
-  synced: false,
-  ...reportData,
-};
-
-// Guardado local inicial
-const initialList = [...stored, localReport];
-localStorage.setItem("serviceReports", JSON.stringify(initialList));
-
-try {
-  const { data: inserted, error } = await supabase
-    .from("informes")
-    .insert([reportData])
-    .select()
-    .single();
-
-  if (error) throw error;
-
-  // 🔥 Reemplazar ID temporal por ID real
-  const finalList = initialList.map((r) =>
-    r.id === localReport.id
-      ? { ...r, id: inserted.id, synced: true }
-      : r
-  );
-
-localStorage.setItem("serviceReports", JSON.stringify(finalList));
-
-// 🔥 Actualizar currentReport con ID real
-const finalReport = finalList.find(r => r.id === inserted.id);
-localStorage.setItem("currentReport", JSON.stringify(finalReport));
-
-alert("Informe guardado en Supabase ✅");
-} catch (err) {
-  alert("Guardado localmente (pendiente de sincronizar)");
-}
-
-localStorage.removeItem("autoSaveInforme");
-navigate("/informe");
-  
+}; 
   return (
   <div className="p-6 bg-gray-100 min-h-screen">
     <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
