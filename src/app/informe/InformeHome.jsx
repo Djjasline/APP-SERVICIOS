@@ -54,8 +54,7 @@ export default function InformeHome() {
 
   const filteredReports = Array.isArray(reports)
     ? reports.filter((r) => {
-        const completed =
-          r?.data?.firmas?.tecnico && r?.data?.firmas?.cliente;
+        const completed = r.estado === "completado";
 
         if (filter === "borrador") return !completed;
         if (filter === "completado") return completed;
@@ -157,7 +156,7 @@ export default function InformeHome() {
                   <div className="text-xs">
                     Estado:{" "}
                     <strong>
-                      {completed ? "Completado" : "Borrador"}
+                      {r.estado === "completado" ? "Completado" : "Borrador"}
                     </strong>
                   </div>
                 </div>
