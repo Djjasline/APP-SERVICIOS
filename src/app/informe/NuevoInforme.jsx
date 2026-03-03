@@ -260,9 +260,15 @@ useEffect(() => {
 
     try {
       const { error } = await supabase
-        .from("informes")
-        .update(reportData)
-        .eq("id", current.id);
+  .from("registros")
+  .update({
+    estado: reportData.estado,
+    data: reportData.data,
+    updated_at: new Date().toISOString()
+  })
+  .eq("id", current.id)
+  .eq("tipo", "informe")
+  .eq("subtipo", "general");
 
       if (error) throw error;
 
@@ -299,14 +305,18 @@ useEffect(() => {
   localStorage.setItem("serviceReports", JSON.stringify(initialList));
 
   try {
-    const { data: inserted, error } = await supabase
-      .from("registros")
-.insert({
-  tipo: "informe",
-  subtipo: "general",
-  estado: "...",
-  data: {...}
-})
+const { data: inserted, error } = await supabase
+  .from("registros")
+  .insert([
+    {
+      tipo: "informe",
+      subtipo: "general",
+      estado: reportData.estado,
+      data: reportData.data
+    }
+  ])
+  .select()
+  .single();
     if (error) throw error;
 
     const finalList = initialList.map((r) =>
