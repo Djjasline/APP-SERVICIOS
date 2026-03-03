@@ -109,7 +109,7 @@ export default function IndexInforme() {
                   </p>
                   <span
                     className={`text-xs font-semibold ${
-                      inf.estado === "completado"
+                      inf.estado?.toLowerCase().trim() === "completado"
                         ? "text-green-600"
                         : "text-orange-600"
                     }`}
@@ -132,7 +132,7 @@ export default function IndexInforme() {
                     Abrir
                   </button>
 
-           {inf.estado === "completado" && (
+           {inf.estado?.toLowerCase().trim() === "completado" && (
   <button
     className="bg-green-600 text-white px-2 py-1 text-xs rounded"
     onClick={() => {
