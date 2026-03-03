@@ -273,7 +273,10 @@ const { data } = report;
           </button>
 
           <button
-            onClick={() => window.print()}
+           onClick={() => {
+  if (report.estado !== "completado") return;
+  window.print();
+}}
             className="bg-green-600 text-white px-6 py-2 rounded"
           >
             Descargar PDF
