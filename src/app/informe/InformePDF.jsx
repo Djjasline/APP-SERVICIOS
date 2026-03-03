@@ -45,6 +45,25 @@ export default function InformePDF() {
     );
   }
 
+/* ===========================
+   🔒 VALIDACIÓN EMPRESARIAL
+=========================== */
+if (report.estado !== "completado") {
+  return (
+    <div className="p-6 text-center">
+      <p>Este informe no está completado.</p>
+      <button
+        onClick={() => navigate("/informe")}
+        className="border px-4 py-2 rounded mt-4"
+      >
+        Volver
+      </button>
+    </div>
+  );
+}
+
+const { data } = report;
+  
   const { data } = report;
 
   return (
