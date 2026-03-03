@@ -72,18 +72,18 @@ export default function InformeHome() {
   }, []);
 
   /* =============================
-     FILTRO SEGURO
-  ============================== */
-   filteredReports = Array.isArray(reports)
-    ? reports.filter((r) => {
-         completed =
-          r?.data?.firmas?.tecnico && r?.data?.firmas?.cliente;
+   FILTRO SEGURO
+============================= */
+const filteredReports = Array.isArray(reports)
+  ? reports.filter((r) => {
+      const completed =
+        r?.data?.firmas?.tecnico && r?.data?.firmas?.cliente;
 
-        if (filter === "borrador") return !completed;
-        if (filter === "completado") return completed;
-        return true;
-      })
-    : [];
+      if (filter === "borrador") return !completed;
+      if (filter === "completado") return completed;
+      return true;
+    })
+  : [];
 
   /* =============================
      ACCIONES
