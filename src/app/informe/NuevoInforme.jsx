@@ -300,11 +300,13 @@ useEffect(() => {
 
   try {
     const { data: inserted, error } = await supabase
-      .from("informes")
-      .insert([reportData])
-      .select()
-      .single();
-
+      .from("registros")
+.insert({
+  tipo: "informe",
+  subtipo: "general",
+  estado: "...",
+  data: {...}
+})
     if (error) throw error;
 
     const finalList = initialList.map((r) =>
