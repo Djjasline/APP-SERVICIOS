@@ -6,7 +6,6 @@ import ReportHeader from "@/components/report/ReportHeader";
 
 export default function NuevoInforme() {
   const navigate = useNavigate();
-  const location = useLocation();
   const currentReport = JSON.parse(localStorage.getItem("currentReport"));
 const isEditing = !!currentReport?.id;
 
