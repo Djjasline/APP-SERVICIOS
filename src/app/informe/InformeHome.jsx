@@ -22,8 +22,10 @@ export default function InformeHome() {
       try {
         // 🔥 2️⃣ Cargar desde Supabase (fuente principal)
         const { data, error } = await supabase
-          .from("informes")
+          .from("registros")
           .select("*")
+          .eq("tipo", "informe")
+          .eq("subtipo", "general")
           .order("updated_at", { ascending: false });
 
         if (!error && data) {
