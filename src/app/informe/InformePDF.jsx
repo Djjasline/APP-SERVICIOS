@@ -31,19 +31,19 @@ export default function InformePDF() {
     }
   }, [id]);
 
-  if (!report) {
-    return (
-      <div className="p-6 text-center">
-        <p>No se encontró el informe.</p>
-        <button
-          onClick={() => navigate("/informe")}
-          className="border px-4 py-2 rounded mt-4"
-        >
-          Volver
-        </button>
-      </div>
-    );
-  }
+if (!report) {
+  return (
+    <div className="p-6 text-center">
+      <p>No se encontró el informe.</p>
+      <button
+        onClick={() => navigate("/informe")}
+        className="border px-4 py-2 rounded mt-4"
+      >
+        Volver
+      </button>
+    </div>
+  );
+}
 
 /* ===========================
    🔒 VALIDACIÓN EMPRESARIAL
@@ -63,8 +63,6 @@ if (report.estado !== "completado") {
 }
 
 const { data } = report;
-  
-  const { data } = report;
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
