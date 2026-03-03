@@ -132,16 +132,20 @@ export default function IndexInforme() {
                     Abrir
                   </button>
 
-                  {inf.estado === "completado" && (
-                    <button
-                      className="bg-green-600 text-white px-2 py-1 text-xs rounded"
-                      onClick={() =>
-                        navigate(`/informe/pdf/${inf.id}`)
-                      }
-                    >
-                      PDF
-                    </button>
-                  )}
+           {inf.estado === "completado" && (
+  <button
+    className="bg-green-600 text-white px-2 py-1 text-xs rounded"
+    onClick={() => {
+      if (inf.estado !== "completado") {
+        alert("Solo se puede generar el informe cuando está COMPLETADO.");
+        return;
+      }
+      navigate(`/informe/pdf/${inf.id}`);
+    }}
+  >
+    PDF
+  </button>
+)}
 
                   <button
                     className="text-red-600 text-xs"
