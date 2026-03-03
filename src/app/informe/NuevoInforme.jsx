@@ -52,7 +52,7 @@ const isEditing = !!currentReport?.id;
     },
   };
 
-  const [data, setData] = useState(emptyReport);
+  const [data, setData] = useState(empty);
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
@@ -69,7 +69,7 @@ const isEditing = !!currentReport?.id;
    CARGAR BORRADOR
 =========================== */
 useEffect(() => {
-  const current = JSON.parse(localStorage.getItem("currentReport"));
+  const current = JSON.parse(localStorage.getItem("current"));
 
   if (current?.data) {
     setData(current.data);
@@ -84,7 +84,7 @@ useEffect(() => {
     }, 0);
 
   } else {
-    setData(emptyReport);
+    setData(empty);
   }
 
 }, []);
@@ -226,16 +226,19 @@ useEffect(() => {
       ? sigCliente.current.toDataURL()
       : "";
 
-  const reportData = {
-    estado: "borrador",
-    data: {
-      ...data,
-      firmas: {
-        tecnico: firmaTecnico,
-        cliente: firmaCliente,
-      },
+// 🔒 Validar firma técnico
+const estadoFinal = firmaTecnico ? "completado" : "borrador";
+
+const reportData = {
+  estado: estadoFinal,
+  data: {
+    ...data,
+    firmas: {
+      tecnico: firmaTecnico,
+      cliente: firmaCliente,
     },
-  };
+  },
+};
 
   let localReport;
 
