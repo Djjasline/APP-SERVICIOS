@@ -243,13 +243,14 @@ useEffect(() => {
   /* ===========================
      EDITAR
   =========================== */
-localReport = {
-  ...current,
-  estado: reportData.estado,
-  data: reportData.data,
-  updatedAt: new Date().toISOString(),
-  synced: false,
-};
+  if (isEditing && current?.id) {
+    localReport = {
+      ...current,
+      estado: reportData.estado,
+      data: reportData.data,
+      updatedAt: new Date().toISOString(),
+      synced: false,
+    };
 
     const updatedList = stored.map((r) =>
       r.id === current.id ? localReport : r
@@ -260,15 +261,15 @@ localReport = {
 
     try {
       const { error } = await supabase
-  .from("registros")
-  .update({
-    estado: reportData.estado,
-    data: reportData.data,
-    updated_at: new Date().toISOString()
-  })
-  .eq("id", current.id)
-  .eq("tipo", "informe")
-  .eq("subtipo", "general");
+        .from("registros")
+        .update({
+          estado: reportData.estado,
+          data: reportData.data,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", current.id)
+        .eq("tipo", "informe")
+        .eq("subtipo", "general");
 
       if (error) throw error;
 
@@ -291,32 +292,37 @@ localReport = {
     return;
   }
 
-localReport = {
-  id: Date.now(),
-  tipo: "informe",
-  subtipo: "general",
-  estado: reportData.estado,
-  data: reportData.data,
-  createdAt: new Date().toISOString(),
-  synced: false,
-};
+  /* ===========================
+     CREAR NUEVO
+  =========================== */
+
+  localReport = {
+    id: Date.now(),
+    tipo: "informe",
+    subtipo: "general",
+    estado: reportData.estado,
+    data: reportData.data,
+    createdAt: new Date().toISOString(),
+    synced: false,
+  };
 
   const initialList = [...stored, localReport];
   localStorage.setItem("serviceReports", JSON.stringify(initialList));
 
   try {
-const { data: inserted, error } = await supabase
-  .from("registros")
-  .insert([
-    {
-      tipo: "informe",
-      subtipo: "general",
-      estado: reportData.estado,
-      data: reportData.data
-    }
-  ])
-  .select()
-  .single();
+    const { data: inserted, error } = await supabase
+      .from("registros")
+      .insert([
+        {
+          tipo: "informe",
+          subtipo: "general",
+          estado: reportData.estado,
+          data: reportData.data,
+        },
+      ])
+      .select()
+      .single();
+
     if (error) throw error;
 
     const finalList = initialList.map((r) =>
@@ -337,7 +343,7 @@ const { data: inserted, error } = await supabase
 
   localStorage.removeItem("autoSaveInforme");
   navigate("/informe");
-}; 
+};
   return (
   <div className="p-6 bg-gray-100 min-h-screen">
     <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
