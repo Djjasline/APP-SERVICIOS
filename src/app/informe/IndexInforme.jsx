@@ -144,7 +144,7 @@ const filtrados = informes.filter((inf) => {
             {filtrados.map((inf) => (
               <div
                 key={inf.id}
-                className="border rounded p-3 flex justify-between items-center text-sm"
+               <div className="border rounded p-3 flex justify-between items-start text-sm">
               >
                 <div>
                   <p className="font-semibold">
@@ -164,7 +164,7 @@ const filtrados = informes.filter((inf) => {
                   </span>
                 </div>
 
-                <div className="flex gap-2">
+               <div className="flex gap-2 flex-wrap">
                   <button
                     className="border px-2 py-1 text-xs rounded"
                     onClick={() => {
