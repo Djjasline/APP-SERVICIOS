@@ -11,7 +11,9 @@ export default function InformePDF() {
   /* ===========================
      CARGAR INFORME (MISMO FLUJO QUE INSPECCIÓN)
   =========================== */
-  useEffect(() => {
+useEffect(() => {
+  const loadReport = async () => {
+
     // 1️⃣ Intentar desde currentReport
     const current = JSON.parse(localStorage.getItem("currentReport"));
 
@@ -20,18 +22,48 @@ export default function InformePDF() {
       return;
     }
 
-    // 2️⃣ Fallback: buscar en historial
+    // 2️⃣ Buscar en historial local
     const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
-    const found = stored.find(
+    const foundLocal = stored.find(
       (r) => String(r.id) === String(id)
     );
 
-    if (found) {
-      setReport(found);
-      localStorage.setItem("currentReport", JSON.stringify(found));
+    if (foundLocal) {
+      setReport(foundLocal);
+      localStorage.setItem("currentReport", JSON.stringify(foundLocal));
+      return;
     }
-  }, [id]);
 
+    // 3️⃣ 🔥 NUEVO: Buscar en Supabase
+    try {
+      const { data, error } = await supabase
+        .from("registros")
+        .select("*")
+        .eq("id", id)
+        .eq("tipo", "informe")
+        .eq("subtipo", "general")
+        .single();
+
+      if (!error && data) {
+        const mapped = {
+          id: data.id,
+          estado: data.estado,
+          data: data.data,
+          createdAt: data.created_at,
+          updatedAt: data.updated_at,
+        };
+
+        setReport(mapped);
+        localStorage.setItem("currentReport", JSON.stringify(mapped));
+      }
+
+    } catch (err) {
+      console.error("Error cargando informe:", err);
+    }
+  };
+
+  loadReport();
+}, [id]);
 if (!report) {
   return (
     <div className="p-6 text-center">
