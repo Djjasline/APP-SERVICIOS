@@ -69,7 +69,7 @@ const isEditing = !!currentReport?.id;
    CARGAR BORRADOR
 =========================== */
 useEffect(() => {
-  const current = JSON.parse(localStorage.getItem("current"));
+  const current = JSON.parse(localStorage.getItem("currentReport"));
 
   if (current?.data) {
     setData(current.data);
