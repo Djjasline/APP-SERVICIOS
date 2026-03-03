@@ -17,10 +17,14 @@ export default function IndexInforme() {
   /* ===========================
      FILTRO
   =========================== */
-  const filtrados = informes.filter((inf) => {
-    if (filtro === "todos") return true;
-    return inf.estado === filtro;
-  });
+ const filtrados = informes.filter((inf) => {
+  if (filtro === "todos") return true;
+
+  return (
+    inf.estado &&
+    inf.estado.toLowerCase().trim() === filtro
+  );
+});
 
   /* ===========================
      TITULO DEL HISTORIAL
@@ -139,7 +143,7 @@ export default function IndexInforme() {
   >
     PDF
   </button>
-)}           
+)}        
 
                   <button
                     className="text-red-600 text-xs"
