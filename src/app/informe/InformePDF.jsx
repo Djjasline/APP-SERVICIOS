@@ -34,7 +34,7 @@ useEffect(() => {
       return;
     }
 
-    // 3️⃣ 🔥 NUEVO: Buscar en Supabase
+    // 3️⃣ 🔥 Buscar en Supabase
     try {
       const { data, error } = await supabase
         .from("registros")
@@ -64,6 +64,7 @@ useEffect(() => {
 
   loadReport();
 }, [id]);
+  
 if (!report) {
   return (
     <div className="p-6 text-center">
