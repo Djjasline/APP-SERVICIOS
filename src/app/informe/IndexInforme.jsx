@@ -28,7 +28,7 @@ export default function IndexInforme() {
   /* ===========================
      FILTRO
   =========================== */
- const filtrados = informes.filter((inf) => {
+const filtrados = informes.filter((inf) => {
   if (filtro === "todos") return true;
 
   return (
@@ -147,7 +147,7 @@ export default function IndexInforme() {
                     Abrir
                   </button>
 
-{inf.estado?.toLowerCase().trim() === "completado" && (
+{true && (
   <button
     className="bg-green-600 text-white px-2 py-1 text-xs rounded"
     onClick={() => navigate(`/informe/pdf/${inf.id}`)}
