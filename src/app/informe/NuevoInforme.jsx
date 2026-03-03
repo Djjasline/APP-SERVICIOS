@@ -216,11 +216,6 @@ useEffect(() => {
   const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
   const current = JSON.parse(localStorage.getItem("currentReport"));
 
-  const firmaTecnico =
-    sigTecnico.current && !sigTecnico.current.isEmpty()
-      ? sigTecnico.current.toDataURL()
-      : "";
-
 const firmaTecnico =
   sigTecnico.current && !sigTecnico.current.isEmpty()
     ? sigTecnico.current.toDataURL()
