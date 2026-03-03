@@ -243,13 +243,13 @@ useEffect(() => {
   /* ===========================
      EDITAR
   =========================== */
-  if (isEditing && current?.id) {
-    localReport = {
-      ...current,
-      ...reportData,
-      synced: false,
-      updatedAt: new Date().toISOString(),
-    };
+localReport = {
+  ...current,
+  estado: reportData.estado,
+  data: reportData.data,
+  updatedAt: new Date().toISOString(),
+  synced: false,
+};
 
     const updatedList = stored.map((r) =>
       r.id === current.id ? localReport : r
@@ -291,15 +291,15 @@ useEffect(() => {
     return;
   }
 
-  /* ===========================
-     CREAR NUEVO
-  =========================== */
-  localReport = {
-    id: Date.now(),
-    createdAt: new Date().toISOString(),
-    synced: false,
-    ...reportData,
-  };
+localReport = {
+  id: Date.now(),
+  tipo: "informe",
+  subtipo: "general",
+  estado: reportData.estado,
+  data: reportData.data,
+  createdAt: new Date().toISOString(),
+  synced: false,
+};
 
   const initialList = [...stored, localReport];
   localStorage.setItem("serviceReports", JSON.stringify(initialList));
