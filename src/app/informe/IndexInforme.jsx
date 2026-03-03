@@ -140,69 +140,71 @@ const filtrados = informes.filter((inf) => {
             {filtrados.length === 0 && (
               <p className="text-xs text-gray-500">Sin registros</p>
             )}
-
-            {filtrados.map((inf) => (
-              <div
-                key={inf.id}
-               <div className="border rounded p-3 flex justify-between items-start text-sm">
-              >
-                <div>
-                  <p className="font-semibold">
-                    {getTitulo(inf)}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(inf.createdAt).toLocaleString()}
-                  </p>
-                  <span
-                    className={`text-xs font-semibold ${
-                      inf.estado?.toLowerCase().trim() === "completado"
-                        ? "text-green-600"
-                        : "text-orange-600"
-                    }`}
-                  >
-                    {inf.estado}
-                  </span>
-                </div>
-
-               <div className="flex gap-2 flex-wrap">
-                  <button
-                    className="border px-2 py-1 text-xs rounded"
-                    onClick={() => {
-                      localStorage.setItem(
-                        "currentReport",
-                        JSON.stringify(inf)
-                      );
-                      navigate(`/informe/${inf.id}`);
-                    }}
-                  >
-                    Abrir
-                  </button>
-
-{true && (
-  <button
-    className="bg-green-600 text-white px-2 py-1 text-xs rounded"
-    onClick={() => navigate(`/informe/pdf/${inf.id}`)}
+{filtrados.map((inf) => (
+  <div
+    key={inf.id}
+    className="border rounded p-3 flex justify-between items-start text-sm"
   >
-    PDF
-  </button>
-)}        
+    <div>
+      <p className="font-semibold">
+        {getTitulo(inf)}
+      </p>
 
-                  <button
-                    className="text-red-600 text-xs"
-                    onClick={() => {
-                      const next = informes.filter(i => i.id !== inf.id);
-                      setInformes(next);
-                      localStorage.setItem(
-                        "serviceReports",
-                        JSON.stringify(next)
-                      );
-                    }}
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            ))}
+      <p className="text-xs text-gray-500">
+        {new Date(inf.createdAt).toLocaleString()}
+      </p>
+
+      <span
+        className={`text-xs font-semibold ${
+          inf.estado?.toLowerCase().trim() === "completado"
+            ? "text-green-600"
+            : "text-orange-600"
+        }`}
+      >
+        {inf.estado}
+      </span>
+    </div>
+
+    <div className="flex gap-2 flex-wrap">
+      <button
+        className="border px-2 py-1 text-xs rounded"
+        onClick={() => {
+          localStorage.setItem(
+            "currentReport",
+            JSON.stringify(inf)
+          );
+          navigate(`/informe/${inf.id}`);
+        }}
+      >
+        Abrir
+      </button>
+
+      {inf.estado === "completado" && (
+        <button
+          className="bg-green-600 text-white px-2 py-1 text-xs rounded"
+          onClick={() => navigate(`/informe/pdf/${inf.id}`)}
+        >
+          PDF
+        </button>
+      )}
+
+      <button
+        className="text-red-600 text-xs"
+        onClick={() => {
+          const next = informes.filter(i => i.id !== inf.id);
+          setInformes(next);
+          localStorage.setItem(
+            "serviceReports",
+            JSON.stringify(next)
+          );
+        }}
+      >
+        Eliminar
+      </button>
+    </div>
+  </div>
+))}
+
           </div>
 
         </div>
