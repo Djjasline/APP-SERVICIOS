@@ -52,7 +52,7 @@ const isEditing = !!currentReport?.id;
     },
   };
 
-  const [data, setData] = useState(empty);
+  const [data, setData] = useState(emptyReport);
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
@@ -84,7 +84,7 @@ useEffect(() => {
     }, 0);
 
   } else {
-    setData(empty);
+    setData(emptyReport);
   }
 
 }, []);
@@ -221,21 +221,39 @@ useEffect(() => {
       ? sigTecnico.current.toDataURL()
       : "";
 
-  const firmaCliente =
-    sigCliente.current && !sigCliente.current.isEmpty()
-      ? sigCliente.current.toDataURL()
-      : "";
+const firmaTecnico =
+  sigTecnico.current && !sigTecnico.current.isEmpty()
+    ? sigTecnico.current.toDataURL()
+    : "";
 
-// 🔒 Validar firma técnico
-const estadoFinal = firmaTecnico ? "completado" : "borrador";
+const firmaCliente =
+  sigCliente.current && !sigCliente.current.isEmpty()
+    ? sigCliente.current.toDataURL()
+    : "";
+
+/* ===========================
+   🔒 VALIDACIÓN REAL FIRMA
+=========================== */
+
+// Si el canvas no tiene firma nueva,
+// usar la que ya estaba guardada
+const firmaTecnicoFinal =
+  firmaTecnico || data.firmas?.tecnico || "";
+
+const firmaClienteFinal =
+  firmaCliente || data.firmas?.cliente || "";
+
+// Estado depende de que exista firma técnico
+const estadoFinal =
+  firmaTecnicoFinal ? "completado" : "borrador";
 
 const reportData = {
   estado: estadoFinal,
   data: {
     ...data,
     firmas: {
-      tecnico: firmaTecnico,
-      cliente: firmaCliente,
+      tecnico: firmaTecnicoFinal,
+      cliente: firmaClienteFinal,
     },
   },
 };
