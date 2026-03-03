@@ -21,7 +21,7 @@ export default function InformeHome() {
 
       try {
         // 🔥 2️⃣ Cargar desde Supabase (fuente principal)
-        const { data, error } = await supabase
+         { data, error } = await supabase
           .from("registros")
           .select("*")
           .eq("tipo", "informe")
@@ -41,10 +41,10 @@ export default function InformeHome() {
 
       // 🔹 3️⃣ Fallback local
       try {
-        const stored = JSON.parse(localStorage.getItem("serviceReports"));
+         stored = JSON.parse(localStorage.getItem("serviceReports"));
 
         if (Array.isArray(stored)) {
-          const sorted = [...stored].sort((a, b) =>
+           sorted = [...stored].sort((a, b) =>
             new Date(b.updatedAt || b.createdAt) -
             new Date(a.updatedAt || a.createdAt)
           );
@@ -74,9 +74,9 @@ export default function InformeHome() {
   /* =============================
      FILTRO SEGURO
   ============================== */
-  const filteredReports = Array.isArray(reports)
+   filteredReports = Array.isArray(reports)
     ? reports.filter((r) => {
-        const completed =
+         completed =
           r?.data?.firmas?.tecnico && r?.data?.firmas?.cliente;
 
         if (filter === "borrador") return !completed;
@@ -89,20 +89,22 @@ export default function InformeHome() {
      ACCIONES
   ============================== */
 
-  const openReport = (report) => {
+   openReport = (report) => {
     if (!report) return;
     localStorage.setItem("currentReport", JSON.stringify(report));
     navigate(`/informe/${report.id}`);
   };
 
-  const deleteReport = async (id) => {
+   deleteReport = async (id) => {
     if (!confirm("¿Eliminar este informe?")) return;
 
     try {
       const { error } = await supabase
         .from("informes")
         .delete()
-        .eq("id", id);
+        .eq("id", id)
+        .eq("tipo", "informe")
+        .eq("subtipo", "general");
 
       if (error) {
         console.warn("No se pudo borrar en Supabase");
