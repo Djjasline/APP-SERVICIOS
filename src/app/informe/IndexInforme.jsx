@@ -1,3 +1,4 @@
+import { supabase } from "@/lib/supabase";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -9,20 +10,50 @@ export default function IndexInforme() {
   /* ===========================
      CARGAR INFORMES
   =========================== */
- useEffect(() => {
-  const cargarInformes = () => {
-    const stored =
+useEffect(() => {
+  const cargarInformes = async () => {
+
+    // 1️⃣ Intentar leer local
+    const local =
       JSON.parse(localStorage.getItem("serviceReports")) || [];
-    setInformes(stored);
+
+    if (local.length > 0) {
+      setInformes(local);
+      return;
+    }
+
+    // 2️⃣ Si no hay local, leer Supabase
+    const { data, error } = await supabase
+      .from("registros")
+      .select("*")
+      .eq("tipo", "informe")
+      .eq("subtipo", "general")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error cargando desde Supabase:", error);
+      return;
+    }
+
+    if (data) {
+      const mapped = data.map(r => ({
+        id: r.id,
+        estado: r.estado,
+        data: r.data,
+        createdAt: r.created_at,
+        synced: true
+      }));
+
+      localStorage.setItem(
+        "serviceReports",
+        JSON.stringify(mapped)
+      );
+
+      setInformes(mapped);
+    }
   };
 
   cargarInformes();
-
-  window.addEventListener("focus", cargarInformes);
-
-  return () => {
-    window.removeEventListener("focus", cargarInformes);
-  };
 }, []);
 
   /* ===========================
