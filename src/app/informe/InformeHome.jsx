@@ -161,21 +161,30 @@ export default function InformeHome() {
                   </div>
                 </div>
 
-                <div className="flex gap-3 text-sm">
-                  <button
-                    onClick={() => openReport(r)}
-                    className="text-blue-600"
-                  >
-                    Abrir
-                  </button>
+<div className="flex gap-3 text-sm">
+  <button
+    onClick={() => openReport(r)}
+    className="text-blue-600"
+  >
+    Abrir
+  </button>
 
-                  <button
-                    onClick={() => deleteReport(r.id)}
-                    className="text-red-600"
-                  >
-                    Eliminar
-                  </button>
-                </div>
+  {r.estado === "completado" && (
+    <button
+      onClick={() => navigate(`/informe/pdf/${r.id}`)}
+      className="text-green-600 font-semibold"
+    >
+      PDF
+    </button>
+  )}
+
+  <button
+    onClick={() => deleteReport(r.id)}
+    className="text-red-600"
+  >
+    Eliminar
+  </button>
+</div>
               </div>
             );
           })}
