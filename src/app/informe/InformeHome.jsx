@@ -223,18 +223,7 @@ const filteredReports = Array.isArray(reports)
                   </button>
                 </div>
               </div>
-           import SyncStatus from "@/components/SyncStatus";
-import { syncReports } from "@/lib/sync";
-import { supabase } from "@/lib/supabase";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-export default function InformeHome() {
-  const navigate = useNavigate();
-
-  const [reports, setReports] = useState([]);
-  const [filter, setFilter] = useState("todos");
-
+           
   /* =============================
      CARGA SEGURA DESDE SUPABASE Y LOCALSTORE
   ============================== */
