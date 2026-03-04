@@ -135,8 +135,11 @@ export default function HojaInspeccionHidro() {
   const [formData, setFormData] = useState(baseState);
 
   useEffect(() => {
+  const loadInspection = async () => {
     if (!id || id === "0") return;
-    const stored = getInspectionById("hidro", id);
+
+    const stored = await getInspectionById("hidro", id);
+
     if (stored?.data) {
       setFormData({
         ...baseState,
@@ -145,7 +148,10 @@ export default function HojaInspeccionHidro() {
         items: stored.data.items || {},
       });
     }
-  }, [id]);
+  };
+
+  loadInspection();
+}, [id]);
 /* =========================
    RECARGAR FIRMAS AL ABRIR
 ========================= */
@@ -218,22 +224,22 @@ useEffect(() => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const now = new Date().toISOString(); // 👈 NUEVO
-    
-    markInspectionCompleted("hidro", id, {
-      ...formData,
-     updatedAt: now, // 👈 NUEVO 
-      firmas: {
-        tecnico: firmaTecnicoRef.current?.toDataURL() || "",
-        cliente: firmaClienteRef.current?.toDataURL() || "",
-      },
-    });
+  const now = new Date().toISOString();
 
-    navigate("/inspeccion");
-  };
+  await markInspectionCompleted("hidro", id, {
+    ...formData,
+    updatedAt: now,
+    firmas: {
+      tecnico: firmaTecnicoRef.current?.toDataURL() || "",
+      cliente: firmaClienteRef.current?.toDataURL() || "",
+    },
+  });
+
+  navigate("/inspeccion");
+};
 
   return (
     <form
