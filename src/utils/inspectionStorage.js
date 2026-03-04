@@ -1,126 +1,126 @@
+import { supabase } from "@/lib/supabase";
+
 /* ======================================================
-   STORAGE PARA INSPECCIONES
-   Tipos: hidro | barredora | camara
-   Estados: borrador | completada
+   STORAGE PARA INSPECCIONES (SUPABASE)
 ====================================================== */
 
-const STORAGE_KEY = "inspections";
+/* ================= GET ALL ================= */
+export async function getAllInspections() {
+  const { data, error } = await supabase
+    .from("registros")
+    .select("*")
+    .eq("tipo", "inspeccion")
+    .order("updated_at", { ascending: false });
 
-/* ================= UTIL ================= */
-function loadAll() {
-  try {
-    var raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
+  if (error || !data) return [];
+
+  return data.map(r => ({
+    id: r.id,
+    type: r.subtipo,
+    estado: r.estado,
+    fecha: r.created_at,
+    updatedAt: r.updated_at,
+    data: r.data
+  }));
 }
 
-function saveAll(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+/* ================= GET BY TYPE ================= */
+export async function getInspections(type) {
+  const { data, error } = await supabase
+    .from("registros")
+    .select("*")
+    .eq("tipo", "inspeccion")
+    .eq("subtipo", type)
+    .order("updated_at", { ascending: false });
+
+  if (error || !data) return [];
+
+  return data.map(r => ({
+    id: r.id,
+    type: r.subtipo,
+    estado: r.estado,
+    fecha: r.created_at,
+    updatedAt: r.updated_at,
+    data: r.data
+  }));
 }
 
-function generateId() {
-  return new Date().getTime();
-}
+/* ================= GET BY ID ================= */
+export async function getInspectionById(type, id) {
+  const { data, error } = await supabase
+    .from("registros")
+    .select("*")
+    .eq("id", id)
+    .eq("tipo", "inspeccion")
+    .eq("subtipo", type)
+    .single();
 
-/* ================= GET ================= */
-export function getAllInspections() {
-  return loadAll();
-}
+  if (error || !data) return null;
 
-export function getInspections(type) {
-  return loadAll().filter(function (i) {
-    return i.type === type;
-  });
-}
-
-export function getInspectionById(type, id) {
-  return loadAll().find(function (i) {
-    return i.type === type && String(i.id) === String(id);
-  });
+  return {
+    id: data.id,
+    type: data.subtipo,
+    estado: data.estado,
+    fecha: data.created_at,
+    updatedAt: data.updated_at,
+    data: data.data
+  };
 }
 
 /* ================= CREATE ================= */
-export function createInspection(type) {
-  var all = loadAll();
+export async function createInspection(type) {
+  const { data, error } = await supabase
+    .from("registros")
+    .insert([
+      {
+        tipo: "inspeccion",
+        subtipo: type,
+        estado: "borrador",
+        data: {},
+      },
+    ])
+    .select()
+    .single();
 
-  var inspection = {
-    id: generateId(),
-    type: type,
-    estado: "borrador",
-    fecha: new Date().toISOString(),
-    data: {},
-  };
+  if (error) return null;
 
-  all.push(inspection);
-  saveAll(all);
-
-  return inspection.id;
+  return data.id;
 }
 
-/* ================= SAVE ================= */
-export function saveInspectionDraft(type, id, data) {
-  var all = loadAll();
-  var found = false;
-
-  for (var i = 0; i < all.length; i++) {
-    if (all[i].type === type && String(all[i].id) === String(id)) {
-      all[i].data = data;
-      all[i].estado = "borrador";
-      all[i].updatedAt = new Date().toISOString(); // 🟢 NUEVO 
-      found = true;
-      break;
-    }
-  }
-
-  if (!found) {
-    all.push({
-      id: id,
-      type: type,
+/* ================= SAVE DRAFT ================= */
+export async function saveInspectionDraft(type, id, data) {
+  await supabase
+    .from("registros")
+    .update({
       estado: "borrador",
-      fecha: new Date().toISOString(),
-      updatedAt: new Date().toISOString(), 
       data: data,
-    });
-  }
-
-  saveAll(all);
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .eq("tipo", "inspeccion")
+    .eq("subtipo", type);
 }
 
-export function markInspectionCompleted(type, id, data) {
-  var all = loadAll();
-  var found = false;
-
-  for (var i = 0; i < all.length; i++) {
-    if (all[i].type === type && String(all[i].id) === String(id)) {
-      all[i].data = data;
-      all[i].estado = "completada";
-      all[i].updatedAt = new Date().toISOString(); 
-      found = true;
-      break;
-    }
-  }
-
-  if (!found) {
-    all.push({
-      id: generateId(),
-      type: type,
+/* ================= MARK COMPLETED ================= */
+export async function markInspectionCompleted(type, id, data) {
+  await supabase
+    .from("registros")
+    .update({
       estado: "completada",
-      fecha: new Date().toISOString(),
-      updatedAt: new Date().toISOString(), 
       data: data,
-    });
-  }
-
-  saveAll(all);
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .eq("tipo", "inspeccion")
+    .eq("subtipo", type);
 }
 
 /* ================= DELETE ================= */
-export function deleteInspection(type, id) {
-  var all = loadAll().filter(function (i) {
-    return !(i.type === type && String(i.id) === String(id));
-  });
-
-  saveAll(all);
+export async function deleteInspection(type, id) {
+  await supabase
+    .from("registros")
+    .delete()
+    .eq("id", id)
+    .eq("tipo", "inspeccion")
+    .eq("subtipo", type);
 }
