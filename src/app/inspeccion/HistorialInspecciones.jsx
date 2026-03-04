@@ -97,7 +97,7 @@ export default function IndexInspeccion() {
               </div>
 
               <span className="text-[10px] text-gray-500">
-                {new Date(item.updatedAt || item.createdAt).toLocaleString()}
+                {new Date(item.updatedAt || item.fecha).toLocaleString()}
               </span>
 
               <div className="flex gap-3 pt-1">
