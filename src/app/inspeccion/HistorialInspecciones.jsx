@@ -46,14 +46,9 @@ export default function IndexInspeccion() {
     navigate(`/inspeccion/${type}/${id}`);
   };
 
-  const handleGeneratePdf = (inspection) => {
-    if (!inspection?.data) {
-      alert("No hay datos para generar el PDF.");
-      return;
-    }
-
-    generateInspectionPdf(inspection.data);
-  };
+ const handleGeneratePdf = (inspection) => {
+  navigate(`/inspeccion/pdf/${inspection.id}`);
+};
 
   /* =============================
      RENDER
