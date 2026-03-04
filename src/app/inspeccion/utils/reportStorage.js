@@ -10,7 +10,8 @@ const STORAGE_KEY = "inspections";
 ====================================================== */
 export function getAllInspections() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return Array.isArray(raw) ? raw : [];
   } catch (err) {
     console.error("Error leyendo inspections:", err);
     return [];
