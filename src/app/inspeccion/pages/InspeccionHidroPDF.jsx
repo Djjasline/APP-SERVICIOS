@@ -83,7 +83,7 @@ export default function InspeccionHidroPdf() {
   const navigate = useNavigate();
   const [inspection, setInspection] = useState(null);
 
- useEffect(() => {
+useEffect(() => {
   const loadInspection = async () => {
     const found = await getInspectionById("hidro", id);
 
@@ -94,7 +94,6 @@ export default function InspeccionHidroPdf() {
 
   loadInspection();
 }, [id]);
-
   if (!inspection) {
     return <div className="p-6">Cargando inspección…</div>;
   }
