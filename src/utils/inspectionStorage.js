@@ -53,7 +53,7 @@ export async function getInspectionById(type, id) {
     .eq("id", id)
     .eq("tipo", "inspeccion")
     .eq("subtipo", type)
-    .single();
+    .maybeSingle();
 
   if (error || !data) return null;
 
