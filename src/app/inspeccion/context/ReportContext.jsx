@@ -5,8 +5,7 @@ import {
   upsertReport,
   getReportById,
   removeReport,
-} from "../utils/reportStorage";
-
+} from "@/utils/inspectionStorage";
 const ReportContext = createContext(null);
 
 export const useReports = () => {
@@ -17,7 +16,7 @@ export const useReports = () => {
 
 const EMPTY_REPORT = {
   id: null,
-  status: "draft", // "draft" | "completed"
+  estado: "draft", // "draft" | "completed"
   generalInfo: {},
   beforeTesting: [],
   activitiesIncidents: {},
@@ -55,7 +54,7 @@ export const ReportProvider = ({ children }) => {
       ...EMPTY_REPORT,
       ...currentReport,
       ...partial,
-      status: "draft",
+      estado: "draft",
     };
     const saved = upsertReport(merged);
     setCurrentReport(saved);
@@ -69,7 +68,7 @@ export const ReportProvider = ({ children }) => {
       ...EMPTY_REPORT,
       ...currentReport,
       ...partial,
-      status: "completed",
+      estado: "completed",
     };
     const saved = upsertReport(merged);
     setCurrentReport(saved);
