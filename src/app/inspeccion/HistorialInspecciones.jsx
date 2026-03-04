@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // STORAGE
-import { getAllInspections } from "@/app/inspeccion/utils/reportStorage";
+import {
+  getAllInspections,
+  deleteInspection
+} from "@/utils/inspectionStorage";
 
 export default function IndexInspeccion() {
   const navigate = useNavigate();
@@ -11,17 +14,21 @@ export default function IndexInspeccion() {
   /* =============================
      CARGAR INSPECCIONES
   ============================== */
-  useEffect(() => {
-    const data = getAllInspections();
+ useEffect(() => {
+  const loadInspections = async () => {
+    const data = await getAllInspections();
 
     const ordered = [...data].sort((a, b) => {
-      const dateA = new Date(a.updatedAt || a.createdAt).getTime();
-      const dateB = new Date(b.updatedAt || b.createdAt).getTime();
+      const dateA = new Date(a.updatedAt || a.fecha).getTime();
+      const dateB = new Date(b.updatedAt || b.fecha).getTime();
       return dateB - dateA;
     });
 
     setInspections(ordered);
-  }, []);
+  };
+
+  loadInspections();
+}, []);
 
   /* =============================
      AGRUPAR POR TIPO
@@ -80,12 +87,12 @@ export default function IndexInspeccion() {
                 </span>
                 <span
                   className={`px-2 py-0.5 rounded text-[10px] ${
-                    item.status === "completado"
+                    item.estado === "completado"
                       ? "bg-green-100 text-green-700"
                       : "bg-yellow-100 text-yellow-700"
                   }`}
                 >
-                  {item.status}
+                  {item.estado}
                 </span>
               </div>
 
@@ -94,7 +101,7 @@ export default function IndexInspeccion() {
               </span>
 
               <div className="flex gap-3 pt-1">
-                {item.status === "completado" && (
+                {item.estado === "completada" && (
                   <button
                     type="button"
                     onClick={() => handleGeneratePdf(item)}
@@ -117,14 +124,11 @@ export default function IndexInspeccion() {
                   className="text-red-600 hover:underline"
                   onClick={() => {
                     if (confirm("¿Eliminar inspección?")) {
-                      const filtered = inspections.filter(
+                      await deleteInspection(item.type, item.id); 
+                      const updated = inspections.filter(
                         (i) => i.id !== item.id
                       );
-                      localStorage.setItem(
-                        "inspections",
-                        JSON.stringify(filtered)
-                      );
-                      setInspections(filtered);
+                     setInspections(updated);
                     }
                   }}
                 >
