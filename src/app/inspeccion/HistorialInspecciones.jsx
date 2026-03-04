@@ -16,15 +16,17 @@ export default function IndexInspeccion() {
   ============================== */
  useEffect(() => {
   const loadInspections = async () => {
-    const data = await getAllInspections();
+ const data = await getAllInspections();
 
-    const ordered = [...data].sort((a, b) => {
-      const dateA = new Date(a.updatedAt || a.fecha).getTime();
-      const dateB = new Date(b.updatedAt || b.fecha).getTime();
-      return dateB - dateA;
-    });
+const safeData = Array.isArray(data) ? data : [];
 
-    setInspections(ordered);
+const ordered = [...safeData].sort((a, b) => {
+  const dateA = new Date(a.updatedAt || a.fecha).getTime();
+  const dateB = new Date(b.updatedAt || b.fecha).getTime();
+  return dateB - dateA;
+});
+
+setInspections(ordered);
   };
 
   loadInspections();
