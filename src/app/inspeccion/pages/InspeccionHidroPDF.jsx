@@ -83,15 +83,34 @@ export default function InspeccionHidroPdf() {
   const navigate = useNavigate();
   const [inspection, setInspection] = useState(null);
 
-  useEffect(() => {
-    const found = getInspectionById("hidro", id);
-    if (found) setInspection(found);
-  }, [id]);
+ useEffect(() => {
+  const loadInspection = async () => {
+    const found = await getInspectionById("hidro", id);
+
+    if (found) {
+      setInspection(found);
+    }
+  };
+
+  loadInspection();
+}, [id]);
 
   if (!inspection) {
     return <div className="p-6">Cargando inspección…</div>;
   }
-
+if (inspection.estado !== "completada") {
+  return (
+    <div className="p-6 text-center">
+      <p>Esta inspección no está completada.</p>
+      <button
+        onClick={() => navigate("/inspeccion")}
+        className="border px-4 py-2 rounded mt-4"
+      >
+        Volver
+      </button>
+    </div>
+  );
+}
   const { data } = inspection;
 
   return (
