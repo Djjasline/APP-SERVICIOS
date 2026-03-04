@@ -28,10 +28,23 @@ const StatusBadge = ({ estado }) => {
 const Card = ({ title, type, description }) => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("todas");
+  const [inspections, setInspections] = useState([]);
 
-  const inspections = getAllInspections().filter(
-    (i) => i.type === type
-  );
+  // 🔥 Cargar desde Supabase correctamente
+  React.useEffect(() => {
+    const loadData = async () => {
+      const data = await getAllInspections();
+      const safe = Array.isArray(data) ? data : [];
+
+      const filteredByType = safe.filter(
+        (i) => i.type === type
+      );
+
+      setInspections(filteredByType);
+    };
+
+    loadData();
+  }, [type]);
 
   const filteredInspections = inspections
     .filter((i) => (filter === "todas" ? true : i.estado === filter))
@@ -46,21 +59,21 @@ const Card = ({ title, type, description }) => {
     navigate(`/inspeccion/${type}/${id}`);
   };
 
-  const eliminarInspeccion = (item) => {
+  const eliminarInspeccion = async (item) => {
     if (!confirm("¿Eliminar esta inspección?")) return;
 
-    const all = getAllInspections();
-    const next = all.filter(
+    const data = await getAllInspections();
+    const safe = Array.isArray(data) ? data : [];
+
+    const next = safe.filter(
       (i) => !(i.id === item.id && i.type === type)
     );
 
-    localStorage.setItem("inspections", JSON.stringify(next));
-    window.location.reload();
+    setInspections(next);
   };
 
   return (
     <div className="border rounded-xl p-4 space-y-4 bg-white shadow-sm">
-      {/* ENCABEZADO */}
       <div>
         <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
         <p className="text-sm text-slate-600">{description}</p>
@@ -73,7 +86,6 @@ const Card = ({ title, type, description }) => {
         + Nueva inspección
       </button>
 
-      {/* FILTROS */}
       <div className="flex gap-2 text-xs">
         {["todas", "borrador", "completada"].map((f) => (
           <button
@@ -90,7 +102,6 @@ const Card = ({ title, type, description }) => {
         ))}
       </div>
 
-      {/* HISTORIAL */}
       <div>
         <p className="text-xs font-medium text-slate-500 mb-2">
           Historial
@@ -107,7 +118,6 @@ const Card = ({ title, type, description }) => {
                 key={item.id}
                 className="flex justify-between items-center border rounded px-2 py-2"
               >
-                {/* INFO */}
                 <div className="flex flex-col">
                   <span className="font-medium truncate">
                     {item.data?.cliente || "Sin cliente"}
@@ -120,11 +130,9 @@ const Card = ({ title, type, description }) => {
                   </span>
                 </div>
 
-                {/* ACCIONES */}
                 <div className="flex items-center gap-2">
                   <StatusBadge estado={item.estado} />
 
-                  {/* ✅ PDF SOLO PARA COMPLETADOS */}
                   {item.estado === "completada" && (
                     <button
                       type="button"
