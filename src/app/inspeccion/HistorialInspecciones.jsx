@@ -35,11 +35,13 @@ setInspections(ordered);
   /* =============================
      AGRUPAR POR TIPO
   ============================== */
-  const byType = {
-    hidro: inspections.filter((i) => i.type === "hidro"),
-    barredora: inspections.filter((i) => i.type === "barredora"),
-    camara: inspections.filter((i) => i.type === "camara"),
-  };
+  const safeInspections = Array.isArray(inspections) ? inspections : [];
+
+const byType = {
+  hidro: safeInspections.filter((i) => i.type === "hidro"),
+  barredora: safeInspections.filter((i) => i.type === "barredora"),
+  camara: safeInspections.filter((i) => i.type === "camara"),
+};
 
   /* =============================
      ACCIONES
