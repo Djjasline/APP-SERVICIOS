@@ -87,7 +87,7 @@ export default function IndexInspeccion() {
                 </span>
                 <span
                   className={`px-2 py-0.5 rounded text-[10px] ${
-                    item.estado === "completado"
+                    item.estado === "completada"
                       ? "bg-green-100 text-green-700"
                       : "bg-yellow-100 text-yellow-700"
                   }`}
@@ -122,15 +122,17 @@ export default function IndexInspeccion() {
                 <button
                   type="button"
                   className="text-red-600 hover:underline"
-                  onClick={() => {
-                    if (confirm("¿Eliminar inspección?")) {
-                      await deleteInspection(item.type, item.id); 
-                      const updated = inspections.filter(
-                        (i) => i.id !== item.id
-                      );
-                     setInspections(updated);
-                    }
-                  }}
+               onClick={async () => {
+  if (confirm("¿Eliminar inspección?")) {
+    await deleteInspection(item.type, item.id);
+
+    const updated = inspections.filter(
+      (i) => i.id !== item.id
+    );
+
+    setInspections(updated);
+  }
+}}
                 >
                   Eliminar
                 </button>
