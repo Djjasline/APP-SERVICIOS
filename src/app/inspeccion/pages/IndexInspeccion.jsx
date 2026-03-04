@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllInspections } from "@/utils/inspectionStorage";
+import { getAllInspections, createInspection } from "@/utils/inspectionStorage";
 
 /* =========================
    Badge visual de estado
@@ -54,10 +54,10 @@ const Card = ({ title, type, description }) => {
         new Date(a.fecha || a.createdAt)
     );
 
-  const crearNuevaInspeccion = () => {
-    const id = crypto.randomUUID();
-    navigate(`/inspeccion/${type}/${id}`);
-  };
+ const crearNuevaInspeccion = async () => {
+  const id = await createInspection(type);
+  navigate(`/inspeccion/${type}/${id}`);
+};
 
   const eliminarInspeccion = async (item) => {
     if (!confirm("¿Eliminar esta inspección?")) return;
