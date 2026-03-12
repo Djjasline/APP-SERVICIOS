@@ -4,6 +4,7 @@ import SignatureCanvas from "react-signature-canvas";
 import {
   markInspectionCompleted,
   getInspectionById,
+  saveInspectionDraft
 } from "@/utils/inspectionStorage";
 
 /* =============================
