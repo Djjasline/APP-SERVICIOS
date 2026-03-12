@@ -224,11 +224,21 @@ useEffect(() => {
     }));
   };
 
- const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
 
-  const firmaTecnico = firmaTecnicoRef.current?.toDataURL() || "";
-  const firmaCliente = firmaClienteRef.current?.toDataURL() || "";
+  if (!id) return;
+
+  const isTecnicoEmpty = firmaTecnicoRef.current?.isEmpty();
+  const isClienteEmpty = firmaClienteRef.current?.isEmpty();
+
+  const firmaTecnico = !isTecnicoEmpty
+    ? firmaTecnicoRef.current.toDataURL()
+    : "";
+
+  const firmaCliente = !isClienteEmpty
+    ? firmaClienteRef.current.toDataURL()
+    : "";
 
   const payload = {
     ...formData,
@@ -238,8 +248,8 @@ useEffect(() => {
     },
   };
 
-  // 🔥 REGLA PROFESIONAL
-  if (firmaTecnico && firmaCliente) {
+  // 🔥 REGLA CORRECTA
+  if (!isTecnicoEmpty && !isClienteEmpty) {
     await markInspectionCompleted("hidro", id, payload);
   } else {
     await saveInspectionDraft("hidro", id, payload);
