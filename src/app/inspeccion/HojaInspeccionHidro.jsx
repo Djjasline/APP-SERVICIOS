@@ -5,8 +5,8 @@ import SignatureCanvas from "react-signature-canvas";
 import {
   markInspectionCompleted,
   getInspectionById,
+  saveInspectionDraft,
 } from "@/utils/inspectionStorage";
-
 /* =============================
    PRUEBAS PREVIAS AL SERVICIO
 ============================= */
@@ -227,16 +227,23 @@ useEffect(() => {
  const handleSubmit = async (e) => {
   e.preventDefault();
 
-  const now = new Date().toISOString();
+  const firmaTecnico = firmaTecnicoRef.current?.toDataURL() || "";
+  const firmaCliente = firmaClienteRef.current?.toDataURL() || "";
 
-  await markInspectionCompleted("hidro", id, {
+  const payload = {
     ...formData,
-    updatedAt: now,
     firmas: {
-      tecnico: firmaTecnicoRef.current?.toDataURL() || "",
-      cliente: firmaClienteRef.current?.toDataURL() || "",
+      tecnico: firmaTecnico,
+      cliente: firmaCliente,
     },
-  });
+  };
+
+  // 🔥 REGLA PROFESIONAL
+  if (firmaTecnico && firmaCliente) {
+    await markInspectionCompleted("hidro", id, payload);
+  } else {
+    await saveInspectionDraft("hidro", id, payload);
+  }
 
   navigate("/inspeccion");
 };
