@@ -88,11 +88,11 @@ export async function createInspection(type) {
 }
 
 /* ================= SAVE DRAFT ================= */
-export async function saveInspectionDraft(type, id, data) {
+export async function markInspectionCompleted(type, id, data) {
   await supabase
     .from("registros")
     .update({
-      estado: "borrador",
+      estado: "completado",
       data: data,
       updated_at: new Date().toISOString(),
     })
@@ -103,18 +103,19 @@ export async function saveInspectionDraft(type, id, data) {
 
 /* ================= MARK COMPLETED ================= */
 export async function markInspectionCompleted(type, id, data) {
-  await supabase
+  const { error } = await supabase
     .from("registros")
     .update({
-      estado: "borrador",
+      estado: "completado",
       data: data,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", id)
-    .eq("tipo", "inspeccion")
-    .eq("subtipo", type);
-}
+    .eq("id", id); // 🔥 solo ID
 
+  if (error) {
+    console.error("Error marcando completado:", error);
+  }
+}
 /* ================= DELETE ================= */
 export async function deleteInspection(type, id) {
   await supabase
