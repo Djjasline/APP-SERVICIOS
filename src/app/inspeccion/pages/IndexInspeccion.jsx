@@ -8,7 +8,7 @@ import { getAllInspections, createInspection } from "@/utils/inspectionStorage";
 const StatusBadge = ({ estado }) => {
   const styles = {
     borrador: "bg-yellow-100 text-yellow-800",
-    completada: "bg-green-100 text-green-800",
+    completado: "bg-green-100 text-green-800",
   };
 
   return (
@@ -87,7 +87,7 @@ const Card = ({ title, type, description }) => {
       </button>
 
       <div className="flex gap-2 text-xs">
-        {["todas", "borrador", "completada"].map((f) => (
+        {["todas", "borrador", "completado"].map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
@@ -133,7 +133,7 @@ const Card = ({ title, type, description }) => {
                 <div className="flex items-center gap-2">
                   <StatusBadge estado={item.estado} />
 
-                  {item.estado === "completada" && (
+                  {item.estado === "completado" && (
                     <button
                       type="button"
                       onClick={() =>
