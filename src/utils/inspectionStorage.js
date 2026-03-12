@@ -106,7 +106,7 @@ export async function markInspectionCompleted(type, id, data) {
   await supabase
     .from("registros")
     .update({
-      estado: "completado",
+      estado: "borrador",
       data: data,
       updated_at: new Date().toISOString(),
     })
