@@ -232,23 +232,19 @@ const handleSubmit = async (e) => {
   const isTecnicoEmpty = firmaTecnicoRef.current?.isEmpty();
   const isClienteEmpty = firmaClienteRef.current?.isEmpty();
 
-  const firmaTecnico = !isTecnicoEmpty
-    ? firmaTecnicoRef.current.toDataURL()
-    : "";
-
-  const firmaCliente = !isClienteEmpty
-    ? firmaClienteRef.current.toDataURL()
-    : "";
-
   const payload = {
     ...formData,
     firmas: {
-      tecnico: firmaTecnico,
-      cliente: firmaCliente,
+      tecnico: !isTecnicoEmpty
+        ? firmaTecnicoRef.current.toDataURL()
+        : "",
+      cliente: !isClienteEmpty
+        ? firmaClienteRef.current.toDataURL()
+        : "",
     },
   };
 
-  // 🔥 REGLA CORRECTA
+  // 🔥 REGLA REAL
   if (!isTecnicoEmpty && !isClienteEmpty) {
     await markInspectionCompleted("hidro", id, payload);
   } else {
