@@ -236,16 +236,26 @@ useEffect(() => {
   /* =============================
      SUBMIT
   ============================= */
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
   e.preventDefault();
 
-  await markInspectionCompleted("barredora", id, {
+  const firmaTecnico = firmaTecnicoRef.current?.toDataURL() || "";
+  const firmaCliente = firmaClienteRef.current?.toDataURL() || "";
+
+  const payload = {
     ...formData,
     firmas: {
-      tecnico: firmaTecnicoRef.current?.toDataURL() || "",
-      cliente: firmaClienteRef.current?.toDataURL() || "",
+      tecnico: firmaTecnico,
+      cliente: firmaCliente,
     },
-  });
+  };
+
+  // 🔥 VALIDACIÓN REAL
+  if (firmaTecnico && firmaCliente) {
+    await markInspectionCompleted("barredora", id, payload);
+  } else {
+    await saveInspectionDraft("barredora", id, payload);
+  }
 
   navigate("/inspeccion");
 };
