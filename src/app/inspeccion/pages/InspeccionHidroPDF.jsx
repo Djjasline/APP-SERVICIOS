@@ -97,10 +97,10 @@ useEffect(() => {
   if (!inspection) {
     return <div className="p-6">Cargando inspección…</div>;
   }
-if (inspection.estado !== "completada") {
+if (inspection.estado !== "completado") {
   return (
     <div className="p-6 text-center">
-      <p>Esta inspección no está completada.</p>
+      <p>Esta inspección no está completado.</p>
       <button
         onClick={() => navigate("/inspeccion")}
         className="border px-4 py-2 rounded mt-4"
