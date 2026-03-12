@@ -138,10 +138,12 @@ export default function HojaInspeccionBarredora() {
   /* =============================
      CARGA DE INSPECCIÓN (IGUAL HIDRO)
   ============================= */
-  useEffect(() => {
-    if (!id || id === "0") return;
+useEffect(() => {
+  const loadInspection = async () => {
+    if (!id) return;
 
-    const stored = getInspectionById("barredora", id);
+    const stored = await getInspectionById("barredora", id);
+
     if (stored?.data) {
       setFormData({
         ...baseState,
@@ -151,7 +153,10 @@ export default function HojaInspeccionBarredora() {
         firmas: stored.data.firmas || { tecnico: "", cliente: "" },
       });
     }
-  }, [id]);
+  };
+
+  loadInspection();
+}, [id]);
 
   /* =============================
      RECARGA DE FIRMAS (IGUAL HIDRO)
@@ -231,20 +236,19 @@ export default function HojaInspeccionBarredora() {
   /* =============================
      SUBMIT
   ============================= */
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    markInspectionCompleted("barredora", id, {
-      ...formData,
-      updatedAt: new Date().toISOString(),
-      firmas: {
-        tecnico: firmaTecnicoRef.current?.toDataURL() || "",
-        cliente: firmaClienteRef.current?.toDataURL() || "",
-      },
-    });
+  await markInspectionCompleted("barredora", id, {
+    ...formData,
+    firmas: {
+      tecnico: firmaTecnicoRef.current?.toDataURL() || "",
+      cliente: firmaClienteRef.current?.toDataURL() || "",
+    },
+  });
 
-    navigate("/inspeccion");
-  };
+  navigate("/inspeccion");
+};
 
   /* =============================
      JSX ORIGINAL COMPLETO
