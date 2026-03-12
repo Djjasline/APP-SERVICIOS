@@ -88,17 +88,19 @@ export async function createInspection(type) {
 }
 
 /* ================= SAVE DRAFT ================= */
-export async function markInspectionCompleted(type, id, data) {
-  await supabase
+export async function saveInspectionDraft(type, id, data) {
+  const { error } = await supabase
     .from("registros")
     .update({
-      estado: "completado",
+      estado: "borrador",
       data: data,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", id)
-    .eq("tipo", "inspeccion")
-    .eq("subtipo", type);
+    .eq("id", id); // 🔥 solo ID
+
+  if (error) {
+    console.error("Error guardando borrador:", error);
+  }
 }
 
 /* ================= MARK COMPLETED ================= */
