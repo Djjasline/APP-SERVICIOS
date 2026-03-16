@@ -310,7 +310,7 @@ export default function HojaRegistroHerramientas() {
                       />
                     )}
 
-                    {!isLocked && (
+                   {!isLocked && (
   <input
     type="file"
     accept="image/*"
@@ -324,19 +324,7 @@ export default function HojaRegistroHerramientas() {
     }
     className="text-xs"
   />
-)}
-  accept="image/*"
-  capture="environment"
-  onChange={(e) =>
-    handleImageUpload(
-      e,
-      item.id,
-      "imagenIngresoUrl"
-    )
-  }
-  className="text-xs"
-/>
-                    )}
+)} 
                   </td>
 
                   <td>
