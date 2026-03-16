@@ -22,7 +22,21 @@ export async function createRegistro() {
 
   return data.id;
 }
+/* ================= ELIMINAR REGISTRO ================= */
+export async function deleteRegistro(id) {
+  const { error } = await supabase
+    .from("registros")
+    .delete()
+    .eq("id", id)
+    .eq("tipo", "registro");
 
+  if (error) {
+    console.error("Error eliminando registro:", error);
+    return false;
+  }
+
+  return true;
+}
 /* ================= OBTENER TODOS ================= */
 export async function getAllRegistros() {
   const { data, error } = await supabase
