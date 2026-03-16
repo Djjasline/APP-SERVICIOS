@@ -33,9 +33,16 @@ export default function HojaRegistroHerramientas() {
     const load = async () => {
       const registro = await getRegistroById(id);
       if (registro?.data) {
-        setFormData(registro.data);
-        setEstado(registro.estado);
-      }
+  setFormData({
+    items: registro.data.items || [],
+    firmas: registro.data.firmas || {
+      responsable: "",
+      aprobador: "",
+    },
+  });
+
+  setEstado(registro.estado || "salida");
+}
     };
     load();
   }, [id]);
