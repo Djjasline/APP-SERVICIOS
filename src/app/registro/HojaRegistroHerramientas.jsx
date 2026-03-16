@@ -377,6 +377,19 @@ export default function HojaRegistroHerramientas() {
   )}
 
 </td>
+                  <td>
+  {!isLocked && (
+    <button
+      type="button"
+      onClick={() => removeItem(item.id)}
+      className="text-red-600"
+    >
+      ✕
+    </button>
+  )}
+</td>
+
+</tr>
       {/* ================= FIRMAS ================= */}
       <div className="grid md:grid-cols-2 gap-6">
         <div>
