@@ -313,6 +313,7 @@ export default function HojaRegistroHerramientas() {
           <p className="font-semibold mb-1">Firma Responsable</p>
           <SignatureCanvas
             ref={firmaResponsableRef}
+            disabled{islocked}
             canvasProps={{ className: "border w-full h-32" }}
           />
         </div>
@@ -321,6 +322,7 @@ export default function HojaRegistroHerramientas() {
           <p className="font-semibold mb-1">Firma Aprobador</p>
           <SignatureCanvas
             ref={firmaAprobadorRef}
+             disabled{islocked}
             canvasProps={{ className: "border w-full h-32" }}
           />
         </div>
