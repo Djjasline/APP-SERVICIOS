@@ -119,19 +119,23 @@ const handleEliminar = async (id) => {
     }`}
   >
     {item.estado === "completado"
-      ? "REGISTRO CERRADO"
-      : "EN CAMPO"}
-  </span>
+  ? "REGISTRO CERRADO"
+  : "EN CAMPO"}
+</span>
 
-  {" – "}
+{" – "}
 
-  {item.data?.items?.[0]?.tecnicoSalida || "Sin técnico"}
+{item.data?.items?.[0]?.tecnicoSalida || "Sin técnico"}
 
-  {item.data?.pedido && (
-    <span className="text-slate-500 text-xs">
-      {" – Pedido " + item.data.pedido}
-    </span>
-  )}
+{item.data?.items?.[0]?.pedido && (
+  <div className="text-slate-500 text-sm">
+    Pedido: {item.data.items[0].pedido}
+  </div>
+)}
+
+<div className="text-slate-500 text-sm">
+  {item.data?.items?.length || 0} herramientas
+</div>
 </p>
                   <p className="text-xs text-gray-500">
                     {new Date(item.created_at || item.createdAt).toLocaleString()}
