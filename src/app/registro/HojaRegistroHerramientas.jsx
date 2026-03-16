@@ -172,7 +172,7 @@ export default function HojaRegistroHerramientas() {
               <th>Pedido</th>
               <th>Técnico Salida</th>
               <th>Fecha Salida</th>
-              <th>Imagen Despacho</th>
+              <th>Imagen Salida</th>
               <th>Fecha Ingreso</th>
               <th>Imagen Ingreso</th>
               <th></th>
@@ -238,7 +238,6 @@ export default function HojaRegistroHerramientas() {
                     </select>
                   </td>
 
-                  {/* FECHA SALIDA */}
                   <td>
                     <input
                       type="date"
@@ -252,63 +251,70 @@ export default function HojaRegistroHerramientas() {
                   </td>
 
                   {/* IMAGEN SALIDA */}
-<td className="text-center space-y-2">
+                  <td className="text-center space-y-2">
+                    {item.imagenSalidaUrl && (
+                      <div className="flex flex-col items-center gap-1">
+                        <img
+                          src={item.imagenSalidaUrl}
+                          alt="Salida"
+                          className="h-20 border rounded cursor-pointer"
+                          onClick={() =>
+                            setPreviewImage(item.imagenSalidaUrl)
+                          }
+                        />
 
-  {item.imagenSalidaUrl && (
-    <div className="flex flex-col items-center gap-1">
-      <img
-        src={item.imagenSalidaUrl}
-        alt="Salida"
-        className="h-20 border rounded cursor-pointer"
-        onClick={() => setPreviewImage(item.imagenSalidaUrl)}
-      />
+                        {!isLocked && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateItem(item.id, "imagenSalidaUrl", "")
+                            }
+                            className="text-red-600 text-xs"
+                          >
+                            ❌
+                          </button>
+                        )}
+                      </div>
+                    )}
 
-      {!isLocked && (
-        <button
-          type="button"
-          onClick={() => updateItem(item.id, "imagenSalidaUrl", "")}
-          className="text-red-600 text-xs"
-        >
-          ❌
-        </button>
-      )}
-    </div>
-  )}
+                    {!isLocked && !item.imagenSalidaUrl && (
+                      <div className="flex flex-col gap-1">
+                        <label className="bg-gray-600 text-white text-xs px-2 py-1 rounded cursor-pointer">
+                          📁 Galería
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) =>
+                              handleImageUpload(
+                                e,
+                                item.id,
+                                "imagenSalidaUrl"
+                              )
+                            }
+                          />
+                        </label>
 
-  {!isLocked && !item.imagenSalidaUrl && (
-    <div className="flex flex-col gap-1">
+                        <label className="bg-blue-600 text-white text-xs px-2 py-1 rounded cursor-pointer">
+                          📷 Cámara
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            className="hidden"
+                            onChange={(e) =>
+                              handleImageUpload(
+                                e,
+                                item.id,
+                                "imagenSalidaUrl"
+                              )
+                            }
+                          />
+                        </label>
+                      </div>
+                    )}
+                  </td>
 
-      <label className="bg-gray-600 text-white text-xs px-2 py-1 rounded cursor-pointer">
-        📁 Galería
-        <input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) =>
-            handleImageUpload(e, item.id, "imagenSalidaUrl")
-          }
-        />
-      </label>
-
-      <label className="bg-blue-600 text-white text-xs px-2 py-1 rounded cursor-pointer">
-        📷 Cámara
-        <input
-          type="file"
-          accept="image/*"
-          capture="environment"
-          className="hidden"
-          onChange={(e) =>
-            handleImageUpload(e, item.id, "imagenSalidaUrl")
-          }
-        />
-      </label>
-
-    </div>
-  )}
-
-</td>
-
-                  {/* FECHA INGRESO */}
                   <td>
                     <input
                       type="date"
@@ -321,75 +327,89 @@ export default function HojaRegistroHerramientas() {
                     />
                   </td>
 
-                 {/* IMAGEN INGRESO */}
-<td className="text-center space-y-2">
+                  {/* IMAGEN INGRESO */}
+                  <td className="text-center space-y-2">
+                    {item.imagenIngresoUrl && (
+                      <div className="flex flex-col items-center gap-1">
+                        <img
+                          src={item.imagenIngresoUrl}
+                          alt="Ingreso"
+                          className="h-20 border rounded cursor-pointer"
+                          onClick={() =>
+                            setPreviewImage(item.imagenIngresoUrl)
+                          }
+                        />
 
-  {item.imagenIngresoUrl && (
-    <div className="flex flex-col items-center gap-1">
-      <img
-        src={item.imagenIngresoUrl}
-        alt="Ingreso"
-        className="h-20 border rounded cursor-pointer"
-        onClick={() => setPreviewImage(item.imagenIngresoUrl)}
-      />
+                        {!isLocked && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              updateItem(item.id, "imagenIngresoUrl", "")
+                            }
+                            className="text-red-600 text-xs"
+                          >
+                            ❌
+                          </button>
+                        )}
+                      </div>
+                    )}
 
-      {!isLocked && (
-        <button
-          type="button"
-          onClick={() => updateItem(item.id, "imagenIngresoUrl", "")}
-          className="text-red-600 text-xs"
-        >
-          ❌
-        </button>
-      )}
-    </div>
-  )}
+                    {!isLocked && !item.imagenIngresoUrl && (
+                      <div className="flex flex-col gap-1">
+                        <label className="bg-gray-600 text-white text-xs px-2 py-1 rounded cursor-pointer">
+                          📁 Galería
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) =>
+                              handleImageUpload(
+                                e,
+                                item.id,
+                                "imagenIngresoUrl"
+                              )
+                            }
+                          />
+                        </label>
 
-  {!isLocked && !item.imagenIngresoUrl && (
-    <div className="flex flex-col gap-1">
+                        <label className="bg-blue-600 text-white text-xs px-2 py-1 rounded cursor-pointer">
+                          📷 Cámara
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            className="hidden"
+                            onChange={(e) =>
+                              handleImageUpload(
+                                e,
+                                item.id,
+                                "imagenIngresoUrl"
+                              )
+                            }
+                          />
+                        </label>
+                      </div>
+                    )}
+                  </td>
 
-      <label className="bg-gray-600 text-white text-xs px-2 py-1 rounded cursor-pointer">
-        📁 Galería
-        <input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) =>
-            handleImageUpload(e, item.id, "imagenIngresoUrl")
-          }
-        />
-      </label>
-
-      <label className="bg-blue-600 text-white text-xs px-2 py-1 rounded cursor-pointer">
-        📷 Cámara
-        <input
-          type="file"
-          accept="image/*"
-          capture="environment"
-          className="hidden"
-          onChange={(e) =>
-            handleImageUpload(e, item.id, "imagenIngresoUrl")
-          }
-        />
-      </label>
-
-    </div>
-  )}
-
-</td>
                   <td>
-  {!isLocked && (
-    <button
-      type="button"
-      onClick={() => removeItem(item.id)}
-      className="text-red-600"
-    >
-      ✕
-    </button>
-  )}
-</td>
+                    {!isLocked && (
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.id)}
+                        className="text-red-600"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
-</tr>
       {/* ================= FIRMAS ================= */}
       <div className="grid md:grid-cols-2 gap-6">
         <div>
