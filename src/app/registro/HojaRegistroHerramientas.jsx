@@ -18,12 +18,14 @@ export default function HojaRegistroHerramientas() {
   const [previewImage, setPreviewImage] = useState(null);
 
   const baseState = {
-    items: [],
-    firmas: {
-      responsable: "",
-      aprobador: "",
-    },
-  };
+  tecnicoSalida: "",
+  tecnicoIngreso: "",
+  fechaSalida: "",
+  fechaIngreso: "",
+  items: [],
+  firmaResponsable: "",
+  firmaAprobador: "",
+};
 
   const [formData, setFormData] = useState(baseState);
   const [estado, setEstado] = useState("salida");
