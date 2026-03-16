@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllInspections, createInspection } from "@/utils/inspectionStorage";
+import { createRegistro, getAllRegistros } from "@/utils/registroStorage";
 
 const StatusBadge = ({ estado }) => {
   const styles = {
@@ -24,20 +24,15 @@ export default function IndexRegistroHerramientas() {
   const [registros, setRegistros] = useState([]);
   const [filter, setFilter] = useState("todas");
 
-  useEffect(() => {
-    const loadData = async () => {
-      const data = await getAllInspections();
-      const safe = Array.isArray(data) ? data : [];
+ useEffect(() => {
+  const loadData = async () => {
+    const data = await getAllRegistros();
+    const safe = Array.isArray(data) ? data : [];
+    setRegistros(safe);
+  };
 
-      const onlyRegistros = safe.filter(
-        (i) => i.tipo === "registro" && i.subtipo === "herramienta"
-      );
-
-      setRegistros(onlyRegistros);
-    };
-
-    loadData();
-  }, []);
+  loadData();
+}, []);
 
   const filtered = registros
     .filter((r) => (filter === "todas" ? true : r.estado === filter))
@@ -47,10 +42,11 @@ export default function IndexRegistroHerramientas() {
         new Date(a.created_at || a.createdAt)
     );
 
-  const crearNuevoRegistro = async () => {
-    const id = await createInspection("registro"); // reutilizamos función
-    navigate(`/registro-salida/${id}`);
-  };
+ const crearNuevoRegistro = async () => {
+  const id = await createRegistro();
+  if (!id) return;
+  navigate(`/registro-salida/${id}`);
+};
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8">
