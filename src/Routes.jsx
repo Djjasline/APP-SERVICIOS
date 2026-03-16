@@ -1,3 +1,4 @@
+import RegistroRoutes from "./app/registro/Routes";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import PanelServicios from "./pages/PanelServicios";
