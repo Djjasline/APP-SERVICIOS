@@ -1,10 +1,9 @@
-import RegistroRoutes from "./app/registro/Routes";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import PanelServicios from "./pages/PanelServicios";
 import NotFound from "./pages/NotFound";
 
-// Módulo informe (NUEVO)
+// Módulo informe
 import InformeRoutes from "./app/informe/Routes";
 
 // Módulo inspección
@@ -12,6 +11,9 @@ import InspectionRoutes from "./app/inspeccion/Routes";
 
 // Módulo mantenimiento
 import MaintenanceRoutes from "./app/mantenimiento/Routes";
+
+// 🔥 Módulo registro herramientas
+import RegistroRoutes from "./app/registro/Routes";
 
 export default function AppRoutes() {
   return (
@@ -28,6 +30,9 @@ export default function AppRoutes() {
 
         {/* MANTENIMIENTO */}
         <Route path="/mantenimiento/*" element={<MaintenanceRoutes />} />
+
+        {/* 🔥 CONTROL DE HERRAMIENTAS */}
+        <Route path="/registro-salida/*" element={<RegistroRoutes />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
