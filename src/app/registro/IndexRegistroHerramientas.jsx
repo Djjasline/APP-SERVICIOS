@@ -125,7 +125,7 @@ const handleEliminar = async (id) => {
 
   {" – "}
 
-  {item.data?.tecnicoSalida || "Sin técnico"}
+  {item.data?.items?.[0]?.tecnicoSalida || "Sin técnico"}
 
   {item.data?.pedido && (
     <span className="text-slate-500 text-xs">
