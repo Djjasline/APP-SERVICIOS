@@ -18,14 +18,14 @@ export default function HojaRegistroHerramientas() {
   const [previewImage, setPreviewImage] = useState(null);
 
   const baseState = {
-  tecnicoSalida: "",
-  tecnicoIngreso: "",
-  fechaSalida: "",
-  fechaIngreso: "",
-  items: [],
-  firmaResponsable: "",
-  firmaAprobador: "",
-};
+    tecnicoSalida: "",
+    tecnicoIngreso: "",
+    fechaSalida: "",
+    fechaIngreso: "",
+    items: [],
+    firmaResponsable: "",
+    firmaAprobador: "",
+  };
 
   const [formData, setFormData] = useState(baseState);
   const [estado, setEstado] = useState("salida");
@@ -34,18 +34,20 @@ export default function HojaRegistroHerramientas() {
   useEffect(() => {
     const load = async () => {
       const registro = await getRegistroById(id);
-      if (registro?.data) {
-  setFormData({
-    items: registro.data.items || [],
-    firmas: registro.data.firmas || {
-      responsable: "",
-      aprobador: "",
-    },
-  });
 
-  setEstado(registro.estado || "salida");
-}
+      if (registro?.data) {
+        setFormData({
+          items: registro.data.items || [],
+          firmas: registro.data.firmas || {
+            responsable: "",
+            aprobador: "",
+          },
+        });
+
+        setEstado(registro.estado || "salida");
+      }
     };
+
     load();
   }, [id]);
 
@@ -96,6 +98,7 @@ export default function HojaRegistroHerramientas() {
     if (!file) return;
 
     const url = await uploadRegistroImage(file, id, tipo);
+
     if (!url) return;
 
     updateItem(itemId, tipo, url);
@@ -164,17 +167,18 @@ export default function HojaRegistroHerramientas() {
         <table className="w-full border text-sm">
           <thead className="bg-gray-100">
             <tr>
-             <th>Estado</th>
-<th>Detalle</th>
-<th>Pedido</th>
-<th>Técnico Salida</th>
-<th>Fecha Salida</th>
-<th>Imagen Despacho</th>
-<th>Fecha Ingreso</th>
-<th>Imagen Ingreso</th>
+              <th>Estado</th>
+              <th>Detalle</th>
+              <th>Pedido</th>
+              <th>Técnico Salida</th>
+              <th>Fecha Salida</th>
+              <th>Imagen Despacho</th>
+              <th>Fecha Ingreso</th>
+              <th>Imagen Ingreso</th>
               <th></th>
             </tr>
           </thead>
+
           <tbody>
             {formData.items.map((item) => {
               const ingresoCompleto = !!item.imagenIngresoUrl;
@@ -225,6 +229,7 @@ export default function HojaRegistroHerramientas() {
                       className="border p-1"
                     >
                       <option value="">Seleccione</option>
+
                       {TECHNICIANS.map((t) => (
                         <option key={t.name} value={t.name}>
                           {t.name}
@@ -232,18 +237,20 @@ export default function HojaRegistroHerramientas() {
                       ))}
                     </select>
                   </td>
-{/* FECHA SALIDA */}
-<td>
-  <input
-    type="date"
-    value={item.fechaSalida || ""}
-    onChange={(e) =>
-      updateItem(item.id, "fechaSalida", e.target.value)
-    }
-    className="border p-1 text-xs"
-    disabled={isLocked}
-  />
-</td>
+
+                  {/* FECHA SALIDA */}
+                  <td>
+                    <input
+                      type="date"
+                      value={item.fechaSalida || ""}
+                      onChange={(e) =>
+                        updateItem(item.id, "fechaSalida", e.target.value)
+                      }
+                      className="border p-1 text-xs"
+                      disabled={isLocked}
+                    />
+                  </td>
+
                   {/* IMAGEN SALIDA */}
                   <td className="text-center space-y-1">
                     {item.imagenSalidaUrl && (
@@ -258,45 +265,35 @@ export default function HojaRegistroHerramientas() {
                     )}
 
                     {!isLocked && (
-  <input
-    type="file"
-    accept="image/*"
-    capture="environment"
-    onChange={(e) =>
-      handleImageUpload(
-        e,
-        item.id,
-        "imagenSalidaUrl"
-      )
-    }
-    className="text-xs"
-  />
-)}
-  accept="image/*"
-  capture="environment"
-  onChange={(e) =>
-    handleImageUpload(
-      e,
-      item.id,
-      "imagenSalidaUrl"
-    )
-  }
-  className="text-xs"
-/>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={(e) =>
+                          handleImageUpload(
+                            e,
+                            item.id,
+                            "imagenSalidaUrl"
+                          )
+                        }
+                        className="text-xs"
+                      />
                     )}
                   </td>
-{/* FECHA INGRESO */}
-<td>
-  <input
-    type="date"
-    value={item.fechaIngreso || ""}
-    onChange={(e) =>
-      updateItem(item.id, "fechaIngreso", e.target.value)
-    }
-    className="border p-1 text-xs"
-    disabled={isLocked}
-  />
-</td>
+
+                  {/* FECHA INGRESO */}
+                  <td>
+                    <input
+                      type="date"
+                      value={item.fechaIngreso || ""}
+                      onChange={(e) =>
+                        updateItem(item.id, "fechaIngreso", e.target.value)
+                      }
+                      className="border p-1 text-xs"
+                      disabled={isLocked}
+                    />
+                  </td>
+
                   {/* IMAGEN INGRESO */}
                   <td className="text-center space-y-1">
                     {item.imagenIngresoUrl && (
@@ -310,21 +307,21 @@ export default function HojaRegistroHerramientas() {
                       />
                     )}
 
-                   {!isLocked && (
-  <input
-    type="file"
-    accept="image/*"
-    capture="environment"
-    onChange={(e) =>
-      handleImageUpload(
-        e,
-        item.id,
-        "imagenIngresoUrl"
-      )
-    }
-    className="text-xs"
-  />
-)} 
+                    {!isLocked && (
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={(e) =>
+                          handleImageUpload(
+                            e,
+                            item.id,
+                            "imagenIngresoUrl"
+                          )
+                        }
+                        className="text-xs"
+                      />
+                    )}
                   </td>
 
                   <td>
@@ -349,6 +346,7 @@ export default function HojaRegistroHerramientas() {
       <div className="grid md:grid-cols-2 gap-6">
         <div>
           <p className="font-semibold mb-1">Firma Responsable</p>
+
           <SignatureCanvas
             ref={firmaResponsableRef}
             disabled={isLocked}
@@ -358,9 +356,10 @@ export default function HojaRegistroHerramientas() {
 
         <div>
           <p className="font-semibold mb-1">Firma Aprobador</p>
+
           <SignatureCanvas
             ref={firmaAprobadorRef}
-             disabled={isLocked}
+            disabled={isLocked}
             canvasProps={{ className: "border w-full h-32" }}
           />
         </div>
