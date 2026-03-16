@@ -111,10 +111,25 @@ const handleEliminar = async (id) => {
               >
                 <div>
                  <p className="font-medium">
+  <span
+    className={`font-semibold ${
+      item.estado === "completado"
+        ? "text-green-700"
+        : "text-yellow-700"
+    }`}
+  >
+    {item.estado === "completado"
+      ? "REGISTRO CERRADO"
+      : "EN CAMPO"}
+  </span>
+
+  {" – "}
+
   {item.data?.tecnicoSalida || "Sin técnico"}
+
   {item.data?.pedido && (
     <span className="text-slate-500 text-xs">
-      {" "}– Pedido {item.data.pedido}
+      {" – Pedido " + item.data.pedido}
     </span>
   )}
 </p>
