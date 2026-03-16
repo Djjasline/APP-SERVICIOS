@@ -110,9 +110,14 @@ const handleEliminar = async (id) => {
                 className="border rounded p-3 flex justify-between items-center"
               >
                 <div>
-                  <p className="font-medium">
-                    {item.data?.detalle || "Sin detalle"}
-                  </p>
+                 <p className="font-medium">
+  {item.data?.tecnicoSalida || "Sin técnico"}
+  {item.data?.pedido && (
+    <span className="text-slate-500 text-xs">
+      {" "}– Pedido {item.data.pedido}
+    </span>
+  )}
+</p>
                   <p className="text-xs text-gray-500">
                     {new Date(item.created_at || item.createdAt).toLocaleString()}
                   </p>
