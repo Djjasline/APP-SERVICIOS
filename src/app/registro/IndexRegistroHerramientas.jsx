@@ -136,6 +136,29 @@ const handleEliminar = async (id) => {
 <div className="text-slate-500 text-sm">
   {item.data?.items?.length || 0} herramientas
 </div>
+ {item.data?.items && (
+  <div className="text-xs mt-1">
+    {(() => {
+      const total = item.data.items.length;
+      const ingresadas = item.data.items.filter(
+        (i) => i.imagenIngresoUrl
+      ).length;
+      const pendientes = total - ingresadas;
+
+      return (
+        <>
+          <span className="text-green-600">
+            🟢 {ingresadas} ingresadas
+          </span>
+          {"  "}
+          <span className="text-red-600">
+            🔴 {pendientes} pendientes
+          </span>
+        </>
+      );
+    })()}
+  </div>
+)}                  
 </p>
                   <p className="text-xs text-gray-500">
                     {new Date(item.created_at || item.createdAt).toLocaleString()}
