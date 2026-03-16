@@ -101,7 +101,7 @@ export default function IndexRegistroHerramientas() {
                     {item.data?.detalle || "Sin detalle"}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {new Date(item.created_at).toLocaleString()}
+                    {new Date(item.created_at || item.createdAt).toLocaleString()}
                   </p>
                 </div>
 
