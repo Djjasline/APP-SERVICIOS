@@ -59,7 +59,7 @@ export default function HojaRegistroHerramientas() {
         ...prev.items,
         {
           id: Date.now(),
-          fechaSalida: new Date().toISOString(),
+          fechaSalida: new Date().toISOString().split("T")[0],
           tecnicoSalida: "",
           detalle: "",
           pedido: "",
@@ -258,16 +258,27 @@ export default function HojaRegistroHerramientas() {
                     )}
 
                     {!isLocked && (
-                      <input
-                      <input
-  type="file"
+  <input
+    type="file"
+    accept="image/*"
+    capture="environment"
+    onChange={(e) =>
+      handleImageUpload(
+        e,
+        item.id,
+        "imagenSalidaUrl"
+      )
+    }
+    className="text-xs"
+  />
+)}
   accept="image/*"
   capture="environment"
   onChange={(e) =>
     handleImageUpload(
       e,
       item.id,
-      "imagenDespachoUrl"
+      "imagenSalidaUrl"
     )
   }
   className="text-xs"
@@ -300,9 +311,20 @@ export default function HojaRegistroHerramientas() {
                     )}
 
                     {!isLocked && (
-                      <input
-                  <input
-  type="file"
+  <input
+    type="file"
+    accept="image/*"
+    capture="environment"
+    onChange={(e) =>
+      handleImageUpload(
+        e,
+        item.id,
+        "imagenIngresoUrl"
+      )
+    }
+    className="text-xs"
+  />
+)}
   accept="image/*"
   capture="environment"
   onChange={(e) =>
@@ -341,7 +363,7 @@ export default function HojaRegistroHerramientas() {
           <p className="font-semibold mb-1">Firma Responsable</p>
           <SignatureCanvas
             ref={firmaResponsableRef}
-            disabled={islocked}
+            disabled={isLocked}
             canvasProps={{ className: "border w-full h-32" }}
           />
         </div>
