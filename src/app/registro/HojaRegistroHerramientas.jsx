@@ -7,6 +7,7 @@ import {
   updateRegistro,
 } from "@/utils/registroStorage";
 import { uploadRegistroImage } from "@/utils/storage";
+import imageCompression from "browser-image-compression";
 
 export default function HojaRegistroHerramientas() {
   const { id } = useParams();
@@ -93,16 +94,28 @@ export default function HojaRegistroHerramientas() {
   };
 
   /* ================= SUBIR IMAGEN ================= */
-  const handleImageUpload = async (e, itemId, tipo) => {
-    const file = e.target.files[0];
-    if (!file) return;
+ const handleImageUpload = async (e, itemId, tipo) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const url = await uploadRegistroImage(file, id, tipo);
+  try {
+    const options = {
+      maxSizeMB: 0.4,          // tamaño máximo ~400KB
+      maxWidthOrHeight: 1280,  // resolución suficiente para evidencia
+      useWebWorker: true,
+    };
+
+    const compressedFile = await imageCompression(file, options);
+
+    const url = await uploadRegistroImage(compressedFile, id, tipo);
 
     if (!url) return;
 
     updateItem(itemId, tipo, url);
-  };
+  } catch (error) {
+    console.error("Error al comprimir imagen:", error);
+  }
+};
 
   /* ================= GUARDAR ================= */
   const handleSubmit = async (e) => {
