@@ -1,3 +1,4 @@
+import { deleteRegistro } from "@/utils/registroStorage";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createRegistro, getAllRegistros } from "@/utils/registroStorage";
@@ -47,7 +48,19 @@ export default function IndexRegistroHerramientas() {
   if (!id) return;
   navigate(`/registro-salida/${id}`);
 };
+const handleEliminar = async (id) => {
+  const confirmDelete = window.confirm(
+    "¿Seguro que deseas eliminar este registro?"
+  );
 
+  if (!confirmDelete) return;
+
+  const ok = await deleteRegistro(id);
+
+  if (ok) {
+    setRegistros((prev) => prev.filter((r) => r.id !== id));
+  }
+};
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -105,29 +118,36 @@ export default function IndexRegistroHerramientas() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <StatusBadge estado={item.estado} />
+<div className="flex items-center gap-3">
+  <StatusBadge estado={item.estado} />
 
-                  {item.estado === "completado" && (
-                    <button
-                      onClick={() =>
-                        navigate(`/registro-salida/${item.id}/pdf`)
-                      }
-                      className="text-green-600 text-xs hover:underline"
-                    >
-                      PDF
-                    </button>
-                  )}
+  {item.estado === "completado" && (
+    <button
+      onClick={() =>
+        navigate(`/registro-salida/${item.id}/pdf`)
+      }
+      className="text-green-600 text-xs hover:underline"
+    >
+      PDF
+    </button>
+  )}
 
-                  <button
-                    onClick={() =>
-                      navigate(`/registro-salida/${item.id}`)
-                    }
-                    className="text-blue-600 text-xs hover:underline"
-                  >
-                    Abrir
-                  </button>
-                </div>
+  <button
+    onClick={() =>
+      navigate(`/registro-salida/${item.id}`)
+    }
+    className="text-blue-600 text-xs hover:underline"
+  >
+    Abrir
+  </button>
+
+  <button
+    onClick={() => handleEliminar(item.id)}
+    className="text-red-600 text-xs hover:underline"
+  >
+    Eliminar
+  </button>
+</div>
               </li>
             ))}
           </ul>
