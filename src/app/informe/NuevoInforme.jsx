@@ -2,7 +2,7 @@ import imageCompression from "browser-image-compression";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
 import { useParams } from "react-router-dom";
@@ -238,7 +238,7 @@ const reportData = {
 };
 
  // 🔥 EDITAR
-if (isEditing && currentReport?.id) {
+if (isEditing) {
   const { error } = await supabase
     .from("registros")
     .update({
@@ -246,7 +246,7 @@ if (isEditing && currentReport?.id) {
       data: reportData.data,
       updated_at: new Date().toISOString(),
     })
-    .eq(.eq("id", id);
+    .eq("id", id);
 
   if (error) throw error;
 
