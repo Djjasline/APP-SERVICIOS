@@ -73,8 +73,8 @@ setUploadingCount((prev) => prev + 1);
 
     const url = await uploadRegistroImage(
       compressedFile,
-      "informe",
-      "actividad"
+id || "temp",
+"actividad"
     );
 
     if (!url) return;
