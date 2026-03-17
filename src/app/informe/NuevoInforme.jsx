@@ -1,3 +1,5 @@
+import imageCompression from "browser-image-compression";
+import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -51,7 +53,41 @@ const isEditing = !!currentReport?.id;
       cliente: "",
     },
   };
+const handleImageUpload = async (file, actividadIndex) => {
+  if (!file) return;
 
+  try {
+    // 🔧 compresión PRO
+    const compressedFile = await imageCompression(file, {
+      maxSizeMB: 0.4,
+      maxWidthOrHeight: 1280,
+      useWebWorker: true,
+      fileType: "image/jpeg",
+      initialQuality: 0.7,
+      exifOrientation: 1,
+    });
+
+    // ☁ subir a Supabase
+    const url = await uploadRegistroImage(
+      compressedFile,
+      "informe",
+      "actividad"
+    );
+
+    if (!url) return;
+
+    // 💾 guardar URL en el estado
+    setData((prev) => {
+      const copy = structuredClone(prev);
+      copy.actividades[actividadIndex].imagenes.push(url);
+      return copy;
+    });
+
+  } catch (error) {
+    console.error("Error subiendo imagen:", error);
+  }
+};
+  
   const [data, setData] = useState(emptyReport);
 
   const sigTecnico = useRef(null);
@@ -132,7 +168,7 @@ useEffect(() => {
   /* ===========================
    COMPRESIÓN Y REDIMENSIÓN
 =========================== */
- const fileToBase64 = (file, cb) => {
+ const handleImageUpload(file, i) => {
   if (!file) return;
 
   const reader = new FileReader();
@@ -473,17 +509,22 @@ const reportData = {
         style={{ display: "none" }}
         onChange={(e) => {
           const files = Array.from(e.target.files || []);
+ <td className="align-top">
+
+  <div className="flex flex-col gap-2 mb-2">
+
+    {/* GALERÍA */}
+    <label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+      📁 Galería
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const files = Array.from(e.target.files || []);
           files.forEach((file) => {
-            fileToBase64(file, (b64) => {
-              setData((prev) => {
-                const copy = structuredClone(prev);
-                copy.actividades[i].imagenes = [
-                  ...copy.actividades[i].imagenes,
-                  b64,
-                ];
-                return copy;
-              });
-            });
+            handleImageUpload(file, i);
           });
         }}
       />
@@ -501,16 +542,162 @@ const reportData = {
         onChange={(e) => {
           const files = Array.from(e.target.files || []);
           files.forEach((file) => {
-            fileToBase64(file, (b64) => {
-              setData((prev) => {
-                const copy = structuredClone(prev);
-                copy.actividades[i].imagenes = [
-                  ...copy.actividades[i].imagenes,
-                  b64,
-                ];
-                return copy;
-              });
+            handleImageUpload(file, i);
+          });
+        }}
+      />
+    </label>
+
+  </div>
+
+  {/* PREVISUALIZACIÓN */}
+  <div className="grid grid-cols-2 gap-2">
+    {a.imagenes?.map((img, imgIndex) => (
+      <div key={imgIndex} className="relative">
+        <img
+          src={img}
+          alt="actividad"
+          style={{
+            width: "100%",
+            height: 100,
+            objectFit: "contain",
+            backgroundColor: "#f3f3f3",
+            borderRadius: 6,
+            border: "1px solid #ccc",
+          }}
+        />
+
+        <button
+          type="button"
+          onClick={() => {
+            setData((prev) => {
+              const copy = structuredClone(prev);
+              copy.actividades[i].imagenes.splice(imgIndex, 1);
+              return copy;
             });
+          }}
+          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1"
+        >
+          ✕
+        </button>
+      </div>
+    ))}
+  </div>
+
+  {data.actividades.length > 1 && (
+    <button
+      type="button"
+      onClick={() => removeActividad(i)}
+      className="text-red-600 text-xs mt-2"
+    >
+      Eliminar
+    </button>
+  )}
+
+</td>
+          });
+        }}
+      />
+    </label>
+
+    {/* CÁMARA */}
+    <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+      📷 Cámara
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        multiple
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const files = Array.from(e.target.files || []);
+          files.forEach((file) => {
+            <td className="align-top">
+
+  <div className="flex flex-col gap-2 mb-2">
+
+    {/* GALERÍA */}
+    <label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+      📁 Galería
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const files = Array.from(e.target.files || []);
+          files.forEach((file) => {
+            handleImageUpload(file, i);
+          });
+        }}
+      />
+    </label>
+
+    {/* CÁMARA */}
+    <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+      📷 Cámara
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        multiple
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const files = Array.from(e.target.files || []);
+          files.forEach((file) => {
+            handleImageUpload(file, i);
+          });
+        }}
+      />
+    </label>
+
+  </div>
+
+  {/* PREVISUALIZACIÓN */}
+  <div className="grid grid-cols-2 gap-2">
+    {a.imagenes?.map((img, imgIndex) => (
+      <div key={imgIndex} className="relative">
+        <img
+          src={img}
+          alt="actividad"
+          style={{
+            width: "100%",
+            height: 100,
+            objectFit: "contain",
+            backgroundColor: "#f3f3f3",
+            borderRadius: 6,
+            border: "1px solid #ccc",
+          }}
+        />
+
+        <button
+          type="button"
+          onClick={() => {
+            setData((prev) => {
+              const copy = structuredClone(prev);
+              copy.actividades[i].imagenes.splice(imgIndex, 1);
+              return copy;
+            });
+          }}
+          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1"
+        >
+          ✕
+        </button>
+      </div>
+    ))}
+  </div>
+
+  {data.actividades.length > 1 && (
+    <button
+      type="button"
+      onClick={() => removeActividad(i)}
+      className="text-red-600 text-xs mt-2"
+    >
+      Eliminar
+    </button>
+  )}
+
+</td>
           });
         }}
       />
