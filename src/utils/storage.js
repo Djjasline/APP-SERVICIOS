@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 
 export async function uploadRegistroImage(file, id, tipo) {
   try {
-    const fileName = `${id}/${tipo}-${Date.now()}.jpg`;
+    const fileName = `${id}/${tipo}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.jpg`;
 
     const { error } = await supabase.storage
       .from("informe")
