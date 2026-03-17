@@ -82,8 +82,17 @@ if (!report) {
 /* ===========================
    🔒 VALIDACIÓN EMPRESARIAL
 =========================== */
- console.log("ESTADO REAL:", report.estado); 
-if ((report.estado || "").toLowerCase() !== "completado") {
+// 🔥 Normalizar estado (puede venir de diferentes lugares)
+const estadoNormalizado =
+  report?.estado ||
+  report?.data?.estado ||
+  "";
+
+// 🔍 Debug
+console.log("REPORT COMPLETO:", report);
+console.log("ESTADO NORMALIZADO:", estadoNormalizado);
+
+if (estadoNormalizado.toLowerCase() !== "completado") {
   return (
     <div className="p-6 text-center">
       <p>Este informe no está completado.</p>
@@ -308,10 +317,10 @@ const { data } = report;
           </button>
 
           <button
-           onClick={() => {
-  if (report.estado !== "completado") return;
-  window.print();
-}}
+  onClick={() => {
+    if (estadoNormalizado.toLowerCase() !== "completado") return;
+    window.print();
+  }}
             className="bg-green-600 text-white px-6 py-2 rounded"
           >
             Descargar PDF
