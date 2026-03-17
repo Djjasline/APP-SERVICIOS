@@ -2,10 +2,10 @@ import { supabase } from "@/lib/supabase";
 
 export async function uploadRegistroImage(file, id, tipo) {
   try {
-    const fileName = `${id}-${tipo}-${Date.now()}.jpg`;
+    const fileName = `${id}/${tipo}-${Date.now()}.jpg`;
 
     const { error } = await supabase.storage
-      .from("registros-herramientas")
+      .from("informe")
       .upload(fileName, file);
 
     if (error) {
@@ -14,7 +14,7 @@ export async function uploadRegistroImage(file, id, tipo) {
     }
 
     const { data } = supabase.storage
-      .from("registros-herramientas")
+      .from("informe")
       .getPublicUrl(fileName);
 
     return data.publicUrl;
