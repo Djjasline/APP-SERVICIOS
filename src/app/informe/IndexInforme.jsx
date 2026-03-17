@@ -71,13 +71,18 @@ const filtrados = informes.filter((inf) => {
   /* ===========================
      TITULO DEL HISTORIAL
   =========================== */
-  const getTitulo = (inf) => {
+const getTitulo = (inf) => {
   const tecnico = inf.data?.tecnicoNombre?.trim();
   const codInf = inf.data?.codInf?.trim();
+  const descripcion = inf.data?.descripcion?.trim();
 
+  // 🔥 prioridad nueva estructura
   if (tecnico && codInf) return `${tecnico} - ${codInf}`;
   if (tecnico) return tecnico;
   if (codInf) return codInf;
+
+  // 🔥 fallback para informes antiguos
+  if (descripcion) return descripcion;
 
   return "Sin información";
 };
@@ -148,8 +153,8 @@ const filtrados = informes.filter((inf) => {
         {getTitulo(inf)}
       </p>
 
-      <p className="text-xs text-gray-600">
-  Código: {inf.data?.codInf || "—"}
+     <p className="text-xs text-gray-600">
+  Código: {inf.data?.codInf || inf.data?.referenciaContrato || "—"}
 </p>
 
       <span
