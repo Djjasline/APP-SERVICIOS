@@ -49,19 +49,18 @@ export default function NuevoInforme() {
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
 
-  /* ================= IMÁGENES ================= */
-  const handleImageUpload = async (file, index) => {
+  const handleImageUpload = async (file, actividadIndex) => {
     if (!file) return;
 
     try {
-      const compressed = await imageCompression(file, {
+      const compressedFile = await imageCompression(file, {
         maxSizeMB: 0.4,
         maxWidthOrHeight: 1280,
         useWebWorker: true,
       });
 
       const url = await uploadRegistroImage(
-        compressed,
+        compressedFile,
         "informe",
         "actividad"
       );
@@ -70,16 +69,21 @@ export default function NuevoInforme() {
 
       setData((prev) => {
         const copy = structuredClone(prev);
-        copy.actividades[index].imagenes.push(url);
+        copy.actividades[actividadIndex].imagenes.push(url);
         return copy;
       });
-
-    } catch (err) {
-      console.error("Error imagen:", err);
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  /* ================= UPDATE ================= */
+  useEffect(() => {
+    const current = JSON.parse(localStorage.getItem("currentReport"));
+    if (current?.data) {
+      setData(current.data);
+    }
+  }, []);
+
   const update = (path, value) => {
     setData((prev) => {
       const copy = structuredClone(prev);
@@ -92,25 +96,77 @@ export default function NuevoInforme() {
     });
   };
 
-  /* ================= SAVE ================= */
-  const saveReport = async () => {
-    const firmaTecnico = sigTecnico.current?.toDataURL() || "";
-    const firmaCliente = sigCliente.current?.toDataURL() || "";
+  const addActividad = () =>
+    setData((p) => ({
+      ...p,
+      actividades: [...p.actividades, { titulo: "", detalle: "", imagenes: [] }],
+    }));
 
-    const payload = {
-      ...data,
-      firmas: {
-        tecnico: firmaTecnico || data.firmas?.tecnico,
-        cliente: firmaCliente || data.firmas?.cliente,
+  const removeActividad = (index) =>
+    setData((p) => ({
+      ...p,
+      actividades: p.actividades.filter((_, i) => i !== index),
+    }));
+
+  const addConclusionRow = () =>
+    setData((p) => ({
+      ...p,
+      conclusiones: [...p.conclusiones, ""],
+      recomendaciones: [...p.recomendaciones, ""],
+    }));
+
+  const removeConclusionRow = (index) =>
+    setData((p) => ({
+      ...p,
+      conclusiones: p.conclusiones.filter((_, i) => i !== index),
+      recomendaciones: p.recomendaciones.filter((_, i) => i !== index),
+    }));
+
+  const saveReport = async () => {
+    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
+
+    const firmaTecnico =
+      sigTecnico.current && !sigTecnico.current.isEmpty()
+        ? sigTecnico.current.toDataURL()
+        : "";
+
+    const firmaCliente =
+      sigCliente.current && !sigCliente.current.isEmpty()
+        ? sigCliente.current.toDataURL()
+        : "";
+
+    const reportData = {
+      estado: firmaTecnico ? "completado" : "borrador",
+      data: {
+        ...data,
+        firmas: {
+          tecnico: firmaTecnico || data.firmas?.tecnico || "",
+          cliente: firmaCliente || data.firmas?.cliente || "",
+        },
       },
     };
+
+    const localReport = {
+      id: Date.now(),
+      tipo: "informe",
+      subtipo: "general",
+      estado: reportData.estado,
+      data: reportData.data,
+      createdAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem(
+      "serviceReports",
+      JSON.stringify([...stored, localReport])
+    );
 
     try {
       await supabase.from("registros").insert([
         {
           tipo: "informe",
           subtipo: "general",
-          data: payload,
+          estado: reportData.estado,
+          data: reportData.data,
         },
       ]);
     } catch (err) {
@@ -120,7 +176,6 @@ export default function NuevoInforme() {
     navigate("/informe");
   };
 
-  /* ================= UI ================= */
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
@@ -136,13 +191,11 @@ export default function NuevoInforme() {
               ["CONTACTO", "contacto"],
               ["TELÉFONO", "telefono"],
               ["CORREO", "correo"],
-              ["TÉCNICO", "tecnicoNombre"],
             ].map(([label, key]) => (
               <tr key={key}>
-                <td className="pdf-label">{label}</td>
+                <td>{label}</td>
                 <td>
                   <input
-                    className="pdf-input"
                     value={data[key]}
                     onChange={(e) => update([key], e.target.value)}
                   />
@@ -153,26 +206,20 @@ export default function NuevoInforme() {
         </table>
 
         {/* ACTIVIDADES */}
-        <h3 className="font-bold text-sm">ACTIVIDADES</h3>
-
         <table className="pdf-table">
           <tbody>
             {data.actividades.map((a, i) => (
               <tr key={i}>
-
                 <td>{i + 1}</td>
 
                 <td>
                   <input
-                    className="pdf-input"
                     value={a.titulo}
                     onChange={(e) =>
                       update(["actividades", i, "titulo"], e.target.value)
                     }
                   />
-
                   <textarea
-                    className="pdf-textarea"
                     value={a.detalle}
                     onChange={(e) =>
                       update(["actividades", i, "detalle"], e.target.value)
@@ -181,87 +228,74 @@ export default function NuevoInforme() {
                 </td>
 
                 <td>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      files.forEach((file) =>
+                        handleImageUpload(file, i)
+                      );
+                    }}
+                  />
 
-                  {/* BOTONES */}
-                  <div className="flex gap-2 mb-2">
-
-                    <label className="bg-gray-700 text-white px-2 py-1 text-xs rounded cursor-pointer">
-                      📁
-                      <input
-                        type="file"
-                        multiple
-                        hidden
-                        onChange={(e) => {
-                          Array.from(e.target.files).forEach((file) =>
-                            handleImageUpload(file, i)
-                          );
-                        }}
-                      />
-                    </label>
-
-                    <label className="bg-blue-600 text-white px-2 py-1 text-xs rounded cursor-pointer">
-                      📷
-                      <input
-                        type="file"
-                        capture="environment"
-                        hidden
-                        onChange={(e) => {
-                          Array.from(e.target.files).forEach((file) =>
-                            handleImageUpload(file, i)
-                          );
-                        }}
-                      />
-                    </label>
-
-                  </div>
-
-                  {/* PREVIEW */}
-                  <div className="grid grid-cols-2 gap-2">
-                    {a.imagenes.map((img, idx) => (
-                      <div key={idx} className="relative">
-                        <img
-                          src={img}
-                          className="w-full h-24 object-contain border rounded"
-                        />
-
-                        <button
-                          onClick={() => {
-                            setData((prev) => {
-                              const copy = structuredClone(prev);
-                              copy.actividades[i].imagenes.splice(idx, 1);
-                              return copy;
-                            });
-                          }}
-                          className="absolute top-0 right-0 bg-red-600 text-white text-xs rounded-full px-1"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-
+                  {a.imagenes.map((img, idx) => (
+                    <img key={idx} src={img} width={100} />
+                  ))}
                 </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
+        <button onClick={addActividad}>+ Actividad</button>
+
+        {/* CONCLUSIONES */}
+        <table className="pdf-table">
+          <tbody>
+            {data.conclusiones.map((_, i) => (
+              <tr key={i}>
+                <td>
+                  <textarea
+                    value={data.conclusiones[i]}
+                    onChange={(e) =>
+                      update(["conclusiones", i], e.target.value)
+                    }
+                  />
+                </td>
+                <td>
+                  <textarea
+                    value={data.recomendaciones[i]}
+                    onChange={(e) =>
+                      update(["recomendaciones", i], e.target.value)
+                    }
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
 
         {/* FIRMAS */}
-        <div className="grid grid-cols-2 gap-6">
-          <SignatureCanvas ref={sigTecnico} />
-          <SignatureCanvas ref={sigCliente} />
-        </div>
+        <table className="pdf-table">
+          <tbody>
+            <tr>
+              <td>
+                <SignatureCanvas ref={sigTecnico} />
+              </td>
+              <td>
+                <SignatureCanvas ref={sigCliente} />
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-        {/* BOTÓN */}
-        <button
-          onClick={saveReport}
-          className="bg-blue-600 text-white px-6 py-2 rounded"
-        >
-          {isEditing ? "Actualizar informe" : "Guardar informe"}
+        <button onClick={saveReport}>
+          {isEditing ? "Actualizar" : "Guardar"}
         </button>
 
       </div>
     </div>
   );
 }
+```
