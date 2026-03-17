@@ -2,39 +2,31 @@ import imageCompression from "browser-image-compression";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
 
 export default function NuevoInforme() {
   const navigate = useNavigate();
   const currentReport = JSON.parse(localStorage.getItem("currentReport"));
-const isEditing = !!currentReport?.id;
+  const isEditing = !!currentReport?.id;
 
-  /* ===========================
-     ESTADO BASE
-  =========================== */
   const emptyReport = {
     referenciaContrato: "",
     descripcion: "",
     codInf: "",
-
     cliente: "",
     direccion: "",
     contacto: "",
     telefono: "",
     correo: "",
     fechaServicio: "",
-
     tecnicoNombre: "",
     tecnicoTelefono: "",
     tecnicoCorreo: "",
-
     actividades: [{ titulo: "", detalle: "", imagenes: [] }],
-
     conclusiones: [""],
     recomendaciones: [""],
-
     equipo: {
       nota: "",
       marca: "",
@@ -47,112 +39,47 @@ const isEditing = !!currentReport?.id;
       horasChasis: "",
       kilometraje: "",
     },
-
     firmas: {
       tecnico: "",
       cliente: "",
     },
   };
-const handleImageUpload = async (file, actividadIndex) => {
-  if (!file) return;
 
-  try {
-    // 🔧 compresión PRO
-    const compressedFile = await imageCompression(file, {
-      maxSizeMB: 0.4,
-      maxWidthOrHeight: 1280,
-      useWebWorker: true,
-      fileType: "image/jpeg",
-      initialQuality: 0.7,
-      exifOrientation: 1,
-    });
-
-    // ☁ subir a Supabase
-    const url = await uploadRegistroImage(
-      compressedFile,
-      "informe",
-      "actividad"
-    );
-
-    if (!url) return;
-
-    // 💾 guardar URL en el estado
-    setData((prev) => {
-      const copy = structuredClone(prev);
-      copy.actividades[actividadIndex].imagenes.push(url);
-      return copy;
-    });
-
-  } catch (error) {
-    console.error("Error subiendo imagen:", error);
-  }
-};
-  
   const [data, setData] = useState(emptyReport);
-
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
 
-  const disableScroll = () => {
-    document.body.style.overflow = "hidden";
-  };
+  /* ================= IMÁGENES ================= */
+  const handleImageUpload = async (file, index) => {
+    if (!file) return;
 
-  const enableScroll = () => {
-    document.body.style.overflow = "";
-  };
-
- /* ===========================
-   CARGAR BORRADOR
-=========================== */
-useEffect(() => {
-  const current = JSON.parse(localStorage.getItem("currentReport"));
-
-  if (current?.data) {
-    setData(current.data);
-
-    setTimeout(() => {
-      if (current.data.firmas?.tecnico) {
-        sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
-      }
-      if (current.data.firmas?.cliente) {
-        sigCliente.current?.fromDataURL(current.data.firmas.cliente);
-      }
-    }, 0);
-
-  } else {
-    setData(emptyReport);
-  }
-
-}, []);
-  
-  /* ===========================
-   AUTOGUARDADO AUTOMÁTICO
-=========================== */
-useEffect(() => {
-  const timeout = setTimeout(() => {
     try {
-      const json = JSON.stringify(data);
+      const compressed = await imageCompression(file, {
+        maxSizeMB: 0.4,
+        maxWidthOrHeight: 1280,
+        useWebWorker: true,
+      });
 
-      // ⚠️ Validar tamaño antes de guardar
-      const sizeInKB = new Blob([json]).size / 1024;
+      const url = await uploadRegistroImage(
+        compressed,
+        "informe",
+        "actividad"
+      );
 
-      if (sizeInKB < 4500) { // margen seguro
-        localStorage.setItem("autoSaveInforme", json);
-      } else {
-        console.warn("Autoguardado omitido: tamaño demasiado grande");
-      }
+      if (!url) return;
+
+      setData((prev) => {
+        const copy = structuredClone(prev);
+        copy.actividades[index].imagenes.push(url);
+        return copy;
+      });
 
     } catch (err) {
-      console.error("Error guardando autoguardado:", err);
+      console.error("Error imagen:", err);
     }
-  }, 800);
+  };
 
-  return () => clearTimeout(timeout);
-}, [data]);
-
-  /* ===========================
-     UPDATE GENÉRICO
-  =========================== */
+  /* ================= UPDATE ================= */
   const update = (path, value) => {
     setData((prev) => {
       const copy = structuredClone(prev);
@@ -165,203 +92,42 @@ useEffect(() => {
     });
   };
 
-  /* ===========================
-   COMPRESIÓN Y REDIMENSIÓN
-=========================== */
+  /* ================= SAVE ================= */
+  const saveReport = async () => {
+    const firmaTecnico = sigTecnico.current?.toDataURL() || "";
+    const firmaCliente = sigCliente.current?.toDataURL() || "";
 
-
-  /* ===========================
-     ACTIVIDADES
-  =========================== */
-  const addActividad = () =>
-    setData((p) => ({
-      ...p,
-      actividades: [
-        ...p.actividades,
-        { titulo: "", detalle: "", imagenes: [] },
-      ],
-    }));
-
-  const removeActividad = (index) =>
-    setData((p) => ({
-      ...p,
-      actividades: p.actividades.filter((_, i) => i !== index),
-    }));
-
-  /* ===========================
-     CONCLUSIONES / RECOMENDACIONES
-  =========================== */
-  const addConclusionRow = () =>
-    setData((p) => ({
-      ...p,
-      conclusiones: [...p.conclusiones, ""],
-      recomendaciones: [...p.recomendaciones, ""],
-    }));
-
-  const removeConclusionRow = (index) =>
-    setData((p) => ({
-      ...p,
-      conclusiones: p.conclusiones.filter((_, i) => i !== index),
-      recomendaciones: p.recomendaciones.filter((_, i) => i !== index),
-    }));
-
-  /* ===========================
-     GUARDAR INFORME
-  =========================== */
- const saveReport = async () => {
-  const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
-  const current = JSON.parse(localStorage.getItem("currentReport"));
-
-const firmaTecnico =
-  sigTecnico.current && !sigTecnico.current.isEmpty()
-    ? sigTecnico.current.toDataURL()
-    : "";
-
-const firmaCliente =
-  sigCliente.current && !sigCliente.current.isEmpty()
-    ? sigCliente.current.toDataURL()
-    : "";
-
-/* ===========================
-   🔒 VALIDACIÓN REAL FIRMA
-=========================== */
-
-// Si el canvas no tiene firma nueva,
-// usar la que ya estaba guardada
-const firmaTecnicoFinal =
-  firmaTecnico || data.firmas?.tecnico || "";
-
-const firmaClienteFinal =
-  firmaCliente || data.firmas?.cliente || "";
-
-// Estado depende de que exista firma técnico
-const estadoFinal =
-  firmaTecnicoFinal ? "completado" : "borrador";
-
-const reportData = {
-  estado: estadoFinal,
-  data: {
-    ...data,
-    firmas: {
-      tecnico: firmaTecnicoFinal,
-      cliente: firmaClienteFinal,
-    },
-  },
-};
-
-  let localReport;
-
-  /* ===========================
-     EDITAR
-  =========================== */
-  if (isEditing && current?.id) {
-    localReport = {
-      ...current,
-      estado: reportData.estado,
-      data: reportData.data,
-      updatedAt: new Date().toISOString(),
-      synced: false,
+    const payload = {
+      ...data,
+      firmas: {
+        tecnico: firmaTecnico || data.firmas?.tecnico,
+        cliente: firmaCliente || data.firmas?.cliente,
+      },
     };
 
-    const updatedList = stored.map((r) =>
-      r.id === current.id ? localReport : r
-    );
-
-    localStorage.setItem("serviceReports", JSON.stringify(updatedList));
-    localStorage.setItem("currentReport", JSON.stringify(localReport));
-
     try {
-      const { error } = await supabase
-        .from("registros")
-        .update({
-          estado: reportData.estado,
-          data: reportData.data,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", current.id)
-        .eq("tipo", "informe")
-        .eq("subtipo", "general");
-
-      if (error) throw error;
-
-      const finalList = updatedList.map((r) =>
-        r.id === current.id ? { ...r, synced: true } : r
-      );
-
-      localStorage.setItem("serviceReports", JSON.stringify(finalList));
-      localStorage.setItem(
-        "currentReport",
-        JSON.stringify({ ...localReport, synced: true })
-      );
-
-      alert("Informe actualizado en Supabase ✅");
-    } catch (err) {
-      alert("Actualizado localmente (pendiente de sincronizar)");
-    }
-
-    navigate("/informe");
-    return;
-  }
-
-  /* ===========================
-     CREAR NUEVO
-  =========================== */
-
-  localReport = {
-    id: Date.now(),
-    tipo: "informe",
-    subtipo: "general",
-    estado: reportData.estado,
-    data: reportData.data,
-    createdAt: new Date().toISOString(),
-    synced: false,
-  };
-
-  const initialList = [...stored, localReport];
-  localStorage.setItem("serviceReports", JSON.stringify(initialList));
-
-  try {
-    const { data: inserted, error } = await supabase
-      .from("registros")
-      .insert([
+      await supabase.from("registros").insert([
         {
           tipo: "informe",
           subtipo: "general",
-          estado: reportData.estado,
-          data: reportData.data,
+          data: payload,
         },
-      ])
-      .select()
-      .single();
+      ]);
+    } catch (err) {
+      console.error(err);
+    }
 
-    if (error) throw error;
+    navigate("/informe");
+  };
 
-    const finalList = initialList.map((r) =>
-      r.id === localReport.id
-        ? { ...r, id: inserted.id, synced: true }
-        : r
-    );
-
-    localStorage.setItem("serviceReports", JSON.stringify(finalList));
-
-    const finalReport = finalList.find((r) => r.id === inserted.id);
-    localStorage.setItem("currentReport", JSON.stringify(finalReport));
-
-    alert("Informe guardado en Supabase ✅");
-  } catch (err) {
-    alert("Guardado localmente (pendiente de sincronizar)");
-  }
-
-  localStorage.removeItem("autoSaveInforme");
-  navigate("/informe");
-};
+  /* ================= UI ================= */
   return (
-  <div className="p-6 bg-gray-100 min-h-screen">
-    <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
 
-      <ReportHeader data={data} onChange={update} />
- 
-        {/* DATOS CLIENTE */}
+        <ReportHeader data={data} onChange={update} />
+
+        {/* CLIENTE */}
         <table className="pdf-table">
           <tbody>
             {[
@@ -370,481 +136,15 @@ const reportData = {
               ["CONTACTO", "contacto"],
               ["TELÉFONO", "telefono"],
               ["CORREO", "correo"],
-              ["TÉCNICO RESPONSABLE", "tecnicoNombre"],
-              ["TELÉFONO TÉCNICO", "tecnicoTelefono"],
-              ["CORREO TÉCNICO", "tecnicoCorreo"],
-            ].map(([label, key]) => (
-              <tr key={key}>
-      <td className="pdf-label">{label}</td>
-      <td>
-        <input
-          className="pdf-input"
-          value={data[key]}
-          onChange={(e) => update([key], e.target.value)}
-        />
-      </td>
-    </tr>
-  ))}
-
-  <tr>
-    <td className="pdf-label">FECHA DE SERVICIO</td>
-    <td>
-      <input
-        type="date"
-        className="pdf-input"
-        value={data.fechaServicio}
-        onChange={(e) => update(["fechaServicio"], e.target.value)}
-      />
-    </td>
-  </tr>
-
-</tbody>
-              
-        </table>
-
-        {/* ACTIVIDADES */}
-        <h3 className="font-bold text-sm">ACTIVIDADES REALIZADAS</h3>
-
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th style={{ width: 40 }}>ÍTEM</th>
-              <th>DESCRIPCIÓN</th>
-              <th style={{ width: 260 }}>IMAGEN</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.actividades.map((a, i) => (
-              <tr key={i}>
-
-  {/* ÍTEM */}
-  <td className="text-center align-top">
-    {i + 1}
-  </td>
-
-  {/* DESCRIPCIÓN */}
-  <td className="align-top">
-    <input
-      className="pdf-input"
-      placeholder="Título"
-      value={a.titulo}
-      onChange={(e) =>
-        update(["actividades", i, "titulo"], e.target.value)
-      }
-    />
-
-    <textarea
-      className="pdf-textarea w-full resize-none overflow-hidden"
-      placeholder="Detalle"
-      value={a.detalle}
-      rows={2}
-      ref={(el) => {
-        if (el) {
-          el.style.height = "auto";
-          el.style.height = el.scrollHeight + "px";
-        }
-      }}
-      onInput={(e) => {
-        e.target.style.height = "auto";
-        e.target.style.height = e.target.scrollHeight + "px";
-      }}
-      onChange={(e) =>
-        update(["actividades", i, "detalle"], e.target.value)
-      }
-    />
-  </td>
-<td className="align-top">
-
-  <div className="flex flex-col gap-2 mb-2">
-
-    {/* GALERÍA */}
-    <label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-      📁 Galería
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const files = Array.from(e.target.files || []);
-          files.forEach((file) => {
-            handleImageUpload(file, i);
-          });
-        }}
-      />
-    </label>
-
-    {/* CÁMARA */}
-    <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-      📷 Cámara
-      <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        multiple
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const files = Array.from(e.target.files || []);
-          files.forEach((file) => {
-            handleImageUpload(file, i);
-          });
-        }}
-      />
-    </label>
-
-  </div>
-
-  {/* PREVISUALIZACIÓN */}
-  <div className="grid grid-cols-2 gap-2">
-    {a.imagenes?.map((img, imgIndex) => (
-      <div key={imgIndex} className="relative">
-        <img
-          src={img}
-          alt="actividad"
-          style={{
-            width: "100%",
-            height: 100,
-            objectFit: "contain",
-            backgroundColor: "#f3f3f3",
-            borderRadius: 6,
-            border: "1px solid #ccc",
-          }}
-        />
-
-        <button
-          type="button"
-          onClick={() => {
-            setData((prev) => {
-              const copy = structuredClone(prev);
-              copy.actividades[i].imagenes.splice(imgIndex, 1);
-              return copy;
-            });
-          }}
-          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1"
-        >
-          ✕
-        </button>
-      </div>
-    ))}
-  </div>
-
-</td>
-    {/* CÁMARA */}
-    <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-      📷 Cámara
-      <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        multiple
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const files = Array.from(e.target.files || []);
-          files.forEach((file) => {
-            handleImageUpload(file, i);
-          });
-        }}
-      />
-    </label>
-
-  </div>
-
-  {/* PREVISUALIZACIÓN */}
-  <div className="grid grid-cols-2 gap-2">
-    {a.imagenes?.map((img, imgIndex) => (
-      <div key={imgIndex} className="relative">
-        <img
-          src={img}
-          alt="actividad"
-          style={{
-            width: "100%",
-            height: 100,
-            objectFit: "contain",
-            backgroundColor: "#f3f3f3",
-            borderRadius: 6,
-            border: "1px solid #ccc",
-          }}
-        />
-
-        <button
-          type="button"
-          onClick={() => {
-            setData((prev) => {
-              const copy = structuredClone(prev);
-              copy.actividades[i].imagenes.splice(imgIndex, 1);
-              return copy;
-            });
-          }}
-          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1"
-        >
-          ✕
-        </button>
-      </div>
-    ))}
-  </div>
-
-  {data.actividades.length > 1 && (
-    <button
-      type="button"
-      onClick={() => removeActividad(i)}
-      className="text-red-600 text-xs mt-2"
-    >
-      Eliminar
-    </button>
-  )}
-
-</td>
-          });
-        }}
-      />
-    </label>
-
-    {/* CÁMARA */}
-    <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-      📷 Cámara
-      <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        multiple
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const files = Array.from(e.target.files || []);
-          files.forEach((file) => {
-            <td className="align-top">
-
-  <div className="flex flex-col gap-2 mb-2">
-
-    {/* GALERÍA */}
-    <label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-      📁 Galería
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const files = Array.from(e.target.files || []);
-          files.forEach((file) => {
-            handleImageUpload(file, i);
-          });
-        }}
-      />
-    </label>
-
-    {/* CÁMARA */}
-    <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-      📷 Cámara
-      <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        multiple
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const files = Array.from(e.target.files || []);
-          files.forEach((file) => {
-            handleImageUpload(file, i);
-          });
-        }}
-      />
-    </label>
-
-  </div>
-
-  {/* PREVISUALIZACIÓN */}
-  <div className="grid grid-cols-2 gap-2">
-    {a.imagenes?.map((img, imgIndex) => (
-      <div key={imgIndex} className="relative">
-        <img
-          src={img}
-          alt="actividad"
-          style={{
-            width: "100%",
-            height: 100,
-            objectFit: "contain",
-            backgroundColor: "#f3f3f3",
-            borderRadius: 6,
-            border: "1px solid #ccc",
-          }}
-        />
-
-        <button
-          type="button"
-          onClick={() => {
-            setData((prev) => {
-              const copy = structuredClone(prev);
-              copy.actividades[i].imagenes.splice(imgIndex, 1);
-              return copy;
-            });
-          }}
-          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1"
-        >
-          ✕
-        </button>
-      </div>
-    ))}
-  </div>
-
-  {data.actividades.length > 1 && (
-    <button
-      type="button"
-      onClick={() => removeActividad(i)}
-      className="text-red-600 text-xs mt-2"
-    >
-      Eliminar
-    </button>
-  )}
-
-</td>
-          });
-        }}
-      />
-    </label>
-
-  </div>
-
-  {/* PREVISUALIZACIÓN */}
-  <div className="grid grid-cols-2 gap-2">
-    {a.imagenes?.map((img, imgIndex) => (
-      <div key={imgIndex} className="relative">
-        <img
-          src={img}
-          alt="actividad"
-          style={{
-            width: "100%",
-            height: 100,
-            objectFit: "contain",
-            backgroundColor: "#f3f3f3",
-            borderRadius: 6,
-            border: "1px solid #ccc",
-          }}
-        />
-
-        <button
-          type="button"
-          onClick={() => {
-            setData((prev) => {
-              const copy = structuredClone(prev);
-              copy.actividades[i].imagenes.splice(imgIndex, 1);
-              return copy;
-            });
-          }}
-          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1"
-        >
-          ✕
-        </button>
-      </div>
-    ))}
-  </div>
-
-  {data.actividades.length > 1 && (
-    <button
-      type="button"
-      onClick={() => removeActividad(i)}
-      className="text-red-600 text-xs mt-2"
-    >
-      Eliminar
-    </button>
-  )}
-
-</td>                
-  
-</tr>
-
-            ))}
-          </tbody>
-        </table>
-
-        <button
-          type="button"
-          onClick={addActividad}
-          className="border px-3 py-1 text-xs rounded"
-        >
-          + Agregar actividad
-        </button>
-
-               {/* CONCLUSIONES Y RECOMENDACIONES */}
-        <h3 className="font-bold text-sm">CONCLUSIONES Y RECOMENDACIONES</h3>
-
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th colSpan={2}>CONCLUSIONES</th>
-              <th colSpan={2}>RECOMENDACIONES</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.conclusiones.map((_, i) => (
-              <tr key={i}>
-                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
-                <td>
-                  <textarea
-                    className="pdf-textarea"
-                    value={data.conclusiones[i]}
-                    onChange={(e) =>
-                      update(["conclusiones", i], e.target.value)
-                    }
-                  />
-                </td>
-                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
-                <td>
-                  <textarea
-                    className="pdf-textarea"
-                    value={data.recomendaciones[i]}
-                    onChange={(e) =>
-                      update(["recomendaciones", i], e.target.value)
-                    }
-                  />
-                  {data.conclusiones.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeConclusionRow(i)}
-                      className="text-red-600 text-xs mt-1"
-                    >
-                      Eliminar
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <button
-          type="button"
-          onClick={addConclusionRow}
-          className="border px-3 py-1 text-xs rounded"
-        >
-          + Agregar conclusión / recomendación
-        </button>
-
-        {/* DESCRIPCIÓN DEL EQUIPO */}
-        <h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
-
-        <table className="pdf-table">
-          <tbody>
-            {[
-              ["NOTA", "nota"],
-              ["MARCA", "marca"],
-              ["MODELO", "modelo"],
-              ["N° SERIE", "serie"],
-              ["AÑO MODELO", "anio"],
-              ["VIN / CHASIS", "vin"],
-              ["PLACA", "placa"],
-              ["HORAS MÓDULO", "horasModulo"],
-              ["HORAS CHASIS", "horasChasis"],
-              ["KILOMETRAJE", "kilometraje"],
+              ["TÉCNICO", "tecnicoNombre"],
             ].map(([label, key]) => (
               <tr key={key}>
                 <td className="pdf-label">{label}</td>
                 <td>
                   <input
                     className="pdf-input"
-                    value={data.equipo[key]}
-                    onChange={(e) =>
-                      update(["equipo", key], e.target.value)
-                    }
+                    value={data[key]}
+                    onChange={(e) => update([key], e.target.value)}
                   />
                 </td>
               </tr>
@@ -852,103 +152,114 @@ const reportData = {
           </tbody>
         </table>
 
-        {/* ================= FIRMAS ================= */}
-<table className="pdf-table">
-  <thead>
-    <tr>
-      <th>FIRMA TÉCNICO ASTAP</th>
-      <th>FIRMA CLIENTE</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style={{ height: 160 }}>
-        <SignatureCanvas
-          ref={sigTecnico}
-          onBegin={() => {
-            document.activeElement?.blur();
-            document.body.style.overflow = "hidden";
-          }}
-          onEnd={() => {
-            document.body.style.overflow = "";
-          }}
-          canvasProps={{ className: "w-full h-full" }}
-        />
+        {/* ACTIVIDADES */}
+        <h3 className="font-bold text-sm">ACTIVIDADES</h3>
 
-        <div className="text-center">
-          <button
-            type="button"
-            onClick={() => {
-              sigTecnico.current?.clear();
-              setData((prev) => ({
-                ...prev,
-                firmas: {
-                  ...prev.firmas,
-                  tecnico: "",
-                },
-              }));
-            }}
-            className="text-xs text-red-600 mt-2"
-          >
-            Borrar firma
-          </button>
+        <table className="pdf-table">
+          <tbody>
+            {data.actividades.map((a, i) => (
+              <tr key={i}>
+
+                <td>{i + 1}</td>
+
+                <td>
+                  <input
+                    className="pdf-input"
+                    value={a.titulo}
+                    onChange={(e) =>
+                      update(["actividades", i, "titulo"], e.target.value)
+                    }
+                  />
+
+                  <textarea
+                    className="pdf-textarea"
+                    value={a.detalle}
+                    onChange={(e) =>
+                      update(["actividades", i, "detalle"], e.target.value)
+                    }
+                  />
+                </td>
+
+                <td>
+
+                  {/* BOTONES */}
+                  <div className="flex gap-2 mb-2">
+
+                    <label className="bg-gray-700 text-white px-2 py-1 text-xs rounded cursor-pointer">
+                      📁
+                      <input
+                        type="file"
+                        multiple
+                        hidden
+                        onChange={(e) => {
+                          Array.from(e.target.files).forEach((file) =>
+                            handleImageUpload(file, i)
+                          );
+                        }}
+                      />
+                    </label>
+
+                    <label className="bg-blue-600 text-white px-2 py-1 text-xs rounded cursor-pointer">
+                      📷
+                      <input
+                        type="file"
+                        capture="environment"
+                        hidden
+                        onChange={(e) => {
+                          Array.from(e.target.files).forEach((file) =>
+                            handleImageUpload(file, i)
+                          );
+                        }}
+                      />
+                    </label>
+
+                  </div>
+
+                  {/* PREVIEW */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {a.imagenes.map((img, idx) => (
+                      <div key={idx} className="relative">
+                        <img
+                          src={img}
+                          className="w-full h-24 object-contain border rounded"
+                        />
+
+                        <button
+                          onClick={() => {
+                            setData((prev) => {
+                              const copy = structuredClone(prev);
+                              copy.actividades[i].imagenes.splice(idx, 1);
+                              return copy;
+                            });
+                          }}
+                          className="absolute top-0 right-0 bg-red-600 text-white text-xs rounded-full px-1"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                </td>
+
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* FIRMAS */}
+        <div className="grid grid-cols-2 gap-6">
+          <SignatureCanvas ref={sigTecnico} />
+          <SignatureCanvas ref={sigCliente} />
         </div>
-      </td>
 
-      <td style={{ height: 160 }}>
-        <SignatureCanvas
-          ref={sigCliente}
-          onBegin={() => {
-            document.activeElement?.blur();
-            document.body.style.overflow = "hidden";
-          }}
-          onEnd={() => {
-            document.body.style.overflow = "";
-          }}
-          canvasProps={{ className: "w-full h-full" }}
-        />
-
-        <div className="text-center">
-          <button
-            type="button"
-            onClick={() => {
-              sigCliente.current?.clear();
-              setData((prev) => ({
-                ...prev,
-                firmas: {
-                  ...prev.firmas,
-                  cliente: "",
-                },
-              }));
-            }}
-            className="text-xs text-red-600 mt-2"
-          >
-            Borrar firma
-          </button>
-        </div>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-        {/* BOTONES */}
-        <div className="flex justify-between pt-6">
-          <button
-            type="button"
-            onClick={() => navigate("/informe")}
-            className="border px-6 py-2 rounded"
-          >
-            Volver
-          </button>
-
-          <button
-  type="button"
-  onClick={saveReport}
-  className="bg-blue-600 text-white px-6 py-2 rounded"
->
-  {isEditing ? "Actualizar informe" : "Guardar informe"}
-</button>
-        </div>
+        {/* BOTÓN */}
+        <button
+          onClick={saveReport}
+          className="bg-blue-600 text-white px-6 py-2 rounded"
+        >
+          {isEditing ? "Actualizar informe" : "Guardar informe"}
+        </button>
 
       </div>
     </div>
