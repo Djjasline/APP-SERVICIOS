@@ -649,17 +649,13 @@ navigate("/informe");
 <button
   type="button"
   onClick={saveReport}
-  {uploading
-  ? `Subiendo imágenes (${uploadingCount})...`
-  : isEditing
-  ? "Actualizar informe"
-  : "Guardar informe"}
+  disabled={uploading}
   className={`px-6 py-2 rounded text-white ${
     uploading ? "bg-gray-400" : "bg-blue-600"
   }`}
 >
   {uploading
-    ? "Subiendo imágenes..."
+    ? `Subiendo imágenes (${uploadingCount})...`
     : isEditing
     ? "Actualizar informe"
     : "Guardar informe"}
