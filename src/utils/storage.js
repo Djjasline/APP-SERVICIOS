@@ -18,3 +18,8 @@ export async function uploadRegistroImage(file, id, tipo) {
 
   return data.publicUrl;
 }
+} catch (err) {
+    console.error("Error general:", err);
+    return null;
+  }
+};
