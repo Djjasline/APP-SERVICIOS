@@ -453,8 +453,6 @@ const reportData = {
       }
     />
   </td>
-
-{/* IMAGEN */}
 <td className="align-top">
 
   <div className="flex flex-col gap-2 mb-2">
@@ -469,10 +467,68 @@ const reportData = {
         style={{ display: "none" }}
         onChange={(e) => {
           const files = Array.from(e.target.files || []);
- <td className="align-top">
+          files.forEach((file) => {
+            handleImageUpload(file, i);
+          });
+        }}
+      />
+    </label>
 
- 
+    {/* CÁMARA */}
+    <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
+      📷 Cámara
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        multiple
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const files = Array.from(e.target.files || []);
+          files.forEach((file) => {
+            handleImageUpload(file, i);
+          });
+        }}
+      />
+    </label>
 
+  </div>
+
+  {/* PREVISUALIZACIÓN */}
+  <div className="grid grid-cols-2 gap-2">
+    {a.imagenes?.map((img, imgIndex) => (
+      <div key={imgIndex} className="relative">
+        <img
+          src={img}
+          alt="actividad"
+          style={{
+            width: "100%",
+            height: 100,
+            objectFit: "contain",
+            backgroundColor: "#f3f3f3",
+            borderRadius: 6,
+            border: "1px solid #ccc",
+          }}
+        />
+
+        <button
+          type="button"
+          onClick={() => {
+            setData((prev) => {
+              const copy = structuredClone(prev);
+              copy.actividades[i].imagenes.splice(imgIndex, 1);
+              return copy;
+            });
+          }}
+          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1"
+        >
+          ✕
+        </button>
+      </div>
+    ))}
+  </div>
+
+</td>
     {/* CÁMARA */}
     <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
       📷 Cámara
