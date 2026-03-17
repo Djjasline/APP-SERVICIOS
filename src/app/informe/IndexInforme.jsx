@@ -8,90 +8,121 @@ export default function IndexInforme() {
   const [informes, setInformes] = useState([]);
 
   /* ===========================
-     CARGAR INFORMES
+     🧠 MIGRACIÓN SEGURA
   =========================== */
-useEffect(() => {
-  const cargarInformes = async () => {
+  const migrarInforme = (inf) => {
+    const data = inf.data || {};
 
-    // 1️⃣ Intentar leer local
-    const local =
-      JSON.parse(localStorage.getItem("serviceReports")) || [];
+    // Si ya tiene estructura nueva → no tocar
+    if (data.tecnicoNombre && data.codInf) return inf;
 
-    if (local.length > 0) {
-      setInformes(local);
-      return;
-    }
-
-    // 2️⃣ Si no hay local, leer Supabase
-    const { data, error } = await supabase
-      .from("registros")
-      .select("*")
-      .eq("tipo", "informe")
-      .eq("subtipo", "general")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("Error cargando desde Supabase:", error);
-      return;
-    }
-
-    if (data) {
-      const mapped = data.map(r => ({
-        id: r.id,
-        estado: r.estado,
-        data: r.data,
-        createdAt: r.created_at,
-        synced: true
-      }));
-
-      localStorage.setItem(
-        "serviceReports",
-        JSON.stringify(mapped)
-      );
-
-      setInformes(mapped);
-    }
+    return {
+      ...inf,
+      data: {
+        ...data,
+        tecnicoNombre:
+          data.tecnicoNombre ||
+          "Técnico no definido",
+        codInf:
+          data.codInf ||
+          data.referenciaContrato ||
+          "SIN-COD",
+      },
+    };
   };
 
-  cargarInformes();
-}, []);
+  /* ===========================
+     CARGAR INFORMES
+  =========================== */
+  useEffect(() => {
+    const cargarInformes = async () => {
+
+      // 1️⃣ Intentar leer local
+      const local =
+        JSON.parse(localStorage.getItem("serviceReports")) || [];
+
+      if (local.length > 0) {
+        const migrados = local.map(migrarInforme);
+
+        setInformes(migrados);
+
+        localStorage.setItem(
+          "serviceReports",
+          JSON.stringify(migrados)
+        );
+
+        return;
+      }
+
+      // 2️⃣ Si no hay local, leer Supabase
+      const { data, error } = await supabase
+        .from("registros")
+        .select("*")
+        .eq("tipo", "informe")
+        .eq("subtipo", "general")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error cargando desde Supabase:", error);
+        return;
+      }
+
+      if (data) {
+        const mapped = data.map(r => ({
+          id: r.id,
+          estado: r.estado,
+          data: r.data,
+          createdAt: r.created_at,
+          synced: true
+        }));
+
+        const migrados = mapped.map(migrarInforme);
+
+        localStorage.setItem(
+          "serviceReports",
+          JSON.stringify(migrados)
+        );
+
+        setInformes(migrados);
+      }
+    };
+
+    cargarInformes();
+  }, []);
 
   /* ===========================
      FILTRO
   =========================== */
-const filtrados = informes.filter((inf) => {
-  if (filtro === "todos") return true;
+  const filtrados = informes.filter((inf) => {
+    if (filtro === "todos") return true;
 
-  return (
-    inf.estado &&
-    inf.estado.toLowerCase().trim() === filtro
-  );
-});
+    return (
+      inf.estado &&
+      inf.estado.toLowerCase().trim() === filtro
+    );
+  });
 
   /* ===========================
      TITULO DEL HISTORIAL
   =========================== */
-const getTitulo = (inf) => {
-  const tecnico = inf.data?.tecnicoNombre?.trim();
-  const codInf = inf.data?.codInf?.trim();
-  const descripcion = inf.data?.descripcion?.trim();
+  const getTitulo = (inf) => {
+    const tecnico = inf.data?.tecnicoNombre?.trim();
+    const codInf = inf.data?.codInf?.trim();
+    const descripcion = inf.data?.descripcion?.trim();
 
-  // 🔥 prioridad nueva estructura
-  if (tecnico && codInf) return `${tecnico} - ${codInf}`;
-  if (tecnico) return tecnico;
-  if (codInf) return codInf;
+    if (tecnico && codInf) return `${tecnico} - ${codInf}`;
+    if (tecnico) return tecnico;
+    if (codInf) return codInf;
+    if (descripcion) return descripcion;
 
-  // 🔥 fallback para informes antiguos
-  if (descripcion) return descripcion;
-
-  return "Sin información";
-};
+    return "Sin información";
+  };
 
   /* ===========================
      NUEVO INFORME (LIMPIO)
   =========================== */
   const nuevoInforme = () => {
-    localStorage.removeItem("currentReport"); // 🔴 LIMPIA BORRADOR
+    localStorage.removeItem("currentReport");
     navigate("/informe/nuevo");
   };
 
@@ -143,70 +174,71 @@ const getTitulo = (inf) => {
             {filtrados.length === 0 && (
               <p className="text-xs text-gray-500">Sin registros</p>
             )}
-{filtrados.map((inf) => (
-  <div
-    key={inf.id}
-    className="border rounded p-3 flex justify-between items-start text-sm"
-  >
-    <div>
-      <p className="font-semibold">
-        {getTitulo(inf)}
-      </p>
 
-     <p className="text-xs text-gray-600">
-  Código: {inf.data?.codInf || inf.data?.referenciaContrato || "—"}
-</p>
+            {filtrados.map((inf) => (
+              <div
+                key={inf.id}
+                className="border rounded p-3 flex justify-between items-start text-sm"
+              >
+                <div>
+                  <p className="font-semibold">
+                    {getTitulo(inf)}
+                  </p>
 
-      <span
-        className={`text-xs font-semibold ${
-          inf.estado?.toLowerCase().trim() === "completado"
-            ? "text-green-600"
-            : "text-orange-600"
-        }`}
-      >
-        {inf.estado}
-      </span>
-    </div>
+                  <p className="text-xs text-gray-600">
+                    Código: {inf.data?.codInf || inf.data?.referenciaContrato || "—"}
+                  </p>
 
-    <div className="flex gap-2 flex-wrap">
-      <button
-        className="border px-2 py-1 text-xs rounded"
-        onClick={() => {
-          localStorage.setItem(
-            "currentReport",
-            JSON.stringify(inf)
-          );
-          navigate(`/informe/${inf.id}`);
-        }}
-      >
-        Abrir
-      </button>
+                  <span
+                    className={`text-xs font-semibold ${
+                      inf.estado?.toLowerCase().trim() === "completado"
+                        ? "text-green-600"
+                        : "text-orange-600"
+                    }`}
+                  >
+                    {inf.estado}
+                  </span>
+                </div>
 
-      {inf.estado === "completado" && (
-        <button
-          className="bg-green-600 text-white px-2 py-1 text-xs rounded"
-          onClick={() => navigate(`/informe/pdf/${inf.id}`)}
-        >
-          PDF
-        </button>
-      )}
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    className="border px-2 py-1 text-xs rounded"
+                    onClick={() => {
+                      localStorage.setItem(
+                        "currentReport",
+                        JSON.stringify(inf)
+                      );
+                      navigate(`/informe/${inf.id}`);
+                    }}
+                  >
+                    Abrir
+                  </button>
 
-      <button
-        className="text-red-600 text-xs"
-        onClick={() => {
-          const next = informes.filter(i => i.id !== inf.id);
-          setInformes(next);
-          localStorage.setItem(
-            "serviceReports",
-            JSON.stringify(next)
-          );
-        }}
-      >
-        Eliminar
-      </button>
-    </div>
-  </div>
-))}
+                  {inf.estado === "completado" && (
+                    <button
+                      className="bg-green-600 text-white px-2 py-1 text-xs rounded"
+                      onClick={() => navigate(`/informe/pdf/${inf.id}`)}
+                    >
+                      PDF
+                    </button>
+                  )}
+
+                  <button
+                    className="text-red-600 text-xs"
+                    onClick={() => {
+                      const next = informes.filter(i => i.id !== inf.id);
+                      setInformes(next);
+                      localStorage.setItem(
+                        "serviceReports",
+                        JSON.stringify(next)
+                      );
+                    }}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            ))}
 
           </div>
 
