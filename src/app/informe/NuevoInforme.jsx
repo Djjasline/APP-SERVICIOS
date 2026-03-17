@@ -2,10 +2,10 @@ import imageCompression from "browser-image-compression";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
-import { useParams } from "react-router-dom";
+
 
 export default function NuevoInforme() {
   const navigate = useNavigate();
@@ -81,7 +81,16 @@ setUploadingCount((prev) => prev + 1);
 
     setData((prev) => {
       const copy = structuredClone(prev);
-      copy.actividades[actividadIndex].imagenes.push(url);
+     if (!copy.actividades[actividadIndex]) return copy;
+
+if (!Array.isArray(copy.actividades[actividadIndex].imagenes)) {
+  copy.actividades[actividadIndex].imagenes = [];
+}
+
+copy.actividades[actividadIndex].imagenes = [
+  ...copy.actividades[actividadIndex].imagenes,
+  url,
+];
       return copy;
     });
 
@@ -198,9 +207,13 @@ useEffect(() => {
      GUARDAR INFORME
   =========================== */
  const saveReport = async () => {
-  
 
-const firmaTecnico =
+if (uploading) {
+    alert("Espera que terminen de subir las imágenes");
+    return;
+  }
+   
+ const firmaTecnico =
   sigTecnico.current && !sigTecnico.current.isEmpty()
     ? sigTecnico.current.toDataURL()
     : "";
@@ -369,39 +382,42 @@ navigate("/informe");
     {/* GALERÍA */}
     <label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
       📁 Galería
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        hidden
-        onChange={(e) => {
-          const files = Array.from(e.target.files || []);
-          files.forEach((file) => handleImageUpload(file, i));
-        }}
-      />
+     <input
+  type="file"
+  accept="image/*"
+  multiple
+  style={{ display: "none" }}
+  onChange={(e) => {
+  const files = Array.from(e.target.files || []);
+  files.forEach((file) => handleImageUpload(file, i));
+
+  e.target.value = null; // 🔥 CLAVE
+}}
+/>
     </label>
 
     {/* CÁMARA */}
     <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
       📷 Cámara
       <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        multiple
-        hidden
-        onChange={(e) => {
-          const files = Array.from(e.target.files || []);
-          files.forEach((file) => handleImageUpload(file, i));
-        }}
-      />
+  type="file"
+  accept="image/*"
+  capture="environment"
+  multiple
+  style={{ display: "none" }}
+  onChange={(e) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach((file) => handleImageUpload(file, i));
+    e.target.value = null;
+  }}
+/>
     </label>
 
   </div>
 
   {/* PREVISUALIZACIÓN */}
   <div className="grid grid-cols-2 gap-2">
-    {a.imagenes?.map((img, imgIndex) => (
+   {(a.imagenes || []).map((img, imgIndex) => (
       <div key={imgIndex} className="relative">
 
         <img
@@ -633,7 +649,11 @@ navigate("/informe");
 <button
   type="button"
   onClick={saveReport}
-  disabled={uploading}
+  {uploading
+  ? `Subiendo imágenes (${uploadingCount})...`
+  : isEditing
+  ? "Actualizar informe"
+  : "Guardar informe"}
   className={`px-6 py-2 rounded text-white ${
     uploading ? "bg-gray-400" : "bg-blue-600"
   }`}
