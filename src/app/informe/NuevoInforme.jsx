@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
+import { useParams } from "react-router-dom";
 
 export default function NuevoInforme() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const currentReport = location.state?.report || null;
 const isEditing = !!currentReport?.id;
 const [uploadingCount, setUploadingCount] = useState(0);
 const uploading = uploadingCount > 0;
+ const { id } = useParams(); 
   /* ===========================
      ESTADO BASE
   =========================== */
