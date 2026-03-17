@@ -132,7 +132,15 @@ useEffect(() => {
       return;
     }
 
-    setData(report.data);
+    const cleanData = {
+  ...report.data,
+  actividades: (report.data.actividades || []).map((a) => ({
+    ...a,
+    imagenes: Array.isArray(a.imagenes) ? a.imagenes : [],
+  })),
+};
+
+setData(cleanData);
 
     setTimeout(() => {
       if (report.data.firmas?.tecnico) {
