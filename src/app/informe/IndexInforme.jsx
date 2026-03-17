@@ -72,17 +72,15 @@ const filtrados = informes.filter((inf) => {
      TITULO DEL HISTORIAL
   =========================== */
   const getTitulo = (inf) => {
-    const cliente = inf.data?.cliente?.trim();
-    const codInf = inf.data?.codInf?.trim();
-    const ref = inf.data?.referenciaContrato?.trim();
+  const tecnico = inf.data?.tecnicoNombre?.trim();
+  const codInf = inf.data?.codInf?.trim();
 
-    if (cliente && codInf) return `${cliente} / ${codInf}`;
-    if (cliente && ref) return `${cliente} / ${ref}`;
-    if (codInf) return codInf;
-    if (ref) return ref;
+  if (tecnico && codInf) return `${tecnico} - ${codInf}`;
+  if (tecnico) return tecnico;
+  if (codInf) return codInf;
 
-    return "Sin referencia";
-  };
+  return "Sin información";
+};
 
   /* ===========================
      NUEVO INFORME (LIMPIO)
@@ -150,9 +148,9 @@ const filtrados = informes.filter((inf) => {
         {getTitulo(inf)}
       </p>
 
-      <p className="text-xs text-gray-500">
-        {new Date(inf.createdAt).toLocaleString()}
-      </p>
+      <p className="text-xs text-gray-600">
+  Código: {inf.data?.codInf || "—"}
+</p>
 
       <span
         className={`text-xs font-semibold ${
