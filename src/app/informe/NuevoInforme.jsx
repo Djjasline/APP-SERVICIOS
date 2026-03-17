@@ -168,47 +168,7 @@ useEffect(() => {
   /* ===========================
    COMPRESIÓN Y REDIMENSIÓN
 =========================== */
- const handleImageUpload(file, i) => {
-  if (!file) return;
 
-  const reader = new FileReader();
-
-  reader.onload = (event) => {
-    const img = new Image();
-    img.src = event.target.result;
-
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-
-      const MAX_WIDTH = 800;
-      const MAX_HEIGHT = 800;
-
-      let width = img.width;
-      let height = img.height;
-
-      if (width > MAX_WIDTH || height > MAX_HEIGHT) {
-        const scale = Math.min(
-          MAX_WIDTH / width,
-          MAX_HEIGHT / height
-        );
-        width *= scale;
-        height *= scale;
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, width, height);
-
-      const compressed = canvas.toDataURL("image/jpeg", 0.7);
-
-      cb(compressed);
-    };
-  };
-
-  reader.readAsDataURL(file);
-}; 
 
   /* ===========================
      ACTIVIDADES
@@ -511,24 +471,7 @@ const reportData = {
           const files = Array.from(e.target.files || []);
  <td className="align-top">
 
-  <div className="flex flex-col gap-2 mb-2">
-
-    {/* GALERÍA */}
-    <label className="bg-gray-700 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
-      📁 Galería
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        style={{ display: "none" }}
-        onChange={(e) => {
-          const files = Array.from(e.target.files || []);
-          files.forEach((file) => {
-            handleImageUpload(file, i);
-          });
-        }}
-      />
-    </label>
+ 
 
     {/* CÁMARA */}
     <label className="bg-blue-600 text-white text-xs px-3 py-1 rounded cursor-pointer text-center">
