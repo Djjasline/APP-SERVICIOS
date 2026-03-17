@@ -423,9 +423,32 @@ const reportData = {
   </td>
 
   {/* DESCRIPCIÓN */}
-  
-<td className="align-top">
+  <td className="align-top">
+  <input
+    className="pdf-input"
+    placeholder="Título"
+    value={a.titulo}
+    onChange={(e) =>
+      update(["actividades", i, "titulo"], e.target.value)
+    }
+  />
 
+  <textarea
+    className="pdf-textarea w-full resize-none overflow-hidden"
+    placeholder="Detalle"
+    value={a.detalle}
+    rows={2}
+    onInput={(e) => {
+      e.target.style.height = "auto";
+      e.target.style.height = e.target.scrollHeight + "px";
+    }}
+    onChange={(e) =>
+      update(["actividades", i, "detalle"], e.target.value)
+    }
+  />
+</td>
+{/* IMÁGENES */}
+<td className="align-top">
   <div className="flex flex-col gap-2 mb-2">
 
     {/* GALERÍA */}
