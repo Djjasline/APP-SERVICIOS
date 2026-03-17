@@ -82,7 +82,8 @@ if (!report) {
 /* ===========================
    🔒 VALIDACIÓN EMPRESARIAL
 =========================== */
-if (report.estado !== "completado") {
+ console.log("ESTADO REAL:", report.estado); 
+if ((report.estado || "").toLowerCase() !== "completado") {
   return (
     <div className="p-6 text-center">
       <p>Este informe no está completado.</p>
