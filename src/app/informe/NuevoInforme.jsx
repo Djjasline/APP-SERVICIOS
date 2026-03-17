@@ -8,9 +8,11 @@ import ReportHeader from "@/components/report/ReportHeader";
 
 export default function NuevoInforme() {
   const navigate = useNavigate();
-  const currentReport = JSON.parse(localStorage.getItem("currentReport"));
+  const location = useLocation();
+const currentReport = location.state?.report || null;
 const isEditing = !!currentReport?.id;
-
+const [uploadingCount, setUploadingCount] = useState(0);
+const uploading = uploadingCount > 0;
   /* ===========================
      ESTADO BASE
   =========================== */
@@ -56,8 +58,9 @@ const isEditing = !!currentReport?.id;
 const handleImageUpload = async (file, actividadIndex) => {
   if (!file) return;
 
+ setUploadingCount((prev) => Math.max(prev - 1, 0));
+
   try {
-    // 🔧 compresión PRO
     const compressedFile = await imageCompression(file, {
       maxSizeMB: 0.4,
       maxWidthOrHeight: 1280,
@@ -67,7 +70,6 @@ const handleImageUpload = async (file, actividadIndex) => {
       exifOrientation: 1,
     });
 
-    // ☁ subir a Supabase
     const url = await uploadRegistroImage(
       compressedFile,
       "informe",
@@ -76,7 +78,6 @@ const handleImageUpload = async (file, actividadIndex) => {
 
     if (!url) return;
 
-    // 💾 guardar URL en el estado
     setData((prev) => {
       const copy = structuredClone(prev);
       copy.actividades[actividadIndex].imagenes.push(url);
@@ -85,6 +86,8 @@ const handleImageUpload = async (file, actividadIndex) => {
 
   } catch (error) {
     console.error("Error subiendo imagen:", error);
+  } finally {
+   setUploadingCount((prev) => prev - 1);
   }
 };
   
@@ -100,55 +103,24 @@ const handleImageUpload = async (file, actividadIndex) => {
   const enableScroll = () => {
     document.body.style.overflow = "";
   };
-
- /* ===========================
-   CARGAR BORRADOR
-=========================== */
 useEffect(() => {
-  const current = JSON.parse(localStorage.getItem("currentReport"));
-
-  if (current?.data) {
-    setData(current.data);
+  if (currentReport?.data) {
+    setData(currentReport.data);
 
     setTimeout(() => {
-      if (current.data.firmas?.tecnico) {
-        sigTecnico.current?.fromDataURL(current.data.firmas.tecnico);
+      if (currentReport.data.firmas?.tecnico) {
+        sigTecnico.current?.fromDataURL(currentReport.data.firmas.tecnico);
       }
-      if (current.data.firmas?.cliente) {
-        sigCliente.current?.fromDataURL(current.data.firmas.cliente);
+      if (currentReport.data.firmas?.cliente) {
+        sigCliente.current?.fromDataURL(currentReport.data.firmas.cliente);
       }
     }, 0);
 
   } else {
     setData(emptyReport);
   }
-
-}, []);
-  
-  /* ===========================
-   AUTOGUARDADO AUTOMÁTICO
-=========================== */
-useEffect(() => {
-  const timeout = setTimeout(() => {
-    try {
-      const json = JSON.stringify(data);
-
-      // ⚠️ Validar tamaño antes de guardar
-      const sizeInKB = new Blob([json]).size / 1024;
-
-      if (sizeInKB < 4500) { // margen seguro
-        localStorage.setItem("autoSaveInforme", json);
-      } else {
-        console.warn("Autoguardado omitido: tamaño demasiado grande");
-      }
-
-    } catch (err) {
-      console.error("Error guardando autoguardado:", err);
-    }
-  }, 800);
-
-  return () => clearTimeout(timeout);
-}, [data]);
+}, [currentReport]);
+ 
 
   /* ===========================
      UPDATE GENÉRICO
@@ -209,8 +181,7 @@ useEffect(() => {
      GUARDAR INFORME
   =========================== */
  const saveReport = async () => {
-  const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
-  const current = JSON.parse(localStorage.getItem("currentReport"));
+  
 
 const firmaTecnico =
   sigTecnico.current && !sigTecnico.current.isEmpty()
@@ -249,111 +220,38 @@ const reportData = {
   },
 };
 
-  let localReport;
-
-  /* ===========================
-     EDITAR
-  =========================== */
-  if (isEditing && current?.id) {
-    localReport = {
-      ...current,
+ // 🔥 EDITAR
+if (isEditing && currentReport?.id) {
+  const { error } = await supabase
+    .from("registros")
+    .update({
       estado: reportData.estado,
       data: reportData.data,
-      updatedAt: new Date().toISOString(),
-      synced: false,
-    };
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", currentReport.id);
 
-    const updatedList = stored.map((r) =>
-      r.id === current.id ? localReport : r
-    );
+  if (error) throw error;
 
-    localStorage.setItem("serviceReports", JSON.stringify(updatedList));
-    localStorage.setItem("currentReport", JSON.stringify(localReport));
+  alert("Informe actualizado correctamente ✅");
+  navigate("/informe");
+  return;
+}
 
-    try {
-      const { error } = await supabase
-        .from("registros")
-        .update({
-          estado: reportData.estado,
-          data: reportData.data,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", current.id)
-        .eq("tipo", "informe")
-        .eq("subtipo", "general");
-
-      if (error) throw error;
-
-      const finalList = updatedList.map((r) =>
-        r.id === current.id ? { ...r, synced: true } : r
-      );
-
-      localStorage.setItem("serviceReports", JSON.stringify(finalList));
-      localStorage.setItem(
-        "currentReport",
-        JSON.stringify({ ...localReport, synced: true })
-      );
-
-      alert("Informe actualizado en Supabase ✅");
-    } catch (err) {
-      alert("Actualizado localmente (pendiente de sincronizar)");
-    }
-
-    navigate("/informe");
-    return;
-  }
-
-  /* ===========================
-     CREAR NUEVO
-  =========================== */
-
-  localReport = {
-    id: Date.now(),
+// 🔥 CREAR NUEVO
+const { error } = await supabase.from("registros").insert([
+  {
     tipo: "informe",
     subtipo: "general",
     estado: reportData.estado,
     data: reportData.data,
-    createdAt: new Date().toISOString(),
-    synced: false,
-  };
+  },
+]);
 
-  const initialList = [...stored, localReport];
-  localStorage.setItem("serviceReports", JSON.stringify(initialList));
+if (error) throw error;
 
-  try {
-    const { data: inserted, error } = await supabase
-      .from("registros")
-      .insert([
-        {
-          tipo: "informe",
-          subtipo: "general",
-          estado: reportData.estado,
-          data: reportData.data,
-        },
-      ])
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    const finalList = initialList.map((r) =>
-      r.id === localReport.id
-        ? { ...r, id: inserted.id, synced: true }
-        : r
-    );
-
-    localStorage.setItem("serviceReports", JSON.stringify(finalList));
-
-    const finalReport = finalList.find((r) => r.id === inserted.id);
-    localStorage.setItem("currentReport", JSON.stringify(finalReport));
-
-    alert("Informe guardado en Supabase ✅");
-  } catch (err) {
-    alert("Guardado localmente (pendiente de sincronizar)");
-  }
-
-  localStorage.removeItem("autoSaveInforme");
-  navigate("/informe");
+alert("Informe guardado correctamente ✅");
+navigate("/informe");
 };
   return (
   <div className="p-6 bg-gray-100 min-h-screen">
@@ -715,12 +613,19 @@ const reportData = {
             Volver
           </button>
 
-          <button
+<button
   type="button"
   onClick={saveReport}
-  className="bg-blue-600 text-white px-6 py-2 rounded"
+  disabled={uploading}
+  className={`px-6 py-2 rounded text-white ${
+    uploading ? "bg-gray-400" : "bg-blue-600"
+  }`}
 >
-  {isEditing ? "Actualizar informe" : "Guardar informe"}
+  {uploading
+    ? "Subiendo imágenes..."
+    : isEditing
+    ? "Actualizar informe"
+    : "Guardar informe"}
 </button>
         </div>
 
