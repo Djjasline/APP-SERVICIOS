@@ -9,12 +9,11 @@ import { useParams } from "react-router-dom";
 
 export default function NuevoInforme() {
   const navigate = useNavigate();
-  const location = useLocation();
-const currentReport = location.state?.report || null;
-const isEditing = !!currentReport?.id;
+  
 const [uploadingCount, setUploadingCount] = useState(0);
 const uploading = uploadingCount > 0;
  const { id } = useParams(); 
+  const isEditing = !!id;
   /* ===========================
      ESTADO BASE
   =========================== */
@@ -60,7 +59,7 @@ const uploading = uploadingCount > 0;
 const handleImageUpload = async (file, actividadIndex) => {
   if (!file) return;
 
- setUploadingCount((prev) => Math.max(prev - 1, 0));
+setUploadingCount((prev) => prev + 1);
 
   try {
     const compressedFile = await imageCompression(file, {
@@ -106,22 +105,38 @@ const handleImageUpload = async (file, actividadIndex) => {
     document.body.style.overflow = "";
   };
 useEffect(() => {
-  if (currentReport?.data) {
-    setData(currentReport.data);
+  const loadReport = async () => {
+    if (!id) {
+      setData(emptyReport);
+      return;
+    }
+
+    const { data: report, error } = await supabase
+      .from("registros")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !report) {
+      console.error("Error cargando informe:", error);
+      setData(emptyReport);
+      return;
+    }
+
+    setData(report.data);
 
     setTimeout(() => {
-      if (currentReport.data.firmas?.tecnico) {
-        sigTecnico.current?.fromDataURL(currentReport.data.firmas.tecnico);
+      if (report.data.firmas?.tecnico) {
+        sigTecnico.current?.fromDataURL(report.data.firmas.tecnico);
       }
-      if (currentReport.data.firmas?.cliente) {
-        sigCliente.current?.fromDataURL(currentReport.data.firmas.cliente);
+      if (report.data.firmas?.cliente) {
+        sigCliente.current?.fromDataURL(report.data.firmas.cliente);
       }
     }, 0);
+  };
 
-  } else {
-    setData(emptyReport);
-  }
-}, [currentReport]);
+  loadReport();
+}, [id]);
  
 
   /* ===========================
@@ -231,7 +246,7 @@ if (isEditing && currentReport?.id) {
       data: reportData.data,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", currentReport.id);
+    .eq(.eq("id", id);
 
   if (error) throw error;
 
