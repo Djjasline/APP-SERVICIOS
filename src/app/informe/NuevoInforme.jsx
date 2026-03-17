@@ -133,11 +133,15 @@ useEffect(() => {
     }
 
     const cleanData = {
+  ...emptyReport, // 🔥 CLAVE
   ...report.data,
-  actividades: (report.data.actividades || []).map((a) => ({
-    ...a,
-    imagenes: Array.isArray(a.imagenes) ? a.imagenes : [],
-  })),
+  actividades: Array.isArray(report.data.actividades)
+    ? report.data.actividades.map((a) => ({
+        titulo: a?.titulo || "",
+        detalle: a?.detalle || "",
+        imagenes: Array.isArray(a?.imagenes) ? a.imagenes : [],
+      }))
+    : [{ titulo: "", detalle: "", imagenes: [] }],
 };
 
 setData(cleanData);
