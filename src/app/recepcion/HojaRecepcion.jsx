@@ -1,15 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
-import { supabase } from "../../lib/supabase";
-import SignatureCanvas from "react-signature-canvas";
+import React, { useState } from "react";
 
 export default function HojaRecepcion() {
-
-  const [loading, setLoading] = useState(false);
-
-  const [fuelLevel, setFuelLevel] = useState(0.5);
-  const fuelCanvasRef = useRef();
-
-  const sigRef = useRef();
 
   const [data, setData] = useState({
     conductor: "",
@@ -21,224 +12,115 @@ export default function HojaRecepcion() {
     modelo: "",
     placa: "",
 
-    checklist: {
-      interior: { gata: null, llaveCruz: null, luces: null },
-      motor: { aceite: null, refrigerante: null },
-      exterior: { retrovisores: null, llantaEmergencia: null }
-    },
-
-    danos: {
-      imagen: null,
-      puntos: [],
-      canvasWidth: 0,
-      canvasHeight: 0
-    },
-
-    observaciones: "",
-    firma: ""
+    // DESCRIPCIÓN EQUIPO
+    nota: "",
+    marca: "",
+    modeloEquipo: "",
+    serie: "",
+    anio: "",
+    vin: "",
+    placaEquipo: "",
+    horasModulo: "",
+    horasChasis: "",
+    kilometraje: ""
   });
 
-  const [tipoDano, setTipoDano] = useState("golpe");
+  return (
+    <div className="p-4 max-w-5xl mx-auto text-sm">
 
-  const colores = {
-    golpe: "red",
-    rayon: "yellow",
-    abolladura: "orange"
-  };
+      {/* ================= TITULO ================= */}
+      <h1 className="text-center font-bold text-lg mb-4">
+        HOJA DE RECEPCIÓN
+      </h1>
 
-  // ==============================
-  // COMBUSTIBLE
-  // ==============================
-  useEffect(() => {
-    const canvas = fuelCanvasRef.current;
-    const ctx = canvas.getContext("2d");
+      {/* ================= TABLA DATOS ================= */}
+      <div className="border border-black">
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+        {/* FILA 1 */}
+        <div className="grid grid-cols-2 border-b border-black">
+          <input
+            placeholder="Conductor"
+            className="border-r border-black p-1"
+            onChange={e => setData({...data, conductor: e.target.value})}
+          />
+          <input
+            type="date"
+            className="p-1"
+            onChange={e => setData({...data, fecha: e.target.value})}
+          />
+        </div>
 
-    ctx.beginPath();
-    ctx.arc(150, 120, 80, Math.PI, 2 * Math.PI);
-    ctx.stroke();
+        {/* FILA 2 */}
+        <div className="grid grid-cols-2 border-b border-black">
+          <input
+            placeholder="Lugar destino"
+            className="border-r border-black p-1"
+            onChange={e => setData({...data, lugarDestino: e.target.value})}
+          />
+          <input
+            placeholder="Ciudad"
+            className="p-1"
+            onChange={e => setData({...data, ciudad: e.target.value})}
+          />
+        </div>
 
-    ctx.fillText("E", 60, 130);
-    ctx.fillText("F", 230, 130);
+        {/* FILA 3 */}
+        <div className="grid grid-cols-3">
+          <input
+            placeholder="Vehículo"
+            className="border-r border-black p-1"
+            onChange={e => setData({...data, vehiculo: e.target.value})}
+          />
+          <input
+            placeholder="Modelo"
+            className="border-r border-black p-1"
+            onChange={e => setData({...data, modelo: e.target.value})}
+          />
+          <input
+            placeholder="Placa"
+            className="p-1"
+            onChange={e => setData({...data, placa: e.target.value})}
+          />
+        </div>
+      </div>
 
-    const angle = Math.PI + fuelLevel * Math.PI;
-    const x = 150 + 70 * Math.cos(angle);
-    const y = 120 + 70 * Math.sin(angle);
+      {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+      <div className="mt-6 border border-black">
 
-    ctx.beginPath();
-    ctx.moveTo(150, 120);
-    ctx.lineTo(x, y);
-    ctx.strokeStyle = "red";
-    ctx.stroke();
+        <div className="text-center font-bold border-b border-black py-1">
+          DESCRIPCIÓN DEL EQUIPO
+        </div>
 
-  }, [fuelLevel]);
+        {[
+          ["NOTA", "nota"],
+          ["MARCA", "marca"],
+          ["MODELO", "modeloEquipo"],
+          ["N° SERIE", "serie"],
+          ["AÑO MODELO", "anio"],
+          ["VIN / CHASIS", "vin"],
+          ["PLACA", "placaEquipo"],
+          ["HORAS MÓDULO", "horasModulo"],
+          ["HORAS CHASIS", "horasChasis"],
+          ["KILOMETRAJE", "kilometraje"]
+        ].map(([label, key], i) => (
+          <div key={i} className="grid grid-cols-3 border-b border-black">
+            
+            <div className="border-r border-black p-1 font-medium">
+              {label}
+            </div>
 
-  // ==============================
-  // IMAGEN
-  // ==============================
-  const handleCapture = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
+            <input
+              className="col-span-2 p-1"
+              onChange={e => setData({...data, [key]: e.target.value})}
+            />
+          </div>
+        ))}
 
-    reader.onload = () => {
-      setData(prev => ({
-        ...prev,
-        danos: {
-          ...prev.danos,
-          imagen: reader.result
-        }
-      }));
-    };
+      </div>
 
-    reader.readAsDataURL(file);
-  };
-
-  const canvasRef = useRef();
-  const imgRef = useRef(new Image());
-
-  useEffect(() => {
-    if (!data.danos.imagen) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-
-    imgRef.current.src = data.danos.imagen;
-
-    imgRef.current.onload = () => {
-      canvas.width = imgRef.current.width;
-      canvas.height = imgRef.current.height;
-
-      setData(prev => ({
-        ...prev,
-        danos: {
-          ...prev.danos,
-          canvasWidth: canvas.width,
-          canvasHeight: canvas.height
-        }
-      }));
-
-      draw();
-    };
-
-  }, [data.danos.imagen, data.danos.puntos]);
-
-  const draw = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-
-    ctx.drawImage(imgRef.current, 0, 0);
-
-    data.danos.puntos.forEach(p => {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI);
-      ctx.fillStyle = colores[p.tipo];
-      ctx.fill();
-    });
-  };
-
-  const handleCanvasClick = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-
-    const x = (e.clientX - rect.left) * (canvasRef.current.width / rect.width);
-    const y = (e.clientY - rect.top) * (canvasRef.current.height / rect.height);
-
-    setData(prev => ({
-      ...prev,
-      danos: {
-        ...prev.danos,
-        puntos: [...prev.danos.puntos, { x, y, tipo: tipoDano }]
-      }
-    }));
-  };
-
-  // ==============================
-  // SI / NO
-  // ==============================
-  const setCheck = (grupo, item, value) => {
-    setData(prev => ({
-      ...prev,
-      checklist: {
-        ...prev.checklist,
-        [grupo]: {
-          ...prev.checklist[grupo],
-          [item]: value
-        }
-      }
-    }));
-  };
-
-  const renderSiNo = (grupo, item, label) => (
-    <div className="flex gap-4">
-      <span className="w-40">{label}</span>
-
-      <label>
-        <input
-          type="checkbox"
-          checked={data.checklist[grupo][item] === true}
-          onChange={() => setCheck(grupo, item, true)}
-        /> SI
-      </label>
-
-      <label>
-        <input
-          type="checkbox"
-          checked={data.checklist[grupo][item] === false}
-          onChange={() => setCheck(grupo, item, false)}
-        /> NO
-      </label>
     </div>
   );
-
-  // ==============================
-  // GUARDAR
-  // ==============================
-  const guardarRecepcion = async () => {
-    try {
-      setLoading(true);
-
-      const firma = sigRef.current.toDataURL();
-
-      const payload = {
-        tipo: "recepcion",
-        subtipo: "vehicular",
-        estado: "borrador",
-        data: {
-          ...data,
-          firma,
-          fuelLevel
-        }
-      };
-
-      const { error } = await supabase.from("registros").insert([payload]);
-
-      if (error) throw error;
-
-      alert("Guardado correctamente 🚀");
-
-    } catch (err) {
-      console.error(err);
-      alert("Error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ==============================
-  // UI
-  // ==============================
-  return (
-    <div className="p-4 space-y-6">
-
-      <h1 className="text-xl font-bold text-center">HOJA DE RECEPCIÓN</h1>
-
-      {/* DATOS */}
-      <div className="grid grid-cols-2 gap-2">
-        <input placeholder="Conductor" onChange={e => setData({...data, conductor: e.target.value})}/>
-        <input type="date" onChange={e => setData({...data, fecha: e.target.value})}/>
-        <input placeholder="Lugar destino" onChange={e => setData({...data, lugarDestino: e.target.value})}/>
-        <input placeholder="Ciudad" onChange={e => setData({...data, ciudad: e.target.value})}/>
-      </div>
+}
 
       {/* VEHICULO */}
       <div className="grid grid-cols-3 gap-2">
