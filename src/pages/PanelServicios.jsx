@@ -18,7 +18,7 @@ export default function PanelServicios() {
         </div>
 
         {/* CARDS */}
-        <div className="grid md:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-5 gap-8">
           {/* INFORME GENERAL */}
           <div className="bg-white rounded-2xl p-7 shadow-xl hover:-translate-y-1 hover:shadow-2xl transition">
             <div className="flex items-center gap-4 mb-6">
@@ -113,6 +113,28 @@ export default function PanelServicios() {
               Ir a registros
             </button>
           </div>
+          {/* RECEPCIÓN VEHICULAR */}
+<div className="bg-white rounded-2xl p-7 shadow-xl hover:-translate-y-1 hover:shadow-2xl transition">
+  <div className="flex items-center gap-4 mb-6">
+    <div className="p-4 rounded-xl bg-red-600 text-white">
+      🚛
+    </div>
+    <h2 className="text-xl font-bold text-slate-900">
+      Recepción vehicular
+    </h2>
+  </div>
+
+  <p className="text-slate-600 mb-8">
+    Registro de recepción, checklist y daños del vehículo con evidencia gráfica.
+  </p>
+
+  <button
+    onClick={() => navigate("/recepcion")}
+    className="w-full py-3 rounded-xl bg-red-600 text-white font-semibold text-lg hover:bg-red-700 transition"
+  >
+    Ir a recepción
+  </button>
+</div>
         </div>
       </div>
     </div>
