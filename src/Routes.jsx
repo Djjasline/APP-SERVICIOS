@@ -15,6 +15,9 @@ import MaintenanceRoutes from "./app/mantenimiento/Routes";
 // 🔥 Módulo registro herramientas
 import RegistroRoutes from "./app/registro/Routes";
 
+// 🔥 NUEVO MÓDULO RECEPCIÓN
+import HojaRecepcion from "./app/recepcion/HojaRecepcion";
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
@@ -33,6 +36,9 @@ export default function AppRoutes() {
 
         {/* 🔥 CONTROL DE HERRAMIENTAS */}
         <Route path="/registro-salida/*" element={<RegistroRoutes />} />
+
+        {/* 🚛 RECEPCIÓN VEHICULAR */}
+        <Route path="/recepcion" element={<HojaRecepcion />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
