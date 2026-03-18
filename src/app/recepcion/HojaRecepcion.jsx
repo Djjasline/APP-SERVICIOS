@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { supabase } from "../../lib/supabaseClient"; // ajusta si tu ruta es distinta
+// ❌ incorrecto
+import { supabase } from "../../lib/supabaseClient";
+
+// ✅ correcto
+import { supabase } from "../../lib/supabase";
 
 export default function HojaRecepcion() {
 
