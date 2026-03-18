@@ -1,8 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-// ❌ incorrecto
-import { supabase } from "../../lib/supabaseClient";
 
-// ✅ correcto
 import { supabase } from "../../lib/supabase";
 
 export default function HojaRecepcion() {
