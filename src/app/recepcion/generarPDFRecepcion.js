@@ -1,80 +1,112 @@
 import jsPDF from "jspdf";
 
 export const generarPDFRecepcion = (data) => {
-  const doc = new jsPDF();
+  const doc = new jsPDF("p", "mm", "a4");
+
+  let y = 10;
 
   // =========================
   // TITULO
   // =========================
-  doc.setFontSize(16);
-  doc.text("HOJA DE RECEPCIÓN", 70, 10);
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("HOJA DE RECEPCIÓN", 80, y);
+
+  y += 8;
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
 
   // =========================
-  // DATOS GENERALES
+  // SECCION SUPERIOR
   // =========================
-  doc.setFontSize(10);
 
-  doc.text(`Conductor: ${data.conductor}`, 10, 20);
-  doc.text(`Fecha: ${data.fecha}`, 140, 20);
+  // Bordes
+  doc.rect(10, y, 190, 20);
 
-  doc.text(`Ciudad: ${data.ciudad}`, 10, 26);
-  doc.text(`Destino: ${data.lugarDestino}`, 140, 26);
+  doc.text("ENTREGA VEHICULAR", 12, y + 4);
+
+  doc.line(10, y + 6, 200, y + 6);
+
+  doc.text(`CONDUCTOR: ${data.conductor}`, 12, y + 10);
+  doc.text(`FECHA: ${data.fecha}`, 130, y + 10);
+
+  doc.text(`LUGAR DESTINO: ${data.lugarDestino}`, 12, y + 16);
+  doc.text(`CIUDAD: ${data.ciudad}`, 130, y + 16);
+
+  y += 25;
 
   // =========================
-  // VEHICULO
+  // DATOS VEHICULO
   // =========================
-  doc.text(`Vehículo: ${data.vehiculo}`, 10, 34);
-  doc.text(`Modelo: ${data.modelo}`, 80, 34);
-  doc.text(`Placa: ${data.placa}`, 140, 34);
+  doc.rect(10, y, 190, 12);
+
+  doc.text(`VEHÍCULO: ${data.vehiculo}`, 12, y + 5);
+  doc.text(`MODELO: ${data.modelo}`, 80, y + 5);
+  doc.text(`PLACA: ${data.placa}`, 140, y + 5);
+
+  y += 15;
 
   // =========================
   // CHECKLIST
   // =========================
-  let y = 45;
+  doc.text("DOCUMENTOS / ESTADO DEL VEHÍCULO", 12, y);
 
-  doc.text("CHECKLIST", 10, y);
   y += 5;
 
-  Object.entries(data.checklist).forEach(([grupo, items]) => {
-    doc.text(grupo.toUpperCase(), 10, y);
-    y += 4;
+  const drawChecklist = (titulo, items, startX) => {
+    doc.text(titulo, startX, y);
 
-    Object.entries(items).forEach(([item, val]) => {
-      doc.text(`${item}: ${val ? "✔" : "✘"}`, 15, y);
-      y += 4;
+    let offsetY = y + 4;
+
+    Object.entries(items).forEach(([key, val]) => {
+      doc.rect(startX, offsetY - 3, 3, 3);
+      if (val) doc.text("X", startX + 0.5, offsetY - 0.5);
+      doc.text(key, startX + 5, offsetY);
+      offsetY += 4;
     });
+  };
 
-    y += 2;
-  });
+  drawChecklist("INTERIOR", data.checklist.interior, 10);
+  drawChecklist("MOTOR", data.checklist.motor, 70);
+  drawChecklist("EXTERIOR", data.checklist.exterior, 130);
+
+  y += 25;
 
   // =========================
-  // DAÑOS (IMAGEN + PUNTOS)
+  // DAÑOS (REEMPLAZO DEL CAMIÓN)
   // =========================
+  doc.setFont("helvetica", "bold");
+  doc.text("DAÑOS DE CARROCERÍA Y COMENTARIOS GENERALES", 10, y);
+
   y += 5;
-  doc.text("DAÑOS DE CARROCERÍA", 10, y);
-  y += 5;
+
+  doc.rect(10, y, 190, 90);
 
   if (data.danos?.imagen) {
+    const imgX = 15;
+    const imgY = y + 5;
     const imgWidth = 180;
-    const imgHeight = 80;
+    const imgHeight = 70;
 
+    // Imagen real
     doc.addImage(
       data.danos.imagen,
       "JPEG",
-      10,
-      y,
+      imgX,
+      imgY,
       imgWidth,
       imgHeight
     );
 
-    // ESCALAS
-    const canvasWidth = 1000; // referencia
-    const canvasHeight = 600;
+    // Escala dinámica
+    const canvasWidth = data.danos.canvasWidth || 1000;
+    const canvasHeight = data.danos.canvasHeight || 600;
 
     const scaleX = imgWidth / canvasWidth;
     const scaleY = imgHeight / canvasHeight;
 
-    // PUNTOS
+    // Puntos
     data.danos.puntos.forEach(p => {
       let color = [255, 0, 0];
 
@@ -84,26 +116,56 @@ export const generarPDFRecepcion = (data) => {
       doc.setFillColor(...color);
 
       doc.circle(
-        10 + p.x * scaleX,
-        y + p.y * scaleY,
+        imgX + p.x * scaleX,
+        imgY + p.y * scaleY,
         2,
         "F"
       );
     });
-
-    y += imgHeight + 5;
   }
 
+  y += 95;
+
   // =========================
-  // OBSERVACIONES
+  // OBSERVACIONES ENTREGA
   // =========================
-  doc.text("OBSERVACIONES:", 10, y);
+  doc.setFont("helvetica", "normal");
+  doc.text("OBSERVACIONES ENTREGA:", 10, y);
+
   y += 5;
 
-  doc.text(data.observaciones || "-", 10, y);
+  doc.rect(10, y, 190, 20);
+
+  doc.text(data.observaciones || "-", 12, y + 5);
+
+  y += 25;
+
+  // =========================
+  // RECEPCION VEHICULAR
+  // =========================
+  doc.text("RECEPCIÓN VEHICULAR", 10, y);
+
+  y += 5;
+
+  doc.rect(10, y, 190, 25);
+
+  doc.text("NIVEL COMBUSTIBLE", 12, y + 6);
+  doc.text("KILÓMETROS DE LLEGADA", 70, y + 6);
+  doc.text("MANTENIMIENTO", 150, y + 6);
+
+  y += 30;
+
+  // =========================
+  // OBSERVACIONES FINALES
+  // =========================
+  doc.text("OBSERVACIONES DE LA RECEPCIÓN:", 10, y);
+
+  y += 5;
+
+  doc.rect(10, y, 190, 20);
 
   // =========================
   // EXPORTAR
   // =========================
-  doc.save("recepcion.pdf");
+  doc.save("hoja_recepcion.pdf");
 };
