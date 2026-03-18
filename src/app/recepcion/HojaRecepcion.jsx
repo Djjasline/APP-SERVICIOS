@@ -41,7 +41,7 @@ export default function HojaRecepcion() {
           {/* LOGO */}
           <div className="col-span-1 flex items-center justify-center border-r border-gray-400 p-2">
            <img
-  src="/astap-logo.jpg"
+  src="assets/astap-logo.jpg"
   alt="ASTAP"
   className="h-12 object-contain"
 />
