@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
+import { supabase } from "../../lib/supabaseClient"; // ajusta si tu ruta es distinta
 
 export default function HojaRecepcion() {
 
   // ==============================
-  // STATE BASE
+  // STATE
   // ==============================
+  const [loading, setLoading] = useState(false);
+
   const [data, setData] = useState({
     conductor: "",
     fecha: "",
@@ -49,7 +52,10 @@ export default function HojaRecepcion() {
     reader.onload = () => {
       setData(prev => ({
         ...prev,
-        danos: { ...prev.danos, imagen: reader.result }
+        danos: {
+          ...prev.danos,
+          imagen: reader.result
+        }
       }));
     };
     reader.readAsDataURL(file);
@@ -92,7 +98,7 @@ export default function HojaRecepcion() {
   };
 
   // ==============================
-  // CLICK CANVAS (AGREGAR / ELIMINAR)
+  // CLICK CANVAS
   // ==============================
   const handleCanvasClick = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
@@ -100,7 +106,6 @@ export default function HojaRecepcion() {
     const x = (e.clientX - rect.left) * (canvasRef.current.width / rect.width);
     const y = (e.clientY - rect.top) * (canvasRef.current.height / rect.height);
 
-    // detectar si toca un punto existente
     const puntoExistente = data.danos.puntos.findIndex(p => {
       const dx = p.x - x;
       const dy = p.y - y;
@@ -110,10 +115,8 @@ export default function HojaRecepcion() {
     let nuevosPuntos;
 
     if (puntoExistente !== -1) {
-      // eliminar punto
       nuevosPuntos = data.danos.puntos.filter((_, i) => i !== puntoExistente);
     } else {
-      // agregar punto
       nuevosPuntos = [
         ...data.danos.puntos,
         { x, y, tipo: tipoDano }
@@ -130,7 +133,7 @@ export default function HojaRecepcion() {
   };
 
   // ==============================
-  // CHECKLIST HANDLER
+  // CHECKLIST
   // ==============================
   const toggleCheck = (grupo, item) => {
     setData(prev => ({
@@ -143,6 +146,40 @@ export default function HojaRecepcion() {
         }
       }
     }));
+  };
+
+  // ==============================
+  // GUARDAR EN SUPABASE
+  // ==============================
+  const guardarRecepcion = async () => {
+    try {
+      setLoading(true);
+
+      const payload = {
+        tipo: "recepcion",
+        subtipo: "vehicular",
+        estado: "borrador",
+        data: data
+      };
+
+      const { error } = await supabase
+        .from("registros")
+        .insert([payload]);
+
+      if (error) {
+        console.error(error);
+        alert("Error al guardar");
+        return;
+      }
+
+      alert("Guardado correctamente 🚀");
+
+    } catch (err) {
+      console.error(err);
+      alert("Error inesperado");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ==============================
@@ -186,7 +223,6 @@ export default function HojaRecepcion() {
 
         <div className="grid grid-cols-3 gap-4">
 
-          {/* INTERIOR */}
           <div>
             <h3 className="font-semibold">Interior</h3>
             {Object.keys(data.checklist.interior).map(item => (
@@ -201,7 +237,6 @@ export default function HojaRecepcion() {
             ))}
           </div>
 
-          {/* MOTOR */}
           <div>
             <h3 className="font-semibold">Motor</h3>
             {Object.keys(data.checklist.motor).map(item => (
@@ -216,7 +251,6 @@ export default function HojaRecepcion() {
             ))}
           </div>
 
-          {/* EXTERIOR */}
           <div>
             <h3 className="font-semibold">Exterior</h3>
             {Object.keys(data.checklist.exterior).map(item => (
@@ -238,7 +272,6 @@ export default function HojaRecepcion() {
       <div>
         <h2 className="font-bold">Daños de carrocería</h2>
 
-        {/* selector tipo daño */}
         <div className="flex gap-2 mb-2">
           {Object.keys(colores).map(tipo => (
             <button
@@ -251,7 +284,6 @@ export default function HojaRecepcion() {
           ))}
         </div>
 
-        {/* captura */}
         <input
           type="file"
           accept="image/*"
@@ -259,7 +291,6 @@ export default function HojaRecepcion() {
           onChange={handleCapture}
         />
 
-        {/* canvas */}
         {data.danos.imagen && (
           <canvas
             ref={canvasRef}
@@ -269,7 +300,7 @@ export default function HojaRecepcion() {
         )}
 
         <p className="text-sm mt-2">
-          👉 Tap para agregar daño / tap sobre punto para eliminar
+          👉 Tap para agregar / eliminar daño
         </p>
       </div>
 
@@ -278,6 +309,15 @@ export default function HojaRecepcion() {
         placeholder="Observaciones"
         onChange={e => setData({...data, observaciones: e.target.value})}
       />
+
+      {/* ================= BOTON ================= */}
+      <button
+        onClick={guardarRecepcion}
+        disabled={loading}
+        className="bg-blue-600 text-white px-4 py-2 rounded"
+      >
+        {loading ? "Guardando..." : "Guardar Recepción"}
+      </button>
 
     </div>
   );
