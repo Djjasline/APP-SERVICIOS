@@ -12,8 +12,9 @@ export default function PanelServicios() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-6 py-10">
-      <div className="max-w-7xl mx-auto space-y-10">
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-6 py-10">
+      
+      <div className="max-w-6xl mx-auto space-y-10">
 
         {/* HEADER */}
         <div className="text-center space-y-2">
