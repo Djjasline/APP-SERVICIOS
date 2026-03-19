@@ -7,6 +7,7 @@ import {
   Truck,
   CheckCircle,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function PanelServicios() {
   const navigate = useNavigate();
@@ -21,7 +22,6 @@ export default function PanelServicios() {
         localStorage.removeItem("currentReport");
         navigate("/informe");
       },
-      btn: "Nuevo informe",
     },
     {
       title: "Inspección y valoración",
@@ -29,7 +29,6 @@ export default function PanelServicios() {
       icon: <ClipboardCheck size={28} />,
       color: "bg-yellow-500",
       action: () => navigate("/inspeccion"),
-      btn: "Ir a inspecciones",
     },
     {
       title: "Servicio de mantenimiento",
@@ -37,105 +36,80 @@ export default function PanelServicios() {
       icon: <Wrench size={28} />,
       color: "bg-green-600",
       action: () => navigate("/mantenimiento"),
-      btn: "Ir a mantenimiento",
     },
     {
       title: "Control de herramientas",
-      desc: "Registrar salida e ingreso de herramientas y equipos con imágenes y firmas.",
+      desc: "Registrar salida e ingreso de herramientas y equipos.",
       icon: <Package size={28} />,
       color: "bg-purple-600",
       action: () => navigate("/registro-salida"),
-      btn: "Ir a registros",
     },
     {
       title: "Recepción vehicular",
-      desc: "Registro de recepción, checklist y daños del vehículo con evidencia gráfica.",
+      desc: "Registro de recepción, checklist y daños del vehículo.",
       icon: <Truck size={28} />,
       color: "bg-red-600",
       action: () => navigate("/recepcion"),
-      btn: "Ir a recepción",
     },
     {
       title: "Liberación camioneta",
-      desc: "Registro de liberación del vehículo, checklist final, estado y firmas.",
+      desc: "Registro de liberación del vehículo y estado final.",
       icon: <CheckCircle size={28} />,
       color: "bg-indigo-600",
       action: () => navigate("/liberacion"),
-      btn: "Ir a liberación",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-6 py-12">
-      <div className="max-w-7xl mx-auto space-y-12">
-        {/* HEADER */}
-<div className="space-y-6">
+    <div className="space-y-10">
 
-  {/* TÍTULO PRINCIPAL */}
-  <div className="text-center">
-   <h1 className="text-3xl font-extrabold text-white tracking-tight">
-      Panel de servicios ASTAP
-    </h1>
-    <p className="text-slate-400 text-lg mt-2">
-      Gestión técnica de informes, inspecciones y mantenimiento
-    </p>
-  </div>
-
-  {/* SUB HEADER DASHBOARD */}
-  <div className="flex justify-between items-center">
-    <div>
-      <h2 className="text-2xl font-bold text-white">
-        Dashboard
-      </h2>
-      <p className="text-slate-400 text-sm">
-        Vista general del sistema
-      </p>
-    </div>
-
-    <span className="text-sm text-slate-400">
-      Última actualización: hoy
-    </span>
-  </div>
-
-</div>
-        {/* GRID */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {cards.map((card, i) => (
-            <div
-              key={i}
-              className="group bg-white/95 backdrop-blur rounded-2xl p-7 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition duration-300 flex flex-col justify-between border border-white/20"
-            >
-              {/* ICON + TITLE */}
-              <div>
-                <div
-                  className={`w-14 h-14 flex items-center justify-center rounded-xl text-white mb-5 ${card.color} shadow-md`}
-                >
-                  {card.icon}
-                </div>
-
-                <h2 className="text-xl font-bold text-slate-900 mb-2">
-                  {card.title}
-                </h2>
-
-                <p className="text-slate-600 text-sm leading-relaxed">
-                  {card.desc}
-                </p>
-              </div>
-
-              {/* BUTTON */}
-              <button
-                onClick={card.action}
-                className={`mt-8 w-full py-3 rounded-xl text-white font-semibold text-base transition 
-                ${card.color} 
-                hover:opacity-90 
-                group-hover:scale-[1.02]`}
-              >
-                {card.btn}
-              </button>
-            </div>
-          ))}
+      {/* HEADER */}
+      <div className="space-y-6">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-white">
+            Panel de servicios ASTAP
+          </h1>
+          <p className="text-slate-400 text-sm mt-2">
+            Selecciona un módulo para continuar
+          </p>
         </div>
       </div>
+
+      {/* GRID */}
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"
+      >
+        {cards.map((card, i) => (
+          <motion.div
+            key={i}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 200 }}
+            onClick={card.action}
+            className="bg-white dark:bg-slate-800 rounded-2xl p-7 shadow hover:shadow-xl transition cursor-pointer"
+          >
+            {/* ICON */}
+            <div
+              className={`w-14 h-14 flex items-center justify-center rounded-xl text-white mb-5 ${card.color}`}
+            >
+              {card.icon}
+            </div>
+
+            {/* TITLE */}
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+              {card.title}
+            </h2>
+
+            {/* DESC */}
+            <p className="text-slate-600 dark:text-slate-300 text-sm">
+              {card.desc}
+            </p>
+          </motion.div>
+        ))}
+      </motion.div>
     </div>
   );
 }
