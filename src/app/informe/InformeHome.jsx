@@ -1,6 +1,6 @@
 import SyncStatus from "@/components/SyncStatus";
 import { syncReports } from "@/lib/sync";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
