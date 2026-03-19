@@ -15,10 +15,10 @@ export default function InformeHome() {
 
       try {
         const { data, error } = await supabase
-          .from("registros")
-          .select("*")
-          .eq("tipo", "informe")
-          .order("updated_at", { ascending: false });
+  .from("registros")
+  .select("*")
+  .eq("tipo", "informe")
+  .order("created_at", { ascending: false });
 
         if (!error && data && data.length > 0) {
           setReports(data);
