@@ -1,5 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Menu } from "lucide-react";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import {
+  LayoutDashboard,
   FileText,
   ClipboardCheck,
   Wrench,
@@ -8,169 +11,106 @@ import {
   CheckCircle,
 } from "lucide-react";
 
-export default function PanelServicios() {
+export default function MainLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [open, setOpen] = useState(false);
+
+  // 🌙 DARK MODE (opcional, no afecta layout)
+  const [dark, setDark] = useState(() => {
+    const saved = localStorage.getItem("darkMode");
+    return saved ? JSON.parse(saved) : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("darkMode", JSON.stringify(dark));
+  }, [dark]);
+
+  const menu = [
+    { name: "Dashboard", icon: <LayoutDashboard size={20} />, path: "/" },
+    { name: "Informes", icon: <FileText size={20} />, path: "/informe" },
+    { name: "Inspección", icon: <ClipboardCheck size={20} />, path: "/inspeccion" },
+    { name: "Mantenimiento", icon: <Wrench size={20} />, path: "/mantenimiento" },
+    { name: "Herramientas", icon: <Package size={20} />, path: "/registro-salida" },
+    { name: "Recepción", icon: <Truck size={20} />, path: "/recepcion" },
+    { name: "Liberación", icon: <CheckCircle size={20} />, path: "/liberacion" },
+  ];
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-6 py-10">
-      
-      <div className="max-w-6xl mx-auto space-y-10">
+    <div className={dark ? "dark" : ""}>
+      <div className="flex min-h-screen">
 
-        {/* HEADER */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-white">
-            Panel de servicios ASTAP
-          </h1>
-          <p className="text-slate-400 text-sm">
-            Gestión técnica de informes, inspecciones y mantenimiento
-          </p>
-        </div>
+        {/* SIDEBAR */}
+        <aside
+          className={`
+          fixed lg:static top-0 left-0 h-full w-64 p-5 space-y-4 z-50
+          transform transition-all duration-300
+          ${open ? "translate-x-0" : "-translate-x-full"}
+          lg:translate-x-0
+          bg-slate-900 text-white
+        `}
+        >
+          <h1 className="text-xl font-bold mb-4">ASTAP</h1>
 
-        {/* GRID */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* DARK MODE */}
+          <button
+            onClick={() => setDark(!dark)}
+            className="mb-4 w-full bg-slate-800 py-2 rounded-lg text-sm"
+          >
+            {dark ? "Modo claro ☀️" : "Modo oscuro 🌙"}
+          </button>
 
-          {/* INFORME */}
-          <div className="bg-white rounded-2xl p-7 shadow-lg">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 rounded-xl bg-blue-600 text-white">
-                <FileText size={28} />
-              </div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Informe general
-              </h2>
-            </div>
+          {menu.map((item, i) => {
+            const active =
+              location.pathname === item.path ||
+              location.pathname.startsWith(item.path + "/");
 
-            <p className="text-slate-600 mb-6 text-sm">
-              Crear informes técnicos con actividades y firmas.
-            </p>
+            return (
+              <button
+                key={i}
+                onClick={() => {
+                  navigate(item.path);
+                  setOpen(false);
+                }}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition
+                ${
+                  active
+                    ? "bg-indigo-600 text-white"
+                    : "hover:bg-slate-800 text-slate-300"
+                }`}
+              >
+                {item.icon}
+                {item.name}
+              </button>
+            );
+          })}
+        </aside>
 
+        {/* OVERLAY */}
+        {open && (
+          <div
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          />
+        )}
+
+        {/* CONTENIDO */}
+        <main className="flex-1">
+
+          {/* BOTÓN MÓVIL */}
+          <div className="p-4 lg:hidden">
             <button
-              onClick={() => {
-                localStorage.removeItem("currentReport");
-                navigate("/informe");
-              }}
-              className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+              onClick={() => setOpen(!open)}
+              className="p-2 bg-slate-800 text-white rounded-lg"
             >
-              Nuevo informe
+              <Menu size={20} />
             </button>
           </div>
 
-          {/* INSPECCIÓN */}
-          <div className="bg-white rounded-2xl p-7 shadow-lg">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 rounded-xl bg-yellow-500 text-white">
-                <ClipboardCheck size={28} />
-              </div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Inspección
-              </h2>
-            </div>
+          <Outlet />
+        </main>
 
-            <p className="text-slate-600 mb-6 text-sm">
-              Registrar inspecciones técnicas.
-            </p>
-
-            <button
-              onClick={() => navigate("/inspeccion")}
-              className="w-full py-3 rounded-xl bg-yellow-500 text-white font-semibold hover:bg-yellow-600 transition"
-            >
-              Ir a inspecciones
-            </button>
-          </div>
-
-          {/* MANTENIMIENTO */}
-          <div className="bg-white rounded-2xl p-7 shadow-lg">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 rounded-xl bg-green-600 text-white">
-                <Wrench size={28} />
-              </div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Mantenimiento
-              </h2>
-            </div>
-
-            <p className="text-slate-600 mb-6 text-sm">
-              Gestión de mantenimientos.
-            </p>
-
-            <button
-              onClick={() => navigate("/mantenimiento")}
-              className="w-full py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition"
-            >
-              Ir a mantenimiento
-            </button>
-          </div>
-
-          {/* HERRAMIENTAS */}
-          <div className="bg-white rounded-2xl p-7 shadow-lg">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 rounded-xl bg-purple-600 text-white">
-                <Package size={28} />
-              </div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Herramientas
-              </h2>
-            </div>
-
-            <p className="text-slate-600 mb-6 text-sm">
-              Control de equipos.
-            </p>
-
-            <button
-              onClick={() => navigate("/registro-salida")}
-              className="w-full py-3 rounded-xl bg-purple-600 text-white font-semibold hover:bg-purple-700 transition"
-            >
-              Ir a registros
-            </button>
-          </div>
-
-          {/* RECEPCIÓN */}
-          <div className="bg-white rounded-2xl p-7 shadow-lg">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 rounded-xl bg-red-600 text-white">
-                <Truck size={28} />
-              </div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Recepción
-              </h2>
-            </div>
-
-            <p className="text-slate-600 mb-6 text-sm">
-              Ingreso de vehículos.
-            </p>
-
-            <button
-              onClick={() => navigate("/recepcion")}
-              className="w-full py-3 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition"
-            >
-              Ir a recepción
-            </button>
-          </div>
-
-          {/* LIBERACIÓN */}
-          <div className="bg-white rounded-2xl p-7 shadow-lg">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 rounded-xl bg-indigo-600 text-white">
-                <CheckCircle size={28} />
-              </div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Liberación
-              </h2>
-            </div>
-
-            <p className="text-slate-600 mb-6 text-sm">
-              Salida de vehículos.
-            </p>
-
-            <button
-              onClick={() => navigate("/liberacion")}
-              className="w-full py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition"
-            >
-              Ir a liberación
-            </button>
-          </div>
-
-        </div>
       </div>
     </div>
   );
