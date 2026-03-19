@@ -145,3 +145,135 @@ export default function HojaRecepcion() {
     </div>
   );
 }
+{/* ===================== DOCUMENTOS Y ESTADO ===================== */}
+<div className="border">
+
+  {/* TITULO */}
+  <div className="text-center font-semibold border-b py-1">
+    DOCUMENTOS Y ESTADO DEL VEHÍCULO
+  </div>
+
+  <div className="grid grid-cols-12 text-xs">
+
+    {/* ================= INTERIOR ================= */}
+    <div className="col-span-4 border-r">
+
+      <div className="grid grid-cols-4 border-b font-semibold text-center">
+        <div className="col-span-2 border-r">INTERIOR</div>
+        <div className="border-r">SI</div>
+        <div>NO</div>
+      </div>
+
+      {[
+        "GATA",
+        "LLAVE TIPO CRUZ",
+        "EXTINTOR",
+        "LUZ CABINA",
+        "RADIO (MASCARILLA)",
+        "TAPETES (CAUCHO)",
+        "ENCENDEDOR",
+        "AIRE ACONDICIONADO",
+        "ALARMA"
+      ].map((item, i) => (
+        <div key={i} className="grid grid-cols-4 border-b">
+
+          <div className="col-span-2 border-r px-1">{item}</div>
+
+          <button className="border-r hover:bg-green-200">✔</button>
+          <button className="hover:bg-red-200">✘</button>
+
+        </div>
+      ))}
+
+    </div>
+
+    {/* ================= MOTOR ================= */}
+    <div className="col-span-4 border-r">
+
+      <div className="grid grid-cols-4 border-b font-semibold text-center">
+        <div className="col-span-2 border-r">MOTOR</div>
+        <div className="border-r">SI</div>
+        <div>NO</div>
+      </div>
+
+      {[
+        "ACEITE DE MOTOR",
+        "REFRIGERANTE",
+        "BATERÍA ESTADO ACEPTABLE",
+        "TAPÓN ACEITE (FUGAS)",
+        "TAPA COMBUSTIBLE",
+        "TAPA RADIADOR (FUGAS)"
+      ].map((item, i) => (
+        <div key={i} className="grid grid-cols-4 border-b">
+
+          <div className="col-span-2 border-r px-1">{item}</div>
+
+          <button className="border-r hover:bg-green-200">✔</button>
+          <button className="hover:bg-red-200">✘</button>
+
+        </div>
+      ))}
+
+      {/* OBSERVACIONES */}
+      <div className="border-t p-1">
+        <div className="font-semibold">OBSERVACIONES:</div>
+        <textarea className="w-full border mt-1 h-16"></textarea>
+      </div>
+
+    </div>
+
+    {/* ================= EXTERIOR ================= */}
+    <div className="col-span-3 border-r">
+
+      <div className="grid grid-cols-4 border-b font-semibold text-center">
+        <div className="col-span-2 border-r">EXTERIOR</div>
+        <div className="border-r">SI</div>
+        <div>NO</div>
+      </div>
+
+      {[
+        "PLUMAS",
+        "RETROVISOR",
+        "PLACAS",
+        "LLANTA EMERGENCIA",
+        "TAPACUBOS",
+        "LUCES (OBSERVACIONES)"
+      ].map((item, i) => (
+        <div key={i} className="grid grid-cols-4 border-b">
+
+          <div className="col-span-2 border-r px-1">{item}</div>
+
+          <button className="border-r hover:bg-green-200">✔</button>
+          <button className="hover:bg-red-200">✘</button>
+
+        </div>
+      ))}
+
+    </div>
+
+    {/* ================= COMBUSTIBLE ================= */}
+    <div className="col-span-1 flex flex-col items-center justify-center p-2">
+
+      <div className="text-center text-[10px] font-semibold">
+        NIVEL DE COMBUSTIBLE
+      </div>
+
+      <canvas
+        width={120}
+        height={80}
+        onClick={(e) => {
+          const rect = e.target.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const level = x / rect.width;
+
+          setFuelLevel(level);
+        }}
+        ref={fuelCanvasRef}
+        className="mt-2 border"
+      />
+
+    </div>
+
+  </div>
+
+</div>
