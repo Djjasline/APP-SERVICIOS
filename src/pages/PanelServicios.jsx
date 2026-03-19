@@ -77,7 +77,15 @@ export default function PanelServicios() {
             Gestión técnica de informes, inspecciones, mantenimiento y herramientas
           </p>
         </div>
+<div className="flex justify-between items-center">
+  <h1 className="text-3xl font-bold text-slate-900">
+    Dashboard
+  </h1>
 
+  <span className="text-sm text-slate-500">
+    Última actualización: hoy
+  </span>
+</div>
         {/* GRID */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {cards.map((card, i) => (
