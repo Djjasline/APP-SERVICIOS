@@ -73,7 +73,7 @@ export default function PanelServicios() {
 
   {/* TÍTULO PRINCIPAL */}
   <div className="text-center">
-    <h1 className="text-4xl font-extrabold text-white tracking-tight">
+   <h1 className="text-3xl font-extrabold text-white tracking-tight">
       Panel de servicios ASTAP
     </h1>
     <p className="text-slate-400 text-lg mt-2">
