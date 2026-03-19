@@ -1,47 +1,54 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import MainLayout from "./layouts/MainLayout";
+
 import PanelServicios from "./pages/PanelServicios";
 import NotFound from "./pages/NotFound";
 
-// Módulo informe
+// Módulos
 import InformeRoutes from "./app/informe/Routes";
-
-// Módulo inspección
 import InspectionRoutes from "./app/inspeccion/Routes";
-
-// Módulo mantenimiento
 import MaintenanceRoutes from "./app/mantenimiento/Routes";
-
-// 🔥 Módulo registro herramientas
 import RegistroRoutes from "./app/registro/Routes";
-
-// 🔥 NUEVO MÓDULO RECEPCIÓN
 import HojaRecepcion from "./app/recepcion/HojaRecepcion";
+
+// 🔥 NUEVO (cuando lo tengas)
+import LiberacionRoutes from "./app/liberacion/Routes";
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* MENÚ PRINCIPAL */}
-        <Route path="/" element={<PanelServicios />} />
 
-        {/* INFORME GENERAL */}
-        <Route path="/informe/*" element={<InformeRoutes />} />
+        {/* 🔥 TODO DENTRO DEL LAYOUT */}
+        <Route path="/" element={<MainLayout />}>
 
-        {/* INSPECCIONES */}
-        <Route path="/inspeccion/*" element={<InspectionRoutes />} />
+          {/* DASHBOARD */}
+          <Route index element={<PanelServicios />} />
 
-        {/* MANTENIMIENTO */}
-        <Route path="/mantenimiento/*" element={<MaintenanceRoutes />} />
+          {/* INFORME */}
+          <Route path="informe/*" element={<InformeRoutes />} />
 
-        {/* 🔥 CONTROL DE HERRAMIENTAS */}
-        <Route path="/registro-salida/*" element={<RegistroRoutes />} />
+          {/* INSPECCIÓN */}
+          <Route path="inspeccion/*" element={<InspectionRoutes />} />
 
-        {/* 🚛 RECEPCIÓN VEHICULAR */}
-        <Route path="/recepcion" element={<HojaRecepcion />} />
+          {/* MANTENIMIENTO */}
+          <Route path="mantenimiento/*" element={<MaintenanceRoutes />} />
+
+          {/* HERRAMIENTAS */}
+          <Route path="registro-salida/*" element={<RegistroRoutes />} />
+
+          {/* RECEPCIÓN */}
+          <Route path="recepcion" element={<HojaRecepcion />} />
+
+          {/* 🔥 LIBERACIÓN */}
+          <Route path="liberacion/*" element={<LiberacionRoutes />} />
+
+        </Route>
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />
+
       </Routes>
     </BrowserRouter>
   );
