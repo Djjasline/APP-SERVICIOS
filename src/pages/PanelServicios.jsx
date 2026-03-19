@@ -18,9 +18,9 @@ export default function PanelServicios() {
         </div>
 
         {/* CARDS */}
-        <div className="grid md:grid-cols-6 gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {/* INFORME GENERAL */}
-          <div className="bg-white rounded-2xl p-7 shadow-xl hover:-translate-y-1 hover:shadow-2xl transition">
+          <div className="bg-white rounded-2xl p-7 shadow-xl hover:-translate-y-1 hover:shadow-2xl transition h-full flex flex-col justify-between">
             <div className="flex items-center gap-4 mb-6">
               <div className="p-4 rounded-xl bg-blue-600 text-white">
                 <FileText size={32} />
@@ -46,7 +46,7 @@ export default function PanelServicios() {
           </div>
 
           {/* INSPECCIÓN */}
-          <div className="bg-white rounded-2xl p-7 shadow-xl hover:-translate-y-1 hover:shadow-2xl transition">
+           <div className="bg-white rounded-2xl p-7 shadow-xl hover:-translate-y-1 hover:shadow-2xl transition h-full flex flex-col justify-between">
             <div className="flex items-center gap-4 mb-6">
               <div className="p-4 rounded-xl bg-yellow-500 text-white">
                 <ClipboardCheck size={32} />
@@ -69,7 +69,7 @@ export default function PanelServicios() {
           </div>
 
           {/* MANTENIMIENTO */}
-          <div className="bg-white rounded-2xl p-7 shadow-xl hover:-translate-y-1 hover:shadow-2xl transition">
+          <div className="bg-white rounded-2xl p-7 shadow-xl hover:-translate-y-1 hover:shadow-2xl transition h-full flex flex-col justify-between">
             <div className="flex items-center gap-4 mb-6">
               <div className="p-4 rounded-xl bg-green-600 text-white">
                 <Wrench size={32} />
@@ -92,7 +92,7 @@ export default function PanelServicios() {
           </div>
 
           {/* CONTROL DE HERRAMIENTAS */}
-          <div className="bg-white rounded-2xl p-7 shadow-xl hover:-translate-y-1 hover:shadow-2xl transition">
+          <div className="bg-white rounded-2xl p-7 shadow-xl hover:-translate-y-1 hover:shadow-2xl transition h-full flex flex-col justify-between">
             <div className="flex items-center gap-4 mb-6">
               <div className="p-4 rounded-xl bg-purple-600 text-white">
                 <Package size={32} />
@@ -114,7 +114,7 @@ export default function PanelServicios() {
             </button>
           </div>
           {/* RECEPCIÓN VEHICULAR */}
-<div className="bg-white rounded-2xl p-7 shadow-xl hover:-translate-y-1 hover:shadow-2xl transition">
+ <div className="bg-white rounded-2xl p-7 shadow-xl hover:-translate-y-1 hover:shadow-2xl transition h-full flex flex-col justify-between">
   <div className="flex items-center gap-4 mb-6">
     <div className="p-4 rounded-xl bg-red-600 text-white">
       🚛
