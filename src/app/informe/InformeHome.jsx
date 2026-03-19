@@ -1,6 +1,6 @@
 import SyncStatus from "@/components/SyncStatus";
 import { syncReports } from "@/lib/sync";
-import { supabase } from "../../lib/supabaseClient";
+import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -18,26 +18,32 @@ export default function InformeHome() {
           .from("registros")
           .select("*")
           .eq("tipo", "informe")
-          .eq("subtipo", "general")
           .order("updated_at", { ascending: false });
 
-        if (!error && data) {
+        if (!error && data && data.length > 0) {
           setReports(data);
+          localStorage.setItem("serviceReports", JSON.stringify(data));
           return;
         }
       } catch (err) {
         console.warn("Sin conexión, usando localStorage");
       }
 
+      // 🔁 fallback local
       try {
         const stored = JSON.parse(localStorage.getItem("serviceReports"));
 
         if (Array.isArray(stored)) {
           const sorted = [...stored].sort(
             (a, b) =>
-              new Date(b.updatedAt || b.createdAt) -
-              new Date(a.updatedAt || a.createdAt)
+              new Date(
+                b.updated_at || b.updatedAt || b.created_at || b.createdAt
+              ) -
+              new Date(
+                a.updated_at || a.updatedAt || a.created_at || a.createdAt
+              )
           );
+
           setReports(sorted);
         } else {
           setReports([]);
@@ -52,21 +58,20 @@ export default function InformeHome() {
     return () => window.removeEventListener("online", loadReports);
   }, []);
 
-  const filteredReports = Array.isArray(reports)
-    ? reports.filter((r) => {
-        const completed = r.estado === "completado";
+  // 🎯 FILTRO
+  const filteredReports = reports.filter((r) => {
+    if (filter === "borrador") return r.estado !== "completado";
+    if (filter === "completado") return r.estado === "completado";
+    return true;
+  });
 
-        if (filter === "borrador") return !completed;
-        if (filter === "completado") return completed;
-        return true;
-      })
-    : [];
-
+  // 📂 ABRIR
   const openReport = (report) => {
     localStorage.setItem("currentReport", JSON.stringify(report));
     navigate(`/informe/${report.id}`);
   };
 
+  // 🗑 ELIMINAR
   const deleteReport = async (id) => {
     if (!confirm("¿Eliminar este informe?")) return;
 
@@ -75,8 +80,7 @@ export default function InformeHome() {
         .from("registros")
         .delete()
         .eq("id", id)
-        .eq("tipo", "informe")
-        .eq("subtipo", "general");
+        .eq("tipo", "informe");
     } catch {
       console.warn("Sin conexión, solo borrado local");
     }
@@ -90,12 +94,13 @@ export default function InformeHome() {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-4">
 
+        {/* HEADER */}
         <div className="flex justify-between items-center">
           <h1 className="text-lg font-semibold">Informe general</h1>
+
           <div className="flex items-center gap-3">
             <SyncStatus />
             <button
-              type="button"
               onClick={() => navigate("/")}
               className="border px-4 py-1 rounded"
             >
@@ -104,8 +109,8 @@ export default function InformeHome() {
           </div>
         </div>
 
+        {/* NUEVO */}
         <button
-          type="button"
           onClick={() => {
             localStorage.removeItem("currentReport");
             navigate("/informe/nuevo");
@@ -115,6 +120,7 @@ export default function InformeHome() {
           Nuevo informe
         </button>
 
+        {/* FILTROS */}
         <div className="flex gap-2">
           {["todos", "borrador", "completado"].map((f) => (
             <button
@@ -129,65 +135,62 @@ export default function InformeHome() {
           ))}
         </div>
 
+        {/* LISTA */}
         <div className="space-y-2">
           {filteredReports.length === 0 && (
             <p className="text-sm text-gray-500">Sin registros</p>
           )}
 
-          {filteredReports.map((r) => {
-            const completed =
-              r?.data?.firmas?.tecnico && r?.data?.firmas?.cliente;
+          {filteredReports.map((r) => (
+            <div
+              key={r.id}
+              className="border rounded p-3 flex justify-between items-center"
+            >
+              <div>
+                <strong>{r.data?.cliente || "Sin cliente"}</strong>
 
-            return (
-              <div
-                key={r.id}
-                className="border rounded p-3 flex justify-between items-center"
-              >
-                <div>
-                  <strong>{r.data?.cliente || "Sin cliente"}</strong>
-                  <div className="text-xs">
-                    {new Date(
-                      r.updated_at ||
-                        r.updatedAt ||
-                        r.created_at ||
-                        r.createdAt
-                    ).toLocaleString()}
-                  </div>
-                  <div className="text-xs">
-                    Estado:{" "}
-                    <strong>
-                      {r.estado === "completado" ? "Completado" : "Borrador"}
-                    </strong>
-                  </div>
+                <div className="text-xs">
+                  {new Date(
+                    r.updated_at || r.created_at
+                  ).toLocaleString()}
                 </div>
 
-<div className="flex gap-3 text-sm">
-  <button
-    onClick={() => openReport(r)}
-    className="text-blue-600"
-  >
-    Abrir
-  </button>
-
-  {r.estado === "completado" && (
-    <button
-      onClick={() => navigate(`/informe/pdf/${r.id}`)}
-      className="text-green-600 font-semibold"
-    >
-      PDF
-    </button>
-  )}
-
-  <button
-    onClick={() => deleteReport(r.id)}
-    className="text-red-600"
-  >
-    Eliminar
-  </button>
-</div>
+                <div className="text-xs">
+                  Estado:{" "}
+                  <strong>
+                    {r.estado === "completado"
+                      ? "Completado"
+                      : "Borrador"}
+                  </strong>
+                </div>
               </div>
-            );
-          })}
+
+              <div className="flex gap-3 text-sm">
+                <button
+                  onClick={() => openReport(r)}
+                  className="text-blue-600"
+                >
+                  Abrir
+                </button>
+
+                {r.estado === "completado" && (
+                  <button
+                    onClick={() => navigate(`/informe/pdf/${r.id}`)}
+                    className="text-green-600 font-semibold"
+                  >
+                    PDF
+                  </button>
+                )}
+
+                <button
+                  onClick={() => deleteReport(r.id)}
+                  className="text-red-600"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
 
       </div>
