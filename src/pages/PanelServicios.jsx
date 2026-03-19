@@ -69,14 +69,20 @@ export default function PanelServicios() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-6 py-12">
       <div className="max-w-7xl mx-auto space-y-12">
         {/* HEADER */}
-        <div className="text-center space-y-3">
-          <h1 className="text-4xl font-extrabold text-white tracking-tight">
-            Panel de servicios ASTAP
-          </h1>
-          <p className="text-slate-400 text-lg">
-            Gestión técnica de informes, inspecciones, mantenimiento y herramientas
-          </p>
-        </div>
+    <div className="flex justify-between items-center">
+  <div>
+    <h1 className="text-3xl font-bold text-white">
+      Dashboard
+    </h1>
+    <p className="text-slate-400 text-sm">
+      Gestión técnica de servicios
+    </p>
+  </div>
+
+  <span className="text-sm text-slate-400">
+    Última actualización: hoy
+  </span>
+</div>
 <div className="flex justify-between items-center">
   <h1 className="text-3xl font-bold text-slate-900">
     Dashboard
