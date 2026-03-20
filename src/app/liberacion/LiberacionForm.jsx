@@ -1,401 +1,170 @@
-
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useNavigate } from "react-router-dom";
-import SignatureCanvas from "react-signature-canvas";
 
-const checklist = {
-  "Sistema Mecánico": [
-    "Frenos sin fugas (Liqueos)",
-    "Llantas: Delanteras / Traseras (%)",
-    "Llanta emergencia (%)",
-    "Tuercas completas y ajustadas",
-    "Parabrisas, vidrios y espejos (no trizados)",
-    "Asientos con apoya cabezas",
-    "Cinturones de seguridad (3 puntos)",
-    "Limpia parabrisas y plumas operativos",
-    "No liqueos (combustible, aceite, fluido)",
-    "Kit básico de herramientas",
-    "Agua limpia parabrisas",
-    "Gato, palanca, llave de ruedas",
-  ],
-  "Sistema Eléctrico & Otros": [
-    "Cableado eléctrico en buen estado",
-    "Batería y bornes ajustados (sin corrosión)",
-    "Luces delanteras altas y bajas",
-    "Luces direccionales",
-    "Luces de freno",
-    "Luces de reversa",
-    "Alarma de retro",
-    "Luz interior / tablero",
-    "Luces de parqueo",
-    "Bocina",
-    "Certificado o revisión mecánica",
-  ],
-  "Accesorios de Seguridad Industrial": [
-    "Arrestallamas",
-    "Extintor tipo PQS (≥ 5 lbs)",
-    "Botiquín de primeros auxilios",
-    "Triángulos o conos (mínimo 2)",
-    "Chaleco reflectivo",
-    "Linterna con batería y repuesto",
-    "Cables pasa corriente",
-  ],
-  "Estado / Área de Carga": [
-    "Roll bar asegurado al chasis",
-    "Balde o cajón en buen estado",
-    "Malla de protección en roll bar",
-  ],
-};
-
-export default function LiberacionForm() {
+export default function LiberacionHome() {
   const navigate = useNavigate();
-  const sigRef = useRef();
+  const [registros, setRegistros] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [loading, setLoading] = useState(false);
-
-  const [form, setForm] = useState({
-    cliente: "",
-    conductor: "",
-    placa: "",
-    vehiculo: "",
-    observaciones: "",
-    estadoFinal: "",
-    inspector: "",
-    checklist: {},
-  });
-
-  // 🔄 SYNC AUTOMÁTICO
+  // 🔄 CARGAR DATA
   useEffect(() => {
-    const syncPendientes = async () => {
-      const pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
+    const loadData = async () => {
+      setLoading(true);
 
-      if (pendientes.length === 0) return;
+      try {
+        const { data, error } = await supabase
+          .from("registros")
+          .select("*")
+          .eq("tipo", "liberacion")
+          .eq("subtipo", "vehiculo")
+          .order("created_at", { ascending: false });
 
-      for (let registro of pendientes) {
-        const { error } = await supabase.from("registros").insert([registro]);
-
-        if (error) {
-          console.error("Error en sync:", error);
+        if (!error && data) {
+          setRegistros(data);
+          setLoading(false);
           return;
         }
+      } catch (err) {
+        console.warn("Sin conexión");
       }
 
-      localStorage.removeItem("pending_registros");
-      console.log("✔ Sync completado");
+      // 🔴 FALLBACK LOCAL
+      const local = JSON.parse(localStorage.getItem("pending_registros") || "[]");
+      setRegistros(local);
+      setLoading(false);
     };
 
-    window.addEventListener("online", syncPendientes);
-
-    return () => window.removeEventListener("online", syncPendientes);
+    loadData();
   }, []);
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+  // 🔍 ABRIR
+  const openItem = (item) => {
+    localStorage.setItem("currentLiberacion", JSON.stringify(item));
+    navigate(`/liberacion/${item.id || "local"}`);
   };
 
-  const handleCheck = (key, value) => {
-    setForm({
-      ...form,
-      checklist: {
-        ...form.checklist,
-        [key]: value,
-      },
-    });
+  // ❌ ELIMINAR
+  const deleteItem = async (id) => {
+    if (!confirm("¿Eliminar registro?")) return;
+
+    try {
+      await supabase.from("registros").delete().eq("id", id);
+    } catch {
+      console.warn("Error eliminando en supabase");
+    }
+
+    setRegistros(registros.filter((r) => r.id !== id));
   };
 
-  const handleSubmit = async () => {
-    if (loading) return;
+  // 📄 DESCARGAR PDF
+  const downloadPDF = (id) => {
+    const stored = JSON.parse(localStorage.getItem("pdf_liberaciones") || "{}");
 
-    if (!form.estadoFinal) {
-      alert("Selecciona resultado final");
+    const pdf = stored[id];
+
+    if (!pdf) {
+      alert("PDF no disponible en este dispositivo");
       return;
     }
 
-    setLoading(true);
-
-    let firma = null;
-
-    if (sigRef.current && !sigRef.current.isEmpty()) {
-      firma = sigRef.current.getTrimmedCanvas().toDataURL("image/png");
-    }
-
-    const payload = {
-      tipo: "liberacion",
-      subtipo: "vehiculo",
-      estado: form.estadoFinal === "APROBADO" ? "completado" : "borrador",
-      data: {
-        ...form,
-        firmaInspector: firma,
-      },
-    };
-
-    const { error } = await supabase.from("registros").insert([payload]);
-
-    // 🔴 OFFLINE
-    if (error) {
-      const pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
-
-      pendientes.push(payload);
-
-      localStorage.setItem("pending_registros", JSON.stringify(pendientes));
-
-      alert("Guardado sin conexión. Se sincronizará automáticamente.");
-      setLoading(false);
-      navigate("/liberacion");
-      return;
-    }
-
-    alert("Liberación guardada correctamente");
-    setLoading(false);
-    navigate("/liberacion");
+    const link = document.createElement("a");
+    link.href = pdf;
+    link.download = `Liberacion_${id}.pdf`;
+    link.click();
   };
-
-  let contador = 1;
 
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
-      <div className="max-w-[794px] mx-auto bg-white p-6 shadow-lg border">
+
+      <div className="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow space-y-6">
 
         {/* HEADER */}
-        <div className="border border-gray-400 p-4">
-          <div className="flex items-center">
-            <img src="/astap-logo.jpg" className="w-16 mr-4" />
-            <div className="flex-1 text-center">
-              <h1 className="font-bold text-base">
-                FORMATO PARA INSPECCIÓN CAMIONETAS
-              </h1>
-              <p className="text-xs">
-                Vehículo liviano menor a 4500kg
-              </p>
-            </div>
-            <div className="w-16"></div>
-          </div>
+        <div className="flex justify-between items-center">
+          <h1 className="text-xl font-bold">
+            Historial de Liberaciones
+          </h1>
+
+          <button
+            onClick={() => navigate("/liberacion/nuevo")}
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            + Nueva liberación
+          </button>
         </div>
 
-        {/* TABLA */}
-        <div className="border border-gray-500 text-sm w-full overflow-hidden">
+        {/* ESTADO */}
+        {loading && <p>Cargando...</p>}
 
-          <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
-            <div className="border p-2 bg-gray-100">Fecha Inspección:</div>
-            <input className="border p-2 w-full" />
+        {!loading && registros.length === 0 && (
+          <p className="text-gray-500">Sin registros</p>
+        )}
 
-            <div className="border p-2 bg-gray-100">Lugar Inspección:</div>
-            <input className="border p-2 w-full" />
+        {/* LISTADO */}
+        <div className="space-y-3">
+          {registros.map((item) => {
+            const data = item.data || {};
 
-            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-            <input className="border p-2 w-full" />
-          </div>
+            return (
+              <div
+                key={item.id || Math.random()}
+                className="border p-4 rounded flex justify-between items-center"
+              >
+                <div>
+                  <p className="font-semibold">
+                    {data.cliente || "Sin cliente"}
+                  </p>
 
-          <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
-            <div className="border p-2 bg-gray-100">Nombre Conductor:</div>
-            <input name="conductor" onChange={handleChange} className="border p-2 w-full" />
+                  <p className="text-sm text-gray-500">
+                    {data.conductor || "Sin conductor"}
+                  </p>
 
-            <div className="border p-2 bg-gray-100">Tipo Licencia:</div>
-            <div className="border p-2 flex gap-1 justify-center">
-              {["B","C","D","E"].map((l) => (
-                <button key={l} className="w-7 h-7 border text-xs">{l}</button>
-              ))}
-            </div>
+                  <p className="text-xs text-gray-400">
+                    {data.placa || "Sin placa"}
+                  </p>
 
-            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-            <input className="border p-2 w-full" />
-          </div>
-
-          <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
-            <div className="border p-2 bg-gray-100">Empr. Contratista:</div>
-            <input name="cliente" onChange={handleChange} className="border p-2 w-full" />
-
-            <div className="border p-2 bg-gray-100">Placas:</div>
-            <input name="placa" onChange={handleChange} className="border p-2 w-full" />
-
-            <div className="border p-2 bg-gray-100">Marca:</div>
-            <input className="border p-2 w-full" />
-          </div>
-
-          <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
-            <div className="border p-2 bg-gray-100">GDP/MANT.:</div>
-            <input className="border p-2 w-full" />
-
-            <div className="border p-2 bg-gray-100">Tipo Vehículo:</div>
-            <input name="vehiculo" onChange={handleChange} className="border p-2 w-full" />
-
-            <div className="border p-2 bg-gray-100">Color:</div>
-            <input className="border p-2 w-full" />
-          </div>
-
-          <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
-            <div className="border p-2 bg-gray-100">Curso Manejo Def:</div>
-            <input className="border p-2 w-full" />
-
-            <div className="border p-2 bg-gray-100">Año:</div>
-            <input className="border p-2 w-full" />
-
-            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-            <input className="border p-2 w-full" />
-          </div>
-
-          <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
-            <div className="border p-2 bg-gray-100">Matrícula:</div>
-            <input className="border p-2 w-full" />
-
-            <div className="border p-2 bg-gray-100">Año:</div>
-            <input className="border p-2 w-full" />
-
-            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-            <input className="border p-2 w-full" />
-          </div>
-
-        </div>
-
-        <h2 className="bg-blue-600 text-white px-3 py-2 font-semibold">
-          Condiciones Generales del Vehículo
-        </h2>
-
-        <div className="flex justify-end gap-4 text-xs font-bold">
-          <span className="text-blue-600">C</span>
-          <span className="text-red-600">NC</span>
-          <span className="text-gray-500">NA</span>
-        </div>
-
-        {Object.entries(checklist).map(([section, items]) => (
-          <div key={section}>
-            <div className="bg-blue-600 text-white px-2 py-1 text-sm font-semibold">
-              {section}
-            </div>
-
-            {items.map((item, index) => {
-              const key = `${section}-${index}`;
-              const numero = contador++;
-
-              return (
-                <div key={key} className="flex border-b items-center">
-                  <div className="flex-1 px-2 py-1 text-sm">
-                    {numero}. {item}
-                  </div>
-
-                  <div className="flex">
-                    {["C","NC","NA"].map((opt) => (
-                      <button
-                        key={opt}
-                        onClick={() => handleCheck(key, opt)}
-                        className={`w-10 h-8 border text-xs font-bold ${
-                          form.checklist[key] === opt
-                            ? opt === "C"
-                              ? "bg-blue-600 text-white"
-                              : opt === "NC"
-                              ? "bg-red-600 text-white"
-                              : "bg-gray-400 text-white"
-                            : ""
-                        }`}
-                      >
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
+                  <p className="text-xs">
+                    Estado:{" "}
+                    <strong>
+                      {item.estado === "completado"
+                        ? "APROBADO"
+                        : "NO APROBADO"}
+                    </strong>
+                  </p>
                 </div>
-              );
-            })}
-          </div>
-        ))}
 
-        <textarea
-          placeholder="Observaciones"
-          className="border p-3 w-full rounded resize-none overflow-hidden"
-          rows={2}
-          onChange={(e) => {
-            e.target.style.height = "auto";
-            e.target.style.height = e.target.scrollHeight + "px";
+                <div className="flex gap-3 text-sm">
 
-            setForm({
-              ...form,
-              observaciones: e.target.value,
-            });
-          }}
-        />
+                  {/* ABRIR */}
+                  <button
+                    onClick={() => openItem(item)}
+                    className="text-blue-600"
+                  >
+                    Abrir
+                  </button>
 
-        <div className="grid grid-cols-2 gap-6 items-end">
+                  {/* PDF SOLO SI COMPLETADO */}
+                  {item.estado === "completado" && (
+                    <button
+                      onClick={() => downloadPDF(item.id)}
+                      className="text-green-600 font-semibold"
+                    >
+                      PDF
+                    </button>
+                  )}
 
-          <div className="flex justify-center gap-4">
-            {["APROBADO", "NO APROBADO"].map((opt) => (
-              <button
-                key={opt}
-                onClick={() => setForm({ ...form, estadoFinal: opt })}
-                className={`px-6 py-2 rounded font-bold ${
-                  form.estadoFinal === opt
-                    ? opt === "APROBADO"
-                      ? "bg-blue-600 text-white"
-                      : "bg-red-600 text-white"
-                    : "border"
-                }`}
-              >
-                {opt}
-              </button>
-            ))}
-          </div>
+                  {/* ELIMINAR */}
+                  <button
+                    onClick={() => deleteItem(item.id)}
+                    className="text-red-600"
+                  >
+                    Eliminar
+                  </button>
 
-          <div className="text-sm">
-            <p className="font-semibold mb-1">Firma del Inspector</p>
-
-            <div className="border bg-white">
-              <SignatureCanvas
-                penColor="black"
-                canvasProps={{
-                  width: 300,
-                  height: 120,
-                  className: "w-full h-[120px]"
-                }}
-                ref={sigRef}
-              />
-            </div>
-
-            <div className="flex justify-between mt-2">
-              <button
-                type="button"
-                onClick={() => sigRef.current && sigRef.current.clear()}
-                className="text-xs text-red-600"
-              >
-                Limpiar
-              </button>
-            </div>
-
-            <input
-              type="text"
-              placeholder="Nombre del inspector"
-              className="border w-full p-2 mt-2"
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  inspector: e.target.value,
-                })
-              }
-            />
-          </div>
-
-        </div>
-
-        <div className="flex justify-between mt-6">
-
-          <button
-            onClick={() => navigate("/liberacion")}
-            className="px-5 py-2 rounded border text-gray-700 hover:bg-gray-100 transition"
-          >
-            Volver
-          </button>
-
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className={`px-6 py-2 rounded bg-blue-600 text-white font-semibold ${
-              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
-            }`}
-          >
-            Guardar informe
-          </button>
-
+                </div>
+              </div>
+            );
+          })}
         </div>
 
       </div>
