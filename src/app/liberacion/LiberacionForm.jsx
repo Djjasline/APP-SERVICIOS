@@ -1,9 +1,6 @@
-
 import { useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useNavigate } from "react-router-dom";
-
-
 
 const checklist = {
   "Sistema Mecánico": [
@@ -112,16 +109,8 @@ export default function LiberacionForm() {
 
         {/* HEADER */}
         <div className="border border-gray-400 p-4">
-
           <div className="flex items-center">
-
-            {/* LOGO */}
-            <img
-              src="/astap-logo.jpg"
-              className="w-16 mr-4"
-            />
-
-            {/* TITULO */}
+            <img src="/astap-logo.jpg" className="w-16 mr-4" />
             <div className="flex-1 text-center">
               <h1 className="font-bold text-base">
                 FORMATO PARA INSPECCIÓN CAMIONETAS
@@ -130,96 +119,90 @@ export default function LiberacionForm() {
                 Vehículo liviano menor a 4500kg
               </p>
             </div>
-
             <div className="w-16"></div>
+          </div>
+        </div>
 
+        {/* TABLA DE DATOS */}
+        <div className="border border-gray-400 text-sm">
+
+          <div className="grid grid-cols-6">
+            <div className="border p-2 bg-gray-100">Fecha Inspección:</div>
+            <input className="border p-2 col-span-2" />
+
+            <div className="border p-2 bg-gray-100">Lugar Inspección:</div>
+            <input className="border p-2" />
+
+            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
+            <input className="border p-2" />
+          </div>
+
+          <div className="grid grid-cols-6">
+            <div className="border p-2 bg-gray-100">Nombre Conductor:</div>
+            <input name="conductor" onChange={handleChange} className="border p-2 col-span-2" />
+
+            <div className="border p-2 bg-gray-100">Tipo Licencia:</div>
+            <div className="border p-2 flex gap-1">
+              {["B","C","D","E"].map((l) => (
+                <button key={l} className="w-8 h-8 border text-xs">{l}</button>
+              ))}
+            </div>
+
+            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
+            <input className="border p-2" />
+          </div>
+
+          <div className="grid grid-cols-6">
+            <div className="border p-2 bg-gray-100">Empr. Contratista:</div>
+            <input name="cliente" onChange={handleChange} className="border p-2 col-span-2" />
+
+            <div className="border p-2 bg-gray-100">Placas:</div>
+            <input name="placa" onChange={handleChange} className="border p-2" />
+
+            <div className="border p-2 bg-gray-100">Marca:</div>
+            <input className="border p-2" />
+          </div>
+
+          <div className="grid grid-cols-6">
+            <div className="border p-2 bg-gray-100">GDP/MANT.:</div>
+            <input className="border p-2 col-span-2" />
+
+            <div className="border p-2 bg-gray-100">Tipo Vehículo:</div>
+            <input className="border p-2" />
+
+            <div className="border p-2 bg-gray-100">Color:</div>
+            <input className="border p-2" />
+          </div>
+
+          <div className="grid grid-cols-6">
+            <div className="border p-2 bg-gray-100">Curso Manejo Def:</div>
+            <input className="border p-2 col-span-2" />
+
+            <div className="border p-2 bg-gray-100">Año:</div>
+            <input className="border p-2" />
+
+            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
+            <input className="border p-2" />
+          </div>
+
+          <div className="grid grid-cols-6">
+            <div className="border p-2 bg-gray-100">Matrícula:</div>
+            <input className="border p-2 col-span-2" />
+
+            <div className="border p-2 bg-gray-100">Año:</div>
+            <input className="border p-2" />
+
+            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
+            <input className="border p-2" />
           </div>
 
         </div>
-<div className="border border-gray-400 text-sm">
 
-  {/* FILA 1 */}
-  <div className="grid grid-cols-6">
-    <div className="border p-2 bg-gray-100">Fecha Inspección:</div>
-    <input className="border p-2 col-span-2" />
+        {/* TITULO CORRECTO */}
+        <h2 className="bg-blue-600 text-white px-3 py-2 font-semibold">
+          Condiciones Generales del Vehículo
+        </h2>
 
-    <div className="border p-2 bg-gray-100">Lugar Inspección:</div>
-    <input className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2" />
-  </div>
-
-  {/* FILA 2 */}
-  <div className="grid grid-cols-6">
-    <div className="border p-2 bg-gray-100">Nombre Conductor:</div>
-    <input className="border p-2 col-span-2" />
-
-    <div className="border p-2 bg-gray-100">Tipo Licencia:</div>
-    <div className="border p-2 flex gap-1 items-center">
-      {["B", "C", "D", "E"].map((l) => (
-        <button
-          key={l}
-          className="w-8 h-8 border text-xs font-bold hover:bg-blue-100"
-        >
-          {l}
-        </button>
-      ))}
-    </div>
-
-    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2" />
-  </div>
-
-  {/* FILA 3 */}
-  <div className="grid grid-cols-6">
-    <div className="border p-2 bg-gray-100">Empr. Contratista:</div>
-    <input className="border p-2 col-span-2" />
-
-    <div className="border p-2 bg-gray-100">Placas:</div>
-    <input className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Marca:</div>
-    <input className="border p-2" />
-  </div>
-
-  {/* FILA 4 */}
-  <div className="grid grid-cols-6">
-    <div className="border p-2 bg-gray-100">GDP/MANT.:</div>
-    <input className="border p-2 col-span-2" />
-
-    <div className="border p-2 bg-gray-100">Tipo Vehículo:</div>
-    <input className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Color:</div>
-    <input className="border p-2" />
-  </div>
-
-  {/* FILA 5 */}
-  <div className="grid grid-cols-6">
-    <div className="border p-2 bg-gray-100">Curso Manejo Def:</div>
-    <input className="border p-2 col-span-2" />
-
-    <div className="border p-2 bg-gray-100">Año:</div>
-    <input className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2" />
-  </div>
-
-  {/* FILA 6 */}
-  <div className="grid grid-cols-6">
-    <div className="border p-2 bg-gray-100">Matrícula:</div>
-    <input className="border p-2 col-span-2" />
-
-    <div className="border p-2 bg-gray-100">Año:</div>
-    <input className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2" />
-  </div>
-
-</div>
         {/* LEYENDA */}
         <div className="flex justify-end gap-4 text-xs font-bold">
           <span className="text-blue-600">C</span>
@@ -230,7 +213,6 @@ export default function LiberacionForm() {
         {/* CHECKLIST */}
         {Object.entries(checklist).map(([section, items]) => (
           <div key={section}>
-
             <div className="bg-blue-600 text-white px-2 py-1 text-sm font-semibold">
               {section}
             </div>
@@ -241,14 +223,12 @@ export default function LiberacionForm() {
 
               return (
                 <div key={key} className="flex border-b items-center">
-
                   <div className="flex-1 px-2 py-1 text-sm">
                     {numero}. {item}
                   </div>
 
                   <div className="flex">
-
-                    {["C", "NC", "NA"].map((opt) => (
+                    {["C","NC","NA"].map((opt) => (
                       <button
                         key={opt}
                         onClick={() => handleCheck(key, opt)}
@@ -265,9 +245,7 @@ export default function LiberacionForm() {
                         {opt}
                       </button>
                     ))}
-
                   </div>
-
                 </div>
               );
             })}
