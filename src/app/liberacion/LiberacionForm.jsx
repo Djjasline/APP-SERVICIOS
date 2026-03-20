@@ -267,24 +267,49 @@ export default function LiberacionForm() {
           }
         />
 
-        {/* RESULTADO */}
-        <div className="flex justify-center gap-4">
-          {["APROBADO", "NO APROBADO"].map((opt) => (
-            <button
-              key={opt}
-              onClick={() => setForm({ ...form, estadoFinal: opt })}
-              className={`px-6 py-2 rounded font-bold ${
-                form.estadoFinal === opt
-                  ? opt === "APROBADO"
-                    ? "bg-blue-600 text-white"
-                    : "bg-red-600 text-white"
-                  : "border"
-              }`}
-            >
-              {opt}
-            </button>
-          ))}
-        </div>
+    <div className="grid grid-cols-2 gap-6 items-end">
+
+  {/* RESULTADO */}
+  <div className="flex justify-center gap-4">
+    {["APROBADO", "NO APROBADO"].map((opt) => (
+      <button
+        key={opt}
+        onClick={() => setForm({ ...form, estadoFinal: opt })}
+        className={`px-6 py-2 rounded font-bold ${
+          form.estadoFinal === opt
+            ? opt === "APROBADO"
+              ? "bg-blue-600 text-white"
+              : "bg-red-600 text-white"
+            : "border"
+        }`}
+      >
+        {opt}
+      </button>
+    ))}
+  </div>
+
+  {/* FIRMA */}
+  <div className="text-sm">
+
+    <p className="font-semibold mb-1">Firma del Inspector</p>
+
+    {/* CUADRO DE FIRMA */}
+    <div className="border h-20 mb-2"></div>
+
+    {/* NOMBRE */}
+    <input
+      type="text"
+      placeholder="Nombre del inspector"
+      className="border w-full p-2"
+      onChange={(e) =>
+        setForm({ ...form, inspector: e.target.value })
+      }
+    />
+
+  </div>
+
+</div>
+        
 
         {/* GUARDAR */}
         <button
