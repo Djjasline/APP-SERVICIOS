@@ -1,31 +1,49 @@
+
 import { useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useNavigate } from "react-router-dom";
 
 const checklist = {
   "Sistema Mecánico": [
-    "Frenos sin fugas",
-    "Llantas en buen estado",
-    "Tuercas ajustadas",
-    "Parabrisas en buen estado",
-    "Cinturones de seguridad",
+    "Frenos sin fugas (Liqueos)",
+    "Llantas: Delanteras / Traseras (%)",
+    "Llanta emergencia (%)",
+    "Tuercas completas y ajustadas",
+    "Parabrisas, vidrios y espejos (no trizados)",
+    "Asientos con apoya cabezas",
+    "Cinturones de seguridad (3 puntos)",
+    "Limpia parabrisas y plumas operativos",
+    "No liqueos (combustible, aceite, fluido)",
+    "Kit básico de herramientas",
+    "Agua limpia parabrisas",
+    "Gato, palanca, llave de ruedas",
   ],
-  "Sistema Eléctrico": [
-    "Luces operativas",
+  "Sistema Eléctrico & Otros": [
+    "Cableado eléctrico en buen estado",
+    "Batería y bornes ajustados (sin corrosión)",
+    "Luces delanteras altas y bajas",
     "Luces direccionales",
     "Luces de freno",
+    "Luces de reversa",
+    "Alarma de retro",
+    "Luz interior / tablero",
+    "Luces de parqueo",
     "Bocina",
+    "Certificado o revisión mecánica",
   ],
-  "Seguridad Industrial": [
-    "Extintor",
-    "Botiquín",
-    "Triángulos de seguridad",
+  "Accesorios de Seguridad Industrial": [
+    "Arrestallamas",
+    "Extintor tipo PQS (≥ 5 lbs)",
+    "Botiquín de primeros auxilios",
+    "Triángulos o conos (mínimo 2)",
     "Chaleco reflectivo",
+    "Linterna con batería y repuesto",
+    "Cables pasa corriente",
   ],
-  "Área de Carga": [
-    "Roll bar en buen estado",
-    "Balde en buen estado",
-    "Malla de protección",
+  "Estado / Área de Carga": [
+    "Roll bar asegurado al chasis",
+    "Balde o cajón en buen estado",
+    "Malla de protección en roll bar",
   ],
 };
 
@@ -61,17 +79,8 @@ export default function LiberacionForm() {
 
   const handleSubmit = async () => {
     if (!form.estadoFinal) {
-      alert("Debes seleccionar APROBADO o NO APROBADO");
+      alert("Selecciona resultado final");
       return;
-    }
-
-    const ncCount = Object.values(form.checklist).filter(v => v === "NC").length;
-
-    if (form.estadoFinal === "APROBADO" && ncCount > 0) {
-      const confirmacion = confirm(
-        `Hay ${ncCount} ítems NO CUMPLE. ¿Seguro que deseas aprobar?`
-      );
-      if (!confirmacion) return;
     }
 
     const { error } = await supabase.from("registros").insert([
@@ -89,199 +98,91 @@ export default function LiberacionForm() {
       return;
     }
 
-    alert("Liberación guardada correctamente");
+    alert("Liberación guardada");
     navigate("/liberacion");
   };
 
-  let contadorGlobal = 1;
+  let contador = 1;
 
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
-      <div className="bg-white p-6 rounded-xl shadow space-y-6 max-w-5xl mx-auto">
+      <div className="bg-white p-6 rounded-xl shadow max-w-5xl mx-auto space-y-6">
 
         {/* HEADER */}
-       <div className="border border-gray-400 text-sm">
+        <div className="border border-gray-400 p-4">
 
-  {/* FILA 1 */}
-  <div className="grid grid-cols-4">
-    
-    <div className="flex border">
-      <div className="bg-gray-100 px-2 py-2 w-1/2 border-r">
-        Fecha Inspección
-      </div>
-      <input className="w-1/2 p-2 outline-none" />
-    </div>
+          <div className="flex items-center">
 
-    <div className="flex border">
-      <div className="bg-gray-100 px-2 py-2 w-1/2 border-r">
-        Lugar Inspección
-      </div>
-      <input className="w-1/2 p-2 outline-none" />
-    </div>
+            {/* LOGO */}
+            <img
+              src="/astap-logo.jpg"
+              className="w-16 mr-4"
+            />
 
-    <div className="flex border col-span-2">
-      <div className="bg-gray-100 px-2 py-2 w-1/3 border-r">
-        Fecha Caducidad
-      </div>
-      <input className="w-2/3 p-2 outline-none" />
-    </div>
+            {/* TITULO */}
+            <div className="flex-1 text-center">
+              <h1 className="font-bold text-base">
+                FORMATO PARA INSPECCIÓN CAMIONETAS
+              </h1>
+              <p className="text-xs">
+                Vehículo liviano menor a 4500kg
+              </p>
+            </div>
 
-  </div>
+            <div className="w-16"></div>
 
-  {/* FILA 2 */}
-  <div className="grid grid-cols-4">
+          </div>
 
-    <div className="flex border">
-      <div className="bg-gray-100 px-2 py-2 w-1/2 border-r">
-        Nombre Conductor
-      </div>
-      <input name="conductor" onChange={handleChange} className="w-1/2 p-2 outline-none" />
-    </div>
-
-    <div className="flex border items-center">
-      <div className="bg-gray-100 px-2 py-2 w-1/2 border-r">
-        Tipo Licencia
-      </div>
-      <div className="flex gap-1 p-1">
-        {["B","C","D","E"].map((l) => (
-          <button
-            key={l}
-            className="px-2 py-1 border text-xs hover:bg-blue-100"
-          >
-            {l}
-          </button>
-        ))}
-      </div>
-    </div>
-
-    <div className="flex border col-span-2">
-      <div className="bg-gray-100 px-2 py-2 w-1/3 border-r">
-        Fecha Caducidad
-      </div>
-      <input className="w-2/3 p-2 outline-none" />
-    </div>
-
-  </div>
-
-  {/* FILA 3 */}
-  <div className="grid grid-cols-4">
-
-    <div className="flex border">
-      <div className="bg-gray-100 px-2 py-2 w-1/2 border-r">
-        Empresa / Contratista
-      </div>
-      <input name="cliente" onChange={handleChange} className="w-1/2 p-2 outline-none" />
-    </div>
-
-    <div className="flex border">
-      <div className="bg-gray-100 px-2 py-2 w-1/2 border-r">
-        Placa
-      </div>
-      <input name="placa" onChange={handleChange} className="w-1/2 p-2 outline-none" />
-    </div>
-
-    <div className="flex border">
-      <div className="bg-gray-100 px-2 py-2 w-1/2 border-r">
-        Marca
-      </div>
-      <input className="w-1/2 p-2 outline-none" />
-    </div>
-
-    <div className="flex border">
-      <div className="bg-gray-100 px-2 py-2 w-1/2 border-r">
-        Color
-      </div>
-      <input className="w-1/2 p-2 outline-none" />
-    </div>
-
-  </div>
-
-  {/* FILA 4 */}
-  <div className="grid grid-cols-4">
-
-    <div className="flex border">
-      <div className="bg-gray-100 px-2 py-2 w-1/2 border-r">
-        Tipo Vehículo
-      </div>
-      <input className="w-1/2 p-2 outline-none" />
-    </div>
-
-    <div className="flex border">
-      <div className="bg-gray-100 px-2 py-2 w-1/2 border-r">
-        Modelo
-      </div>
-      <input name="vehiculo" onChange={handleChange} className="w-1/2 p-2 outline-none" />
-    </div>
-
-    <div className="flex border">
-      <div className="bg-gray-100 px-2 py-2 w-1/2 border-r">
-        Año
-      </div>
-      <input className="w-1/2 p-2 outline-none" />
-    </div>
-
-    <div className="flex border">
-      <div className="bg-gray-100 px-2 py-2 w-1/2 border-r">
-        Matrícula
-      </div>
-      <input className="w-1/2 p-2 outline-none" />
-    </div>
-
-  </div>
-
-</div>
+        </div>
 
         {/* LEYENDA */}
-        <div className="flex justify-end gap-4 text-xs font-semibold">
-          <span className="text-blue-600">C = CUMPLE</span>
-          <span className="text-red-600">NC = NO CUMPLE</span>
-          <span className="text-gray-500">NA = NO APLICA</span>
+        <div className="flex justify-end gap-4 text-xs font-bold">
+          <span className="text-blue-600">C</span>
+          <span className="text-red-600">NC</span>
+          <span className="text-gray-500">NA</span>
         </div>
 
         {/* CHECKLIST */}
         {Object.entries(checklist).map(([section, items]) => (
-          <div key={section} className="space-y-2">
+          <div key={section}>
 
-            <h2 className="font-semibold text-lg bg-blue-50 text-blue-700 p-2 rounded">
+            <div className="bg-blue-600 text-white px-2 py-1 text-sm font-semibold">
               {section}
-            </h2>
+            </div>
 
-            {items.map((label, index) => {
+            {items.map((item, index) => {
               const key = `${section}-${index}`;
-              const numero = contadorGlobal++;
+              const numero = contador++;
 
               return (
-                <div
-                  key={key}
-                  className="flex items-center justify-between border-b py-2"
-                >
-                  <span className="text-sm text-slate-700">
-                    <strong>{numero}.</strong> {label}
-                  </span>
+                <div key={key} className="flex border-b items-center">
 
-                  <div className="flex gap-2">
-                    {["C", "NC", "NA"].map((opt) => {
-                      const styles = {
-                        C: "bg-blue-600 text-white",      // 🔵 institucional
-                        NC: "bg-red-600 text-white",
-                        NA: "bg-gray-400 text-white",
-                      };
-
-                      return (
-                        <button
-                          key={opt}
-                          onClick={() => handleCheck(key, opt)}
-                          className={`px-3 py-1 rounded text-xs font-bold transition ${
-                            form.checklist[key] === opt
-                              ? styles[opt]
-                              : "border hover:bg-gray-100"
-                          }`}
-                        >
-                          {opt}
-                        </button>
-                      );
-                    })}
+                  <div className="flex-1 px-2 py-1 text-sm">
+                    {numero}. {item}
                   </div>
+
+                  <div className="flex">
+
+                    {["C", "NC", "NA"].map((opt) => (
+                      <button
+                        key={opt}
+                        onClick={() => handleCheck(key, opt)}
+                        className={`w-10 h-8 border text-xs font-bold ${
+                          form.checklist[key] === opt
+                            ? opt === "C"
+                              ? "bg-blue-600 text-white"
+                              : opt === "NC"
+                              ? "bg-red-600 text-white"
+                              : "bg-gray-400 text-white"
+                            : ""
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+
+                  </div>
+
                 </div>
               );
             })}
@@ -297,20 +198,18 @@ export default function LiberacionForm() {
           }
         />
 
-        {/* RESULTADO FINAL */}
-        <div className="flex gap-4 justify-center">
+        {/* RESULTADO */}
+        <div className="flex justify-center gap-4">
           {["APROBADO", "NO APROBADO"].map((opt) => (
             <button
               key={opt}
-              onClick={() =>
-                setForm({ ...form, estadoFinal: opt })
-              }
-              className={`px-6 py-2 rounded font-semibold transition ${
+              onClick={() => setForm({ ...form, estadoFinal: opt })}
+              className={`px-6 py-2 rounded font-bold ${
                 form.estadoFinal === opt
                   ? opt === "APROBADO"
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : "bg-red-600 text-white shadow-lg"
-                  : "border hover:bg-gray-100"
+                    ? "bg-blue-600 text-white"
+                    : "bg-red-600 text-white"
+                  : "border"
               }`}
             >
               {opt}
@@ -318,10 +217,10 @@ export default function LiberacionForm() {
           ))}
         </div>
 
-        {/* BOTÓN */}
+        {/* GUARDAR */}
         <button
           onClick={handleSubmit}
-          className="bg-blue-600 text-white w-full py-3 rounded text-lg font-semibold hover:bg-blue-700 transition"
+          className="bg-blue-600 text-white w-full py-3 rounded font-bold"
         >
           Guardar Liberación
         </button>
