@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { useNavigate } from "react-router-dom";
+import SignatureCanvas from "react-signature-canvas";
+import { useRef } from "react";
 
 const checklist = {
   "Sistema Mecánico": [
@@ -48,7 +50,7 @@ const checklist = {
 
 export default function LiberacionForm() {
   const navigate = useNavigate();
-
+const sigRef = useRef();
   const [form, setForm] = useState({
     cliente: "",
     conductor: "",
@@ -291,22 +293,43 @@ export default function LiberacionForm() {
   {/* FIRMA */}
   <div className="text-sm">
 
-    <p className="font-semibold mb-1">Firma del Inspector</p>
+  <p className="font-semibold mb-1">Firma del Inspector</p>
 
-    {/* CUADRO DE FIRMA */}
-    <div className="border h-20 mb-2"></div>
-
-    {/* NOMBRE */}
-    <input
-      type="text"
-      placeholder="Nombre del inspector"
-      className="border w-full p-2"
-      onChange={(e) =>
-        setForm({ ...form, inspector: e.target.value })
-      }
+  {/* FIRMA DIGITAL */}
+  <div className="border bg-white">
+    <SignatureCanvas
+      penColor="black"
+      canvasProps={{
+        width: 300,
+        height: 120,
+        className: "w-full h-[120px]"
+      }}
+      ref={sigRef}
     />
-
   </div>
+
+  {/* BOTONES */}
+  <div className="flex justify-between mt-2">
+    <button
+      type="button"
+      onClick={() => sigRef.current.clear()}
+      className="text-xs text-red-600"
+    >
+      Limpiar
+    </button>
+  </div>
+
+  {/* NOMBRE */}
+  <input
+    type="text"
+    placeholder="Nombre del inspector"
+    className="border w-full p-2 mt-2"
+    onChange={(e) =>
+      setForm({ ...form, inspector: e.target.value })
+    }
+  />
+
+</div>
 
 </div>
         
