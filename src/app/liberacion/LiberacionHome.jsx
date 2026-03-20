@@ -7,6 +7,7 @@ export default function LiberacionHome() {
   const [registros, setRegistros] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // 🔄 CARGAR DATA
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -25,12 +26,11 @@ export default function LiberacionHome() {
           return;
         }
       } catch (err) {
-        console.warn("Sin conexión, usando localStorage");
+        console.warn("Sin conexión");
       }
 
-      // 🔴 fallback offline
+      // 🔴 FALLBACK LOCAL
       const local = JSON.parse(localStorage.getItem("pending_registros") || "[]");
-
       setRegistros(local);
       setLoading(false);
     };
@@ -38,24 +38,40 @@ export default function LiberacionHome() {
     loadData();
   }, []);
 
+  // 🔍 ABRIR
   const openItem = (item) => {
     localStorage.setItem("currentLiberacion", JSON.stringify(item));
     navigate(`/liberacion/${item.id || "local"}`);
   };
 
+  // ❌ ELIMINAR
   const deleteItem = async (id) => {
     if (!confirm("¿Eliminar registro?")) return;
 
     try {
-      await supabase
-        .from("registros")
-        .delete()
-        .eq("id", id);
+      await supabase.from("registros").delete().eq("id", id);
     } catch {
-      console.warn("Error en supabase");
+      console.warn("Error eliminando en supabase");
     }
 
     setRegistros(registros.filter((r) => r.id !== id));
+  };
+
+  // 📄 DESCARGAR PDF
+  const downloadPDF = (id) => {
+    const stored = JSON.parse(localStorage.getItem("pdf_liberaciones") || "{}");
+
+    const pdf = stored[id];
+
+    if (!pdf) {
+      alert("PDF no disponible en este dispositivo");
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = pdf;
+    link.download = `Liberacion_${id}.pdf`;
+    link.click();
   };
 
   return (
@@ -118,6 +134,8 @@ export default function LiberacionHome() {
                 </div>
 
                 <div className="flex gap-3 text-sm">
+
+                  {/* ABRIR */}
                   <button
                     onClick={() => openItem(item)}
                     className="text-blue-600"
@@ -125,12 +143,24 @@ export default function LiberacionHome() {
                     Abrir
                   </button>
 
+                  {/* PDF SOLO SI COMPLETADO */}
+                  {item.estado === "completado" && (
+                    <button
+                      onClick={() => downloadPDF(item.id)}
+                      className="text-green-600 font-semibold"
+                    >
+                      PDF
+                    </button>
+                  )}
+
+                  {/* ELIMINAR */}
                   <button
                     onClick={() => deleteItem(item.id)}
                     className="text-red-600"
                   >
                     Eliminar
                   </button>
+
                 </div>
               </div>
             );
