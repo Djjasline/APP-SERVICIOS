@@ -1,8 +1,8 @@
-import { useState } from "react";
+
+import { useState, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import { useRef } from "react";
 
 const checklist = {
   "Sistema Mecánico": [
@@ -50,7 +50,8 @@ const checklist = {
 
 export default function LiberacionForm() {
   const navigate = useNavigate();
-const sigRef = useRef();
+  const sigRef = useRef();
+
   const [form, setForm] = useState({
     cliente: "",
     conductor: "",
@@ -58,6 +59,7 @@ const sigRef = useRef();
     vehiculo: "",
     observaciones: "",
     estadoFinal: "",
+    inspector: "",
     checklist: {},
   });
 
@@ -84,12 +86,26 @@ const sigRef = useRef();
       return;
     }
 
+    let firma = null;
+
+    if (sigRef.current && !sigRef.current.isEmpty()) {
+      firma = sigRef.current
+        .getTrimmedCanvas()
+        .toDataURL("image/png");
+    }
+
     const { error } = await supabase.from("registros").insert([
       {
         tipo: "liberacion",
         subtipo: "vehiculo",
-        estado: form.estadoFinal === "APROBADO" ? "completado" : "borrador",
-        data: form,
+        estado:
+          form.estadoFinal === "APROBADO"
+            ? "completado"
+            : "borrador",
+        data: {
+          ...form,
+          firmaInspector: firma,
+        },
       },
     ]);
 
@@ -107,8 +123,7 @@ const sigRef = useRef();
 
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
-
-  <div className="max-w-[794px] mx-auto bg-white p-6 shadow-lg border">
+      <div className="max-w-[794px] mx-auto bg-white p-6 shadow-lg border">
 
         {/* HEADER */}
         <div className="border border-gray-400 p-4">
@@ -126,92 +141,85 @@ const sigRef = useRef();
           </div>
         </div>
 
-        {/* TABLA DE DATOS */}
-      <div className="border border-gray-500 text-sm w-full overflow-hidden">
+        {/* TABLA */}
+        <div className="border border-gray-500 text-sm w-full overflow-hidden">
 
-  {/* FILA 1 */}
-  <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
-    <div className="border p-2 bg-gray-100">Fecha Inspección:</div>
-    <input className="border p-2 w-full" />
+          <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
+            <div className="border p-2 bg-gray-100">Fecha Inspección:</div>
+            <input className="border p-2 w-full" />
 
-    <div className="border p-2 bg-gray-100">Lugar Inspección:</div>
-    <input className="border p-2 w-full" />
+            <div className="border p-2 bg-gray-100">Lugar Inspección:</div>
+            <input className="border p-2 w-full" />
 
-    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2 w-full" />
-  </div>
+            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
+            <input className="border p-2 w-full" />
+          </div>
 
-  {/* FILA 2 */}
-  <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
-    <div className="border p-2 bg-gray-100">Nombre Conductor:</div>
-    <input className="border p-2 w-full" />
+          <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
+            <div className="border p-2 bg-gray-100">Nombre Conductor:</div>
+            <input name="conductor" onChange={handleChange} className="border p-2 w-full" />
 
-    <div className="border p-2 bg-gray-100">Tipo Licencia:</div>
-    <div className="border p-2 flex gap-1 justify-center">
-      {["B","C","D","E"].map((l) => (
-        <button key={l} className="w-7 h-7 border text-xs">{l}</button>
-      ))}
-    </div>
+            <div className="border p-2 bg-gray-100">Tipo Licencia:</div>
+            <div className="border p-2 flex gap-1 justify-center">
+              {["B","C","D","E"].map((l) => (
+                <button key={l} className="w-7 h-7 border text-xs">{l}</button>
+              ))}
+            </div>
 
-    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2 w-full" />
-  </div>
+            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
+            <input className="border p-2 w-full" />
+          </div>
 
-  {/* FILA 3 */}
-  <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
-    <div className="border p-2 bg-gray-100">Empr. Contratista:</div>
-    <input className="border p-2 w-full" />
+          <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
+            <div className="border p-2 bg-gray-100">Empr. Contratista:</div>
+            <input name="cliente" onChange={handleChange} className="border p-2 w-full" />
 
-    <div className="border p-2 bg-gray-100">Placas:</div>
-    <input className="border p-2 w-full" />
+            <div className="border p-2 bg-gray-100">Placas:</div>
+            <input name="placa" onChange={handleChange} className="border p-2 w-full" />
 
-    <div className="border p-2 bg-gray-100">Marca:</div>
-    <input className="border p-2 w-full" />
-  </div>
+            <div className="border p-2 bg-gray-100">Marca:</div>
+            <input className="border p-2 w-full" />
+          </div>
 
-  {/* FILA 4 */}
-  <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
-    <div className="border p-2 bg-gray-100">GDP/MANT.:</div>
-    <input className="border p-2 w-full" />
+          <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
+            <div className="border p-2 bg-gray-100">GDP/MANT.:</div>
+            <input className="border p-2 w-full" />
 
-    <div className="border p-2 bg-gray-100">Tipo Vehículo:</div>
-    <input className="border p-2 w-full" />
+            <div className="border p-2 bg-gray-100">Tipo Vehículo:</div>
+            <input name="vehiculo" onChange={handleChange} className="border p-2 w-full" />
 
-    <div className="border p-2 bg-gray-100">Color:</div>
-    <input className="border p-2 w-full" />
-  </div>
+            <div className="border p-2 bg-gray-100">Color:</div>
+            <input className="border p-2 w-full" />
+          </div>
 
-  {/* FILA 5 */}
-  <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
-    <div className="border p-2 bg-gray-100">Curso Manejo Def:</div>
-    <input className="border p-2 w-full" />
+          <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
+            <div className="border p-2 bg-gray-100">Curso Manejo Def:</div>
+            <input className="border p-2 w-full" />
 
-    <div className="border p-2 bg-gray-100">Año:</div>
-    <input className="border p-2 w-full" />
+            <div className="border p-2 bg-gray-100">Año:</div>
+            <input className="border p-2 w-full" />
 
-    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2 w-full" />
-  </div>
+            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
+            <input className="border p-2 w-full" />
+          </div>
 
-  {/* FILA 6 */}
-  <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
-    <div className="border p-2 bg-gray-100">Matrícula:</div>
-    <input className="border p-2 w-full" />
+          <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
+            <div className="border p-2 bg-gray-100">Matrícula:</div>
+            <input className="border p-2 w-full" />
 
-    <div className="border p-2 bg-gray-100">Año:</div>
-    <input className="border p-2 w-full" />
+            <div className="border p-2 bg-gray-100">Año:</div>
+            <input className="border p-2 w-full" />
 
-    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2 w-full" />
-  </div>
+            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
+            <input className="border p-2 w-full" />
+          </div>
 
-</div>
-        {/* TITULO CORRECTO */}
+        </div>
+
         <h2 className="bg-blue-600 text-white px-3 py-2 font-semibold">
           Condiciones Generales del Vehículo
         </h2>
 
-        {/* LEYENDA */}
         <div className="flex justify-end gap-4 text-xs font-bold">
           <span className="text-blue-600">C</span>
           <span className="text-red-600">NC</span>
@@ -263,78 +271,81 @@ const sigRef = useRef();
         {/* OBSERVACIONES */}
         <textarea
           placeholder="Observaciones"
-          className="border p-3 w-full rounded"
-          onChange={(e) =>
-            setForm({ ...form, observaciones: e.target.value })
-          }
+          className="border p-3 w-full rounded resize-none overflow-hidden"
+          rows={2}
+          onChange={(e) => {
+            e.target.style.height = "auto";
+            e.target.style.height = e.target.scrollHeight + "px";
+
+            setForm({
+              ...form,
+              observaciones: e.target.value,
+            });
+          }}
         />
 
-    <div className="grid grid-cols-2 gap-6 items-end">
+        {/* RESULTADO + FIRMA */}
+        <div className="grid grid-cols-2 gap-6 items-end">
 
-  {/* RESULTADO */}
-  <div className="flex justify-center gap-4">
-    {["APROBADO", "NO APROBADO"].map((opt) => (
-      <button
-        key={opt}
-        onClick={() => setForm({ ...form, estadoFinal: opt })}
-        className={`px-6 py-2 rounded font-bold ${
-          form.estadoFinal === opt
-            ? opt === "APROBADO"
-              ? "bg-blue-600 text-white"
-              : "bg-red-600 text-white"
-            : "border"
-        }`}
-      >
-        {opt}
-      </button>
-    ))}
-  </div>
+          <div className="flex justify-center gap-4">
+            {["APROBADO", "NO APROBADO"].map((opt) => (
+              <button
+                key={opt}
+                onClick={() => setForm({ ...form, estadoFinal: opt })}
+                className={`px-6 py-2 rounded font-bold ${
+                  form.estadoFinal === opt
+                    ? opt === "APROBADO"
+                      ? "bg-blue-600 text-white"
+                      : "bg-red-600 text-white"
+                    : "border"
+                }`}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
 
-  {/* FIRMA */}
-  <div className="text-sm">
+          {/* FIRMA */}
+          <div className="text-sm">
+            <p className="font-semibold mb-1">Firma del Inspector</p>
 
-  <p className="font-semibold mb-1">Firma del Inspector</p>
+            <div className="border bg-white">
+              <SignatureCanvas
+                penColor="black"
+                canvasProps={{
+                  width: 300,
+                  height: 120,
+                  className: "w-full h-[120px]"
+                }}
+                ref={sigRef}
+              />
+            </div>
 
-  {/* FIRMA DIGITAL */}
-  <div className="border bg-white">
-    <SignatureCanvas
-      penColor="black"
-      canvasProps={{
-        width: 300,
-        height: 120,
-        className: "w-full h-[120px]"
-      }}
-      ref={sigRef}
-    />
-  </div>
+            <div className="flex justify-between mt-2">
+              <button
+                type="button"
+                onClick={() => sigRef.current && sigRef.current.clear()}
+                className="text-xs text-red-600"
+              >
+                Limpiar
+              </button>
+            </div>
 
-  {/* BOTONES */}
-  <div className="flex justify-between mt-2">
-    <button
-      type="button"
-      onClick={() => sigRef.current.clear()}
-      className="text-xs text-red-600"
-    >
-      Limpiar
-    </button>
-  </div>
+            <input
+              type="text"
+              placeholder="Nombre del inspector"
+              className="border w-full p-2 mt-2"
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  inspector: e.target.value,
+                })
+              }
+            />
+          </div>
 
-  {/* NOMBRE */}
-  <input
-    type="text"
-    placeholder="Nombre del inspector"
-    className="border w-full p-2 mt-2"
-    onChange={(e) =>
-      setForm({ ...form, inspector: e.target.value })
-    }
-  />
+        </div>
 
-</div>
-
-</div>
-        
-
-        {/* GUARDAR */}
         <button
           onClick={handleSubmit}
           className="bg-blue-600 text-white w-full py-3 rounded font-bold"
