@@ -61,8 +61,17 @@ export default function LiberacionForm() {
 
   const handleSubmit = async () => {
     if (!form.estadoFinal) {
-      alert("Selecciona estado final");
+      alert("Debes seleccionar APROBADO o NO APROBADO");
       return;
+    }
+
+    const ncCount = Object.values(form.checklist).filter(v => v === "NC").length;
+
+    if (form.estadoFinal === "APROBADO" && ncCount > 0) {
+      const confirmacion = confirm(
+        `Hay ${ncCount} ítems NO CUMPLE. ¿Seguro que deseas aprobar?`
+      );
+      if (!confirmacion) return;
     }
 
     const { error } = await supabase.from("registros").insert([
@@ -80,17 +89,18 @@ export default function LiberacionForm() {
       return;
     }
 
-    alert("Liberación guardada");
+    alert("Liberación guardada correctamente");
     navigate("/liberacion");
   };
 
   let contadorGlobal = 1;
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="bg-white p-6 rounded shadow space-y-6 max-w-5xl mx-auto">
+    <div className="p-6 bg-slate-100 min-h-screen">
+      <div className="bg-white p-6 rounded-xl shadow space-y-6 max-w-5xl mx-auto">
 
-        <h1 className="text-2xl font-bold text-center">
+        {/* HEADER */}
+        <h1 className="text-2xl font-bold text-center text-slate-800">
           Formulario de Liberación de Vehículo
         </h1>
 
@@ -102,11 +112,18 @@ export default function LiberacionForm() {
           <input name="vehiculo" placeholder="Vehículo" onChange={handleChange} className="border p-2 rounded" />
         </div>
 
-        {/* CHECKLIST POR SECCIONES */}
+        {/* LEYENDA */}
+        <div className="flex justify-end gap-4 text-xs font-semibold">
+          <span className="text-blue-600">C = CUMPLE</span>
+          <span className="text-red-600">NC = NO CUMPLE</span>
+          <span className="text-gray-500">NA = NO APLICA</span>
+        </div>
+
+        {/* CHECKLIST */}
         {Object.entries(checklist).map(([section, items]) => (
           <div key={section} className="space-y-2">
 
-            <h2 className="font-semibold text-lg bg-slate-100 p-2 rounded">
+            <h2 className="font-semibold text-lg bg-blue-50 text-blue-700 p-2 rounded">
               {section}
             </h2>
 
@@ -119,24 +136,32 @@ export default function LiberacionForm() {
                   key={key}
                   className="flex items-center justify-between border-b py-2"
                 >
-                  <span className="text-sm">
+                  <span className="text-sm text-slate-700">
                     <strong>{numero}.</strong> {label}
                   </span>
 
                   <div className="flex gap-2">
-                    {["C", "NC", "NA"].map((opt) => (
-                      <button
-                        key={opt}
-                        onClick={() => handleCheck(key, opt)}
-                        className={`px-3 py-1 border rounded text-sm transition ${
-                          form.checklist[key] === opt
-                            ? "bg-indigo-600 text-white"
-                            : "hover:bg-gray-100"
-                        }`}
-                      >
-                        {opt}
-                      </button>
-                    ))}
+                    {["C", "NC", "NA"].map((opt) => {
+                      const styles = {
+                        C: "bg-blue-600 text-white",      // 🔵 institucional
+                        NC: "bg-red-600 text-white",
+                        NA: "bg-gray-400 text-white",
+                      };
+
+                      return (
+                        <button
+                          key={opt}
+                          onClick={() => handleCheck(key, opt)}
+                          className={`px-3 py-1 rounded text-xs font-bold transition ${
+                            form.checklist[key] === opt
+                              ? styles[opt]
+                              : "border hover:bg-gray-100"
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -161,12 +186,12 @@ export default function LiberacionForm() {
               onClick={() =>
                 setForm({ ...form, estadoFinal: opt })
               }
-              className={`px-6 py-2 rounded font-semibold ${
+              className={`px-6 py-2 rounded font-semibold transition ${
                 form.estadoFinal === opt
                   ? opt === "APROBADO"
-                    ? "bg-green-600 text-white"
-                    : "bg-red-600 text-white"
-                  : "border"
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "bg-red-600 text-white shadow-lg"
+                  : "border hover:bg-gray-100"
               }`}
             >
               {opt}
@@ -174,10 +199,10 @@ export default function LiberacionForm() {
           ))}
         </div>
 
-        {/* BOTONES */}
+        {/* BOTÓN */}
         <button
           onClick={handleSubmit}
-          className="bg-indigo-600 text-white w-full py-3 rounded text-lg"
+          className="bg-blue-600 text-white w-full py-3 rounded text-lg font-semibold hover:bg-blue-700 transition"
         >
           Guardar Liberación
         </button>
