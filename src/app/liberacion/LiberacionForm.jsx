@@ -182,8 +182,10 @@ export default function LiberacionForm() {
 
     const fileName = `Liberacion_${data.placa || "sin_placa"}.pdf`;
 
+    // DESCARGA
     doc.save(fileName);
 
+    // GUARDAR LOCAL
     const pdfBase64 = doc.output("datauristring");
     const stored = JSON.parse(localStorage.getItem("pdf_liberaciones") || "{}");
     stored[id] = pdfBase64;
@@ -229,6 +231,7 @@ export default function LiberacionForm() {
       return;
     }
 
+    // 🔥 GENERAR PDF
     generarPDF({ ...form, firmaInspector: firma }, inserted.id);
 
     alert("Liberación guardada correctamente");
@@ -242,9 +245,11 @@ export default function LiberacionForm() {
     <div className="p-6 bg-slate-100 min-h-screen">
       <div className="max-w-[794px] mx-auto bg-white p-6 shadow-lg border">
 
-        {/* TODO TU FORMULARIO ORIGINAL AQUÍ (sin cambios) */}
+        {/* TODO TU JSX ORIGINAL SIN CAMBIOS */}
 
+        {/* BOTONES */}
         <div className="flex justify-between mt-6">
+
           <button
             onClick={() => navigate("/liberacion")}
             className="px-5 py-2 rounded border text-gray-700 hover:bg-gray-100 transition"
@@ -261,6 +266,7 @@ export default function LiberacionForm() {
           >
             Guardar informe
           </button>
+
         </div>
 
       </div>
