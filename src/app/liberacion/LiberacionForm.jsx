@@ -51,7 +51,9 @@ const checklist = {
 export default function LiberacionForm() {
   const navigate = useNavigate();
   const sigRef = useRef();
+
   const [loading, setLoading] = useState(false);
+  const [licencia, setLicencia] = useState("");
 
   const [form, setForm] = useState({
     cliente: "",
@@ -99,7 +101,7 @@ export default function LiberacionForm() {
     doc.text("FORMATO PARA INSPECCIÓN CAMIONETAS", 20, 20);
     doc.text(`Cliente: ${data.cliente}`, 20, 30);
     doc.text(`Conductor: ${data.conductor}`, 20, 40);
-    doc.text(`Estado: ${data.estadoFinal}`, 20, 50);
+    doc.text(`Licencia: ${data.tipoLicencia}`, 20, 50);
 
     if (data.firmaInspector) {
       doc.addImage(data.firmaInspector, "PNG", 20, 60, 60, 25);
@@ -127,7 +129,11 @@ export default function LiberacionForm() {
       tipo: "liberacion",
       subtipo: "vehiculo",
       estado: form.estadoFinal === "APROBADO" ? "completado" : "borrador",
-      data: { ...form, firmaInspector: firma },
+      data: {
+        ...form,
+        tipoLicencia: licencia,
+        firmaInspector: firma,
+      },
     };
 
     const { data: inserted, error } = await supabase
@@ -147,7 +153,7 @@ export default function LiberacionForm() {
       return;
     }
 
-    generarPDF({ ...form, firmaInspector: firma }, inserted.id);
+    generarPDF(payload.data, inserted.id);
 
     alert("Guardado correctamente");
     setLoading(false);
@@ -160,7 +166,7 @@ export default function LiberacionForm() {
     <div className="p-6 bg-slate-100 min-h-screen">
       <div className="max-w-[794px] mx-auto bg-white p-6 shadow-lg border">
 
-        {/* HEADER CORRECTO */}
+        {/* HEADER */}
         <div className="border border-gray-400 p-4 mb-4">
           <div className="flex items-center">
             <img src="/astap-logo.jpg" className="w-14 mr-4" />
@@ -176,66 +182,72 @@ export default function LiberacionForm() {
           </div>
         </div>
 
-        {/* DATOS */}
-       <div className="border border-gray-600 text-xs w-full">
+        {/* TABLA */}
+        <div className="border border-gray-600 text-xs w-full mb-4">
 
-  {[
-    [
-      "Fecha Inspección:", <input className="w-full h-full outline-none px-1" />,
-      "Lugar Inspección:", <input className="w-full h-full outline-none px-1" />,
-      "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
-    ],
-    [
-      "Nombre Conductor:", <input name="conductor" onChange={handleChange} className="w-full h-full outline-none px-1" />,
-      "Tipo Licencia:",
-      <div className="flex w-full h-full">
-        {["B","C","D","E"].map((l) => (
-          <div
-            key={l}
-            className="flex-1 border flex items-center justify-center text-xs"
-          >
-            {l}
-          </div>
-        ))}
-      </div>,
-      "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
-    ],
-    [
-      "Empr. Contratista:", <input name="cliente" onChange={handleChange} className="w-full h-full outline-none px-1" />,
-      "Placas:", <input name="placa" onChange={handleChange} className="w-full h-full outline-none px-1" />,
-      "Marca:", <input className="w-full h-full outline-none px-1" />,
-    ],
-    [
-      "GDP/MANT:", <input className="w-full h-full outline-none px-1" />,
-      "Tipo Vehículo:", <input name="vehiculo" onChange={handleChange} className="w-full h-full outline-none px-1" />,
-      "Color:", <input className="w-full h-full outline-none px-1" />,
-    ],
-    [
-      "Curso Manejo Def:", <input className="w-full h-full outline-none px-1" />,
-      "Año:", <input className="w-full h-full outline-none px-1" />,
-      "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
-    ],
-    [
-      "Matrícula:", <input className="w-full h-full outline-none px-1" />,
-      "Año:", <input className="w-full h-full outline-none px-1" />,
-      "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
-    ],
-  ].map((row, i) => (
-    <div key={i} className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr] h-[32px]">
-      {row.map((cell, j) => (
-        <div
-          key={j}
-          className={`border px-2 flex items-center ${
-            j % 2 === 0 ? "bg-gray-100 font-medium" : ""
-          }`}
-        >
-          {cell}
+          {[
+            [
+              "Fecha Inspección:", <input className="w-full h-full outline-none px-1" />,
+              "Lugar Inspección:", <input className="w-full h-full outline-none px-1" />,
+              "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
+            ],
+            [
+              "Nombre Conductor:", <input name="conductor" onChange={handleChange} className="w-full h-full outline-none px-1" />,
+              "Tipo Licencia:",
+              <div className="flex w-full h-full">
+                {["B","C","D","E"].map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => setLicencia(l)}
+                    className={`flex-1 border text-xs ${
+                      licencia === l
+                        ? "bg-blue-600 text-white font-bold"
+                        : "hover:bg-blue-100"
+                    }`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>,
+              "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
+            ],
+            [
+              "Empr. Contratista:", <input name="cliente" onChange={handleChange} className="w-full h-full outline-none px-1" />,
+              "Placas:", <input name="placa" onChange={handleChange} className="w-full h-full outline-none px-1" />,
+              "Marca:", <input className="w-full h-full outline-none px-1" />,
+            ],
+            [
+              "GDP/MANT:", <input className="w-full h-full outline-none px-1" />,
+              "Tipo Vehículo:", <input name="vehiculo" onChange={handleChange} className="w-full h-full outline-none px-1" />,
+              "Color:", <input className="w-full h-full outline-none px-1" />,
+            ],
+            [
+              "Curso Manejo Def:", <input className="w-full h-full outline-none px-1" />,
+              "Año:", <input className="w-full h-full outline-none px-1" />,
+              "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
+            ],
+            [
+              "Matrícula:", <input className="w-full h-full outline-none px-1" />,
+              "Año:", <input className="w-full h-full outline-none px-1" />,
+              "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
+            ],
+          ].map((row, i) => (
+            <div key={i} className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr] h-[32px]">
+              {row.map((cell, j) => (
+                <div
+                  key={j}
+                  className={`border px-2 flex items-center ${
+                    j % 2 === 0 ? "bg-gray-100 font-medium" : ""
+                  }`}
+                >
+                  {cell}
+                </div>
+              ))}
+            </div>
+          ))}
+
         </div>
-      ))}
-    </div>
-  ))}
 
-</div>
         {/* CHECKLIST */}
         {Object.entries(checklist).map(([section, items]) => (
           <div key={section}>
@@ -290,12 +302,9 @@ export default function LiberacionForm() {
           ))}
         </div>
 
-        {/* FIRMA CORRECTA */}
+        {/* FIRMA */}
         <div className="mt-6">
-
-          <p className="text-sm font-semibold mb-1">
-            Firma del Inspector
-          </p>
+          <p className="text-sm font-semibold mb-1">Firma del Inspector</p>
 
           <div className="border bg-white">
             <SignatureCanvas
@@ -325,15 +334,13 @@ export default function LiberacionForm() {
               setForm({ ...form, inspector: e.target.value })
             }
           />
-
         </div>
 
         {/* BOTONES */}
         <div className="flex justify-between mt-6">
-
           <button
             onClick={() => navigate("/liberacion")}
-            className="px-5 py-2 rounded border text-gray-700 hover:bg-gray-100"
+            className="px-5 py-2 rounded border"
           >
             Volver
           </button>
@@ -341,13 +348,10 @@ export default function LiberacionForm() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className={`px-6 py-2 rounded bg-blue-600 text-white ${
-              loading ? "opacity-50" : "hover:bg-blue-700"
-            }`}
+            className="px-6 py-2 rounded bg-blue-600 text-white"
           >
             Guardar informe
           </button>
-
         </div>
 
       </div>
