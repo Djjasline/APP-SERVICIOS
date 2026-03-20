@@ -177,88 +177,63 @@ export default function LiberacionForm() {
         </div>
 
         {/* DATOS */}
-        <div className="border border-gray-500 text-sm w-full">
+       <div className="border border-gray-600 text-xs w-full">
 
-  {/* FILA 1 */}
-  <div className="grid grid-cols-[140px_1fr_140px_1fr_140px_1fr]">
-    <div className="border p-2 bg-gray-100">Fecha Inspección:</div>
-    <input className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Lugar Inspección:</div>
-    <input className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2" />
-  </div>
-
-  {/* FILA 2 */}
-  <div className="grid grid-cols-[140px_1fr_140px_1fr_140px_1fr]">
-    <div className="border p-2 bg-gray-100">Nombre Conductor:</div>
-    <input name="conductor" onChange={handleChange} className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Tipo Licencia:</div>
-    <div className="border p-2 flex gap-1 justify-center">
-      {["B","C","D","E"].map((l) => (
-        <button
-          key={l}
-          className="w-8 h-8 border text-xs hover:bg-blue-100"
+  {[
+    [
+      "Fecha Inspección:", <input className="w-full h-full outline-none px-1" />,
+      "Lugar Inspección:", <input className="w-full h-full outline-none px-1" />,
+      "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
+    ],
+    [
+      "Nombre Conductor:", <input name="conductor" onChange={handleChange} className="w-full h-full outline-none px-1" />,
+      "Tipo Licencia:",
+      <div className="flex w-full h-full">
+        {["B","C","D","E"].map((l) => (
+          <div
+            key={l}
+            className="flex-1 border flex items-center justify-center text-xs"
+          >
+            {l}
+          </div>
+        ))}
+      </div>,
+      "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
+    ],
+    [
+      "Empr. Contratista:", <input name="cliente" onChange={handleChange} className="w-full h-full outline-none px-1" />,
+      "Placas:", <input name="placa" onChange={handleChange} className="w-full h-full outline-none px-1" />,
+      "Marca:", <input className="w-full h-full outline-none px-1" />,
+    ],
+    [
+      "GDP/MANT:", <input className="w-full h-full outline-none px-1" />,
+      "Tipo Vehículo:", <input name="vehiculo" onChange={handleChange} className="w-full h-full outline-none px-1" />,
+      "Color:", <input className="w-full h-full outline-none px-1" />,
+    ],
+    [
+      "Curso Manejo Def:", <input className="w-full h-full outline-none px-1" />,
+      "Año:", <input className="w-full h-full outline-none px-1" />,
+      "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
+    ],
+    [
+      "Matrícula:", <input className="w-full h-full outline-none px-1" />,
+      "Año:", <input className="w-full h-full outline-none px-1" />,
+      "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
+    ],
+  ].map((row, i) => (
+    <div key={i} className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr] h-[32px]">
+      {row.map((cell, j) => (
+        <div
+          key={j}
+          className={`border px-2 flex items-center ${
+            j % 2 === 0 ? "bg-gray-100 font-medium" : ""
+          }`}
         >
-          {l}
-        </button>
+          {cell}
+        </div>
       ))}
     </div>
-
-    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2" />
-  </div>
-
-  {/* FILA 3 */}
-  <div className="grid grid-cols-[140px_1fr_140px_1fr_140px_1fr]">
-    <div className="border p-2 bg-gray-100">Empr. Contratista:</div>
-    <input name="cliente" onChange={handleChange} className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Placas:</div>
-    <input name="placa" onChange={handleChange} className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Marca:</div>
-    <input className="border p-2" />
-  </div>
-
-  {/* FILA 4 */}
-  <div className="grid grid-cols-[140px_1fr_140px_1fr_140px_1fr]">
-    <div className="border p-2 bg-gray-100">GDP/MANT:</div>
-    <input className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Tipo Vehículo:</div>
-    <input name="vehiculo" onChange={handleChange} className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Color:</div>
-    <input className="border p-2" />
-  </div>
-
-  {/* FILA 5 */}
-  <div className="grid grid-cols-[140px_1fr_140px_1fr_140px_1fr]">
-    <div className="border p-2 bg-gray-100">Curso Manejo Def:</div>
-    <input className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Año:</div>
-    <input className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2" />
-  </div>
-
-  {/* FILA 6 */}
-  <div className="grid grid-cols-[140px_1fr_140px_1fr_140px_1fr]">
-    <div className="border p-2 bg-gray-100">Matrícula:</div>
-    <input className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Año:</div>
-    <input className="border p-2" />
-
-    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2" />
-  </div>
+  ))}
 
 </div>
         {/* CHECKLIST */}
