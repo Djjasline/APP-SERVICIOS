@@ -48,6 +48,20 @@ const checklist = {
   ],
 };
 
+// 🔥 COMPONENTE REUTILIZABLE
+const AutoTextarea = ({ name, onChange }) => (
+  <textarea
+    name={name}
+    rows={1}
+    onChange={onChange}
+    className="w-full resize-none overflow-hidden outline-none px-1 bg-transparent"
+    onInput={(e) => {
+      e.target.style.height = "auto";
+      e.target.style.height = e.target.scrollHeight + "px";
+    }}
+  />
+);
+
 export default function LiberacionForm() {
   const navigate = useNavigate();
   const sigRef = useRef();
@@ -66,22 +80,16 @@ export default function LiberacionForm() {
     checklist: {},
   });
 
-  // 🔄 SYNC
   useEffect(() => {
-    const syncPendientes = async () => {
+    const sync = async () => {
       const pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
-
-      if (pendientes.length === 0) return;
-
-      for (let registro of pendientes) {
-        await supabase.from("registros").insert([registro]);
+      for (let p of pendientes) {
+        await supabase.from("registros").insert([p]);
       }
-
       localStorage.removeItem("pending_registros");
     };
-
-    window.addEventListener("online", syncPendientes);
-    return () => window.removeEventListener("online", syncPendientes);
+    window.addEventListener("online", sync);
+    return () => window.removeEventListener("online", sync);
   }, []);
 
   const handleChange = (e) => {
@@ -95,33 +103,11 @@ export default function LiberacionForm() {
     });
   };
 
-  // 🔥 PDF
-  const generarPDF = (data, id) => {
-    const doc = new jsPDF();
-    doc.text("FORMATO PARA INSPECCIÓN CAMIONETAS", 20, 20);
-    doc.text(`Cliente: ${data.cliente}`, 20, 30);
-    doc.text(`Conductor: ${data.conductor}`, 20, 40);
-    doc.text(`Licencia: ${data.tipoLicencia}`, 20, 50);
-
-    if (data.firmaInspector) {
-      doc.addImage(data.firmaInspector, "PNG", 20, 60, 60, 25);
-    }
-
-    doc.save(`Liberacion_${id}.pdf`);
-  };
-
   const handleSubmit = async () => {
-    if (loading) return;
-
-    if (!form.estadoFinal) {
-      alert("Selecciona resultado final");
-      return;
-    }
-
-    setLoading(true);
+    if (!form.estadoFinal) return alert("Selecciona resultado");
 
     let firma = null;
-    if (sigRef.current && !sigRef.current.isEmpty()) {
+    if (!sigRef.current.isEmpty()) {
       firma = sigRef.current.getTrimmedCanvas().toDataURL("image/png");
     }
 
@@ -129,34 +115,21 @@ export default function LiberacionForm() {
       tipo: "liberacion",
       subtipo: "vehiculo",
       estado: form.estadoFinal === "APROBADO" ? "completado" : "borrador",
-      data: {
-        ...form,
-        tipoLicencia: licencia,
-        firmaInspector: firma,
-      },
+      data: { ...form, tipoLicencia: licencia, firmaInspector: firma },
     };
 
-    const { data: inserted, error } = await supabase
-      .from("registros")
-      .insert([payload])
-      .select()
-      .single();
+    const { error } = await supabase.from("registros").insert([payload]);
 
     if (error) {
-      const pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
+      let pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
       pendientes.push(payload);
       localStorage.setItem("pending_registros", JSON.stringify(pendientes));
-
-      alert("Guardado sin conexión");
-      setLoading(false);
+      alert("Guardado offline");
       navigate("/liberacion");
       return;
     }
 
-    generarPDF(payload.data, inserted.id);
-
     alert("Guardado correctamente");
-    setLoading(false);
     navigate("/liberacion");
   };
 
@@ -164,85 +137,62 @@ export default function LiberacionForm() {
 
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
-      <div className="max-w-[794px] mx-auto bg-white p-6 shadow-lg border">
+      <div className="max-w-[794px] mx-auto bg-white p-6 shadow border">
 
         {/* HEADER */}
-        <div className="border border-gray-400 p-4 mb-4">
+        <div className="border p-4 mb-4">
           <div className="flex items-center">
             <img src="/astap-logo.jpg" className="w-14 mr-4" />
             <div className="flex-1 text-center">
               <h1 className="font-bold text-sm">
                 FORMATO PARA INSPECCIÓN CAMIONETAS
               </h1>
-              <p className="text-xs">
-                Vehículo liviano menor a 4500kg
-              </p>
+              <p className="text-xs">Vehículo liviano menor a 4500kg</p>
             </div>
-            <div className="w-14"></div>
           </div>
         </div>
 
         {/* TABLA */}
-        <div className="border border-gray-600 text-xs w-full mb-4">
+        <div className="border text-xs mb-4">
 
           {[
-            [
-              "Fecha Inspección:", <input className="w-full h-full outline-none px-1" />,
-              "Lugar Inspección:", <input className="w-full h-full outline-none px-1" />,
-              "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
-            ],
-            [
-              "Nombre Conductor:", <input name="conductor" onChange={handleChange} className="w-full h-full outline-none px-1" />,
-              "Tipo Licencia:",
-              <div className="flex w-full h-full">
-                {["B","C","D","E"].map((l) => (
-                  <button
-                    key={l}
-                    onClick={() => setLicencia(l)}
-                    className={`flex-1 border text-xs ${
-                      licencia === l
-                        ? "bg-blue-600 text-white font-bold"
-                        : "hover:bg-blue-100"
-                    }`}
-                  >
-                    {l}
-                  </button>
-                ))}
-              </div>,
-              "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
-            ],
-            [
-              "Empr. Contratista:", <input name="cliente" onChange={handleChange} className="w-full h-full outline-none px-1" />,
-              "Placas:", <input name="placa" onChange={handleChange} className="w-full h-full outline-none px-1" />,
-              "Marca:", <input className="w-full h-full outline-none px-1" />,
-            ],
-            [
-              "GDP/MANT:", <input className="w-full h-full outline-none px-1" />,
-              "Tipo Vehículo:", <input name="vehiculo" onChange={handleChange} className="w-full h-full outline-none px-1" />,
-              "Color:", <input className="w-full h-full outline-none px-1" />,
-            ],
-            [
-              "Curso Manejo Def:", <input className="w-full h-full outline-none px-1" />,
-              "Año:", <input className="w-full h-full outline-none px-1" />,
-              "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
-            ],
-            [
-              "Matrícula:", <input className="w-full h-full outline-none px-1" />,
-              "Año:", <input className="w-full h-full outline-none px-1" />,
-              "Fecha Caducidad:", <input className="w-full h-full outline-none px-1" />,
-            ],
+            ["Fecha Inspección:", "fecha", "Lugar Inspección:", "lugar", "Fecha Caducidad:", "cad"],
+            ["Nombre Conductor:", "conductor", "Tipo Licencia:", "lic", "Fecha Caducidad:", "cad2"],
+            ["Empr. Contratista:", "cliente", "Placas:", "placa", "Marca:", "marca"],
+            ["GDP/MANT:", "gdp", "Tipo Vehículo:", "vehiculo", "Color:", "color"],
+            ["Curso Manejo Def:", "curso", "Año:", "anio", "Fecha Caducidad:", "cad3"],
+            ["Matrícula:", "matricula", "Año:", "anio2", "Fecha Caducidad:", "cad4"],
           ].map((row, i) => (
-            <div key={i} className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr] h-[32px]">
-              {row.map((cell, j) => (
-                <div
-                  key={j}
-                  className={`border px-2 flex items-center ${
-                    j % 2 === 0 ? "bg-gray-100 font-medium" : ""
-                  }`}
-                >
-                  {cell}
-                </div>
-              ))}
+            <div key={i} className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr] min-h-[32px]">
+
+              <div className="border bg-gray-100 px-2 flex items-center">{row[0]}</div>
+              <div className="border"><AutoTextarea name={row[1]} onChange={handleChange} /></div>
+
+              <div className="border bg-gray-100 px-2 flex items-center">{row[2]}</div>
+
+              <div className="border flex items-center justify-center">
+                {row[1] === "conductor" ? (
+                  <div className="flex w-full">
+                    {["B","C","D","E"].map((l) => (
+                      <button
+                        key={l}
+                        onClick={() => setLicencia(l)}
+                        className={`flex-1 border text-xs ${
+                          licencia === l ? "bg-blue-600 text-white" : ""
+                        }`}
+                      >
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <AutoTextarea name={row[3]} onChange={handleChange} />
+                )}
+              </div>
+
+              <div className="border bg-gray-100 px-2 flex items-center">{row[4]}</div>
+              <div className="border"><AutoTextarea name={row[5]} onChange={handleChange} /></div>
+
             </div>
           ))}
 
@@ -255,11 +205,9 @@ export default function LiberacionForm() {
 
             {items.map((item, index) => {
               const key = `${section}-${index}`;
-              const numero = contador++;
-
               return (
                 <div key={key} className="flex justify-between border p-2">
-                  <span>{numero}. {item}</span>
+                  <span>{contador++}. {item}</span>
 
                   <div className="flex gap-2">
                     {["C","NC","NA"].map((opt) => (
@@ -283,13 +231,17 @@ export default function LiberacionForm() {
         {/* OBSERVACIONES */}
         <textarea
           placeholder="Observaciones"
-          className="border w-full p-2 mt-4"
+          className="border w-full p-2 mt-4 resize-none"
+          onInput={(e) => {
+            e.target.style.height = "auto";
+            e.target.style.height = e.target.scrollHeight + "px";
+          }}
           onChange={(e) => setForm({ ...form, observaciones: e.target.value })}
         />
 
         {/* RESULTADO */}
         <div className="flex justify-center gap-4 mt-4">
-          {["APROBADO", "NO APROBADO"].map((opt) => (
+          {["APROBADO","NO APROBADO"].map(opt => (
             <button
               key={opt}
               onClick={() => setForm({ ...form, estadoFinal: opt })}
@@ -304,52 +256,31 @@ export default function LiberacionForm() {
 
         {/* FIRMA */}
         <div className="mt-6">
-          <p className="text-sm font-semibold mb-1">Firma del Inspector</p>
+          <p className="text-sm font-semibold">Firma del Inspector</p>
 
           <div className="border bg-white">
-            <SignatureCanvas
-              penColor="black"
-              canvasProps={{ className: "w-full h-[120px]" }}
-              ref={sigRef}
-            />
+            <SignatureCanvas ref={sigRef} canvasProps={{ className: "w-full h-[120px]" }} />
           </div>
 
-          <button
-            type="button"
-            onClick={() => sigRef.current.clear()}
-            className="text-xs text-red-600 mt-1"
-          >
+          <button onClick={() => sigRef.current.clear()} className="text-xs text-red-600">
             Limpiar
           </button>
-
-          <div className="mt-3 border-t pt-1 text-center text-sm">
-            {form.inspector || "Nombre del inspector"}
-          </div>
 
           <input
             type="text"
             placeholder="Nombre del inspector"
             className="border w-full p-2 mt-2"
-            onChange={(e) =>
-              setForm({ ...form, inspector: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, inspector: e.target.value })}
           />
         </div>
 
         {/* BOTONES */}
         <div className="flex justify-between mt-6">
-          <button
-            onClick={() => navigate("/liberacion")}
-            className="px-5 py-2 rounded border"
-          >
+          <button onClick={() => navigate("/liberacion")} className="border px-4 py-2">
             Volver
           </button>
 
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="px-6 py-2 rounded bg-blue-600 text-white"
-          >
+          <button onClick={handleSubmit} className="bg-blue-600 text-white px-6 py-2">
             Guardar informe
           </button>
         </div>
