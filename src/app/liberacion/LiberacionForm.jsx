@@ -246,7 +246,7 @@ export default function LiberacionForm() {
               key={opt}
               onClick={() => setForm({ ...form, estadoFinal: opt })}
               className={`px-4 py-2 border ${
-                form.estadoFinal === opt ? "green-600 text-white" : ""
+                form.estadoFinal === opt ? "blue-600 text-white" : ""
               }`}
             >
               {opt}
