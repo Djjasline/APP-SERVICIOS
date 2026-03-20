@@ -7,8 +7,8 @@ import jsPDF from "jspdf";
 const checklist = {
   "Sistema Mecánico": [
     "Frenos sin fugas (Liqueos)",
-    "Llantas: Delanteras / Traseras ",
-    "Llanta emergencia ",
+    "Llantas: Delanteras / Traseras",
+    "Llanta emergencia",
     "Tuercas completas y ajustadas",
     "Parabrisas, vidrios y espejos (no trizados)",
     "Asientos con apoya cabezas",
@@ -64,16 +64,13 @@ export default function LiberacionForm() {
     checklist: {},
   });
 
-  // 🔄 SYNC AUTOMÁTICO
   useEffect(() => {
     const syncPendientes = async () => {
       const pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
-
       if (pendientes.length === 0) return;
 
       for (let registro of pendientes) {
-        const { error } = await supabase.from("registros").insert([registro]);
-        if (error) return;
+        await supabase.from("registros").insert([registro]);
       }
 
       localStorage.removeItem("pending_registros");
@@ -94,98 +91,14 @@ export default function LiberacionForm() {
     });
   };
 
-  // 🔥 PDF PRO
+  // 🔥 PDF
   const generarPDF = (data, id) => {
-    const doc = new jsPDF("p", "mm", "a4");
-    let y = 10;
+    const doc = new jsPDF();
+    doc.text("Liberación de Vehículo", 20, 20);
+    doc.text(`Cliente: ${data.cliente}`, 20, 30);
+    doc.text(`Conductor: ${data.conductor}`, 20, 40);
+    doc.save(`Liberacion_${id}.pdf`);
 
-    doc.setFontSize(11);
-    doc.text("FORMATO PARA INSPECCIÓN CAMIONETAS", 105, y, { align: "center" });
-
-    y += 5;
-    doc.setFontSize(8);
-    doc.text("Vehículo liviano menor a 4500kg", 105, y, { align: "center" });
-
-    y += 10;
-
-    const drawRow = (l1, v1, l2, v2) => {
-      doc.rect(10, y, 40, 6);
-      doc.text(l1, 11, y + 4);
-
-      doc.rect(50, y, 50, 6);
-      doc.text(v1 || "", 51, y + 4);
-
-      doc.rect(100, y, 40, 6);
-      doc.text(l2, 101, y + 4);
-
-      doc.rect(140, y, 60, 6);
-      doc.text(v2 || "", 141, y + 4);
-
-      y += 6;
-    };
-
-    drawRow("Cliente", data.cliente, "Conductor", data.conductor);
-    drawRow("Placa", data.placa, "Vehículo", data.vehiculo);
-    drawRow("Inspector", data.inspector, "Estado", data.estadoFinal);
-
-    y += 5;
-
-    doc.setFillColor(0, 102, 204);
-    doc.rect(10, y, 190, 6, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.text("Condiciones Generales del Vehículo", 12, y + 4);
-    doc.setTextColor(0, 0, 0);
-
-    y += 8;
-
-    Object.entries(data.checklist).forEach(([key, value]) => {
-      doc.rect(10, y, 130, 5);
-      doc.text(key, 11, y + 3.5);
-
-      ["C", "NC", "NA"].forEach((col, i) => {
-        const x = 140 + i * 20;
-        doc.rect(x, y, 20, 5);
-
-        if (value === col) {
-          doc.setFillColor(
-            col === "C" ? 0 : col === "NC" ? 255 : 150,
-            col === "C" ? 102 : col === "NC" ? 0 : 150,
-            col === "C" ? 204 : col === "NC" ? 0 : 150
-          );
-          doc.rect(x, y, 20, 5, "F");
-          doc.setTextColor(255, 255, 255);
-          doc.text(col, x + 7, y + 3.5);
-          doc.setTextColor(0, 0, 0);
-        } else {
-          doc.text(col, x + 7, y + 3.5);
-        }
-      });
-
-      y += 5;
-    });
-
-    y += 5;
-
-    doc.text("Observaciones:", 10, y);
-    y += 4;
-
-    const obs = doc.splitTextToSize(data.observaciones || "", 180);
-    doc.text(obs, 10, y);
-
-    y += obs.length * 4 + 5;
-
-    if (data.firmaInspector) {
-      doc.text("Firma Inspector:", 10, y);
-      y += 3;
-      doc.addImage(data.firmaInspector, "PNG", 10, y, 60, 25);
-    }
-
-    const fileName = `Liberacion_${data.placa || "sin_placa"}.pdf`;
-
-    // DESCARGA
-    doc.save(fileName);
-
-    // GUARDAR LOCAL
     const pdfBase64 = doc.output("datauristring");
     const stored = JSON.parse(localStorage.getItem("pdf_liberaciones") || "{}");
     stored[id] = pdfBase64;
@@ -231,10 +144,9 @@ export default function LiberacionForm() {
       return;
     }
 
-    // 🔥 GENERAR PDF
     generarPDF({ ...form, firmaInspector: firma }, inserted.id);
 
-    alert("Liberación guardada correctamente");
+    alert("Guardado correctamente");
     setLoading(false);
     navigate("/liberacion");
   };
@@ -245,28 +157,87 @@ export default function LiberacionForm() {
     <div className="p-6 bg-slate-100 min-h-screen">
       <div className="max-w-[794px] mx-auto bg-white p-6 shadow-lg border">
 
-        {/* TODO TU JSX ORIGINAL SIN CAMBIOS */}
+        <h1 className="text-lg font-bold text-center mb-4">
+          Formulario de Liberación
+        </h1>
+
+        {/* DATOS */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <input name="cliente" placeholder="Cliente" onChange={handleChange} className="border p-2"/>
+          <input name="conductor" placeholder="Conductor" onChange={handleChange} className="border p-2"/>
+          <input name="placa" placeholder="Placa" onChange={handleChange} className="border p-2"/>
+          <input name="vehiculo" placeholder="Vehículo" onChange={handleChange} className="border p-2"/>
+        </div>
+
+        {/* CHECKLIST */}
+        {Object.entries(checklist).map(([section, items]) => (
+          <div key={section}>
+            <h2 className="bg-blue-600 text-white px-2 py-1">{section}</h2>
+
+            {items.map((item, index) => {
+              const key = `${section}-${index}`;
+              const numero = contador++;
+
+              return (
+                <div key={key} className="flex justify-between border p-2">
+                  <span>{numero}. {item}</span>
+
+                  <div className="flex gap-2">
+                    {["C","NC","NA"].map((opt) => (
+                      <button
+                        key={opt}
+                        onClick={() => handleCheck(key, opt)}
+                        className={`px-2 border ${
+                          form.checklist[key] === opt ? "bg-blue-600 text-white" : ""
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+
+        {/* OBSERVACIONES */}
+        <textarea
+          placeholder="Observaciones"
+          className="border w-full p-2 mt-4"
+          onChange={(e) => setForm({ ...form, observaciones: e.target.value })}
+        />
+
+        {/* RESULTADO */}
+        <div className="flex justify-center gap-4 mt-4">
+          {["APROBADO", "NO APROBADO"].map((opt) => (
+            <button
+              key={opt}
+              onClick={() => setForm({ ...form, estadoFinal: opt })}
+              className="border px-4 py-2"
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+
+        {/* FIRMA */}
+        <div className="mt-4">
+          <SignatureCanvas
+            ref={sigRef}
+            canvasProps={{ className: "border w-full h-32" }}
+          />
+        </div>
 
         {/* BOTONES */}
         <div className="flex justify-between mt-6">
-
-          <button
-            onClick={() => navigate("/liberacion")}
-            className="px-5 py-2 rounded border text-gray-700 hover:bg-gray-100 transition"
-          >
+          <button onClick={() => navigate("/liberacion")} className="border px-4 py-2">
             Volver
           </button>
 
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className={`px-6 py-2 rounded bg-blue-600 text-white font-semibold ${
-              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
-            }`}
-          >
+          <button onClick={handleSubmit} className="bg-blue-600 text-white px-4 py-2">
             Guardar informe
           </button>
-
         </div>
 
       </div>
