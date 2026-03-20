@@ -64,9 +64,11 @@ export default function LiberacionForm() {
     checklist: {},
   });
 
+  // 🔄 SYNC
   useEffect(() => {
     const syncPendientes = async () => {
       const pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
+
       if (pendientes.length === 0) return;
 
       for (let registro of pendientes) {
@@ -94,15 +96,16 @@ export default function LiberacionForm() {
   // 🔥 PDF
   const generarPDF = (data, id) => {
     const doc = new jsPDF();
-    doc.text("Liberación de Vehículo", 20, 20);
+    doc.text("FORMATO PARA INSPECCIÓN CAMIONETAS", 20, 20);
     doc.text(`Cliente: ${data.cliente}`, 20, 30);
     doc.text(`Conductor: ${data.conductor}`, 20, 40);
-    doc.save(`Liberacion_${id}.pdf`);
+    doc.text(`Estado: ${data.estadoFinal}`, 20, 50);
 
-    const pdfBase64 = doc.output("datauristring");
-    const stored = JSON.parse(localStorage.getItem("pdf_liberaciones") || "{}");
-    stored[id] = pdfBase64;
-    localStorage.setItem("pdf_liberaciones", JSON.stringify(stored));
+    if (data.firmaInspector) {
+      doc.addImage(data.firmaInspector, "PNG", 20, 60, 60, 25);
+    }
+
+    doc.save(`Liberacion_${id}.pdf`);
   };
 
   const handleSubmit = async () => {
@@ -157,9 +160,21 @@ export default function LiberacionForm() {
     <div className="p-6 bg-slate-100 min-h-screen">
       <div className="max-w-[794px] mx-auto bg-white p-6 shadow-lg border">
 
-        <h1 className="text-lg font-bold text-center mb-4">
-          Formulario de Liberación
-        </h1>
+        {/* HEADER CORRECTO */}
+        <div className="border border-gray-400 p-4 mb-4">
+          <div className="flex items-center">
+            <img src="/astap-logo.jpg" className="w-14 mr-4" />
+            <div className="flex-1 text-center">
+              <h1 className="font-bold text-sm">
+                FORMATO PARA INSPECCIÓN CAMIONETAS
+              </h1>
+              <p className="text-xs">
+                Vehículo liviano menor a 4500kg
+              </p>
+            </div>
+            <div className="w-14"></div>
+          </div>
+        </div>
 
         {/* DATOS */}
         <div className="grid grid-cols-2 gap-3 mb-4">
@@ -214,30 +229,73 @@ export default function LiberacionForm() {
             <button
               key={opt}
               onClick={() => setForm({ ...form, estadoFinal: opt })}
-              className="border px-4 py-2"
+              className={`px-4 py-2 border ${
+                form.estadoFinal === opt ? "bg-blue-600 text-white" : ""
+              }`}
             >
               {opt}
             </button>
           ))}
         </div>
 
-        {/* FIRMA */}
-        <div className="mt-4">
-          <SignatureCanvas
-            ref={sigRef}
-            canvasProps={{ className: "border w-full h-32" }}
+        {/* FIRMA CORRECTA */}
+        <div className="mt-6">
+
+          <p className="text-sm font-semibold mb-1">
+            Firma del Inspector
+          </p>
+
+          <div className="border bg-white">
+            <SignatureCanvas
+              penColor="black"
+              canvasProps={{ className: "w-full h-[120px]" }}
+              ref={sigRef}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => sigRef.current.clear()}
+            className="text-xs text-red-600 mt-1"
+          >
+            Limpiar
+          </button>
+
+          <div className="mt-3 border-t pt-1 text-center text-sm">
+            {form.inspector || "Nombre del inspector"}
+          </div>
+
+          <input
+            type="text"
+            placeholder="Nombre del inspector"
+            className="border w-full p-2 mt-2"
+            onChange={(e) =>
+              setForm({ ...form, inspector: e.target.value })
+            }
           />
+
         </div>
 
         {/* BOTONES */}
         <div className="flex justify-between mt-6">
-          <button onClick={() => navigate("/liberacion")} className="border px-4 py-2">
+
+          <button
+            onClick={() => navigate("/liberacion")}
+            className="px-5 py-2 rounded border text-gray-700 hover:bg-gray-100"
+          >
             Volver
           </button>
 
-          <button onClick={handleSubmit} className="bg-blue-600 text-white px-4 py-2">
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className={`px-6 py-2 rounded bg-blue-600 text-white ${
+              loading ? "opacity-50" : "hover:bg-blue-700"
+            }`}
+          >
             Guardar informe
           </button>
+
         </div>
 
       </div>
