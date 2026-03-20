@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
@@ -52,6 +52,8 @@ export default function LiberacionForm() {
   const navigate = useNavigate();
   const sigRef = useRef();
 
+  const [loading, setLoading] = useState(false);
+
   const [form, setForm] = useState({
     cliente: "",
     conductor: "",
@@ -62,6 +64,31 @@ export default function LiberacionForm() {
     inspector: "",
     checklist: {},
   });
+
+  // 🔄 SYNC AUTOMÁTICO
+  useEffect(() => {
+    const syncPendientes = async () => {
+      const pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
+
+      if (pendientes.length === 0) return;
+
+      for (let registro of pendientes) {
+        const { error } = await supabase.from("registros").insert([registro]);
+
+        if (error) {
+          console.error("Error en sync:", error);
+          return;
+        }
+      }
+
+      localStorage.removeItem("pending_registros");
+      console.log("✔ Sync completado");
+    };
+
+    window.addEventListener("online", syncPendientes);
+
+    return () => window.removeEventListener("online", syncPendientes);
+  }, []);
 
   const handleChange = (e) => {
     setForm({
@@ -81,41 +108,49 @@ export default function LiberacionForm() {
   };
 
   const handleSubmit = async () => {
+    if (loading) return;
+
     if (!form.estadoFinal) {
       alert("Selecciona resultado final");
       return;
     }
 
+    setLoading(true);
+
     let firma = null;
 
     if (sigRef.current && !sigRef.current.isEmpty()) {
-      firma = sigRef.current
-        .getTrimmedCanvas()
-        .toDataURL("image/png");
+      firma = sigRef.current.getTrimmedCanvas().toDataURL("image/png");
     }
 
-    const { error } = await supabase.from("registros").insert([
-      {
-        tipo: "liberacion",
-        subtipo: "vehiculo",
-        estado:
-          form.estadoFinal === "APROBADO"
-            ? "completado"
-            : "borrador",
-        data: {
-          ...form,
-          firmaInspector: firma,
-        },
+    const payload = {
+      tipo: "liberacion",
+      subtipo: "vehiculo",
+      estado: form.estadoFinal === "APROBADO" ? "completado" : "borrador",
+      data: {
+        ...form,
+        firmaInspector: firma,
       },
-    ]);
+    };
 
+    const { error } = await supabase.from("registros").insert([payload]);
+
+    // 🔴 OFFLINE
     if (error) {
-      alert("Error al guardar");
-      console.error(error);
+      const pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
+
+      pendientes.push(payload);
+
+      localStorage.setItem("pending_registros", JSON.stringify(pendientes));
+
+      alert("Guardado sin conexión. Se sincronizará automáticamente.");
+      setLoading(false);
+      navigate("/liberacion");
       return;
     }
 
-    alert("Liberación guardada");
+    alert("Liberación guardada correctamente");
+    setLoading(false);
     navigate("/liberacion");
   };
 
@@ -226,7 +261,6 @@ export default function LiberacionForm() {
           <span className="text-gray-500">NA</span>
         </div>
 
-        {/* CHECKLIST */}
         {Object.entries(checklist).map(([section, items]) => (
           <div key={section}>
             <div className="bg-blue-600 text-white px-2 py-1 text-sm font-semibold">
@@ -268,7 +302,6 @@ export default function LiberacionForm() {
           </div>
         ))}
 
-        {/* OBSERVACIONES */}
         <textarea
           placeholder="Observaciones"
           className="border p-3 w-full rounded resize-none overflow-hidden"
@@ -284,7 +317,6 @@ export default function LiberacionForm() {
           }}
         />
 
-        {/* RESULTADO + FIRMA */}
         <div className="grid grid-cols-2 gap-6 items-end">
 
           <div className="flex justify-center gap-4">
@@ -305,7 +337,6 @@ export default function LiberacionForm() {
             ))}
           </div>
 
-          {/* FIRMA */}
           <div className="text-sm">
             <p className="font-semibold mb-1">Firma del Inspector</p>
 
@@ -348,23 +379,24 @@ export default function LiberacionForm() {
 
         <div className="flex justify-between mt-6">
 
-  {/* BOTÓN VOLVER */}
-  <button
-    onClick={() => navigate("/liberacion")}
-    className="px-5 py-2 rounded border text-gray-700 hover:bg-gray-100 transition"
-  >
-    Volver
-  </button>
+          <button
+            onClick={() => navigate("/liberacion")}
+            className="px-5 py-2 rounded border text-gray-700 hover:bg-gray-100 transition"
+          >
+            Volver
+          </button>
 
-  {/* BOTÓN GUARDAR */}
-  <button
-    onClick={handleSubmit}
-    className="px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-  >
-    Guardar informe
-  </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className={`px-6 py-2 rounded bg-blue-600 text-white font-semibold ${
+              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
+            }`}
+          >
+            Guardar informe
+          </button>
 
-</div>
+        </div>
 
       </div>
     </div>
