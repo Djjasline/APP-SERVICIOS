@@ -105,7 +105,8 @@ export default function LiberacionForm() {
 
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
-      <div className="bg-white p-6 rounded-xl shadow max-w-5xl mx-auto space-y-6">
+
+  <div className="max-w-[794px] mx-auto bg-white p-6 shadow-lg border">
 
         {/* HEADER */}
         <div className="border border-gray-400 p-4">
@@ -124,79 +125,85 @@ export default function LiberacionForm() {
         </div>
 
         {/* TABLA DE DATOS */}
-        <div className="border border-gray-400 text-sm">
+      <div className="border border-gray-500 text-sm w-full">
 
-          <div className="grid grid-cols-6">
-            <div className="border p-2 bg-gray-100">Fecha Inspección:</div>
-            <input className="border p-2 col-span-2" />
+  {/* FILA 1 */}
+  <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr]">
+    <div className="border p-2 bg-gray-100">Fecha Inspección:</div>
+    <input className="border p-2" />
 
-            <div className="border p-2 bg-gray-100">Lugar Inspección:</div>
-            <input className="border p-2" />
+    <div className="border p-2 bg-gray-100">Lugar Inspección:</div>
+    <input className="border p-2" />
 
-            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-            <input className="border p-2" />
-          </div>
+    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
+    <input className="border p-2" />
+  </div>
 
-          <div className="grid grid-cols-6">
-            <div className="border p-2 bg-gray-100">Nombre Conductor:</div>
-            <input name="conductor" onChange={handleChange} className="border p-2 col-span-2" />
+  {/* FILA 2 */}
+  <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr]">
+    <div className="border p-2 bg-gray-100">Nombre Conductor:</div>
+    <input name="conductor" onChange={handleChange} className="border p-2" />
 
-            <div className="border p-2 bg-gray-100">Tipo Licencia:</div>
-            <div className="border p-2 flex gap-1">
-              {["B","C","D","E"].map((l) => (
-                <button key={l} className="w-8 h-8 border text-xs">{l}</button>
-              ))}
-            </div>
+    <div className="border p-2 bg-gray-100">Tipo Licencia:</div>
+    <div className="border p-2 flex gap-1 justify-center">
+      {["B","C","D","E"].map((l) => (
+        <button key={l} className="w-8 h-8 border text-xs">{l}</button>
+      ))}
+    </div>
 
-            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-            <input className="border p-2" />
-          </div>
+    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
+    <input className="border p-2" />
+  </div>
 
-          <div className="grid grid-cols-6">
-            <div className="border p-2 bg-gray-100">Empr. Contratista:</div>
-            <input name="cliente" onChange={handleChange} className="border p-2 col-span-2" />
+  {/* FILA 3 */}
+  <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr]">
+    <div className="border p-2 bg-gray-100">Empr. Contratista:</div>
+    <input name="cliente" onChange={handleChange} className="border p-2" />
 
-            <div className="border p-2 bg-gray-100">Placas:</div>
-            <input name="placa" onChange={handleChange} className="border p-2" />
+    <div className="border p-2 bg-gray-100">Placas:</div>
+    <input name="placa" onChange={handleChange} className="border p-2" />
 
-            <div className="border p-2 bg-gray-100">Marca:</div>
-            <input className="border p-2" />
-          </div>
+    <div className="border p-2 bg-gray-100">Marca:</div>
+    <input className="border p-2" />
+  </div>
 
-          <div className="grid grid-cols-6">
-            <div className="border p-2 bg-gray-100">GDP/MANT.:</div>
-            <input className="border p-2 col-span-2" />
+  {/* FILA 4 */}
+  <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr]">
+    <div className="border p-2 bg-gray-100">GDP/MANT.:</div>
+    <input className="border p-2" />
 
-            <div className="border p-2 bg-gray-100">Tipo Vehículo:</div>
-            <input className="border p-2" />
+    <div className="border p-2 bg-gray-100">Tipo Vehículo:</div>
+    <input className="border p-2" />
 
-            <div className="border p-2 bg-gray-100">Color:</div>
-            <input className="border p-2" />
-          </div>
+    <div className="border p-2 bg-gray-100">Color:</div>
+    <input className="border p-2" />
+  </div>
 
-          <div className="grid grid-cols-6">
-            <div className="border p-2 bg-gray-100">Curso Manejo Def:</div>
-            <input className="border p-2 col-span-2" />
+  {/* FILA 5 */}
+  <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr]">
+    <div className="border p-2 bg-gray-100">Curso Manejo Def:</div>
+    <input className="border p-2" />
 
-            <div className="border p-2 bg-gray-100">Año:</div>
-            <input className="border p-2" />
+    <div className="border p-2 bg-gray-100">Año:</div>
+    <input className="border p-2" />
 
-            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-            <input className="border p-2" />
-          </div>
+    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
+    <input className="border p-2" />
+  </div>
 
-          <div className="grid grid-cols-6">
-            <div className="border p-2 bg-gray-100">Matrícula:</div>
-            <input className="border p-2 col-span-2" />
+  {/* FILA 6 */}
+  <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr]">
+    <div className="border p-2 bg-gray-100">Matrícula:</div>
+    <input className="border p-2" />
 
-            <div className="border p-2 bg-gray-100">Año:</div>
-            <input className="border p-2" />
+    <div className="border p-2 bg-gray-100">Año:</div>
+    <input className="border p-2" />
 
-            <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-            <input className="border p-2" />
-          </div>
+    <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
+    <input className="border p-2" />
+  </div>
 
-        </div>
+</div>
 
         {/* TITULO CORRECTO */}
         <h2 className="bg-blue-600 text-white px-3 py-2 font-semibold">
