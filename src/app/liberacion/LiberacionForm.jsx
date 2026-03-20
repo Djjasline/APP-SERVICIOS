@@ -346,12 +346,25 @@ export default function LiberacionForm() {
 
         </div>
 
-        <button
-          onClick={handleSubmit}
-          className="bg-blue-600 text-white w-full py-3 rounded font-bold"
-        >
-          Guardar Liberación
-        </button>
+        <div className="flex justify-between mt-6">
+
+  {/* BOTÓN VOLVER */}
+  <button
+    onClick={() => navigate("/liberacion")}
+    className="px-5 py-2 rounded border text-gray-700 hover:bg-gray-100 transition"
+  >
+    Volver
+  </button>
+
+  {/* BOTÓN GUARDAR */}
+  <button
+    onClick={handleSubmit}
+    className="px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+  >
+    Guardar informe
+  </button>
+
+</div>
 
       </div>
     </div>
