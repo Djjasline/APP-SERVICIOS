@@ -7,8 +7,8 @@ import jsPDF from "jspdf";
 const checklist = {
   "Sistema Mecánico": [
     "Frenos sin fugas (Liqueos)",
-    "Llantas: Delanteras / Traseras (%)",
-    "Llanta emergencia (%)",
+    "Llantas: Delanteras / Traseras ",
+    "Llanta emergencia ",
     "Tuercas completas y ajustadas",
     "Parabrisas, vidrios y espejos (no trizados)",
     "Asientos con apoya cabezas",
