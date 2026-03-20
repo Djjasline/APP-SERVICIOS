@@ -105,13 +105,46 @@ export default function LiberacionForm() {
         </h1>
 
         {/* DATOS GENERALES */}
-        <div className="grid md:grid-cols-2 gap-4">
-          <input name="cliente" placeholder="Cliente" onChange={handleChange} className="border p-2 rounded" />
-          <input name="conductor" placeholder="Conductor" onChange={handleChange} className="border p-2 rounded" />
-          <input name="placa" placeholder="Placa" onChange={handleChange} className="border p-2 rounded" />
-          <input name="vehiculo" placeholder="Vehículo" onChange={handleChange} className="border p-2 rounded" />
-        </div>
+        <div className="border rounded overflow-hidden">
 
+  {/* FILA 1 */}
+  <div className="grid grid-cols-4 border-b">
+    <input placeholder="Fecha Inspección" className="border-r p-2" />
+    <input placeholder="Lugar Inspección" className="border-r p-2" />
+    <input placeholder="Fecha Caducidad" className="p-2" />
+    <div></div>
+  </div>
+
+  {/* FILA 2 */}
+  <div className="grid grid-cols-4 border-b">
+    <input name="conductor" placeholder="Nombre Conductor" onChange={handleChange} className="border-r p-2" />
+    <div className="flex items-center gap-2 border-r p-2">
+      <span className="text-xs">Licencia:</span>
+      {["B","C","D","E"].map((l) => (
+        <button key={l} className="px-2 py-1 border text-xs">{l}</button>
+      ))}
+    </div>
+    <input placeholder="Fecha Caducidad" className="p-2" />
+    <div></div>
+  </div>
+
+  {/* FILA 3 */}
+  <div className="grid grid-cols-4 border-b">
+    <input name="cliente" placeholder="Empresa / Contratista" onChange={handleChange} className="border-r p-2" />
+    <input name="placa" placeholder="Placa" onChange={handleChange} className="border-r p-2" />
+    <input placeholder="Marca" className="p-2" />
+    <input placeholder="Color" className="p-2" />
+  </div>
+
+  {/* FILA 4 */}
+  <div className="grid grid-cols-4">
+    <input placeholder="Tipo Vehículo" className="border-r p-2" />
+    <input name="vehiculo" placeholder="Modelo" onChange={handleChange} className="border-r p-2" />
+    <input placeholder="Año" className="p-2" />
+    <input placeholder="Matrícula" className="p-2" />
+  </div>
+
+</div>
         {/* LEYENDA */}
         <div className="flex justify-end gap-4 text-xs font-semibold">
           <span className="text-blue-600">C = CUMPLE</span>
