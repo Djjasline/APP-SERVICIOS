@@ -125,86 +125,85 @@ export default function LiberacionForm() {
         </div>
 
         {/* TABLA DE DATOS */}
-      <div className="border border-gray-500 text-sm w-full">
+      <div className="border border-gray-500 text-sm w-full overflow-hidden">
 
   {/* FILA 1 */}
-  <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr]">
+  <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
     <div className="border p-2 bg-gray-100">Fecha Inspección:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
 
     <div className="border p-2 bg-gray-100">Lugar Inspección:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
 
     <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
   </div>
 
   {/* FILA 2 */}
-  <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr]">
+  <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
     <div className="border p-2 bg-gray-100">Nombre Conductor:</div>
-    <input name="conductor" onChange={handleChange} className="border p-2" />
+    <input className="border p-2 w-full" />
 
     <div className="border p-2 bg-gray-100">Tipo Licencia:</div>
     <div className="border p-2 flex gap-1 justify-center">
       {["B","C","D","E"].map((l) => (
-        <button key={l} className="w-8 h-8 border text-xs">{l}</button>
+        <button key={l} className="w-7 h-7 border text-xs">{l}</button>
       ))}
     </div>
 
     <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
   </div>
 
   {/* FILA 3 */}
-  <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr]">
+  <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
     <div className="border p-2 bg-gray-100">Empr. Contratista:</div>
-    <input name="cliente" onChange={handleChange} className="border p-2" />
+    <input className="border p-2 w-full" />
 
     <div className="border p-2 bg-gray-100">Placas:</div>
-    <input name="placa" onChange={handleChange} className="border p-2" />
+    <input className="border p-2 w-full" />
 
     <div className="border p-2 bg-gray-100">Marca:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
   </div>
 
   {/* FILA 4 */}
-  <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr]">
+  <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
     <div className="border p-2 bg-gray-100">GDP/MANT.:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
 
     <div className="border p-2 bg-gray-100">Tipo Vehículo:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
 
     <div className="border p-2 bg-gray-100">Color:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
   </div>
 
   {/* FILA 5 */}
-  <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr]">
+  <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
     <div className="border p-2 bg-gray-100">Curso Manejo Def:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
 
     <div className="border p-2 bg-gray-100">Año:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
 
     <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
   </div>
 
   {/* FILA 6 */}
-  <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr]">
+  <div className="grid grid-cols-[150px_1fr_150px_1fr_150px_1fr]">
     <div className="border p-2 bg-gray-100">Matrícula:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
 
     <div className="border p-2 bg-gray-100">Año:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
 
     <div className="border p-2 bg-gray-100">Fecha Caducidad:</div>
-    <input className="border p-2" />
+    <input className="border p-2 w-full" />
   </div>
 
 </div>
-
         {/* TITULO CORRECTO */}
         <h2 className="bg-blue-600 text-white px-3 py-2 font-semibold">
           Condiciones Generales del Vehículo
