@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase"
+import { saveOrUpdateReport } from "../services/reportService"
 
 /* ======================================================
    STORAGE PARA INSPECCIONES (SUPABASE)
@@ -10,9 +11,9 @@ export async function getAllInspections() {
     .from("registros")
     .select("*")
     .eq("tipo", "inspeccion")
-    .order("updated_at", { ascending: false });
+    .order("updated_at", { ascending: false })
 
-  if (error || !data) return [];
+  if (error || !data) return []
 
   return data.map(r => ({
     id: r.id,
@@ -21,7 +22,7 @@ export async function getAllInspections() {
     fecha: r.created_at,
     updatedAt: r.updated_at,
     data: r.data
-  }));
+  }))
 }
 
 /* ================= GET BY TYPE ================= */
@@ -31,9 +32,9 @@ export async function getInspections(type) {
     .select("*")
     .eq("tipo", "inspeccion")
     .eq("subtipo", type)
-    .order("updated_at", { ascending: false });
+    .order("updated_at", { ascending: false })
 
-  if (error || !data) return [];
+  if (error || !data) return []
 
   return data.map(r => ({
     id: r.id,
@@ -42,7 +43,7 @@ export async function getInspections(type) {
     fecha: r.created_at,
     updatedAt: r.updated_at,
     data: r.data
-  }));
+  }))
 }
 
 /* ================= GET BY ID ================= */
@@ -53,9 +54,9 @@ export async function getInspectionById(type, id) {
     .eq("id", id)
     .eq("tipo", "inspeccion")
     .eq("subtipo", type)
-    .maybeSingle();
+    .maybeSingle()
 
-  if (error || !data) return null;
+  if (error || !data) return null
 
   return {
     id: data.id,
@@ -64,60 +65,66 @@ export async function getInspectionById(type, id) {
     fecha: data.created_at,
     updatedAt: data.updated_at,
     data: data.data
-  };
+  }
 }
 
 /* ================= CREATE ================= */
+/**
+ * Crear inspección SIN duplicados
+ */
 export async function createInspection(type) {
-  const { data, error } = await supabase
-    .from("registros")
-    .insert([
-      {
-        tipo: "inspeccion",
-        subtipo: type,
-        estado: "borrador",
-        data: {},
-      },
-    ])
-    .select()
-    .single();
+  try {
+    const result = await saveOrUpdateReport({
+      id: null,
+      tipo: "inspeccion",
+      subtipo: type,
+      data: {},
+      estado: "borrador"
+    })
 
-  if (error) return null;
-
-  return data.id;
+    return result.id
+  } catch (error) {
+    console.error("Error creando inspección:", error)
+    return null
+  }
 }
 
 /* ================= SAVE DRAFT ================= */
+/**
+ * Guardar cambios (borrador)
+ */
 export async function saveInspectionDraft(type, id, data) {
-  const { error } = await supabase
-    .from("registros")
-    .update({
-      estado: "borrador",
-      data: data,
-      updated_at: new Date().toISOString(),
+  try {
+    await saveOrUpdateReport({
+      id,
+      tipo: "inspeccion",
+      subtipo: type,
+      data,
+      estado: "borrador"
     })
-    .eq("id", id); // 🔥 solo ID
-
-  if (error) {
-    console.error("Error guardando borrador:", error);
+  } catch (error) {
+    console.error("Error guardando borrador:", error)
   }
 }
 
 /* ================= MARK COMPLETED ================= */
+/**
+ * Marcar inspección como completada
+ */
 export async function markInspectionCompleted(type, id, data) {
-  const { error } = await supabase
-    .from("registros")
-    .update({
-      estado: "completado",
-      data: data,
-      updated_at: new Date().toISOString(),
+  try {
+    await saveOrUpdateReport({
+      id,
+      tipo: "inspeccion",
+      subtipo: type,
+      data,
+      estado: "completado"
     })
-    .eq("id", id); // 🔥 solo ID
-
-  if (error) {
-    console.error("Error marcando completado:", error);
+  } catch (error) {
+    console.error("Error marcando completado:", error)
   }
 }
+
 /* ================= DELETE ================= */
 export async function deleteInspection(type, id) {
   await supabase
@@ -125,5 +132,5 @@ export async function deleteInspection(type, id) {
     .delete()
     .eq("id", id)
     .eq("tipo", "inspeccion")
-    .eq("subtipo", type);
+    .eq("subtipo", type)
 }
