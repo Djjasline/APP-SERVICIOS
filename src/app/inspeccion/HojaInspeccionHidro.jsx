@@ -243,15 +243,21 @@ const handleSubmit = async (e) => {
         : "",
     },
   };
-
+ // ✅ AQUÍ VA EL LOG
+  console.log("PAYLOAD:", {
+    id,
+    tipo: "inspeccion",
+    subtipo: "hidro",
+    data: payload,
+  });
   const estadoFinal =
     !isTecnicoEmpty && !isClienteEmpty
       ? "completado"
       : "borrador";
 
   try {
-    await saveOrUpdateReport({
-      id: id || null,
+   await saveOrUpdateReport({
+  id: id && id !== "new" ? id : null,
       tipo: "inspeccion",
       subtipo: "hidro",
       data: payload,
@@ -262,7 +268,7 @@ const handleSubmit = async (e) => {
     navigate("/inspeccion");
 
   } catch (error) {
-    console.error(error);
+  console.error("ERROR REAL:", error.message);
     alert("Error guardando ❌");
   }
 };
@@ -583,19 +589,12 @@ const handleSubmit = async (e) => {
 </table>
       {/* ================= BOTONES ================= */}
       <div className="flex justify-end gap-4">
-        <button
-          type="button"
-          onClick={() => navigate("/inspeccion")}
-          className="border px-4 py-2 rounded"
-        >
-          Volver
-        </button>
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
-          Guardar informe
-        </button>
+       <button
+  type="submit"
+  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+>
+  Guardar informe
+</button>
       </div>
     </form>
   );
