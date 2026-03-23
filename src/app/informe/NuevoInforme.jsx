@@ -1,3 +1,4 @@
+import { saveOrUpdateReport } from "@/services/reportService"
 import imageCompression from "browser-image-compression";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
@@ -218,82 +219,60 @@ setData(cleanData);
   /* ===========================
      GUARDAR INFORME
   =========================== */
- const saveReport = async () => {
+const saveReport = async () => {
 
-if (uploading) {
+  if (uploading) {
     alert("Espera que terminen de subir las imágenes");
     return;
   }
-   
- const firmaTecnico =
-  sigTecnico.current && !sigTecnico.current.isEmpty()
-    ? sigTecnico.current.toDataURL()
-    : "";
 
-const firmaCliente =
-  sigCliente.current && !sigCliente.current.isEmpty()
-    ? sigCliente.current.toDataURL()
-    : "";
+  const firmaTecnico =
+    sigTecnico.current && !sigTecnico.current.isEmpty()
+      ? sigTecnico.current.toDataURL()
+      : "";
 
-/* ===========================
-   🔒 VALIDACIÓN REAL FIRMA
-=========================== */
+  const firmaCliente =
+    sigCliente.current && !sigCliente.current.isEmpty()
+      ? sigCliente.current.toDataURL()
+      : "";
 
-// Si el canvas no tiene firma nueva,
-// usar la que ya estaba guardada
-const firmaTecnicoFinal =
-  firmaTecnico || data.firmas?.tecnico || "";
+  const firmaTecnicoFinal =
+    firmaTecnico || data.firmas?.tecnico || "";
 
-const firmaClienteFinal =
-  firmaCliente || data.firmas?.cliente || "";
+  const firmaClienteFinal =
+    firmaCliente || data.firmas?.cliente || "";
 
-// Estado depende de que exista firma técnico
-const estadoFinal =
-  firmaTecnicoFinal ? "completado" : "borrador";
+  const estadoFinal =
+    firmaTecnicoFinal ? "completado" : "borrador";
 
-const reportData = {
-  estado: estadoFinal,
-  data: {
+  const finalData = {
     ...data,
     firmas: {
       tecnico: firmaTecnicoFinal,
       cliente: firmaClienteFinal,
     },
-  },
-};
+  };
 
- // 🔥 EDITAR
-if (isEditing) {
-  const { error } = await supabase
-    .from("registros")
-    .update({
-      estado: reportData.estado,
-      data: reportData.data,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
+  try {
+    const result = await saveOrUpdateReport({
+      id: isEditing ? id : null,
+      tipo: "informe",
+      subtipo: "general",
+      data: finalData,
+      estado: estadoFinal
+    });
 
-  if (error) throw error;
+    alert(isEditing
+      ? "Informe actualizado correctamente ✅"
+      : "Informe guardado correctamente ✅"
+    );
 
-  alert("Informe actualizado correctamente ✅");
-  navigate("/informe");
-  return;
-}
+    navigate("/informe");
 
-// 🔥 CREAR NUEVO
-const { error } = await supabase.from("registros").insert([
-  {
-    tipo: "informe",
-    subtipo: "general",
-    estado: reportData.estado,
-    data: reportData.data,
-  },
-]);
-
-if (error) throw error;
-
-alert("Informe guardado correctamente ✅");
-navigate("/informe");
+  } catch (error) {
+    console.error(error);
+    alert("Error guardando informe ❌");
+  }
 };
   return (
   <div className="p-6 bg-gray-100 min-h-screen">
