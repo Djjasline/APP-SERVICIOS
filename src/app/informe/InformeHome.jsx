@@ -21,9 +21,12 @@ export default function InformeHome() {
 console.log("SUPABASE DATA:", data);
 console.log("SUPABASE ERROR:", error);
 
-        if (!error && data && data.length > 0) {
+       if (!error && data) {
           setReports(data);
-          localStorage.setItem("serviceReports", JSON.stringify(data));
+          localStorage.setItem("serviceReports",// solo guardar si viene limpio
+if (data) {
+  localStorage.setItem("serviceReports", JSON.stringify(data));
+} JSON.stringify(data));
           return;
         }
       } catch (err) {
@@ -60,11 +63,18 @@ console.log("SUPABASE ERROR:", error);
   }, []);
 
   // 🎯 FILTRO
-  const filteredReports = reports.filter((r) => {
-    if (filter === "borrador") return r.estado !== "completado";
-    if (filter === "completado") return r.estado === "completado";
-    return true;
-  });
+const [search, setSearch] = useState("");
+
+const filteredReports = reports.filter((r) => {
+  const cliente = r.data?.cliente?.toLowerCase() || "";
+
+  return (
+    (filter === "todos" ||
+      (filter === "borrador" && r.estado !== "completado") ||
+      (filter === "completado" && r.estado === "completado")) &&
+    cliente.includes(search.toLowerCase())
+  );
+});
 
   // 📂 ABRIR
   const openReport = (report) => {
@@ -80,8 +90,7 @@ console.log("SUPABASE ERROR:", error);
       await supabase
         .from("registros")
         .delete()
-        .eq("id", id)
-        .eq("tipo", "informe");
+        .eq("id", id);
     } catch {
       console.warn("Sin conexión, solo borrado local");
     }
