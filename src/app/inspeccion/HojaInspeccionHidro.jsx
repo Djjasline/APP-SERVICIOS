@@ -1,12 +1,10 @@
+import { saveOrUpdateReport } from "@/services/reportService";
+import { supabase } from "@/lib/supabase";
 import PdfInspeccionButtons from "./components/PdfInspeccionButtons";
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import {
-  markInspectionCompleted,
-  getInspectionById,
-  saveInspectionDraft,
-} from "@/utils/inspectionStorage";
+
 /* =============================
    PRUEBAS PREVIAS AL SERVICIO
 ============================= */
@@ -136,18 +134,22 @@ export default function HojaInspeccionHidro() {
 
   useEffect(() => {
   const loadInspection = async () => {
-    if (!id || id === "0") return;
+    if (!id || id === "nuevo") return;
 
-    const stored = await getInspectionById("hidro", id);
+    const { data, error } = await supabase
+      .from("registros")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-    if (stored?.data) {
-      setFormData({
-        ...baseState,
-        ...stored.data,
-        estadoEquipoPuntos: stored.data.estadoEquipoPuntos || [],
-        items: stored.data.items || {},
-      });
-    }
+    if (error || !data) return;
+
+   setFormData({
+  ...baseState,
+  ...(data.data || {}),
+  estadoEquipoPuntos: data.data?.estadoEquipoPuntos || [],
+  items: data.data?.items || {},
+});
   };
 
   loadInspection();
@@ -227,8 +229,6 @@ useEffect(() => {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  if (!id) return;
-
   const isTecnicoEmpty = firmaTecnicoRef.current?.isEmpty();
   const isClienteEmpty = firmaClienteRef.current?.isEmpty();
 
@@ -244,14 +244,27 @@ const handleSubmit = async (e) => {
     },
   };
 
-  // 🔥 REGLA REAL
-  if (!isTecnicoEmpty && !isClienteEmpty) {
-    await markInspectionCompleted("hidro", id, payload);
-  } else {
-    await saveInspectionDraft("hidro", id, payload);
-  }
+  const estadoFinal =
+    !isTecnicoEmpty && !isClienteEmpty
+      ? "completado"
+      : "borrador";
 
-  navigate("/inspeccion");
+  try {
+    await saveOrUpdateReport({
+      id: id || null,
+      tipo: "inspeccion",
+      subtipo: "hidro",
+      data: payload,
+      estado: estadoFinal,
+    });
+
+    alert("Inspección guardada ✅");
+    navigate("/inspeccion");
+
+  } catch (error) {
+    console.error(error);
+    alert("Error guardando ❌");
+  }
 };
 
   return (
