@@ -9,58 +9,29 @@ export default function InformeHome() {
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState("todos");
 
-  useEffect(() => {
-    const loadReports = async () => {
-      await syncReports();
+useEffect(() => {
+  const loadReports = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("registros")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-      try {
-        const { data, error } = await supabase
-  .from("registros")
-  .select("*");
-
-console.log("SUPABASE DATA:", data);
-console.log("SUPABASE ERROR:", error);
-
-       if (!error && data) {
-          setReports(data);
-          localStorage.setItem("serviceReports",// solo guardar si viene limpio
-if (data) {
-  localStorage.setItem("serviceReports", JSON.stringify(data));
-} JSON.stringify(data));
-          return;
-        }
-      } catch (err) {
-        console.warn("Sin conexión, usando localStorage");
-      }
-
-      // 🔁 fallback local
-      try {
-        const stored = JSON.parse(localStorage.getItem("serviceReports"));
-
-        if (Array.isArray(stored)) {
-          const sorted = [...stored].sort(
-            (a, b) =>
-              new Date(
-                b.updated_at || b.updatedAt || b.created_at || b.createdAt
-              ) -
-              new Date(
-                a.updated_at || a.updatedAt || a.created_at || a.createdAt
-              )
-          );
-
-          setReports(sorted);
-        } else {
-          setReports([]);
-        }
-      } catch {
+      if (error) {
+        console.error("Error:", error);
         setReports([]);
+        return;
       }
-    };
 
-    loadReports();
-    window.addEventListener("online", loadReports);
-    return () => window.removeEventListener("online", loadReports);
-  }, []);
+      setReports(data || []);
+    } catch (err) {
+      console.error("Error cargando:", err);
+      setReports([]);
+    }
+  };
+
+  loadReports();
+}, []);
 
   // 🎯 FILTRO
 const [search, setSearch] = useState("");
@@ -77,28 +48,27 @@ const filteredReports = reports.filter((r) => {
 });
 
   // 📂 ABRIR
-  const openReport = (report) => {
-    localStorage.setItem("currentReport", JSON.stringify(report));
-    navigate(`/informe/${report.id}`);
-  };
+const openReport = (report) => {
+  navigate(`/informe/${report.id}`);
+};
 
   // 🗑 ELIMINAR
-  const deleteReport = async (id) => {
-    if (!confirm("¿Eliminar este informe?")) return;
+const deleteReport = async (id) => {
+  if (!confirm("¿Eliminar este informe?")) return;
 
-    try {
-      await supabase
-        .from("registros")
-        .delete()
-        .eq("id", id);
-    } catch {
-      console.warn("Sin conexión, solo borrado local");
-    }
+  const { error } = await supabase
+    .from("registros")
+    .delete()
+    .eq("id", id);
 
-    const updated = reports.filter((r) => r.id !== id);
-    localStorage.setItem("serviceReports", JSON.stringify(updated));
-    setReports(updated);
-  };
+  if (error) {
+    console.error(error);
+    alert("Error eliminando ❌");
+    return;
+  }
+
+  setReports((prev) => prev.filter((r) => r.id !== id));
+};
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -122,9 +92,8 @@ const filteredReports = reports.filter((r) => {
         {/* NUEVO */}
         <button
           onClick={() => {
-            localStorage.removeItem("currentReport");
-            navigate("/informe/nuevo");
-          }}
+  navigate("/informe/nuevo");
+}}
           className="bg-blue-600 text-white w-full py-2 rounded"
         >
           Nuevo informe
