@@ -1,26 +1,26 @@
 import { supabase } from "@/lib/supabase";
 
 /* ================= CREAR REGISTRO ================= */
-export async function createRegistro() {
-  const { data, error } = await supabase
-    .from("registros")
-    .insert([
-      {
-        tipo: "registro",
-        subtipo: "herramienta",
-        estado: "salida",
-        data: {},
-      },
-    ])
-    .select()
-    .single();
+import { saveOrUpdateReport } from "../services/reportService"
 
-  if (error) {
-    console.error("Error creando registro:", error);
-    return null;
+/**
+ * Crear o actualizar registro SIN duplicados
+ */
+export async function createRegistro({ id = null, data }) {
+  try {
+    const result = await saveOrUpdateReport({
+      id,
+      tipo: "registro",
+      subtipo: "herramienta", // ajusta si manejas otro subtipo
+      data,
+      estado: "borrador"
+    })
+
+    return result
+  } catch (error) {
+    console.error("❌ Error en createRegistro:", error)
+    throw error
   }
-
-  return data.id;
 }
 /* ================= ELIMINAR REGISTRO ================= */
 export async function deleteRegistro(id) {
