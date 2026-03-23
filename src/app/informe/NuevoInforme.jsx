@@ -80,20 +80,24 @@ id || "temp",
 
     if (!url) return;
 
-    setData((prev) => {
-      const copy = structuredClone(prev);
-     if (!copy.actividades[actividadIndex]) return copy;
+setData((prev) => {
+  if (!prev.actividades[actividadIndex]) return prev;
 
-if (!Array.isArray(copy.actividades[actividadIndex].imagenes)) {
-  copy.actividades[actividadIndex].imagenes = [];
-}
+  const copy = { ...prev };
+  copy.actividades = [...copy.actividades];
 
-copy.actividades[actividadIndex].imagenes = [
-  ...copy.actividades[actividadIndex].imagenes,
-  url,
-];
-      return copy;
-    });
+  const actividad = { ...copy.actividades[actividadIndex] };
+
+  if (!Array.isArray(actividad.imagenes)) {
+    actividad.imagenes = [];
+  }
+
+  actividad.imagenes = [...actividad.imagenes, url];
+
+  copy.actividades[actividadIndex] = actividad;
+
+  return copy;
+});
 
   } catch (error) {
     console.error("Error subiendo imagen:", error);
@@ -106,6 +110,11 @@ copy.actividades[actividadIndex].imagenes = [
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
+  useEffect(() => {
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, []);
 
   const disableScroll = () => {
     document.body.style.overflow = "hidden";
@@ -133,10 +142,10 @@ useEffect(() => {
       return;
     }
 
-    const cleanData = {
-  ...emptyReport, // 🔥 CLAVE
-  ...report.data,
-  actividades: Array.isArray(report.data.actividades)
+   const cleanData = {
+  ...emptyReport,
+  ...(report.data || {}),
+  actividades: Array.isArray(report.data?.actividades)
     ? report.data.actividades.map((a) => ({
         titulo: a?.titulo || "",
         detalle: a?.detalle || "",
@@ -144,16 +153,15 @@ useEffect(() => {
       }))
     : [{ titulo: "", detalle: "", imagenes: [] }],
 };
-
 setData(cleanData);
 
     setTimeout(() => {
-      if (report.data.firmas?.tecnico) {
-        sigTecnico.current?.fromDataURL(report.data.firmas.tecnico);
-      }
-      if (report.data.firmas?.cliente) {
-        sigCliente.current?.fromDataURL(report.data.firmas.cliente);
-      }
+     if (report.data?.firmas?.tecnico) {
+  sigTecnico.current?.fromDataURL(report.data.firmas.tecnico);
+}
+if (report.data?.firmas?.cliente) {
+  sigCliente.current?.fromDataURL(report.data.firmas.cliente);
+}
     }, 0);
   };
 
@@ -161,20 +169,27 @@ setData(cleanData);
 }, [id]);
  
 
-  /* ===========================
-     UPDATE GENÉRICO
-  =========================== */
-  const update = (path, value) => {
-    setData((prev) => {
-      const copy = structuredClone(prev);
-      let ref = copy;
-      for (let i = 0; i < path.length - 1; i++) {
-        ref = ref[path[i]];
+/* ===========================
+   UPDATE GENÉRICO (OPTIMIZADO)
+=========================== */
+const update = (path, value) => {
+  setData((prev) => {
+    const copy = { ...prev };
+    let ref = copy;
+
+    for (let i = 0; i < path.length - 1; i++) {
+      if (Array.isArray(ref[path[i]])) {
+        ref[path[i]] = [...ref[path[i]]];
+      } else {
+        ref[path[i]] = { ...ref[path[i]] };
       }
-      ref[path[path.length - 1]] = value;
-      return copy;
-    });
-  };
+      ref = ref[path[i]];
+    }
+
+    ref[path[path.length - 1]] = value;
+    return copy;
+  });
+};
 
   /* ===========================
    COMPRESIÓN Y REDIMENSIÓN
@@ -227,14 +242,14 @@ const saveReport = async () => {
   }
 
   const firmaTecnico =
-    sigTecnico.current && !sigTecnico.current.isEmpty()
+    sigTecnico.current?.isEmpty?.() === false
       ? sigTecnico.current.toDataURL()
       : "";
 
   const firmaCliente =
-    sigCliente.current && !sigCliente.current.isEmpty()
-      ? sigCliente.current.toDataURL()
-      : "";
+  sigCliente.current?.isEmpty?.() === false
+    ? sigCliente.current.toDataURL()
+    : "";
 
   const firmaTecnicoFinal =
     firmaTecnico || data.firmas?.tecnico || "";
@@ -261,7 +276,7 @@ const saveReport = async () => {
       data: finalData,
       estado: estadoFinal
     });
-const reportId = result.id;
+
     alert(isEditing
       ? "Informe actualizado correctamente ✅"
       : "Informe guardado correctamente ✅"
@@ -344,10 +359,11 @@ const reportId = result.id;
   {/* DESCRIPCIÓN */}
   <td className="align-top">
   <textarea
-  className="pdf-input w-full resize-none overflow-hidden"
+ className="pdf-textarea w-full resize-none overflow-hidden"
   placeholder="Título"
   value={a.titulo}
   rows={1}
+style={{ minHeight: "28px" }}
   onInput={(e) => {
     e.target.style.height = "auto";
     e.target.style.height = e.target.scrollHeight + "px";
@@ -361,7 +377,8 @@ const reportId = result.id;
   className="pdf-textarea w-full resize-none overflow-hidden"
   placeholder="Detalle"
   value={a.detalle}
-  rows={1}
+ rows={1}
+style={{ minHeight: "28px" }}
   onInput={(e) => {
     e.target.style.height = "auto";
     e.target.style.height = e.target.scrollHeight + "px";
@@ -425,12 +442,21 @@ const reportId = result.id;
         <button
           type="button"
           onClick={() => {
-            setData((prev) => {
-              const copy = structuredClone(prev);
-              copy.actividades[i].imagenes.splice(imgIndex, 1);
-              return copy;
-            });
-          }}
+  setData((prev) => {
+    const copy = { ...prev };
+
+    copy.actividades = [...copy.actividades];
+
+    const actividad = { ...copy.actividades[i] };
+    actividad.imagenes = [...actividad.imagenes];
+
+    actividad.imagenes.splice(imgIndex, 1);
+
+    copy.actividades[i] = actividad;
+
+    return copy;
+  });
+}}
           className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1"
         >
           ✕
@@ -484,6 +510,7 @@ const reportId = result.id;
   className="pdf-textarea w-full resize-none overflow-hidden"
   value={data.conclusiones[i]}
   rows={1}
+   style={{ minHeight: "28px" }} // 🔥 AQUI                 
   onInput={(e) => {
     e.target.style.height = "auto";
     e.target.style.height = e.target.scrollHeight + "px";
@@ -499,6 +526,7 @@ const reportId = result.id;
   className="pdf-textarea w-full resize-none overflow-hidden"
   value={data.recomendaciones[i]}
   rows={1}
+   style={{ minHeight: "28px" }} // 🔥 TAMBIÉN AQUÍ                 
   onInput={(e) => {
     e.target.style.height = "auto";
     e.target.style.height = e.target.scrollHeight + "px";
