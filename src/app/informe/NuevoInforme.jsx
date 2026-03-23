@@ -261,7 +261,7 @@ const saveReport = async () => {
       data: finalData,
       estado: estadoFinal
     });
-
+const reportId = result.id;
     alert(isEditing
       ? "Informe actualizado correctamente ✅"
       : "Informe guardado correctamente ✅"
