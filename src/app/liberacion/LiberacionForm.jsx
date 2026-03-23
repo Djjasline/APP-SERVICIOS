@@ -1,8 +1,8 @@
+import { saveOrUpdateReport } from "@/services/reportService"
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import jsPDF from "jspdf";
 
 const checklist = {
   "Sistema Mecánico": [
@@ -81,13 +81,21 @@ export default function LiberacionForm() {
   });
 
   useEffect(() => {
-    const sync = async () => {
-      const pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
-      for (let p of pendientes) {
-        await supabase.from("registros").insert([p]);
-      }
-      localStorage.removeItem("pending_registros");
-    };
+const sync = async () => {
+  const pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
+
+  for (let p of pendientes) {
+    await saveOrUpdateReport({
+      id: p.id || null,
+      tipo: p.tipo,
+      subtipo: p.subtipo,
+      data: p.data,
+      estado: p.estado
+    });
+  }
+
+  localStorage.removeItem("pending_registros");
+};
     window.addEventListener("online", sync);
     return () => window.removeEventListener("online", sync);
   }, []);
@@ -103,38 +111,54 @@ export default function LiberacionForm() {
     });
   };
 
-  const handleSubmit = async () => {
-    if (!form.estadoFinal) return alert("Selecciona resultado");
+ const handleSubmit = async () => {
+  if (!form.estadoFinal) return alert("Selecciona resultado");
 
-    let firma = null;
-    if (!sigRef.current.isEmpty()) {
-      firma = sigRef.current.getTrimmedCanvas().toDataURL("image/png");
-    }
+  let firma = null;
+  if (!sigRef.current.isEmpty()) {
+    firma = sigRef.current.getTrimmedCanvas().toDataURL("image/png");
+  }
 
-    const payload = {
+  const estadoFinal =
+    form.estadoFinal === "APROBADO" ? "completado" : "borrador";
+
+  const finalData = {
+    ...form,
+    tipoLicencia: licencia,
+    firmaInspector: firma,
+  };
+
+  try {
+    const result = await saveOrUpdateReport({
+      id: null,
       tipo: "liberacion",
       subtipo: "vehiculo",
-      estado: form.estadoFinal === "APROBADO" ? "completado" : "borrador",
-      data: { ...form, tipoLicencia: licencia, firmaInspector: firma },
-    };
-
-    const { error } = await supabase.from("registros").insert([payload]);
-
-    if (error) {
-      let pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
-      pendientes.push(payload);
-      localStorage.setItem("pending_registros", JSON.stringify(pendientes));
-      alert("Guardado offline");
-      navigate("/liberacion");
-      return;
-    }
+      data: finalData,
+      estado: estadoFinal
+    });
 
     alert("Guardado correctamente");
     navigate("/liberacion");
-  };
 
-  let contador = 1;
+  } catch (error) {
+    console.error(error);
 
+    // 🔥 fallback offline (SIN duplicar)
+    let pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
+
+    pendientes.push({
+      tipo: "liberacion",
+      subtipo: "vehiculo",
+      estado: estadoFinal,
+      data: finalData
+    });
+
+    localStorage.setItem("pending_registros", JSON.stringify(pendientes));
+
+    alert("Guardado offline");
+    navigate("/liberacion");
+  }
+};
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
       <div className="max-w-[794px] mx-auto bg-white p-6 shadow border">
@@ -207,7 +231,7 @@ export default function LiberacionForm() {
               const key = `${section}-${index}`;
               return (
                 <div key={key} className="flex justify-between border p-2">
-                  <span>{contador++}. {item}</span>
+                  <span>{index + 1}. {item}</span>
 
                   <div className="flex gap-2">
                     {["C","NC","NA"].map((opt) => (
