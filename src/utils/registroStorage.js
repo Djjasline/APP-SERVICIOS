@@ -1,12 +1,11 @@
-import { supabase } from "@/lib/supabase";
-
-/* ================= CREAR REGISTRO ================= */
+import { supabase } from "@/lib/supabase"
 import { saveOrUpdateReport } from "../services/reportService"
 
+/* ================= CREAR REGISTRO ================= */
 /**
  * Crear o actualizar registro SIN duplicados
  */
-export async function createRegistro({ id = null, data, subtipo = "herramienta" }) {
+export async function createRegistro({ id = null, data }) {
   try {
     const result = await saveOrUpdateReport({
       id,
@@ -22,35 +21,37 @@ export async function createRegistro({ id = null, data, subtipo = "herramienta" 
     throw error
   }
 }
+
 /* ================= ELIMINAR REGISTRO ================= */
 export async function deleteRegistro(id) {
   const { error } = await supabase
     .from("registros")
     .delete()
     .eq("id", id)
-    .eq("tipo", "registro");
+    .eq("tipo", "registro")
 
   if (error) {
-    console.error("Error eliminando registro:", error);
-    return false;
+    console.error("Error eliminando registro:", error)
+    return false
   }
 
-  return true;
+  return true
 }
+
 /* ================= OBTENER TODOS ================= */
 export async function getAllRegistros() {
   const { data, error } = await supabase
     .from("registros")
     .select("*")
     .eq("tipo", "registro")
-    .eq("subtipo", "herramienta");
+    .eq("subtipo", "herramienta")
 
   if (error) {
-    console.error("Error cargando registros:", error);
-    return [];
+    console.error("Error cargando registros:", error)
+    return []
   }
 
-  return data;
+  return data
 }
 
 /* ================= OBTENER POR ID ================= */
@@ -59,18 +60,21 @@ export async function getRegistroById(id) {
     .from("registros")
     .select("*")
     .eq("id", id)
-    .single();
+    .single()
 
   if (error) {
-    console.error("Error obteniendo registro:", error);
-    return null;
+    console.error("Error obteniendo registro:", error)
+    return null
   }
 
-  return data;
+  return data
 }
 
 /* ================= ACTUALIZAR ================= */
-export async function updateRegistro(id, payload, estado) {
+/**
+ * Actualiza registro usando el service (UNIFICADO)
+ */
+export async function updateRegistro(id, payload, estado = "borrador") {
   try {
     const result = await saveOrUpdateReport({
       id,
