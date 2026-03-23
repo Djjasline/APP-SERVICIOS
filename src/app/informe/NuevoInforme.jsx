@@ -110,6 +110,10 @@ setData((prev) => {
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
+  const autoResize = (e) => {
+  e.target.style.height = "auto";
+  e.target.style.height = e.target.scrollHeight + "px";
+};
   useEffect(() => {
   return () => {
     document.body.style.overflow = "";
@@ -360,32 +364,25 @@ const saveReport = async () => {
   <td className="align-top">
   <textarea
  className="pdf-textarea w-full resize-none overflow-hidden"
-  placeholder="Título"
-  value={a.titulo}
-  rows={1}
-style={{ minHeight: "28px" }}
-  onInput={(e) => {
-    e.target.style.height = "auto";
-    e.target.style.height = e.target.scrollHeight + "px";
-  }}
-  onChange={(e) =>
-    update(["actividades", i, "titulo"], e.target.value)
-  }
-/>
-
-<textarea
-  className="pdf-textarea w-full resize-none overflow-hidden"
-  placeholder="Detalle"
-  value={a.detalle}
+ placeholder="Detalle"
+ value={a.detalle}
  rows={1}
-style={{ minHeight: "28px" }}
-  onInput={(e) => {
-    e.target.style.height = "auto";
-    e.target.style.height = e.target.scrollHeight + "px";
-  }}
-  onChange={(e) =>
-    update(["actividades", i, "detalle"], e.target.value)
-  }
+ style={{ minHeight: "28px" }}
+ onInput={autoResize}
+ onChange={(e) =>
+   update(["actividades", i, "detalle"], e.target.value)
+ }
+/>
+<textarea
+ className="pdf-textarea w-full resize-none overflow-hidden"
+ placeholder="Detalle"
+ value={a.detalle}
+ rows={1}
+ style={{ minHeight: "28px" }}
+ onInput={autoResize}
+ onChange={(e) =>
+   update(["actividades", i, "detalle"], e.target.value)
+ }
 />
 </td>
 {/* IMÁGENES */}
@@ -506,34 +503,30 @@ style={{ minHeight: "28px" }}
               <tr key={i}>
                 <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
                 <td>
-                  <textarea
-  className="pdf-textarea w-full resize-none overflow-hidden"
-  value={data.conclusiones[i]}
-  rows={1}
-   style={{ minHeight: "28px" }} // 🔥 AQUI                 
-  onInput={(e) => {
-    e.target.style.height = "auto";
-    e.target.style.height = e.target.scrollHeight + "px";
-  }}
-  onChange={(e) =>
-    update(["conclusiones", i], e.target.value)
-  }
+          <textarea
+ className="pdf-textarea w-full resize-none overflow-hidden"
+ placeholder="Detalle"
+ value={a.detalle}
+ rows={1}
+ style={{ minHeight: "28px" }}
+ onInput={autoResize}
+ onChange={(e) =>
+   update(["actividades", i, "detalle"], e.target.value)
+ }
 />
                 </td>
                 <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
                 <td>
-                 <textarea
-  className="pdf-textarea w-full resize-none overflow-hidden"
-  value={data.recomendaciones[i]}
-  rows={1}
-   style={{ minHeight: "28px" }} // 🔥 TAMBIÉN AQUÍ                 
-  onInput={(e) => {
-    e.target.style.height = "auto";
-    e.target.style.height = e.target.scrollHeight + "px";
-  }}
-  onChange={(e) =>
-    update(["recomendaciones", i], e.target.value)
-  }
+                <textarea
+ className="pdf-textarea w-full resize-none overflow-hidden"
+ placeholder="Detalle"
+ value={a.detalle}
+ rows={1}
+ style={{ minHeight: "28px" }}
+ onInput={autoResize}
+ onChange={(e) =>
+   update(["actividades", i, "detalle"], e.target.value)
+ }
 />
                   {data.conclusiones.length > 1 && (
                     <button
