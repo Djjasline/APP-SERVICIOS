@@ -1,7 +1,7 @@
-import { supabase } from "../supabaseClient"
+import { supabase } from "../lib/supabase"
 
 /**
- * Crear o actualizar un reporte sin duplicar registros
+ * Crear o actualizar un reporte sin duplicados
  */
 export const saveOrUpdateReport = async ({
   id = null,
@@ -13,7 +13,7 @@ export const saveOrUpdateReport = async ({
 }) => {
   try {
     const payload = {
-      id: id || undefined, // clave para upsert
+      id: id || undefined,
       tipo,
       subtipo,
       data,
@@ -38,7 +38,7 @@ export const saveOrUpdateReport = async ({
 }
 
 /**
- * Marcar reporte como completado (firma)
+ * Completar reporte con firma
  */
 export const completeReport = async ({
   id,
