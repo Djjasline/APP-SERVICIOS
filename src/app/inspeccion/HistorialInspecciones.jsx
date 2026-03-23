@@ -1,47 +1,44 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-// STORAGE
-import {
-  getAllInspections,
-  deleteInspection
-} from "@/utils/inspectionStorage";
+import { supabase } from "@/lib/supabase";
 
 export default function IndexInspeccion() {
   const navigate = useNavigate();
   const [inspections, setInspections] = useState([]);
 
   /* =============================
-     CARGAR INSPECCIONES
+     CARGAR INSPECCIONES (SUPABASE)
   ============================== */
- useEffect(() => {
-  const loadInspections = async () => {
- const data = await getAllInspections();
+  useEffect(() => {
+    const loadInspections = async () => {
+      const { data, error } = await supabase
+        .from("registros")
+        .select("*")
+        .eq("tipo", "inspeccion")
+        .order("created_at", { ascending: false });
 
-const safeData = Array.isArray(data) ? data : [];
+      if (error) {
+        console.error(error);
+        setInspections([]);
+        return;
+      }
 
-const ordered = [...safeData].sort((a, b) => {
-  const dateA = new Date(a.updatedAt || a.fecha).getTime();
-  const dateB = new Date(b.updatedAt || b.fecha).getTime();
-  return dateB - dateA;
-});
+      setInspections(data || []);
+    };
 
-setInspections(ordered);
-  };
-
-  loadInspections();
-}, []);
+    loadInspections();
+  }, []);
 
   /* =============================
      AGRUPAR POR TIPO
   ============================== */
   const safeInspections = Array.isArray(inspections) ? inspections : [];
 
-const byType = {
-  hidro: safeInspections.filter((i) => i.type === "hidro"),
-  barredora: safeInspections.filter((i) => i.type === "barredora"),
-  camara: safeInspections.filter((i) => i.type === "camara"),
-};
+  const byType = {
+    hidro: safeInspections.filter((i) => i.subtipo === "hidro"),
+    barredora: safeInspections.filter((i) => i.subtipo === "barredora"),
+    camara: safeInspections.filter((i) => i.subtipo === "camara"),
+  };
 
   /* =============================
      ACCIONES
@@ -50,12 +47,29 @@ const byType = {
     navigate(`/inspeccion/${type}/${id}`);
   };
 
- const handleGeneratePdf = (inspection) => {
-  navigate(`/inspeccion/pdf/${inspection.id}`);
-};
+  const handleGeneratePdf = (inspection) => {
+    navigate(`/inspeccion/pdf/${inspection.id}`);
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm("¿Eliminar inspección?")) return;
+
+    const { error } = await supabase
+      .from("registros")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error(error);
+      alert("Error eliminando ❌");
+      return;
+    }
+
+    setInspections((prev) => prev.filter((i) => i.id !== id));
+  };
 
   /* =============================
-     RENDER
+     RENDER COLUMNAS
   ============================== */
   const renderColumn = (title, type, description) => (
     <div className="space-y-4">
@@ -80,13 +94,15 @@ const byType = {
               key={item.id}
               className="border rounded p-2 text-xs flex flex-col gap-1"
             >
+              {/* HEADER */}
               <div className="flex justify-between">
                 <span className="font-medium">
-                  {item.data?.cliente?.nombre || "Sin cliente"}
+                  {item.data?.cliente || "Sin cliente"}
                 </span>
+
                 <span
                   className={`px-2 py-0.5 rounded text-[10px] ${
-                    item.estado === "completada"
+                    item.estado === "completado"
                       ? "bg-green-100 text-green-700"
                       : "bg-yellow-100 text-yellow-700"
                   }`}
@@ -95,12 +111,16 @@ const byType = {
                 </span>
               </div>
 
+              {/* FECHA */}
               <span className="text-[10px] text-gray-500">
-                {new Date(item.updatedAt || item.fecha).toLocaleString()}
+                {new Date(
+                  item.updated_at || item.created_at
+                ).toLocaleString()}
               </span>
 
+              {/* ACCIONES */}
               <div className="flex gap-3 pt-1">
-                {item.estado === "completada" && (
+                {item.estado === "completado" && (
                   <button
                     type="button"
                     onClick={() => handleGeneratePdf(item)}
@@ -120,18 +140,8 @@ const byType = {
 
                 <button
                   type="button"
+                  onClick={() => handleDelete(item.id)}
                   className="text-red-600 hover:underline"
-               onClick={async () => {
-  if (confirm("¿Eliminar inspección?")) {
-    await deleteInspection(item.type, item.id);
-
-    const updated = inspections.filter(
-      (i) => i.id !== item.id
-    );
-
-    setInspections(updated);
-  }
-}}
                 >
                   Eliminar
                 </button>
@@ -143,6 +153,9 @@ const byType = {
     </div>
   );
 
+  /* =============================
+     UI PRINCIPAL
+  ============================== */
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       <h1 className="text-xl font-bold">Inspección y valoración</h1>
