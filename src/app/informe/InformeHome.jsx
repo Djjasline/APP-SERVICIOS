@@ -33,16 +33,36 @@ useEffect(() => {
 }, []);
 
   // 🎯 FILTRO
-const [search, setSearch] = useState("");
+const [filters, setFilters] = useState({
+  cliente: "",
+  pedido: "",
+  fecha: "",
+});
 
 const filteredReports = reports.filter((r) => {
   const cliente = r.data?.cliente?.toLowerCase() || "";
+  const pedido =
+    r.data?.referenciaContrato?.toLowerCase() ||
+    r.data?.codInf?.toLowerCase() ||
+    "";
+
+  const fecha = r.updated_at || r.created_at;
 
   return (
+    // filtro estado
     (filter === "todos" ||
       (filter === "borrador" && r.estado !== "completado") ||
       (filter === "completado" && r.estado === "completado")) &&
-    cliente.includes(search.toLowerCase())
+
+    // filtro cliente
+    cliente.includes(filters.cliente.toLowerCase()) &&
+
+    // filtro pedido
+    pedido.includes(filters.pedido.toLowerCase()) &&
+
+    // filtro fecha
+    (!filters.fecha ||
+      (fecha && fecha.startsWith(filters.fecha)))
   );
 });
 
@@ -170,7 +190,38 @@ const deleteReport = async (id) => {
             </div>
           ))}
         </div>
+<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 
+  <input
+    type="text"
+    placeholder="Buscar cliente..."
+    value={filters.cliente}
+    onChange={(e) =>
+      setFilters((f) => ({ ...f, cliente: e.target.value }))
+    }
+    className="border px-3 py-1 rounded text-sm"
+  />
+
+  <input
+    type="text"
+    placeholder="Pedido / Código..."
+    value={filters.pedido}
+    onChange={(e) =>
+      setFilters((f) => ({ ...f, pedido: e.target.value }))
+    }
+    className="border px-3 py-1 rounded text-sm"
+  />
+
+  <input
+    type="date"
+    value={filters.fecha}
+    onChange={(e) =>
+      setFilters((f) => ({ ...f, fecha: e.target.value }))
+    }
+    className="border px-3 py-1 rounded text-sm"
+  />
+
+</div>
       </div>
     </div>
   );
