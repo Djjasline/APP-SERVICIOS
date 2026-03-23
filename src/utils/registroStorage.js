@@ -6,7 +6,7 @@ import { saveOrUpdateReport } from "../services/reportService"
 /**
  * Crear o actualizar registro SIN duplicados
  */
-export async function createRegistro({ id = null, data }) {
+export async function createRegistro({ id = null, data, subtipo = "herramienta" }) {
   try {
     const result = await saveOrUpdateReport({
       id,
@@ -71,16 +71,17 @@ export async function getRegistroById(id) {
 
 /* ================= ACTUALIZAR ================= */
 export async function updateRegistro(id, payload, estado) {
-  const { error } = await supabase
-    .from("registros")
-    .update({
+  try {
+    const result = await saveOrUpdateReport({
+      id,
+      tipo: "registro",
+      subtipo: "herramienta",
       data: payload,
-      estado,
-      updated_at: new Date().toISOString(),
+      estado
     })
-    .eq("id", id);
 
-  if (error) {
-    console.error("Error actualizando registro:", error);
+    return result
+  } catch (error) {
+    console.error("Error actualizando registro:", error)
   }
 }
