@@ -343,28 +343,33 @@ const reportId = result.id;
 
   {/* DESCRIPCIÓN */}
   <td className="align-top">
-  <input
-    className="pdf-input"
-    placeholder="Título"
-    value={a.titulo}
-    onChange={(e) =>
-      update(["actividades", i, "titulo"], e.target.value)
-    }
-  />
-
   <textarea
-    className="pdf-textarea w-full resize-none overflow-hidden"
-    placeholder="Detalle"
-    value={a.detalle}
-    rows={2}
-    onInput={(e) => {
-      e.target.style.height = "auto";
-      e.target.style.height = e.target.scrollHeight + "px";
-    }}
-    onChange={(e) =>
-      update(["actividades", i, "detalle"], e.target.value)
-    }
-  />
+  className="pdf-input w-full resize-none overflow-hidden"
+  placeholder="Título"
+  value={a.titulo}
+  rows={1}
+  onInput={(e) => {
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
+  }}
+  onChange={(e) =>
+    update(["actividades", i, "titulo"], e.target.value)
+  }
+/>
+
+<textarea
+  className="pdf-textarea w-full resize-none overflow-hidden"
+  placeholder="Detalle"
+  value={a.detalle}
+  rows={1}
+  onInput={(e) => {
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
+  }}
+  onChange={(e) =>
+    update(["actividades", i, "detalle"], e.target.value)
+  }
+/>
 </td>
 {/* IMÁGENES */}
 <td className="align-top">
@@ -476,22 +481,32 @@ const reportId = result.id;
                 <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
                 <td>
                   <textarea
-                    className="pdf-textarea"
-                    value={data.conclusiones[i]}
-                    onChange={(e) =>
-                      update(["conclusiones", i], e.target.value)
-                    }
-                  />
+  className="pdf-textarea w-full resize-none overflow-hidden"
+  value={data.conclusiones[i]}
+  rows={1}
+  onInput={(e) => {
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
+  }}
+  onChange={(e) =>
+    update(["conclusiones", i], e.target.value)
+  }
+/>
                 </td>
                 <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
                 <td>
-                  <textarea
-                    className="pdf-textarea"
-                    value={data.recomendaciones[i]}
-                    onChange={(e) =>
-                      update(["recomendaciones", i], e.target.value)
-                    }
-                  />
+                 <textarea
+  className="pdf-textarea w-full resize-none overflow-hidden"
+  value={data.recomendaciones[i]}
+  rows={1}
+  onInput={(e) => {
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
+  }}
+  onChange={(e) =>
+    update(["recomendaciones", i], e.target.value)
+  }
+/>
                   {data.conclusiones.length > 1 && (
                     <button
                       type="button"
