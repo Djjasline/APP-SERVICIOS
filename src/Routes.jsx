@@ -1,39 +1,44 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 
-// páginas
+// PANEL
 import PanelServicios from "./pages/PanelServicios";
 
-// módulos reales
+// INFORMES
 import InformeHome from "./app/informe/InformeHome";
-import IndexInspeccion from "./app/inspeccion/HistorialInspecciones";
-
-// formularios
 import NuevoInforme from "./app/informe/NuevoInforme";
+
+// INSPECCIONES
+import IndexInspeccion from "./app/inspeccion/HistorialInspecciones";
 import HojaInspeccionHidro from "./app/inspeccion/HojaInspeccionHidro";
 
-export default function AppRoutes() {
+export default function RoutesApp() {
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* 🔥 Layout principal con sidebar */}
+        {/* 🔥 Layout con sidebar */}
         <Route element={<MainLayout />}>
 
-          {/* PANEL PRINCIPAL */}
+          {/* ================= PANEL PRINCIPAL ================= */}
           <Route path="/" element={<PanelServicios />} />
 
           {/* ================= VEHÍCULOS ================= */}
+
+          {/* INFORMES */}
           <Route path="/informes" element={<InformeHome />} />
           <Route path="/informe/nuevo" element={<NuevoInforme />} />
           <Route path="/informe/:id" element={<NuevoInforme />} />
 
+          {/* INSPECCIÓN */}
           <Route path="/inspeccion" element={<IndexInspeccion />} />
+
+          {/* HIDRO */}
           <Route path="/inspeccion/hidro/new" element={<HojaInspeccionHidro />} />
           <Route path="/inspeccion/hidro/:id" element={<HojaInspeccionHidro />} />
 
-          {/* ================= TEMPORALES ================= */}
-          <Route path="/mantenimiento" element={<div>Mantenimiento</div>} />
+          {/* ================= TEMPORAL ================= */}
+          <Route path="/mantenimiento" element={<div>Mantenimiento en construcción</div>} />
 
           {/* ================= OPERACIONES ================= */}
           <Route path="/herramientas" element={<div>Herramientas</div>} />
