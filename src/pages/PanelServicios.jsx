@@ -1,176 +1,108 @@
 import { useNavigate } from "react-router-dom";
-import {
-  FileText,
-  ClipboardCheck,
-  Wrench,
-  Package,
-  Truck,
-  CheckCircle,
-} from "lucide-react";
 
 export default function PanelServicios() {
   const navigate = useNavigate();
 
-  return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-6 py-10">
-      
-      <div className="max-w-6xl mx-auto space-y-10">
+  // 🔹 COMPONENTE TARJETA REUTILIZABLE
+  const Card = ({ title, desc, color, onClick }) => (
+    <div className="bg-white rounded-xl shadow p-5 flex flex-col justify-between hover:shadow-md transition">
+      <div>
+        <h3 className="font-semibold text-md mb-1">{title}</h3>
+        <p className="text-xs text-gray-500 mb-4">{desc}</p>
+      </div>
 
-        {/* HEADER */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-white">
+      <button
+        onClick={onClick}
+        className={`text-white py-2 rounded text-sm ${color}`}
+      >
+        Ir
+      </button>
+    </div>
+  );
+
+  return (
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="max-w-6xl mx-auto space-y-6">
+
+        {/* ================= HEADER ================= */}
+        <div>
+          <h1 className="text-xl font-bold">
             Panel de servicios ASTAP
           </h1>
-          <p className="text-slate-400 text-sm">
-            Gestión técnica de informes, inspecciones y mantenimiento
+          <p className="text-sm text-gray-500">
+            Gestión técnica por área
           </p>
         </div>
 
-        {/* GRID */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* ================= AREAS ================= */}
+        <div className="grid md:grid-cols-2 gap-6">
 
-          {/* INFORME */}
-          <div className="bg-white rounded-2xl p-7 shadow-lg">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 rounded-xl bg-blue-600 text-white">
-                <FileText size={28} />
-              </div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Informe general
-              </h2>
+          {/* ================= VEHÍCULOS ================= */}
+          <div className="bg-white rounded-xl shadow p-6 space-y-4">
+            <h2 className="font-semibold text-lg">
+              Vehículos Especiales
+            </h2>
+
+            <div className="grid gap-4">
+
+              <Card
+                title="Informes"
+                desc="Registro técnico de trabajos realizados en equipos."
+                color="bg-blue-600"
+                onClick={() => navigate("/informe")}
+              />
+
+              <Card
+                title="Inspección"
+                desc="Evaluación del estado operativo de los equipos."
+                color="bg-yellow-500"
+                onClick={() => navigate("/inspeccion")}
+              />
+
+              <Card
+                title="Mantenimiento"
+                desc="Gestión y control de mantenimiento preventivo y correctivo."
+                color="bg-green-600"
+                onClick={() => navigate("/mantenimiento")}
+              />
+
             </div>
-
-            <p className="text-slate-600 mb-6 text-sm">
-              Crear informes técnicos con actividades y firmas.
-            </p>
-
-            <button
-              onClick={() => {
-                localStorage.removeItem("currentReport");
-                navigate("/informe");
-              }}
-              className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-            >
-              Nuevo informe
-            </button>
           </div>
 
-          {/* INSPECCIÓN */}
-          <div className="bg-white rounded-2xl p-7 shadow-lg">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 rounded-xl bg-yellow-500 text-white">
-                <ClipboardCheck size={28} />
-              </div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Inspección
-              </h2>
+          {/* ================= OPERACIONES ================= */}
+          <div className="bg-white rounded-xl shadow p-6 space-y-4">
+            <h2 className="font-semibold text-lg">
+              Operaciones
+            </h2>
+
+            <div className="grid gap-4">
+
+              <Card
+                title="Herramientas"
+                desc="Control y seguimiento de equipos y herramientas."
+                color="bg-purple-600"
+                onClick={() => navigate("/herramientas")}
+              />
+
+              <Card
+                title="Recepción"
+                desc="Registro de ingreso de vehículos a operación."
+                color="bg-red-600"
+                onClick={() => navigate("/recepcion")}
+              />
+
+              <Card
+                title="Liberación"
+                desc="Control de salida y entrega de vehículos."
+                color="bg-indigo-600"
+                onClick={() => navigate("/liberacion")}
+              />
+
             </div>
-
-            <p className="text-slate-600 mb-6 text-sm">
-              Registrar inspecciones técnicas.
-            </p>
-
-            <button
-              onClick={() => navigate("/inspeccion")}
-              className="w-full py-3 rounded-xl bg-yellow-500 text-white font-semibold hover:bg-yellow-600 transition"
-            >
-              Ir a inspecciones
-            </button>
-          </div>
-
-          {/* MANTENIMIENTO */}
-          <div className="bg-white rounded-2xl p-7 shadow-lg">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 rounded-xl bg-green-600 text-white">
-                <Wrench size={28} />
-              </div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Mantenimiento
-              </h2>
-            </div>
-
-            <p className="text-slate-600 mb-6 text-sm">
-              Gestión de mantenimientos.
-            </p>
-
-            <button
-              onClick={() => navigate("/mantenimiento")}
-              className="w-full py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition"
-            >
-              Ir a mantenimiento
-            </button>
-          </div>
-
-          {/* HERRAMIENTAS */}
-          <div className="bg-white rounded-2xl p-7 shadow-lg">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 rounded-xl bg-purple-600 text-white">
-                <Package size={28} />
-              </div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Herramientas
-              </h2>
-            </div>
-
-            <p className="text-slate-600 mb-6 text-sm">
-              Control de equipos.
-            </p>
-
-            <button
-              onClick={() => navigate("/registro-salida")}
-              className="w-full py-3 rounded-xl bg-purple-600 text-white font-semibold hover:bg-purple-700 transition"
-            >
-              Ir a registros
-            </button>
-          </div>
-
-          {/* RECEPCIÓN */}
-          <div className="bg-white rounded-2xl p-7 shadow-lg">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 rounded-xl bg-red-600 text-white">
-                <Truck size={28} />
-              </div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Recepción
-              </h2>
-            </div>
-
-            <p className="text-slate-600 mb-6 text-sm">
-              Ingreso de vehículos.
-            </p>
-
-            <button
-              onClick={() => navigate("/recepcion")}
-              className="w-full py-3 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition"
-            >
-              Ir a recepción
-            </button>
-          </div>
-
-          {/* LIBERACIÓN */}
-          <div className="bg-white rounded-2xl p-7 shadow-lg">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 rounded-xl bg-indigo-600 text-white">
-                <CheckCircle size={28} />
-              </div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Liberación
-              </h2>
-            </div>
-
-            <p className="text-slate-600 mb-6 text-sm">
-              Salida de vehículos.
-            </p>
-
-            <button
-              onClick={() => navigate("/liberacion")}
-              className="w-full py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition"
-            >
-              Ir a liberación
-            </button>
           </div>
 
         </div>
+
       </div>
     </div>
   );
