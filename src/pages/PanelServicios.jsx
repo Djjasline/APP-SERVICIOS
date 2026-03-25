@@ -59,63 +59,77 @@ export default function PanelServicios() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="relative min-h-screen">
 
-      {/* HEADER */}
-      <div className="flex items-center gap-3">
-  
-  {/* LOGO ASTAP */}
-  <img
-    src="/astap-logo.jpg"
-    alt="ASTAP"
-    className="w-10 h-10 object-contain"
-  />
+      {/* 🔥 FONDO INDUSTRIAL */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-10"
+        style={{
+          backgroundImage: "url('/background-astap.png')",
+        }}
+      />
 
-  {/* TEXTO */}
-  <div>
-    <h1 className="text-xl font-bold">
-      Panel de servicios ASTAP
-    </h1>
-    <p className="text-sm text-gray-500">
-      Gestión técnica por área
-    </p>
-  </div>
+      {/* 🔥 OVERLAY SUAVE */}
+      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm" />
 
-</div>
+      {/* 🔥 CONTENIDO */}
+      <div className="relative p-6 space-y-8">
 
-      {/* GRID PRINCIPAL */}
-      <div className="grid md:grid-cols-3 gap-6">
-        {menuPrincipal.map((item) => (
-          <div
-            key={item.id}
-            className="bg-white p-6 rounded-xl shadow hover:shadow-md transition space-y-4"
-          >
-            {/* ICONO */}
-            <div className={`${item.color} text-white w-12 h-12 flex items-center justify-center rounded-lg`}>
-              {item.icon}
-            </div>
+        {/* ================= HEADER JEDI ================= */}
+        <div className="flex flex-col items-center text-center space-y-4">
 
-            {/* TITULO */}
-            <h2 className="font-semibold text-lg">
-              {item.titulo}
-            </h2>
+          <img
+            src="/astap-logo.jpg"
+            alt="ASTAP"
+            className="w-20 h-20 object-contain drop-shadow-md"
+          />
 
-            {/* DESCRIPCIÓN */}
-            <p className="text-sm text-gray-500">
-              {item.descripcion}
-            </p>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+            Panel de servicios ASTAP
+          </h1>
 
-            {/* BOTÓN */}
-            <button
-              onClick={() => navigate(item.ruta)}
-              className={`${item.color} text-white w-full py-2 rounded`}
+          <p className="text-sm md:text-base text-gray-500 max-w-xl">
+            Gestión técnica organizada por áreas operativas y módulos estratégicos
+          </p>
+
+        </div>
+
+        {/* ================= MENÚ PRINCIPAL ================= */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {menuPrincipal.map((item) => (
+            <div
+              key={item.id}
+              className="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow hover:shadow-lg transition space-y-4"
             >
-              Ingresar
-            </button>
-          </div>
-        ))}
-      </div>
+              {/* ICONO */}
+              <div
+                className={`${item.color} text-white w-12 h-12 flex items-center justify-center rounded-lg`}
+              >
+                {item.icon}
+              </div>
 
+              {/* TITULO */}
+              <h2 className="font-semibold text-lg">
+                {item.titulo}
+              </h2>
+
+              {/* DESCRIPCIÓN */}
+              <p className="text-sm text-gray-600">
+                {item.descripcion}
+              </p>
+
+              {/* BOTÓN */}
+              <button
+                onClick={() => navigate(item.ruta)}
+                className={`${item.color} text-white w-full py-2 rounded-lg hover:opacity-90 transition`}
+              >
+                Ingresar
+              </button>
+            </div>
+          ))}
+        </div>
+
+      </div>
     </div>
   );
 }
