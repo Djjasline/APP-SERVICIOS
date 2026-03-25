@@ -1,117 +1,98 @@
-import { useState, useEffect } from "react";
-import { Menu } from "lucide-react";
-import { useNavigate, Outlet, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
-  FileText,
-  ClipboardCheck,
-  Wrench,
-  Package,
   Truck,
-  CheckCircle,
+  Droplet,
+  Fuel,
+  Settings,
+  FolderOpen,
 } from "lucide-react";
 
-export default function MainLayout() {
+export default function Sidebar() {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const [open, setOpen] = useState(false);
-
-  // 🌙 DARK MODE (opcional, no afecta layout)
-  const [dark, setDark] = useState(() => {
-    const saved = localStorage.getItem("darkMode");
-    return saved ? JSON.parse(saved) : true;
-  });
-
-  useEffect(() => {
-    localStorage.setItem("darkMode", JSON.stringify(dark));
-  }, [dark]);
-
-  const menu = [
-    { name: "Dashboard", icon: <LayoutDashboard size={20} />, path: "/" },
-    { name: "Informes", icon: <FileText size={20} />, path: "/informe" },
-    { name: "Inspección", icon: <ClipboardCheck size={20} />, path: "/inspeccion" },
-    { name: "Mantenimiento", icon: <Wrench size={20} />, path: "/mantenimiento" },
-    { name: "Herramientas", icon: <Package size={20} />, path: "/registro-salida" },
-    { name: "Recepción", icon: <Truck size={20} />, path: "/recepcion" },
-    { name: "Liberación", icon: <CheckCircle size={20} />, path: "/liberacion" },
-  ];
 
   return (
-    <div className={dark ? "dark" : ""}>
-      <div className="flex min-h-screen">
+    <aside className="h-screen w-64 bg-gradient-to-b from-[#0f172a] to-[#1e293b] text-white flex flex-col">
 
-        {/* SIDEBAR */}
-        <aside
-          className={`
-          fixed lg:static top-0 left-0 h-full w-64 p-5 space-y-4 z-50
-          transform transition-all duration-300
-          ${open ? "translate-x-0" : "-translate-x-full"}
-          lg:translate-x-0
-          bg-slate-900 text-white
-        `}
+      {/* ================= LOGO ================= */}
+      <div className="p-6 border-b border-white/10 flex items-center gap-3">
+        <img
+          src="/astap-logo.jpg"
+          alt="ASTAP"
+          className="w-10 h-10 object-contain"
+        />
+        <span className="font-bold text-lg tracking-wide">
+          ASTAP
+        </span>
+      </div>
+
+      {/* ================= MENÚ ================= */}
+      <div className="flex-1 p-4 space-y-2">
+
+        <p className="text-xs uppercase text-gray-400 mb-3 px-2">
+          Menú principal
+        </p>
+
+        {/* DASHBOARD */}
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition"
         >
-          <h1 className="text-xl font-bold mb-4">ASTAP</h1>
+          <LayoutDashboard size={18} />
+          Menú Principal
+        </button>
 
-          {/* DARK MODE */}
+        {/* ÁREAS */}
+        <button
+          onClick={() => navigate("/area/vehiculos")}
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10 transition"
+        >
+          <Truck size={18} />
+          Vehículos Especiales
+        </button>
+
+        <button
+          onClick={() => navigate("/area/agua")}
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10 transition"
+        >
+          <Droplet size={18} />
+          Agua y Saneamiento
+        </button>
+
+        <button
+          onClick={() => navigate("/area/petroleo")}
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10 transition"
+        >
+          <Fuel size={18} />
+          Petróleo y Energía
+        </button>
+
+        {/* MÓDULOS */}
+        <div className="pt-4 mt-4 border-t border-white/10 space-y-2">
+
           <button
-            onClick={() => setDark(!dark)}
-            className="mb-4 w-full bg-slate-800 py-2 rounded-lg text-sm"
+            onClick={() => navigate("/operaciones")}
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10 transition"
           >
-            {dark ? "Modo claro ☀️" : "Modo oscuro 🌙"}
+            <Settings size={18} />
+            Operaciones
           </button>
 
-          {menu.map((item, i) => {
-            const active =
-              location.pathname === item.path ||
-              location.pathname.startsWith(item.path + "/");
+          <button
+            onClick={() => navigate("/repositorios")}
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10 transition"
+          >
+            <FolderOpen size={18} />
+            Repositorios
+          </button>
 
-            return (
-              <button
-                key={i}
-                onClick={() => {
-                  navigate(item.path);
-                  setOpen(false);
-                }}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition
-                ${
-                  active
-                    ? "bg-indigo-600 text-white"
-                    : "hover:bg-slate-800 text-slate-300"
-                }`}
-              >
-                {item.icon}
-                {item.name}
-              </button>
-            );
-          })}
-        </aside>
-
-        {/* OVERLAY */}
-        {open && (
-          <div
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 bg-black/40 z-40 lg:hidden"
-          />
-        )}
-
-        {/* CONTENIDO */}
-        <main className="flex-1">
-
-          {/* BOTÓN MÓVIL */}
-          <div className="p-4 lg:hidden">
-            <button
-              onClick={() => setOpen(!open)}
-              className="p-2 bg-slate-800 text-white rounded-lg"
-            >
-              <Menu size={20} />
-            </button>
-          </div>
-
-          <Outlet />
-        </main>
-
+        </div>
       </div>
-    </div>
+
+      {/* ================= FOOTER ================= */}
+      <div className="p-4 border-t border-white/10 text-xs text-gray-400 text-center">
+        ASTAP © 2026
+      </div>
+    </aside>
   );
 }
