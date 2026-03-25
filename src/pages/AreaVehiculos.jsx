@@ -1,53 +1,60 @@
-{/* ================= DERECHA ================= */}
-<div className="bg-white p-6 rounded-xl shadow space-y-4">
+import { useNavigate } from "react-router-dom";
 
-  <h2 className="font-semibold text-lg">
-    Operaciones
-  </h2>
+export default function AreaVehiculos() {
+  const navigate = useNavigate();
 
-  {/* HERRAMIENTAS */}
-  <div className="border rounded-lg p-4 space-y-2">
-    <h3 className="font-medium">Herramientas</h3>
-    <p className="text-xs text-gray-500">
-      Control y seguimiento de equipos y herramientas.
-    </p>
+  return (
+    <div className="p-6 space-y-6">
 
-    <button
-      onClick={() => navigate("/registro")}
-      className="bg-purple-600 text-white w-full py-2 rounded"
-    >
-      Ir
-    </button>
-  </div>
+      <h1 className="text-xl font-bold">
+        Vehículos Especiales
+      </h1>
 
-  {/* RECEPCIÓN */}
-  <div className="border rounded-lg p-4 space-y-2">
-    <h3 className="font-medium">Recepción</h3>
-    <p className="text-xs text-gray-500">
-      Registro de ingreso de vehículos a operación.
-    </p>
+      <div className="grid md:grid-cols-2 gap-6">
 
-    <button
-      onClick={() => navigate("/recepcion")}
-      className="bg-red-600 text-white w-full py-2 rounded"
-    >
-      Ir
-    </button>
-  </div>
+        {/* INFORMES */}
+        <div className="bg-white p-4 rounded shadow">
+          <h2 className="font-semibold">Informes</h2>
+          <p className="text-sm text-gray-500">
+            Registro técnico de trabajos realizados.
+          </p>
+          <button
+            onClick={() => navigate("/informe")}
+            className="mt-2 bg-blue-600 text-white px-3 py-2 rounded"
+          >
+            Ir
+          </button>
+        </div>
 
-  {/* 🔥 LIBERACIÓN (AQUÍ VA EL MÓDULO REAL) */}
-  <div className="border rounded-lg p-4 space-y-2">
-    <h3 className="font-medium">Liberación</h3>
-    <p className="text-xs text-gray-500">
-      Control de salida y entrega de vehículos.
-    </p>
+        {/* INSPECCIÓN */}
+        <div className="bg-white p-4 rounded shadow">
+          <h2 className="font-semibold">Inspección</h2>
+          <p className="text-sm text-gray-500">
+            Evaluación del estado de equipos.
+          </p>
+          <button
+            onClick={() => navigate("/inspeccion")}
+            className="mt-2 bg-yellow-600 text-white px-3 py-2 rounded"
+          >
+            Ir
+          </button>
+        </div>
 
-    <button
-      onClick={() => navigate("/liberacion")}
-      className="bg-indigo-600 text-white w-full py-2 rounded"
-    >
-      Ir
-    </button>
-  </div>
+        {/* MANTENIMIENTO */}
+        <div className="bg-white p-4 rounded shadow">
+          <h2 className="font-semibold">Mantenimiento</h2>
+          <p className="text-sm text-gray-500">
+            Control de mantenimiento preventivo.
+          </p>
+          <button
+            onClick={() => navigate("/mantenimiento")}
+            className="mt-2 bg-green-600 text-white px-3 py-2 rounded"
+          >
+            Ir
+          </button>
+        </div>
 
-</div>
+      </div>
+    </div>
+  );
+}
