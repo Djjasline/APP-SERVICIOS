@@ -61,16 +61,16 @@ export default function PanelServicios() {
   return (
     <div className="relative min-h-screen">
 
-      {/* 🔥 FONDO INDUSTRIAL */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-10"
-        style={{
-          backgroundImage: "url('/background-astap.png')",
-        }}
-      />
+    {/* FONDO */}
+<div
+  className="absolute inset-0 bg-cover bg-center opacity-30"
+  style={{
+    backgroundImage: "url('/background-astap.png')",
+  }}
+/>
 
-      {/* 🔥 OVERLAY SUAVE */}
-      <div className="absolute inset-0 bg-white/80 backdrop-blur-sm" />
+{/* OVERLAY */}
+<div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
 
       {/* 🔥 CONTENIDO */}
       <div className="relative p-6 space-y-8">
