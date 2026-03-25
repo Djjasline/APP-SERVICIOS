@@ -1,4 +1,5 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 import {
   LayoutDashboard,
   Truck,
@@ -6,10 +7,19 @@ import {
   Fuel,
   Settings,
   FolderOpen,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 
 export default function MainLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [openMenu, setOpenMenu] = useState(null);
+
+  const toggleMenu = (menu) => {
+    setOpenMenu(openMenu === menu ? null : menu);
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -24,9 +34,7 @@ export default function MainLayout() {
             alt="ASTAP"
             className="w-10 h-10 object-contain"
           />
-          <span className="font-bold text-lg tracking-wide">
-            ASTAP
-          </span>
+          <span className="font-bold text-lg">ASTAP</span>
         </div>
 
         {/* MENÚ */}
@@ -45,18 +53,56 @@ export default function MainLayout() {
             Menú Principal
           </button>
 
-          {/* ÁREAS */}
+          {/* ================= VEHÍCULOS ================= */}
           <button
-            onClick={() => navigate("/area/vehiculos")}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10 transition"
+            onClick={() => toggleMenu("vehiculos")}
+            className="flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-white/10 transition"
           >
-            <Truck size={18} />
-            Vehículos Especiales
+            <div className="flex items-center gap-3">
+              <Truck size={18} />
+              Vehículos Especiales
+            </div>
+
+            {openMenu === "vehiculos" ? (
+              <ChevronDown size={16} />
+            ) : (
+              <ChevronRight size={16} />
+            )}
           </button>
+
+          {/* SUBMENÚ VEHÍCULOS */}
+          {openMenu === "vehiculos" && (
+            <div className="ml-8 space-y-1 text-sm">
+
+              <button
+                onClick={() => navigate("/informes")}
+                className="block w-full text-left px-2 py-1 rounded hover:bg-white/10"
+              >
+                📄 Informes
+              </button>
+
+              <button
+                onClick={() => navigate("/inspeccion")}
+                className="block w-full text-left px-2 py-1 rounded hover:bg-white/10"
+              >
+                🔍 Inspección
+              </button>
+
+              <button
+                onClick={() => navigate("/mantenimiento")}
+                className="block w-full text-left px-2 py-1 rounded hover:bg-white/10"
+              >
+                🛠 Mantenimiento
+              </button>
+
+            </div>
+          )}
+
+          {/* ================= OTRAS ÁREAS (sin submenu aún) ================= */}
 
           <button
             onClick={() => navigate("/area/agua")}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10 transition"
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10"
           >
             <Droplet size={18} />
             Agua y Saneamiento
@@ -64,18 +110,18 @@ export default function MainLayout() {
 
           <button
             onClick={() => navigate("/area/petroleo")}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10 transition"
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10"
           >
             <Fuel size={18} />
             Petróleo y Energía
           </button>
 
-          {/* MÓDULOS */}
+          {/* ================= MÓDULOS ================= */}
           <div className="pt-4 mt-4 border-t border-white/10 space-y-2">
 
             <button
               onClick={() => navigate("/operaciones")}
-              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10 transition"
+              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10"
             >
               <Settings size={18} />
               Operaciones
@@ -83,7 +129,7 @@ export default function MainLayout() {
 
             <button
               onClick={() => navigate("/repositorios")}
-              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10 transition"
+              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10"
             >
               <FolderOpen size={18} />
               Repositorios
