@@ -62,14 +62,26 @@ export default function PanelServicios() {
     <div className="p-6 space-y-6">
 
       {/* HEADER */}
-      <div>
-        <h1 className="text-xl font-bold">
-          Panel de servicios ASTAP
-        </h1>
-        <p className="text-sm text-gray-500">
-          Gestión técnica por área
-        </p>
-      </div>
+      <div className="flex items-center gap-3">
+  
+  {/* LOGO ASTAP */}
+  <img
+    src="/astap-logo.jpg"
+    alt="ASTAP"
+    className="w-10 h-10 object-contain"
+  />
+
+  {/* TEXTO */}
+  <div>
+    <h1 className="text-xl font-bold">
+      Panel de servicios ASTAP
+    </h1>
+    <p className="text-sm text-gray-500">
+      Gestión técnica por área
+    </p>
+  </div>
+
+</div>
 
       {/* GRID PRINCIPAL */}
       <div className="grid md:grid-cols-3 gap-6">
