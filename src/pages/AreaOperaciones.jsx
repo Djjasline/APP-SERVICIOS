@@ -12,6 +12,7 @@ export default function AreaOperaciones() {
 
       <div className="grid md:grid-cols-2 gap-6">
 
+        {/* HERRAMIENTAS */}
         <div className="bg-white p-4 rounded shadow">
           <h2 className="font-semibold">Herramientas</h2>
           <p className="text-sm text-gray-500">
@@ -25,10 +26,11 @@ export default function AreaOperaciones() {
           </button>
         </div>
 
+        {/* RECEPCIÓN */}
         <div className="bg-white p-4 rounded shadow">
           <h2 className="font-semibold">Recepción</h2>
           <p className="text-sm text-gray-500">
-            Ingreso de vehículos.
+            Ingreso de vehículos al sistema.
           </p>
           <button
             onClick={() => navigate("/recepcion")}
@@ -38,10 +40,11 @@ export default function AreaOperaciones() {
           </button>
         </div>
 
+        {/* LIBERACIÓN */}
         <div className="bg-white p-4 rounded shadow">
           <h2 className="font-semibold">Liberación</h2>
           <p className="text-sm text-gray-500">
-            Salida de vehículos.
+            Salida de equipos y cierre de procesos.
           </p>
           <button
             onClick={() => navigate("/liberacion")}
