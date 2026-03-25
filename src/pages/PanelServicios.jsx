@@ -15,110 +15,104 @@ export default function PanelServicios() {
       id: "vehiculos",
       titulo: "Vehículos Especiales",
       descripcion:
-        "Gestión de equipos como hidrosuccionadores, barredoras y cámaras.",
+        "Gestión de informes, inspecciones y mantenimiento de equipos.",
       icon: <Truck size={28} />,
       color: "bg-blue-600",
-      ruta: "/area/vehiculos",
+      ruta: "/informe", // 🔥 YA EXISTE
     },
     {
       id: "agua",
       titulo: "Agua y Saneamiento",
       descripcion:
-        "Sistemas hidráulicos, saneamiento y control de agua.",
+        "Operación técnica de sistemas hidráulicos y saneamiento.",
       icon: <Droplet size={28} />,
       color: "bg-cyan-600",
-      ruta: "/area/agua",
+      ruta: "/inspeccion", // 🔥 YA EXISTE
     },
     {
       id: "petroleo",
       titulo: "Petróleo y Energía",
       descripcion:
-        "Equipos y servicios para el sector energético.",
+        "Gestión de equipos y mantenimiento para el sector energético.",
       icon: <Fuel size={28} />,
       color: "bg-yellow-600",
-      ruta: "/area/petroleo",
+      ruta: "/mantenimiento", // 🔥 YA EXISTE
     },
     {
       id: "operaciones",
       titulo: "Operaciones",
       descripcion:
-        "Vista global de todas las actividades técnicas y operativas.",
+        "Control operativo de recepción, herramientas y liberación.",
       icon: <Settings size={28} />,
       color: "bg-gray-800",
-      ruta: "/operaciones",
+      ruta: "/recepcion", // 🔥 YA EXISTE
     },
     {
       id: "repositorios",
       titulo: "Repositorios",
       descripcion:
-        "Gestión de documentos, informes PDF y archivos técnicos.",
+        "Gestión de registros técnicos y herramientas.",
       icon: <FolderArchive size={28} />,
       color: "bg-purple-700",
-      ruta: "/repositorios",
+      ruta: "/registro", // 🔥 YA EXISTE
     },
   ];
 
   return (
     <div className="relative min-h-screen">
 
-    {/* FONDO */}
-<div
-  className="absolute inset-0 bg-cover bg-center opacity-78"
-  style={{
-    backgroundImage: "url('/background-astap.png')",
-  }}
-/>
+      {/* 🔥 FONDO */}
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-20"
+        style={{
+          backgroundImage: "url('/background-astap.png')",
+        }}
+      />
 
-{/* OVERLAY */}
-<div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
+      {/* OVERLAY */}
+      <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
 
-      {/* 🔥 CONTENIDO */}
-      <div className="relative p-6 space-y-8">
+      {/* CONTENIDO */}
+      <div className="relative p-6 space-y-10">
 
-        {/* ================= HEADER JEDI ================= */}
+        {/* HEADER */}
         <div className="flex flex-col items-center text-center space-y-4">
-
           <img
             src="/astap-logo.jpg"
             alt="ASTAP"
-            className="w-20 h-20 object-contain drop-shadow-md"
+            className="w-24 h-24 object-contain drop-shadow-lg"
           />
 
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+          <h1 className="text-3xl font-bold tracking-tight">
             Panel de servicios ASTAP
           </h1>
 
-          <p className="text-sm md:text-base text-gray-500 max-w-xl">
-            Gestión técnica organizada por áreas operativas y módulos estratégicos
+          <p className="text-gray-500 max-w-xl">
+            Gestión técnica organizada por áreas operativas
           </p>
-
         </div>
 
-        {/* ================= MENÚ PRINCIPAL ================= */}
+        {/* GRID */}
         <div className="grid md:grid-cols-3 gap-6">
           {menuPrincipal.map((item) => (
             <div
               key={item.id}
-              className="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow hover:shadow-lg transition space-y-4"
+              className="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow hover:shadow-xl transition space-y-4"
             >
-              {/* ICONO */}
               <div
                 className={`${item.color} text-white w-12 h-12 flex items-center justify-center rounded-lg`}
               >
                 {item.icon}
               </div>
 
-              {/* TITULO */}
               <h2 className="font-semibold text-lg">
                 {item.titulo}
               </h2>
 
-              {/* DESCRIPCIÓN */}
               <p className="text-sm text-gray-600">
                 {item.descripcion}
               </p>
 
-              {/* BOTÓN */}
               <button
                 onClick={() => navigate(item.ruta)}
                 className={`${item.color} text-white w-full py-2 rounded-lg hover:opacity-90 transition`}
@@ -128,7 +122,6 @@ export default function PanelServicios() {
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );
