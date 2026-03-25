@@ -1,61 +1,65 @@
 import { useNavigate } from "react-router-dom";
 
-export default function Sidebar() {
+export default function PanelServicios() {
   const navigate = useNavigate();
 
+  const areas = [
+    {
+      id: "vehiculos",
+      titulo: "Vehículos Especiales",
+      descripcion:
+        "Gestión de equipos como hidrosuccionadores, barredoras y cámaras.",
+      color: "bg-blue-600",
+    },
+    {
+      id: "agua",
+      titulo: "Agua y Saneamiento",
+      descripcion:
+        "Sistemas hidráulicos, saneamiento y control de agua.",
+      color: "bg-cyan-600",
+    },
+    {
+      id: "petroleo",
+      titulo: "Petróleo y Energía",
+      descripcion:
+        "Equipos y servicios para el sector energético.",
+      color: "bg-yellow-600",
+    },
+  ];
+
   return (
-    <div className="w-64 h-screen bg-gray-900 text-white p-4 space-y-4">
-
-      <h1 className="text-lg font-bold">ASTAP</h1>
-
-      <div className="text-xs text-gray-400 mt-4">
-        MENÚ PRINCIPAL
+    <div className="p-6 space-y-6">
+      <div>
+        <h1 className="text-xl font-bold">
+          Panel de servicios ASTAP
+        </h1>
+        <p className="text-sm text-gray-500">
+          Gestión técnica por área
+        </p>
       </div>
 
-      <div className="space-y-2">
+      <div className="grid md:grid-cols-3 gap-6">
+        {areas.map((area) => (
+          <div
+            key={area.id}
+            className="bg-white p-6 rounded-xl shadow space-y-3 hover:shadow-md transition"
+          >
+            <h2 className="font-semibold text-lg">
+              {area.titulo}
+            </h2>
 
-        <button
-          onClick={() => navigate("/")}
-          className="w-full text-left px-3 py-2 rounded hover:bg-gray-700"
-        >
-          📊 Menú principal
-        </button>
+            <p className="text-sm text-gray-500">
+              {area.descripcion}
+            </p>
 
-        <button
-          onClick={() => navigate("/area/vehiculos")}
-          className="w-full text-left px-3 py-2 rounded hover:bg-gray-700"
-        >
-          🚛 Vehículos Especiales
-        </button>
-
-        <button
-          onClick={() => navigate("/area/agua")}
-          className="w-full text-left px-3 py-2 rounded hover:bg-gray-700"
-        >
-          💧 Agua y Saneamiento
-        </button>
-
-        <button
-          onClick={() => navigate("/area/petroleo")}
-          className="w-full text-left px-3 py-2 rounded hover:bg-gray-700"
-        >
-          🛢️ Petróleo y Energía
-        </button>
-
-        <button
-          onClick={() => navigate("/operaciones")}
-          className="w-full text-left px-3 py-2 rounded hover:bg-gray-700"
-        >
-          ⚙️ Operaciones
-        </button>
-
-        <button
-          onClick={() => navigate("/repositorios")}
-          className="w-full text-left px-3 py-2 rounded hover:bg-gray-700"
-        >
-          🗂️ Repositorios
-        </button>
-
+            <button
+              onClick={() => navigate(`/area/${area.id}`)}
+              className={`${area.color} text-white w-full py-2 rounded`}
+            >
+              Ingresar
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );
