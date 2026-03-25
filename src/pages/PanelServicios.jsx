@@ -63,7 +63,7 @@ export default function PanelServicios() {
 
     {/* FONDO */}
 <div
-  className="absolute inset-0 bg-cover bg-center opacity-30"
+  className="absolute inset-0 bg-cover bg-center opacity-10"
   style={{
     backgroundImage: "url('/background-astap.png')",
   }}
