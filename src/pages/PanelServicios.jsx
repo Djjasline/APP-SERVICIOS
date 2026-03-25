@@ -10,15 +10,16 @@ import {
 export default function PanelServicios() {
   const navigate = useNavigate();
 
+  /* ================= MENÚ CENTRAL ================= */
   const menuPrincipal = [
     {
       id: "vehiculos",
       titulo: "Vehículos Especiales",
       descripcion:
-        "Gestión de informes, inspecciones y mantenimiento de equipos.",
+        "Gestión de equipos como hidrosuccionadores, barredoras y cámaras.",
       icon: <Truck size={28} />,
       color: "bg-blue-600",
-      ruta: "/informe", // 🔥 YA EXISTE
+      ruta: "/area/vehiculos",
     },
     {
       id: "agua",
@@ -27,16 +28,16 @@ export default function PanelServicios() {
         "Operación técnica de sistemas hidráulicos y saneamiento.",
       icon: <Droplet size={28} />,
       color: "bg-cyan-600",
-      ruta: "/inspeccion", // 🔥 YA EXISTE
+      ruta: "/area/agua",
     },
     {
       id: "petroleo",
       titulo: "Petróleo y Energía",
       descripcion:
-        "Gestión de equipos y mantenimiento para el sector energético.",
+        "Gestión de equipos y mantenimiento del sector energético.",
       icon: <Fuel size={28} />,
       color: "bg-yellow-600",
-      ruta: "/mantenimiento", // 🔥 YA EXISTE
+      ruta: "/area/petroleo",
     },
     {
       id: "operaciones",
@@ -45,25 +46,25 @@ export default function PanelServicios() {
         "Control operativo de recepción, herramientas y liberación.",
       icon: <Settings size={28} />,
       color: "bg-gray-800",
-      ruta: "/recepcion", // 🔥 YA EXISTE
+      ruta: "/operaciones",
     },
     {
       id: "repositorios",
       titulo: "Repositorios",
       descripcion:
-        "Gestión de registros técnicos y herramientas.",
+        "Gestión de documentos, informes PDF y archivos técnicos.",
       icon: <FolderArchive size={28} />,
       color: "bg-purple-700",
-      ruta: "/registro", // 🔥 YA EXISTE
+      ruta: "/repositorios",
     },
   ];
 
   return (
     <div className="relative min-h-screen">
 
-      {/* 🔥 FONDO */}
+      {/* ================= FONDO ================= */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-80"
+        className="absolute inset-0 bg-cover bg-center opacity-30"
         style={{
           backgroundImage: "url('/background-astap.png')",
         }}
@@ -72,56 +73,64 @@ export default function PanelServicios() {
       {/* OVERLAY */}
       <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
 
-      {/* CONTENIDO */}
-      <div className="relative p-6 space-y-10">
+      {/* ================= CONTENIDO ================= */}
+      <div className="relative p-6 space-y-8">
 
         {/* HEADER */}
         <div className="flex flex-col items-center text-center space-y-4">
           <img
             src="/astap-logo.jpg"
             alt="ASTAP"
-            className="w-24 h-24 object-contain drop-shadow-lg"
+            className="w-20 h-20 object-contain"
           />
 
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold">
             Panel de servicios ASTAP
           </h1>
 
-          <p className="text-gray-500 max-w-xl">
+          <p className="text-sm text-gray-600">
             Gestión técnica organizada por áreas operativas
           </p>
         </div>
 
-        {/* GRID */}
+        {/* ================= MENÚ ================= */}
         <div className="grid md:grid-cols-3 gap-6">
+
           {menuPrincipal.map((item) => (
             <div
               key={item.id}
-              className="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow hover:shadow-xl transition space-y-4"
+              className="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow hover:shadow-lg transition space-y-4"
             >
+              {/* ICONO */}
               <div
                 className={`${item.color} text-white w-12 h-12 flex items-center justify-center rounded-lg`}
               >
                 {item.icon}
               </div>
 
+              {/* TITULO */}
               <h2 className="font-semibold text-lg">
                 {item.titulo}
               </h2>
 
+              {/* DESCRIPCIÓN */}
               <p className="text-sm text-gray-600">
                 {item.descripcion}
               </p>
 
+              {/* BOTÓN UNIVERSAL */}
               <button
                 onClick={() => navigate(item.ruta)}
                 className={`${item.color} text-white w-full py-2 rounded-lg hover:opacity-90 transition`}
               >
                 Ingresar
               </button>
+
             </div>
           ))}
+
         </div>
+
       </div>
     </div>
   );
