@@ -1,121 +1,62 @@
 import { useNavigate } from "react-router-dom";
 
-export default function PanelServicios() {
+export default function Sidebar() {
   const navigate = useNavigate();
 
-  const areas = [
-    {
-      id: "vehiculos",
-      titulo: "Vehículos Especiales",
-      descripcion:
-        "Gestión de equipos como hidrosuccionadores, barredoras y cámaras.",
-      color: "bg-blue-600",
-    },
-    {
-      id: "agua",
-      titulo: "Agua y Saneamiento",
-      descripcion:
-        "Sistemas hidráulicos, saneamiento y control de agua.",
-      color: "bg-cyan-600",
-    },
-    {
-      id: "petroleo",
-      titulo: "Petróleo y Energía",
-      descripcion:
-        "Equipos y servicios para el sector energético.",
-      color: "bg-yellow-600",
-    },
-  ];
-
-  const modulosGlobales = [
-    {
-      id: "operaciones",
-      titulo: "Operaciones",
-      descripcion:
-        "Vista global de todas las actividades técnicas.",
-      color: "bg-gray-800",
-      ruta: "/operaciones",
-    },
-    {
-      id: "repositorios",
-      titulo: "Repositorios",
-      descripcion:
-        "Gestión de documentos, informes y archivos técnicos.",
-      color: "bg-purple-700",
-      ruta: "/repositorios",
-    },
-  ];
-
   return (
-    <div className="p-6 space-y-8">
+    <div className="w-64 h-screen bg-gray-900 text-white p-4 space-y-4">
 
-      <div>
-        <h1 className="text-xl font-bold">
-          Panel de servicios ASTAP
-        </h1>
-        <p className="text-sm text-gray-500">
-          Gestión técnica por área
-        </p>
+      <h1 className="text-lg font-bold">ASTAP</h1>
+
+      <div className="text-xs text-gray-400 mt-4">
+        MENÚ PRINCIPAL
       </div>
 
-      {/* ================= ÁREAS ================= */}
-      <div>
-        <h2 className="font-semibold mb-3">Áreas</h2>
+      <div className="space-y-2">
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {areas.map((area) => (
-            <div
-              key={area.id}
-              className="bg-white p-5 rounded-xl shadow space-y-3"
-            >
-              <h3 className="font-semibold text-lg">
-                {area.titulo}
-              </h3>
+        <button
+          onClick={() => navigate("/")}
+          className="w-full text-left px-3 py-2 rounded hover:bg-gray-700"
+        >
+          📊 Menú principal
+        </button>
 
-              <p className="text-sm text-gray-500">
-                {area.descripcion}
-              </p>
+        <button
+          onClick={() => navigate("/area/vehiculos")}
+          className="w-full text-left px-3 py-2 rounded hover:bg-gray-700"
+        >
+          🚛 Vehículos Especiales
+        </button>
 
-              <button
-                onClick={() => navigate(`/area/${area.id}`)}
-                className={`${area.color} text-white w-full py-2 rounded`}
-              >
-                Ingresar
-              </button>
-            </div>
-          ))}
-        </div>
+        <button
+          onClick={() => navigate("/area/agua")}
+          className="w-full text-left px-3 py-2 rounded hover:bg-gray-700"
+        >
+          💧 Agua y Saneamiento
+        </button>
+
+        <button
+          onClick={() => navigate("/area/petroleo")}
+          className="w-full text-left px-3 py-2 rounded hover:bg-gray-700"
+        >
+          🛢️ Petróleo y Energía
+        </button>
+
+        <button
+          onClick={() => navigate("/operaciones")}
+          className="w-full text-left px-3 py-2 rounded hover:bg-gray-700"
+        >
+          ⚙️ Operaciones
+        </button>
+
+        <button
+          onClick={() => navigate("/repositorios")}
+          className="w-full text-left px-3 py-2 rounded hover:bg-gray-700"
+        >
+          🗂️ Repositorios
+        </button>
+
       </div>
-
-      {/* ================= OPERACIONES / REPOSITORIOS ================= */}
-      <div>
-        <h2 className="font-semibold mb-3">Módulos globales</h2>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          {modulosGlobales.map((mod) => (
-            <div
-              key={mod.id}
-              className="bg-white p-5 rounded-xl shadow space-y-3"
-            >
-              <h3 className="font-semibold text-lg">
-                {mod.titulo}
-              </h3>
-
-              <p className="text-sm text-gray-500">
-                {mod.descripcion}
-              </p>
-
-              <button
-                onClick={() => navigate(mod.ruta)}
-                className={`${mod.color} text-white w-full py-2 rounded`}
-              >
-                Ir
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
     </div>
   );
 }
