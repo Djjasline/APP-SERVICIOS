@@ -49,11 +49,19 @@ export default function RoutesApp() {
           <Route path="/informe/:id" element={<NuevoInforme />} />
 
           {/* ================= INSPECCIÓN ================= */}
-          <Route path="/inspeccion" element={<IndexInspeccion />} />
+<Route path="/inspeccion" element={<IndexInspeccion />} />
 
-          {/* HIDRO */}
-          <Route path="/inspeccion/hidro/new" element={<HojaInspeccionHidro />} />
-          <Route path="/inspeccion/hidro/:id" element={<HojaInspeccionHidro />} />
+{/* HIDRO */}
+<Route path="/inspeccion/hidro/new" element={<HojaInspeccionHidro />} />
+<Route path="/inspeccion/hidro/:id" element={<HojaInspeccionHidro />} />
+
+{/* BARREDORA */}
+<Route path="/inspeccion/barredora/new" element={<HojaInspeccionBarredora />} />
+<Route path="/inspeccion/barredora/:id" element={<HojaInspeccionBarredora />} />
+
+{/* CAMARA */}
+<Route path="/inspeccion/camara/new" element={<HojaInspeccionCamara />} />
+<Route path="/inspeccion/camara/:id" element={<HojaInspeccionCamara />} />
 
           {/* ================= MANTENIMIENTO ================= */}
           <Route
