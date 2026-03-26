@@ -14,7 +14,7 @@ export default function AreaVehiculos() {
 
         {/* INFORMES */}
         <div className="bg-white p-4 rounded shadow">
-          <h2 className="font-semibold">Informes</h2>
+          <h2 className="font-semibold">Informe General</h2>
           <p className="text-sm text-gray-500">
             Registro técnico de trabajos realizados.
           </p>
@@ -30,7 +30,7 @@ export default function AreaVehiculos() {
         <div className="bg-white p-4 rounded shadow">
           <h2 className="font-semibold">Inspección</h2>
           <p className="text-sm text-gray-500">
-            Evaluación del estado de equipos.
+            Evaluación del estado de equipos como Barredoras, Hidrosuccionadores y Cámaras de inspeciión.
           </p>
           <button
             onClick={() => navigate("/inspeccion")}
@@ -44,7 +44,7 @@ export default function AreaVehiculos() {
         <div className="bg-white p-4 rounded shadow">
           <h2 className="font-semibold">Mantenimiento</h2>
           <p className="text-sm text-gray-500">
-            Control de mantenimiento preventivo.
+            Control de mantenimiento preventivo de Barredoras, Hidrosuccionadores y Cámaras de inspeciión.
           </p>
           <button
             onClick={() => navigate("/mantenimiento")}
