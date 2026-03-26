@@ -29,6 +29,7 @@ import HojaMantenimientoBarredora from "./app/mantenimiento/HojaMantenimientoBar
 // ================= OPERACIONES =================
 import LiberacionHome from "./app/liberacion/LiberacionHome";
 import LiberacionForm from "./app/liberacion/LiberacionForm";
+import LiberacionDetalle from "./app/liberacion/LiberacionDetalle"; // 🔥 ESTE FALTABA
 
 export default function RoutesApp() {
   return (
