@@ -80,6 +80,7 @@ export default function Sidebar() {
       {/* FOOTER */}
       <div className="p-4 border-t border-white/10 text-xs text-gray-400 text-center">
         ASTAP © 2026
+        by Santiago Avilés
       </div>
     </aside>
   );
