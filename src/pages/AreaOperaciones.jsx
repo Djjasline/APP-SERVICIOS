@@ -10,7 +10,7 @@ export default function AreaOperaciones() {
       descripcion: "Control de salida y entrega de vehiculos.",
       icon: <Settings size={24} />,
       color: "bg-indigo-600",
-      ruta: "/liberacion",
+      ruta: "/liberacion", // 🔥 YA CONECTADO AL SISTEMA REAL
     },
     {
       titulo: "Herramientas y equipos",
