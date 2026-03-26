@@ -1,59 +1,71 @@
 import { useNavigate } from "react-router-dom";
+import { Settings, Wrench, Inbox } from "lucide-react";
 
 export default function AreaOperaciones() {
   const navigate = useNavigate();
 
+  const modulos = [
+    {
+      titulo: "Bitacora",
+      descripcion: "Control de salida y entrega de vehiculos.",
+      icon: <Settings size={24} />,
+      color: "bg-indigo-600",
+      ruta: "/liberacion",
+    },
+    {
+      titulo: "Herramientas y equipos",
+      descripcion: "Gestión y registro de salida e ingreso de herramientas y equipos técnicos.",
+      icon: <Wrench size={24} />,
+      color: "bg-gray-700",
+      ruta: "/registro",
+    },
+    {
+      titulo: "Recepción de equipos, veh'iculos y maquinaria",
+      descripcion: "Ingreso de equipos y validación inicial para manatenimientos y servicios.",
+      icon: <Inbox size={24} />,
+      color: "bg-green-600",
+      ruta: "/recepcion",
+    },
+  ];
+
   return (
     <div className="p-6 space-y-6">
 
-      <h1 className="text-xl font-bold">
-        Operaciones
-      </h1>
+      {/* HEADER */}
+      <div>
+        <h1 className="text-2xl font-bold">Operaciones</h1>
+        <p className="text-gray-500">
+          Gestión operativa de procesos técnicos.
+        </p>
+      </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-
-        {/* HERRAMIENTAS */}
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="font-semibold">Herramientas</h2>
-          <p className="text-sm text-gray-500">
-            Control y gestión de herramientas.
-          </p>
-          <button
-            onClick={() => navigate("/registro")}
-            className="mt-2 bg-purple-600 text-white px-3 py-2 rounded"
+      {/* GRID */}
+      <div className="grid md:grid-cols-3 gap-6">
+        {modulos.map((item, index) => (
+          <div
+            key={index}
+            className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition space-y-4"
           >
-            Ir
-          </button>
-        </div>
+            {/* ICONO */}
+            <div className={`${item.color} text-white w-12 h-12 flex items-center justify-center rounded-lg`}>
+              {item.icon}
+            </div>
 
-        {/* RECEPCIÓN */}
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="font-semibold">Recepción</h2>
-          <p className="text-sm text-gray-500">
-            Ingreso de vehículos al sistema.
-          </p>
-          <button
-            onClick={() => navigate("/recepcion")}
-            className="mt-2 bg-red-600 text-white px-3 py-2 rounded"
-          >
-            Ir
-          </button>
-        </div>
+            {/* TITULO */}
+            <h2 className="font-semibold text-lg">{item.titulo}</h2>
 
-        {/* LIBERACIÓN */}
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="font-semibold">Liberación</h2>
-          <p className="text-sm text-gray-500">
-            Salida de equipos y cierre de procesos.
-          </p>
-          <button
-            onClick={() => navigate("/liberacion")}
-            className="mt-2 bg-indigo-600 text-white px-3 py-2 rounded"
-          >
-            Ir
-          </button>
-        </div>
+            {/* DESCRIPCIÓN */}
+            <p className="text-sm text-gray-600">{item.descripcion}</p>
 
+            {/* BOTÓN */}
+            <button
+              onClick={() => navigate(item.ruta)}
+              className={`${item.color} text-white w-full py-2 rounded-lg hover:opacity-90 transition`}
+            >
+              Ingresar
+            </button>
+          </div>
+        ))}
       </div>
 
     </div>
