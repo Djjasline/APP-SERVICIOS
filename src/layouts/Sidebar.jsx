@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import {
   LayoutDashboard,
   Truck,
@@ -6,10 +7,15 @@ import {
   Fuel,
   Settings,
   FolderOpen,
+  ChevronDown,
 } from "lucide-react";
 
 export default function Sidebar() {
   const navigate = useNavigate();
+
+  // 🔥 CONTROL SUBMENÚS
+  const [openVehiculos, setOpenVehiculos] = useState(false);
+  const [openOperaciones, setOpenOperaciones] = useState(false);
 
   return (
     <aside className="h-screen w-64 bg-gradient-to-b from-[#0f172a] to-[#1e293b] text-white flex flex-col">
@@ -27,6 +33,7 @@ export default function Sidebar() {
       {/* MENÚ */}
       <div className="flex-1 p-4 space-y-2 text-sm">
 
+        {/* PANEL */}
         <button
           onClick={() => navigate("/")}
           className="flex items-center gap-3 w-full px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500"
@@ -35,14 +42,43 @@ export default function Sidebar() {
           Menú Principal
         </button>
 
-        <button
-          onClick={() => navigate("/area/vehiculos")}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10"
-        >
-          <Truck size={18} />
-          Vehículos
-        </button>
+        {/* ================= VEHÍCULOS ================= */}
+        <div>
+          <button
+            onClick={() => setOpenVehiculos(!openVehiculos)}
+            className="flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-white/10"
+          >
+            <span className="flex items-center gap-3">
+              <Truck size={18} />
+              Vehículos
+            </span>
+            <ChevronDown size={16} />
+          </button>
 
+          {openVehiculos && (
+            <div className="ml-6 mt-1 space-y-1 text-xs text-gray-300">
+
+              <button onClick={() => navigate("/area/vehiculos")}>
+                Panel Vehículos
+              </button>
+
+              <button onClick={() => navigate("/informe")}>
+                Informes
+              </button>
+
+              <button onClick={() => navigate("/inspeccion")}>
+                Inspección
+              </button>
+
+              <button onClick={() => navigate("/mantenimiento")}>
+                Mantenimiento
+              </button>
+
+            </div>
+          )}
+        </div>
+
+        {/* ================= AGUA ================= */}
         <button
           onClick={() => navigate("/area/agua")}
           className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10"
@@ -51,6 +87,7 @@ export default function Sidebar() {
           Agua
         </button>
 
+        {/* ================= PETRÓLEO ================= */}
         <button
           onClick={() => navigate("/area/petroleo")}
           className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10"
@@ -59,14 +96,43 @@ export default function Sidebar() {
           Petróleo
         </button>
 
-        <button
-          onClick={() => navigate("/operaciones")}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10"
-        >
-          <Settings size={18} />
-          Operaciones
-        </button>
+        {/* ================= OPERACIONES ================= */}
+        <div>
+          <button
+            onClick={() => setOpenOperaciones(!openOperaciones)}
+            className="flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-white/10"
+          >
+            <span className="flex items-center gap-3">
+              <Settings size={18} />
+              Operaciones
+            </span>
+            <ChevronDown size={16} />
+          </button>
 
+          {openOperaciones && (
+            <div className="ml-6 mt-1 space-y-1 text-xs text-gray-300">
+
+              <button onClick={() => navigate("/operaciones")}>
+                Panel Operaciones
+              </button>
+
+              <button onClick={() => navigate("/registro")}>
+                Herramientas
+              </button>
+
+              <button onClick={() => navigate("/recepcion")}>
+                Recepción
+              </button>
+
+              <button onClick={() => navigate("/liberacion")}>
+                Liberación
+              </button>
+
+            </div>
+          )}
+        </div>
+
+        {/* ================= REPOSITORIOS ================= */}
         <button
           onClick={() => navigate("/repositorios")}
           className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10"
