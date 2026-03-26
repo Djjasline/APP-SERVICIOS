@@ -65,11 +65,17 @@ export default function RoutesApp() {
 <Route path="/inspeccion/camara/new" element={<HojaInspeccionCamara />} />
 <Route path="/inspeccion/camara/:id" element={<HojaInspeccionCamara />} />
 
-          {/* ================= MANTENIMIENTO ================= */}
-          <Route
-            path="/mantenimiento"
-            element={<div className="p-6">Mantenimiento en construcción</div>}
-          />
+         {/* ================= MANTENIMIENTO ================= */}
+
+<Route path="/mantenimiento" element={<IndexMantenimiento />} />
+
+{/* HIDRO */}
+<Route path="/mantenimiento/hidro/new" element={<HojaMantenimientoHidro />} />
+<Route path="/mantenimiento/hidro/:id" element={<HojaMantenimientoHidro />} />
+
+{/* BARREDORA */}
+<Route path="/mantenimiento/barredora/new" element={<HojaMantenimientoBarredora />} />
+<Route path="/mantenimiento/barredora/:id" element={<HojaMantenimientoBarredora />} />
 
           {/* ================= OPERACIONES (FUNCIONALES) ================= */}
           <Route path="/liberacion" element={<LiberacionHome />} />
