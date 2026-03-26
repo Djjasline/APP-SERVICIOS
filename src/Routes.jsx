@@ -18,6 +18,8 @@ import NuevoInforme from "./app/informe/NuevoInforme";
 // INSPECCIONES
 import IndexInspeccion from "./app/inspeccion/HistorialInspecciones";
 import HojaInspeccionHidro from "./app/inspeccion/HojaInspeccionHidro";
+import HojaInspeccionBarredora from "./app/inspeccion/HojaInspeccionBarredora";
+import HojaInspeccionCamara from "./app/inspeccion/HojaInspeccionCamara";
 
 // OPERACIONES (FORMULARIOS YA EXISTENTES)
 import LiberacionHome from "./app/liberacion/LiberacionHome";
