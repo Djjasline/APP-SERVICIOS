@@ -6,27 +6,81 @@
 @tailwind utilities;
 
 /* ============================= */
-/* ESTILOS BASE DE LA APP */
+/* RESET BASE */
 /* ============================= */
 html,
 body {
   margin: 0;
   padding: 0;
+  height: 100%;
 }
 
+/* ============================= */
+/* APP GLOBAL (MODO GLASS / DARK) */
+/* ============================= */
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
-  background-color: #f3f4f6;
-  color: #111827;
+
+  /* 🔥 FONDO MODERNO */
+  background: linear-gradient(135deg, #020617, #0f172a, #1e293b);
+
+  color: #e5e7eb;
+  overflow: hidden;
 }
 
+/* ROOT */
 #root {
   min-height: 100vh;
 }
 
 /* ============================= */
+/* SCROLL PERSONALIZADO (PRO) */
+/* ============================= */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ============================= */
+/* EFECTO GLASS BASE */
+/* ============================= */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ============================= */
+/* SOMBRAS MODERNAS */
+/* ============================= */
+.shadow-glass {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================= */
+/* HOVER SUAVE GLOBAL */
+/* ============================= */
+button {
+  transition: all 0.25s ease;
+}
+
+/* ============================= */
 /* ESTILOS ESPECÍFICOS PARA PDF */
+/* ⚠️ NO TOCAR FUNCIONALIDAD */
 /* ============================= */
 
 .pdf-table {
@@ -69,6 +123,7 @@ body {
   font-family: Arial, sans-serif;
   background: transparent;
 }
+
 /* ============================= */
 /* CONTENEDOR PDF */
 /* ============================= */
@@ -76,6 +131,7 @@ body {
   background: white;
   padding: 20px;
   font-size: 11px;
+  color: black; /* 🔥 IMPORTANTE para contraste */
 }
 
 /* ============================= */
@@ -97,16 +153,17 @@ body {
 @media print {
   body {
     background: white;
+    color: black;
   }
 
   .no-print {
     display: none !important;
   }
 }
+
 /* ============================= */
 /* FIRMA – AJUSTE TOTAL */
 /* ============================= */
-
 .pdf-table canvas {
   width: 100% !important;
   height: 100% !important;
@@ -116,11 +173,11 @@ body {
   width: 100%;
   height: 100%;
 }
+
 /* ============================= */
 /* FIRMA – PRECISIÓN DE TRAZO */
 /* ============================= */
-
 .signature-wrapper {
-  touch-action: none; /* clave para tablets y trackpads */
+  touch-action: none;
   overscroll-behavior: contain;
 }
