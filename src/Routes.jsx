@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 
@@ -15,11 +16,10 @@ import AreaRepositorios from "./pages/AreaRepositorios";
 import InformeHome from "./app/informe/InformeHome";
 import NuevoInforme from "./app/informe/NuevoInforme";
 
-// INSPECCIONES
-import IndexInspeccion from "./app/inspeccion/HistorialInspecciones";
-import HojaInspeccionHidro from "./app/inspeccion/HojaInspeccionHidro";
-import HojaInspeccionBarredora from "./app/inspeccion/HojaInspeccionBarredora";
-import HojaInspeccionCamara from "./app/inspeccion/HojaInspeccionCamara";
+// MANTENIMIENTO
+import IndexMantenimiento from "./app/mantenimiento/IndexMantenimiento";
+import HojaMantenimientoHidro from "./app/mantenimiento/HojaMantenimientoHidro";
+import HojaMantenimientoBarredora from "./app/mantenimiento/HojaMantenimientoBarredora";
 
 // OPERACIONES (FORMULARIOS YA EXISTENTES)
 import LiberacionHome from "./app/liberacion/LiberacionHome";
