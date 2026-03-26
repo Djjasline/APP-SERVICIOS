@@ -14,56 +14,81 @@ import {
 export default function Sidebar() {
   const navigate = useNavigate();
 
+  const [openSidebar, setOpenSidebar] = useState(true);
   const [openVehiculos, setOpenVehiculos] = useState(true);
   const [openOperaciones, setOpenOperaciones] = useState(true);
 
+  const itemClass = `flex items-center ${
+    openSidebar ? "gap-3 px-3" : "justify-center"
+  } w-full py-2 rounded-xl hover:bg-white/10 transition-all duration-300`;
+
   const subItemClass =
     "block w-full text-left text-xs text-gray-300 hover:text-white transition";
-  const itemClass =
-    "flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10 transition";
-  const groupButtonClass =
-    "flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-white/10 transition";
+
+  const groupButtonClass = `flex items-center justify-between w-full ${
+    openSidebar ? "px-3" : "px-2"
+  } py-2 rounded-xl hover:bg-white/10 transition-all duration-300`;
 
   return (
-    <aside className="h-screen w-64 shrink-0 bg-gradient-to-b from-[#0f172a] to-[#1e293b] text-white flex flex-col border-r border-white/10">
-      <div className="p-5 border-b border-white/10 flex items-center gap-3">
+    <aside
+      className={`h-screen ${
+        openSidebar ? "w-64" : "w-20"
+      } shrink-0 flex flex-col transition-all duration-300
+      backdrop-blur-xl bg-white/5 border-r border-white/10 text-white`}
+    >
+      {/* 🔥 LOGO = BOTÓN */}
+      <button
+        onClick={() => setOpenSidebar(!openSidebar)}
+        className="p-4 flex items-center gap-3 border-b border-white/10 hover:bg-white/10 transition w-full"
+      >
         <img
           src="/astap-logo.jpg"
           alt="ASTAP"
           className="w-10 h-10 object-contain"
         />
-        <span className="font-bold text-lg">ASTAP</span>
-      </div>
 
-      <div className="flex-1 p-4 space-y-2 text-sm overflow-y-auto">
+        {openSidebar && (
+          <span className="font-bold text-lg tracking-wide">
+            ASTAP
+          </span>
+        )}
+      </button>
+
+      {/* 🔹 CONTENIDO */}
+      <div className="flex-1 p-3 space-y-2 text-sm overflow-y-auto">
+        {/* MENÚ PRINCIPAL */}
         <button
           onClick={() => navigate("/")}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition"
-          type="button"
+          className={`${itemClass} bg-indigo-600/80 hover:bg-indigo-500`}
         >
           <LayoutDashboard size={18} />
-          Menú Principal
+          {openSidebar && "Menú Principal"}
         </button>
 
+        {/* VEHÍCULOS */}
         <div>
           <button
             onClick={() => setOpenVehiculos((prev) => !prev)}
             className={groupButtonClass}
-            type="button"
           >
             <span className="flex items-center gap-3">
               <Truck size={18} />
-              Vehículos Especiales
+              {openSidebar && "Vehículos"}
             </span>
-            {openVehiculos ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+
+            {openSidebar &&
+              (openVehiculos ? (
+                <ChevronDown size={16} />
+              ) : (
+                <ChevronRight size={16} />
+              ))}
           </button>
 
-          {openVehiculos && (
+          {openSidebar && openVehiculos && (
             <div className="ml-8 mt-2 space-y-2">
               <button
                 onClick={() => navigate("/area/vehiculos")}
                 className={subItemClass}
-                type="button"
               >
                 Panel Vehículos
               </button>
@@ -71,7 +96,6 @@ export default function Sidebar() {
               <button
                 onClick={() => navigate("/informe")}
                 className={subItemClass}
-                type="button"
               >
                 Informes
               </button>
@@ -79,7 +103,6 @@ export default function Sidebar() {
               <button
                 onClick={() => navigate("/inspeccion")}
                 className={subItemClass}
-                type="button"
               >
                 Inspección
               </button>
@@ -87,7 +110,6 @@ export default function Sidebar() {
               <button
                 onClick={() => navigate("/mantenimiento")}
                 className={subItemClass}
-                type="button"
               >
                 Mantenimiento
               </button>
@@ -95,43 +117,48 @@ export default function Sidebar() {
           )}
         </div>
 
+        {/* AGUA */}
         <button
           onClick={() => navigate("/area/agua")}
           className={itemClass}
-          type="button"
         >
           <Droplet size={18} />
-          Agua y Saneamiento
+          {openSidebar && "Agua y Saneamiento"}
         </button>
 
+        {/* PETRÓLEO */}
         <button
           onClick={() => navigate("/area/petroleo")}
           className={itemClass}
-          type="button"
         >
           <Fuel size={18} />
-          Petróleo y Energía
+          {openSidebar && "Petróleo y Energía"}
         </button>
 
+        {/* OPERACIONES */}
         <div>
           <button
             onClick={() => setOpenOperaciones((prev) => !prev)}
             className={groupButtonClass}
-            type="button"
           >
             <span className="flex items-center gap-3">
               <Settings size={18} />
-              Operaciones
+              {openSidebar && "Operaciones"}
             </span>
-            {openOperaciones ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+
+            {openSidebar &&
+              (openOperaciones ? (
+                <ChevronDown size={16} />
+              ) : (
+                <ChevronRight size={16} />
+              ))}
           </button>
 
-          {openOperaciones && (
+          {openSidebar && openOperaciones && (
             <div className="ml-8 mt-2 space-y-2">
               <button
                 onClick={() => navigate("/operaciones")}
                 className={subItemClass}
-                type="button"
               >
                 Panel Operaciones
               </button>
@@ -139,7 +166,6 @@ export default function Sidebar() {
               <button
                 onClick={() => navigate("/registro")}
                 className={subItemClass}
-                type="button"
               >
                 Herramientas
               </button>
@@ -147,7 +173,6 @@ export default function Sidebar() {
               <button
                 onClick={() => navigate("/recepcion")}
                 className={subItemClass}
-                type="button"
               >
                 Recepción
               </button>
@@ -155,7 +180,6 @@ export default function Sidebar() {
               <button
                 onClick={() => navigate("/liberacion")}
                 className={subItemClass}
-                type="button"
               >
                 Liberación
               </button>
@@ -163,18 +187,19 @@ export default function Sidebar() {
           )}
         </div>
 
+        {/* REPOSITORIOS */}
         <button
           onClick={() => navigate("/repositorios")}
           className={itemClass}
-          type="button"
         >
           <FolderOpen size={18} />
-          Repositorios
+          {openSidebar && "Repositorios"}
         </button>
       </div>
 
-      <div className="p-4 border-t border-white/10 text-xs text-gray-400 text-center">
-        ASTAP © 2026 by Santiago Avilés
+      {/* FOOTER */}
+      <div className="p-3 border-t border-white/10 text-xs text-gray-400 text-center backdrop-blur-md">
+        {openSidebar ? "ASTAP © 2026" : "©"}
       </div>
     </aside>
   );
