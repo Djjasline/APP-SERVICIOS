@@ -8,20 +8,25 @@ import {
   Settings,
   FolderOpen,
   ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 
 export default function Sidebar() {
   const navigate = useNavigate();
 
-  // 🔥 CONTROL SUBMENÚS
-  const [openVehiculos, setOpenVehiculos] = useState(false);
-  const [openOperaciones, setOpenOperaciones] = useState(false);
+  const [openVehiculos, setOpenVehiculos] = useState(true);
+  const [openOperaciones, setOpenOperaciones] = useState(true);
+
+  const subItemClass =
+    "block w-full text-left text-xs text-gray-300 hover:text-white transition";
+  const itemClass =
+    "flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10 transition";
+  const groupButtonClass =
+    "flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-white/10 transition";
 
   return (
-    <aside className="h-screen w-64 bg-gradient-to-b from-[#0f172a] to-[#1e293b] text-white flex flex-col">
-
-      {/* LOGO */}
-      <div className="p-6 border-b border-white/10 flex items-center gap-3">
+    <aside className="h-screen w-64 shrink-0 bg-gradient-to-b from-[#0f172a] to-[#1e293b] text-white flex flex-col border-r border-white/10">
+      <div className="p-5 border-b border-white/10 flex items-center gap-3">
         <img
           src="/astap-logo.jpg"
           alt="ASTAP"
@@ -30,123 +35,146 @@ export default function Sidebar() {
         <span className="font-bold text-lg">ASTAP</span>
       </div>
 
-      {/* MENÚ */}
-      <div className="flex-1 p-4 space-y-2 text-sm">
-
-        {/* PANEL */}
+      <div className="flex-1 p-4 space-y-2 text-sm overflow-y-auto">
         <button
           onClick={() => navigate("/")}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500"
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition"
+          type="button"
         >
           <LayoutDashboard size={18} />
           Menú Principal
         </button>
 
-        {/* ================= VEHÍCULOS ================= */}
         <div>
           <button
-            onClick={() => setOpenVehiculos(!openVehiculos)}
-            className="flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-white/10"
+            onClick={() => setOpenVehiculos((prev) => !prev)}
+            className={groupButtonClass}
+            type="button"
           >
             <span className="flex items-center gap-3">
               <Truck size={18} />
-              Vehículos
+              Vehículos Especiales
             </span>
-            <ChevronDown size={16} />
+            {openVehiculos ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           </button>
 
           {openVehiculos && (
-            <div className="ml-6 mt-1 space-y-1 text-xs text-gray-300">
-
-              <button onClick={() => navigate("/area/vehiculos")}>
+            <div className="ml-8 mt-2 space-y-2">
+              <button
+                onClick={() => navigate("/area/vehiculos")}
+                className={subItemClass}
+                type="button"
+              >
                 Panel Vehículos
               </button>
 
-              <button onClick={() => navigate("/informe")}>
+              <button
+                onClick={() => navigate("/informe")}
+                className={subItemClass}
+                type="button"
+              >
                 Informes
               </button>
 
-              <button onClick={() => navigate("/inspeccion")}>
+              <button
+                onClick={() => navigate("/inspeccion")}
+                className={subItemClass}
+                type="button"
+              >
                 Inspección
               </button>
 
-              <button onClick={() => navigate("/mantenimiento")}>
+              <button
+                onClick={() => navigate("/mantenimiento")}
+                className={subItemClass}
+                type="button"
+              >
                 Mantenimiento
               </button>
-
             </div>
           )}
         </div>
 
-        {/* ================= AGUA ================= */}
         <button
           onClick={() => navigate("/area/agua")}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10"
+          className={itemClass}
+          type="button"
         >
           <Droplet size={18} />
-          Agua
+          Agua y Saneamiento
         </button>
 
-        {/* ================= PETRÓLEO ================= */}
         <button
           onClick={() => navigate("/area/petroleo")}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10"
+          className={itemClass}
+          type="button"
         >
           <Fuel size={18} />
-          Petróleo
+          Petróleo y Energía
         </button>
 
-        {/* ================= OPERACIONES ================= */}
         <div>
           <button
-            onClick={() => setOpenOperaciones(!openOperaciones)}
-            className="flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-white/10"
+            onClick={() => setOpenOperaciones((prev) => !prev)}
+            className={groupButtonClass}
+            type="button"
           >
             <span className="flex items-center gap-3">
               <Settings size={18} />
               Operaciones
             </span>
-            <ChevronDown size={16} />
+            {openOperaciones ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           </button>
 
           {openOperaciones && (
-            <div className="ml-6 mt-1 space-y-1 text-xs text-gray-300">
-
-              <button onClick={() => navigate("/operaciones")}>
+            <div className="ml-8 mt-2 space-y-2">
+              <button
+                onClick={() => navigate("/operaciones")}
+                className={subItemClass}
+                type="button"
+              >
                 Panel Operaciones
               </button>
 
-              <button onClick={() => navigate("/registro")}>
+              <button
+                onClick={() => navigate("/registro")}
+                className={subItemClass}
+                type="button"
+              >
                 Herramientas
               </button>
 
-              <button onClick={() => navigate("/recepcion")}>
+              <button
+                onClick={() => navigate("/recepcion")}
+                className={subItemClass}
+                type="button"
+              >
                 Recepción
               </button>
 
-              <button onClick={() => navigate("/liberacion")}>
+              <button
+                onClick={() => navigate("/liberacion")}
+                className={subItemClass}
+                type="button"
+              >
                 Liberación
               </button>
-
             </div>
           )}
         </div>
 
-        {/* ================= REPOSITORIOS ================= */}
         <button
           onClick={() => navigate("/repositorios")}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-white/10"
+          className={itemClass}
+          type="button"
         >
           <FolderOpen size={18} />
           Repositorios
         </button>
-
       </div>
 
-      {/* FOOTER */}
       <div className="p-4 border-t border-white/10 text-xs text-gray-400 text-center">
-        ASTAP © 2026
-        by Santiago Avilés
+        ASTAP © 2026 by Santiago Avilés
       </div>
     </aside>
   );
