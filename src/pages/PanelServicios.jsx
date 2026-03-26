@@ -62,17 +62,22 @@ export default function PanelServicios() {
   return (
     <div className="relative min-h-screen">
 
-      {/* ================= FONDO ================= */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-80"
-        style={{
-          backgroundImage: "url('/background-astap.png')",
-        }}
-      />
+      {/* ================= FONDO COLLAGE ================= */}
+<div className="absolute inset-0 grid grid-cols-4 opacity-80">
+  {[...Array(8)].map((_, i) => (
+    <img
+      key={i}
+      src="/background-astap.png"
+      className="w-full h-full object-cover"
+      style={{
+        filter: "brightness(0.9)",
+        transform: i % 2 === 0 ? "scaleX(-1)" : "none",
+      }}
+    />
+  ))}
+</div>
 
-      {/* OVERLAY */}
-      <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
-
+<div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
       {/* ================= CONTENIDO ================= */}
       <div className="relative p-6 space-y-8">
 
