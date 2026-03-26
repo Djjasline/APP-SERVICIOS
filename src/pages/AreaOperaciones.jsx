@@ -20,7 +20,7 @@ export default function AreaOperaciones() {
       ruta: "/registro",
     },
     {
-      titulo: "Recepción de equipos, veh'iculos y maquinaria",
+      titulo: "Recepción de equipos, vehículos y maquinaria",
       descripcion: "Ingreso de equipos y validación inicial para manatenimientos y servicios.",
       icon: <Inbox size={24} />,
       color: "bg-green-600",
