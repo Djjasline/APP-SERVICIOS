@@ -30,7 +30,7 @@ export default function AreaVehiculos() {
         <div className="bg-white p-4 rounded shadow">
           <h2 className="font-semibold">Inspección</h2>
           <p className="text-sm text-gray-500">
-            Evaluación del estado de equipos como Barredoras, Hidrosuccionadores y Cámaras de inspeciión.
+            Evaluación del estado de equipos como Barredoras, Hidrosuccionadores y Cámaras de inspección.
           </p>
           <button
             onClick={() => navigate("/inspeccion")}
