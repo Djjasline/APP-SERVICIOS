@@ -8,8 +8,10 @@ export default function MainLayout() {
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b] text-white">
       
+      {/* SIDEBAR */}
       <Sidebar openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
 
+      {/* CONTENIDO */}
       <div className="flex-1 flex flex-col">
         
         {/* HEADER */}
@@ -32,12 +34,13 @@ export default function MainLayout() {
           </div>
         </header>
 
-        {/* MAIN */}
+        {/* 🔥 AQUÍ ESTÁ LA CLAVE */}
         <main className="flex-1 overflow-y-auto p-6">
           <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-6 shadow-xl min-h-full">
             <Outlet />
           </div>
         </main>
+
       </div>
     </div>
   );
