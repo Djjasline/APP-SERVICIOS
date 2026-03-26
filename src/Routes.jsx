@@ -82,8 +82,10 @@ export default function RoutesApp() {
           <Route path="/mantenimiento/barredora/:id" element={<HojaMantenimientoBarredora />} />
 
           {/* ================= OPERACIONES ================= */}
-          <Route path="/liberacion" element={<LiberacionHome />} />
-          <Route path="/liberacion/new" element={<LiberacionForm />} />
+
+<Route path="/liberacion" element={<LiberacionHome />} />
+<Route path="/liberacion/new" element={<LiberacionForm />} />
+<Route path="/liberacion/:id" element={<LiberacionDetalle />} />
 
           <Route
             path="/recepcion"
