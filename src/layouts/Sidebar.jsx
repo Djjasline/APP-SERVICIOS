@@ -11,10 +11,9 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-export default function Sidebar() {
+export default function Sidebar({ openSidebar, setOpenSidebar }) {
   const navigate = useNavigate();
 
-  const [openSidebar, setOpenSidebar] = useState(true);
   const [openVehiculos, setOpenVehiculos] = useState(true);
   const [openOperaciones, setOpenOperaciones] = useState(true);
 
@@ -33,10 +32,9 @@ export default function Sidebar() {
     <aside
       className={`h-screen ${
         openSidebar ? "w-64" : "w-20"
-      } shrink-0 flex flex-col transition-all duration-300
-      backdrop-blur-xl bg-white/5 border-r border-white/10 text-white`}
+      } fixed md:relative z-40 flex flex-col transition-all duration-300 backdrop-blur-xl bg-white/5 border-r border-white/10`}
     >
-      {/* 🔥 LOGO = BOTÓN */}
+      {/* LOGO = BOTÓN */}
       <button
         onClick={() => setOpenSidebar(!openSidebar)}
         className="p-4 flex items-center gap-3 border-b border-white/10 hover:bg-white/10 transition w-full"
@@ -54,8 +52,9 @@ export default function Sidebar() {
         )}
       </button>
 
-      {/* 🔹 CONTENIDO */}
+      {/* CONTENIDO */}
       <div className="flex-1 p-3 space-y-2 text-sm overflow-y-auto">
+        
         {/* MENÚ PRINCIPAL */}
         <button
           onClick={() => navigate("/")}
@@ -86,31 +85,16 @@ export default function Sidebar() {
 
           {openSidebar && openVehiculos && (
             <div className="ml-8 mt-2 space-y-2">
-              <button
-                onClick={() => navigate("/area/vehiculos")}
-                className={subItemClass}
-              >
+              <button onClick={() => navigate("/area/vehiculos")} className={subItemClass}>
                 Panel Vehículos
               </button>
-
-              <button
-                onClick={() => navigate("/informe")}
-                className={subItemClass}
-              >
+              <button onClick={() => navigate("/informe")} className={subItemClass}>
                 Informes
               </button>
-
-              <button
-                onClick={() => navigate("/inspeccion")}
-                className={subItemClass}
-              >
+              <button onClick={() => navigate("/inspeccion")} className={subItemClass}>
                 Inspección
               </button>
-
-              <button
-                onClick={() => navigate("/mantenimiento")}
-                className={subItemClass}
-              >
+              <button onClick={() => navigate("/mantenimiento")} className={subItemClass}>
                 Mantenimiento
               </button>
             </div>
@@ -118,19 +102,13 @@ export default function Sidebar() {
         </div>
 
         {/* AGUA */}
-        <button
-          onClick={() => navigate("/area/agua")}
-          className={itemClass}
-        >
+        <button onClick={() => navigate("/area/agua")} className={itemClass}>
           <Droplet size={18} />
           {openSidebar && "Agua y Saneamiento"}
         </button>
 
         {/* PETRÓLEO */}
-        <button
-          onClick={() => navigate("/area/petroleo")}
-          className={itemClass}
-        >
+        <button onClick={() => navigate("/area/petroleo")} className={itemClass}>
           <Fuel size={18} />
           {openSidebar && "Petróleo y Energía"}
         </button>
@@ -156,31 +134,16 @@ export default function Sidebar() {
 
           {openSidebar && openOperaciones && (
             <div className="ml-8 mt-2 space-y-2">
-              <button
-                onClick={() => navigate("/operaciones")}
-                className={subItemClass}
-              >
+              <button onClick={() => navigate("/operaciones")} className={subItemClass}>
                 Panel Operaciones
               </button>
-
-              <button
-                onClick={() => navigate("/registro")}
-                className={subItemClass}
-              >
+              <button onClick={() => navigate("/registro")} className={subItemClass}>
                 Herramientas
               </button>
-
-              <button
-                onClick={() => navigate("/recepcion")}
-                className={subItemClass}
-              >
+              <button onClick={() => navigate("/recepcion")} className={subItemClass}>
                 Recepción
               </button>
-
-              <button
-                onClick={() => navigate("/liberacion")}
-                className={subItemClass}
-              >
+              <button onClick={() => navigate("/liberacion")} className={subItemClass}>
                 Liberación
               </button>
             </div>
@@ -188,17 +151,14 @@ export default function Sidebar() {
         </div>
 
         {/* REPOSITORIOS */}
-        <button
-          onClick={() => navigate("/repositorios")}
-          className={itemClass}
-        >
+        <button onClick={() => navigate("/repositorios")} className={itemClass}>
           <FolderOpen size={18} />
           {openSidebar && "Repositorios"}
         </button>
       </div>
 
       {/* FOOTER */}
-      <div className="p-3 border-t border-white/10 text-xs text-gray-400 text-center backdrop-blur-md">
+      <div className="p-3 border-t border-white/10 text-xs text-gray-400 text-center">
         {openSidebar ? "ASTAP © 2026" : "©"}
       </div>
     </aside>
