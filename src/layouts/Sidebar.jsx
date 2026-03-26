@@ -54,6 +54,7 @@ export default function Sidebar({ open, setOpen }) {
       {/* FOOTER */}
       <div className="p-4 text-xs text-center text-gray-400">
         ASTAP © 2026
+        by Santiago Avilés
       </div>
     </aside>
   );
