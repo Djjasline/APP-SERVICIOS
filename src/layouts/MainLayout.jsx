@@ -10,13 +10,12 @@ export default function MainLayout({ children }) {
       {/* SIDEBAR */}
       <Sidebar openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
 
-      {/* CONTENIDO PRINCIPAL */}
-      <div className="flex-1 flex flex-col backdrop-blur-xl">
+      {/* CONTENIDO */}
+      <div className="flex-1 flex flex-col md:ml-0">
         
-        {/* HEADER (LIQUID GLASS) */}
-        <header className="h-16 flex items-center justify-between px-6 
-        backdrop-blur-xl bg-white/5 border-b border-white/10">
-
+        {/* HEADER */}
+        <header className="h-16 flex items-center justify-between px-6 backdrop-blur-xl bg-white/5 border-b border-white/10">
+          
           <div className="flex items-center gap-4">
             {/* BOTÓN MOBILE */}
             <button
@@ -31,7 +30,7 @@ export default function MainLayout({ children }) {
             </h1>
           </div>
 
-          {/* ACCIONES DERECHA */}
+          {/* PERFIL */}
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center">
               👤
@@ -39,14 +38,11 @@ export default function MainLayout({ children }) {
           </div>
         </header>
 
-        {/* MAIN CONTENT */}
+        {/* MAIN */}
         <main className="flex-1 overflow-y-auto p-6">
-          
-          {/* CONTENEDOR GLASS */}
-          <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-6 shadow-xl">
+          <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-6 shadow-xl min-h-full">
             {children}
           </div>
-
         </main>
       </div>
     </div>
