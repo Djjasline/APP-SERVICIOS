@@ -147,7 +147,7 @@ export default function IndexMantenimiento() {
           </h2>
 
           <button
-            onClick={() => navigate("/mantenimiento/hidro/crear")}
+            onClick={() => navigate("/mantenimiento/hidro/new")}
             className="w-full bg-blue-600 text-white py-2 rounded"
           >
             Crear mantenimiento
