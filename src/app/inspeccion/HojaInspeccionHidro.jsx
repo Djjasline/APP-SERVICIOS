@@ -587,14 +587,21 @@ const handleSubmit = async (e) => {
     </tr>
   </tbody>
 </table>
-      {/* ================= BOTONES ================= */}
+     {/* ================= BOTONES ================= */}
       <div className="flex justify-end gap-4">
-       <button
-  type="submit"
-  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
->
-  Guardar informe
-</button>
+        <button
+          type="button"
+          onClick={() => navigate("/inspeccion")}
+          className="border px-4 py-2 rounded"
+        >
+          Volver
+        </button>
+        <button
+          type="submit"
+          className="bg-green-600 text-white px-4 py-2 rounded"
+        >
+          Guardar y completar
+        </button>
       </div>
     </form>
   );
