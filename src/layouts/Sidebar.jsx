@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import { Outlet } from "react-router-dom";
@@ -9,18 +10,15 @@ export default function MainLayout() {
   return (
     <div className="flex min-h-screen">
 
-      {/* SIDEBAR */}
       {showSidebar && <Sidebar />}
 
-      {/* BOTÓN FLOTANTE 🔥 */}
       <button
         onClick={() => setShowSidebar(!showSidebar)}
-        className="fixed top-4 left-4 z-50 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-500 transition"
+        className="fixed top-4 left-4 z-50 bg-indigo-600 text-white p-3 rounded-full"
       >
         <Menu size={20} />
       </button>
 
-      {/* CONTENIDO */}
       <main className="flex-1 bg-gray-100">
         <Outlet />
       </main>
