@@ -158,8 +158,22 @@ export default function IndexInspeccion() {
   ============================== */
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
-      <h1 className="text-xl font-bold">Inspección y valoración</h1>
 
+      {/* 🔥 HEADER CON BOTÓN VOLVER */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl font-bold">
+          Inspección y valoración
+        </h1>
+
+        <button
+          onClick={() => navigate("/area/vehiculos")}
+          className="border px-4 py-1 rounded text-sm hover:bg-gray-100"
+        >
+          ← Volver
+        </button>
+      </div>
+
+      {/* GRID */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {renderColumn(
           "Hidrosuccionador",
@@ -179,6 +193,7 @@ export default function IndexInspeccion() {
           "Inspección con sistema de cámara"
         )}
       </div>
+
     </div>
   );
 }
