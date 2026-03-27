@@ -159,8 +159,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
 
       {/* FOOTER */}
       <div className="p-3 border-t border-white/10 text-xs text-gray-400 text-center">
-        {openSidebar ? "ASTAP © 2026" 
-        by Santiago Avilés: "©"}
+        {openSidebar ? "ASTAP © 2026  by Santiago Avilés": "©"}
       </div>
     </aside>
   );
