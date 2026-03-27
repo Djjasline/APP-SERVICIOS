@@ -1,26 +1,37 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { USERS } from "../data/users"; // 🔥 IMPORTANTE
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
+  // 🔄 Mantener sesión
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
   }, []);
 
-  const login = (username, password) => {
-    // 🔥 AQUÍ luego conectamos a Supabase
-    if (username === "admin" && password === "1234") {
-      const userData = { username };
-      setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
+  // 🔐 LOGIN REAL
+  const login = (email, password) => {
+    const foundUser = USERS.find(
+      (u) =>
+        u.email.toLowerCase() === email.trim().toLowerCase() &&
+        u.password === password
+    );
+
+    if (foundUser) {
+      setUser(foundUser);
+      localStorage.setItem("user", JSON.stringify(foundUser));
       return true;
     }
+
     return false;
   };
 
+  // 🚪 LOGOUT
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
