@@ -16,7 +16,7 @@ export default function MainLayout() {
       <Sidebar openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
 
       {/* CONTENIDO */}
-      <main className="flex-1 overflow-y-auto p-6 text-gray-200">
+      <div className="flex-1 flex flex-col">
         
         {/* HEADER */}
         <header className="h-16 flex items-center justify-between px-6 backdrop-blur-xl bg-white/5 border-b border-white/10 relative z-50 text-white">
@@ -72,7 +72,7 @@ export default function MainLayout() {
 
         </header>
 
-               {/* MAIN */}
+        {/* MAIN */}
         <main className="flex-1 overflow-y-auto p-6 text-gray-200">
           <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-6 shadow-xl min-h-full">
             <Outlet />
@@ -80,6 +80,7 @@ export default function MainLayout() {
         </main>
 
       </div> {/* FIN CONTENIDO */}
+
     </div>   {/* FIN LAYOUT */}
   );
 }
