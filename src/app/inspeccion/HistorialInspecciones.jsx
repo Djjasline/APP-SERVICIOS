@@ -7,7 +7,7 @@ export default function IndexInspeccion() {
   const [inspections, setInspections] = useState([]);
 
   /* =============================
-     CARGAR INSPECCIONES (SUPABASE)
+     CARGAR INSPECCIONES
   ============================== */
   useEffect(() => {
     const loadInspections = async () => {
@@ -30,7 +30,7 @@ export default function IndexInspeccion() {
   }, []);
 
   /* =============================
-     AGRUPAR POR TIPO
+     AGRUPAR
   ============================== */
   const safeInspections = Array.isArray(inspections) ? inspections : [];
 
@@ -69,105 +69,20 @@ export default function IndexInspeccion() {
   };
 
   /* =============================
-     RENDER COLUMNAS
-  ============================== */
-  const renderColumn = (title, type, description) => (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">{title}</h2>
-      <p className="text-xs text-gray-500">{description}</p>
-
-      <button
-        onClick={() => navigate(`/inspeccion/${type}/new`)}
-        className="px-3 py-2 bg-black text-white rounded text-sm"
-      >
-        + Nueva inspección
-      </button>
-
-      <div className="space-y-2">
-        {byType[type].length === 0 ? (
-          <p className="text-xs text-gray-400">
-            No hay inspecciones registradas.
-          </p>
-        ) : (
-          byType[type].map((item) => (
-            <div
-              key={item.id}
-              className="border rounded p-2 text-xs flex flex-col gap-1"
-            >
-              {/* HEADER */}
-              <div className="flex justify-between">
-                <span className="font-medium">
-                  {item.data?.cliente || "Sin cliente"}
-                </span>
-
-                <span
-                  className={`px-2 py-0.5 rounded text-[10px] ${
-                    item.estado === "completado"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-yellow-100 text-yellow-700"
-                  }`}
-                >
-                  {item.estado}
-                </span>
-              </div>
-
-              {/* FECHA */}
-              <span className="text-[10px] text-gray-500">
-                {new Date(
-                  item.updated_at || item.created_at
-                ).toLocaleString()}
-              </span>
-
-              {/* ACCIONES */}
-              <div className="flex gap-3 pt-1">
-                {item.estado === "completado" && (
-                  <button
-                    type="button"
-                    onClick={() => handleGeneratePdf(item)}
-                    className="text-green-600 hover:underline"
-                  >
-                    PDF
-                  </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => handleOpen(type, item.id)}
-                  className="text-blue-600 hover:underline"
-                >
-                  Abrir
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleDelete(item.id)}
-                  className="text-red-600 hover:underline"
-                >
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
-
-  /* =============================
-     UI PRINCIPAL
+     UI
   ============================== */
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="space-y-6 text-gray-900">
 
-      {/* 🔥 HEADER CON BOTÓN VOLVER */}
+      {/* HEADER */}
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold">
+        <h1 className="text-xl font-bold text-white">
           Inspección y valoración
         </h1>
 
         <button
           onClick={() => navigate("/area/vehiculos")}
-          className="border px-4 py-1 rounded text-sm hover:bg-gray-100"
+          className="bg-white text-black border px-4 py-1 rounded text-sm hover:bg-gray-100"
         >
           ← Volver
         </button>
@@ -175,25 +90,251 @@ export default function IndexInspeccion() {
 
       {/* GRID */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {renderColumn(
-          "Hidrosuccionador",
-          "hidro",
-          "Inspección general del equipo hidrosuccionador"
-        )}
 
-        {renderColumn(
-          "Barredora",
-          "barredora",
-          "Inspección y valoración de barredoras"
-        )}
+        {/* HIDRO */}
+        <div className="bg-white p-5 rounded-xl shadow space-y-4">
+          <div>
+            <h2 className="font-semibold text-gray-800">
+              Hidrosuccionador
+            </h2>
+            <p className="text-xs text-gray-500">
+              Inspección general del equipo hidrosuccionador
+            </p>
+          </div>
 
-        {renderColumn(
-          "Cámara (VCAM / Metrotech)",
-          "camara",
-          "Inspección con sistema de cámara"
-        )}
+          <button
+            onClick={() => navigate(`/inspeccion/hidro/new`)}
+            className="px-3 py-2 bg-black text-white rounded text-sm"
+          >
+            + Nueva inspección
+          </button>
+
+          <div className="space-y-2">
+            {byType.hidro.length === 0 ? (
+              <p className="text-xs text-gray-400">
+                No hay inspecciones registradas.
+              </p>
+            ) : (
+              byType.hidro.map((item) => (
+                <div
+                  key={item.id}
+                  className="border rounded p-3 text-xs flex flex-col gap-2 bg-gray-50"
+                >
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-800">
+                      {item.data?.cliente || "Sin cliente"}
+                    </span>
+
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] ${
+                        item.estado === "completado"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {item.estado}
+                    </span>
+                  </div>
+
+                  <span className="text-[10px] text-gray-500">
+                    {new Date(
+                      item.updated_at || item.created_at
+                    ).toLocaleString()}
+                  </span>
+
+                  <div className="flex gap-3 pt-1">
+                    {item.estado === "completado" && (
+                      <button
+                        onClick={() => handleGeneratePdf(item)}
+                        className="text-green-600 hover:underline"
+                      >
+                        PDF
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => handleOpen("hidro", item.id)}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Abrir
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* BARREDORA */}
+        <div className="bg-white p-5 rounded-xl shadow space-y-4">
+          <div>
+            <h2 className="font-semibold text-gray-800">
+              Barredora
+            </h2>
+            <p className="text-xs text-gray-500">
+              Inspección y valoración de barredoras
+            </p>
+          </div>
+
+          <button
+            onClick={() => navigate(`/inspeccion/barredora/new`)}
+            className="px-3 py-2 bg-black text-white rounded text-sm"
+          >
+            + Nueva inspección
+          </button>
+
+          <div className="space-y-2">
+            {byType.barredora.length === 0 ? (
+              <p className="text-xs text-gray-400">
+                No hay inspecciones registradas.
+              </p>
+            ) : (
+              byType.barredora.map((item) => (
+                <div
+                  key={item.id}
+                  className="border rounded p-3 text-xs flex flex-col gap-2 bg-gray-50"
+                >
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-800">
+                      {item.data?.cliente || "Sin cliente"}
+                    </span>
+
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] ${
+                        item.estado === "completado"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {item.estado}
+                    </span>
+                  </div>
+
+                  <span className="text-[10px] text-gray-500">
+                    {new Date(
+                      item.updated_at || item.created_at
+                    ).toLocaleString()}
+                  </span>
+
+                  <div className="flex gap-3 pt-1">
+                    {item.estado === "completado" && (
+                      <button
+                        onClick={() => handleGeneratePdf(item)}
+                        className="text-green-600 hover:underline"
+                      >
+                        PDF
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => handleOpen("barredora", item.id)}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Abrir
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* CAMARA */}
+        <div className="bg-white p-5 rounded-xl shadow space-y-4">
+          <div>
+            <h2 className="font-semibold text-gray-800">
+              Cámara (VCAM / Metrotech)
+            </h2>
+            <p className="text-xs text-gray-500">
+              Inspección con sistema de cámara
+            </p>
+          </div>
+
+          <button
+            onClick={() => navigate(`/inspeccion/camara/new`)}
+            className="px-3 py-2 bg-black text-white rounded text-sm"
+          >
+            + Nueva inspección
+          </button>
+
+          <div className="space-y-2">
+            {byType.camara.length === 0 ? (
+              <p className="text-xs text-gray-400">
+                No hay inspecciones registradas.
+              </p>
+            ) : (
+              byType.camara.map((item) => (
+                <div
+                  key={item.id}
+                  className="border rounded p-3 text-xs flex flex-col gap-2 bg-gray-50"
+                >
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-800">
+                      {item.data?.cliente || "Sin cliente"}
+                    </span>
+
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] ${
+                        item.estado === "completado"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {item.estado}
+                    </span>
+                  </div>
+
+                  <span className="text-[10px] text-gray-500">
+                    {new Date(
+                      item.updated_at || item.created_at
+                    ).toLocaleString()}
+                  </span>
+
+                  <div className="flex gap-3 pt-1">
+                    {item.estado === "completado" && (
+                      <button
+                        onClick={() => handleGeneratePdf(item)}
+                        className="text-green-600 hover:underline"
+                      >
+                        PDF
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => handleOpen("camara", item.id)}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Abrir
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
       </div>
-
     </div>
   );
 }
