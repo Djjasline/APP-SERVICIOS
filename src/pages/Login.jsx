@@ -10,7 +10,7 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const handleLogin = () => {
-    const ok = login(form.user, form.pass);
+    const ok = login(form.email, form.password);
     if (ok) {
       navigate("/");
     } else {
