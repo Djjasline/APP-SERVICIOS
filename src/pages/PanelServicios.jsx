@@ -63,14 +63,14 @@ export default function PanelServicios() {
     <div className="relative min-h-screen">
 
       {/* ================= FONDO COLLAGE ================= */}
-<div className="absolute inset-0 grid grid-cols-4 opacity-80">
+<div className="absolute inset-0 grid grid-cols-4 opacity-90">
   {[...Array(8)].map((_, i) => (
     <img
       key={i}
       src="/background-astap.png"
       className="w-full h-full object-cover"
       style={{
-        filter: "brightness(0.9)",
+        filter: "brightness(1.9)",
         transform: i % 2 === 0 ? "scaleX(-1)" : "none",
       }}
     />
