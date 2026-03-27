@@ -2,17 +2,22 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
+
+// 🔥 CONTEXTOS
+import { AuthProvider } from "./context/AuthContext";
 import { ReportProvider } from "./context/ReportContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <ReportProvider>
-      <App />
-    </ReportProvider>
+    <AuthProvider> {/* 🔐 LOGIN GLOBAL */}
+      <ReportProvider> {/* 📄 INFORMES */}
+        <App />
+      </ReportProvider>
+    </AuthProvider>
   </React.StrictMode>
 );
 
-// 🔹 Registrar Service Worker (PWA)
+// 🔹 SERVICE WORKER (PWA)
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
