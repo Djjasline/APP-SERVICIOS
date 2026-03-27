@@ -19,7 +19,7 @@ export default function MainLayout() {
       <div className="flex-1 flex flex-col">
         
         {/* HEADER */}
-        <header <header className="h-16 flex items-center justify-between px-6 backdrop-blur-xl bg-white/5 border-b border-white/10 relative z-50">
+        <header className="h-16 flex items-center justify-between px-6 backdrop-blur-xl bg-white/5 border-b border-white/10 relative z-50 text-white">
           
           {/* IZQUIERDA */}
           <div className="flex items-center gap-4">
@@ -36,7 +36,7 @@ export default function MainLayout() {
           </div>
 
           {/* DERECHA - USUARIO */}
-          <div className="relative z-50">
+          <div className="relative">
             <div
               onClick={() => setOpenMenu(!openMenu)}
               className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center cursor-pointer hover:bg-white/20 transition"
@@ -46,7 +46,7 @@ export default function MainLayout() {
 
             {/* MENU DESPLEGABLE */}
             {openMenu && (
-             <div className="fixed right-6 top-16 z-[9999] w-52 bg-[#0f172a] border border-white/10 rounded-xl shadow-lg p-3 text-sm backdrop-blur-xl">
+              <div className="absolute right-0 mt-2 z-[9999] w-52 bg-[#0f172a] border border-white/10 rounded-xl shadow-lg p-3 text-sm backdrop-blur-xl">
                 
                 <div className="mb-2 text-gray-300 border-b border-white/10 pb-2">
                   👤 {user?.email || "Usuario"}
@@ -57,7 +57,10 @@ export default function MainLayout() {
                 </div>
 
                 <button
-                  onClick={logout}
+                  onClick={() => {
+                    logout();
+                    setOpenMenu(false);
+                  }}
                   className="w-full text-left text-red-400 hover:text-red-300 transition"
                 >
                   🚪 Cerrar sesión
@@ -70,7 +73,7 @@ export default function MainLayout() {
         </header>
 
         {/* MAIN */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-6 text-gray-200">
           <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-6 shadow-xl min-h-full">
             <Outlet />
           </div>
