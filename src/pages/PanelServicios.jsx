@@ -60,7 +60,7 @@ export default function PanelServicios() {
   ];
 
   return (
-    <div className="text-gray-200">
+    <div>
 
       {/* ================= FONDO COLLAGE ================= */}
 <div className="absolute inset-0 grid grid-cols-4 opacity-90">
