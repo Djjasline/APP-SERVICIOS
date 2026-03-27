@@ -79,8 +79,7 @@ export default function MainLayout() {
           </div>
         </main>
 
-      </div> {/* FIN CONTENIDO */}
-
-    </div>   {/* FIN LAYOUT */}
+      </div>
+    </div>  
   );
 }
