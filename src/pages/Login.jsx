@@ -6,12 +6,16 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = () => {
-    const ok = login(form.email, form.password);
-    if (ok) {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const success = login(email, password);
+
+    if (success) {
       navigate("/");
     } else {
       setError("Credenciales incorrectas");
@@ -19,36 +23,46 @@ export default function Login() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-[#020617] to-[#0f172a]">
-
-      <div className="glass shadow-glass rounded-2xl p-8 w-[350px] space-y-4">
-
-        <h2 className="text-center text-xl font-bold text-white">
+    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b]">
+      
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white/10 backdrop-blur-xl p-6 rounded-xl shadow-lg w-80 space-y-4"
+      >
+        <h2 className="text-white text-lg font-semibold text-center">
           ASTAP Login
         </h2>
 
+        {/* 🔥 AUTOFOCUS AQUÍ */}
         <input
+          type="email"
           placeholder="Usuario"
-          className="w-full p-2 rounded bg-white/10 text-white outline-none"
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoFocus
+          className="w-full p-2 rounded bg-white/20 text-white outline-none"
         />
 
         <input
           type="password"
           placeholder="Contraseña"
-          className="w-full p-2 rounded bg-white/10 text-white outline-none"
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-2 rounded bg-white/20 text-white outline-none"
         />
 
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && (
+          <p className="text-red-400 text-sm">{error}</p>
+        )}
 
         <button
-          onClick={handleLogin}
-          className="w-full bg-indigo-600 hover:bg-indigo-500 py-2 rounded-lg"
+          type="submit"
+          className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded transition"
         >
           Ingresar
         </button>
-      </div>
+      </form>
+
     </div>
   );
 }
