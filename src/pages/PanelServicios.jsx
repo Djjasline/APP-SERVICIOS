@@ -61,23 +61,23 @@ export default function PanelServicios() {
 
   return (
     <div>
-
       {/* ================= FONDO COLLAGE ================= */}
-<div className="absolute inset-0 grid grid-cols-4 opacity-90">
-  {[...Array(8)].map((_, i) => (
-    <img
-      key={i}
-      src="/background-astap.png"
-      className="w-full h-full object-cover"
-      style={{
-        filter: "brightness(0.5)",
-        transform: i % 2 === 0 ? "scaleX(-1)" : "none",
-      }}
-    />
-  ))}
-</div>
+      <div className="absolute inset-0 grid grid-cols-4 opacity-90">
+        {[...Array(8)].map((_, i) => (
+          <img
+            key={i}
+            src="/background-astap.png"
+            className="w-full h-full object-cover"
+            style={{
+              filter: "brightness(0.5)",
+              transform: i % 2 === 0 ? "scaleX(-1)" : "none",
+            }}
+          />
+        ))}
+      </div>
 
-<div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
+
       {/* ================= CONTENIDO ================= */}
       <div className="relative p-6 space-y-8">
 
@@ -89,51 +89,48 @@ export default function PanelServicios() {
             className="w-20 h-20 object-contain"
           />
 
-          <h1 className="text-2xl md:text-3xl font-bold">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
             Panel de servicios ASTAP
           </h1>
 
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-700">
             Gestión técnica organizada por áreas operativas
           </p>
         </div>
 
         {/* ================= MENÚ ================= */}
         <div className="grid md:grid-cols-3 gap-6">
-
           {menuPrincipal.map((item) => (
             <div
               key={item.id}
-              className="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow hover:shadow-lg transition space-y-4"
+              className="bg-white/90 backdrop-blur-md p-6 rounded-xl shadow hover:shadow-xl transition duration-300 space-y-4"
             >
               {/* ICONO */}
               <div
-                className={`${item.color} text-white w-12 h-12 flex items-center justify-center rounded-lg`}
+                className={`${item.color} text-white w-12 h-12 flex items-center justify-center rounded-lg shadow-md`}
               >
                 {item.icon}
               </div>
 
               {/* TITULO */}
-              <h2 className="font-semibold text-lg">
+              <h2 className="font-semibold text-lg text-gray-900">
                 {item.titulo}
               </h2>
 
               {/* DESCRIPCIÓN */}
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-700 leading-relaxed">
                 {item.descripcion}
               </p>
 
-              {/* BOTÓN UNIVERSAL */}
+              {/* BOTÓN */}
               <button
                 onClick={() => navigate(item.ruta)}
-                className={`${item.color} text-white w-full py-2 rounded-lg hover:opacity-90 transition`}
+                className={`${item.color} text-white w-full py-2 rounded-lg hover:opacity-90 hover:scale-[1.02] transition`}
               >
                 Ingresar
               </button>
-
             </div>
           ))}
-
         </div>
 
       </div>
