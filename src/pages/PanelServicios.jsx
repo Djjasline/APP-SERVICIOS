@@ -70,7 +70,7 @@ export default function PanelServicios() {
       src="/background-astap.png"
       className="w-full h-full object-cover"
       style={{
-        filter: "brightness(1.9)",
+        filter: "brightness(0.5)",
         transform: i % 2 === 0 ? "scaleX(-1)" : "none",
       }}
     />
