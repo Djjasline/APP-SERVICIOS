@@ -1,3 +1,7 @@
+import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./context/AuthContext";
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 
@@ -33,74 +37,67 @@ import LiberacionDetalle from "./app/liberacion/LiberacionDetalle"; // 🔥 ESTE
 
 export default function RoutesApp() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
 
-        {/* 🔥 Layout con sidebar */}
-        <Route element={<MainLayout />}>
+          {/* 🔐 LOGIN */}
+          <Route path="/login" element={<Login />} />
 
-          {/* ================= PANEL PRINCIPAL ================= */}
-          <Route path="/" element={<PanelServicios />} />
-
-          {/* ================= ÁREAS ================= */}
-          <Route path="/area/vehiculos" element={<AreaVehiculos />} />
-          <Route path="/area/agua" element={<AreaAgua />} />
-          <Route path="/area/petroleo" element={<AreaPetroleo />} />
-
-          {/* ================= MÓDULOS PRINCIPALES ================= */}
-          <Route path="/operaciones" element={<AreaOperaciones />} />
-          <Route path="/repositorios" element={<AreaRepositorios />} />
-
-          {/* ================= INFORMES ================= */}
-          <Route path="/informe" element={<InformeHome />} />
-          <Route path="/informe/nuevo" element={<NuevoInforme />} />
-          <Route path="/informe/:id" element={<NuevoInforme />} />
-
-          {/* ================= INSPECCIÓN ================= */}
-          <Route path="/inspeccion" element={<HistorialInspecciones />} />
-
-          {/* HIDRO */}
-          <Route path="/inspeccion/hidro/new" element={<HojaInspeccionHidro />} />
-          <Route path="/inspeccion/hidro/:id" element={<HojaInspeccionHidro />} />
-
-          {/* BARREDORA */}
-          <Route path="/inspeccion/barredora/new" element={<HojaInspeccionBarredora />} />
-          <Route path="/inspeccion/barredora/:id" element={<HojaInspeccionBarredora />} />
-
-          {/* CAMARA */}
-          <Route path="/inspeccion/camara/new" element={<HojaInspeccionCamara />} />
-          <Route path="/inspeccion/camara/:id" element={<HojaInspeccionCamara />} />
-
-          {/* ================= MANTENIMIENTO ================= */}
-          <Route path="/mantenimiento" element={<IndexMantenimiento />} />
-
-          {/* HIDRO */}
-          <Route path="/mantenimiento/hidro/new" element={<HojaMantenimientoHidro />} />
-          <Route path="/mantenimiento/hidro/:id" element={<HojaMantenimientoHidro />} />
-
-          {/* BARREDORA */}
-          <Route path="/mantenimiento/barredora/new" element={<HojaMantenimientoBarredora />} />
-          <Route path="/mantenimiento/barredora/:id" element={<HojaMantenimientoBarredora />} />
-
-          {/* ================= OPERACIONES ================= */}
-
-<Route path="/liberacion" element={<LiberacionHome />} />
-<Route path="/liberacion/new" element={<LiberacionForm />} />
-<Route path="/liberacion/:id" element={<LiberacionDetalle />} />
-
+          {/* 🔒 RUTAS PROTEGIDAS */}
           <Route
-            path="/recepcion"
-            element={<div className="p-6">Recepción</div>}
-          />
+            element={
+              <ProtectedRoute>
+                <MainLayout />
+              </ProtectedRoute>
+            }
+          >
 
-          <Route
-            path="/registro"
-            element={<div className="p-6">Herramientas</div>}
-          />
+            {/* ================= PANEL PRINCIPAL ================= */}
+            <Route path="/" element={<PanelServicios />} />
 
-        </Route>
+            {/* ================= ÁREAS ================= */}
+            <Route path="/area/vehiculos" element={<AreaVehiculos />} />
+            <Route path="/area/agua" element={<AreaAgua />} />
+            <Route path="/area/petroleo" element={<AreaPetroleo />} />
 
-      </Routes>
-    </BrowserRouter>
+            {/* ================= MÓDULOS ================= */}
+            <Route path="/operaciones" element={<AreaOperaciones />} />
+            <Route path="/repositorios" element={<AreaRepositorios />} />
+
+            {/* ================= INFORMES ================= */}
+            <Route path="/informe" element={<InformeHome />} />
+            <Route path="/informe/nuevo" element={<NuevoInforme />} />
+            <Route path="/informe/:id" element={<NuevoInforme />} />
+
+            {/* ================= INSPECCIÓN ================= */}
+            <Route path="/inspeccion" element={<HistorialInspecciones />} />
+            <Route path="/inspeccion/hidro/new" element={<HojaInspeccionHidro />} />
+            <Route path="/inspeccion/hidro/:id" element={<HojaInspeccionHidro />} />
+            <Route path="/inspeccion/barredora/new" element={<HojaInspeccionBarredora />} />
+            <Route path="/inspeccion/barredora/:id" element={<HojaInspeccionBarredora />} />
+            <Route path="/inspeccion/camara/new" element={<HojaInspeccionCamara />} />
+            <Route path="/inspeccion/camara/:id" element={<HojaInspeccionCamara />} />
+
+            {/* ================= MANTENIMIENTO ================= */}
+            <Route path="/mantenimiento" element={<IndexMantenimiento />} />
+            <Route path="/mantenimiento/hidro/new" element={<HojaMantenimientoHidro />} />
+            <Route path="/mantenimiento/hidro/:id" element={<HojaMantenimientoHidro />} />
+            <Route path="/mantenimiento/barredora/new" element={<HojaMantenimientoBarredora />} />
+            <Route path="/mantenimiento/barredora/:id" element={<HojaMantenimientoBarredora />} />
+
+            {/* ================= OPERACIONES ================= */}
+            <Route path="/liberacion" element={<LiberacionHome />} />
+            <Route path="/liberacion/new" element={<LiberacionForm />} />
+            <Route path="/liberacion/:id" element={<LiberacionDetalle />} />
+
+            <Route path="/recepcion" element={<div className="p-6">Recepción</div>} />
+            <Route path="/registro" element={<div className="p-6">Herramientas</div>} />
+
+          </Route>
+
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
