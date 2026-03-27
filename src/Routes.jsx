@@ -1,8 +1,11 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+// 🔐 AUTH
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+// 🧩 LAYOUT
 import MainLayout from "./layouts/MainLayout";
 
 // ================= PANEL =================
@@ -33,7 +36,7 @@ import HojaMantenimientoBarredora from "./app/mantenimiento/HojaMantenimientoBar
 // ================= OPERACIONES =================
 import LiberacionHome from "./app/liberacion/LiberacionHome";
 import LiberacionForm from "./app/liberacion/LiberacionForm";
-import LiberacionDetalle from "./app/liberacion/LiberacionDetalle"; // 🔥 ESTE FALTABA
+import LiberacionDetalle from "./app/liberacion/LiberacionDetalle";
 
 export default function RoutesApp() {
   return (
@@ -41,10 +44,10 @@ export default function RoutesApp() {
       <BrowserRouter>
         <Routes>
 
-          {/* 🔐 LOGIN */}
+          {/* 🔐 LOGIN (PÚBLICO) */}
           <Route path="/login" element={<Login />} />
 
-          {/* 🔒 RUTAS PROTEGIDAS */}
+          {/* 🔒 TODAS LAS DEMÁS RUTAS PROTEGIDAS */}
           <Route
             element={
               <ProtectedRoute>
@@ -53,7 +56,7 @@ export default function RoutesApp() {
             }
           >
 
-            {/* ================= PANEL PRINCIPAL ================= */}
+            {/* ================= PANEL ================= */}
             <Route path="/" element={<PanelServicios />} />
 
             {/* ================= ÁREAS ================= */}
@@ -72,17 +75,22 @@ export default function RoutesApp() {
 
             {/* ================= INSPECCIÓN ================= */}
             <Route path="/inspeccion" element={<HistorialInspecciones />} />
+
             <Route path="/inspeccion/hidro/new" element={<HojaInspeccionHidro />} />
             <Route path="/inspeccion/hidro/:id" element={<HojaInspeccionHidro />} />
+
             <Route path="/inspeccion/barredora/new" element={<HojaInspeccionBarredora />} />
             <Route path="/inspeccion/barredora/:id" element={<HojaInspeccionBarredora />} />
+
             <Route path="/inspeccion/camara/new" element={<HojaInspeccionCamara />} />
             <Route path="/inspeccion/camara/:id" element={<HojaInspeccionCamara />} />
 
             {/* ================= MANTENIMIENTO ================= */}
             <Route path="/mantenimiento" element={<IndexMantenimiento />} />
+
             <Route path="/mantenimiento/hidro/new" element={<HojaMantenimientoHidro />} />
             <Route path="/mantenimiento/hidro/:id" element={<HojaMantenimientoHidro />} />
+
             <Route path="/mantenimiento/barredora/new" element={<HojaMantenimientoBarredora />} />
             <Route path="/mantenimiento/barredora/:id" element={<HojaMantenimientoBarredora />} />
 
@@ -91,6 +99,7 @@ export default function RoutesApp() {
             <Route path="/liberacion/new" element={<LiberacionForm />} />
             <Route path="/liberacion/:id" element={<LiberacionDetalle />} />
 
+            {/* ================= OTROS ================= */}
             <Route path="/recepcion" element={<div className="p-6">Recepción</div>} />
             <Route path="/registro" element={<div className="p-6">Herramientas</div>} />
 
