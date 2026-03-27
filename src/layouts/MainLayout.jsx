@@ -73,7 +73,7 @@ export default function MainLayout() {
         </header>
 
         {/* MAIN */}
-        <main className="flex-1 overflow-y-auto p-6 text-gray-200">
+        <main className="flex-1 overflow-y-auto p-6">
           <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-6 shadow-xl min-h-full">
             <Outlet />
           </div>
