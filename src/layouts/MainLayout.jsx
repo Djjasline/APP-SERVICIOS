@@ -10,7 +10,7 @@ export default function MainLayout() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b] text-white">
+    <div className="flex h-screen bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b]">
       
       {/* SIDEBAR */}
       <Sidebar openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
@@ -19,7 +19,7 @@ export default function MainLayout() {
       <div className="flex-1 flex flex-col">
         
         {/* HEADER */}
-        <header className="h-16 flex items-center justify-between px-6 backdrop-blur-xl bg-white/5 border-b border-white/10">
+        <header <header className="h-16 flex items-center justify-between px-6 backdrop-blur-xl bg-white/5 border-b border-white/10 relative z-50">
           
           {/* IZQUIERDA */}
           <div className="flex items-center gap-4">
