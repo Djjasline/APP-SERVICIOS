@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 // 🔐 AUTH
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import RoleRoute from "./components/RoleRoute";
 import { AuthProvider } from "./context/AuthContext";
 
 // 🧩 LAYOUT
@@ -44,10 +45,10 @@ export default function RoutesApp() {
       <BrowserRouter>
         <Routes>
 
-          {/* 🔐 LOGIN (PÚBLICO) */}
+          {/* 🔐 LOGIN */}
           <Route path="/login" element={<Login />} />
 
-          {/* 🔒 TODAS LAS DEMÁS RUTAS PROTEGIDAS */}
+          {/* 🔒 RUTAS PROTEGIDAS */}
           <Route
             element={
               <ProtectedRoute>
@@ -60,48 +61,237 @@ export default function RoutesApp() {
             <Route path="/" element={<PanelServicios />} />
 
             {/* ================= ÁREAS ================= */}
-            <Route path="/area/vehiculos" element={<AreaVehiculos />} />
-            <Route path="/area/agua" element={<AreaAgua />} />
-            <Route path="/area/petroleo" element={<AreaPetroleo />} />
+            <Route
+              path="/area/vehiculos"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <AreaVehiculos />
+                </RoleRoute>
+              }
+            />
 
-            {/* ================= MÓDULOS ================= */}
-            <Route path="/operaciones" element={<AreaOperaciones />} />
-            <Route path="/repositorios" element={<AreaRepositorios />} />
+            <Route
+              path="/area/agua"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <AreaAgua />
+                </RoleRoute>
+              }
+            />
 
-            {/* ================= INFORMES ================= */}
-            <Route path="/informe" element={<InformeHome />} />
-            <Route path="/informe/nuevo" element={<NuevoInforme />} />
-            <Route path="/informe/:id" element={<NuevoInforme />} />
-
-            {/* ================= INSPECCIÓN ================= */}
-            <Route path="/inspeccion" element={<HistorialInspecciones />} />
-
-            <Route path="/inspeccion/hidro/new" element={<HojaInspeccionHidro />} />
-            <Route path="/inspeccion/hidro/:id" element={<HojaInspeccionHidro />} />
-
-            <Route path="/inspeccion/barredora/new" element={<HojaInspeccionBarredora />} />
-            <Route path="/inspeccion/barredora/:id" element={<HojaInspeccionBarredora />} />
-
-            <Route path="/inspeccion/camara/new" element={<HojaInspeccionCamara />} />
-            <Route path="/inspeccion/camara/:id" element={<HojaInspeccionCamara />} />
-
-            {/* ================= MANTENIMIENTO ================= */}
-            <Route path="/mantenimiento" element={<IndexMantenimiento />} />
-
-            <Route path="/mantenimiento/hidro/new" element={<HojaMantenimientoHidro />} />
-            <Route path="/mantenimiento/hidro/:id" element={<HojaMantenimientoHidro />} />
-
-            <Route path="/mantenimiento/barredora/new" element={<HojaMantenimientoBarredora />} />
-            <Route path="/mantenimiento/barredora/:id" element={<HojaMantenimientoBarredora />} />
+            <Route
+              path="/area/petroleo"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <AreaPetroleo />
+                </RoleRoute>
+              }
+            />
 
             {/* ================= OPERACIONES ================= */}
-            <Route path="/liberacion" element={<LiberacionHome />} />
-            <Route path="/liberacion/new" element={<LiberacionForm />} />
-            <Route path="/liberacion/:id" element={<LiberacionDetalle />} />
+            <Route
+              path="/operaciones"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <AreaOperaciones />
+                </RoleRoute>
+              }
+            />
+
+            {/* 🔒 SOLO ADMIN */}
+            <Route
+              path="/repositorios"
+              element={
+                <RoleRoute allowedRoles={["admin"]}>
+                  <AreaRepositorios />
+                </RoleRoute>
+              }
+            />
+
+            {/* ================= INFORMES ================= */}
+            <Route
+              path="/informe"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <InformeHome />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/informe/nuevo"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <NuevoInforme />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/informe/:id"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <NuevoInforme />
+                </RoleRoute>
+              }
+            />
+
+            {/* ================= INSPECCIÓN ================= */}
+            <Route
+              path="/inspeccion"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <HistorialInspecciones />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/inspeccion/hidro/new"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <HojaInspeccionHidro />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/inspeccion/hidro/:id"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <HojaInspeccionHidro />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/inspeccion/barredora/new"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <HojaInspeccionBarredora />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/inspeccion/barredora/:id"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <HojaInspeccionBarredora />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/inspeccion/camara/new"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <HojaInspeccionCamara />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/inspeccion/camara/:id"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <HojaInspeccionCamara />
+                </RoleRoute>
+              }
+            />
+
+            {/* ================= MANTENIMIENTO ================= */}
+            <Route
+              path="/mantenimiento"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <IndexMantenimiento />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/mantenimiento/hidro/new"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <HojaMantenimientoHidro />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/mantenimiento/hidro/:id"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <HojaMantenimientoHidro />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/mantenimiento/barredora/new"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <HojaMantenimientoBarredora />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/mantenimiento/barredora/:id"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <HojaMantenimientoBarredora />
+                </RoleRoute>
+              }
+            />
+
+            {/* ================= LIBERACIÓN ================= */}
+            <Route
+              path="/liberacion"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <LiberacionHome />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/liberacion/new"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <LiberacionForm />
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/liberacion/:id"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <LiberacionDetalle />
+                </RoleRoute>
+              }
+            />
 
             {/* ================= OTROS ================= */}
-            <Route path="/recepcion" element={<div className="p-6">Recepción</div>} />
-            <Route path="/registro" element={<div className="p-6">Herramientas</div>} />
+            <Route
+              path="/recepcion"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <div className="p-6">Recepción</div>
+                </RoleRoute>
+              }
+            />
+
+            <Route
+              path="/registro"
+              element={
+                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                  <div className="p-6">Herramientas</div>
+                </RoleRoute>
+              }
+            />
 
           </Route>
 
