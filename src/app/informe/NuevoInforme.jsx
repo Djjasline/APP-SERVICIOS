@@ -324,20 +324,18 @@ const saveReport = async () => {
               ["CORREO TÉCNICO", "tecnicoCorreo"],
             ].map(([label, key]) => (
               <tr key={key}>
-      <td className="pdf-label">{label}</td>
-      <td>
-      <td>
-  <input
-    className={`pdf-input ${
-      key.includes("tecnico") ? "bg-gray-100" : ""
-    }`}
-    value={data[key]}
-    onChange={(e) => update([key], e.target.value)}
-    readOnly={key.includes("tecnico")}
-  />
-</td>
-      </td>
-    </tr>
+  <td className="pdf-label">{label}</td>
+  <td>
+    <input
+      className={`pdf-input w-full ${
+        key.includes("tecnico") ? "bg-gray-100" : ""
+      }`}
+      value={data[key]}
+      onChange={(e) => update([key], e.target.value)}
+      readOnly={key.includes("tecnico")}
+    />
+  </td>
+</tr>
   ))}
 
   <tr>
