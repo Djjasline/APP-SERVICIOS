@@ -36,7 +36,7 @@ export default function MainLayout() {
           </div>
 
           {/* DERECHA - USUARIO */}
-          <div className="relative">
+          <div className="relative z-50">
             <div
               onClick={() => setOpenMenu(!openMenu)}
               className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center cursor-pointer hover:bg-white/20 transition"
@@ -46,7 +46,7 @@ export default function MainLayout() {
 
             {/* MENU DESPLEGABLE */}
             {openMenu && (
-             <div className="absolute right-0 mt-2 w-52 z-50 bg-[#0f172a] border border-white/10 rounded-xl shadow-lg p-3 text-sm backdrop-blur-xl">
+             <div className="fixed right-6 top-16 z-[9999] w-52 bg-[#0f172a] border border-white/10 rounded-xl shadow-lg p-3 text-sm backdrop-blur-xl">
                 
                 <div className="mb-2 text-gray-300 border-b border-white/10 pb-2">
                   👤 {user?.email || "Usuario"}
