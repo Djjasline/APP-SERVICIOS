@@ -1,3 +1,5 @@
+import { useAuth } from "@/context/AuthContext";
+import { getLoggedTechnician } from "@/utils/getLoggedTechnician";
 import { saveOrUpdateReport } from "@/services/reportService"
 import imageCompression from "browser-image-compression";
 import { uploadRegistroImage } from "@/utils/storage";
@@ -7,9 +9,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
 
-
 export default function NuevoInforme() {
   const navigate = useNavigate();
+
+  const { user } = useAuth(); // 🔥 NUEVO
   
 const [uploadingCount, setUploadingCount] = useState(0);
 const uploading = uploadingCount > 0;
@@ -107,6 +110,20 @@ setData((prev) => {
 };
   
   const [data, setData] = useState(emptyReport);
+  useEffect(() => {
+  if (!user || id) return; // 🔥 evita sobreescribir en edición
+
+  const tech = getLoggedTechnician(user);
+
+  if (!tech) return;
+
+  setData((prev) => ({
+    ...prev,
+    tecnicoNombre: tech.name,
+    tecnicoTelefono: tech.phone,
+    tecnicoCorreo: tech.email,
+  }));
+}, [user, id]);
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
@@ -309,11 +326,16 @@ const saveReport = async () => {
               <tr key={key}>
       <td className="pdf-label">{label}</td>
       <td>
-        <input
-          className="pdf-input"
-          value={data[key]}
-          onChange={(e) => update([key], e.target.value)}
-        />
+      <td>
+  <input
+    className={`pdf-input ${
+      key.includes("tecnico") ? "bg-gray-100" : ""
+    }`}
+    value={data[key]}
+    onChange={(e) => update([key], e.target.value)}
+    readOnly={key.includes("tecnico")}
+  />
+</td>
       </td>
     </tr>
   ))}
