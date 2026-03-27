@@ -6,7 +6,7 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ user: "", pass: "" });
+  const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
   const handleLogin = () => {
@@ -30,14 +30,14 @@ export default function Login() {
         <input
           placeholder="Usuario"
           className="w-full p-2 rounded bg-white/10 text-white outline-none"
-          onChange={(e) => setForm({ ...form, user: e.target.value })}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
 
         <input
           type="password"
           placeholder="Contraseña"
           className="w-full p-2 rounded bg-white/10 text-white outline-none"
-          onChange={(e) => setForm({ ...form, pass: e.target.value })}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
 
         {error && <p className="text-red-400 text-sm">{error}</p>}
