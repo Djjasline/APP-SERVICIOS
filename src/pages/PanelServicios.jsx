@@ -60,7 +60,7 @@ export default function PanelServicios() {
   ];
 
   return (
-    <div className="relative min-h-screen">
+    <div className="text-gray-200">
 
       {/* ================= FONDO COLLAGE ================= */}
 <div className="absolute inset-0 grid grid-cols-4 opacity-90">
