@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { User } from "lucide-react";
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
@@ -7,7 +8,7 @@ import Sidebar from "./Sidebar";
 export default function MainLayout() {
   const [openSidebar, setOpenSidebar] = useState(true);
   const [openMenu, setOpenMenu] = useState(false);
-
+const navigate = useNavigate();
   const { user, logout } = useAuth();
 
   return (
@@ -54,14 +55,69 @@ export default function MainLayout() {
 
   {/* MENU GLASS */}
   {openMenu && (
-    <div
-      className="absolute right-0 mt-3 w-56 
-      backdrop-blur-xl bg-black/50 
-      border border-white/20 
-      rounded-xl shadow-2xl 
-      p-4 text-sm 
-      animate-fadeIn"
+  <div className="absolute right-0 mt-2 z-[9999] w-60 
+    bg-black/70 backdrop-blur-xl 
+    border border-white/20 rounded-xl shadow-xl p-4 text-sm text-white">
+
+    {/* USER INFO */}
+    <div className="mb-3 border-b border-white/20 pb-2">
+      <div className="font-semibold">
+        {user?.email || "Usuario"}
+      </div>
+      <div className="text-xs text-gray-300">
+        Rol: {user?.role || "-"}
+      </div>
+    </div>
+
+    {/* OPCIONES */}
+    <div className="flex flex-col gap-2 text-sm">
+
+      <button
+        onClick={() => navigate("/perfil")}
+        className="text-left hover:bg-white/10 px-2 py-1 rounded"
+      >
+        👤 Mi perfil
+      </button>
+
+      <button
+        onClick={() => navigate("/informe")}
+        className="text-left hover:bg-white/10 px-2 py-1 rounded"
+      >
+        📄 Mis informes
+      </button>
+
+      <button
+        onClick={() => navigate("/inspeccion")}
+        className="text-left hover:bg-white/10 px-2 py-1 rounded"
+      >
+        📊 Inspecciones
+      </button>
+
+      <button
+        onClick={() => navigate("/mantenimiento")}
+        className="text-left hover:bg-white/10 px-2 py-1 rounded"
+      >
+        🛠 Mantenimiento
+      </button>
+
+    </div>
+
+    {/* SEPARADOR */}
+    <div className="border-t border-white/20 my-3" />
+
+    {/* LOGOUT */}
+    <button
+      onClick={() => {
+        logout();
+        setOpenMenu(false);
+      }}
+      className="w-full text-left text-red-400 hover:text-red-300"
     >
+      🚪 Cerrar sesión
+    </button>
+
+  </div>
+)}
 
       {/* USUARIO */}
       <div className="mb-3 pb-2 border-b border-white/20">
