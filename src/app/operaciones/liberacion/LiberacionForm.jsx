@@ -1,6 +1,6 @@
 import { saveOrUpdateReport } from "@/services/reportService"
 import { useState, useRef, useEffect } from "react";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 
