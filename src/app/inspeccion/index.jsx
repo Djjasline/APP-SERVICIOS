@@ -1,4 +1,3 @@
-// src/app/inspeccion/index.jsx
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactSignatureCanvas from "react-signature-canvas";
