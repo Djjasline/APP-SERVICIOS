@@ -26,7 +26,7 @@ export default function MainLayout() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setOpenSidebar(!openSidebar)}
-              className="md:hidden p-2 rounded-lg hover:bg-white/10 transition"
+              className="md:hidden p-2 rounded-lg hover:bg-black/40 transition"
             >
               ☰
             </button>
@@ -56,7 +56,7 @@ export default function MainLayout() {
   {openMenu && (
     <div
       className="absolute right-0 mt-3 w-56 
-      backdrop-blur-xl bg-white/10 
+      backdrop-blur-xl bg-black/40 
       border border-white/20 
       rounded-xl shadow-2xl 
       p-4 text-sm 
@@ -68,7 +68,7 @@ export default function MainLayout() {
         <p className="text-white font-medium">
           {user?.email || "Usuario"}
         </p>
-        <p className="text-xs text-gray-300">
+        <p className="text-xs text-gray-200">
           Rol: {user?.role || "-"}
         </p>
       </div>
