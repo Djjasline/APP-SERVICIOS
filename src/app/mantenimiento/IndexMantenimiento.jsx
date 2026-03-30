@@ -1,218 +1,180 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function IndexMantenimiento() {
   const navigate = useNavigate();
+  const [items, setItems] = useState([]);
 
-  const [filtroHidro, setFiltroHidro] = useState("todos");
-  const [filtroBarredora, setFiltroBarredora] = useState("todos");
-
-  const [hidro, setHidro] = useState([]);
-  const [barredora, setBarredora] = useState([]);
-
+  /* =============================
+     CARGAR DATOS
+  ============================== */
   useEffect(() => {
-    setHidro(
-      JSON.parse(localStorage.getItem("mantenimiento-hidro") || "[]")
-    );
-    setBarredora(
-      JSON.parse(localStorage.getItem("mantenimiento-barredora") || "[]")
-    );
+    const load = async () => {
+      const { data, error } = await supabase
+        .from("registros")
+        .select("*")
+        .eq("tipo", "mantenimiento")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error(error);
+        setItems([]);
+        return;
+      }
+
+      setItems(data || []);
+    };
+
+    load();
   }, []);
 
   /* =============================
-     ELIMINAR REGISTROS
-  ============================= */
-  const handleDeleteHidro = (id) => {
-    if (!window.confirm("¿Eliminar este mantenimiento?")) return;
+     AGRUPAR
+  ============================== */
+  const safe = Array.isArray(items) ? items : [];
 
-    const stored =
-      JSON.parse(localStorage.getItem("mantenimiento-hidro")) || [];
-
-    const updated = stored.filter((r) => r.id !== id);
-
-    localStorage.setItem(
-      "mantenimiento-hidro",
-      JSON.stringify(updated)
-    );
-
-    setHidro(updated);
-  };
-
-  const handleDeleteBarredora = (id) => {
-    if (!window.confirm("¿Eliminar este mantenimiento?")) return;
-
-    const stored =
-      JSON.parse(localStorage.getItem("mantenimiento-barredora")) || [];
-
-    const updated = stored.filter((r) => r.id !== id);
-
-    localStorage.setItem(
-      "mantenimiento-barredora",
-      JSON.stringify(updated)
-    );
-
-    setBarredora(updated);
+  const byType = {
+    hidro: safe.filter((i) => i.subtipo === "hidro"),
+    barredora: safe.filter((i) => i.subtipo === "barredora"),
   };
 
   /* =============================
-     FILTRO
-  ============================= */
-  const filtrar = (data, filtro) => {
-    if (filtro === "todos") return data;
-    return data.filter((i) => i.estado === filtro);
+     ACCIONES
+  ============================== */
+  const handleOpen = (type, id) => {
+    navigate(`/mantenimiento/${type}/${id}`);
   };
 
-  /* =============================
-     RENDER HISTORIAL
-  ============================= */
-  const renderHistorico = (
-    data,
-    basePath,
-    filtro,
-    onDelete
-  ) => {
-    const lista = filtrar(data, filtro);
+  const handleDelete = async (id) => {
+    if (!confirm("¿Eliminar mantenimiento?")) return;
 
-    if (lista.length === 0) {
-      return <p className="text-xs text-gray-400">Sin registros</p>;
+    const { error } = await supabase
+      .from("registros")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error(error);
+      alert("Error eliminando ❌");
+      return;
     }
 
-    return lista.map((item) => (
-      <div
-        key={item.id}
-        className="border rounded p-3 text-sm space-y-2"
-      >
-        {/* INFO */}
-        <div className="flex justify-between items-center">
-          <span className="font-semibold">
-            {item.codInf || "Sin código"}
-          </span>
-          <span
-            className={`text-xs px-2 py-1 rounded ${
-              item.estado === "completado"
-                ? "bg-green-100 text-green-700"
-                : "bg-yellow-100 text-yellow-700"
-            }`}
-          >
-            {item.estado}
-          </span>
-        </div>
-
-        {/* BOTONES */}
-        <div className="flex gap-2 text-xs">
-          <button
-            onClick={() => navigate(`${basePath}/${item.id}`)}
-            className="border px-3 py-1 rounded"
-          >
-            Abrir
-          </button>
-
-          <button
-            onClick={() => navigate(`${basePath}/${item.id}/pdf`)}
-            className="bg-blue-600 text-white px-3 py-1 rounded"
-          >
-            Ver PDF
-          </button>
-
-          <button
-            onClick={() => onDelete(item.id)}
-            className="text-red-600"
-          >
-            Eliminar
-          </button>
-        </div>
-      </div>
-    ));
+    setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
-  return (
-    <div className="max-w-6xl mx-auto my-8 space-y-6">
-      {/* VOLVER */}
+  /* =============================
+     CARD REUTILIZABLE
+  ============================== */
+  const renderCard = (title, desc, type, list, colorBtn) => (
+    <div className="bg-white p-5 rounded-xl shadow-md space-y-4 hover:shadow-xl transition">
+
+      <div>
+        <h2 className="font-semibold text-gray-900">{title}</h2>
+        <p className="text-xs text-gray-500">{desc}</p>
+      </div>
+
       <button
-        onClick={() => navigate("/")}
-        className="text-sm border px-4 py-2 rounded"
+        onClick={() => navigate(`/mantenimiento/${type}/new`)}
+        className={`px-3 py-2 ${colorBtn} text-white rounded text-sm hover:opacity-90 transition`}
       >
-        ← Volver
+        Crear mantenimiento
       </button>
 
-      <h1 className="text-xl font-semibold">
-        Servicio de mantenimiento
-      </h1>
+      <div className="space-y-2">
+        {list.length === 0 ? (
+          <p className="text-xs text-gray-400">
+            Sin registros
+          </p>
+        ) : (
+          list.map((item) => (
+            <div
+              key={item.id}
+              className="border rounded p-3 text-xs flex flex-col gap-2 bg-gray-50 hover:bg-gray-100 transition"
+            >
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-gray-900">
+                  {item.data?.cliente || "Sin cliente"}
+                </span>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* ================= HIDRO ================= */}
-        <section className="border rounded-xl p-4 space-y-4">
-          <h2 className="font-semibold">
-            Mantenimiento Hidrosuccionador
-          </h2>
+                <span
+                  className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                    item.estado === "completado"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  {item.estado}
+                </span>
+              </div>
 
-          <button
-            onClick={() => navigate("/mantenimiento/hidro/new")}
-            className="w-full bg-blue-600 text-white py-2 rounded"
-          >
-            Crear mantenimiento
-          </button>
+              <span className="text-[10px] text-gray-500">
+                {new Date(
+                  item.updated_at || item.created_at
+                ).toLocaleString()}
+              </span>
 
-          <div className="flex gap-2 text-xs">
-            {["todos", "borrador", "completado"].map((f) => (
-              <button
-                key={f}
-                onClick={() => setFiltroHidro(f)}
-                className={`px-3 py-1 rounded border ${
-                  filtroHidro === f ? "bg-black text-white" : ""
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
+              <div className="flex gap-3 pt-1 text-xs">
+                <button
+                  onClick={() => handleOpen(type, item.id)}
+                  className="text-blue-600 hover:underline"
+                >
+                  Abrir
+                </button>
 
-          <div className="space-y-2">
-            {renderHistorico(
-              hidro,
-              "/mantenimiento/hidro",
-              filtroHidro,
-              handleDeleteHidro
-            )}
-          </div>
-        </section>
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="text-red-600 hover:underline"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
 
-        {/* ================= BARREDORA ================= */}
-        <section className="border rounded-xl p-4 space-y-4">
-          <h2 className="font-semibold">
-            Mantenimiento Barredora
-          </h2>
+  /* =============================
+     UI
+  ============================== */
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-lg space-y-6">
 
-          <button
-            onClick={() => navigate("/mantenimiento/barredora/crear")}
-            className="w-full bg-green-600 text-white py-2 rounded"
-          >
-            Crear mantenimiento
-          </button>
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl font-semibold text-gray-900">
+          Servicio de mantenimiento
+        </h1>
 
-          <div className="flex gap-2 text-xs">
-            {["todos", "borrador", "completado"].map((f) => (
-              <button
-                key={f}
-                onClick={() => setFiltroBarredora(f)}
-                className={`px-3 py-1 rounded border ${
-                  filtroBarredora === f ? "bg-black text-white" : ""
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
+        <button
+          onClick={() => navigate("/area/vehiculos")}
+          className="bg-white text-black border px-4 py-1 rounded text-sm hover:bg-gray-100"
+        >
+          ← Volver
+        </button>
+      </div>
 
-          <div className="space-y-2">
-            {renderHistorico(
-              barredora,
-              "/mantenimiento/barredora",
-              filtroBarredora,
-              handleDeleteBarredora
-            )}
-          </div>
-        </section>
+      {/* GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        {renderCard(
+          "Mantenimiento Hidrosuccionador",
+          "Control de mantenimiento preventivo de equipos",
+          "hidro",
+          byType.hidro,
+          "bg-blue-600"
+        )}
+
+        {renderCard(
+          "Mantenimiento Barredora",
+          "Gestión de mantenimiento de barredoras",
+          "barredora",
+          byType.barredora,
+          "bg-green-600"
+        )}
+
       </div>
     </div>
   );
