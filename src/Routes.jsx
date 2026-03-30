@@ -19,25 +19,29 @@ import AreaPetroleo from "./pages/AreaPetroleo";
 import AreaOperaciones from "./pages/AreaOperaciones";
 import AreaRepositorios from "./pages/AreaRepositorios";
 
-// ================= INFORMES =================
-import InformeHome from "./app/informe/InformeHome";
-import NuevoInforme from "./app/informe/NuevoInforme";
+// ================= INFORMES (MIGRADO) =================
+import InformeHome from "./app/vehiculos/informe/InformeHome";
+import NuevoInforme from "./app/vehiculos/informe/NuevoInforme";
 
-// ================= INSPECCIONES =================
-import HistorialInspecciones from "./app/inspeccion/HistorialInspecciones";
-import HojaInspeccionHidro from "./app/inspeccion/HojaInspeccionHidro";
-import HojaInspeccionBarredora from "./app/inspeccion/HojaInspeccionBarredora";
-import HojaInspeccionCamara from "./app/inspeccion/HojaInspeccionCamara";
+// ================= INSPECCIONES (MIGRADO) =================
+import HistorialInspecciones from "./app/vehiculos/inspeccion/HistorialInspecciones";
+import HojaInspeccionHidro from "./app/vehiculos/inspeccion/HojaInspeccionHidro";
+import HojaInspeccionBarredora from "./app/vehiculos/inspeccion/HojaInspeccionBarredora";
+import HojaInspeccionCamara from "./app/vehiculos/inspeccion/HojaInspeccionCamara";
 
-// ================= MANTENIMIENTO =================
-import IndexMantenimiento from "./app/mantenimiento/IndexMantenimiento";
-import HojaMantenimientoHidro from "./app/mantenimiento/HojaMantenimientoHidro";
-import HojaMantenimientoBarredora from "./app/mantenimiento/HojaMantenimientoBarredora";
+// ================= MANTENIMIENTO (MIGRADO) =================
+import IndexMantenimiento from "./app/vehiculos/mantenimiento/IndexMantenimiento";
+import HojaMantenimientoHidro from "./app/vehiculos/mantenimiento/HojaMantenimientoHidro";
+import HojaMantenimientoBarredora from "./app/vehiculos/mantenimiento/HojaMantenimientoBarredora";
 
-// ================= OPERACIONES =================
-import LiberacionHome from "./app/liberacion/LiberacionHome";
-import LiberacionForm from "./app/liberacion/LiberacionForm";
-import LiberacionDetalle from "./app/liberacion/LiberacionDetalle";
+// ================= OPERACIONES (MIGRADO) =================
+import LiberacionHome from "./app/operaciones/liberacion/LiberacionHome";
+import LiberacionForm from "./app/operaciones/liberacion/LiberacionForm";
+import LiberacionDetalle from "./app/operaciones/liberacion/LiberacionDetalle";
+
+// 🔥 SI YA EXISTEN (ACTÍVALOS)
+import RecepcionHome from "./app/operaciones/recepcion/RecepcionHome";
+import RegistroHome from "./app/operaciones/registro/RegistroHome";
 
 export default function RoutesApp() {
   return (
@@ -274,21 +278,22 @@ export default function RoutesApp() {
               }
             />
 
-            {/* ================= OTROS ================= */}
+            {/* ================= RECEPCIÓN ================= */}
             <Route
               path="/recepcion"
               element={
                 <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <div className="p-6">Recepción</div>
+                  <RecepcionHome />
                 </RoleRoute>
               }
             />
 
+            {/* ================= REGISTRO ================= */}
             <Route
               path="/registro"
               element={
                 <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <div className="p-6">Herramientas</div>
+                  <RegistroHome />
                 </RoleRoute>
               }
             />
