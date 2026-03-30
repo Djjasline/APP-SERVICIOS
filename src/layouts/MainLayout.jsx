@@ -1,3 +1,4 @@
+import { User } from "lucide-react";
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -36,39 +37,56 @@ export default function MainLayout() {
           </div>
 
           {/* DERECHA - USUARIO */}
-          <div className="relative">
-            <div
-              onClick={() => setOpenMenu(!openMenu)}
-              className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center cursor-pointer hover:bg-white/20 transition"
-            >
-              👤
-            </div>
+        <div className="relative z-[9999]">
 
-            {/* MENU DESPLEGABLE */}
-            {openMenu && (
-              <div className="absolute right-0 mt-2 z-[9999] w-52 bg-[#0f172a] border border-white/10 rounded-xl shadow-lg p-3 text-sm backdrop-blur-xl">
-                
-                <div className="mb-2 text-gray-300 border-b border-white/10 pb-2">
-                  👤 {user?.email || "Usuario"}
-                </div>
+  {/* BOTÓN USUARIO */}
+  <div
+    onClick={() => setOpenMenu(!openMenu)}
+    className="w-10 h-10 rounded-full 
+    bg-white/10 backdrop-blur-md 
+    border border-white/20 
+    flex items-center justify-center 
+    cursor-pointer 
+    hover:bg-white/20 transition-all duration-200"
+  >
+    <User size={18} className="text-white" />
+  </div>
 
-                <div className="mb-2 text-xs text-gray-400">
-                  Rol: {user?.role || "-"}
-                </div>
+  {/* MENU GLASS */}
+  {openMenu && (
+    <div
+      className="absolute right-0 mt-3 w-56 
+      backdrop-blur-xl bg-white/10 
+      border border-white/20 
+      rounded-xl shadow-2xl 
+      p-4 text-sm 
+      animate-fadeIn"
+    >
 
-                <button
-                  onClick={() => {
-                    logout();
-                    setOpenMenu(false);
-                  }}
-                  className="w-full text-left text-red-400 hover:text-red-300 transition"
-                >
-                  🚪 Cerrar sesión
-                </button>
+      {/* USUARIO */}
+      <div className="mb-3 pb-2 border-b border-white/20">
+        <p className="text-white font-medium">
+          {user?.email || "Usuario"}
+        </p>
+        <p className="text-xs text-gray-300">
+          Rol: {user?.role || "-"}
+        </p>
+      </div>
 
-              </div>
-            )}
-          </div>
+      {/* BOTÓN LOGOUT */}
+      <button
+        onClick={() => {
+          logout();
+          setOpenMenu(false);
+        }}
+        className="w-full text-left text-red-400 hover:text-red-300 transition"
+      >
+        🚪 Cerrar sesión
+      </button>
+
+    </div>
+  )}
+</div>
 
         </header>
 
