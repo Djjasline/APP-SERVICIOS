@@ -87,7 +87,7 @@ export default function InformeHome() {
 
       {/* HEADER */}
       <div className="flex justify-between items-center">
-        <h1 className="text-lg font-semibold text-white">
+        <h1 className="text-lg font-semibold text-gray-900">
           Informe general
         </h1>
 
@@ -96,7 +96,7 @@ export default function InformeHome() {
 
           <button
             onClick={() => navigate("/")}
-            className="border border-white/20 text-white px-4 py-1 rounded hover:bg-white/10 transition"
+            className="border border-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-100 transition"
           >
             Volver
           </button>
@@ -117,8 +117,10 @@ export default function InformeHome() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-3 py-1 border border-white/20 rounded text-sm text-white ${
-              filter === f ? "bg-white/20" : "hover:bg-white/10"
+            className={`px-3 py-1 border rounded text-sm ${
+              filter === f
+                ? "bg-gray-200 text-gray-900"
+                : "text-gray-600 hover:bg-gray-100"
             }`}
           >
             {f}
@@ -135,7 +137,7 @@ export default function InformeHome() {
           onChange={(e) =>
             setFilters((f) => ({ ...f, cliente: e.target.value }))
           }
-          className="bg-white/10 border border-white/20 text-white px-3 py-2 rounded text-sm placeholder-gray-400"
+          className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm placeholder-gray-500"
         />
 
         <input
@@ -145,7 +147,7 @@ export default function InformeHome() {
           onChange={(e) =>
             setFilters((f) => ({ ...f, pedido: e.target.value }))
           }
-          className="bg-white/10 border border-white/20 text-white px-3 py-2 rounded text-sm placeholder-gray-400"
+          className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm placeholder-gray-500"
         />
 
         <input
@@ -154,7 +156,7 @@ export default function InformeHome() {
           onChange={(e) =>
             setFilters((f) => ({ ...f, fecha: e.target.value }))
           }
-          className="bg-white/10 border border-white/20 text-white px-3 py-2 rounded text-sm"
+          className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm"
         />
       </div>
 
@@ -162,7 +164,7 @@ export default function InformeHome() {
       <div className="space-y-3">
 
         {filteredReports.length === 0 && (
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-gray-400">
+          <div className="bg-gray-50 border rounded-xl p-6 text-gray-500">
             Sin registros
           </div>
         )}
@@ -170,22 +172,22 @@ export default function InformeHome() {
         {filteredReports.map((r) => (
           <div
             key={r.id}
-            className="bg-white/5 border border-white/10 rounded-xl p-4 flex justify-between items-center"
+            className="bg-gray-50 border rounded-xl p-4 flex justify-between items-center"
           >
             <div>
-              <p className="font-semibold text-white">
+              <p className="font-semibold text-gray-900">
                 {r.data?.cliente || "Sin cliente"}
               </p>
 
-              <p className="text-xs text-gray-300">
+              <p className="text-xs text-gray-500">
                 {new Date(
                   r.updated_at || r.created_at
                 ).toLocaleString()}
               </p>
 
-              <p className="text-xs text-gray-300">
+              <p className="text-xs text-gray-600">
                 Estado:{" "}
-                <strong className="text-white">
+                <strong className="text-gray-900">
                   {r.estado === "completado"
                     ? "Completado"
                     : "Borrador"}
@@ -196,7 +198,7 @@ export default function InformeHome() {
             <div className="flex gap-3 text-sm">
               <button
                 onClick={() => openReport(r)}
-                className="text-blue-400 hover:text-blue-300"
+                className="text-blue-600 hover:underline"
               >
                 Abrir
               </button>
@@ -204,7 +206,7 @@ export default function InformeHome() {
               {r.estado === "completado" && (
                 <button
                   onClick={() => navigate(`/informe/pdf/${r.id}`)}
-                  className="text-green-400 hover:text-green-300 font-semibold"
+                  className="text-green-600 hover:underline font-semibold"
                 >
                   PDF
                 </button>
@@ -212,7 +214,7 @@ export default function InformeHome() {
 
               <button
                 onClick={() => deleteReport(r.id)}
-                className="text-red-400 hover:text-red-300"
+                className="text-red-600 hover:underline"
               >
                 Eliminar
               </button>
