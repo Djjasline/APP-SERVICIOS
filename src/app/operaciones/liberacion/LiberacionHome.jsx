@@ -77,7 +77,7 @@ export default function LiberacionHome() {
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
 
-      <div className="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow space-y-6">
+     <div className="max-w-5xl mx-auto bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-xl">
 
         {/* HEADER */}
         <div className="flex justify-between items-center">
