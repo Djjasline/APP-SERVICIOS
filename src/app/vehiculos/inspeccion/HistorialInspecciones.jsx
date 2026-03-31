@@ -72,7 +72,7 @@ export default function IndexInspeccion() {
      CARD COMPONENT (GLASS)
   ============================== */
   const renderCard = (title, desc, type, list) => (
-    <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-5 space-y-4">
+    <div className="bg-white rounded-xl p-6 shadow border border-white/10 rounded-xl p-5 space-y-4">
 
       <div>
         <h2 className="font-semibold text-white">{title}</h2>
@@ -95,7 +95,7 @@ export default function IndexInspeccion() {
           list.map((item) => (
             <div
               key={item.id}
-              className="bg-white/5 border border-white/10 rounded-lg p-3 text-xs flex flex-col gap-2"
+              className="bg-gray-50 border rounded-lg border border-white/10 rounded-lg p-3 text-xs flex flex-col gap-2"
             >
               <div className="flex justify-between items-center">
                 <span className="font-medium text-white">
