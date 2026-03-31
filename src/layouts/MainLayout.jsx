@@ -1,165 +1,147 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+import { User } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import Sidebar from "./Sidebar";
 
-export default function LiberacionHome() {
+export default function MainLayout() {
+  const [openSidebar, setOpenSidebar] = useState(true);
+  const [openMenu, setOpenMenu] = useState(false);
+
   const navigate = useNavigate();
-  const [registros, setRegistros] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // 🔄 CARGAR DATA
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-
-      try {
-        const { data, error } = await supabase
-          .from("registros")
-          .select("*")
-          .eq("tipo", "liberacion")
-          .eq("subtipo", "vehiculo")
-          .order("created_at", { ascending: false });
-
-        if (!error && data) {
-          setRegistros(data);
-          setLoading(false);
-          return;
-        }
-      } catch (err) {
-        console.warn("Sin conexión");
-      }
-
-      // 🔴 FALLBACK LOCAL
-      const local = JSON.parse(localStorage.getItem("pending_registros") || "[]");
-      setRegistros(local);
-      setLoading(false);
-    };
-
-    loadData();
-  }, []);
-
-  const openItem = (item) => {
-    localStorage.setItem("currentLiberacion", JSON.stringify(item));
-    navigate(`/liberacion/${item.id || "local"}`);
-  };
-
-  const deleteItem = async (id) => {
-    if (!confirm("¿Eliminar registro?")) return;
-
-    try {
-      await supabase.from("registros").delete().eq("id", id);
-    } catch {
-      console.warn("Error eliminando en supabase");
-    }
-
-    setRegistros(registros.filter((r) => r.id !== id));
-  };
-
-  const downloadPDF = (id) => {
-    const stored = JSON.parse(localStorage.getItem("pdf_liberaciones") || "{}");
-    const pdf = stored[id];
-
-    if (!pdf) {
-      alert("PDF no disponible en este dispositivo");
-      return;
-    }
-
-    const link = document.createElement("a");
-    link.href = pdf;
-    link.download = `Liberacion_${id}.pdf`;
-    link.click();
-  };
+  const { user, logout } = useAuth();
 
   return (
-    <div className="space-y-6">
+    <div className="flex h-screen bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b]">
 
-      {/* HEADER */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl font-semibold text-white">
-          Historial de Liberaciones
-        </h1>
+      {/* SIDEBAR */}
+      <Sidebar openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
 
-        <button
-          onClick={() => navigate("/liberacion/nuevo")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
-        >
-          + Nueva liberación
-        </button>
-      </div>
+      {/* CONTENIDO */}
+      <div className="flex-1 flex flex-col">
 
-      {/* CONTENEDOR */}
-      <div className="space-y-4">
+        {/* HEADER */}
+        <header className="h-16 flex items-center justify-between px-6 backdrop-blur-xl bg-white/5 border-b border-white/10 relative z-50 text-white">
 
-        {loading && (
-          <p className="text-gray-300">Cargando...</p>
-        )}
+          {/* IZQUIERDA */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setOpenSidebar(!openSidebar)}
+              className="md:hidden p-2 rounded-lg hover:bg-black/50 transition"
+            >
+              ☰
+            </button>
 
-        {!loading && registros.length === 0 && (
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-gray-400">
-            Sin registros
+            <h1 className="text-lg font-semibold tracking-wide">
+              Panel ASTAP
+            </h1>
           </div>
-        )}
 
-        <div className="space-y-3">
-          {registros.map((item) => {
-            const data = item.data || {};
+          {/* DERECHA - USUARIO */}
+          <div className="relative z-[9999]">
 
-            return (
-              <div
-                key={item.id || Math.random()}
-                className="bg-white/5 border border-white/10 rounded-xl p-4 flex justify-between items-center"
-              >
-                <div>
-                  <p className="font-semibold text-white">
-                    {data.cliente || "Sin cliente"}
-                  </p>
+            {/* BOTÓN USUARIO */}
+            <div
+              onClick={() => setOpenMenu(!openMenu)}
+              className="w-10 h-10 rounded-full 
+              bg-white/10 backdrop-blur-md 
+              border border-white/20 
+              flex items-center justify-center 
+              cursor-pointer 
+              hover:bg-white/20 transition-all duration-200"
+            >
+              <User size={18} className="text-white" />
+            </div>
 
-                  <p className="text-sm text-gray-300">
-                    {data.conductor || "Sin conductor"}
-                  </p>
+            {/* MENU GLASS */}
+            {openMenu && (
+              <div className="absolute right-0 mt-2 w-60 
+                bg-black/70 backdrop-blur-xl 
+                border border-white/20 rounded-xl shadow-xl 
+                p-4 text-sm text-white">
 
-                  <p className="text-xs text-gray-400">
-                    {data.placa || "Sin placa"}
-                  </p>
-
-                  <p className="text-xs text-gray-300">
-                    Estado:{" "}
-                    <strong className="text-white">
-                      {item.estado === "completado"
-                        ? "APROBADO"
-                        : "NO APROBADO"}
-                    </strong>
-                  </p>
+                {/* USER INFO */}
+                <div className="mb-3 border-b border-white/20 pb-2">
+                  <div className="font-semibold">
+                    {user?.email || "Usuario"}
+                  </div>
+                  <div className="text-xs text-gray-300">
+                    Rol: {user?.role || "-"}
+                  </div>
                 </div>
 
-                <div className="flex gap-3 text-sm">
-                  <button
-                    onClick={() => openItem(item)}
-                    className="text-blue-400 hover:text-blue-300"
-                  >
-                    Abrir
-                  </button>
-
-                  {item.estado === "completado" && (
-                    <button
-                      onClick={() => downloadPDF(item.id)}
-                      className="text-green-400 hover:text-green-300 font-semibold"
-                    >
-                      PDF
-                    </button>
-                  )}
+                {/* OPCIONES */}
+                <div className="flex flex-col gap-2 text-sm">
 
                   <button
-                    onClick={() => deleteItem(item.id)}
-                    className="text-red-400 hover:text-red-300"
+                    onClick={() => {
+                      navigate("/perfil");
+                      setOpenMenu(false);
+                    }}
+                    className="text-left hover:bg-white/10 px-2 py-1 rounded"
                   >
-                    Eliminar
+                    👤 Mi perfil
                   </button>
+
+                  <button
+                    onClick={() => {
+                      navigate("/informe");
+                      setOpenMenu(false);
+                    }}
+                    className="text-left hover:bg-white/10 px-2 py-1 rounded"
+                  >
+                    📄 Mis informes
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      navigate("/inspeccion");
+                      setOpenMenu(false);
+                    }}
+                    className="text-left hover:bg-white/10 px-2 py-1 rounded"
+                  >
+                    📊 Inspecciones
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      navigate("/mantenimiento");
+                      setOpenMenu(false);
+                    }}
+                    className="text-left hover:bg-white/10 px-2 py-1 rounded"
+                  >
+                    🛠 Mantenimiento
+                  </button>
+
                 </div>
+
+                {/* SEPARADOR */}
+                <div className="border-t border-white/20 my-3" />
+
+                {/* LOGOUT */}
+                <button
+                  onClick={() => {
+                    logout();
+                    setOpenMenu(false);
+                  }}
+                  className="w-full text-left text-red-400 hover:text-red-300"
+                >
+                  🚪 Cerrar sesión
+                </button>
+
               </div>
-            );
-          })}
-        </div>
+            )}
+
+          </div>
+
+        </header>
+
+        {/* MAIN */}
+        <main className="flex-1 overflow-y-auto p-6">
+          <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-6 shadow-xl min-h-full">
+            <Outlet />
+          </div>
+        </main>
 
       </div>
     </div>
