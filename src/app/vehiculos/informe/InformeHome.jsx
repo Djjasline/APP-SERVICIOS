@@ -91,8 +91,7 @@ const deleteReport = async (id) => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-4">
-
+      <div className="max-w-5xl mx-auto bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-xl">
         {/* HEADER */}
         <div className="flex justify-between items-center">
           <h1 className="text-lg font-semibold">Informe general</h1>
