@@ -83,7 +83,7 @@ export default function InformeHome() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="bg-white rounded-2xl p-6 shadow space-y-6">
 
       {/* HEADER */}
       <div className="flex justify-between items-center">
