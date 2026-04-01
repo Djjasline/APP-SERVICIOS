@@ -17,6 +17,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
 
   const [openVehiculos, setOpenVehiculos] = useState(true);
   const [openOperaciones, setOpenOperaciones] = useState(true);
+  const [openAgua, setOpenAgua] = useState(false);
+  const [openPetroleo, setOpenPetroleo] = useState(false);
 
   // 🔥 DETECTOR ACTIVO
   const isActive = (path) => {
@@ -42,6 +44,14 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
       location.pathname.includes("/liberacion")
     ) {
       setOpenOperaciones(true);
+    }
+
+    if (location.pathname.includes("/area/agua")) {
+      setOpenAgua(true);
+    }
+
+    if (location.pathname.includes("/area/petroleo")) {
+      setOpenPetroleo(true);
     }
   }, [location.pathname]);
 
@@ -92,14 +102,11 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
           onClick={() => navigate("/")}
           className={`${itemClass} relative ${
             isActive("/")
-              ? "bg-white/20 text-white shadow-lg before:absolute before:left-0 before:top-1 before:bottom-1 before:w-1 before:bg-accent before:rounded-r before:transition-all"
+              ? "bg-white/20 text-white shadow-lg before:absolute before:left-0 before:top-1 before:bottom-1 before:w-1 before:bg-accent before:rounded-r"
               : "text-white/80 hover:text-white hover:bg-white/10 hover:pl-4"
           }`}
         >
-          <LayoutDashboard
-            size={18}
-            className={isActive("/") ? "text-accent" : ""}
-          />
+          <LayoutDashboard size={18} />
           {openSidebar && "Menú Principal"}
         </button>
 
@@ -148,30 +155,64 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
         </div>
 
         {/* AGUA */}
-        <button
-          onClick={() => navigate("/area/agua")}
-          className={`${itemClass} relative ${
-            isActive("/area/agua")
-              ? "bg-white/20 text-white shadow-lg before:absolute before:left-0 before:top-1 before:bottom-1 before:w-1 before:bg-accent before:rounded-r"
-              : "text-white/80 hover:text-white hover:bg-white/10 hover:pl-4"
-          }`}
-        >
-          <Droplet size={18} />
-          {openSidebar && "Agua y Saneamiento"}
-        </button>
+        <div>
+          <button
+            onClick={() => setOpenAgua((prev) => !prev)}
+            className={`${groupButtonClass} ${
+              isActive("/area/agua")
+                ? "bg-white/10 text-white"
+                : "text-white/80 hover:text-white hover:bg-white/10"
+            }`}
+          >
+            <span className="flex items-center gap-3">
+              <Droplet size={18} />
+              {openSidebar && "Agua y Saneamiento"}
+            </span>
+
+            {openSidebar &&
+              (openAgua ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
+          </button>
+
+          {openSidebar && openAgua && (
+            <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
+              <button onClick={() => navigate("/area/agua")} className={subItemClass("/area/agua")}>
+                Panel Agua
+              </button>
+              <button className="text-white/70 text-xs px-2 py-1">Registros</button>
+              <button className="text-white/70 text-xs px-2 py-1">Reportes</button>
+            </div>
+          )}
+        </div>
 
         {/* PETRÓLEO */}
-        <button
-          onClick={() => navigate("/area/petroleo")}
-          className={`${itemClass} relative ${
-            isActive("/area/petroleo")
-              ? "bg-white/20 text-white shadow-lg before:absolute before:left-0 before:top-1 before:bottom-1 before:w-1 before:bg-accent before:rounded-r"
-              : "text-white/80 hover:text-white hover:bg-white/10 hover:pl-4"
-          }`}
-        >
-          <Fuel size={18} />
-          {openSidebar && "Petróleo y Energía"}
-        </button>
+        <div>
+          <button
+            onClick={() => setOpenPetroleo((prev) => !prev)}
+            className={`${groupButtonClass} ${
+              isActive("/area/petroleo")
+                ? "bg-white/10 text-white"
+                : "text-white/80 hover:text-white hover:bg-white/10"
+            }`}
+          >
+            <span className="flex items-center gap-3">
+              <Fuel size={18} />
+              {openSidebar && "Petróleo y Energía"}
+            </span>
+
+            {openSidebar &&
+              (openPetroleo ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
+          </button>
+
+          {openSidebar && openPetroleo && (
+            <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
+              <button onClick={() => navigate("/area/petroleo")} className={subItemClass("/area/petroleo")}>
+                Panel Petróleo
+              </button>
+              <button className="text-white/70 text-xs px-2 py-1">Operaciones</button>
+              <button className="text-white/70 text-xs px-2 py-1">Control</button>
+            </div>
+          )}
+        </div>
 
         {/* OPERACIONES */}
         <div>
@@ -220,9 +261,9 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
         {/* REPOSITORIOS */}
         <button
           onClick={() => navigate("/repositorios")}
-          className={`${itemClass} relative ${
+          className={`${itemClass} ${
             isActive("/repositorios")
-              ? "bg-white/20 text-white shadow-lg before:absolute before:left-0 before:top-1 before:bottom-1 before:w-1 before:bg-accent before:rounded-r"
+              ? "bg-white/20 text-white shadow-lg"
               : "text-white/80 hover:text-white hover:bg-white/10 hover:pl-4"
           }`}
         >
