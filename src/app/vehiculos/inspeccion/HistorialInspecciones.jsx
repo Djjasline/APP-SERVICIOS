@@ -72,11 +72,10 @@ export default function IndexInspeccion() {
      CARD COMPONENT (GLASS)
   ============================== */
   const renderCard = (title, desc, type, list) => (
-    <div className="bg-white rounded-xl p-6 shadow border border-white/10 rounded-xl p-5 space-y-4">
-
+  <div className="bg-white rounded-xl p-5 shadow border border-gray-200 space-y-4 hover:shadow-lg hover:-translate-y-1 transition duration-300">
       <div>
-        <h2 className="font-semibold text-white">{title}</h2>
-        <p className="text-xs text-gray-300">{desc}</p>
+        <h2 className="font-semibold text-gray-900">{title}</h2>
+        <p className="text-xs text-gray-600">{desc}</p>
       </div>
 
       <button
@@ -88,9 +87,9 @@ export default function IndexInspeccion() {
 
       <div className="space-y-2">
         {list.length === 0 ? (
-          <p className="text-xs text-gray-400">
-            No hay inspecciones registradas.
-          </p>
+         <p className="text-xs text-gray-600">
+  No hay inspecciones registradas.
+</p>
         ) : (
           list.map((item) => (
             <div
@@ -98,7 +97,7 @@ export default function IndexInspeccion() {
               className="bg-gray-50 border rounded-lg border border-white/10 rounded-lg p-3 text-xs flex flex-col gap-2"
             >
               <div className="flex justify-between items-center">
-                <span className="font-medium text-white">
+               <span className="font-medium text-gray-900">
                   {item.data?.cliente || "Sin cliente"}
                 </span>
 
@@ -113,7 +112,7 @@ export default function IndexInspeccion() {
                 </span>
               </div>
 
-              <span className="text-[10px] text-gray-400">
+              <span className="text-[10px] text-gray-500">
                 {new Date(
                   item.updated_at || item.created_at
                 ).toLocaleString()}
