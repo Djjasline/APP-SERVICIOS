@@ -92,4 +92,24 @@
   .transition-fade {
     transition: opacity 0.2s ease-out;
   }
+@layer utilities {
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+
+  .text-primary {
+    color: var(--color-primary);
+  }
+
+  .bg-accent {
+    background-color: var(--color-accent);
+  }
+
+  .text-muted {
+    color: var(--color-muted-foreground);
+  }
+
+  .border-default {
+    border-color: var(--color-border);
+  }
 }
