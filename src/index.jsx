@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./styles/index.css";
-import "./pwaUpdater";
+
 // 🔥 CONTEXTOS
 import { AuthProvider } from "./context/AuthContext";
 import { ReportProvider } from "./context/ReportContext";
