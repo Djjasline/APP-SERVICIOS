@@ -567,37 +567,32 @@ const saveReport = async () => {
         </button>
 
         {/* DESCRIPCIÓN DEL EQUIPO */}
-        <h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
+<h3 className="font-bold text-sm">DESCRIPCIÓN DEL EQUIPO</h3>
 
-        <table className="pdf-table">
-          <tbody>
-            {[
-              ["NOTA", "nota"],
-              ["MARCA", "marca"],
-              ["MODELO", "modelo"],
-              ["N° SERIE", "serie"],
-              ["AÑO MODELO", "anio"],
-              ["VIN / CHASIS", "vin"],
-              ["PLACA", "placa"],
-              ["HORAS MÓDULO", "horasModulo"],
-              ["HORAS CHASIS", "horasChasis"],
-              ["KILOMETRAJE", "kilometraje"],
-            ].map(([label, key]) => (
-              <tr key={key}>
-                <td className="pdf-label">{label}</td>
-                <td>
-                  <input
-                    className="pdf-input"
-                    value={data.equipo[key]}
-                    onChange={(e) =>
-                      update(["equipo", key], e.target.value)
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+<table className="pdf-table">
+  <tbody>
+    {[
+      ["NOTA", "nota"],
+      ["MARCA", "marca"],
+      ["MODELO", "modelo"],
+      ["N° SERIE", "serie"],
+      ["HORÓMETRO", "horasModulo"],
+    ].map(([label, key]) => (
+      <tr key={key}>
+        <td className="pdf-label">{label}</td>
+        <td>
+          <input
+            className="pdf-input"
+            value={data.equipo[key] || ""}
+            onChange={(e) =>
+              update(["equipo", key], e.target.value)
+            }
+          />
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
 
         {/* ================= FIRMAS ================= */}
 <table className="pdf-table">
