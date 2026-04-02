@@ -16,7 +16,7 @@ export default function AreaOperaciones() {
       titulo: "Herramientas y equipos",
       descripcion: "Gestión y registro de salida e ingreso de herramientas y equipos técnicos.",
       icon: <Wrench size={24} />,
-      color: "bg-gray-700",
+      color: "bg-blue-600",
       ruta: "/registro",
     },
     {
@@ -33,8 +33,8 @@ export default function AreaOperaciones() {
 
       {/* HEADER */}
       <div>
-        <h1 className="text-2xl font-bold">Operaciones</h1>
-        <p className="text-gray-500">
+        <h1 className="text-2xl font-bold text-white">Operaciones</h1>
+        <p className="text-gray-400">
           Gestión operativa de procesos técnicos.
         </p>
       </div>
@@ -44,7 +44,7 @@ export default function AreaOperaciones() {
         {modulos.map((item, index) => (
           <div
             key={index}
-            className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition space-y-4"
+            className="bg-white rounded-xl p-6 shadow border border-gray-200 space-y-4 hover:shadow-lg hover:-translate-y-1 transition duration-300"
           >
             {/* ICONO */}
             <div className={`${item.color} text-white w-12 h-12 flex items-center justify-center rounded-lg`}>
@@ -52,7 +52,7 @@ export default function AreaOperaciones() {
             </div>
 
             {/* TITULO */}
-            <h2 className="font-semibold text-lg">{item.titulo}</h2>
+            <h2 className="font-semibold text-lg text-gray-900">{item.titulo}</h2>
 
             {/* DESCRIPCIÓN */}
             <p className="text-sm text-gray-600">{item.descripcion}</p>
