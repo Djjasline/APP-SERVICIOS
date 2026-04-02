@@ -1,103 +1,68 @@
 import { useNavigate } from "react-router-dom";
+import { FileText, Wrench, Settings } from "lucide-react";
 
 export default function PanelVehiculos() {
   const navigate = useNavigate();
 
-  return (
-    <div className="p-6 space-y-6">
-
-      {/* HEADER */}
-      <div>
-        <h1 className="text-white text-2xl font-semibold tracking-wide">
-          Panel ASTAP
-        </h1>
+  const Card = ({ icon: Icon, title, desc, onClick }) => (
+    <div
+      onClick={onClick}
+      className="bg-white rounded-2xl p-5 shadow border border-gray-200 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition duration-200"
+    >
+      <div className="flex items-center gap-3 mb-2">
+        <Icon className="text-blue-600" size={20} />
+        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
       </div>
 
-      {/* CONTENEDOR PRINCIPAL */}
-      <div className="bg-white/5 backdrop-blur rounded-xl p-6 border border-white/10">
+      <p className="text-sm text-gray-600 mb-4">{desc}</p>
 
-        {/* SECCIÓN */}
-        <div className="space-y-6">
+      <button className="text-sm text-blue-600 font-medium hover:underline">
+        Ir →
+      </button>
+    </div>
+  );
 
-          {/* TÍTULO */}
-          <h2 className="text-white text-2xl font-semibold tracking-wide">
-            Vehículos Especiales
-          </h2>
+  return (
+    <div className="space-y-6">
 
-          {/* GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {/* HEADER */}
+      <h1 className="text-xl font-semibold text-gray-900">
+        Panel ASTAP
+      </h1>
 
-            {/* INFORME */}
-            <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 space-y-4 hover:shadow-xl hover:-translate-y-1 transition duration-300">
-              
-              <div className="flex items-center gap-2">
-                <span className="text-blue-600 text-xl">📄</span>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Informe General
-                </h3>
-              </div>
+      {/* CONTENEDOR */}
+      <div className="bg-white rounded-2xl p-6 shadow">
 
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Registro técnico de trabajos realizados.
-              </p>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          Vehículos Especiales
+        </h2>
 
-              <button
-                onClick={() => navigate("/informe")}
-                className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-sm"
-              >
-                Ir
-              </button>
-            </div>
+        {/* GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
-            {/* INSPECCIÓN */}
-            <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 space-y-4 hover:shadow-xl hover:-translate-y-1 transition duration-300">
-              
-              <div className="flex items-center gap-2">
-                <span className="text-yellow-600 text-xl">🛠</span>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Inspección
-                </h3>
-              </div>
+          <Card
+            icon={FileText}
+            title="Informe General"
+            desc="Registro técnico de trabajos realizados."
+            onClick={() => navigate("/informe")}
+          />
 
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Evaluación del estado de equipos como barredoras, hidrosuccionadores y cámaras de inspección.
-              </p>
+          <Card
+            icon={Wrench}
+            title="Inspección"
+            desc="Evaluación del estado de equipos y sistemas."
+            onClick={() => navigate("/inspeccion")}
+          />
 
-              <button
-                onClick={() => navigate("/inspeccion")}
-                className="px-4 py-2 text-sm font-medium bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition shadow-sm"
-              >
-                Ir
-              </button>
-            </div>
-
-            {/* MANTENIMIENTO */}
-            <div className="bg-white rounded-xl p-5 shadow-md border border-gray-200 space-y-4 hover:shadow-xl hover:-translate-y-1 transition duration-300">
-              
-              <div className="flex items-center gap-2">
-                <span className="text-green-600 text-xl">🧰</span>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Mantenimiento
-                </h3>
-              </div>
-
-              <p className="text-sm text-gray-600 leading-relaxed">
-                Control de mantenimiento preventivo de barredoras, hidrosuccionadores y cámaras de inspección.
-              </p>
-
-              <button
-                onClick={() => navigate("/mantenimiento")}
-                className="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-sm"
-              >
-                Ir
-              </button>
-            </div>
-
-          </div>
+          <Card
+            icon={Settings}
+            title="Mantenimiento"
+            desc="Control de mantenimiento preventivo y correctivo."
+            onClick={() => navigate("/mantenimiento")}
+          />
 
         </div>
       </div>
-
     </div>
   );
 }
