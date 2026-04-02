@@ -305,8 +305,8 @@ const saveReport = async () => {
   }
 };
   return (
-  <div className="p-6 bg-gray-100 min-h-screen">
-    <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
+  <div className="p-6 bg-gray-100 min-h-screen flex justify-center">
+    <div className="bg-white p-8 shadow-lg w-full max-w-5xl space-y-6 border">
 
       <ReportHeader data={data} onChange={update} />
  
