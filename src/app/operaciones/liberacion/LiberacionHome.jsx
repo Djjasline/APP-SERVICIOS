@@ -75,29 +75,31 @@ export default function LiberacionHome() {
   };
 
   return (
-    <div className="p-6 bg-slate-100 min-h-screen">
+    <div className="p-6 space-y-6">
 
-     <div className="max-w-5xl mx-auto bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-xl">
+     <div className="space-y-6">
 
         {/* HEADER */}
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-bold">
+          <h1 className="text-xl font-bold text-white">
             Historial de Liberaciones
           </h1>
 
           <button
             onClick={() => navigate("/liberacion/nuevo")}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
           >
             + Nueva liberación
           </button>
         </div>
 
         {/* ESTADO */}
-        {loading && <p>Cargando...</p>}
+        {loading && <p className="text-gray-400">Cargando...</p>}
 
         {!loading && registros.length === 0 && (
-          <p className="text-gray-500">Sin registros</p>
+          <div className="bg-[#1e2a3a] border border-white/10 rounded-xl p-6">
+            <p className="text-gray-400">Sin registros</p>
+          </div>
         )}
 
         {/* LISTADO */}
@@ -108,10 +110,10 @@ export default function LiberacionHome() {
             return (
               <div
                 key={item.id || Math.random()}
-                className="border p-4 rounded flex justify-between items-center"
+                className="bg-white border border-gray-200 rounded-xl p-4 flex justify-between items-center hover:shadow-md transition"
               >
                 <div>
-                  <p className="font-semibold">
+                  <p className="font-semibold text-gray-900">
                     {data.cliente || "Sin cliente"}
                   </p>
 
@@ -123,12 +125,10 @@ export default function LiberacionHome() {
                     {data.placa || "Sin placa"}
                   </p>
 
-                  <p className="text-xs">
+                  <p className="text-xs text-gray-500 mt-1">
                     Estado:{" "}
-                    <strong>
-                      {item.estado === "completado"
-                        ? "APROBADO"
-                        : "NO APROBADO"}
+                    <strong className={item.estado === "completado" ? "text-green-600" : "text-yellow-600"}>
+                      {item.estado === "completado" ? "APROBADO" : "NO APROBADO"}
                     </strong>
                   </p>
                 </div>
@@ -138,7 +138,7 @@ export default function LiberacionHome() {
                   {/* ABRIR */}
                   <button
                     onClick={() => openItem(item)}
-                    className="text-blue-600"
+                    className="text-blue-600 hover:underline"
                   >
                     Abrir
                   </button>
@@ -147,7 +147,7 @@ export default function LiberacionHome() {
                   {item.estado === "completado" && (
                     <button
                       onClick={() => downloadPDF(item.id)}
-                      className="text-green-600 font-semibold"
+                      className="text-green-600 font-semibold hover:underline"
                     >
                       PDF
                     </button>
@@ -156,7 +156,7 @@ export default function LiberacionHome() {
                   {/* ELIMINAR */}
                   <button
                     onClick={() => deleteItem(item.id)}
-                    className="text-red-600"
+                    className="text-red-600 hover:underline"
                   >
                     Eliminar
                   </button>
