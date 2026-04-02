@@ -95,6 +95,11 @@
   .transition-fade {
     transition: opacity 0.2s ease-out;
   }
+
+  /* 🔥 SOLUCIÓN DEL PROBLEMA */
+  .input {
+    @apply w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
 }
 
 /* =============================
@@ -119,9 +124,5 @@
 
   .border-default {
     border-color: var(--color-border);
-  }
-@layer components {
-  .input {
-    @apply w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500;
   }
 }
