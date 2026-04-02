@@ -13,7 +13,6 @@ export default function IndexInforme() {
   const migrarInforme = (inf) => {
     const data = inf.data || {};
 
-    // Si ya tiene estructura nueva → no tocar
     if (data.tecnicoNombre && data.codInf) return inf;
 
     return {
@@ -37,7 +36,6 @@ export default function IndexInforme() {
   useEffect(() => {
     const cargarInformes = async () => {
 
-      // 1️⃣ Intentar leer local
       const local =
         JSON.parse(localStorage.getItem("serviceReports")) || [];
 
@@ -54,7 +52,6 @@ export default function IndexInforme() {
         return;
       }
 
-      // 2️⃣ Si no hay local, leer Supabase
       const { data, error } = await supabase
         .from("registros")
         .select("*")
@@ -103,7 +100,7 @@ export default function IndexInforme() {
   });
 
   /* ===========================
-     TITULO DEL HISTORIAL
+     TITULO
   =========================== */
   const getTitulo = (inf) => {
     const tecnico = inf.data?.tecnicoNombre?.trim();
@@ -119,22 +116,25 @@ export default function IndexInforme() {
   };
 
   /* ===========================
-     NUEVO INFORME (LIMPIO)
+     NUEVO INFORME
   =========================== */
   const nuevoInforme = () => {
     localStorage.removeItem("currentReport");
-    navigate("/informe/nuevo");
+    navigate("/agua/informe/nuevo"); // 🔥 CAMBIO
   };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="max-w-6xl mx-auto space-y-6">
 
-        {/* ENCABEZADO */}
+        {/* HEADER */}
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-semibold">Informe general</h1>
+          <h1 className="text-xl font-semibold">
+            Informe agua y saneamiento
+          </h1>
+
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/agua")}
             className="border px-4 py-2 rounded"
           >
             Volver
@@ -152,7 +152,7 @@ export default function IndexInforme() {
             Nuevo informe
           </button>
 
-          {/* SUBMENÚ */}
+          {/* FILTROS */}
           <div className="flex gap-2 pt-4">
             {["todos", "borrador", "completado"].map((f) => (
               <button
@@ -172,7 +172,9 @@ export default function IndexInforme() {
           {/* HISTORIAL */}
           <div className="pt-4 space-y-2">
             {filtrados.length === 0 && (
-              <p className="text-xs text-gray-500">Sin registros</p>
+              <p className="text-xs text-gray-500">
+                Sin registros
+              </p>
             )}
 
             {filtrados.map((inf) => (
@@ -208,7 +210,7 @@ export default function IndexInforme() {
                         "currentReport",
                         JSON.stringify(inf)
                       );
-                      navigate(`/informe/${inf.id}`);
+                      navigate(`/agua/informe/${inf.id}`); // 🔥 CAMBIO
                     }}
                   >
                     Abrir
@@ -217,7 +219,9 @@ export default function IndexInforme() {
                   {inf.estado === "completado" && (
                     <button
                       className="bg-green-600 text-white px-2 py-1 text-xs rounded"
-                      onClick={() => navigate(`/informe/pdf/${inf.id}`)}
+                      onClick={() =>
+                        navigate(`/agua/informe/pdf/${inf.id}`) // 🔥 CAMBIO
+                      }
                     >
                       PDF
                     </button>
