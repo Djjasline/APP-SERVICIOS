@@ -4,23 +4,23 @@ export default function ReportHeader({ data, onChange }) {
       <tbody>
         <tr>
           {/* LOGO */}
-          <td
-            rowSpan={4}
-            style={{
-              width: 120,
-              verticalAlign: "middle",
-              textAlign: "center",
-            }}
-          >
-            <div className="flex items-center justify-center h-[100px]">
-              <img
-                src="/logo.png"
-                alt="logo"
-                className="object-contain"
-                style={{ maxHeight: "70px" }}
-              />
-            </div>
-          </td>
+       <td
+  rowSpan={4}
+  style={{
+    width: 120,
+    verticalAlign: "middle",
+    textAlign: "center",
+  }}
+>
+  <div className="flex items-center justify-center h-full min-h-[120px]">
+    <img
+      src="/astap-logo.jpg"
+      alt="logo"
+      className="object-contain"
+      style={{ maxHeight: "70px" }}
+    />
+  </div>
+</td>
 
           {/* TÍTULO */}
           <td
@@ -56,7 +56,6 @@ export default function ReportHeader({ data, onChange }) {
               }
             />
           </td>
-          <td></td>
         </tr>
 
         {/* DESCRIPCIÓN */}
