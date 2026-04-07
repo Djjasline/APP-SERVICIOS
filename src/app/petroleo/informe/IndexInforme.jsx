@@ -8,85 +8,34 @@ export default function IndexInforme() {
   const [informes, setInformes] = useState([]);
 
   /* ===========================
-     🧠 MIGRACIÓN SEGURA
+     CARGAR INFORMES (SOLO SUPABASE)
   =========================== */
-  const migrarInforme = (inf) => {
-    const data = inf.data || {};
+  const cargarInformes = async () => {
+    const { data, error } = await supabase
+      .from("registros")
+      .select("*")
+      .eq("tipo", "informe")
+      .eq("subtipo", "general")
+      .order("created_at", { ascending: false });
 
-    // Si ya tiene estructura nueva → no tocar
-    if (data.tecnicoNombre && data.codInf) return inf;
+    if (error) {
+      console.error("Error cargando informes:", error);
+      return;
+    }
 
-    return {
-      ...inf,
-      data: {
-        ...data,
-        tecnicoNombre:
-          data.tecnicoNombre ||
-          "Técnico no definido",
-        codInf:
-          data.codInf ||
-          data.referenciaContrato ||
-          "SIN-COD",
-      },
-    };
+    if (data) {
+      const mapped = data.map((r) => ({
+        id: r.id,
+        estado: r.estado,
+        data: r.data,
+        createdAt: r.created_at,
+      }));
+
+      setInformes(mapped);
+    }
   };
 
-  /* ===========================
-     CARGAR INFORMES
-  =========================== */
   useEffect(() => {
-    const cargarInformes = async () => {
-
-      // 1️⃣ Intentar leer local
-      const local =
-        JSON.parse(localStorage.getItem("serviceReports")) || [];
-
-      if (local.length > 0) {
-        const migrados = local.map(migrarInforme);
-
-        setInformes(migrados);
-
-        localStorage.setItem(
-          "serviceReports",
-          JSON.stringify(migrados)
-        );
-
-        return;
-      }
-
-      // 2️⃣ Si no hay local, leer Supabase
-      const { data, error } = await supabase
-        .from("registros")
-        .select("*")
-        .eq("tipo", "informe")
-        .eq("subtipo", "general")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error cargando desde Supabase:", error);
-        return;
-      }
-
-      if (data) {
-        const mapped = data.map(r => ({
-          id: r.id,
-          estado: r.estado,
-          data: r.data,
-          createdAt: r.created_at,
-          synced: true
-        }));
-
-        const migrados = mapped.map(migrarInforme);
-
-        localStorage.setItem(
-          "serviceReports",
-          JSON.stringify(migrados)
-        );
-
-        setInformes(migrados);
-      }
-    };
-
     cargarInformes();
   }, []);
 
@@ -103,7 +52,7 @@ export default function IndexInforme() {
   });
 
   /* ===========================
-     TITULO DEL HISTORIAL
+     TITULO
   =========================== */
   const getTitulo = (inf) => {
     const tecnico = inf.data?.tecnicoNombre?.trim();
@@ -119,20 +68,43 @@ export default function IndexInforme() {
   };
 
   /* ===========================
-     NUEVO INFORME (LIMPIO)
+     NUEVO INFORME
   =========================== */
   const nuevoInforme = () => {
-    localStorage.removeItem("currentReport");
     navigate("/informe/nuevo");
+  };
+
+  /* ===========================
+     ELIMINAR INFORME
+  =========================== */
+  const eliminarInforme = async (id) => {
+    const confirmDelete = confirm("¿Eliminar este informe?");
+    if (!confirmDelete) return;
+
+    const { error } = await supabase
+      .from("registros")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error eliminando:", error);
+      alert("Error eliminando informe");
+      return;
+    }
+
+    cargarInformes();
   };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="max-w-6xl mx-auto space-y-6">
 
-        {/* ENCABEZADO */}
+        {/* HEADER */}
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-semibold">Informe general</h1>
+          <h1 className="text-xl font-semibold">
+            Informe general petróleo
+          </h1>
+
           <button
             onClick={() => navigate("/")}
             className="border px-4 py-2 rounded"
@@ -152,7 +124,7 @@ export default function IndexInforme() {
             Nuevo informe
           </button>
 
-          {/* SUBMENÚ */}
+          {/* FILTROS */}
           <div className="flex gap-2 pt-4">
             {["todos", "borrador", "completado"].map((f) => (
               <button
@@ -172,7 +144,9 @@ export default function IndexInforme() {
           {/* HISTORIAL */}
           <div className="pt-4 space-y-2">
             {filtrados.length === 0 && (
-              <p className="text-xs text-gray-500">Sin registros</p>
+              <p className="text-xs text-gray-500">
+                Sin registros
+              </p>
             )}
 
             {filtrados.map((inf) => (
@@ -203,13 +177,9 @@ export default function IndexInforme() {
                 <div className="flex gap-2 flex-wrap">
                   <button
                     className="border px-2 py-1 text-xs rounded"
-                    onClick={() => {
-                      localStorage.setItem(
-                        "currentReport",
-                        JSON.stringify(inf)
-                      );
-                      navigate(`/informe/${inf.id}`);
-                    }}
+                    onClick={() =>
+                      navigate(`/informe/${inf.id}`)
+                    }
                   >
                     Abrir
                   </button>
@@ -217,7 +187,9 @@ export default function IndexInforme() {
                   {inf.estado === "completado" && (
                     <button
                       className="bg-green-600 text-white px-2 py-1 text-xs rounded"
-                      onClick={() => navigate(`/informe/pdf/${inf.id}`)}
+                      onClick={() =>
+                        navigate(`/informe/pdf/${inf.id}`)
+                      }
                     >
                       PDF
                     </button>
@@ -225,14 +197,7 @@ export default function IndexInforme() {
 
                   <button
                     className="text-red-600 text-xs"
-                    onClick={() => {
-                      const next = informes.filter(i => i.id !== inf.id);
-                      setInformes(next);
-                      localStorage.setItem(
-                        "serviceReports",
-                        JSON.stringify(next)
-                      );
-                    }}
+                    onClick={() => eliminarInforme(inf.id)}
                   >
                     Eliminar
                   </button>
