@@ -70,7 +70,6 @@ export default function ReportHeader({ data, onChange }) {
               }
             />
           </td>
-          <td></td>
         </tr>
 
         {/* COD INF */}
@@ -85,7 +84,6 @@ export default function ReportHeader({ data, onChange }) {
               }
             />
           </td>
-          <td></td>
         </tr>
       </tbody>
     </table>
