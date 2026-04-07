@@ -299,7 +299,7 @@ export default function NuevoInforme() {
   =========================== */
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="bg-white p-6 rounded shadow max-w-6xl mx-auto space-y-6">
+      <div className="bg-white p-4 md:p-6 rounded shadow w-full max-w-screen-xl mx-auto space-y-6">
 
         {/* ── ENCABEZADO ── */}
         {/* FIX: logo centrado via ReportHeader (ya usa margin: "0 auto") */}
@@ -576,10 +576,10 @@ export default function NuevoInforme() {
                     {(a.imagenes || []).map((img, imgIndex) => (
                       <div key={imgIndex} className="relative">
                         <img
-                          src={img}
-                          alt="actividad"
-                          className="w-full h-[100px] object-contain bg-gray-100 border rounded"
-                        />
+  src={img}
+  alt="actividad"
+  className="w-full aspect-[4/3] object-cover bg-gray-100 border rounded"
+/>
                         <button
                           type="button"
                           onClick={() => {
