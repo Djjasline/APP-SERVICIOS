@@ -1,66 +1,92 @@
 export default function ReportHeader({ data, onChange }) {
   return (
-    <table className="pdf-table">
+    <table className="pdf-table w-full">
       <tbody>
         <tr>
-         <td className="align-middle text-center" style={{ width: "120px", verticalAlign: "middle" }}>
-  <div className="flex items-center justify-center h-full">
-    <img
-      src="/logo.png"
-      alt="logo"
-      className="object-contain"
-      style={{ maxHeight: "70px" }}
-    />
-  </div>
-</td>
+          {/* LOGO */}
+          <td
+            rowSpan={4}
+            style={{
+              width: 120,
+              verticalAlign: "middle",
+              textAlign: "center",
+            }}
+          >
+            <div className="flex items-center justify-center h-[100px]">
+              <img
+                src="/logo.png"
+                alt="logo"
+                className="object-contain"
+                style={{ maxHeight: "70px" }}
+              />
+            </div>
+          </td>
 
-          <td colSpan={2} style={{ textAlign: "center", fontWeight: "bold" }}>
+          {/* TÍTULO */}
+          <td
+            colSpan={2}
+            style={{
+              textAlign: "center",
+              fontWeight: "bold",
+              fontSize: "14px",
+            }}
+          >
             REPORTE TÉCNICO DE SERVICIO
           </td>
 
-          <td style={{ width: 180, fontSize: 11 }}>
+          {/* INFO DERECHA */}
+          <td
+            className="text-[10px] md:text-[11px]"
+            style={{ width: 160 }}
+          >
             <div>Fecha de versión: 01-01-26</div>
             <div>Versión: 01</div>
           </td>
         </tr>
 
+        {/* REFERENCIA */}
         <tr>
           <td className="pdf-label">REFERENCIA DE CONTRATO</td>
           <td colSpan={2}>
             <input
-              className="pdf-input"
+              className="pdf-input w-full"
               value={data.referenciaContrato}
               onChange={(e) =>
                 onChange(["referenciaContrato"], e.target.value)
               }
             />
           </td>
+          <td></td>
         </tr>
 
+        {/* DESCRIPCIÓN */}
         <tr>
           <td className="pdf-label">DESCRIPCIÓN</td>
           <td colSpan={2}>
             <input
-              className="pdf-input"
+              className="pdf-input w-full"
               value={data.descripcion}
               onChange={(e) =>
                 onChange(["descripcion"], e.target.value)
               }
             />
           </td>
+          <td></td>
         </tr>
 
+        {/* COD INF */}
         <tr>
           <td className="pdf-label">COD. INF.</td>
           <td colSpan={2}>
             <input
-              className="pdf-input"
+              className="pdf-input w-full"
               value={data.codInf}
               onChange={(e) =>
                 onChange(["codInf"], e.target.value)
               }
             />
           </td>
+          <td></td>
         </tr>
       </tbody>
     </table>
