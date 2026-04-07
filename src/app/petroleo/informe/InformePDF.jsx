@@ -9,42 +9,24 @@ export default function InformePDF() {
   const [report, setReport] = useState(null);
 
   /* ===========================
-     CARGAR INFORME (MISMO FLUJO QUE INSPECCIÓN)
+     CARGAR INFORME (SOLO SUPABASE)
   =========================== */
-useEffect(() => {
-  const loadReport = async () => {
+  useEffect(() => {
+    const loadReport = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("registros")
+          .select("*")
+          .eq("id", id)
+          .eq("tipo", "informe")
+          .eq("subtipo", "general")
+          .single();
 
-    // 1️⃣ Intentar desde currentReport
-    const current = JSON.parse(localStorage.getItem("currentReport"));
+        if (error || !data) {
+          console.error("Error cargando informe:", error);
+          return;
+        }
 
-    if (current?.id && String(current.id) === String(id)) {
-      setReport(current);
-      return;
-    }
-
-    // 2️⃣ Buscar en historial local
-    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
-    const foundLocal = stored.find(
-      (r) => String(r.id) === String(id)
-    );
-
-    if (foundLocal) {
-      setReport(foundLocal);
-      localStorage.setItem("currentReport", JSON.stringify(foundLocal));
-      return;
-    }
-
-    // 3️⃣ 🔥 Buscar en Supabase
-    try {
-      const { data, error } = await supabase
-        .from("registros")
-        .select("*")
-        .eq("id", id)
-        .eq("tipo", "informe")
-        .eq("subtipo", "general")
-        .single();
-
-      if (!error && data) {
         const mapped = {
           id: data.id,
           estado: data.estado,
@@ -54,59 +36,55 @@ useEffect(() => {
         };
 
         setReport(mapped);
-        localStorage.setItem("currentReport", JSON.stringify(mapped));
+
+      } catch (err) {
+        console.error("Error cargando informe:", err);
       }
+    };
 
-    } catch (err) {
-      console.error("Error cargando informe:", err);
-    }
-  };
+    loadReport();
+  }, [id]);
 
-  loadReport();
-}, [id]);
-  
-if (!report) {
-  return (
-    <div className="p-6 text-center">
-      <p>No se encontró el informe.</p>
-      <button
-        onClick={() => navigate("/informe")}
-        className="border px-4 py-2 rounded mt-4"
-      >
-        Volver
-      </button>
-    </div>
-  );
-}
+  /* ===========================
+     NO ENCONTRADO
+  =========================== */
+  if (!report) {
+    return (
+      <div className="p-6 text-center">
+        <p>No se encontró el informe.</p>
+        <button
+          onClick={() => navigate("/informe")}
+          className="border px-4 py-2 rounded mt-4"
+        >
+          Volver
+        </button>
+      </div>
+    );
+  }
 
-/* ===========================
-   🔒 VALIDACIÓN EMPRESARIAL
-=========================== */
-// 🔥 Normalizar estado (puede venir de diferentes lugares)
-const estadoNormalizado =
-  report?.estado ||
-  report?.data?.estado ||
-  "";
+  /* ===========================
+     VALIDACIÓN ESTADO
+  =========================== */
+  const estadoNormalizado =
+    report?.estado ||
+    report?.data?.estado ||
+    "";
 
-// 🔍 Debug
-console.log("REPORT COMPLETO:", report);
-console.log("ESTADO NORMALIZADO:", estadoNormalizado);
+  if (estadoNormalizado.toLowerCase() !== "completado") {
+    return (
+      <div className="p-6 text-center">
+        <p>Este informe no está completado.</p>
+        <button
+          onClick={() => navigate("/informe")}
+          className="border px-4 py-2 rounded mt-4"
+        >
+          Volver
+        </button>
+      </div>
+    );
+  }
 
-if (estadoNormalizado.toLowerCase() !== "completado") {
-  return (
-    <div className="p-6 text-center">
-      <p>Este informe no está completado.</p>
-      <button
-        onClick={() => navigate("/informe")}
-        className="border px-4 py-2 rounded mt-4"
-      >
-        Volver
-      </button>
-    </div>
-  );
-}
-
-const { data } = report;
+  const { data } = report;
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -116,10 +94,7 @@ const { data } = report;
         <table className="pdf-table">
           <tbody>
             <tr>
-              <td
-                rowSpan={4}
-                style={{ width: 140, textAlign: "center" }}
-              >
+              <td rowSpan={4} style={{ width: 140, textAlign: "center" }}>
                 <img
                   src="/astap-logo.jpg"
                   alt="ASTAP"
@@ -197,38 +172,38 @@ const { data } = report;
                     {a.detalle}
                   </div>
                 </td>
+
                 <td className="text-center">
-  {a.imagenes && a.imagenes.length > 0 && (
-    <div
-      style={{
-        display: "flex",
-        flexWrap: "wrap",
-        gap: 6,
-        justifyContent: "center",
-      }}
-    >
-      {a.imagenes.map((img, imgIndex) => (
-        <img
-          key={imgIndex}
-          src={img}
-          alt={`actividad-${imgIndex}`}
-          style={{
-            maxWidth: 90,
-            maxHeight: 90,
-            objectFit: "cover",
-            border: "1px solid #ccc",
-          }}
-        />
-      ))}
-    </div>
-  )}
-</td>
+                  {a.imagenes?.length > 0 && (
+                    <div style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 6,
+                      justifyContent: "center",
+                    }}>
+                      {a.imagenes.map((img, imgIndex) => (
+                        <img
+                          key={imgIndex}
+                          src={img}
+                          alt="actividad"
+                          style={{
+                            maxWidth: 90,
+                            maxHeight: 90,
+                            objectFit: "cover",
+                            border: "1px solid #ccc",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </td>
+
               </tr>
             ))}
           </tbody>
         </table>
 
-        {/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
+        {/* ================= CONCLUSIONES ================= */}
         <table className="pdf-table mt-4">
           <thead>
             <tr>
@@ -287,20 +262,13 @@ const { data } = report;
             <tr>
               <td style={{ height: 140, textAlign: "center" }}>
                 {data.firmas?.tecnico && (
-                  <img
-                    src={data.firmas.tecnico}
-                    alt="firma tecnico"
-                    style={{ maxHeight: 120 }}
-                  />
+                  <img src={data.firmas.tecnico} style={{ maxHeight: 120 }} />
                 )}
               </td>
+
               <td style={{ height: 140, textAlign: "center" }}>
                 {data.firmas?.cliente && (
-                  <img
-                    src={data.firmas.cliente}
-                    alt="firma cliente"
-                    style={{ maxHeight: 120 }}
-                  />
+                  <img src={data.firmas.cliente} style={{ maxHeight: 120 }} />
                 )}
               </td>
             </tr>
@@ -317,10 +285,7 @@ const { data } = report;
           </button>
 
           <button
-  onClick={() => {
-    if (estadoNormalizado.toLowerCase() !== "completado") return;
-    window.print();
-  }}
+            onClick={() => window.print()}
             className="bg-green-600 text-white px-6 py-2 rounded"
           >
             Descargar PDF
