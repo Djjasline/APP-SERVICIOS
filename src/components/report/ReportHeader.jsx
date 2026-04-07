@@ -12,7 +12,7 @@ export default function ReportHeader({ data, onChange }) {
     textAlign: "center",
   }}
 >
-  <div className="flex items-center justify-center h-full min-h-[120px]">
+ <div className="flex items-center justify-center h-[100px]">
     <img
       src="/astap-logo.jpg"
       alt="logo"
