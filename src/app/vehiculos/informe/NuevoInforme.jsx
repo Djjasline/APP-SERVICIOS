@@ -1,3 +1,4 @@
+import { TECHNICIANS } from "@/data/technicians";
 import { useAuth } from "@/context/AuthContext";
 import { getLoggedTechnician } from "@/utils/getLoggedTechnician";
 import { saveOrUpdateReport } from "@/services/reportService";
@@ -360,11 +361,24 @@ export default function NuevoInforme() {
               </td>
               <td className="pdf-label">TÉCNICO RESPONSABLE</td>
               <td>
-                <input
-                  className="pdf-input w-full bg-gray-100"
-                  value={data.tecnicoNombre}
-                  readOnly
-                />
+               <select
+  className="pdf-input w-full"
+  value={data.tecnicoNombre}
+  onChange={(e) => {
+    const tech = TECHNICIANS.find(t => t.name === e.target.value);
+
+    update(["tecnicoNombre"], tech?.name || "");
+    update(["tecnicoTelefono"], tech?.phone || "");
+    update(["tecnicoCorreo"], tech?.email || "");
+  }}
+>
+  <option value="">Seleccionar técnico</option>
+  {TECHNICIANS.map((t, i) => (
+    <option key={i} value={t.name}>
+      {t.name}
+    </option>
+  ))}
+</select>
               </td>
             </tr>
             {/* Fila 4 */}
