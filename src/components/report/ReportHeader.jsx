@@ -3,13 +3,16 @@ export default function ReportHeader({ data, onChange }) {
     <table className="pdf-table">
       <tbody>
         <tr>
-          <td rowSpan={4} style={{ width: 140, textAlign: "center" }}>
-            <img
-              src="/astap-logo.jpg"
-              alt="ASTAP"
-              style={{ width: 90, margin: "0 auto" }}
-            />
-          </td>
+         <td className="align-middle text-center" style={{ width: "120px", verticalAlign: "middle" }}>
+  <div className="flex items-center justify-center h-full">
+    <img
+      src="/logo.png"
+      alt="logo"
+      className="object-contain"
+      style={{ maxHeight: "70px" }}
+    />
+  </div>
+</td>
 
           <td colSpan={2} style={{ textAlign: "center", fontWeight: "bold" }}>
             REPORTE TÉCNICO DE SERVICIO
