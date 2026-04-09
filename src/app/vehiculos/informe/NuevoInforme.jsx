@@ -25,6 +25,7 @@ export default function NuevoInforme() {
   =========================== */
   const emptyReport = {
     referenciaContrato: "",
+    pedidoDemanda: "",
     descripcion: "",
     codInf: "",
 
