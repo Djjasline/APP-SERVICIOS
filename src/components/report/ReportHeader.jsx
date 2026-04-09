@@ -14,17 +14,17 @@ export default function ReportHeader({ data, onChange }) {
           <td
             rowSpan={5}
             style={{
-              width: 120,
+              width: 130,
               verticalAlign: "middle",
               textAlign: "center",
             }}
           >
-            <div className="flex items-center justify-center h-[140px]">
+            <div className="flex items-center justify-center h-[160px]">
               <img
                 src="/astap-logo.jpg"
                 alt="ASTAP"
                 className="object-contain"
-                style={{ maxHeight: "70px" }}
+                style={{ maxHeight: "90px" }}
               />
             </div>
           </td>
@@ -35,7 +35,9 @@ export default function ReportHeader({ data, onChange }) {
             style={{
               textAlign: "center",
               fontWeight: "bold",
-              fontSize: "14px",
+              fontSize: "16px",
+              letterSpacing: "0.5px",
+              verticalAlign: "middle",
             }}
           >
             REPORTE TÉCNICO DE SERVICIO
@@ -51,7 +53,7 @@ export default function ReportHeader({ data, onChange }) {
           </td>
         </tr>
 
-        {/* REFERENCIA DE CONTRATO */}
+        {/* REFERENCIA */}
         <tr>
           <td className="pdf-label">REFERENCIA DE CONTRATO</td>
           <td colSpan={2}>
@@ -66,7 +68,7 @@ export default function ReportHeader({ data, onChange }) {
           </td>
         </tr>
 
-        {/* PEDIDO / DEMANDA */}
+        {/* PEDIDO */}
         <tr>
           <td className="pdf-label">PEDIDO / DEMANDA</td>
           <td colSpan={2}>
@@ -95,7 +97,7 @@ export default function ReportHeader({ data, onChange }) {
           </td>
         </tr>
 
-        {/* CÓDIGO INFORME */}
+        {/* CÓDIGO */}
         <tr>
           <td className="pdf-label">CÓDIGO INFORME</td>
           <td colSpan={2}>
