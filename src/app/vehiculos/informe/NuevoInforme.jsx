@@ -638,136 +638,148 @@ export default function NuevoInforme() {
           </tbody>
         </table>
 
-        {/* ── ESTADO DEL EQUIPO ── */}
+                {/* ── ESTADO DEL EQUIPO ── */}
         <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
 
-        <table className="pdf-table w-full">
-          <thead>
-            <tr>
-              <th style={{ width: 60 }}>ÍTEM</th>
-              <th style={{ width: "30%" }}>OBSERVACIÓN</th>
-              <th>FOTOGRAFÍA / MARCACIÓN</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.estadoEquipo.map((item, i) => (
-              <tr key={i}>
-                <td className="text-center align-top">{i + 1}</td>
+        <div className="border rounded bg-white p-3 md:p-4 space-y-4">
+          {/* BOTONES DE CARGA */}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer text-center hover:bg-gray-700 transition">
+              📁 Subir fotografías
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  handleEstadoEquipoImagesUpload(e.target.files || []);
+                  e.target.value = null;
+                }}
+              />
+            </label>
 
-                <td className="align-top">
-                  <textarea
-                    className="pdf-textarea w-full resize-none overflow-hidden"
-                    placeholder="Detalle del hallazgo o condición observada"
-                    value={item.observacion}
-                    rows={4}
-                    style={{ minHeight: "120px" }}
-                    onInput={autoResize}
-                    onChange={(e) =>
-                      update(["estadoEquipo", i, "observacion"], e.target.value)
-                    }
-                  />
+            <label className="bg-blue-600 text-white text-xs px-3 py-2 rounded cursor-pointer text-center hover:bg-blue-700 transition">
+              📷 Tomar fotos
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                multiple
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  handleEstadoEquipoImagesUpload(e.target.files || []);
+                  e.target.value = null;
+                }}
+              />
+            </label>
+          </div>
 
-                  {data.estadoEquipo.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeEstadoEquipo(i)}
-                      className="text-red-600 text-xs mt-2 hover:underline"
-                    >
-                      − Eliminar registro
-                    </button>
-                  )}
-                </td>
+          {/* GALERÍA DE IMÁGENES */}
+          {(data.estadoEquipo?.imagenes || []).length === 0 ? (
+            <div className="border rounded bg-gray-50 h-[220px] flex items-center justify-center text-sm text-gray-400">
+              Sin fotografías cargadas
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {(data.estadoEquipo?.imagenes || []).map((img, imageIndex) => (
+                  <div
+                    key={img.id}
+                    className="border rounded p-2 bg-gray-50 space-y-2"
+                  >
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="text-xs font-medium text-gray-600">
+                        Imagen {imageIndex + 1}
+                      </span>
 
-                <td className="align-top">
-                  <div className="flex flex-col md:flex-row gap-2 mb-3">
-                    <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer text-center hover:bg-gray-700 transition">
-                      📁 Subir fotografía
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: "none" }}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleEstadoEquipoImageUpload(file, i);
-                          e.target.value = null;
-                        }}
-                      />
-                    </label>
+                      <div className="flex gap-2">
+                        {!!img.puntos?.length && (
+                          <button
+                            type="button"
+                            onClick={() => clearEstadoEquipoImagePoints(img.id)}
+                            className="text-[11px] border px-2 py-1 rounded hover:bg-gray-100"
+                          >
+                            Limpiar puntos
+                          </button>
+                        )}
 
-                    <label className="bg-blue-600 text-white text-xs px-3 py-2 rounded cursor-pointer text-center hover:bg-blue-700 transition">
-                      📷 Tomar foto
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        style={{ display: "none" }}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleEstadoEquipoImageUpload(file, i);
-                          e.target.value = null;
-                        }}
-                      />
-                    </label>
-
-                    {!!item.puntos?.length && (
-                      <button
-                        type="button"
-                        onClick={() => clearEstadoEquipoPoints(i)}
-                        className="border border-red-300 text-red-600 text-xs px-3 py-2 rounded hover:bg-red-50 transition"
-                      >
-                        Limpiar puntos
-                      </button>
-                    )}
-                  </div>
-
-                  {item.imagenUrl ? (
-                    <div className="relative w-full bg-gray-50 border rounded overflow-hidden">
-                      <img
-                        src={item.imagenUrl}
-                        alt={`estado-equipo-${i}`}
-                        className="w-full max-h-[380px] object-contain bg-white"
-                        onClick={(e) => handleEstadoEquipoImageClick(e, i)}
-                      />
-
-                      {(item.puntos || []).map((p, pointIndex) => (
                         <button
-                          key={pointIndex}
+                          type="button"
+                          onClick={() => removeEstadoEquipoImage(img.id)}
+                          className="text-[11px] text-red-600 border border-red-200 px-2 py-1 rounded hover:bg-red-50"
+                        >
+                          Eliminar foto
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="relative w-full border rounded overflow-hidden bg-white">
+                      <img
+                        src={img.url}
+                        alt={`estado-equipo-${imageIndex + 1}`}
+                        className="w-full aspect-[4/3] object-contain bg-white cursor-crosshair"
+                        onClick={(e) => handleEstadoEquipoImageClick(e, img.id)}
+                      />
+
+                      {(img.puntos || []).map((p, pointIndex) => (
+                        <button
+                          key={p.id}
                           type="button"
                           title="Quitar punto"
-                          onClick={() => removeEstadoEquipoPoint(i, pointIndex)}
-                          className="absolute w-4 h-4 rounded-full bg-red-600 border-2 border-white shadow"
+                          onClick={() => removeEstadoEquipoPoint(img.id, p.id)}
+                          className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow"
                           style={{
                             left: `${p.x * 100}%`,
                             top: `${p.y * 100}%`,
                             transform: "translate(-50%, -50%)",
                           }}
-                        />
+                        >
+                          <span className="sr-only">
+                            Punto {pointIndex + 1}
+                          </span>
+                        </button>
                       ))}
                     </div>
-                  ) : (
-                    <div className="border rounded bg-gray-50 h-[220px] flex items-center justify-center text-sm text-gray-400">
-                      Sin fotografía cargada
+
+                    <p className="text-[11px] text-gray-500">
+                      Toque sobre la fotografía para agregar puntos rojos en las
+                      novedades observadas.
+                    </p>
+
+                    {/* OBSERVACIONES DE LOS PUNTOS */}
+                    <div className="space-y-2">
+                      {(img.puntos || []).length === 0 ? (
+                        <div className="text-xs text-gray-400">
+                          Sin puntos marcados
+                        </div>
+                      ) : (
+                        img.puntos.map((p, pointIndex) => (
+                          <div key={p.id} className="flex items-start gap-2">
+                            <div className="text-sm text-gray-700 pt-2 min-w-[24px]">
+                              {pointIndex + 1})
+                            </div>
+                            <input
+                              className="pdf-input w-full"
+                              placeholder={`Observación punto ${pointIndex + 1}`}
+                              value={p.observacion}
+                              onChange={(e) =>
+                                updateEstadoEquipoPointObservation(
+                                  img.id,
+                                  p.id,
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
+                        ))
+                      )}
                     </div>
-                  )}
-
-                  <p className="text-[11px] text-gray-500 mt-2">
-                    Toque sobre la fotografía para colocar puntos rojos en las
-                    zonas observadas.
-                  </p>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <button
-          type="button"
-          onClick={addEstadoEquipo}
-          className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded transition"
-        >
-          + Agregar registro de estado del equipo
-        </button>
-
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
         {/* ── ACTIVIDADES REALIZADAS ── */}
         <h3 className="font-bold text-sm border-b pb-1">
           ACTIVIDADES REALIZADAS
