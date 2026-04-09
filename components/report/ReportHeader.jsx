@@ -1,57 +1,93 @@
-import React from "react";
-
-export default function ReportHeader({
-  titulo = "Documento Técnico",
-  codigo = "AST-DOC-001",
-  version = "01",
-  fecha = "--",
-}) {
+export default function ReportHeader({ data, onChange }) {
   return (
-    <header className="report-header border border-black mb-3">
-      {/* FILA SUPERIOR */}
-      <div className="grid grid-cols-12 border-b border-black">
-        {/* LOGO */}
-        <div className="col-span-3 flex items-center justify-center border-r border-black p-2">
-          <img
-            src="/astap-logo.jpg"
-            alt="ASTAP"
-            className="h-14 object-contain"
-          />
-        </div>
+    <table className="pdf-table w-full">
+      <tbody>
+        <tr>
+          {/* LOGO */}
+          <td
+            rowSpan={4}
+            style={{
+              width: 120,
+              verticalAlign: "middle",
+              textAlign: "center",
+            }}
+          >
+            <div className="flex items-center justify-center h-[100px]">
+              <img
+                src="/astap-logo.jpg"
+                alt="ASTAP"
+                className="object-contain"
+                style={{ maxHeight: "70px" }}
+              />
+            </div>
+          </td>
 
-        {/* TÍTULO */}
-        <div className="col-span-6 text-center border-r border-black p-2">
-          <h1 className="font-bold text-sm uppercase">
-            {titulo}
-          </h1>
-          <p className="text-xs">
-            Departamento de Servicio Técnico
-          </p>
-        </div>
+          {/* TÍTULO */}
+          <td
+            colSpan={2}
+            style={{
+              textAlign: "center",
+              fontWeight: "bold",
+              fontSize: "14px",
+            }}
+          >
+            REPORTE TÉCNICO DE SERVICIO
+          </td>
 
-        {/* METADATA */}
-        <div className="col-span-3 text-xs">
-          <div className="border-b border-black p-1">
-            <strong>Código:</strong> {codigo}
-          </div>
-          <div className="border-b border-black p-1">
-            <strong>Versión:</strong> {version}
-          </div>
-          <div className="p-1">
-            <strong>Fecha:</strong> {fecha}
-          </div>
-        </div>
-      </div>
+          {/* INFO DERECHA */}
+          <td
+            className="text-[10px] md:text-[11px]"
+            style={{ width: 160 }}
+          >
+            <div>Fecha de versión: 01-01-26</div>
+            <div>Versión: 01</div>
+          </td>
+        </tr>
 
-      {/* FILA INFERIOR */}
-      <div className="grid grid-cols-12">
-        <div className="col-span-6 border-r border-black p-1 text-xs">
-          Documento controlado – Uso interno
-        </div>
-        <div className="col-span-6 p-1 text-xs text-center">
-          ASTAP
-        </div>
-      </div>
-    </header>
+        {/* PEDIDO / DEMANDA */}
+        <tr>
+          <td className="pdf-label">PEDIDO / DEMANDA</td>
+          <td colSpan={2}>
+            <input
+              className="pdf-input w-full"
+              value={data.referenciaContrato || ""}
+              onChange={(e) =>
+                onChange(["referenciaContrato"], e.target.value)
+              }
+              placeholder="Ej: P-23-046 o D-23-046"
+            />
+          </td>
+        </tr>
+
+        {/* DESCRIPCIÓN */}
+        <tr>
+          <td className="pdf-label">DESCRIPCIÓN</td>
+          <td colSpan={2}>
+            <input
+              className="pdf-input w-full"
+              value={data.descripcion || ""}
+              onChange={(e) =>
+                onChange(["descripcion"], e.target.value)
+              }
+            />
+          </td>
+        </tr>
+
+        {/* COD INF */}
+        <tr>
+          <td className="pdf-label">COD. INF.</td>
+          <td colSpan={2}>
+            <input
+              className="pdf-input w-full"
+              value={data.codInf || ""}
+              onChange={(e) =>
+                onChange(["codInf"], e.target.value)
+              }
+              placeholder="Ej: P-23-046-001"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
   );
 }
