@@ -12,6 +12,9 @@ export const TECHNICIANS = [
   { name: "PAUCAR PATRICIO",    phone: "0987593732", email: "ppaucar@astap.com" },
   { name: "LEON KLEBER",        phone: "0986897396", email: "kleon@astap.com" },
   { name: "NIETO EDISON",       phone: "0986897438", email: "enieto@astap.com" },
+  { email: "ceamaguana@astap.com", password: "1724049380", role: "tecnico" },
+  { email: "mguevara@astap.com", password: "1724008113", role: "tecnico" },
+{ email: "serviciosgye@astap.com", password: "0927399394", role: "tecnico" },
 ];
 
 /**
