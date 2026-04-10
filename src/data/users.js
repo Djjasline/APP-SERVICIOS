@@ -9,4 +9,7 @@ export const USERS = [
   { email: "ppaucar@astap.com", password: "1717191215", role: "tecnico" },
   { email: "kleon@astap.com", password: "1723403109", role: "tecnico" },
   { email: "jpillajo@astap.com", password: "1718944844", role: "tecnico" },
+  { email: "ceamaguana@astap.com", password: "1724049380", role: "tecnico" },
+  { email: "mguevara@astap.com", password: "1724008113", role: "tecnico" },
+{ email: "serviciosgye@astap.com", password: "0927399394", role: "tecnico" },
 ];
