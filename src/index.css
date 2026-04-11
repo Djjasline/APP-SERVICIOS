@@ -123,7 +123,7 @@ button {
 .pdf-table th {
   border: 1px solid #000;
   padding: 4px;
-  vertical-align: middle;
+  vertical-align: top;
 }
 
 .pdf-label {
