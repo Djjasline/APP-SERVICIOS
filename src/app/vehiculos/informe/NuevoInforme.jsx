@@ -133,28 +133,37 @@ export default function NuevoInforme() {
       }
 
       const cleanData = {
-        ...emptyReport,
-        ...(report.data || {}),
-        estadoEquipo: Array.isArray(report.data?.estadoEquipo)
-          ? report.data.estadoEquipo.map((item) => ({
-              observacion: item?.observacion || "",
-              imagenUrl: item?.imagenUrl || "",
-              puntos: Array.isArray(item?.puntos) ? item.puntos : [],
-            }))
-          : [{ observacion: "", imagenUrl: "", puntos: [] }],
-        actividades: Array.isArray(report.data?.actividades)
-          ? report.data.actividades.map((a) => ({
-              titulo: a?.titulo || "",
-              detalle: a?.detalle || "",
-              imagenes: Array.isArray(a?.imagenes) ? a.imagenes : [],
-            }))
-          : [{ titulo: "", detalle: "", imagenes: [] }],
-        firmas: {
-          tecnico: report.data?.firmas?.tecnico || "",
-          cliente: report.data?.firmas?.cliente || "",
-          clienteCedula: report.data?.firmas?.clienteCedula || "",
-        },
-      };
+  ...emptyReport,
+  ...(report.data || {}),
+  estadoEquipo: {
+    imagenes: Array.isArray(report.data?.estadoEquipo?.imagenes)
+      ? report.data.estadoEquipo.imagenes.map((img, imgIndex) => ({
+          id: img?.id || `img-${imgIndex}-${Date.now()}`,
+          url: img?.url || "",
+          puntos: Array.isArray(img?.puntos)
+            ? img.puntos.map((p, pointIndex) => ({
+                id: p?.id || `p-${imgIndex}-${pointIndex}-${Date.now()}`,
+                x: typeof p?.x === "number" ? p.x : 0,
+                y: typeof p?.y === "number" ? p.y : 0,
+                observacion: p?.observacion || "",
+              }))
+            : [],
+        }))
+      : [],
+  },
+  actividades: Array.isArray(report.data?.actividades)
+    ? report.data.actividades.map((a) => ({
+        titulo: a?.titulo || "",
+        detalle: a?.detalle || "",
+        imagenes: Array.isArray(a?.imagenes) ? a.imagenes : [],
+      }))
+    : [{ titulo: "", detalle: "", imagenes: [] }],
+  firmas: {
+    tecnico: report.data?.firmas?.tecnico || "",
+    cliente: report.data?.firmas?.cliente || "",
+    clienteCedula: report.data?.firmas?.clienteCedula || "",
+  },
+};
 
       setData(cleanData);
 
@@ -400,11 +409,12 @@ export default function NuevoInforme() {
      GUARDAR INFORME
   =========================== */
   const saveReport = async () => {
-    if (uploading) {
-      alert("Espera que terminen de subir las imágenes");
-      return;
-    }
+  if (uploading) {
+    alert("Espera que terminen de subir las imágenes");
+    return;
+  }
 
+  try {
     const firmaTecnico =
       sigTecnico.current?.isEmpty?.() === false
         ? sigTecnico.current.toDataURL()
@@ -422,33 +432,34 @@ export default function NuevoInforme() {
     const finalData = {
       ...data,
       firmas: {
+        ...data.firmas,
         tecnico: firmaTecnicoFinal,
         cliente: firmaClienteFinal,
         clienteCedula: data.firmas?.clienteCedula || "",
       },
     };
 
-    try {
-      await saveOrUpdateReport({
-        id: isEditing ? id : null,
-        tipo: "informe",
-        subtipo: "general",
-        data: finalData,
-        estado: estadoFinal,
-      });
+    await saveOrUpdateReport({
+      id: isEditing ? id : null,
+      tipo: "informe",
+      subtipo: "general",
+      data: finalData,
+      estado: estadoFinal,
+      user_id: user?.id || null,
+    });
 
-      alert(
-        isEditing
-          ? "Informe actualizado correctamente ✅"
-          : "Informe guardado correctamente ✅"
-      );
+    alert(
+      isEditing
+        ? "Informe actualizado correctamente ✅"
+        : "Informe guardado correctamente ✅"
+    );
 
-      navigate("/informe");
-    } catch (error) {
-      console.error(error);
-      alert("Error guardando informe ❌");
-    }
-  };
+    navigate("/informe");
+  } catch (error) {
+    console.error("❌ Error real al guardar:", error);
+    alert(`Error guardando informe ❌\n${error.message || "Revisa la consola"}`);
+  }
+};
 
   /* ===========================
      RENDER
