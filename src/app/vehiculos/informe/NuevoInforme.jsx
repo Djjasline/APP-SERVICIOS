@@ -24,54 +24,58 @@ export default function NuevoInforme() {
      ESTADO BASE
   =========================== */
   const emptyReport = {
-  referenciaContrato: "",
-  pedidoDemanda: "",
-  descripcion: "",
-  codInf: "",
+    referenciaContrato: "",
+    pedidoDemanda: "",
+    descripcion: "",
+    codInf: "",
 
-  // Datos cliente
-  cliente: "",
-  direccion: "",
-  contacto: "",
-  telefono: "",
-  correo: "",
-  fechaServicio: "",
-
-  // Datos técnico
-  tecnicoNombre: "",
-  tecnicoTelefono: "",
-  tecnicoCorreo: "",
-
-  // Estado del equipo
-  estadoEquipo: {
-    imagenes: [],
-  },
-
-  actividades: [{ titulo: "", detalle: "", imagenes: [] }],
-
-  conclusiones: [""],
-  recomendaciones: [""],
-
-  equipo: {
-    nota: "",
-    marca: "",
-    modelo: "",
-    serie: "",
-    anio: "",
-    vin: "",
-    placa: "",
-    horasModulo: "",
-    horasChasis: "",
-    kilometraje: "",
-    horometro: "",
-  },
-
-  firmas: {
-    tecnico: "",
+    // Datos cliente
     cliente: "",
-    clienteCedula: "",
-  },
-};
+    direccion: "",
+    contacto: "",
+    telefono: "",
+    correo: "",
+    fechaServicio: "",
+
+    // Datos técnico
+    tecnicoNombre: "",
+    tecnicoTelefono: "",
+    tecnicoCorreo: "",
+
+    // Estado del equipo
+    estadoEquipo: {
+      imagenes: [],
+    },
+
+    // Actividades
+    actividades: [{ titulo: "", detalle: "", imagenes: [] }],
+
+    // Cierre
+    conclusiones: [""],
+    recomendaciones: [""],
+
+    // Equipo
+    equipo: {
+      nota: "",
+      marca: "",
+      modelo: "",
+      serie: "",
+      anio: "",
+      vin: "",
+      placa: "",
+      horasModulo: "",
+      horasChasis: "",
+      kilometraje: "",
+      horometro: "",
+    },
+
+    // Firmas
+    firmas: {
+      tecnico: "",
+      cliente: "",
+      clienteCedula: "",
+    },
+  };
 
   const [data, setData] = useState(emptyReport);
   const sigTecnico = useRef(null);
@@ -90,6 +94,7 @@ export default function NuevoInforme() {
   =========================== */
   useEffect(() => {
     if (!user || id) return;
+
     const tech = getLoggedTechnician(user);
     if (!tech) return;
 
@@ -133,37 +138,37 @@ export default function NuevoInforme() {
       }
 
       const cleanData = {
-  ...emptyReport,
-  ...(report.data || {}),
-  estadoEquipo: {
-    imagenes: Array.isArray(report.data?.estadoEquipo?.imagenes)
-      ? report.data.estadoEquipo.imagenes.map((img, imgIndex) => ({
-          id: img?.id || `img-${imgIndex}-${Date.now()}`,
-          url: img?.url || "",
-          puntos: Array.isArray(img?.puntos)
-            ? img.puntos.map((p, pointIndex) => ({
-                id: p?.id || `p-${imgIndex}-${pointIndex}-${Date.now()}`,
-                x: typeof p?.x === "number" ? p.x : 0,
-                y: typeof p?.y === "number" ? p.y : 0,
-                observacion: p?.observacion || "",
+        ...emptyReport,
+        ...(report.data || {}),
+        estadoEquipo: {
+          imagenes: Array.isArray(report.data?.estadoEquipo?.imagenes)
+            ? report.data.estadoEquipo.imagenes.map((img, imgIndex) => ({
+                id: img?.id || `img-${imgIndex}-${Date.now()}`,
+                url: img?.url || "",
+                puntos: Array.isArray(img?.puntos)
+                  ? img.puntos.map((p, pointIndex) => ({
+                      id: p?.id || `p-${imgIndex}-${pointIndex}-${Date.now()}`,
+                      x: typeof p?.x === "number" ? p.x : 0,
+                      y: typeof p?.y === "number" ? p.y : 0,
+                      observacion: p?.observacion || "",
+                    }))
+                  : [],
               }))
             : [],
-        }))
-      : [],
-  },
-  actividades: Array.isArray(report.data?.actividades)
-    ? report.data.actividades.map((a) => ({
-        titulo: a?.titulo || "",
-        detalle: a?.detalle || "",
-        imagenes: Array.isArray(a?.imagenes) ? a.imagenes : [],
-      }))
-    : [{ titulo: "", detalle: "", imagenes: [] }],
-  firmas: {
-    tecnico: report.data?.firmas?.tecnico || "",
-    cliente: report.data?.firmas?.cliente || "",
-    clienteCedula: report.data?.firmas?.clienteCedula || "",
-  },
-};
+        },
+        actividades: Array.isArray(report.data?.actividades)
+          ? report.data.actividades.map((a) => ({
+              titulo: a?.titulo || "",
+              detalle: a?.detalle || "",
+              imagenes: Array.isArray(a?.imagenes) ? a.imagenes : [],
+            }))
+          : [{ titulo: "", detalle: "", imagenes: [] }],
+        firmas: {
+          tecnico: report.data?.firmas?.tecnico || "",
+          cliente: report.data?.firmas?.cliente || "",
+          clienteCedula: report.data?.firmas?.clienteCedula || "",
+        },
+      };
 
       setData(cleanData);
 
@@ -264,111 +269,128 @@ export default function NuevoInforme() {
   };
 
   /* ===========================
-     SUBIDA DE FOTO ESTADO EQUIPO
+     ESTADO DEL EQUIPO - FOTOS
   =========================== */
-  const handleEstadoEquipoImageUpload = async (file, index) => {
-    if (!file) return;
+  const handleEstadoEquipoImagesUpload = async (files) => {
+    const selectedFiles = Array.from(files || []);
+    if (selectedFiles.length === 0) return;
 
-    setUploadingCount((prev) => prev + 1);
+    setUploadingCount((prev) => prev + selectedFiles.length);
 
     try {
-      const url = await compressAndUploadImage(file, "estado-equipo");
-      if (!url) return;
+      for (const file of selectedFiles) {
+        const url = await compressAndUploadImage(file, "estado-equipo");
+        if (!url) continue;
 
-      setData((prev) => {
-        if (!prev.estadoEquipo[index]) return prev;
+        setData((prev) => {
+          const actuales = prev.estadoEquipo?.imagenes || [];
 
-        const copy = { ...prev };
-        copy.estadoEquipo = [...copy.estadoEquipo];
-        copy.estadoEquipo[index] = {
-          ...copy.estadoEquipo[index],
-          imagenUrl: url,
-          puntos: [],
-        };
+          const nuevaImagen = {
+            id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            url,
+            puntos: [],
+          };
 
-        return copy;
-      });
+          return {
+            ...prev,
+            estadoEquipo: {
+              ...prev.estadoEquipo,
+              imagenes: [...actuales, nuevaImagen],
+            },
+          };
+        });
+      }
     } catch (error) {
-      console.error("Error subiendo imagen de estado del equipo:", error);
+      console.error("Error subiendo imágenes de estado del equipo:", error);
     } finally {
-      setUploadingCount((prev) => prev - 1);
+      setUploadingCount((prev) => prev - selectedFiles.length);
     }
   };
 
-  /* ===========================
-     PUNTOS ROJOS SOBRE FOTO
-  =========================== */
-  const handleEstadoEquipoImageClick = (e, index) => {
+  const removeEstadoEquipoImage = (imageId) => {
+    setData((prev) => ({
+      ...prev,
+      estadoEquipo: {
+        ...prev.estadoEquipo,
+        imagenes: (prev.estadoEquipo?.imagenes || []).filter(
+          (img) => img.id !== imageId
+        ),
+      },
+    }));
+  };
+
+  const clearEstadoEquipoImagePoints = (imageId) => {
+    setData((prev) => ({
+      ...prev,
+      estadoEquipo: {
+        ...prev.estadoEquipo,
+        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+          img.id === imageId ? { ...img, puntos: [] } : img
+        ),
+      },
+    }));
+  };
+
+  const handleEstadoEquipoImageClick = (e, imageId) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
 
-    setData((prev) => {
-      if (!prev.estadoEquipo[index]) return prev;
+    const nuevoPunto = {
+      id: `p-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      x: Number(x.toFixed(4)),
+      y: Number(y.toFixed(4)),
+      observacion: "",
+    };
 
-      const copy = { ...prev };
-      copy.estadoEquipo = [...copy.estadoEquipo];
-
-      const item = { ...copy.estadoEquipo[index] };
-      const puntos = Array.isArray(item.puntos) ? [...item.puntos] : [];
-
-      puntos.push({
-        x: Number(x.toFixed(4)),
-        y: Number(y.toFixed(4)),
-      });
-
-      item.puntos = puntos;
-      copy.estadoEquipo[index] = item;
-
-      return copy;
-    });
-  };
-
-  const removeEstadoEquipoPoint = (itemIndex, pointIndex) => {
-    setData((prev) => {
-      if (!prev.estadoEquipo[itemIndex]) return prev;
-
-      const copy = { ...prev };
-      copy.estadoEquipo = [...copy.estadoEquipo];
-
-      const item = { ...copy.estadoEquipo[itemIndex] };
-      item.puntos = [...(item.puntos || [])];
-      item.puntos.splice(pointIndex, 1);
-
-      copy.estadoEquipo[itemIndex] = item;
-      return copy;
-    });
-  };
-
-  const clearEstadoEquipoPoints = (index) => {
-    setData((prev) => {
-      if (!prev.estadoEquipo[index]) return prev;
-
-      const copy = { ...prev };
-      copy.estadoEquipo = [...copy.estadoEquipo];
-      copy.estadoEquipo[index] = {
-        ...copy.estadoEquipo[index],
-        puntos: [],
-      };
-
-      return copy;
-    });
-  };
-
-  const addEstadoEquipo = () =>
     setData((prev) => ({
       ...prev,
-      estadoEquipo: [
+      estadoEquipo: {
         ...prev.estadoEquipo,
-        { observacion: "", imagenUrl: "", puntos: [] },
-      ],
+        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+          img.id === imageId
+            ? { ...img, puntos: [...(img.puntos || []), nuevoPunto] }
+            : img
+        ),
+      },
     }));
+  };
 
-  const removeEstadoEquipo = (index) =>
+  const removeEstadoEquipoPoint = (imageId, pointId) => {
     setData((prev) => ({
       ...prev,
-      estadoEquipo: prev.estadoEquipo.filter((_, i) => i !== index),
+      estadoEquipo: {
+        ...prev.estadoEquipo,
+        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+          img.id === imageId
+            ? {
+                ...img,
+                puntos: (img.puntos || []).filter((p) => p.id !== pointId),
+              }
+            : img
+        ),
+      },
     }));
+  };
+
+  const updateEstadoEquipoPointObservation = (imageId, pointId, value) => {
+    setData((prev) => ({
+      ...prev,
+      estadoEquipo: {
+        ...prev.estadoEquipo,
+        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+          img.id === imageId
+            ? {
+                ...img,
+                puntos: (img.puntos || []).map((p) =>
+                  p.id === pointId ? { ...p, observacion: value } : p
+                ),
+              }
+            : img
+        ),
+      },
+    }));
+  };
 
   /* ===========================
      ACTIVIDADES
@@ -409,57 +431,57 @@ export default function NuevoInforme() {
      GUARDAR INFORME
   =========================== */
   const saveReport = async () => {
-  if (uploading) {
-    alert("Espera que terminen de subir las imágenes");
-    return;
-  }
+    if (uploading) {
+      alert("Espera que terminen de subir las imágenes");
+      return;
+    }
 
-  try {
-    const firmaTecnico =
-      sigTecnico.current?.isEmpty?.() === false
-        ? sigTecnico.current.toDataURL()
-        : "";
+    try {
+      const firmaTecnico =
+        sigTecnico.current?.isEmpty?.() === false
+          ? sigTecnico.current.toDataURL()
+          : "";
 
-    const firmaCliente =
-      sigCliente.current?.isEmpty?.() === false
-        ? sigCliente.current.toDataURL()
-        : "";
+      const firmaCliente =
+        sigCliente.current?.isEmpty?.() === false
+          ? sigCliente.current.toDataURL()
+          : "";
 
-    const firmaTecnicoFinal = firmaTecnico || data.firmas?.tecnico || "";
-    const firmaClienteFinal = firmaCliente || data.firmas?.cliente || "";
-    const estadoFinal = firmaTecnicoFinal ? "completado" : "borrador";
+      const firmaTecnicoFinal = firmaTecnico || data.firmas?.tecnico || "";
+      const firmaClienteFinal = firmaCliente || data.firmas?.cliente || "";
+      const estadoFinal = firmaTecnicoFinal ? "completado" : "borrador";
 
-    const finalData = {
-      ...data,
-      firmas: {
-        ...data.firmas,
-        tecnico: firmaTecnicoFinal,
-        cliente: firmaClienteFinal,
-        clienteCedula: data.firmas?.clienteCedula || "",
-      },
-    };
+      const finalData = {
+        ...data,
+        firmas: {
+          ...data.firmas,
+          tecnico: firmaTecnicoFinal,
+          cliente: firmaClienteFinal,
+          clienteCedula: data.firmas?.clienteCedula || "",
+        },
+      };
 
-    await saveOrUpdateReport({
-      id: isEditing ? id : null,
-      tipo: "informe",
-      subtipo: "general",
-      data: finalData,
-      estado: estadoFinal,
-      user_id: user?.id || null,
-    });
+      await saveOrUpdateReport({
+        id: isEditing ? id : null,
+        tipo: "informe",
+        subtipo: "general",
+        data: finalData,
+        estado: estadoFinal,
+        user_id: user?.id || null,
+      });
 
-    alert(
-      isEditing
-        ? "Informe actualizado correctamente ✅"
-        : "Informe guardado correctamente ✅"
-    );
+      alert(
+        isEditing
+          ? "Informe actualizado correctamente ✅"
+          : "Informe guardado correctamente ✅"
+      );
 
-    navigate("/informe");
-  } catch (error) {
-    console.error("❌ Error real al guardar:", error);
-    alert(`Error guardando informe ❌\n${error.message || "Revisa la consola"}`);
-  }
-};
+      navigate("/informe");
+    } catch (error) {
+      console.error("❌ Error real al guardar:", error);
+      alert(`Error guardando informe ❌\n${error.message || "Revisa la consola"}`);
+    }
+  };
 
   /* ===========================
      RENDER
@@ -467,7 +489,6 @@ export default function NuevoInforme() {
   return (
     <div className="p-3 md:p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-4 md:p-6 rounded shadow w-full max-w-screen-xl mx-auto space-y-6">
-        {/* ── ENCABEZADO ── */}
         <ReportHeader data={data} onChange={update} />
 
         {/* ── DATOS DEL CLIENTE Y TÉCNICO ── */}
@@ -646,11 +667,10 @@ export default function NuevoInforme() {
           </tbody>
         </table>
 
-                {/* ── ESTADO DEL EQUIPO ── */}
+        {/* ── ESTADO DEL EQUIPO ── */}
         <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
 
         <div className="border rounded bg-white p-3 md:p-4 space-y-4">
-          {/* BOTONES DE CARGA */}
           <div className="flex flex-col sm:flex-row gap-2">
             <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer text-center hover:bg-gray-700 transition">
               📁 Subir fotografías
@@ -682,7 +702,6 @@ export default function NuevoInforme() {
             </label>
           </div>
 
-          {/* GALERÍA DE IMÁGENES */}
           {(data.estadoEquipo?.imagenes || []).length === 0 ? (
             <div className="border rounded bg-gray-50 h-[220px] flex items-center justify-center text-sm text-gray-400">
               Sin fotografías cargadas
@@ -754,7 +773,6 @@ export default function NuevoInforme() {
                       novedades observadas.
                     </p>
 
-                    {/* OBSERVACIONES DE LOS PUNTOS */}
                     <div className="space-y-2">
                       {(img.puntos || []).length === 0 ? (
                         <div className="text-xs text-gray-400">
@@ -788,6 +806,7 @@ export default function NuevoInforme() {
             </div>
           )}
         </div>
+
         {/* ── ACTIVIDADES REALIZADAS ── */}
         <h3 className="font-bold text-sm border-b pb-1">
           ACTIVIDADES REALIZADAS
