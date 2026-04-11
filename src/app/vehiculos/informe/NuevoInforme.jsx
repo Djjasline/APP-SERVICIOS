@@ -24,58 +24,54 @@ export default function NuevoInforme() {
      ESTADO BASE
   =========================== */
   const emptyReport = {
-    referenciaContrato: "",
-    pedidoDemanda: "",
-    descripcion: "",
-    codInf: "",
+  referenciaContrato: "",
+  pedidoDemanda: "",
+  descripcion: "",
+  codInf: "",
 
-    // Datos cliente
+  // Datos cliente
+  cliente: "",
+  direccion: "",
+  contacto: "",
+  telefono: "",
+  correo: "",
+  fechaServicio: "",
+
+  // Datos técnico
+  tecnicoNombre: "",
+  tecnicoTelefono: "",
+  tecnicoCorreo: "",
+
+  // Estado del equipo
+  estadoEquipo: {
+    imagenes: [],
+  },
+
+  actividades: [{ titulo: "", detalle: "", imagenes: [] }],
+
+  conclusiones: [""],
+  recomendaciones: [""],
+
+  equipo: {
+    nota: "",
+    marca: "",
+    modelo: "",
+    serie: "",
+    anio: "",
+    vin: "",
+    placa: "",
+    horasModulo: "",
+    horasChasis: "",
+    kilometraje: "",
+    horometro: "",
+  },
+
+  firmas: {
+    tecnico: "",
     cliente: "",
-    direccion: "",
-    contacto: "",
-    telefono: "",
-    correo: "",
-    fechaServicio: "",
-
-    // Datos técnico
-    tecnicoNombre: "",
-    tecnicoTelefono: "",
-    tecnicoCorreo: "",
-
-    // Estado del equipo con fotos + puntos rojos
-    estadoEquipo: [
-      {
-        observacion: "",
-        imagenUrl: "",
-        puntos: [],
-      },
-    ],
-
-    actividades: [{ titulo: "", detalle: "", imagenes: [] }],
-
-    conclusiones: [""],
-    recomendaciones: [""],
-
-    equipo: {
-      nota: "",
-      marca: "",
-      modelo: "",
-      serie: "",
-      anio: "",
-      vin: "",
-      placa: "",
-      horasModulo: "",
-      horasChasis: "",
-      kilometraje: "",
-      horometro: "",
-    },
-
-    firmas: {
-      tecnico: "",
-      cliente: "",
-      clienteCedula: "",
-    },
-  };
+    clienteCedula: "",
+  },
+};
 
   const [data, setData] = useState(emptyReport);
   const sigTecnico = useRef(null);
