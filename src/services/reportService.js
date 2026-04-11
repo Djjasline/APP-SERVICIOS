@@ -14,7 +14,7 @@ export const saveOrUpdateReport = async ({
       subtipo,
       data,
       estado,
-      user_id,
+      ...(user_id ? { user_id } : {}),
       updated_at: new Date().toISOString(),
     };
 
@@ -37,7 +37,15 @@ export const saveOrUpdateReport = async ({
 
     const { data: result, error } = await query;
 
-    if (error) throw error;
+    if (error) {
+      console.error("❌ Supabase error detail:", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+      });
+      throw error;
+    }
 
     return result;
   } catch (error) {
