@@ -22,6 +22,7 @@ import AreaRepositorios from "./pages/AreaRepositorios";
 // ================= INFORMES =================
 import InformeHome from "./app/vehiculos/informe/InformeHome";
 import NuevoInforme from "./app/vehiculos/informe/NuevoInforme";
+import InformePDF from "./app/vehiculos/informe/InformePDF"; // ✅ AGREGADO
 
 // ================= INSPECCIONES =================
 import HistorialInspecciones from "./app/vehiculos/inspeccion/HistorialInspecciones";
@@ -78,6 +79,16 @@ export default function RoutesApp() {
             <Route path="/informe" element={<RoleRoute allowedRoles={["admin","tecnico"]}><InformeHome /></RoleRoute>} />
             <Route path="/informe/nuevo" element={<RoleRoute allowedRoles={["admin","tecnico"]}><NuevoInforme /></RoleRoute>} />
             <Route path="/informe/:id" element={<RoleRoute allowedRoles={["admin","tecnico"]}><NuevoInforme /></RoleRoute>} />
+
+            {/* ✅ ESTA ES LA CLAVE DEL PDF */}
+            <Route
+              path="/informe/pdf/:id"
+              element={
+                <RoleRoute allowedRoles={["admin","tecnico"]}>
+                  <InformePDF />
+                </RoleRoute>
+              }
+            />
 
             {/* ================= INSPECCIÓN ================= */}
             <Route path="/inspeccion" element={<RoleRoute allowedRoles={["admin","tecnico"]}><HistorialInspecciones /></RoleRoute>} />
