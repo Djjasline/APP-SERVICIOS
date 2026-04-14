@@ -455,7 +455,7 @@ const validateReport = () => {
     }
 const error = validateReport();
 if (error) {
-  toast(error);
+  alert(error);
   return;
 }
     try {
