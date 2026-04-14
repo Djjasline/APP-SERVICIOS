@@ -426,11 +426,7 @@ export default function NuevoInforme() {
       conclusiones: prev.conclusiones.filter((_, i) => i !== index),
       recomendaciones: prev.recomendaciones.filter((_, i) => i !== index),
     }));
-
-  /* ===========================
-     GUARDAR INFORME
-  =========================== */
-  const validateReport = () => {
+const validateReport = () => {
   if (!data.cliente) return "Cliente es obligatorio";
   if (!data.tecnicoNombre) return "Técnico es obligatorio";
   if (!data.fechaServicio) return "Fecha es obligatoria";
@@ -449,6 +445,9 @@ export default function NuevoInforme() {
 
   return null;
 };
+  /* ===========================
+     GUARDAR INFORME
+  =========================== */
   const saveReport = async () => {
     if (uploading) {
       alert("Espera que terminen de subir las imágenes");
