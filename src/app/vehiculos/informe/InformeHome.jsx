@@ -40,24 +40,29 @@ export default function InformeHome() {
   }, []);
 
   // 🎯 FILTROS
-  const filteredReports = reports.filter((r) => {
-    const cliente = r.data?.cliente?.toLowerCase() || "";
-    const pedido =
-      r.data?.referenciaContrato?.toLowerCase() ||
-      r.data?.codInf?.toLowerCase() ||
-      "";
+const filteredReports = reports.filter((r) => {
+  const cliente = r.data?.cliente?.toLowerCase() || "";
+  const pedido =
+    r.data?.referenciaContrato?.toLowerCase() ||
+    r.data?.codInf?.toLowerCase() ||
+    "";
 
-    const fecha = r.updated_at || r.created_at;
+  const tecnico = r.data?.tecnicoNombre?.toLowerCase() || "";
 
-    return (
-      (filter === "todos" ||
-        (filter === "borrador" && r.estado !== "completado") ||
-        (filter === "completado" && r.estado === "completado")) &&
-      cliente.includes(filters.cliente.toLowerCase()) &&
-      pedido.includes(filters.pedido.toLowerCase()) &&
-      (!filters.fecha || (fecha && fecha.startsWith(filters.fecha)))
-    );
-  });
+  const fecha = r.updated_at || r.created_at;
+
+  return (
+    (filter === "todos" ||
+      (filter === "borrador" && r.estado !== "completado") ||
+      (filter === "completado" && r.estado === "completado")) &&
+
+    cliente.includes(filters.cliente.toLowerCase()) &&
+    pedido.includes(filters.pedido.toLowerCase()) &&
+    tecnico.includes(filters.tecnico.toLowerCase()) &&
+
+    (!filters.fecha || (fecha && fecha.startsWith(filters.fecha)))
+  );
+});
 
   // 📂 ABRIR
   const openReport = (report) => {
@@ -129,7 +134,7 @@ export default function InformeHome() {
       </div>
 
       {/* FILTROS INPUT */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <input
           type="text"
           placeholder="Buscar cliente..."
@@ -158,6 +163,15 @@ export default function InformeHome() {
           }
           className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm"
         />
+        <input
+  type="text"
+  placeholder="Técnico..."
+  value={filters.tecnico}
+  onChange={(e) =>
+    setFilters((f) => ({ ...f, tecnico: e.target.value }))
+  }
+  className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm"
+/>
       </div>
 
       {/* LISTADO */}
