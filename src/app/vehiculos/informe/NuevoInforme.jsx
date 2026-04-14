@@ -430,12 +430,35 @@ export default function NuevoInforme() {
   /* ===========================
      GUARDAR INFORME
   =========================== */
+  const validateReport = () => {
+  if (!data.cliente) return "Cliente es obligatorio";
+  if (!data.tecnicoNombre) return "Técnico es obligatorio";
+  if (!data.fechaServicio) return "Fecha es obligatoria";
+
+  if (!data.actividades || data.actividades.length === 0) {
+    return "Debe existir al menos una actividad";
+  }
+
+  const actividadValida = data.actividades.some(
+    (a) => a.titulo || a.detalle
+  );
+
+  if (!actividadValida) {
+    return "Debe completar al menos una actividad";
+  }
+
+  return null;
+};
   const saveReport = async () => {
     if (uploading) {
       alert("Espera que terminen de subir las imágenes");
       return;
     }
-
+const error = validateReport();
+if (error) {
+  alert(error);
+  return;
+}
     try {
       const firmaTecnico =
         sigTecnico.current?.isEmpty?.() === false
