@@ -88,7 +88,8 @@ export default function InformePDF() {
       <div className="pdf-container max-w-6xl mx-auto bg-white p-4 md:p-6">
 
         {/* ================= ENCABEZADO ================= */}
-        <table className="pdf-table w-full">
+       <div className="no-break">
+  <table className="pdf-table w-full">
           <tbody>
             <tr>
               <td
@@ -127,10 +128,12 @@ export default function InformePDF() {
               <td colSpan={2}>{data.codInf || "—"}</td>
             </tr>
           </tbody>
-        </table>
+         </table>
+</div>
 
         {/* ================= DATOS CLIENTE ================= */}
-        <table className="pdf-table w-full mt-4">
+       <div className="no-break">
+  <table className="pdf-table w-full mt-4">
           <tbody>
             {[
               ["CLIENTE", data.cliente],
@@ -152,9 +155,10 @@ export default function InformePDF() {
         </table>
 
         {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-        <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
+       <div className="no-break">
+  <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
 
-        <table className="pdf-table w-full">
+  <table className="pdf-table w-full">
           <tbody>
             {[
               ["NOTA", data.equipo?.nota],
@@ -190,9 +194,9 @@ export default function InformePDF() {
             </tbody>
           </table>
         ) : (
-          <div className="space-y-4">
-            {estadoEquipoImagenes.map((img, imageIndex) => (
-              <div key={img.id || imageIndex} className="border rounded overflow-hidden">
+         <div className="space-y-4">
+  {estadoEquipoImagenes.map((img, imageIndex) => (
+    <div key={img.id || imageIndex} className="no-break border rounded overflow-hidden">
                 <div className="px-3 py-2 border-b text-sm font-semibold bg-gray-50">
                   Imagen {imageIndex + 1}
                 </div>
@@ -273,8 +277,9 @@ export default function InformePDF() {
         )}
 
         {/* ================= ACTIVIDADES ================= */}
-        <h3 className="pdf-title mt-4">ACTIVIDADES REALIZADAS</h3>
+       <div className="page-break"></div>
 
+<h3 className="pdf-title mt-4">ACTIVIDADES REALIZADAS</h3>
         <table className="pdf-table w-full">
           <thead>
             <tr>
@@ -283,9 +288,9 @@ export default function InformePDF() {
               <th style={{ width: "55%" }}>IMÁGENES</th>
             </tr>
           </thead>
-          <tbody>
-            {data.actividades?.map((a, i) => (
-              <tr key={i}>
+         <tbody>
+  {data.actividades?.map((a, i) => (
+    <tr key={i} className="no-break">
                 <td className="text-center" style={{ verticalAlign: "top" }}>
                   {i + 1}
                 </td>
@@ -332,7 +337,8 @@ export default function InformePDF() {
         </table>
 
         {/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
-        <table className="pdf-table w-full mt-4">
+       <div className="no-break">
+  <table className="pdf-table w-full mt-4">
           <thead>
             <tr>
               <th colSpan={2}>CONCLUSIONES</th>
@@ -354,7 +360,8 @@ export default function InformePDF() {
         </table>
 
         {/* ================= FIRMAS ================= */}
-        <table className="pdf-table w-full mt-4">
+        <div className="no-break">
+  <table className="pdf-table w-full mt-4">
           <thead>
             <tr>
               <th>FIRMA TÉCNICO ASTAP</th>
