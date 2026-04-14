@@ -88,198 +88,202 @@ export default function InformePDF() {
       <div className="pdf-container max-w-6xl mx-auto bg-white p-4 md:p-6">
 
         {/* ================= ENCABEZADO ================= */}
-       <div className="no-break">
-  <table className="pdf-table w-full">
-          <tbody>
-            <tr>
-              <td
-                rowSpan={4}
-                style={{ width: 140, textAlign: "center", verticalAlign: "middle" }}
-              >
-                <img
-                  src="/astap-logo.jpg"
-                  alt="ASTAP"
-                  style={{ maxHeight: 70, margin: "0 auto" }}
-                />
-              </td>
-
-              <td colSpan={2} className="pdf-title">
-                INFORME GENERAL DE SERVICIOS
-              </td>
-
-              <td style={{ width: 180, fontSize: 12 }}>
-                <div>Fecha versión: <strong>01-01-26</strong></div>
-                <div>Versión: <strong>01</strong></div>
-              </td>
-            </tr>
-
-            <tr>
-              <td className="pdf-label">REFERENCIA CONTRATO</td>
-              <td colSpan={2}>{data.referenciaContrato || "—"}</td>
-            </tr>
-
-            <tr>
-              <td className="pdf-label">DESCRIPCIÓN</td>
-              <td colSpan={2}>{data.descripcion || "—"}</td>
-            </tr>
-
-            <tr>
-              <td className="pdf-label">COD. INF.</td>
-              <td colSpan={2}>{data.codInf || "—"}</td>
-            </tr>
-          </tbody>
-         </table>
-</div>
-
-        {/* ================= DATOS CLIENTE ================= */}
-       <div className="no-break">
-  <table className="pdf-table w-full mt-4">
-          <tbody>
-            {[
-              ["CLIENTE", data.cliente],
-              ["DIRECCIÓN", data.direccion],
-              ["CONTACTO", data.contacto],
-              ["TELÉFONO", data.telefono],
-              ["CORREO", data.correo],
-              ["TÉCNICO RESPONSABLE", data.tecnicoNombre],
-              ["TELÉFONO TÉCNICO", data.tecnicoTelefono],
-              ["CORREO TÉCNICO", data.tecnicoCorreo],
-              ["FECHA DE SERVICIO", data.fechaServicio],
-            ].map(([label, value], i) => (
-              <tr key={i}>
-                <td className="pdf-label">{label}</td>
-                <td>{value || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-       <div className="no-break">
-  <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
-
-  <table className="pdf-table w-full">
-          <tbody>
-            {[
-              ["NOTA", data.equipo?.nota],
-              ["MARCA", data.equipo?.marca],
-              ["MODELO", data.equipo?.modelo],
-              ["N° SERIE", data.equipo?.serie],
-              ["AÑO MODELO", data.equipo?.anio],
-              ["VIN / CHASIS", data.equipo?.vin],
-              ["PLACA", data.equipo?.placa],
-              ["HORAS MÓDULO", data.equipo?.horasModulo],
-              ["HORAS CHASIS", data.equipo?.horasChasis],
-              ["KILOMETRAJE", data.equipo?.kilometraje],
-            ].map(([label, value], i) => (
-              <tr key={i}>
-                <td className="pdf-label">{label}</td>
-                <td>{value || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* ================= ESTADO DEL EQUIPO ================= */}
-        <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
-
-        {estadoEquipoImagenes.length === 0 ? (
+        <div className="no-break">
           <table className="pdf-table w-full">
             <tbody>
               <tr>
-                <td style={{ textAlign: "center", color: "#888", padding: 20 }}>
-                  Sin registros de estado del equipo
+                <td
+                  rowSpan={4}
+                  style={{ width: 140, textAlign: "center", verticalAlign: "middle" }}
+                >
+                  <img
+                    src="/astap-logo.jpg"
+                    alt="ASTAP"
+                    style={{ maxHeight: 70, margin: "0 auto" }}
+                  />
                 </td>
+
+                <td colSpan={2} className="pdf-title">
+                  INFORME GENERAL DE SERVICIOS
+                </td>
+
+                <td style={{ width: 180, fontSize: 12 }}>
+                  <div>Fecha versión: <strong>01-01-26</strong></div>
+                  <div>Versión: <strong>01</strong></div>
+                </td>
+              </tr>
+
+              <tr>
+                <td className="pdf-label">REFERENCIA CONTRATO</td>
+                <td colSpan={2}>{data.referenciaContrato || "—"}</td>
+              </tr>
+
+              <tr>
+                <td className="pdf-label">DESCRIPCIÓN</td>
+                <td colSpan={2}>{data.descripcion || "—"}</td>
+              </tr>
+
+              <tr>
+                <td className="pdf-label">COD. INF.</td>
+                <td colSpan={2}>{data.codInf || "—"}</td>
               </tr>
             </tbody>
           </table>
-        ) : (
-         <div className="space-y-4">
-  {estadoEquipoImagenes.map((img, imageIndex) => (
-    <div key={img.id || imageIndex} className="no-break border rounded overflow-hidden">
-                <div className="px-3 py-2 border-b text-sm font-semibold bg-gray-50">
-                  Imagen {imageIndex + 1}
-                </div>
+        </div>
 
-                <div className="p-3">
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      border: "1px solid #d1d5db",
-                      borderRadius: 6,
-                      overflow: "hidden",
-                      background: "#fff",
-                    }}
-                  >
-                    <img
-                      src={img.url}
-                      alt={`estado-equipo-${imageIndex + 1}`}
+        {/* ================= DATOS CLIENTE ================= */}
+        <div className="no-break">
+          <table className="pdf-table w-full mt-4">
+            <tbody>
+              {[
+                ["CLIENTE", data.cliente],
+                ["DIRECCIÓN", data.direccion],
+                ["CONTACTO", data.contacto],
+                ["TELÉFONO", data.telefono],
+                ["CORREO", data.correo],
+                ["TÉCNICO RESPONSABLE", data.tecnicoNombre],
+                ["TELÉFONO TÉCNICO", data.tecnicoTelefono],
+                ["CORREO TÉCNICO", data.tecnicoCorreo],
+                ["FECHA DE SERVICIO", data.fechaServicio],
+              ].map(([label, value], i) => (
+                <tr key={i}>
+                  <td className="pdf-label">{label}</td>
+                  <td>{value || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        <div className="no-break">
+          <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
+
+          <table className="pdf-table w-full">
+            <tbody>
+              {[
+                ["NOTA", data.equipo?.nota],
+                ["MARCA", data.equipo?.marca],
+                ["MODELO", data.equipo?.modelo],
+                ["N° SERIE", data.equipo?.serie],
+                ["AÑO MODELO", data.equipo?.anio],
+                ["VIN / CHASIS", data.equipo?.vin],
+                ["PLACA", data.equipo?.placa],
+                ["HORAS MÓDULO", data.equipo?.horasModulo],
+                ["HORAS CHASIS", data.equipo?.horasChasis],
+                ["KILOMETRAJE", data.equipo?.kilometraje],
+              ].map(([label, value], i) => (
+                <tr key={i}>
+                  <td className="pdf-label">{label}</td>
+                  <td>{value || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* ================= ESTADO DEL EQUIPO ================= */}
+        <div className="no-break">
+          <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
+
+          {estadoEquipoImagenes.length === 0 ? (
+            <table className="pdf-table w-full">
+              <tbody>
+                <tr>
+                  <td style={{ textAlign: "center", color: "#888", padding: 20 }}>
+                    Sin registros de estado del equipo
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          ) : (
+            <div className="space-y-4">
+              {estadoEquipoImagenes.map((img, imageIndex) => (
+                <div key={img.id || imageIndex} className="no-break border rounded overflow-hidden">
+                  <div className="px-3 py-2 border-b text-sm font-semibold bg-gray-50">
+                    Imagen {imageIndex + 1}
+                  </div>
+
+                  <div className="p-3">
+                    <div
                       style={{
+                        position: "relative",
                         width: "100%",
-                        maxHeight: 420,
-                        objectFit: "contain",
-                        display: "block",
+                        border: "1px solid #d1d5db",
+                        borderRadius: 6,
+                        overflow: "hidden",
                         background: "#fff",
                       }}
-                    />
-
-                    {(img.puntos || []).map((p, pointIndex) => (
-                      <div
-                        key={p.id || pointIndex}
+                    >
+                      <img
+                        src={img.url}
+                        alt={`estado-equipo-${imageIndex + 1}`}
                         style={{
-                          position: "absolute",
-                          left: `${p.x * 100}%`,
-                          top: `${p.y * 100}%`,
-                          transform: "translate(-50%, -50%)",
-                          width: 18,
-                          height: 18,
-                          borderRadius: "50%",
-                          background: "#dc2626",
-                          border: "2px solid white",
-                          boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
+                          width: "100%",
+                          maxHeight: 420,
+                          objectFit: "contain",
+                          display: "block",
+                          background: "#fff",
                         }}
                       />
-                    ))}
-                  </div>
 
-                  <div className="mt-3">
-                    {(img.puntos || []).length === 0 ? (
-                      <div className="text-sm text-gray-500">
-                        Sin puntos marcados
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {img.puntos.map((p, pointIndex) => (
-                          <div
-                            key={p.id || pointIndex}
-                            style={{
-                              display: "flex",
-                              gap: 8,
-                              alignItems: "flex-start",
-                            }}
-                          >
-                            <div style={{ minWidth: 24, fontWeight: 600 }}>
-                              {pointIndex + 1})
+                      {(img.puntos || []).map((p, pointIndex) => (
+                        <div
+                          key={p.id || pointIndex}
+                          style={{
+                            position: "absolute",
+                            left: `${p.x * 100}%`,
+                            top: `${p.y * 100}%`,
+                            transform: "translate(-50%, -50%)",
+                            width: 18,
+                            height: 18,
+                            borderRadius: "50%",
+                            background: "#dc2626",
+                            border: "2px solid white",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
+                          }}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="mt-3">
+                      {(img.puntos || []).length === 0 ? (
+                        <div className="text-sm text-gray-500">
+                          Sin puntos marcados
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {img.puntos.map((p, pointIndex) => (
+                            <div
+                              key={p.id || pointIndex}
+                              style={{
+                                display: "flex",
+                                gap: 8,
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <div style={{ minWidth: 24, fontWeight: 600 }}>
+                                {pointIndex + 1})
+                              </div>
+                              <div style={{ whiteSpace: "pre-wrap" }}>
+                                {p.observacion || "—"}
+                              </div>
                             </div>
-                            <div style={{ whiteSpace: "pre-wrap" }}>
-                              {p.observacion || "—"}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* ================= ACTIVIDADES ================= */}
-       <div className="page-break"></div>
+        <div className="page-break"></div>
 
-<h3 className="pdf-title mt-4">ACTIVIDADES REALIZADAS</h3>
+        <h3 className="pdf-title mt-4">ACTIVIDADES REALIZADAS</h3>
         <table className="pdf-table w-full">
           <thead>
             <tr>
@@ -288,9 +292,9 @@ export default function InformePDF() {
               <th style={{ width: "55%" }}>IMÁGENES</th>
             </tr>
           </thead>
-         <tbody>
-  {data.actividades?.map((a, i) => (
-    <tr key={i} className="no-break">
+          <tbody>
+            {data.actividades?.map((a, i) => (
+              <tr key={i} className="no-break">
                 <td className="text-center" style={{ verticalAlign: "top" }}>
                   {i + 1}
                 </td>
@@ -337,73 +341,75 @@ export default function InformePDF() {
         </table>
 
         {/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
-       <div className="no-break">
-  <table className="pdf-table w-full mt-4">
-          <thead>
-            <tr>
-              <th colSpan={2}>CONCLUSIONES</th>
-              <th colSpan={2}>RECOMENDACIONES</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.conclusiones?.map((c, i) => (
-              <tr key={i}>
-                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
-                <td style={{ whiteSpace: "pre-wrap" }}>{c || "—"}</td>
-                <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
-                <td style={{ whiteSpace: "pre-wrap" }}>
-                  {data.recomendaciones?.[i] || "—"}
-                </td>
+        <div className="no-break">
+          <table className="pdf-table w-full mt-4">
+            <thead>
+              <tr>
+                <th colSpan={2}>CONCLUSIONES</th>
+                <th colSpan={2}>RECOMENDACIONES</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.conclusiones?.map((c, i) => (
+                <tr key={i}>
+                  <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
+                  <td style={{ whiteSpace: "pre-wrap" }}>{c || "—"}</td>
+                  <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
+                  <td style={{ whiteSpace: "pre-wrap" }}>
+                    {data.recomendaciones?.[i] || "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {/* ================= FIRMAS ================= */}
         <div className="no-break">
-  <table className="pdf-table w-full mt-4">
-          <thead>
-            <tr>
-              <th>FIRMA TÉCNICO ASTAP</th>
-              <th>FIRMA CLIENTE</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style={{ height: 180, textAlign: "center", verticalAlign: "top" }}>
-                {data.firmas?.tecnico && (
-                  <img
-                    src={data.firmas.tecnico}
-                    alt="firma tecnico"
-                    style={{ maxHeight: 120, margin: "0 auto" }}
-                  />
-                )}
+          <table className="pdf-table w-full mt-4">
+            <thead>
+              <tr>
+                <th>FIRMA TÉCNICO ASTAP</th>
+                <th>FIRMA CLIENTE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ height: 180, textAlign: "center", verticalAlign: "top" }}>
+                  {data.firmas?.tecnico && (
+                    <img
+                      src={data.firmas.tecnico}
+                      alt="firma tecnico"
+                      style={{ maxHeight: 120, margin: "0 auto" }}
+                    />
+                  )}
 
-                <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>
-                  {data.tecnicoNombre || "—"}
-                </div>
-              </td>
+                  <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>
+                    {data.tecnicoNombre || "—"}
+                  </div>
+                </td>
 
-              <td style={{ height: 180, textAlign: "center", verticalAlign: "top" }}>
-                {data.firmas?.cliente && (
-                  <img
-                    src={data.firmas.cliente}
-                    alt="firma cliente"
-                    style={{ maxHeight: 120, margin: "0 auto" }}
-                  />
-                )}
+                <td style={{ height: 180, textAlign: "center", verticalAlign: "top" }}>
+                  {data.firmas?.cliente && (
+                    <img
+                      src={data.firmas.cliente}
+                      alt="firma cliente"
+                      style={{ maxHeight: 120, margin: "0 auto" }}
+                    />
+                  )}
 
-                <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>
-                  {data.cliente || "—"}
-                </div>
+                  <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>
+                    {data.cliente || "—"}
+                  </div>
 
-                <div style={{ marginTop: 4, fontSize: 12 }}>
-                  Cédula: {data.firmas?.clienteCedula || "—"}
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                  <div style={{ marginTop: 4, fontSize: 12 }}>
+                    Cédula: {data.firmas?.clienteCedula || "—"}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         {/* ================= BOTONES ================= */}
         <div className="no-print flex justify-between mt-6">
@@ -421,6 +427,7 @@ export default function InformePDF() {
             Descargar PDF
           </button>
         </div>
+
       </div>
     </div>
   );
