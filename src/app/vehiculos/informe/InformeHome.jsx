@@ -8,13 +8,17 @@ export default function InformeHome() {
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState("todos");
 
+  // 🔥 FIX: agregado tecnico
   const [filters, setFilters] = useState({
     cliente: "",
     pedido: "",
     fecha: "",
+    tecnico: "",
   });
 
-  // 🔄 CARGAR DATA
+  /* ===========================
+     CARGAR DATA
+  =========================== */
   useEffect(() => {
     const loadReports = async () => {
       try {
@@ -39,37 +43,42 @@ export default function InformeHome() {
     loadReports();
   }, []);
 
-  // 🎯 FILTROS
-const filteredReports = reports.filter((r) => {
-  const cliente = r.data?.cliente?.toLowerCase() || "";
-  const pedido =
-    r.data?.referenciaContrato?.toLowerCase() ||
-    r.data?.codInf?.toLowerCase() ||
-    "";
+  /* ===========================
+     FILTROS
+  =========================== */
+  const filteredReports = reports.filter((r) => {
+    const cliente = r.data?.cliente?.toLowerCase() || "";
+    const pedido =
+      r.data?.referenciaContrato?.toLowerCase() ||
+      r.data?.codInf?.toLowerCase() ||
+      "";
 
-  const tecnico = r.data?.tecnicoNombre?.toLowerCase() || "";
+    const tecnico = r.data?.tecnicoNombre?.toLowerCase() || "";
+    const fecha = r.updated_at || r.created_at;
 
-  const fecha = r.updated_at || r.created_at;
+    return (
+      (filter === "todos" ||
+        (filter === "borrador" && r.estado !== "completado") ||
+        (filter === "completado" && r.estado === "completado")) &&
 
-  return (
-    (filter === "todos" ||
-      (filter === "borrador" && r.estado !== "completado") ||
-      (filter === "completado" && r.estado === "completado")) &&
+      cliente.includes((filters.cliente || "").toLowerCase()) &&
+      pedido.includes((filters.pedido || "").toLowerCase()) &&
+      tecnico.includes((filters.tecnico || "").toLowerCase()) &&
 
-    cliente.includes(filters.cliente.toLowerCase()) &&
-    pedido.includes(filters.pedido.toLowerCase()) &&
-    tecnico.includes(filters.tecnico.toLowerCase()) &&
+      (!filters.fecha || (fecha && fecha.startsWith(filters.fecha)))
+    );
+  });
 
-    (!filters.fecha || (fecha && fecha.startsWith(filters.fecha)))
-  );
-});
-
-  // 📂 ABRIR
+  /* ===========================
+     ABRIR
+  =========================== */
   const openReport = (report) => {
     navigate(`/informe/${report.id}`);
   };
 
-  // 🗑 ELIMINAR
+  /* ===========================
+     ELIMINAR
+  =========================== */
   const deleteReport = async (id) => {
     if (!confirm("¿Eliminar este informe?")) return;
 
@@ -116,7 +125,7 @@ const filteredReports = reports.filter((r) => {
         Nuevo informe
       </button>
 
-      {/* FILTROS ESTADO */}
+      {/* FILTRO ESTADO */}
       <div className="flex gap-2">
         {["todos", "borrador", "completado"].map((f) => (
           <button
@@ -135,6 +144,7 @@ const filteredReports = reports.filter((r) => {
 
       {/* FILTROS INPUT */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+
         <input
           type="text"
           placeholder="Buscar cliente..."
@@ -142,7 +152,7 @@ const filteredReports = reports.filter((r) => {
           onChange={(e) =>
             setFilters((f) => ({ ...f, cliente: e.target.value }))
           }
-          className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm placeholder-gray-500"
+          className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm"
         />
 
         <input
@@ -152,7 +162,7 @@ const filteredReports = reports.filter((r) => {
           onChange={(e) =>
             setFilters((f) => ({ ...f, pedido: e.target.value }))
           }
-          className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm placeholder-gray-500"
+          className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm"
         />
 
         <input
@@ -163,15 +173,17 @@ const filteredReports = reports.filter((r) => {
           }
           className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm"
         />
+
         <input
-  type="text"
-  placeholder="Técnico..."
-  value={filters.tecnico}
-  onChange={(e) =>
-    setFilters((f) => ({ ...f, tecnico: e.target.value }))
-  }
-  className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm"
-/>
+          type="text"
+          placeholder="Técnico..."
+          value={filters.tecnico}
+          onChange={(e) =>
+            setFilters((f) => ({ ...f, tecnico: e.target.value }))
+          }
+          className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm"
+        />
+
       </div>
 
       {/* LISTADO */}
