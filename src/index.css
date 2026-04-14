@@ -228,7 +228,27 @@ button {
     padding: 0 !important;
   }
 }
+/* ============================= */
+/* CONTROL DE PÁGINAS PDF (PRO) */
+/* ============================= */
 
+.page-break {
+  page-break-before: always;
+}
+
+.no-break {
+  page-break-inside: avoid;
+}
+
+/* Mejor control de tablas */
+.pdf-table {
+  page-break-inside: auto;
+}
+
+.pdf-table tr {
+  page-break-inside: avoid;
+  page-break-after: auto;
+}
 /* ============================= */
 /* FIRMA */
 /* ============================= */
