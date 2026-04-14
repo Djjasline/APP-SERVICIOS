@@ -121,6 +121,9 @@ button {
   table-layout: fixed;
   font-family: Arial, sans-serif;
   font-size: 11px;
+
+  /* 🔥 CONTROL DE PAGINACIÓN */
+  page-break-inside: auto;
 }
 
 .pdf-table td,
@@ -134,6 +137,12 @@ button {
 .pdf-table th {
   font-weight: bold;
   text-align: center;
+}
+
+/* 🔥 EVITA QUE FILAS SE PARTAN */
+.pdf-table tr {
+  page-break-inside: avoid;
+  page-break-after: auto;
 }
 
 .pdf-label {
@@ -202,6 +211,18 @@ button {
 }
 
 /* ============================= */
+/* 🔥 CONTROL DE PÁGINAS (PRO) */
+/* ============================= */
+
+.page-break {
+  page-break-before: always;
+}
+
+.no-break {
+  page-break-inside: avoid;
+}
+
+/* ============================= */
 /* PRINT */
 /* ============================= */
 @media print {
@@ -228,27 +249,7 @@ button {
     padding: 0 !important;
   }
 }
-/* ============================= */
-/* CONTROL DE PÁGINAS PDF (PRO) */
-/* ============================= */
 
-.page-break {
-  page-break-before: always;
-}
-
-.no-break {
-  page-break-inside: avoid;
-}
-
-/* Mejor control de tablas */
-.pdf-table {
-  page-break-inside: auto;
-}
-
-.pdf-table tr {
-  page-break-inside: avoid;
-  page-break-after: auto;
-}
 /* ============================= */
 /* FIRMA */
 /* ============================= */
