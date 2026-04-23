@@ -420,12 +420,16 @@ export default function InformePDF() {
             Volver
           </button>
 
-          <button
-            onClick={() => window.print()}
-            className="bg-green-600 text-white px-6 py-2 rounded"
-          >
-            Descargar PDF
-          </button>
+         <button
+  onClick={() => {
+  const nombre = `ASTAP_${(data.codInf || "").replace(/\s/g, "")}_${(data.cliente || "").replace(/\s/g, "_")}`;
+  document.title = nombre;
+  window.print();
+}}
+  className="bg-green-600 text-white px-6 py-2 rounded"
+>
+  Descargar PDF
+</button>
         </div>
 
       </div>
