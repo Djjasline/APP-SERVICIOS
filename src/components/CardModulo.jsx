@@ -25,7 +25,7 @@ export default function CardModulo({
           )}
 
           {badge && (
-            <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
+            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-medium">
               {badge}
             </span>
           )}
