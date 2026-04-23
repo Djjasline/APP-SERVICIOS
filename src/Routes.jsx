@@ -22,7 +22,7 @@ import AreaRepositorios from "./pages/AreaRepositorios";
 // ================= INFORMES =================
 import InformeHome from "./app/vehiculos/informe/InformeHome";
 import NuevoInforme from "./app/vehiculos/informe/NuevoInforme";
-import InformePDF from "./app/vehiculos/informe/InformePDF"; // ✅ AGREGADO
+import InformePDF from "./app/vehiculos/informe/InformePDF";
 
 // ================= INSPECCIONES =================
 import HistorialInspecciones from "./app/vehiculos/inspeccion/HistorialInspecciones";
@@ -54,7 +54,7 @@ export default function RoutesApp() {
           {/* 🔐 LOGIN */}
           <Route path="/login" element={<Login />} />
 
-          {/* 🔒 PROTEGIDO */}
+          {/* 🔒 PROTEGIDO + LAYOUT */}
           <Route
             element={
               <ProtectedRoute>
@@ -79,16 +79,6 @@ export default function RoutesApp() {
             <Route path="/informe" element={<RoleRoute allowedRoles={["admin","tecnico"]}><InformeHome /></RoleRoute>} />
             <Route path="/informe/nuevo" element={<RoleRoute allowedRoles={["admin","tecnico"]}><NuevoInforme /></RoleRoute>} />
             <Route path="/informe/:id" element={<RoleRoute allowedRoles={["admin","tecnico"]}><NuevoInforme /></RoleRoute>} />
-
-            {/* ✅ ESTA ES LA CLAVE DEL PDF */}
-            <Route
-              path="/informe/pdf/:id"
-              element={
-                <RoleRoute allowedRoles={["admin","tecnico"]}>
-                  <InformePDF />
-                </RoleRoute>
-              }
-            />
 
             {/* ================= INSPECCIÓN ================= */}
             <Route path="/inspeccion" element={<RoleRoute allowedRoles={["admin","tecnico"]}><HistorialInspecciones /></RoleRoute>} />
@@ -124,6 +114,18 @@ export default function RoutesApp() {
             <Route path="/registro" element={<RoleRoute allowedRoles={["admin","tecnico"]}><RegistroHome /></RoleRoute>} />
 
           </Route>
+
+          {/* 🔥 PDF FUERA DEL LAYOUT (CORRECCIÓN CLAVE) */}
+          <Route
+            path="/informe/pdf/:id"
+            element={
+              <ProtectedRoute>
+                <RoleRoute allowedRoles={["admin","tecnico"]}>
+                  <InformePDF />
+                </RoleRoute>
+              </ProtectedRoute>
+            }
+          />
 
         </Routes>
       </BrowserRouter>
