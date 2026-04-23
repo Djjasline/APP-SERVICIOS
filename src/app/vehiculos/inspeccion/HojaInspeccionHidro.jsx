@@ -172,7 +172,23 @@ useEffect(() => {
     firmaClienteRef.current.fromDataURL(formData.firmas.cliente);
   }
 }, [formData.firmas]);
+useEffect(() => {
+  const getUser = async () => {
+    const { data } = await supabase.auth.getUser();
 
+    if (data?.user) {
+      setFormData((prev) => ({
+        ...prev,
+        tecnicoResponsable:
+          data.user.user_metadata?.nombre ||
+          data.user.email ||
+          "Técnico",
+      }));
+    }
+  };
+
+  getUser();
+}, []);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
@@ -688,17 +704,11 @@ if (error) {
           </button>
         </div>
 
-        <input
-          placeholder="Nombre técnico"
-          value={formData.tecnicoResponsable || ""}
-          onChange={(e) =>
-            setFormData((p) => ({
-              ...p,
-              tecnicoResponsable: e.target.value,
-            }))
-          }
-          className="w-full border mt-2 text-xs p-1"
-        />
+       <input
+  value={formData.tecnicoResponsable || ""}
+  readOnly
+  className="w-full border mt-2 text-xs p-1 bg-gray-100"
+/>
       </td>
 
       {/* ================= CLIENTE ================= */}
@@ -726,18 +736,11 @@ if (error) {
         </div>
 
         {/* NOMBRE CLIENTE */}
-        <input
-          placeholder="Nombre cliente"
-          value={formData.cliente || ""}
-          onChange={(e) =>
-            setFormData((p) => ({
-              ...p,
-              cliente: e.target.value,
-            }))
-          }
-          className="w-full border mt-2 text-xs p-1"
-        />
-
+       <input
+  value={formData.cliente || ""}
+  readOnly
+  className="w-full border mt-2 text-xs p-1 bg-gray-100"
+/>
         {/* CÉDULA CLIENTE */}
         <input
           placeholder="Cédula cliente"
