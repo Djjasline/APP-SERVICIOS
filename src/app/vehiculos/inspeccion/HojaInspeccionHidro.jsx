@@ -288,8 +288,12 @@ if (error) {
 };
 
   return (
-    <form
-       {formData.firmas?.tecnico && formData.firmas?.cliente ? (
+<form
+  onSubmit={handleSubmit}
+  className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
+>
+
+{formData.firmas?.tecnico && formData.firmas?.cliente ? (
   <div className="bg-green-100 text-green-700 p-2 rounded text-xs">
     ✔ Inspección lista para completar
   </div>
@@ -298,17 +302,8 @@ if (error) {
     ⚠ Falta firma para completar
   </div>
 )}
-  onSubmit={handleSubmit}
-  className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
->
+  
  <div id="pdf-inspeccion-hidro" className="pdf-container print-area">
-
-    {/* TODO TU FORMULARIO COMPLETO */}
-    {/* NO BORRAR NADA */}
-    {/* NO MOVER NADA */}
-
-  </div>
-
 
       {/* ================= ENCABEZADO ================= */}
       <section className="border rounded overflow-hidden">
@@ -380,14 +375,27 @@ if (error) {
       {/* ================= ESTADO DEL EQUIPO ================= */}
       <section className="border rounded p-4 space-y-3">
         <div className="flex justify-between items-center flex-wrap gap-2">
- <p className="font-semibold">
-  Estado del equipo
-  <span className="text-xs text-gray-500 ml-2">
-    (clic en la imagen para marcar)
-  </span>
-</p>
+<div>
+  <p className="font-semibold">
+    Estado del equipo
+    <span className="text-xs text-gray-500 ml-2">
+      (clic en la imagen para marcar)
+    </span>
+  </p>
 
-  <div className="flex gap-2">
+  <div
+  className={`text-xs mt-1 ${
+    formData.modoEstadoEquipo === "foto"
+      ? "text-green-600"
+      : "text-gray-500"
+  }`}
+>
+  {formData.modoEstadoEquipo === "foto"
+    ? "✔ Imagen real cargada"
+    : "Usando imagen base"}
+</div>
+</div>
+    <div className="flex gap-2">
 
     {/* BOTÓN BASE */}
     <button
@@ -423,21 +431,34 @@ if (error) {
         accept="image/*"
         capture="environment"
         className="hidden"
-        onChange={(e) => {
-          const file = e.target.files[0];
-          if (!file) return;
+     onChange={(e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-          const reader = new FileReader();
-          reader.onload = () => {
-            setFormData((p) => ({
-              ...p,
-              modoEstadoEquipo: "foto",
-              estadoEquipoImagenCustom: reader.result,
-              estadoEquipoPuntos: [],
-            }));
-          };
-          reader.readAsDataURL(file);
-        }}
+  if (!file.type.startsWith("image/")) {
+    alert("Archivo no válido");
+    return;
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    alert("La imagen es muy pesada (máx 2MB)");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    setFormData((p) => ({
+      ...p,
+      modoEstadoEquipo: "foto",
+      estadoEquipoImagenCustom: reader.result,
+      estadoEquipoPuntos: [],
+    }));
+  };
+
+  reader.readAsDataURL(file);
+
+  e.target.value = null; // 🔥 ESTO FALTA EN TU CÓDIGO
+}}
       />
     </label>
 
@@ -456,7 +477,7 @@ if (error) {
         <div
   className="relative border rounded cursor-crosshair"
   onClick={(e) => {
-    if (e.target.tagName === "IMG") {
+    if (e.target.closest("img")) {
       handleImageClick(e);
     }
   }}
@@ -471,7 +492,7 @@ if (error) {
   className="w-full"
   draggable={false}
 />
-                {formData.estadoEquipoPuntos.map((pt) => (
+ {formData.estadoEquipoPuntos.map((pt) => (
             <div
               key={pt.id}
               onDoubleClick={() => handleRemovePoint(pt.id)}
@@ -633,7 +654,6 @@ if (error) {
         </div>
       </section>
 
-     {/* ================= FIRMAS ================= */}
 {/* ================= FIRMAS ================= */}
 <table className="pdf-table">
   <thead>
@@ -734,6 +754,7 @@ if (error) {
     </tr>
   </tbody>
 </table>
+    </div>
      {/* ================= BOTONES ================= */}
       <div className="flex justify-end gap-4">
         <button
