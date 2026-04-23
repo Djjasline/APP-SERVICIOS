@@ -6,14 +6,21 @@ export default function AreaAgua() {
   return (
     <div className="p-6 space-y-6">
 
-      <h1 className="text-xl font-bold">
-        Agua y Saneamiento
-      </h1>
+      {/* 🔥 TÍTULO + DESCRIPCIÓN (IGUAL QUE VEHÍCULOS) */}
+      <div>
+        <h2 className="text-lg font-semibold text-white">
+          Agua y Saneamiento
+        </h2>
+        <p className="text-sm text-gray-300">
+          Gestión de sistemas hidráulicos y servicios de saneamiento.
+        </p>
+      </div>
 
       <div className="grid md:grid-cols-2 gap-6">
 
+        {/* INFORMES */}
         <div className="bg-white p-4 rounded shadow">
-          <h2 className="font-semibold">Informes</h2>
+          <h2 className="font-semibold text-gray-900">Informes</h2>
           <p className="text-sm text-gray-500">
             Reportes técnicos de sistemas hidráulicos.
           </p>
@@ -25,8 +32,9 @@ export default function AreaAgua() {
           </button>
         </div>
 
+        {/* INSPECCIÓN */}
         <div className="bg-white p-4 rounded shadow">
-          <h2 className="font-semibold">Inspección</h2>
+          <h2 className="font-semibold text-gray-900">Inspección</h2>
           <p className="text-sm text-gray-500">
             Evaluación de redes y equipos hidráulicos.
           </p>
