@@ -85,7 +85,7 @@ export default function InformePDF() {
 
   return (
     <div className="p-4 md:p-6 bg-gray-100 min-h-screen">
-      <div className="pdf-container max-w-6xl mx-auto bg-white p-4 md:p-6">
+     <div className="pdf-container print-area max-w-6xl mx-auto bg-white p-4 md:p-6">
 
         {/* ================= ENCABEZADO ================= */}
         <div className="no-break">
