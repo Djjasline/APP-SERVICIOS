@@ -7,6 +7,16 @@ export default function IndexInspeccion() {
   const [inspections, setInspections] = useState([]);
 
   /* =============================
+     FILTROS
+  ============================== */
+  const [search, setSearch] = useState("");
+  const [codigo, setCodigo] = useState("");
+  const [fecha, setFecha] = useState("");
+  const [tecnico, setTecnico] = useState("");
+  const [estado, setEstado] = useState("todos");
+  const [equipo, setEquipo] = useState("todos");
+
+  /* =============================
      CARGAR INSPECCIONES
   ============================== */
   useEffect(() => {
@@ -23,47 +33,58 @@ export default function IndexInspeccion() {
         return;
       }
 
-      console.log("INSPECCIONES:", data); // 🔥 DEBUG
-
       setInspections(data || []);
     };
 
     loadInspections();
   }, []);
 
-  /* =============================
-     NORMALIZADOR
-  ============================== */
   const normalize = (txt) => txt?.toLowerCase() || "";
 
-  const safeInspections = Array.isArray(inspections) ? inspections : [];
-
   /* =============================
-     AGRUPACIÓN INTELIGENTE
+     FILTRO GLOBAL
   ============================== */
-  const byType = {
-    hidro: safeInspections.filter((i) =>
-      normalize(i.subtipo).includes("hidro")
-    ),
+  const filtered = inspections.filter((item) => {
+    const cliente = normalize(item.data?.cliente);
+    const cod = normalize(item.data?.codigo);
+    const tec = normalize(item.data?.tecnicoResponsable);
+    const sub = normalize(item.subtipo);
 
-    barredora: safeInspections.filter((i) =>
-      normalize(i.subtipo).includes("barredora")
-    ),
+    const matchSearch = cliente.includes(normalize(search));
+    const matchCodigo = cod.includes(normalize(codigo));
+    const matchTecnico = tec.includes(normalize(tecnico));
 
-    camara: safeInspections.filter((i) =>
-      normalize(i.subtipo).includes("cam")
-    ),
-  };
+    const matchFecha = fecha
+      ? new Date(item.created_at).toISOString().slice(0, 10) === fecha
+      : true;
+
+    const matchEstado =
+      estado === "todos" ? true : item.estado === estado;
+
+    const matchEquipo =
+      equipo === "todos"
+        ? true
+        : normalize(item.subtipo).includes(equipo);
+
+    return (
+      matchSearch &&
+      matchCodigo &&
+      matchTecnico &&
+      matchFecha &&
+      matchEstado &&
+      matchEquipo
+    );
+  });
 
   /* =============================
      ACCIONES
   ============================== */
-  const handleOpen = (type, id) => {
-    navigate(`/inspeccion/${type}/${id}`);
+  const handleOpen = (item) => {
+    navigate(`/inspeccion/${item.subtipo}/${item.id}`);
   };
 
-  const handleGeneratePdf = (inspection) => {
-    navigate(`/inspeccion/pdf/${inspection.id}`);
+  const handleGeneratePdf = (item) => {
+    navigate(`/inspeccion/pdf/${item.id}`);
   };
 
   const handleDelete = async (id) => {
@@ -75,7 +96,6 @@ export default function IndexInspeccion() {
       .eq("id", id);
 
     if (error) {
-      console.error(error);
       alert("Error eliminando ❌");
       return;
     }
@@ -84,91 +104,21 @@ export default function IndexInspeccion() {
   };
 
   /* =============================
-     CARD
+     CARD SIMPLE (SIN HISTORIAL)
   ============================== */
-  const renderCard = (title, desc, type, list) => (
+  const renderCard = (title, desc, type) => (
     <div className="bg-white p-5 rounded-xl shadow flex flex-col gap-4 hover:shadow-lg hover:-translate-y-1 transition">
-
-      {/* HEADER */}
       <div>
-        <h2 className="font-semibold text-gray-900">
-  {title}
-</h2>
+        <h2 className="font-semibold text-gray-900">{title}</h2>
         <p className="text-sm text-gray-500">{desc}</p>
       </div>
 
-      {/* BOTÓN NUEVO */}
       <button
         onClick={() => navigate(`/inspeccion/${type}/new`)}
         className="bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-500 transition"
       >
         + Nueva inspección
       </button>
-
-      {/* LISTADO */}
-      <div className="space-y-2 max-h-64 overflow-auto">
-        {list.length === 0 ? (
-          <p className="text-xs text-gray-400">
-            Sin registros
-          </p>
-        ) : (
-          list.map((item) => (
-            <div
-              key={item.id}
-              className="bg-gray-50 border rounded-lg p-3 text-xs flex flex-col gap-2"
-            >
-              <div className="flex justify-between items-center">
-                <span className="font-medium text-gray-900">
-                  {item.data?.cliente || "Sin cliente"}
-                </span>
-
-                <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                    item.estado === "completado"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-yellow-100 text-yellow-700"
-                  }`}
-                >
-                  {item.estado}
-                </span>
-              </div>
-
-              <span className="text-[10px] text-gray-500">
-                {new Date(
-                  item.updated_at || item.created_at
-                ).toLocaleString()}
-              </span>
-
-              <div className="flex gap-3 text-xs">
-
-                {item.estado === "completado" && (
-                  <button
-                    onClick={() => handleGeneratePdf(item)}
-                    className="text-green-600 hover:underline"
-                  >
-                    PDF
-                  </button>
-                )}
-
-                <button
-                  onClick={() => handleOpen(type, item.id)}
-                  className="text-blue-600 hover:underline"
-                >
-                  Abrir
-                </button>
-
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="text-red-600 hover:underline"
-                >
-                  Eliminar
-                </button>
-
-              </div>
-            </div>
-          ))
-        )}
-      </div>
     </div>
   );
 
@@ -192,28 +142,130 @@ export default function IndexInspeccion() {
         </button>
       </div>
 
-      {/* GRID */}
+      {/* CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {renderCard("Hidrosuccionador", "Inspección general del equipo", "hidro")}
+        {renderCard("Barredora", "Inspección de barredoras", "barredora")}
+        {renderCard("Cámara", "Inspección con cámara", "camara")}
+      </div>
 
-        {renderCard(
-          "Hidrosuccionador",
-          "Inspección general del equipo hidrosuccionador",
-          "hidro",
-          byType.hidro
-        )}
+      {/* =============================
+         FILTROS (IGUAL QUE INFORMES)
+      ============================== */}
+      <div className="bg-white p-4 rounded-xl shadow space-y-4">
 
-        {renderCard(
-          "Barredora",
-          "Inspección y valoración de barredoras",
-          "barredora",
-          byType.barredora
-        )}
+        {/* ESTADO */}
+        <div className="flex gap-2 flex-wrap">
+          {["todos", "borrador", "completado"].map((s) => (
+            <button
+              key={s}
+              onClick={() => setEstado(s)}
+              className={`px-3 py-1 rounded text-sm ${
+                estado === s
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200"
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
 
-        {renderCard(
-          "Cámara (VCAM / Metrotech)",
-          "Inspección con sistema de cámara",
-          "camara",
-          byType.camara
+        {/* INPUTS */}
+        <div className="grid md:grid-cols-5 gap-2">
+
+          <input
+            placeholder="Buscar cliente..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border p-2 rounded text-sm"
+          />
+
+          <input
+            placeholder="Código..."
+            value={codigo}
+            onChange={(e) => setCodigo(e.target.value)}
+            className="border p-2 rounded text-sm"
+          />
+
+          <input
+            type="date"
+            value={fecha}
+            onChange={(e) => setFecha(e.target.value)}
+            className="border p-2 rounded text-sm"
+          />
+
+          <input
+            placeholder="Técnico..."
+            value={tecnico}
+            onChange={(e) => setTecnico(e.target.value)}
+            className="border p-2 rounded text-sm"
+          />
+
+          <select
+            value={equipo}
+            onChange={(e) => setEquipo(e.target.value)}
+            className="border p-2 rounded text-sm"
+          >
+            <option value="todos">Equipo</option>
+            <option value="hidro">Hidro</option>
+            <option value="barredora">Barredora</option>
+            <option value="cam">Cámara</option>
+          </select>
+
+        </div>
+      </div>
+
+      {/* =============================
+         LISTADO
+      ============================== */}
+      <div className="bg-white rounded-xl shadow p-4 space-y-2 max-h-[400px] overflow-auto">
+
+        {filtered.length === 0 ? (
+          <p className="text-sm text-gray-400">Sin resultados</p>
+        ) : (
+          filtered.map((item) => (
+            <div
+              key={item.id}
+              className="border rounded-lg p-3 flex justify-between items-center text-sm"
+            >
+              <div>
+                <p className="font-medium">
+                  {item.data?.cliente || "Sin cliente"}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {item.subtipo} - {item.estado}
+                </p>
+              </div>
+
+              <div className="flex gap-3 text-xs">
+
+                {item.estado === "completado" && (
+                  <button
+                    onClick={() => handleGeneratePdf(item)}
+                    className="text-green-600"
+                  >
+                    PDF
+                  </button>
+                )}
+
+                <button
+                  onClick={() => handleOpen(item)}
+                  className="text-blue-600"
+                >
+                  Abrir
+                </button>
+
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="text-red-600"
+                >
+                  Eliminar
+                </button>
+
+              </div>
+            </div>
+          ))
         )}
 
       </div>
