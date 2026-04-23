@@ -101,6 +101,7 @@ export default function HojaInspeccionHidro() {
     codInf: "",
 
     cliente: "",
+    cedulaCliente: "",
     direccion: "",
     contacto: "",
     telefono: "",
@@ -612,6 +613,7 @@ const handleSubmit = async (e) => {
       </section>
 
      {/* ================= FIRMAS ================= */}
+{/* ================= FIRMAS ================= */}
 <table className="pdf-table">
   <thead>
     <tr>
@@ -621,7 +623,8 @@ const handleSubmit = async (e) => {
   </thead>
   <tbody>
     <tr>
-      <td style={{ height: 160 }}>
+      {/* ================= TÉCNICO ================= */}
+      <td style={{ height: 180 }}>
         <SignatureCanvas
           ref={firmaTecnicoRef}
           onBegin={() => {
@@ -631,21 +634,34 @@ const handleSubmit = async (e) => {
           onEnd={() => {
             document.body.style.overflow = "";
           }}
-          canvasProps={{ className: "w-full h-full" }}
+          canvasProps={{ className: "w-full h-32 border" }}
         />
 
-        <div className="text-center">
+        <div className="text-center mt-1">
           <button
             type="button"
             onClick={() => firmaTecnicoRef.current?.clear()}
-            className="text-xs text-red-600 mt-2"
+            className="text-xs text-red-600"
           >
             Borrar firma
           </button>
         </div>
+
+        <input
+          placeholder="Nombre técnico"
+          value={formData.tecnicoResponsable || ""}
+          onChange={(e) =>
+            setFormData((p) => ({
+              ...p,
+              tecnicoResponsable: e.target.value,
+            }))
+          }
+          className="w-full border mt-2 text-xs p-1"
+        />
       </td>
 
-      <td style={{ height: 160 }}>
+      {/* ================= CLIENTE ================= */}
+      <td style={{ height: 180 }}>
         <SignatureCanvas
           ref={firmaClienteRef}
           onBegin={() => {
@@ -655,18 +671,44 @@ const handleSubmit = async (e) => {
           onEnd={() => {
             document.body.style.overflow = "";
           }}
-          canvasProps={{ className: "w-full h-full" }}
+          canvasProps={{ className: "w-full h-32 border" }}
         />
 
-        <div className="text-center">
+        <div className="text-center mt-1">
           <button
             type="button"
             onClick={() => firmaClienteRef.current?.clear()}
-            className="text-xs text-red-600 mt-2"
+            className="text-xs text-red-600"
           >
             Borrar firma
           </button>
         </div>
+
+        {/* NOMBRE CLIENTE */}
+        <input
+          placeholder="Nombre cliente"
+          value={formData.cliente || ""}
+          onChange={(e) =>
+            setFormData((p) => ({
+              ...p,
+              cliente: e.target.value,
+            }))
+          }
+          className="w-full border mt-2 text-xs p-1"
+        />
+
+        {/* CÉDULA CLIENTE */}
+        <input
+          placeholder="Cédula cliente"
+          value={formData.cedulaCliente || ""}
+          onChange={(e) =>
+            setFormData((p) => ({
+              ...p,
+              cedulaCliente: e.target.value,
+            }))
+          }
+          className="w-full border mt-1 text-xs p-1"
+        />
       </td>
     </tr>
   </tbody>
