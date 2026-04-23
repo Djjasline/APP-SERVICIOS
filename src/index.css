@@ -222,12 +222,71 @@ button {
 .no-break {
   page-break-inside: avoid;
 }
-
 /* ============================= */
 /* PRINT */
 /* ============================= */
 @media print {
 
+  /* 🔥 FORMATO A4 REAL */
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  html, body {
+    width: 210mm;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    overflow: visible !important;
+  }
+
+  #root {
+    min-height: auto;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .pdf-container {
+    width: 210mm;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 0;
+    background: white !important;
+    box-shadow: none !important;
+  }
+
+  table {
+    width: 100% !important;
+  }
+
+  /* ============================= */
+  /* 🔥 SOLO IMPRIMIR EL PDF */
+  /* ============================= */
+
+  body * {
+    visibility: hidden;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm;
+  }
+
+}
   /* 🔥 FORMATO A4 REAL */
   @page {
     size: A4;
