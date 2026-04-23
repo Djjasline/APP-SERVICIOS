@@ -92,8 +92,8 @@ export default function IndexInspeccion() {
       {/* HEADER */}
       <div>
         <h2 className="font-semibold text-gray-900">
-          {title} ({list.length})
-        </h2>
+  {title}
+</h2>
         <p className="text-sm text-gray-500">{desc}</p>
       </div>
 
