@@ -6,9 +6,15 @@ export default function AreaVehiculos() {
   return (
     <div className="p-6 space-y-6">
 
-      <h2 className="text-lg font-semibold text-white">
-  Vehículos Especiales
-</h2>
+      {/* 🔥 TÍTULO + DESCRIPCIÓN */}
+      <div>
+        <h2 className="text-lg font-semibold text-white">
+          Vehículos Especiales
+        </h2>
+        <p className="text-sm text-gray-300">
+          Gestión de equipos y servicios especializados.
+        </p>
+      </div>
 
       <div className="grid md:grid-cols-2 gap-6">
 
