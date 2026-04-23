@@ -40,7 +40,6 @@ export default function AreaVehiculos() {
           ruta="/mantenimiento"
           color="bg-green-600"
           icono={<Wrench size={20} />}
-          badge="Pro"
         />
 
       </div>
