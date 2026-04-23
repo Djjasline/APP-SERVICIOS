@@ -230,7 +230,19 @@ useEffect(() => {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+const error =
+  !formData.cliente
+    ? "Cliente requerido"
+    : !formData.tecnicoResponsable
+    ? "Técnico requerido"
+    : !formData.fechaServicio
+    ? "Fecha requerida"
+    : null;
 
+if (error) {
+  alert(error);
+  return;
+}
   const isTecnicoEmpty = firmaTecnicoRef.current?.isEmpty();
   const isClienteEmpty = firmaClienteRef.current?.isEmpty();
 
@@ -277,10 +289,19 @@ const handleSubmit = async (e) => {
 
   return (
     <form
+       {formData.firmas?.tecnico && formData.firmas?.cliente ? (
+  <div className="bg-green-100 text-green-700 p-2 rounded text-xs">
+    ✔ Inspección lista para completar
+  </div>
+) : (
+  <div className="bg-yellow-100 text-yellow-700 p-2 rounded text-xs">
+    ⚠ Falta firma para completar
+  </div>
+)}
   onSubmit={handleSubmit}
   className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
 >
-  <div id="pdf-inspeccion-hidro">
+ <div id="pdf-inspeccion-hidro" className="pdf-container print-area">
 
     {/* TODO TU FORMULARIO COMPLETO */}
     {/* NO BORRAR NADA */}
@@ -723,11 +744,13 @@ const handleSubmit = async (e) => {
           Volver
         </button>
         <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
-          Guardar y completar
-        </button>
+  type="submit"
+  className="bg-green-600 text-white px-4 py-2 rounded"
+>
+  {formData.firmas?.tecnico && formData.firmas?.cliente
+    ? "Guardar y completar"
+    : "Guardar borrador"}
+</button>
       </div>
     </form>
   );
