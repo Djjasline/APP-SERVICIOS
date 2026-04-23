@@ -1,12 +1,11 @@
-import { useNavigate } from "react-router-dom";
+import CardModulo from "@/components/CardModulo";
+import { FileText, File, Folder } from "lucide-react";
 
 export default function AreaRepositorios() {
-  const navigate = useNavigate();
-
   return (
     <div className="p-6 space-y-6">
 
-      {/* 🔥 HEADER ESTÁNDAR */}
+      {/* HEADER */}
       <div>
         <h2 className="text-lg font-semibold text-white">
           Repositorios
@@ -18,50 +17,31 @@ export default function AreaRepositorios() {
 
       <div className="grid md:grid-cols-2 gap-6">
 
-        {/* DOCUMENTOS */}
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="font-semibold text-gray-900">Documentos</h2>
-          <p className="text-sm text-gray-500">
-            Gestión de documentos técnicos y manuales.
-          </p>
-          <button
-            onClick={() => navigate("/repositorios/documentos")}
-            className="mt-2 bg-blue-600 text-white px-3 py-2 rounded"
-          >
-            Ir
-          </button>
-        </div>
+        <CardModulo
+          titulo="Documentos"
+          descripcion="Gestión de documentos técnicos y manuales."
+          ruta="/repositorios/documentos"
+          color="bg-blue-600"
+          icono={<FileText size={20} />}
+        />
 
-        {/* PDF */}
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="font-semibold text-gray-900">PDF</h2>
-          <p className="text-sm text-gray-500">
-            Acceso a informes generados en PDF.
-          </p>
-          <button
-            onClick={() => navigate("/repositorios/pdf")}
-            className="mt-2 bg-red-600 text-white px-3 py-2 rounded"
-          >
-            Ir
-          </button>
-        </div>
+        <CardModulo
+          titulo="PDF"
+          descripcion="Acceso a informes generados en PDF."
+          ruta="/repositorios/pdf"
+          color="bg-red-600"
+          icono={<File size={20} />}
+        />
 
-        {/* ARCHIVOS */}
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="font-semibold text-gray-900">Archivos</h2>
-          <p className="text-sm text-gray-500">
-            Almacenamiento general de archivos técnicos.
-          </p>
-          <button
-            onClick={() => navigate("/repositorios/archivos")}
-            className="mt-2 bg-green-600 text-white px-3 py-2 rounded"
-          >
-            Ir
-          </button>
-        </div>
+        <CardModulo
+          titulo="Archivos"
+          descripcion="Almacenamiento general de archivos técnicos."
+          ruta="/repositorios/archivos"
+          color="bg-green-600"
+          icono={<Folder size={20} />}
+        />
 
       </div>
-
     </div>
   );
 }
