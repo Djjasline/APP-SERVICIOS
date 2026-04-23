@@ -111,7 +111,8 @@ export default function HojaInspeccionHidro() {
     fechaServicio: "",
 
     estadoEquipoPuntos: [],
-
+modoEstadoEquipo: "base",
+estadoEquipoImagenCustom: null,
     nota: "",
     marca: "",
     modelo: "",
@@ -356,16 +357,99 @@ const handleSubmit = async (e) => {
 
       {/* ================= ESTADO DEL EQUIPO ================= */}
       <section className="border rounded p-4 space-y-3">
-        <div className="flex justify-between items-center">
-          <p className="font-semibold">Estado del equipo</p>
-          <button type="button" onClick={clearAllPoints} className="text-xs border px-2 py-1 rounded">
-            Limpiar puntos
-          </button>
-        </div>
+        <div className="flex justify-between items-center flex-wrap gap-2">
+ <p className="font-semibold">
+  Estado del equipo
+  <span className="text-xs text-gray-500 ml-2">
+    (clic en la imagen para marcar)
+  </span>
+</p>
 
-        <div className="relative border rounded cursor-crosshair" onClick={handleImageClick}>
-          <img src="/estado-equipo.png" className="w-full" draggable={false} />
-          {formData.estadoEquipoPuntos.map((pt) => (
+  <div className="flex gap-2">
+
+    {/* BOTÓN BASE */}
+    <button
+      type="button"
+      onClick={() =>
+        setFormData((p) => ({
+          ...p,
+          modoEstadoEquipo: "base",
+          estadoEquipoPuntos: [],
+          estadoEquipoImagenCustom: null,
+        }))
+      }
+      className={`text-xs px-2 py-1 rounded ${
+        formData.modoEstadoEquipo === "base"
+          ? "bg-blue-600 text-white"
+          : "border"
+      }`}
+    >
+      Imagen base
+    </button>
+
+    {/* BOTÓN CÁMARA */}
+    <label
+      className={`text-xs px-2 py-1 rounded cursor-pointer ${
+        formData.modoEstadoEquipo === "foto"
+          ? "bg-green-600 text-white"
+          : "border"
+      }`}
+    >
+      📷 Cámara / Galería
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = () => {
+            setFormData((p) => ({
+              ...p,
+              modoEstadoEquipo: "foto",
+              estadoEquipoImagenCustom: reader.result,
+              estadoEquipoPuntos: [],
+            }));
+          };
+          reader.readAsDataURL(file);
+        }}
+      />
+    </label>
+
+    {/* LIMPIAR */}
+    <button
+      type="button"
+      onClick={clearAllPoints}
+      className="text-xs border px-2 py-1 rounded"
+    >
+      Limpiar puntos
+    </button>
+
+  </div>
+</div>
+
+        <div
+  className="relative border rounded cursor-crosshair"
+  onClick={(e) => {
+    if (e.target.tagName === "IMG") {
+      handleImageClick(e);
+    }
+  }}
+>
+         <img
+  src={
+    formData.modoEstadoEquipo === "foto" &&
+    formData.estadoEquipoImagenCustom
+      ? formData.estadoEquipoImagenCustom
+      : "/estado-equipo.png"
+  }
+  className="w-full"
+  draggable={false}
+/>
+                {formData.estadoEquipoPuntos.map((pt) => (
             <div
               key={pt.id}
               onDoubleClick={() => handleRemovePoint(pt.id)}
