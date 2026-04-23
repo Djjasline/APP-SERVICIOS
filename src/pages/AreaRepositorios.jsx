@@ -6,15 +6,21 @@ export default function AreaRepositorios() {
   return (
     <div className="p-6 space-y-6">
 
-      <h1 className="text-xl font-bold">
-        Repositorios
-      </h1>
+      {/* 🔥 HEADER ESTÁNDAR */}
+      <div>
+        <h2 className="text-lg font-semibold text-white">
+          Repositorios
+        </h2>
+        <p className="text-sm text-gray-300">
+          Gestión y almacenamiento de documentos y archivos técnicos.
+        </p>
+      </div>
 
       <div className="grid md:grid-cols-2 gap-6">
 
         {/* DOCUMENTOS */}
         <div className="bg-white p-4 rounded shadow">
-          <h2 className="font-semibold">Documentos</h2>
+          <h2 className="font-semibold text-gray-900">Documentos</h2>
           <p className="text-sm text-gray-500">
             Gestión de documentos técnicos y manuales.
           </p>
@@ -28,7 +34,7 @@ export default function AreaRepositorios() {
 
         {/* PDF */}
         <div className="bg-white p-4 rounded shadow">
-          <h2 className="font-semibold">PDF</h2>
+          <h2 className="font-semibold text-gray-900">PDF</h2>
           <p className="text-sm text-gray-500">
             Acceso a informes generados en PDF.
           </p>
@@ -42,7 +48,7 @@ export default function AreaRepositorios() {
 
         {/* ARCHIVOS */}
         <div className="bg-white p-4 rounded shadow">
-          <h2 className="font-semibold">Archivos</h2>
+          <h2 className="font-semibold text-gray-900">Archivos</h2>
           <p className="text-sm text-gray-500">
             Almacenamiento general de archivos técnicos.
           </p>
