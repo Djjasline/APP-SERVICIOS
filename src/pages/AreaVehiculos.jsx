@@ -6,9 +6,9 @@ export default function AreaVehiculos() {
   return (
     <div className="p-6 space-y-6">
 
-      <h1 className="text-xl font-bold">
-        Vehículos Especiales
-      </h1>
+      <h2 className="text-lg font-semibold text-white">
+  Vehículos Especiales
+</h2>
 
       <div className="grid md:grid-cols-2 gap-6">
 
