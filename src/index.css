@@ -34,15 +34,12 @@ body {
 /* ============================= */
 /* 🔥 FIX GLOBAL DE CONTRASTE */
 /* ============================= */
-
-/* CONTENEDORES CLAROS */
 .bg-white,
 .bg-white\/90,
 .bg-white\/80 {
   color: #111827 !important;
 }
 
-/* TEXTOS GENERALES */
 h1,
 h2,
 h3,
@@ -52,7 +49,6 @@ h6 {
   color: #111827;
 }
 
-/* FORMULARIOS */
 input,
 textarea,
 select {
@@ -60,7 +56,6 @@ select {
   background-color: white;
 }
 
-/* LABELS */
 label {
   color: #374151;
 }
@@ -110,19 +105,14 @@ button {
 }
 
 /* ============================= */
-/* ============================= */
 /* PDF / FORMATO TÉCNICO */
 /* ============================= */
-/* ============================= */
-
 .pdf-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
   font-family: Arial, sans-serif;
   font-size: 11px;
-
-  /* 🔥 CONTROL DE PAGINACIÓN */
   page-break-inside: auto;
 }
 
@@ -139,7 +129,6 @@ button {
   text-align: center;
 }
 
-/* 🔥 EVITA QUE FILAS SE PARTAN */
 .pdf-table tr {
   page-break-inside: avoid;
   page-break-after: auto;
@@ -211,9 +200,8 @@ button {
 }
 
 /* ============================= */
-/* 🔥 CONTROL DE PÁGINAS (PRO) */
+/* CONTROL DE PÁGINAS (PRO) */
 /* ============================= */
-
 .page-break {
   page-break-before: always;
   break-before: page;
@@ -222,12 +210,12 @@ button {
 .no-break {
   page-break-inside: avoid;
 }
+
 /* ============================= */
 /* PRINT */
 /* ============================= */
 @media print {
 
-  /* 🔥 FORMATO A4 REAL */
   @page {
     size: A4;
     margin: 12mm;
@@ -266,10 +254,7 @@ button {
     width: 100% !important;
   }
 
-  /* ============================= */
   /* 🔥 SOLO IMPRIMIR EL PDF */
-  /* ============================= */
-
   body * {
     visibility: hidden;
   }
@@ -286,46 +271,23 @@ button {
     width: 210mm;
   }
 
-}
-  /* 🔥 FORMATO A4 REAL */
-  @page {
-    size: A4;
-    margin: 12mm;
-  }
-
-  html, body {
-    width: 210mm;
-    margin: 0;
-    padding: 0;
-  }
-
-  body {
-    background: white !important;
-    color: black !important;
-    overflow: visible !important;
-  }
-
-  #root {
-    min-height: auto;
-  }
-
-  .no-print {
-    display: none !important;
-  }
-
-  .pdf-container {
-    width: 210mm;
-    max-width: 210mm;
-    margin: 0 auto;
-    padding: 0;
-    background: white !important;
-    box-shadow: none !important;
+  /* 🔥 EVITAR CORTES FEOS */
+  section {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 
   table {
-    width: 100% !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 }
+
 /* ============================= */
 /* FIRMA */
 /* ============================= */
