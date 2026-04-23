@@ -216,6 +216,7 @@ button {
 
 .page-break {
   page-break-before: always;
+  break-before: page;
 }
 
 .no-break {
@@ -226,6 +227,19 @@ button {
 /* PRINT */
 /* ============================= */
 @media print {
+
+  /* 🔥 FORMATO A4 REAL */
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  html, body {
+    width: 210mm;
+    margin: 0;
+    padding: 0;
+  }
+
   body {
     background: white !important;
     color: black !important;
@@ -241,15 +255,18 @@ button {
   }
 
   .pdf-container {
+    width: 210mm;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 0;
     background: white !important;
     box-shadow: none !important;
-    max-width: 100% !important;
+  }
+
+  table {
     width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
   }
 }
-
 /* ============================= */
 /* FIRMA */
 /* ============================= */
