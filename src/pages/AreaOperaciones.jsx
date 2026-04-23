@@ -6,22 +6,24 @@ export default function AreaOperaciones() {
 
   const modulos = [
     {
-      titulo: "Bitacora",
-      descripcion: "Control de salida y entrega de vehiculos.",
+      titulo: "Bitácora",
+      descripcion: "Control de salida y entrega de vehículos.",
       icon: <Settings size={24} />,
       color: "bg-indigo-600",
-      ruta: "/liberacion", // 🔥 YA CONECTADO AL SISTEMA REAL
+      ruta: "/liberacion",
     },
     {
       titulo: "Herramientas y equipos",
-      descripcion: "Gestión y registro de salida e ingreso de herramientas y equipos técnicos.",
+      descripcion:
+        "Gestión y registro de salida e ingreso de herramientas y equipos técnicos.",
       icon: <Wrench size={24} />,
       color: "bg-blue-600",
       ruta: "/registro",
     },
     {
       titulo: "Recepción de equipos, vehículos y maquinaria",
-      descripcion: "Ingreso de equipos y validación inicial para manatenimientos y servicios.",
+      descripcion:
+        "Ingreso de equipos y validación inicial para mantenimientos y servicios.",
       icon: <Inbox size={24} />,
       color: "bg-green-600",
       ruta: "/recepcion",
@@ -31,10 +33,12 @@ export default function AreaOperaciones() {
   return (
     <div className="p-6 space-y-6">
 
-      {/* HEADER */}
+      {/* 🔥 HEADER ESTÁNDAR */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Operaciones</h1>
-        <p className="text-gray-400">
+        <h2 className="text-lg font-semibold text-white">
+          Operaciones
+        </h2>
+        <p className="text-sm text-gray-300">
           Gestión operativa de procesos técnicos.
         </p>
       </div>
@@ -47,15 +51,21 @@ export default function AreaOperaciones() {
             className="bg-white rounded-xl p-6 shadow border border-gray-200 space-y-4 hover:shadow-lg hover:-translate-y-1 transition duration-300"
           >
             {/* ICONO */}
-            <div className={`${item.color} text-white w-12 h-12 flex items-center justify-center rounded-lg`}>
+            <div
+              className={`${item.color} text-white w-12 h-12 flex items-center justify-center rounded-lg`}
+            >
               {item.icon}
             </div>
 
             {/* TITULO */}
-            <h2 className="font-semibold text-lg text-gray-900">{item.titulo}</h2>
+            <h2 className="font-semibold text-gray-900">
+              {item.titulo}
+            </h2>
 
             {/* DESCRIPCIÓN */}
-            <p className="text-sm text-gray-600">{item.descripcion}</p>
+            <p className="text-sm text-gray-600">
+              {item.descripcion}
+            </p>
 
             {/* BOTÓN */}
             <button
