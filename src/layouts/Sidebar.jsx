@@ -11,7 +11,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-export default function Sidebar({ openSidebar, setOpenSidebar }) {
+export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -20,13 +20,13 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
   const [openAgua, setOpenAgua] = useState(false);
   const [openPetroleo, setOpenPetroleo] = useState(false);
 
-  // 🔥 DETECTOR ACTIVO
+  /* ================= ACTIVE ================= */
   const isActive = (path) => {
     if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
   };
 
-  // 🔥 AUTO ABRIR MENÚ
+  /* ================= AUTO OPEN ================= */
   useEffect(() => {
     if (
       location.pathname.includes("/vehiculos") ||
@@ -55,14 +55,15 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
     }
   }, [location.pathname]);
 
+  /* ================= CLASES ================= */
   const itemClass = `flex items-center ${
     openSidebar ? "gap-3 px-3" : "justify-center"
-  } w-full py-2 rounded-xl transition-all duration-300 ease-in-out`;
+  } w-full py-2 rounded-xl transition-all duration-300`;
 
   const subItemClass = (path) =>
     `block w-full text-left text-xs px-2 py-1 rounded transition ${
       isActive(path)
-        ? "bg-white/20 text-white shadow border-l-2 border-accent pl-3"
+        ? "bg-white/20 text-white border-l-2 border-white pl-3"
         : "text-white/70 hover:text-white hover:bg-white/10"
     }`;
 
@@ -72,11 +73,17 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
 
   return (
     <aside
-      className={`h-screen ${
-        openSidebar ? "w-64" : "w-20"
-      } fixed md:relative z-40 flex flex-col transition-all duration-300 backdrop-blur-xl bg-gradient-to-b from-[#003366] to-[#001f3f] border-r border-white/10`}
+      className={`
+        h-screen fixed top-0 left-0 z-50 flex flex-col
+        transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
+        backdrop-blur-xl
+        bg-gradient-to-b from-[#003366] to-[#001f3f]
+        border-r border-white/10
+        ${openSidebar ? "w-64" : isMobile ? "w-0" : "w-20"}
+        ${!openSidebar && isMobile ? "overflow-hidden" : ""}
+      `}
     >
-      {/* LOGO */}
+      {/* ================= LOGO ================= */}
       <button
         onClick={() => setOpenSidebar(!openSidebar)}
         className="p-4 flex items-center gap-3 border-b border-white/10 hover:bg-white/10 transition w-full"
@@ -84,7 +91,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
         <img
           src="/astap-logo.jpg"
           alt="ASTAP"
-          className="w-10 h-10 object-contain"
+          className="w-10 h-10 object-contain transition-transform duration-300 hover:scale-105"
         />
 
         {openSidebar && (
@@ -94,16 +101,19 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
         )}
       </button>
 
-      {/* CONTENIDO */}
+      {/* ================= CONTENIDO ================= */}
       <div className="flex-1 p-3 space-y-2 text-sm overflow-y-auto">
 
-        {/* MENÚ PRINCIPAL */}
+        {/* DASHBOARD */}
         <button
-          onClick={() => navigate("/")}
-          className={`${itemClass} relative ${
+          onClick={() => {
+            navigate("/");
+            if (isMobile) setOpenSidebar(false);
+          }}
+          className={`${itemClass} ${
             isActive("/")
-              ? "bg-white/20 text-white shadow-lg before:absolute before:left-0 before:top-1 before:bottom-1 before:w-1 before:bg-accent before:rounded-r"
-              : "text-white/80 hover:text-white hover:bg-white/10 hover:pl-4"
+              ? "bg-white/20 text-white"
+              : "text-white/80 hover:bg-white/10"
           }`}
         >
           <LayoutDashboard size={18} />
@@ -113,14 +123,11 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
         {/* VEHÍCULOS */}
         <div>
           <button
-            onClick={() => setOpenVehiculos((prev) => !prev)}
+            onClick={() => setOpenVehiculos(!openVehiculos)}
             className={`${groupButtonClass} ${
-              isActive("/area/vehiculos") ||
-              isActive("/informe") ||
-              isActive("/inspeccion") ||
-              isActive("/mantenimiento")
+              isActive("/vehiculos")
                 ? "bg-white/10 text-white"
-                : "text-white/80 hover:text-white hover:bg-white/10"
+                : "text-white/80 hover:bg-white/10"
             }`}
           >
             <span className="flex items-center gap-3">
@@ -129,11 +136,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
             </span>
 
             {openSidebar &&
-              (openVehiculos ? (
-                <ChevronDown size={16} />
-              ) : (
-                <ChevronRight size={16} />
-              ))}
+              (openVehiculos ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
           </button>
 
           {openSidebar && openVehiculos && (
@@ -157,16 +160,16 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
         {/* AGUA */}
         <div>
           <button
-            onClick={() => setOpenAgua((prev) => !prev)}
+            onClick={() => setOpenAgua(!openAgua)}
             className={`${groupButtonClass} ${
               isActive("/area/agua")
                 ? "bg-white/10 text-white"
-                : "text-white/80 hover:text-white hover:bg-white/10"
+                : "text-white/80 hover:bg-white/10"
             }`}
           >
             <span className="flex items-center gap-3">
               <Droplet size={18} />
-              {openSidebar && "Agua y Saneamiento"}
+              {openSidebar && "Agua"}
             </span>
 
             {openSidebar &&
@@ -178,8 +181,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
               <button onClick={() => navigate("/area/agua")} className={subItemClass("/area/agua")}>
                 Panel Agua
               </button>
-              <button className="text-white/70 text-xs px-2 py-1">Registros</button>
-              <button className="text-white/70 text-xs px-2 py-1">Reportes</button>
             </div>
           )}
         </div>
@@ -187,16 +188,16 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
         {/* PETRÓLEO */}
         <div>
           <button
-            onClick={() => setOpenPetroleo((prev) => !prev)}
+            onClick={() => setOpenPetroleo(!openPetroleo)}
             className={`${groupButtonClass} ${
               isActive("/area/petroleo")
                 ? "bg-white/10 text-white"
-                : "text-white/80 hover:text-white hover:bg-white/10"
+                : "text-white/80 hover:bg-white/10"
             }`}
           >
             <span className="flex items-center gap-3">
               <Fuel size={18} />
-              {openSidebar && "Petróleo y Energía"}
+              {openSidebar && "Petróleo"}
             </span>
 
             {openSidebar &&
@@ -208,8 +209,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
               <button onClick={() => navigate("/area/petroleo")} className={subItemClass("/area/petroleo")}>
                 Panel Petróleo
               </button>
-              <button className="text-white/70 text-xs px-2 py-1">Operaciones</button>
-              <button className="text-white/70 text-xs px-2 py-1">Control</button>
             </div>
           )}
         </div>
@@ -217,14 +216,11 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
         {/* OPERACIONES */}
         <div>
           <button
-            onClick={() => setOpenOperaciones((prev) => !prev)}
+            onClick={() => setOpenOperaciones(!openOperaciones)}
             className={`${groupButtonClass} ${
-              isActive("/operaciones") ||
-              isActive("/registro") ||
-              isActive("/recepcion") ||
-              isActive("/liberacion")
+              isActive("/operaciones")
                 ? "bg-white/10 text-white"
-                : "text-white/80 hover:text-white hover:bg-white/10"
+                : "text-white/80 hover:bg-white/10"
             }`}
           >
             <span className="flex items-center gap-3">
@@ -233,11 +229,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
             </span>
 
             {openSidebar &&
-              (openOperaciones ? (
-                <ChevronDown size={16} />
-              ) : (
-                <ChevronRight size={16} />
-              ))}
+              (openOperaciones ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
           </button>
 
           {openSidebar && openOperaciones && (
@@ -260,11 +252,14 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
 
         {/* REPOSITORIOS */}
         <button
-          onClick={() => navigate("/repositorios")}
+          onClick={() => {
+            navigate("/repositorios");
+            if (isMobile) setOpenSidebar(false);
+          }}
           className={`${itemClass} ${
             isActive("/repositorios")
-              ? "bg-white/20 text-white shadow-lg"
-              : "text-white/80 hover:text-white hover:bg-white/10 hover:pl-4"
+              ? "bg-white/20 text-white"
+              : "text-white/80 hover:bg-white/10"
           }`}
         >
           <FolderOpen size={18} />
@@ -274,17 +269,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
       </div>
 
       {/* FOOTER */}
-      <div className="p-3 border-t border-white/10 text-xs text-white/50 text-center leading-tight">
-        {openSidebar ? (
-          <>
-            <div>ASTAP © 2026</div>
-            <div className="text-white/40 text-[10px]">
-              By Santiago Avilés
-            </div>
-          </>
-        ) : (
-          "©"
-        )}
+      <div className="p-3 border-t border-white/10 text-xs text-white/50 text-center">
+        {openSidebar ? "ASTAP © 2026" : "©"}
       </div>
     </aside>
   );
