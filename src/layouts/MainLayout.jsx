@@ -18,7 +18,7 @@ export default function MainLayout() {
   ========================= */
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024);
+      setIsMobile(window.innerWidth < 1200);
     };
 
     handleResize();
@@ -60,8 +60,7 @@ export default function MainLayout() {
         className={`
           fixed top-0 left-0 h-full z-50
           transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
-          ${openSidebar ? "translate-x-0" : "-translate-x-full"}
-          lg:translate-x-0
+         ${openSidebar ? "translate-x-0" : "-translate-x-full"}
         `}
       >
         <Sidebar
@@ -82,7 +81,7 @@ export default function MainLayout() {
       <div
         className={`
           flex-1 flex flex-col transition-all duration-300
-          ${openSidebar && !isMobile ? "ml-64" : "ml-0"}
+          ${!isMobile && openSidebar ? "ml-64" : "ml-0"}
         `}
       >
 
