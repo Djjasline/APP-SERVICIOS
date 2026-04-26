@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -7,27 +7,77 @@ import Sidebar from "./Sidebar";
 export default function MainLayout() {
   const [openSidebar, setOpenSidebar] = useState(true);
   const [openMenu, setOpenMenu] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
+  /* =========================
+     DETECTAR DISPOSITIVO
+  ========================= */
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  /* =========================
+     AUTO OCULTAR SIDEBAR
+  ========================= */
+  useEffect(() => {
+    if (isMobile) {
+      setOpenSidebar(false);
+    } else {
+      setOpenSidebar(true);
+    }
+  }, [isMobile]);
+
   return (
     <div className="flex h-screen bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b]">
 
-      {/* SIDEBAR */}
-      <Sidebar openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
+      {/* ================= SIDEBAR ================= */}
+      <div
+        className={`
+          fixed top-0 left-0 h-full z-50 transition-transform duration-300
+          ${openSidebar ? "translate-x-0" : "-translate-x-full"}
+          lg:translate-x-0
+        `}
+      >
+        <Sidebar
+          openSidebar={openSidebar}
+          setOpenSidebar={setOpenSidebar}
+        />
+      </div>
 
-      {/* CONTENIDO */}
-      <div className="flex-1 flex flex-col">
+      {/* OVERLAY MÓVIL */}
+      {isMobile && openSidebar && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={() => setOpenSidebar(false)}
+        />
+      )}
 
-        {/* HEADER */}
+      {/* ================= CONTENIDO ================= */}
+      <div
+        className={`
+          flex-1 flex flex-col transition-all duration-300
+          ${openSidebar && !isMobile ? "ml-64" : "ml-0"}
+        `}
+      >
+
+        {/* ================= HEADER ================= */}
         <header className="h-16 flex items-center justify-between px-6 backdrop-blur-xl bg-white/5 border-b border-white/10 relative z-50 text-white">
 
           {/* IZQUIERDA */}
           <div className="flex items-center gap-4">
             <button
               onClick={() => setOpenSidebar(!openSidebar)}
-              className="md:hidden p-2 rounded-lg hover:bg-black/50 transition"
+              className="p-2 rounded-lg hover:bg-black/50 transition"
             >
               ☰
             </button>
@@ -37,10 +87,9 @@ export default function MainLayout() {
             </h1>
           </div>
 
-          {/* DERECHA - USUARIO */}
+          {/* ================= USUARIO ================= */}
           <div className="relative z-[9999]">
 
-            {/* BOTÓN USUARIO */}
             <div
               onClick={() => setOpenMenu(!openMenu)}
               className="w-10 h-10 rounded-full 
@@ -53,14 +102,12 @@ export default function MainLayout() {
               <User size={18} className="text-white" />
             </div>
 
-            {/* MENU GLASS */}
             {openMenu && (
               <div className="absolute right-0 mt-2 w-60 
                 bg-black/70 backdrop-blur-xl 
                 border border-white/20 rounded-xl shadow-xl 
                 p-4 text-sm text-white">
 
-                {/* USER INFO */}
                 <div className="mb-3 border-b border-white/20 pb-2">
                   <div className="font-semibold">
                     {user?.email || "Usuario"}
@@ -70,7 +117,6 @@ export default function MainLayout() {
                   </div>
                 </div>
 
-                {/* OPCIONES */}
                 <div className="flex flex-col gap-2 text-sm">
 
                   <button
@@ -87,6 +133,7 @@ export default function MainLayout() {
                     onClick={() => {
                       navigate("/informe");
                       setOpenMenu(false);
+                      setOpenSidebar(false);
                     }}
                     className="text-left hover:bg-white/10 px-2 py-1 rounded"
                   >
@@ -97,6 +144,7 @@ export default function MainLayout() {
                     onClick={() => {
                       navigate("/inspeccion");
                       setOpenMenu(false);
+                      setOpenSidebar(false);
                     }}
                     className="text-left hover:bg-white/10 px-2 py-1 rounded"
                   >
@@ -107,6 +155,7 @@ export default function MainLayout() {
                     onClick={() => {
                       navigate("/mantenimiento");
                       setOpenMenu(false);
+                      setOpenSidebar(false);
                     }}
                     className="text-left hover:bg-white/10 px-2 py-1 rounded"
                   >
@@ -115,10 +164,8 @@ export default function MainLayout() {
 
                 </div>
 
-                {/* SEPARADOR */}
                 <div className="border-t border-white/20 my-3" />
 
-                {/* LOGOUT */}
                 <button
                   onClick={() => {
                     logout();
@@ -131,14 +178,13 @@ export default function MainLayout() {
 
               </div>
             )}
-
           </div>
 
         </header>
 
-        {/* MAIN */}
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-6 shadow-xl min-h-full">
+        {/* ================= MAIN ================= */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+          <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-4 md:p-6 shadow-xl min-h-full">
             <Outlet />
           </div>
         </main>
