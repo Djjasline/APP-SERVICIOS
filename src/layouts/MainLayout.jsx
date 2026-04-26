@@ -14,11 +14,14 @@ export default function MainLayout() {
   const { user, logout } = useAuth();
 
   /* =========================
-     DETECTAR DISPOSITIVO
+     DETECTAR DISPOSITIVO REAL
   ========================= */
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 1200);
+      const isTabletOrMobile =
+        window.innerWidth <= 1024 || window.innerHeight > window.innerWidth;
+
+      setIsMobile(isTabletOrMobile);
     };
 
     handleResize();
@@ -41,6 +44,7 @@ export default function MainLayout() {
   return (
     <div
       className="flex h-screen bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b]"
+
       /* ================= SWIPE ================= */
       onTouchStart={(e) => setTouchStartX(e.touches[0].clientX)}
       onTouchEnd={(e) => {
@@ -60,7 +64,7 @@ export default function MainLayout() {
         className={`
           fixed top-0 left-0 h-full z-50
           transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
-         ${openSidebar ? "translate-x-0" : "-translate-x-full"}
+          ${openSidebar ? "translate-x-0" : "-translate-x-full"}
         `}
       >
         <Sidebar
@@ -69,7 +73,7 @@ export default function MainLayout() {
         />
       </div>
 
-      {/* OVERLAY MÓVIL */}
+      {/* ================= OVERLAY ================= */}
       {isMobile && openSidebar && (
         <div
           className="fixed inset-0 bg-black/50 z-40"
@@ -91,7 +95,7 @@ export default function MainLayout() {
           {/* IZQUIERDA */}
           <div className="flex items-center gap-4">
 
-            {/* LOGO BOTÓN */}
+            {/* LOGO COMO BOTÓN */}
             <div
               onClick={() => setOpenSidebar(!openSidebar)}
               className="flex items-center gap-3 cursor-pointer group"
@@ -130,6 +134,7 @@ export default function MainLayout() {
                 border border-white/20 rounded-xl shadow-xl 
                 p-4 text-sm text-white animate-fadeIn">
 
+                {/* INFO USUARIO */}
                 <div className="mb-3 border-b border-white/20 pb-2">
                   <div className="font-semibold">
                     {user?.email || "Usuario"}
@@ -139,6 +144,7 @@ export default function MainLayout() {
                   </div>
                 </div>
 
+                {/* OPCIONES */}
                 <div className="flex flex-col gap-2 text-sm">
 
                   <button
@@ -188,6 +194,7 @@ export default function MainLayout() {
 
                 <div className="border-t border-white/20 my-3" />
 
+                {/* LOGOUT */}
                 <button
                   onClick={() => {
                     logout();
