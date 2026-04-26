@@ -8,6 +8,7 @@ export default function MainLayout() {
   const [openSidebar, setOpenSidebar] = useState(true);
   const [openMenu, setOpenMenu] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(null);
 
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -38,12 +39,27 @@ export default function MainLayout() {
   }, [isMobile]);
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b]">
+    <div
+      className="flex h-screen bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b]"
+      /* ================= SWIPE ================= */
+      onTouchStart={(e) => setTouchStartX(e.touches[0].clientX)}
+      onTouchEnd={(e) => {
+        if (!touchStartX) return;
+
+        const diff = e.changedTouches[0].clientX - touchStartX;
+
+        if (diff > 80) setOpenSidebar(true);
+        if (diff < -80) setOpenSidebar(false);
+
+        setTouchStartX(null);
+      }}
+    >
 
       {/* ================= SIDEBAR ================= */}
       <div
         className={`
-          fixed top-0 left-0 h-full z-50 transition-transform duration-300
+          fixed top-0 left-0 h-full z-50
+          transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
           ${openSidebar ? "translate-x-0" : "-translate-x-full"}
           lg:translate-x-0
         `}
@@ -75,16 +91,23 @@ export default function MainLayout() {
 
           {/* IZQUIERDA */}
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => setOpenSidebar(!openSidebar)}
-              className="p-2 rounded-lg hover:bg-black/50 transition"
-            >
-              ☰
-            </button>
 
-            <h1 className="text-lg font-semibold tracking-wide">
-              Panel ASTAP
-            </h1>
+            {/* LOGO BOTÓN */}
+            <div
+              onClick={() => setOpenSidebar(!openSidebar)}
+              className="flex items-center gap-3 cursor-pointer group"
+            >
+              <img
+                src="/astap-logo.jpg"
+                alt="ASTAP"
+                className="h-10 transition-transform duration-300 group-hover:scale-105"
+              />
+
+              <span className="text-lg font-semibold tracking-wide hidden md:block">
+                ASTAP
+              </span>
+            </div>
+
           </div>
 
           {/* ================= USUARIO ================= */}
@@ -106,7 +129,7 @@ export default function MainLayout() {
               <div className="absolute right-0 mt-2 w-60 
                 bg-black/70 backdrop-blur-xl 
                 border border-white/20 rounded-xl shadow-xl 
-                p-4 text-sm text-white">
+                p-4 text-sm text-white animate-fadeIn">
 
                 <div className="mb-3 border-b border-white/20 pb-2">
                   <div className="font-semibold">
