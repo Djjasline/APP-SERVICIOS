@@ -1098,126 +1098,122 @@ if (error) {
           + Agregar conclusión / recomendación
         </button>
 
-        {/* ── FIRMAS ── */}
-        <table className="pdf-table w-full">
-          <thead>
-            <tr>
-              <th>FIRMA TÉCNICO ASTAP</th>
-              <th>FIRMA CLIENTE / CONTACTO</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="align-top" style={{ height: 240 }}>
-                <div className="border rounded bg-white h-[150px] flex items-center justify-center">
-                  <SignatureCanvas
-  ref={sigTecnico}
-  penColor="black"
-  minWidth={0.5}
-  maxWidth={1.5}
-  throttle={0}
-  velocityFilterWeight={0.7}
-  canvasProps={{
-    className: "w-full h-full touch-none",
-  }}
-/>
-                    onBegin={() => {
-                      document.activeElement?.blur();
-                      document.body.style.overflow = "hidden";
-                    }}
-                    onEnd={() => {
-                      document.body.style.overflow = "";
-                    }}
-                   canvasProps={{
-  className: "w-full h-full touch-none",
-}}
-                  />
-                </div>
+       {/* ── FIRMAS ── */}
+<table className="pdf-table w-full">
+  <thead>
+    <tr>
+      <th>FIRMA TÉCNICO ASTAP</th>
+      <th>FIRMA CLIENTE / CONTACTO</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      {/* ================= FIRMA TÉCNICO ================= */}
+      <td className="align-top" style={{ height: 240 }}>
+        <div className="border rounded bg-white h-[150px] flex items-center justify-center">
+          <SignatureCanvas
+            ref={sigTecnico}
+            penColor="black"
+            minWidth={0.5}
+            maxWidth={1.5}
+            throttle={0}
+            velocityFilterWeight={0.7}
+            onBegin={() => {
+              document.activeElement?.blur();
+              document.body.style.overflow = "hidden";
+            }}
+            onEnd={() => {
+              document.body.style.overflow = "";
+            }}
+            canvasProps={{
+              className: "w-full h-full touch-none",
+            }}
+          />
+        </div>
 
-                <div className="mt-2 text-sm text-center">
-                  <div className="font-medium">{data.tecnicoNombre || "—"}</div>
-                </div>
+        <div className="mt-2 text-sm text-center">
+          <div className="font-medium">
+            {data.tecnicoNombre || "—"}
+          </div>
+        </div>
 
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sigTecnico.current?.clear();
-                      setData((prev) => ({
-                        ...prev,
-                        firmas: { ...prev.firmas, tecnico: "" },
-                      }));
-                    }}
-                    className="text-xs text-red-600 mt-2 hover:underline"
-                  >
-                    Borrar firma
-                  </button>
-                </div>
-              </td>
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => {
+              sigTecnico.current?.clear();
+              setData((prev) => ({
+                ...prev,
+                firmas: { ...prev.firmas, tecnico: "" },
+              }));
+            }}
+            className="text-xs text-red-600 mt-2 hover:underline"
+          >
+            Borrar firma
+          </button>
+        </div>
+      </td>
 
-              <td className="align-top" style={{ height: 240 }}>
-                <div className="border rounded bg-white h-[150px] flex items-center justify-center">
-                  <SignatureCanvas
-  ref={sigCliente}
-  penColor="black"
-  minWidth={0.5}
-  maxWidth={1.5}
-  throttle={0}
-  velocityFilterWeight={0.7}
-  canvasProps={{
-    className: "w-full h-full touch-none",
-  }}
-/>
-                    onBegin={() => {
-                      document.activeElement?.blur();
-                      document.body.style.overflow = "hidden";
-                    }}
-                    onEnd={() => {
-                      document.body.style.overflow = "";
-                    }}
-                    canvasProps={{
-  className: "w-full h-full touch-none",
-}}
-                  />
-                </div>
+      {/* ================= FIRMA CLIENTE ================= */}
+      <td className="align-top" style={{ height: 240 }}>
+        <div className="border rounded bg-white h-[150px] flex items-center justify-center">
+          <SignatureCanvas
+            ref={sigCliente}
+            penColor="black"
+            minWidth={0.5}
+            maxWidth={1.5}
+            throttle={0}
+            velocityFilterWeight={0.7}
+            onBegin={() => {
+              document.activeElement?.blur();
+              document.body.style.overflow = "hidden";
+            }}
+            onEnd={() => {
+              document.body.style.overflow = "";
+            }}
+            canvasProps={{
+              className: "w-full h-full touch-none",
+            }}
+          />
+        </div>
 
-                <div className="mt-2 space-y-1 text-center">
-                  <input
-                    className="pdf-input w-full bg-gray-100"
-                    value={data.contacto}
-                    readOnly
-                    placeholder="Nombre del contacto presente"
-                  />
+        <div className="mt-2 space-y-1 text-center">
+          <input
+            className="pdf-input w-full bg-gray-100"
+            value={data.contacto}
+            readOnly
+            placeholder="Nombre del contacto presente"
+          />
 
-                  <input
-                    className="pdf-input w-full"
-                    value={data.firmas?.clienteCedula || ""}
-                    onChange={(e) =>
-                      update(["firmas", "clienteCedula"], e.target.value)
-                    }
-                    placeholder="Número de cédula del cliente"
-                  />
-                </div>
+          <input
+            className="pdf-input w-full"
+            value={data.firmas?.clienteCedula || ""}
+            onChange={(e) =>
+              update(["firmas", "clienteCedula"], e.target.value)
+            }
+            placeholder="Número de cédula del cliente"
+          />
+        </div>
 
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sigCliente.current?.clear();
-                      setData((prev) => ({
-                        ...prev,
-                        firmas: { ...prev.firmas, cliente: "" },
-                      }));
-                    }}
-                    className="text-xs text-red-600 mt-2 hover:underline"
-                  >
-                    Borrar firma
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => {
+              sigCliente.current?.clear();
+              setData((prev) => ({
+                ...prev,
+                firmas: { ...prev.firmas, cliente: "" },
+              }));
+            }}
+            className="text-xs text-red-600 mt-2 hover:underline"
+          >
+            Borrar firma
+          </button>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
         {/* ── BOTONES ── */}
         <div className="flex flex-col md:flex-row justify-between gap-3 pt-6">
