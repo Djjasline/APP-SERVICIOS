@@ -219,7 +219,7 @@ export default function MainLayout() {
 
         {/* ================= MAIN ================= */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-4 md:p-6 shadow-xl min-h-full">
+          <div classN<div className="max-w-7xl mx-auto rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-4 md:p-6 shadow-xl min-h-full">
             <Outlet />
           </div>
         </main>
