@@ -1,36 +1,53 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import supabase from "@/lib/supabaseClient";
+
+// ⚠️ AJUSTA ESTA RUTA SEGÚN TU PROYECTO REAL
+import supabase from "@/lib/supabase"; // 👈 CAMBIA ESTO SI TU ARCHIVO ES DISTINTO
 
 export default function InformePDF() {
-
   const { id } = useParams();
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // 🔥 TRAER DATOS REALES
   useEffect(() => {
     const fetchData = async () => {
-      const { data: informe, error } = await supabase
-        .from("informes")
-        .select("*")
-        .eq("id", id)
-        .single();
+      try {
+        const { data: informe, error } = await supabase
+          .from("informes")
+          .select("*")
+          .eq("id", id)
+          .single();
 
-      if (error) {
-        console.error("Error cargando informe:", error);
-      } else {
-        setData(informe);
+        if (error) {
+          console.error("Error cargando informe:", error);
+        } else {
+          setData(informe);
+        }
+      } catch (err) {
+        console.error("Error inesperado:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
     if (id) fetchData();
   }, [id]);
 
-  // 🔥 LOADING REAL
-  if (!data) {
+  // 🔥 LOADING
+  if (loading) {
     return (
       <div className="p-6 text-white">
         Cargando informe...
+      </div>
+    );
+  }
+
+  // 🔥 SI NO HAY DATA
+  if (!data) {
+    return (
+      <div className="p-6 text-red-400">
+        No se pudo cargar el informe
       </div>
     );
   }
@@ -42,10 +59,18 @@ export default function InformePDF() {
         <tbody>
           <tr>
             <td rowSpan={5} style={{ width: 120, textAlign: "center" }}>
-              <img src="/astap-logo.jpg" alt="ASTAP" style={{ maxHeight: 80 }} />
+              <img
+                src="/astap-logo.jpg"
+                alt="ASTAP"
+                style={{ maxHeight: 80 }}
+              />
             </td>
 
-            <td colSpan={2} className="pdf-title" style={{ textAlign: "center" }}>
+            <td
+              colSpan={2}
+              className="pdf-title"
+              style={{ textAlign: "center" }}
+            >
               INFORME GENERAL DE SERVICIOS
             </td>
 
@@ -57,22 +82,30 @@ export default function InformePDF() {
 
           <tr>
             <td className="pdf-label">REFERENCIA CONTRATO</td>
-            <td colSpan={2}>{data?.referenciaContrato || "—"}</td>
+            <td colSpan={2}>
+              {data?.referenciaContrato || "—"}
+            </td>
           </tr>
 
           <tr>
             <td className="pdf-label">PEDIDO / DEMANDA</td>
-            <td colSpan={2}>{data?.pedidoDemanda || "—"}</td>
+            <td colSpan={2}>
+              {data?.pedidoDemanda || "—"}
+            </td>
           </tr>
 
           <tr>
             <td className="pdf-label">DESCRIPCIÓN</td>
-            <td colSpan={2}>{data?.descripcion || "—"}</td>
+            <td colSpan={2}>
+              {data?.descripcion || "—"}
+            </td>
           </tr>
 
           <tr>
             <td className="pdf-label">COD. INF.</td>
-            <td colSpan={2}>{data?.codInf || "—"}</td>
+            <td colSpan={2}>
+              {data?.codInf || "—"}
+            </td>
           </tr>
         </tbody>
       </table>
