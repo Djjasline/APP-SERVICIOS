@@ -127,6 +127,22 @@ export default function NuevoInforme() {
     };
   }, []);
   useEffect(() => {
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, []);
+
+// 🔥 AJUSTE DE PRECISIÓN DE FIRMA
+useEffect(() => {
+  setTimeout(() => {
+    const canvasTecnico = sigTecnico.current?.getCanvas();
+    const canvasCliente = sigCliente.current?.getCanvas();
+
+    if (canvasTecnico) resizeCanvas(canvasTecnico);
+    if (canvasCliente) resizeCanvas(canvasCliente);
+  }, 100);
+}, []);
+  useEffect(() => {
   const canvasTecnico = sigTecnico.current?.getCanvas();
   const canvasCliente = sigCliente.current?.getCanvas();
 
