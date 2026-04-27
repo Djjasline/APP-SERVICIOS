@@ -221,7 +221,7 @@ overflow-hidden
 
       {/* FOOTER */}
       <div className="p-3 border-t border-white/10 text-xs text-white/50 text-center">
-        {openSidebar ? "ASTAP © 2026" : "©"}
+        {openSidebar ? "By Santiago Avilés © 2026" : "©"}
       </div>
     </aside>
   );
