@@ -211,6 +211,44 @@ export default function InformePDF() {
             </tbody>
           </table>
 
+{/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
+<div className="no-break">
+  <table className="pdf-table w-full mt-4">
+    <thead>
+      <tr>
+        <th colSpan={2}>CONCLUSIONES</th>
+        <th colSpan={2}>RECOMENDACIONES</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {(data.conclusiones || []).map((c, i) => (
+        <tr key={i}>
+          {/* NUMERO CONCLUSIÓN */}
+          <td style={{ width: 30, textAlign: "center" }}>
+            {i + 1}
+          </td>
+
+          {/* TEXTO CONCLUSIÓN */}
+          <td style={{ whiteSpace: "pre-wrap" }}>
+            {c || "—"}
+          </td>
+
+          {/* NUMERO RECOMENDACIÓN */}
+          <td style={{ width: 30, textAlign: "center" }}>
+            {i + 1}
+          </td>
+
+          {/* TEXTO RECOMENDACIÓN */}
+          <td style={{ whiteSpace: "pre-wrap" }}>
+            {data.recomendaciones?.[i] || "—"}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+          
           {/* FIRMAS */}
           <table className="pdf-table w-full mt-4">
             <tbody>
