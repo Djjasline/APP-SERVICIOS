@@ -1084,7 +1084,7 @@ if (error) {
           <thead>
             <tr>
               <th>FIRMA TÉCNICO ASTAP</th>
-              <th>FIRMA CLIENTE</th>
+              <th>FIRMA CLIENTE / CONTACTO</th>
             </tr>
           </thead>
           <tbody>
@@ -1147,9 +1147,9 @@ if (error) {
                 <div className="mt-2 space-y-1">
                   <input
                     className="pdf-input w-full bg-gray-100"
-                    value={data.cliente}
+                    value={data.contacto}
                     readOnly
-                    placeholder="Nombre del cliente"
+                    placeholder="Nombre del contacto presente"
                   />
 
                   <input
