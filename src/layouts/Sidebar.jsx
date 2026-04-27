@@ -92,8 +92,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
         bg-gradient-to-b from-[#003366] to-[#001f3f]
         border-r border-white/10 backdrop-blur-xl
         transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
-        ${openSidebar ? "w-64" : isMobile ? "w-0" : "w-20"}
-        ${!openSidebar && isMobile ? "overflow-hidden" : ""}
+        ${openSidebar ? "w-64" : "w-0"}
+overflow-hidden
       `}
     >
       {/* ================= LOGO ================= */}
