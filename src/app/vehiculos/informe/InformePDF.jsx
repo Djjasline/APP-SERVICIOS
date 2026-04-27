@@ -74,11 +74,14 @@ export default function InformePDF() {
 
   /* ── Handler de impresión via iframe ── */
   const handlePrint = () => {
-    const filename = `ASTAP_${(data.codInf || "").replace(/\s/g, "")}_${(
-      data.cliente || ""
-    ).replace(/\s/g, "_")}`;
-    printPdf("pdf-content", filename);
-  };
+  const cliente = (data.cliente || "cliente").replace(/\s+/g, "-");
+  const pedido = (data.pedidoDemanda || "pedido").replace(/\s+/g, "");
+  const codigo = (data.codInf || "000").replace(/\s+/g, "");
+
+  const filename = `${cliente}_${pedido}_${codigo}_App Servicios ASTAP`;
+
+  printPdf("pdf-content", filename);
+};
 
   /* ── Estilos inline compartidos ── */
   const S = {
