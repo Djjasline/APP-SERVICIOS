@@ -1089,8 +1089,8 @@ if (error) {
           </thead>
           <tbody>
             <tr>
-              <td style={{ height: 220 }}>
-                <div className="border rounded bg-white h-[160px]">
+              <td className="align-top" style={{ height: 240 }}>
+                <div className="border rounded bg-white h-[150px] flex items-center justify-center">
                   <SignatureCanvas
                     ref={sigTecnico}
                     onBegin={() => {
@@ -1100,13 +1100,13 @@ if (error) {
                     onEnd={() => {
                       document.body.style.overflow = "";
                     }}
-                    canvasProps={{
-                      className: "w-full h-full",
-                    }}
+                   canvasProps={{
+  className: "w-full h-full touch-none",
+}}
                   />
                 </div>
 
-                <div className="mt-2 text-sm">
+                <div className="mt-2 text-sm text-center">
                   <div className="font-medium">{data.tecnicoNombre || "—"}</div>
                 </div>
 
@@ -1127,8 +1127,8 @@ if (error) {
                 </div>
               </td>
 
-              <td style={{ height: 220 }}>
-                <div className="border rounded bg-white h-[160px]">
+              <td className="align-top" style={{ height: 240 }}>
+                <div className="border rounded bg-white h-[150px] flex items-center justify-center">
                   <SignatureCanvas
                     ref={sigCliente}
                     onBegin={() => {
@@ -1139,12 +1139,12 @@ if (error) {
                       document.body.style.overflow = "";
                     }}
                     canvasProps={{
-                      className: "w-full h-full",
-                    }}
+  className: "w-full h-full touch-none",
+}}
                   />
                 </div>
 
-                <div className="mt-2 space-y-1">
+                <div className="mt-2 space-y-1 text-center">
                   <input
                     className="pdf-input w-full bg-gray-100"
                     value={data.contacto}
