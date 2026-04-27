@@ -46,19 +46,37 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       setOpenOperaciones(true);
     }
 
-    if (location.pathname.includes("/area/agua")) {
-      setOpenAgua(true);
-    }
-
-    if (location.pathname.includes("/area/petroleo")) {
-      setOpenPetroleo(true);
-    }
+    if (location.pathname.includes("/area/agua")) setOpenAgua(true);
+    if (location.pathname.includes("/area/petroleo")) setOpenPetroleo(true);
   }, [location.pathname]);
 
   /* ================= CLASES ================= */
-  const itemClass = `flex items-center ${
-    openSidebar ? "gap-3 px-3" : "justify-center"
-  } w-full py-2 rounded-xl transition-all duration-300`;
+  const itemBase = `
+    group relative flex items-center w-full py-2 rounded-xl
+    transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
+    cursor-pointer
+  `;
+
+  const itemClass = (active) => `
+    ${itemBase}
+    ${openSidebar ? "gap-3 px-3" : "justify-center px-2"}
+    ${
+      active
+        ? "bg-white/20 text-white"
+        : "text-white/80 hover:bg-white/10 hover:text-white"
+    }
+  `;
+
+  const iconClass = `
+    text-white/80 group-hover:text-white transition-all duration-300
+  `;
+
+  const tooltip = (label) =>
+    !openSidebar && (
+      <span className="absolute left-16 bg-black text-white text-xs px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition">
+        {label}
+      </span>
+    );
 
   const subItemClass = (path) =>
     `block w-full text-left text-xs px-2 py-1 rounded transition ${
@@ -67,31 +85,26 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
         : "text-white/70 hover:text-white hover:bg-white/10"
     }`;
 
-  const groupButtonClass = `flex items-center justify-between w-full ${
-    openSidebar ? "px-3" : "px-2"
-  } py-2 rounded-xl transition-all duration-300`;
-
   return (
     <aside
       className={`
-        h-screen fixed top-0 left-0 z-50 flex flex-col
-        transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
-        backdrop-blur-xl
+        fixed top-0 left-0 h-screen z-50 flex flex-col
         bg-gradient-to-b from-[#003366] to-[#001f3f]
-        border-r border-white/10
+        border-r border-white/10 backdrop-blur-xl
+        transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
         ${openSidebar ? "w-64" : isMobile ? "w-0" : "w-20"}
         ${!openSidebar && isMobile ? "overflow-hidden" : ""}
       `}
     >
       {/* ================= LOGO ================= */}
-      <button
+      <div
         onClick={() => setOpenSidebar(!openSidebar)}
-        className="p-4 flex items-center gap-3 border-b border-white/10 hover:bg-white/10 transition w-full"
+        className="p-4 flex items-center gap-3 border-b border-white/10 cursor-pointer group hover:bg-white/10 transition"
       >
         <img
           src="/astap-logo.jpg"
           alt="ASTAP"
-          className="w-10 h-10 object-contain transition-transform duration-300 hover:scale-105"
+          className="w-10 h-10 object-contain transition-transform duration-300 group-hover:scale-105"
         />
 
         {openSidebar && (
@@ -99,45 +112,40 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             ASTAP
           </span>
         )}
-      </button>
+      </div>
 
       {/* ================= CONTENIDO ================= */}
       <div className="flex-1 p-3 space-y-2 text-sm overflow-y-auto">
 
         {/* DASHBOARD */}
-        <button
+        <div
           onClick={() => {
             navigate("/");
             if (isMobile) setOpenSidebar(false);
           }}
-          className={`${itemClass} ${
-            isActive("/")
-              ? "bg-white/20 text-white"
-              : "text-white/80 hover:bg-white/10"
-          }`}
+          className={itemClass(isActive("/"))}
         >
-          <LayoutDashboard size={18} />
+          <LayoutDashboard size={20} className={iconClass} />
           {openSidebar && "Menú Principal"}
-        </button>
+          {tooltip("Menú Principal")}
+        </div>
 
         {/* VEHÍCULOS */}
         <div>
-          <button
+          <div
             onClick={() => setOpenVehiculos(!openVehiculos)}
-            className={`${groupButtonClass} ${
-              isActive("/vehiculos")
-                ? "bg-white/10 text-white"
-                : "text-white/80 hover:bg-white/10"
-            }`}
+            className={itemClass(isActive("/vehiculos"))}
           >
-            <span className="flex items-center gap-3">
-              <Truck size={18} />
-              {openSidebar && "Vehículos"}
-            </span>
-
+            <Truck size={20} className={iconClass} />
+            {openSidebar && "Vehículos"}
             {openSidebar &&
-              (openVehiculos ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
-          </button>
+              (openVehiculos ? (
+                <ChevronDown size={16} />
+              ) : (
+                <ChevronRight size={16} />
+              ))}
+            {tooltip("Vehículos")}
+          </div>
 
           {openSidebar && openVehiculos && (
             <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
@@ -158,113 +166,56 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
         </div>
 
         {/* AGUA */}
-        <div>
-          <button
-            onClick={() => setOpenAgua(!openAgua)}
-            className={`${groupButtonClass} ${
-              isActive("/area/agua")
-                ? "bg-white/10 text-white"
-                : "text-white/80 hover:bg-white/10"
-            }`}
-          >
-            <span className="flex items-center gap-3">
-              <Droplet size={18} />
-              {openSidebar && "Agua"}
-            </span>
-
-            {openSidebar &&
-              (openAgua ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
-          </button>
-
-          {openSidebar && openAgua && (
-            <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-              <button onClick={() => navigate("/area/agua")} className={subItemClass("/area/agua")}>
-                Panel Agua
-              </button>
-            </div>
-          )}
+        <div
+          onClick={() => {
+            navigate("/area/agua");
+            if (isMobile) setOpenSidebar(false);
+          }}
+          className={itemClass(isActive("/area/agua"))}
+        >
+          <Droplet size={20} className={iconClass} />
+          {openSidebar && "Agua"}
+          {tooltip("Agua")}
         </div>
 
         {/* PETRÓLEO */}
-        <div>
-          <button
-            onClick={() => setOpenPetroleo(!openPetroleo)}
-            className={`${groupButtonClass} ${
-              isActive("/area/petroleo")
-                ? "bg-white/10 text-white"
-                : "text-white/80 hover:bg-white/10"
-            }`}
-          >
-            <span className="flex items-center gap-3">
-              <Fuel size={18} />
-              {openSidebar && "Petróleo"}
-            </span>
-
-            {openSidebar &&
-              (openPetroleo ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
-          </button>
-
-          {openSidebar && openPetroleo && (
-            <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-              <button onClick={() => navigate("/area/petroleo")} className={subItemClass("/area/petroleo")}>
-                Panel Petróleo
-              </button>
-            </div>
-          )}
+        <div
+          onClick={() => {
+            navigate("/area/petroleo");
+            if (isMobile) setOpenSidebar(false);
+          }}
+          className={itemClass(isActive("/area/petroleo"))}
+        >
+          <Fuel size={20} className={iconClass} />
+          {openSidebar && "Petróleo"}
+          {tooltip("Petróleo")}
         </div>
 
         {/* OPERACIONES */}
-        <div>
-          <button
-            onClick={() => setOpenOperaciones(!openOperaciones)}
-            className={`${groupButtonClass} ${
-              isActive("/operaciones")
-                ? "bg-white/10 text-white"
-                : "text-white/80 hover:bg-white/10"
-            }`}
-          >
-            <span className="flex items-center gap-3">
-              <Settings size={18} />
-              {openSidebar && "Operaciones"}
-            </span>
-
-            {openSidebar &&
-              (openOperaciones ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
-          </button>
-
-          {openSidebar && openOperaciones && (
-            <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-              <button onClick={() => navigate("/operaciones")} className={subItemClass("/operaciones")}>
-                Panel Operaciones
-              </button>
-              <button onClick={() => navigate("/registro")} className={subItemClass("/registro")}>
-                Herramientas
-              </button>
-              <button onClick={() => navigate("/recepcion")} className={subItemClass("/recepcion")}>
-                Recepción
-              </button>
-              <button onClick={() => navigate("/liberacion")} className={subItemClass("/liberacion")}>
-                Liberación
-              </button>
-            </div>
-          )}
+        <div
+          onClick={() => {
+            navigate("/operaciones");
+            if (isMobile) setOpenSidebar(false);
+          }}
+          className={itemClass(isActive("/operaciones"))}
+        >
+          <Settings size={20} className={iconClass} />
+          {openSidebar && "Operaciones"}
+          {tooltip("Operaciones")}
         </div>
 
         {/* REPOSITORIOS */}
-        <button
+        <div
           onClick={() => {
             navigate("/repositorios");
             if (isMobile) setOpenSidebar(false);
           }}
-          className={`${itemClass} ${
-            isActive("/repositorios")
-              ? "bg-white/20 text-white"
-              : "text-white/80 hover:bg-white/10"
-          }`}
+          className={itemClass(isActive("/repositorios"))}
         >
-          <FolderOpen size={18} />
+          <FolderOpen size={20} className={iconClass} />
           {openSidebar && "Repositorios"}
-        </button>
+          {tooltip("Repositorios")}
+        </div>
 
       </div>
 
