@@ -365,37 +365,104 @@ export default function InformePDF() {
           </table>
         </div>
 
-        {/* ════════════════════
-            FIRMAS
-        ════════════════════ */}
-        <div className="no-break">
-          <table style={{ ...S.tbl, marginTop: 14 }}>
-            <thead>
-              <tr>
-                <th style={S.th}>FIRMA TÉCNICO ASTAP</th>
-                <th style={S.th}>FIRMA CLIENTE</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={{ ...S.cell, height: 160, textAlign: "center", verticalAlign: "top", paddingTop: 12 }}>
-                  {data.firmas?.tecnico && (
-                    <img src={data.firmas.tecnico} alt="Firma técnico" style={{ maxHeight: 100, margin: "0 auto", display: "block" }} />
-                  )}
-                  <div style={{ marginTop: 10, fontSize: 12, fontWeight: 700 }}>{data.tecnicoNombre || "—"}</div>
-                </td>
-                <td style={{ ...S.cell, height: 160, textAlign: "center", verticalAlign: "top", paddingTop: 12 }}>
-                  {data.firmas?.cliente && (
-                    <img src={data.firmas.cliente} alt="Firma cliente" style={{ maxHeight: 100, margin: "0 auto", display: "block" }} />
-                  )}
-                  <div style={{ marginTop: 10, fontSize: 12, fontWeight: 700 }}>{data.cliente || "—"}</div>
-                  <div style={{ marginTop: 4, fontSize: 11 }}>Cédula: {data.firmas?.clienteCedula || "—"}</div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+       {/* ════════════════════
+    FIRMAS (CORREGIDO)
+════════════════════ */}
+<div className="no-break">
+  <table style={{ ...S.tbl, marginTop: 14 }}>
+    <thead>
+      <tr>
+        <th style={S.th}>FIRMA TÉCNICO ASTAP</th>
+        <th style={S.th}>FIRMA CLIENTE</th>
+      </tr>
+    </thead>
 
+    <tbody>
+      <tr>
+        {/* ================= TÉCNICO ================= */}
+        <td
+          style={{
+            ...S.cell,
+            height: 160,
+            textAlign: "center",
+            verticalAlign: "top",
+            paddingTop: 12,
+          }}
+        >
+          {data.firmas?.tecnico && (
+            <img
+              src={data.firmas.tecnico}
+              alt="Firma técnico"
+              style={{
+                width: "100%",
+                maxWidth: 240,
+                height: "auto",
+                objectFit: "contain",
+                display: "block",
+                margin: "0 auto",
+              }}
+            />
+          )}
+
+          <div
+            style={{
+              marginTop: 10,
+              fontSize: 12,
+              fontWeight: 700,
+            }}
+          >
+            {data.tecnicoNombre || "—"}
+          </div>
+        </td>
+
+        {/* ================= CLIENTE ================= */}
+        <td
+          style={{
+            ...S.cell,
+            height: 160,
+            textAlign: "center",
+            verticalAlign: "top",
+            paddingTop: 12,
+          }}
+        >
+          {data.firmas?.cliente && (
+            <img
+              src={data.firmas.cliente}
+              alt="Firma cliente"
+              style={{
+                width: "100%",
+                maxWidth: 240,
+                height: "auto",
+                objectFit: "contain",
+                display: "block",
+                margin: "0 auto",
+              }}
+            />
+          )}
+
+          <div
+            style={{
+              marginTop: 10,
+              fontSize: 12,
+              fontWeight: 700,
+            }}
+          >
+            {data.cliente || "—"}
+          </div>
+
+          <div
+            style={{
+              marginTop: 4,
+              fontSize: 11,
+            }}
+          >
+            Cédula: {data.firmas?.clienteCedula || "—"}
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
       </div>
       {/* ── fin #pdf-content ── */}
 
