@@ -323,3 +323,166 @@ button {
 .animate-fadeIn {
   animation: fadeIn 0.2s ease-out;
 }
+/* ========================================= */
+/* 🔥 MEJORAS PRO PDF NIVEL EMPRESA */
+/* ========================================= */
+
+/* 👉 CONTROL REAL DE HOJA A4 */
+.pdf-container {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 12mm;
+  background: white;
+  box-sizing: border-box;
+}
+
+/* 👉 EVITAR DESBORDES LATERALES */
+.pdf-table {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* 👉 IMÁGENES NO ROMPAN EL LAYOUT */
+.pdf-table img {
+  max-width: 100%;
+  height: auto;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* 👉 SECCIONES LIMPIAS */
+.section {
+  margin-top: 12px;
+  page-break-inside: avoid;
+}
+
+/* 👉 TÍTULOS MÁS LIMPIOS */
+.pdf-title {
+  letter-spacing: 0.5px;
+}
+
+/* 👉 EVITAR CORTE DE BLOQUES GRANDES */
+.block-safe {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* 👉 TABLAS MÁS ESTABLES */
+table {
+  border-collapse: collapse;
+}
+
+/* 👉 CELDAS MEJOR AJUSTADAS */
+td {
+  vertical-align: top;
+}
+
+/* ========================================= */
+/* 🔥 CONTROL AVANZADO DE SALTOS */
+/* ========================================= */
+
+/* 👉 NUEVA PÁGINA FORZADA */
+.page-break {
+  page-break-before: always;
+  break-before: page;
+  margin-top: 20px;
+}
+
+/* 👉 EVITAR CORTE DE ELEMENTOS IMPORTANTES */
+.no-break {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* ========================================= */
+/* 🔥 FIX PROFESIONAL DE IMPRESIÓN */
+/* ========================================= */
+
+@media print {
+
+  /* 👉 FORMATO REAL A4 */
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  html, body {
+    width: 210mm;
+    height: auto;
+  }
+
+  /* 👉 SOLO MOSTRAR PDF */
+  body * {
+    visibility: hidden;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm;
+  }
+
+  /* 👉 OCULTAR BOTONES */
+  .no-print {
+    display: none !important;
+  }
+
+  /* 👉 CONTENEDOR LIMPIO */
+  .pdf-container {
+    width: 210mm;
+    padding: 10mm;
+    margin: 0 auto;
+    box-shadow: none !important;
+    background: white !important;
+  }
+
+  /* 👉 EVITAR CORTES FEOS */
+  table,
+  tr,
+  td,
+  img,
+  section,
+  div {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* 👉 CONTROL DE TABLAS GRANDES */
+  table {
+    page-break-after: auto;
+  }
+
+  tr {
+    page-break-after: auto;
+  }
+
+  /* 👉 IMÁGENES NO SE CORTEN */
+  img {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+}
+
+/* ========================================= */
+/* 🔥 MEJORA VISUAL IMPRESIÓN (OPCIONAL PRO) */
+/* ========================================= */
+
+.pdf-table td {
+  line-height: 1.3;
+}
+
+.pdf-label {
+  font-size: 10.5px;
+}
+
+.pdf-container {
+  font-size: 11px;
+}
