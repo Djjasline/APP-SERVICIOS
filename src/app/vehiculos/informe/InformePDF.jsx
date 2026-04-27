@@ -8,6 +8,9 @@ export default function InformePDF() {
 
   const [report, setReport] = useState(null);
 
+  /* ===========================
+     CARGAR INFORME (SOLO SUPABASE)
+  =========================== */
   useEffect(() => {
     const loadReport = async () => {
       try {
@@ -24,19 +27,26 @@ export default function InformePDF() {
           return;
         }
 
-        setReport({
+        const mapped = {
           id: data.id,
           estado: data.estado,
           data: data.data,
-        });
+          createdAt: data.created_at,
+          updatedAt: data.updated_at,
+        };
+
+        setReport(mapped);
       } catch (err) {
-        console.error("Error:", err);
+        console.error("Error cargando informe:", err);
       }
     };
 
     loadReport();
   }, [id]);
 
+  /* ===========================
+     NO ENCONTRADO
+  =========================== */
   if (!report) {
     return (
       <div className="p-6 text-center">
@@ -51,9 +61,12 @@ export default function InformePDF() {
     );
   }
 
-  const { data } = report;
+  /* ===========================
+     VALIDACIÓN ESTADO
+  =========================== */
+  const estadoNormalizado = report?.estado || report?.data?.estado || "";
 
-  if ((report.estado || "").toLowerCase() !== "completado") {
+  if (estadoNormalizado.toLowerCase() !== "completado") {
     return (
       <div className="p-6 text-center">
         <p>Este informe no está completado.</p>
@@ -67,51 +80,34 @@ export default function InformePDF() {
     );
   }
 
+  const { data } = report;
   const estadoEquipoImagenes = data?.estadoEquipo?.imagenes || [];
 
   return (
-    <div>
+    <div className="p-4 md:p-6 bg-gray-100 min-h-screen">
+     <div className="pdf-container print-area max-w-6xl mx-auto bg-white p-4 md:p-6">
 
-      {/* ================= BOTONES ================= */}
-      <div className="no-print flex justify-between mt-6 px-4">
-        <button
-          onClick={() => navigate("/informe")}
-          className="border px-6 py-2 rounded"
-        >
-          Volver
-        </button>
-
-        <button
-          onClick={() => {
-            const nombre = `ASTAP_${data.cliente || "cliente"}_${data.pedidoDemanda || "pedido"}_${data.codInf || "inf"}`
-              .replace(/\s+/g, "_");
-
-            document.title = nombre;
-            window.print();
-          }}
-          className="bg-green-600 text-white px-6 py-2 rounded"
-        >
-          Descargar PDF
-        </button>
-      </div>
-
-      {/* ================= PDF ================= */}
-      <div className="print-area">
-        <div className="pdf-container max-w-6xl mx-auto bg-white p-4 md:p-6">
-
-          {/* HEADER */}
+        {/* ================= ENCABEZADO ================= */}
+        <div className="no-break">
           <table className="pdf-table w-full">
             <tbody>
               <tr>
-                <td rowSpan={5} style={{ width: 140, textAlign: "center" }}>
-                  <img src="/astap-logo.jpg" alt="ASTAP" style={{ maxHeight: 70 }} />
+                <td
+                  rowSpan={4}
+                  style={{ width: 140, textAlign: "center", verticalAlign: "middle" }}
+                >
+                  <img
+                    src="/astap-logo.jpg"
+                    alt="ASTAP"
+                    style={{ maxHeight: 70, margin: "0 auto" }}
+                  />
                 </td>
 
                 <td colSpan={2} className="pdf-title">
                   INFORME GENERAL DE SERVICIOS
                 </td>
 
-                <td style={{ width: 180 }}>
+                <td style={{ width: 180, fontSize: 12 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>
                   <div>Versión: <strong>01</strong></div>
                 </td>
@@ -120,11 +116,6 @@ export default function InformePDF() {
               <tr>
                 <td className="pdf-label">REFERENCIA CONTRATO</td>
                 <td colSpan={2}>{data.referenciaContrato || "—"}</td>
-              </tr>
-
-              <tr>
-                <td className="pdf-label">PEDIDO / DEMANDA</td>
-                <td colSpan={2}>{data.pedidoDemanda || "—"}</td>
               </tr>
 
               <tr>
@@ -138,8 +129,10 @@ export default function InformePDF() {
               </tr>
             </tbody>
           </table>
+        </div>
 
-          {/* CLIENTE */}
+        {/* ================= DATOS CLIENTE ================= */}
+        <div className="no-break">
           <table className="pdf-table w-full mt-4">
             <tbody>
               {[
@@ -160,9 +153,12 @@ export default function InformePDF() {
               ))}
             </tbody>
           </table>
+        </div>
 
-          {/* EQUIPO */}
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        <div className="no-break">
           <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
+
           <table className="pdf-table w-full">
             <tbody>
               {[
@@ -184,88 +180,258 @@ export default function InformePDF() {
               ))}
             </tbody>
           </table>
+        </div>
 
-          {/* ESTADO EQUIPO */}
+        {/* ================= ESTADO DEL EQUIPO ================= */}
+        <div className="no-break">
           <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
 
-          {estadoEquipoImagenes.map((img, i) => (
-            <div key={i} className="mt-4">
-              <img src={img.url} alt="" />
+          {estadoEquipoImagenes.length === 0 ? (
+            <table className="pdf-table w-full">
+              <tbody>
+                <tr>
+                  <td style={{ textAlign: "center", color: "#888", padding: 20 }}>
+                    Sin registros de estado del equipo
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          ) : (
+            <div className="space-y-4">
+              {estadoEquipoImagenes.map((img, imageIndex) => (
+                <div key={img.id || imageIndex} className="no-break border rounded overflow-hidden">
+                  <div className="px-3 py-2 border-b text-sm font-semibold bg-gray-50">
+                    Imagen {imageIndex + 1}
+                  </div>
+
+                  <div className="p-3">
+                    <div
+                      style={{
+                        position: "relative",
+                        width: "100%",
+                        border: "1px solid #d1d5db",
+                        borderRadius: 6,
+                        overflow: "hidden",
+                        background: "#fff",
+                      }}
+                    >
+                      <img
+                        src={img.url}
+                        alt={`estado-equipo-${imageIndex + 1}`}
+                        style={{
+                          width: "100%",
+                          maxHeight: 420,
+                          objectFit: "contain",
+                          display: "block",
+                          background: "#fff",
+                        }}
+                      />
+
+                      {(img.puntos || []).map((p, pointIndex) => (
+                        <div
+                          key={p.id || pointIndex}
+                          style={{
+                            position: "absolute",
+                            left: `${p.x * 100}%`,
+                            top: `${p.y * 100}%`,
+                            transform: "translate(-50%, -50%)",
+                            width: 18,
+                            height: 18,
+                            borderRadius: "50%",
+                            background: "#dc2626",
+                            border: "2px solid white",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
+                          }}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="mt-3">
+                      {(img.puntos || []).length === 0 ? (
+                        <div className="text-sm text-gray-500">
+                          Sin puntos marcados
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {img.puntos.map((p, pointIndex) => (
+                            <div
+                              key={p.id || pointIndex}
+                              style={{
+                                display: "flex",
+                                gap: 8,
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <div style={{ minWidth: 24, fontWeight: 600 }}>
+                                {pointIndex + 1})
+                              </div>
+                              <div style={{ whiteSpace: "pre-wrap" }}>
+                                {p.observacion || "—"}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
+        </div>
 
-          {/* SALTO */}
-          <div className="page-break" />
+        {/* ================= ACTIVIDADES ================= */}
+        <div className="page-break"></div>
 
-          {/* ACTIVIDADES */}
-          <h3 className="pdf-title mt-4">ACTIVIDADES REALIZADAS</h3>
-          <table className="pdf-table w-full">
+        <h3 className="pdf-title mt-4">ACTIVIDADES REALIZADAS</h3>
+        <table className="pdf-table w-full">
+          <thead>
+            <tr>
+              <th style={{ width: 50 }}>ÍTEM</th>
+              <th style={{ width: "35%" }}>DESCRIPCIÓN</th>
+              <th style={{ width: "55%" }}>IMÁGENES</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.actividades?.map((a, i) => (
+              <tr key={i} className="no-break">
+                <td className="text-center" style={{ verticalAlign: "top" }}>
+                  {i + 1}
+                </td>
+
+                <td style={{ verticalAlign: "top" }}>
+                  <strong>{a.titulo || "—"}</strong>
+                  <div style={{ whiteSpace: "pre-wrap", marginTop: 6 }}>
+                    {a.detalle || "—"}
+                  </div>
+                </td>
+
+                <td style={{ verticalAlign: "top" }}>
+                  {a.imagenes?.length > 0 ? (
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                        gap: 10,
+                      }}
+                    >
+                      {a.imagenes.map((img, imgIndex) => (
+                        <img
+                          key={imgIndex}
+                          src={img}
+                          alt={`actividad-${imgIndex}`}
+                          style={{
+                            width: "100%",
+                            aspectRatio: "4 / 3",
+                            objectFit: "cover",
+                            border: "1px solid #ccc",
+                            borderRadius: 6,
+                            display: "block",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ color: "#888", textAlign: "center" }}>—</div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
+        <div className="no-break">
+          <table className="pdf-table w-full mt-4">
+            <thead>
+              <tr>
+                <th colSpan={2}>CONCLUSIONES</th>
+                <th colSpan={2}>RECOMENDACIONES</th>
+              </tr>
+            </thead>
             <tbody>
-              {data.actividades?.map((a, i) => (
+              {data.conclusiones?.map((c, i) => (
                 <tr key={i}>
-                  <td>{i + 1}</td>
-                  <td>{a.titulo}</td>
-                  <td>{a.detalle}</td>
+                  <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
+                  <td style={{ whiteSpace: "pre-wrap" }}>{c || "—"}</td>
+                  <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
+                  <td style={{ whiteSpace: "pre-wrap" }}>
+                    {data.recomendaciones?.[i] || "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
 
-{/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
-<div className="no-break">
-  <table className="pdf-table w-full mt-4">
-    <thead>
-      <tr>
-        <th colSpan={2}>CONCLUSIONES</th>
-        <th colSpan={2}>RECOMENDACIONES</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {(data.conclusiones || []).map((c, i) => (
-        <tr key={i}>
-          {/* NUMERO CONCLUSIÓN */}
-          <td style={{ width: 30, textAlign: "center" }}>
-            {i + 1}
-          </td>
-
-          {/* TEXTO CONCLUSIÓN */}
-          <td style={{ whiteSpace: "pre-wrap" }}>
-            {c || "—"}
-          </td>
-
-          {/* NUMERO RECOMENDACIÓN */}
-          <td style={{ width: 30, textAlign: "center" }}>
-            {i + 1}
-          </td>
-
-          {/* TEXTO RECOMENDACIÓN */}
-          <td style={{ whiteSpace: "pre-wrap" }}>
-            {data.recomendaciones?.[i] || "—"}
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-          
-          {/* FIRMAS */}
+        {/* ================= FIRMAS ================= */}
+        <div className="no-break">
           <table className="pdf-table w-full mt-4">
+            <thead>
+              <tr>
+                <th>FIRMA TÉCNICO ASTAP</th>
+                <th>FIRMA CLIENTE</th>
+              </tr>
+            </thead>
             <tbody>
               <tr>
-                <td>
-                  {data.firmas?.tecnico && <img src={data.firmas.tecnico} />}
-                  <div>{data.tecnicoNombre}</div>
+                <td style={{ height: 180, textAlign: "center", verticalAlign: "top" }}>
+                  {data.firmas?.tecnico && (
+                    <img
+                      src={data.firmas.tecnico}
+                      alt="firma tecnico"
+                      style={{ maxHeight: 120, margin: "0 auto" }}
+                    />
+                  )}
+
+                  <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>
+                    {data.tecnicoNombre || "—"}
+                  </div>
                 </td>
-                <td>
-                  {data.firmas?.cliente && <img src={data.firmas.cliente} />}
-                  <div>{data.cliente}</div>
+
+                <td style={{ height: 180, textAlign: "center", verticalAlign: "top" }}>
+                  {data.firmas?.cliente && (
+                    <img
+                      src={data.firmas.cliente}
+                      alt="firma cliente"
+                      style={{ maxHeight: 120, margin: "0 auto" }}
+                    />
+                  )}
+
+                  <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>
+                    {data.cliente || "—"}
+                  </div>
+
+                  <div style={{ marginTop: 4, fontSize: 12 }}>
+                    Cédula: {data.firmas?.clienteCedula || "—"}
+                  </div>
                 </td>
               </tr>
             </tbody>
           </table>
-
         </div>
+
+        {/* ================= BOTONES ================= */}
+        <div className="no-print flex justify-between mt-6">
+          <button
+            onClick={() => navigate("/informe")}
+            className="border px-6 py-2 rounded"
+          >
+            Volver
+          </button>
+
+         <button
+  onClick={() => {
+  const nombre = `ASTAP_${(data.codInf || "").replace(/\s/g, "")}_${(data.cliente || "").replace(/\s/g, "_")}`;
+  document.title = nombre;
+  window.print();
+}}
+  className="bg-green-600 text-white px-6 py-2 rounded"
+>
+  Descargar PDF
+</button>
+        </div>
+
       </div>
     </div>
   );
