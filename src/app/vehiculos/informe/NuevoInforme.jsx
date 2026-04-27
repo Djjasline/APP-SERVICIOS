@@ -80,6 +80,18 @@ export default function NuevoInforme() {
   const [data, setData] = useState(emptyReport);
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
+  const resizeCanvas = (canvas) => {
+  if (!canvas) return;
+
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+  const rect = canvas.getBoundingClientRect();
+
+  canvas.width = rect.width * ratio;
+  canvas.height = rect.height * ratio;
+
+  canvas.getContext("2d").scale(ratio, ratio);
+};
 
   /* ===========================
      AUTO RESIZE TEXTAREA
@@ -114,6 +126,13 @@ export default function NuevoInforme() {
       document.body.style.overflow = "";
     };
   }, []);
+  useEffect(() => {
+  const canvasTecnico = sigTecnico.current?.getCanvas();
+  const canvasCliente = sigCliente.current?.getCanvas();
+
+  if (canvasTecnico) resizeCanvas(canvasTecnico);
+  if (canvasCliente) resizeCanvas(canvasCliente);
+}, []);
 
   /* ===========================
      CARGAR INFORME EXISTENTE
@@ -1092,7 +1111,16 @@ if (error) {
               <td className="align-top" style={{ height: 240 }}>
                 <div className="border rounded bg-white h-[150px] flex items-center justify-center">
                   <SignatureCanvas
-                    ref={sigTecnico}
+  ref={sigTecnico}
+  penColor="black"
+  minWidth={0.5}
+  maxWidth={1.5}
+  throttle={0}
+  velocityFilterWeight={0.7}
+  canvasProps={{
+    className: "w-full h-full touch-none",
+  }}
+/>
                     onBegin={() => {
                       document.activeElement?.blur();
                       document.body.style.overflow = "hidden";
@@ -1130,7 +1158,16 @@ if (error) {
               <td className="align-top" style={{ height: 240 }}>
                 <div className="border rounded bg-white h-[150px] flex items-center justify-center">
                   <SignatureCanvas
-                    ref={sigCliente}
+  ref={sigCliente}
+  penColor="black"
+  minWidth={0.5}
+  maxWidth={1.5}
+  throttle={0}
+  velocityFilterWeight={0.7}
+  canvasProps={{
+    className: "w-full h-full touch-none",
+  }}
+/>
                     onBegin={() => {
                       document.activeElement?.blur();
                       document.body.style.overflow = "hidden";
