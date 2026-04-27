@@ -5,7 +5,7 @@ export default function ReportHeader({ data, onChange }) {
         <tr>
           {/* LOGO */}
           <td
-            rowSpan={4}
+            rowSpan={5}
             style={{
               width: 120,
               verticalAlign: "middle",
@@ -44,15 +44,30 @@ export default function ReportHeader({ data, onChange }) {
           </td>
         </tr>
 
-        {/* PEDIDO / DEMANDA */}
+        {/* REFERENCIA CONTRATO */}
         <tr>
-          <td className="pdf-label">PEDIDO / DEMANDA</td>
+          <td className="pdf-label">REFERENCIA CONTRATO</td>
           <td colSpan={2}>
             <input
               className="pdf-input w-full"
               value={data.referenciaContrato || ""}
               onChange={(e) =>
                 onChange(["referenciaContrato"], e.target.value)
+              }
+              placeholder="Ej: Mantenimiento anual hidros"
+            />
+          </td>
+        </tr>
+
+        {/* PEDIDO / DEMANDA */}
+        <tr>
+          <td className="pdf-label">PEDIDO / DEMANDA</td>
+          <td colSpan={2}>
+            <input
+              className="pdf-input w-full"
+              value={data.pedidoDemanda || ""}
+              onChange={(e) =>
+                onChange(["pedidoDemanda"], e.target.value)
               }
               placeholder="Ej: P-23-046 o D-23-046"
             />
