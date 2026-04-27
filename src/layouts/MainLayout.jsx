@@ -83,11 +83,17 @@ export default function MainLayout() {
 
       {/* ================= CONTENIDO ================= */}
       <div
-        className={`
-          flex-1 flex flex-col transition-all duration-300
-          ${!isMobile && openSidebar ? "ml-64" : "ml-0"}
-        `}
-      >
+  className={`
+    flex-1 flex flex-col transition-all duration-300
+    ${
+      isMobile
+        ? "ml-0"
+        : openSidebar
+        ? "ml-64"
+        : "ml-20"
+    }
+  `}
+>
 
         {/* ================= HEADER ================= */}
         <header className="h-16 flex items-center justify-between px-6 backdrop-blur-xl bg-white/5 border-b border-white/10 relative z-50 text-white">
