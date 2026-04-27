@@ -8,7 +8,7 @@ export default function InformePDF() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 FETCH REAL DESDE SUPABASE
+  // 🔥 FETCH DESDE SUPABASE
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -30,9 +30,7 @@ export default function InformePDF() {
       }
     };
 
-    if (id) {
-      fetchData();
-    }
+    if (id) fetchData();
   }, [id]);
 
   // 🔄 LOADING
@@ -44,7 +42,7 @@ export default function InformePDF() {
     );
   }
 
-  // ❌ ERROR DATA
+  // ❌ ERROR
   if (!data) {
     return (
       <div className="flex items-center justify-center h-screen text-red-400">
@@ -56,105 +54,94 @@ export default function InformePDF() {
   return (
     <div className="pdf-container p-4 bg-white text-black">
 
-      {/* HEADER */}
+      {/* ================= HEADER ================= */}
       <table className="pdf-table w-full border border-gray-400">
         <tbody>
 
           <tr>
-            {/* LOGO */}
-            <td
-              rowSpan={5}
-              style={{
-                width: 120,
-                textAlign: "center",
-                verticalAlign: "middle",
-                border: "1px solid #999",
-              }}
-            >
-              <img
-                src="/astap-logo.jpg"
-                alt="ASTAP"
-                style={{ maxHeight: 80, margin: "0 auto" }}
-              />
+            <td rowSpan={5} style={{ width: 120, textAlign: "center" }}>
+              <img src="/astap-logo.jpg" alt="ASTAP" style={{ maxHeight: 80 }} />
             </td>
 
-            {/* TITULO */}
-            <td
-              colSpan={2}
-              style={{
-                textAlign: "center",
-                fontWeight: "bold",
-                fontSize: "14px",
-                border: "1px solid #999",
-              }}
-            >
+            <td colSpan={2} style={{ textAlign: "center", fontWeight: "bold" }}>
               INFORME GENERAL DE SERVICIOS
             </td>
 
-            {/* VERSION */}
-            <td
-              style={{
-                width: 160,
-                fontSize: 10,
-                border: "1px solid #999",
-              }}
-            >
+            <td style={{ width: 160, fontSize: 10 }}>
               <div>Fecha de versión: 01-01-26</div>
               <div>Versión: 01</div>
             </td>
           </tr>
 
-          {/* REFERENCIA */}
           <tr>
-            <td className="pdf-label border border-gray-400">
-              REFERENCIA CONTRATO
-            </td>
-            <td colSpan={2} className="border border-gray-400">
-              {data?.referenciaContrato || "—"}
-            </td>
+            <td>REFERENCIA CONTRATO</td>
+            <td colSpan={2}>{data?.referenciaContrato || "—"}</td>
           </tr>
 
-          {/* PEDIDO */}
           <tr>
-            <td className="pdf-label border border-gray-400">
-              PEDIDO / DEMANDA
-            </td>
-            <td colSpan={2} className="border border-gray-400">
-              {data?.pedidoDemanda || "—"}
-            </td>
+            <td>PEDIDO / DEMANDA</td>
+            <td colSpan={2}>{data?.pedidoDemanda || "—"}</td>
           </tr>
 
-          {/* DESCRIPCION */}
           <tr>
-            <td className="pdf-label border border-gray-400">
-              DESCRIPCIÓN
-            </td>
-            <td colSpan={2} className="border border-gray-400">
-              {data?.descripcion || "—"}
-            </td>
+            <td>DESCRIPCIÓN</td>
+            <td colSpan={2}>{data?.descripcion || "—"}</td>
           </tr>
 
-          {/* CODIGO */}
           <tr>
-            <td className="pdf-label border border-gray-400">
-              COD. INF.
-            </td>
-            <td colSpan={2} className="border border-gray-400">
-              {data?.codInf || "—"}
-            </td>
+            <td>COD. INF.</td>
+            <td colSpan={2}>{data?.codInf || "—"}</td>
           </tr>
 
         </tbody>
       </table>
 
-      {/* ESPACIO PARA CONTENIDO FUTURO */}
-      <div className="mt-6 text-sm">
-        {/* Aquí luego puedes agregar:
-            - actividades
-            - imágenes
-            - firmas
-        */}
-      </div>
+      {/* ================= CONTENIDO ================= */}
+
+      {/* 🔥 AQUÍ VUELVES A PEGAR TU CONTENIDO ORIGINAL */}
+
+      {/* EJEMPLO ACTIVIDADES */}
+      {data?.actividades && (
+        <div className="mt-6">
+          <h3 className="font-bold">ACTIVIDADES</h3>
+          <table className="w-full border mt-2">
+            <tbody>
+              {data.actividades.map((item, i) => (
+                <tr key={i}>
+                  <td className="border p-2">{item}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* EJEMPLO OBSERVACIONES */}
+      {data?.observaciones && (
+        <div className="mt-6">
+          <h3 className="font-bold">OBSERVACIONES</h3>
+          <p>{data.observaciones}</p>
+        </div>
+      )}
+
+      {/* EJEMPLO FIRMAS */}
+      {data?.firmas && (
+        <div className="mt-6 flex justify-between">
+          <div>
+            <p>Firma Técnico</p>
+            {data?.firmas?.tecnico && (
+              <img src={data.firmas.tecnico} alt="firma tecnico" />
+            )}
+          </div>
+
+          <div>
+            <p>Firma Cliente</p>
+            {data?.firmas?.cliente && (
+              <img src={data.firmas.cliente} alt="firma cliente" />
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   );
