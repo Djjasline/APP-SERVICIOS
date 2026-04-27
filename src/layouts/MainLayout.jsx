@@ -90,7 +90,7 @@ export default function MainLayout() {
         ? "ml-0"
         : openSidebar
         ? "ml-64"
-        : "ml-20"
+        : "ml-0"
     }
   `}
 >
