@@ -1,4 +1,14 @@
 export default function InformePDF({ data }) {
+
+  // 🔥 PROTECCIÓN: evita error cuando data aún no carga
+  if (!data) {
+    return (
+      <div className="p-6 text-white">
+        Cargando informe...
+      </div>
+    );
+  }
+
   return (
     <div className="pdf-container">
 
@@ -45,15 +55,15 @@ export default function InformePDF({ data }) {
           <tr>
             <td className="pdf-label">REFERENCIA CONTRATO</td>
             <td colSpan={2}>
-              {data.referenciaContrato || "—"}
+              {data?.referenciaContrato || "—"}
             </td>
           </tr>
 
-          {/* 🔥 NUEVO: PEDIDO / DEMANDA */}
+          {/* PEDIDO / DEMANDA */}
           <tr>
             <td className="pdf-label">PEDIDO / DEMANDA</td>
             <td colSpan={2}>
-              {data.pedidoDemanda || "—"}
+              {data?.pedidoDemanda || "—"}
             </td>
           </tr>
 
@@ -61,7 +71,7 @@ export default function InformePDF({ data }) {
           <tr>
             <td className="pdf-label">DESCRIPCIÓN</td>
             <td colSpan={2}>
-              {data.descripcion || "—"}
+              {data?.descripcion || "—"}
             </td>
           </tr>
 
@@ -69,13 +79,14 @@ export default function InformePDF({ data }) {
           <tr>
             <td className="pdf-label">COD. INF.</td>
             <td colSpan={2}>
-              {data.codInf || "—"}
+              {data?.codInf || "—"}
             </td>
           </tr>
         </tbody>
       </table>
 
-      {/* ... resto del PDF (no tocar) */}
+      {/* 🔥 AQUÍ SIGUE TODO TU PDF SIN CAMBIOS */}
+      {/* actividades, imágenes, firmas, etc */}
 
     </div>
   );
