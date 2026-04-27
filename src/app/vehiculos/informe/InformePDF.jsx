@@ -117,7 +117,10 @@ export default function InformePDF() {
                 <td className="pdf-label">REFERENCIA CONTRATO</td>
                 <td colSpan={2}>{data.referenciaContrato || "—"}</td>
               </tr>
-
+<tr>
+  <td className="pdf-label">PEDIDO / DEMANDA</td>
+  <td colSpan={2}>{data.pedidoDemanda || "—"}</td>
+</tr>
               <tr>
                 <td className="pdf-label">DESCRIPCIÓN</td>
                 <td colSpan={2}>{data.descripcion || "—"}</td>
