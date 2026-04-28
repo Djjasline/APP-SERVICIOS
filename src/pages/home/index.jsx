@@ -1,9 +1,11 @@
 // APP-SERVICIOS/src/pages/home/index.jsx
 
 import { useNavigate } from "react-router-dom";
+import { useReports } from "@/context/ReportContext";
 
 export default function Home() {
   const navigate = useNavigate();
+  const { startNewReport } = useReports();
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6">
@@ -16,12 +18,10 @@ export default function Home() {
         {/* NUEVO INFORME */}
         <button
           onClick={() => {
-            // 🔥 CLAVE: limpiar informe actual
-            localStorage.removeItem("currentReport");
-
+            startNewReport(); // 🔥 reemplaza localStorage
             navigate("/service-report-creation");
           }}
-          className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded text-lg font-semibold"
+          className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded text-lg font-semibold transition"
         >
           Nuevo Informe
         </button>
@@ -29,7 +29,7 @@ export default function Home() {
         {/* HISTORIAL */}
         <button
           onClick={() => navigate("/service-report-history")}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded text-lg font-semibold"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded text-lg font-semibold transition"
         >
           Historial de Informes
         </button>
