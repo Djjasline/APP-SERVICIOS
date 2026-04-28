@@ -207,13 +207,14 @@ export default function InformeHome() {
 
   {/* 🔥 FIX PEDIDO */}
   <p className="text-xs text-gray-600">
-    Pedido:{" "}
-    <strong>
-      {r.data?.referenciaContrato ||
-        r.data?.codInf ||
-        "—"}
-    </strong>
-  </p>
+  Pedido:{" "}
+  <strong>
+    {r.data?.pedidoDemanda ||
+      r.data?.referenciaContrato ||
+      r.data?.codInf ||
+      "—"}
+  </strong>
+</p>
 
   <p className="text-xs text-gray-500">
     {new Date(
