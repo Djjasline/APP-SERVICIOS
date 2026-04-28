@@ -1,25 +1,41 @@
-// APP-SERVICIOS/src/pages/service-report-preview/index.jsx
-
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { supabase } from "@/lib/supabase";
 import ReportHeader from "@/components/report/ReportHeader";
 
 export default function ServiceReportPreview() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const pdfRef = useRef(null);
+
   const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  /* ================= LOAD ================= */
   useEffect(() => {
-    const current = JSON.parse(localStorage.getItem("currentReport"));
-    if (!current) {
-      navigate("/");
-      return;
-    }
-    setReport(current);
-  }, [navigate]);
+    const loadReport = async () => {
+      const { data, error } = await supabase
+        .from("registros")
+        .select("*")
+        .eq("id", id)
+        .single();
 
+      if (error || !data) {
+        console.error("Error cargando preview:", error);
+        navigate("/service-report-history");
+        return;
+      }
+
+      setReport(data);
+      setLoading(false);
+    };
+
+    if (id) loadReport();
+  }, [id, navigate]);
+
+  /* ================= PDF ================= */
   const generatePDF = async () => {
     const element = pdfRef.current;
     if (!element) return;
@@ -37,12 +53,28 @@ export default function ServiceReportPreview() {
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save("Reporte_Tecnico_Servicio.pdf");
+
+    /* 🔥 NOMBRE PRO */
+    const cliente = report.data?.cliente || "CLIENTE";
+    const pedido = report.data?.pedidoDemanda || "PEDIDO";
+    const codigo = report.data?.codInf || "COD";
+
+    const fileName = `${cliente}_${pedido}_${codigo}_ASTAP.pdf`;
+
+    pdf.save(fileName);
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 text-center text-gray-500">
+        Cargando informe...
+      </div>
+    );
+  }
 
   if (!report) return null;
 
-  const d = report.data;
+  const d = report.data || {};
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -59,20 +91,17 @@ export default function ServiceReportPreview() {
 
           <button
             onClick={generatePDF}
-            className="bg-green-600 text-white px-6 py-2 rounded"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded"
           >
             Descargar PDF
           </button>
         </div>
 
-        {/* ================= PREVIEW PDF ================= */}
-        <div
-          ref={pdfRef}
-          className="bg-white p-6 shadow space-y-6"
-        >
+        {/* ================= PREVIEW ================= */}
+        <div ref={pdfRef} className="bg-white p-6 shadow space-y-6">
           <ReportHeader data={d} />
 
-          {/* DATOS CLIENTE */}
+          {/* CLIENTE */}
           <table className="pdf-table">
             <tbody>
               {[
@@ -81,10 +110,10 @@ export default function ServiceReportPreview() {
                 ["CONTACTO", d.contacto],
                 ["TELÉFONO", d.telefono],
                 ["CORREO", d.correo],
-                ["TÉCNICO RESPONSABLE", d.tecnicoNombre],
+                ["TÉCNICO", d.tecnicoNombre],
                 ["TELÉFONO TÉCNICO", d.tecnicoTelefono],
                 ["CORREO TÉCNICO", d.tecnicoCorreo],
-                ["FECHA DE SERVICIO", d.fechaServicio],
+                ["FECHA", d.fechaServicio],
               ].map(([label, value]) => (
                 <tr key={label}>
                   <td className="pdf-label">{label}</td>
@@ -98,13 +127,13 @@ export default function ServiceReportPreview() {
           <table className="pdf-table">
             <thead>
               <tr>
-                <th>ARTÍCULO</th>
-                <th>DESCRIPCIÓN DE ACTIVIDADES</th>
+                <th>#</th>
+                <th>ACTIVIDAD</th>
                 <th>IMAGEN</th>
               </tr>
             </thead>
             <tbody>
-              {d.actividades.map((a, i) => (
+              {(d.actividades || []).map((a, i) => (
                 <tr key={i}>
                   <td>{i + 1}</td>
                   <td>
@@ -114,7 +143,7 @@ export default function ServiceReportPreview() {
                   <td>
                     {a.imagen && (
                       <img
-                        src={URL.createObjectURL(a.imagen)}
+                        src={a.imagen} // 🔥 ya no createObjectURL
                         alt="actividad"
                         style={{ maxWidth: 120 }}
                       />
@@ -134,10 +163,10 @@ export default function ServiceReportPreview() {
               </tr>
             </thead>
             <tbody>
-              {d.conclusiones.map((c, i) => (
+              {(d.conclusiones || []).map((c, i) => (
                 <tr key={i}>
                   <td>{c}</td>
-                  <td>{d.recomendaciones[i]}</td>
+                  <td>{d.recomendaciones?.[i]}</td>
                 </tr>
               ))}
             </tbody>
@@ -147,11 +176,11 @@ export default function ServiceReportPreview() {
           <table className="pdf-table">
             <thead>
               <tr>
-                <th colSpan="2">DESCRIPCIÓN DEL EQUIPO</th>
+                <th colSpan="2">EQUIPO</th>
               </tr>
             </thead>
             <tbody>
-              {Object.entries(d.equipo).map(([k, v]) => (
+              {Object.entries(d.equipo || {}).map(([k, v]) => (
                 <tr key={k}>
                   <td className="pdf-label">{k.toUpperCase()}</td>
                   <td>{v}</td>
@@ -160,21 +189,6 @@ export default function ServiceReportPreview() {
             </tbody>
           </table>
 
-          {/* FIRMAS */}
-          <table className="pdf-table">
-            <thead>
-              <tr>
-                <th>FIRMA TÉCNICO</th>
-                <th>FIRMA CLIENTE</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={{ height: 150 }} />
-                <td style={{ height: 150 }} />
-              </tr>
-            </tbody>
-          </table>
         </div>
       </div>
     </div>
