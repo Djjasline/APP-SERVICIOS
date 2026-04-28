@@ -206,16 +206,12 @@ export default function InformeHome() {
   </p>
 
   {/* 🔥 FIX PEDIDO */}
-  <p className="text-xs text-gray-600">
+ <p className="text-xs text-gray-600">
   Pedido:{" "}
   <strong>
-    {r.data?.pedidoDemanda ||
-      r.data?.referenciaContrato ||
-      r.data?.codInf ||
-      "—"}
+    {r.data?.pedidoDemanda || "—"}
   </strong>
 </p>
-
   <p className="text-xs text-gray-500">
     {new Date(
       r.updated_at || r.created_at
