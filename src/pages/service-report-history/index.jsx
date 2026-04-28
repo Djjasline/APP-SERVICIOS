@@ -2,44 +2,64 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 
 export default function ServiceReportHistory() {
   const navigate = useNavigate();
   const [reports, setReports] = useState([]);
 
   /* ===========================
-     CARGAR HISTORIAL
+     CARGAR HISTORIAL (SUPABASE)
   =========================== */
+  const loadReports = async () => {
+    const { data, error } = await supabase
+      .from("registros")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error cargando historial:", error);
+      return;
+    }
+
+    setReports(data || []);
+  };
+
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
-    setReports(stored);
+    loadReports();
   }, []);
 
   /* ===========================
      BORRAR INFORME
   =========================== */
-  const deleteReport = (id) => {
+  const deleteReport = async (id) => {
     if (!window.confirm("¿Deseas eliminar este informe?")) return;
 
-    const updated = reports.filter((r) => r.id !== id);
-    localStorage.setItem("serviceReports", JSON.stringify(updated));
-    setReports(updated);
+    const { error } = await supabase
+      .from("registros")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error eliminando:", error);
+      return;
+    }
+
+    loadReports();
   };
 
   /* ===========================
      CONTINUAR INFORME
   =========================== */
   const continueReport = (report) => {
-    localStorage.setItem("currentReport", JSON.stringify(report));
-    navigate("/service-report-creation");
+    navigate(`/service-report-creation/${report.id}`);
   };
 
   /* ===========================
      DESCARGAR PDF
   =========================== */
   const downloadPDF = (report) => {
-    localStorage.setItem("currentReport", JSON.stringify(report));
-    navigate("/service-report-preview");
+    navigate(`/service-report-preview/${report.id}`);
   };
 
   return (
@@ -68,34 +88,37 @@ export default function ServiceReportHistory() {
               {reports.map((r) => (
                 <tr key={r.id}>
                   <td className="border p-2">
-                    {new Date(r.createdAt).toLocaleDateString()}
+                    {new Date(r.created_at).toLocaleDateString()}
                   </td>
+
                   <td className="border p-2">
                     {r.data?.cliente || "-"}
                   </td>
+
                   <td className="border p-2">
                     {r.data?.tecnicoNombre || "-"}
                   </td>
+
                   <td className="border p-2 text-center">
                     <div className="flex gap-2 justify-center flex-wrap">
 
                       <button
                         onClick={() => continueReport(r)}
-                        className="bg-blue-600 text-white px-3 py-1 rounded"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
                       >
                         Continuar
                       </button>
 
                       <button
                         onClick={() => downloadPDF(r)}
-                        className="bg-green-600 text-white px-3 py-1 rounded"
+                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
                       >
                         PDF
                       </button>
 
                       <button
                         onClick={() => deleteReport(r.id)}
-                        className="bg-red-600 text-white px-3 py-1 rounded"
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
                       >
                         Borrar
                       </button>
