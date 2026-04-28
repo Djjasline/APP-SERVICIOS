@@ -219,7 +219,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
         {openSidebar ? (
           <>
             <p className="font-semibold text-white/80">ASTAP</p>
-            <p>© 2026 • Santiago Avilés</p>
+            <p>© 2026 • By Santiago Avilés</p>
           </>
         ) : "©"}
       </div>
