@@ -200,40 +200,56 @@ export default function InformeHome() {
             key={r.id}
             className="bg-gray-50 border rounded-xl p-4 flex justify-between items-center"
           >
-            <div>
+           <div className="space-y-1">
+  {/* CLIENTE */}
   <p className="font-semibold text-gray-900">
     {r.data?.cliente || "Sin cliente"}
   </p>
 
-  {/* PEDIDO */}
-  <p className="text-xs text-gray-600">
-    Pedido:{" "}
-    <strong>
-      {r.data?.pedidoDemanda || "—"}
-    </strong>
-  </p>
+  {/* PEDIDO + INFORME */}
+  <div className="flex flex-wrap gap-3 text-xs text-gray-600">
+    <span>
+      Pedido:{" "}
+      <strong className="text-gray-800">
+        {r.data?.pedidoDemanda || "—"}
+      </strong>
+    </span>
 
-  {/* 🔥 DESCRIPCIÓN (AQUÍ ESTÁ EL FIX REAL) */}
-  <p className="text-xs text-gray-500">
+    <span>
+      Informe:{" "}
+      <strong className="text-gray-800">
+        {r.data?.codInf || "—"}
+      </strong>
+    </span>
+  </div>
+
+  {/* DESCRIPCIÓN */}
+  <p className="text-xs text-gray-500 italic">
     {r.data?.referenciaContrato || "Sin descripción"}
   </p>
 
-  {/* FECHA */}
-  <p className="text-xs text-gray-500">
-    {new Date(
-      r.updated_at || r.created_at
-    ).toLocaleString()}
-  </p>
+  {/* FOOTER INFO */}
+  <div className="flex flex-wrap justify-between items-center text-xs pt-1">
+    {/* FECHA */}
+    <span className="text-gray-500">
+      {new Date(
+        r.updated_at || r.created_at
+      ).toLocaleString()}
+    </span>
 
-  {/* ESTADO */}
-  <p className="text-xs text-gray-600">
-    Estado:{" "}
-    <strong className="text-gray-900">
+    {/* ESTADO BADGE */}
+    <span
+      className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+        r.estado === "completado"
+          ? "bg-green-100 text-green-700"
+          : "bg-gray-200 text-gray-700"
+      }`}
+    >
       {r.estado === "completado"
         ? "Completado"
         : "Borrador"}
-    </strong>
-  </p>
+    </span>
+  </div>
 </div>
             <div className="flex gap-3 text-sm">
               <button
