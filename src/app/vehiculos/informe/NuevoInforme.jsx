@@ -132,24 +132,32 @@ export default function NuevoInforme() {
   };
 }, []);
 
-// 🔥 AJUSTE DE PRECISIÓN DE FIRMA
 useEffect(() => {
-  setTimeout(() => {
+  const resize = () => {
     const canvasTecnico = sigTecnico.current?.getCanvas();
     const canvasCliente = sigCliente.current?.getCanvas();
 
     if (canvasTecnico) resizeCanvas(canvasTecnico);
     if (canvasCliente) resizeCanvas(canvasCliente);
-  }, 100);
-}, []);
-  useEffect(() => {
-  const canvasTecnico = sigTecnico.current?.getCanvas();
-  const canvasCliente = sigCliente.current?.getCanvas();
+  };
 
-  if (canvasTecnico) resizeCanvas(canvasTecnico);
-  if (canvasCliente) resizeCanvas(canvasCliente);
-}, []);
+  resize();
 
+  const observer = new ResizeObserver(() => resize());
+
+  const containerTecnico = sigTecnico.current?.getCanvas()?.parentElement;
+  const containerCliente = sigCliente.current?.getCanvas()?.parentElement;
+
+  if (containerTecnico) observer.observe(containerTecnico);
+  if (containerCliente) observer.observe(containerCliente);
+
+  window.addEventListener("resize", resize);
+
+  return () => {
+    observer.disconnect();
+    window.removeEventListener("resize", resize);
+  };
+}, []);
   /* ===========================
      CARGAR INFORME EXISTENTE
   =========================== */
@@ -992,7 +1000,7 @@ if (error) {
                         <img
                           src={img}
                           alt="actividad"
-                          className="w-full aspect-[4/3] object-cover bg-gray-100 border rounded"
+                          className="w-full h-48 object-contain bg-gray-100 border rounded"
                         />
 
                         <button
