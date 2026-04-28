@@ -205,19 +205,27 @@ export default function InformeHome() {
     {r.data?.cliente || "Sin cliente"}
   </p>
 
-  {/* 🔥 FIX PEDIDO */}
- <p className="text-xs text-gray-600">
-  Pedido:{" "}
-  <strong>
-    {r.data?.pedidoDemanda || "—"}
-  </strong>
-</p>
+  {/* PEDIDO */}
+  <p className="text-xs text-gray-600">
+    Pedido:{" "}
+    <strong>
+      {r.data?.pedidoDemanda || "—"}
+    </strong>
+  </p>
+
+  {/* 🔥 DESCRIPCIÓN (AQUÍ ESTÁ EL FIX REAL) */}
+  <p className="text-xs text-gray-500">
+    {r.data?.referenciaContrato || "Sin descripción"}
+  </p>
+
+  {/* FECHA */}
   <p className="text-xs text-gray-500">
     {new Date(
       r.updated_at || r.created_at
     ).toLocaleString()}
   </p>
 
+  {/* ESTADO */}
   <p className="text-xs text-gray-600">
     Estado:{" "}
     <strong className="text-gray-900">
