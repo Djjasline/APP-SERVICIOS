@@ -19,6 +19,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const [openOperaciones, setOpenOperaciones] = useState(true);
   const [openAgua, setOpenAgua] = useState(false);
   const [openPetroleo, setOpenPetroleo] = useState(false);
+  const [openRepositorios, setOpenRepositorios] = useState(false);
 
   /* ================= ACTIVE ================= */
   const isActive = (path) => {
@@ -166,63 +167,195 @@ overflow-hidden
         </div>
 
         {/* AGUA */}
-        <div
-          onClick={() => {
-            navigate("/area/agua");
-            if (isMobile) setOpenSidebar(false);
-          }}
-          className={itemClass(isActive("/area/agua"))}
-        >
-          <Droplet size={20} className={iconClass} />
-          {openSidebar && "Agua"}
-          {tooltip("Agua")}
-        </div>
+        <div>
+  <div
+    onClick={() => setOpenAgua(!openAgua)}
+    className={itemClass(isActive("/area/agua"))}
+  >
+    <Droplet size={20} className={iconClass} />
+    {openSidebar && "Agua"}
+
+    {openSidebar &&
+      (openAgua ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
+
+    {tooltip("Agua")}
+  </div>
+
+  {openSidebar && openAgua && (
+    <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
+      <button
+        onClick={() => navigate("/area/agua")}
+        className={subItemClass("/area/agua")}
+      >
+        Panel Agua
+      </button>
+
+      <button
+        onClick={() => navigate("/agua/informe")}
+        className={subItemClass("/agua/informe")}
+      >
+        Informes
+      </button>
+
+      <button
+        onClick={() => navigate("/agua/inspeccion")}
+        className={subItemClass("/agua/inspeccion")}
+      >
+        Inspección
+      </button>
+    </div>
+  )}
+</div>
 
         {/* PETRÓLEO */}
-        <div
-          onClick={() => {
-            navigate("/area/petroleo");
-            if (isMobile) setOpenSidebar(false);
-          }}
-          className={itemClass(isActive("/area/petroleo"))}
-        >
-          <Fuel size={20} className={iconClass} />
-          {openSidebar && "Petróleo"}
-          {tooltip("Petróleo")}
-        </div>
+       <div>
+  <div
+    onClick={() => setOpenPetroleo(!openPetroleo)}
+    className={itemClass(isActive("/area/petroleo"))}
+  >
+    <Fuel size={20} className={iconClass} />
+    {openSidebar && "Petróleo"}
+
+    {openSidebar &&
+      (openPetroleo ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
+
+    {tooltip("Petróleo")}
+  </div>
+
+  {openSidebar && openPetroleo && (
+    <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
+      <button
+        onClick={() => navigate("/area/petroleo")}
+        className={subItemClass("/area/petroleo")}
+      >
+        Panel Petróleo
+      </button>
+
+      <button
+        onClick={() => navigate("/petroleo/informe")}
+        className={subItemClass("/petroleo/informe")}
+      >
+        Informes
+      </button>
+
+      <button
+        onClick={() => navigate("/petroleo/inspeccion")}
+        className={subItemClass("/petroleo/inspeccion")}
+      >
+        Inspección
+      </button>
+    </div>
+  )}
+</div>
 
         {/* OPERACIONES */}
-        <div
-          onClick={() => {
-            navigate("/operaciones");
-            if (isMobile) setOpenSidebar(false);
-          }}
-          className={itemClass(isActive("/operaciones"))}
-        >
-          <Settings size={20} className={iconClass} />
-          {openSidebar && "Operaciones"}
-          {tooltip("Operaciones")}
-        </div>
+        <div>
+  <div
+    onClick={() => setOpenOperaciones(!openOperaciones)}
+    className={itemClass(isActive("/operaciones"))}
+  >
+    <Settings size={20} className={iconClass} />
+    {openSidebar && "Operaciones"}
+
+    {openSidebar &&
+      (openOperaciones ? (
+        <ChevronDown size={16} />
+      ) : (
+        <ChevronRight size={16} />
+      ))}
+
+    {tooltip("Operaciones")}
+  </div>
+
+  {openSidebar && openOperaciones && (
+    <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
+      <button
+        onClick={() => navigate("/operaciones")}
+        className={subItemClass("/operaciones")}
+      >
+        Panel Operaciones
+      </button>
+
+      <button
+        onClick={() => navigate("/operaciones/registro")}
+        className={subItemClass("/operaciones/registro")}
+      >
+        Registro
+      </button>
+
+      <button
+        onClick={() => navigate("/operaciones/recepcion")}
+        className={subItemClass("/operaciones/recepcion")}
+      >
+        Recepción
+      </button>
+
+      <button
+        onClick={() => navigate("/operaciones/liberacion")}
+        className={subItemClass("/operaciones/liberacion")}
+      >
+        Liberación
+      </button>
+    </div>
+  )}
+</div>
 
         {/* REPOSITORIOS */}
-        <div
-          onClick={() => {
-            navigate("/repositorios");
-            if (isMobile) setOpenSidebar(false);
-          }}
-          className={itemClass(isActive("/repositorios"))}
-        >
-          <FolderOpen size={20} className={iconClass} />
-          {openSidebar && "Repositorios"}
-          {tooltip("Repositorios")}
-        </div>
+       <div>
+  <div
+    onClick={() => setOpenRepositorios(!openRepositorios)}
+    className={itemClass(isActive("/repositorios"))}
+  >
+    <FolderOpen size={20} className={iconClass} />
+    {openSidebar && "Repositorios"}
 
-      </div>
+    {openSidebar &&
+      (openRepositorios ? (
+        <ChevronDown size={16} />
+      ) : (
+        <ChevronRight size={16} />
+      ))}
 
+    {tooltip("Repositorios")}
+  </div>
+
+  {openSidebar && openRepositorios && (
+    <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
+      
+      <button
+        onClick={() => navigate("/repositorios")}
+        className={subItemClass("/repositorios")}
+      >
+        General
+      </button>
+
+      <button
+        onClick={() => navigate("/repositorios/documentos")}
+        className={subItemClass("/repositorios/documentos")}
+      >
+        Documentos
+      </button>
+
+      <button
+        onClick={() => navigate("/repositorios/imagenes")}
+        className={subItemClass("/repositorios/imagenes")}
+      >
+        Imágenes
+      </button>
+
+    </div>
+  )}
+</div>
       {/* FOOTER */}
-      <div className="p-3 border-t border-white/10 text-xs text-white/50 text-center">
-        {openSidebar ? "By Santiago Avilés © 2026" : "©"}
-      </div>
-    </aside>
+     <div className="p-3 border-t border-white/10 text-xs text-white/50 text-center">
+  {openSidebar ? (
+    <div className="space-y-1">
+      <p className="font-semibold text-white/80">ASTAP</p>
+      <p>© 2026 • Santiago Avilés</p>
+    </div>
+  ) : (
+    "©"
+  )}
+</div>
   );
 }
