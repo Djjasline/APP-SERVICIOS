@@ -49,10 +49,9 @@ export default function InformeHome() {
   const filteredReports = reports.filter((r) => {
     const cliente = r.data?.cliente?.toLowerCase() || "";
     const pedido =
-      r.data?.referenciaContrato?.toLowerCase() ||
-      r.data?.codInf?.toLowerCase() ||
-      "";
-
+  r.data?.pedidoDemanda?.toLowerCase() ||
+  r.data?.codInf?.toLowerCase() ||
+  "";
     const tecnico = r.data?.tecnicoNombre?.toLowerCase() || "";
     const fecha = r.updated_at || r.created_at;
 
@@ -198,7 +197,7 @@ export default function InformeHome() {
         {filteredReports.map((r) => (
           <div
             key={r.id}
-            className="bg-gray-50 border rounded-xl p-4 flex justify-between items-center"
+            className="bg-gray-50 border rounded-xl p-4 flex flex-col md:flex-row md:justify-between md:items-center gap-3"
           >
            <div className="space-y-1">
   {/* CLIENTE */}
@@ -251,7 +250,7 @@ export default function InformeHome() {
     </span>
   </div>
 </div>
-            <div className="flex gap-3 text-sm">
+           <div className="flex gap-3 text-sm shrink-0">
               <button
                 onClick={() => openReport(r)}
                 className="text-blue-600 hover:underline"
