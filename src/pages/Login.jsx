@@ -9,13 +9,18 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    const success = login(email, password);
+    const result = await login(email, password);
 
-    if (success) {
+    setLoading(false);
+
+    if (result.success) {
       navigate("/");
     } else {
       setError("Credenciales incorrectas");
@@ -53,9 +58,11 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             autoFocus
+            disabled={loading}
             className="w-full px-4 py-2 rounded-lg 
             bg-white/20 text-white placeholder-white/70 
-            border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400
+            disabled:opacity-50"
           />
 
           {/* PASSWORD */}
@@ -64,9 +71,11 @@ export default function Login() {
             placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
             className="w-full px-4 py-2 rounded-lg 
             bg-white/20 text-white placeholder-white/70 
-            border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400
+            disabled:opacity-50"
           />
 
           {/* ERROR */}
@@ -77,12 +86,14 @@ export default function Login() {
           {/* BOTÓN */}
           <button
             type="submit"
+            disabled={loading}
             className="w-full py-2 rounded-lg 
             bg-gradient-to-r from-blue-500 to-purple-600 
             text-white font-semibold 
-            hover:opacity-90 transition"
+            hover:opacity-90 transition
+            disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Ingresar
+            {loading ? "Ingresando..." : "Ingresar"}
           </button>
 
         </form>
