@@ -1,11 +1,5 @@
-// src/context/ReportContext.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import {
-  loadReports,
-  upsertReport,
-  getReportById,
-  removeReport,
-} from "../utils/reportStorage";
+import { supabase } from "@/lib/supabase";
 
 const ReportContext = createContext(null);
 
@@ -15,81 +9,115 @@ export const useReports = () => {
   return ctx;
 };
 
-const EMPTY_REPORT = {
-  id: null,
-  status: "draft", // "draft" | "completed"
-  generalInfo: {},
-  beforeTesting: [],
-  activitiesIncidents: {},
-  digitalSignatures: {},
-  materials: [],
-};
-
 export const ReportProvider = ({ children }) => {
   const [reports, setReports] = useState([]);
   const [currentReport, setCurrentReport] = useState(null);
 
-  // Cargar de localStorage al inicio
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const all = loadReports();
-      setReports(all);
-      if (all.length > 0) {
-        setCurrentReport(all[all.length - 1]); // último como actual
-      }
+  /* ================= LOAD ================= */
+  const fetchReports = async () => {
+    const { data, error } = await supabase
+      .from("registros")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error cargando reportes:", error);
+      return;
     }
+
+    setReports(data || []);
+  };
+
+  useEffect(() => {
+    fetchReports();
   }, []);
 
-  const reloadReports = () => {
-    setReports(loadReports());
-  };
-
-  // 2° botón “Nuevo informe”
+  /* ================= NEW ================= */
   const startNewReport = () => {
-    setCurrentReport({ ...EMPTY_REPORT, id: null });
+    setCurrentReport({});
   };
 
-  // Guardar el reporte actual como borrador
-  const saveDraft = (partial) => {
-    const merged = {
-      ...EMPTY_REPORT,
-      ...currentReport,
-      ...partial,
-      status: "draft",
-    };
-    const saved = upsertReport(merged);
+  /* ================= SAVE ================= */
+  const saveDraft = async (data) => {
+    const { data: saved, error } = await supabase
+      .from("registros")
+      .upsert([
+        {
+          id: currentReport?.id,
+          data,
+          estado: "borrador",
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error guardando borrador:", error);
+      return null;
+    }
+
     setCurrentReport(saved);
-    reloadReports();
+    fetchReports();
     return saved;
   };
 
-  // Marcar como completado (cuando se genera y envía, por ejemplo)
-  const saveCompleted = (partial) => {
-    const merged = {
-      ...EMPTY_REPORT,
-      ...currentReport,
-      ...partial,
-      status: "completed",
-    };
-    const saved = upsertReport(merged);
+  const saveCompleted = async (data) => {
+    const { data: saved, error } = await supabase
+      .from("registros")
+      .upsert([
+        {
+          id: currentReport?.id,
+          data,
+          estado: "completado",
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error guardando completo:", error);
+      return null;
+    }
+
     setCurrentReport(saved);
-    reloadReports();
+    fetchReports();
     return saved;
   };
 
-  // 1° cargar un reporte para seguir editando
-  const loadReport = (id) => {
-    const r = getReportById(id);
-    setCurrentReport(r);
-    return r;
+  /* ================= LOAD ONE ================= */
+  const loadReport = async (id) => {
+    const { data, error } = await supabase
+      .from("registros")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("Error cargando reporte:", error);
+      return null;
+    }
+
+    setCurrentReport(data);
+    return data;
   };
 
-  const deleteReport = (id) => {
-    removeReport(id);
-    reloadReports();
+  /* ================= DELETE ================= */
+  const deleteReport = async (id) => {
+    const { error } = await supabase
+      .from("registros")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error eliminando:", error);
+      return;
+    }
+
     if (currentReport?.id === id) {
       setCurrentReport(null);
     }
+
+    fetchReports();
   };
 
   const value = {
@@ -104,6 +132,8 @@ export const ReportProvider = ({ children }) => {
   };
 
   return (
-    <ReportContext.Provider value={value}>{children}</ReportContext.Provider>
+    <ReportContext.Provider value={value}>
+      {children}
+    </ReportContext.Provider>
   );
 };
