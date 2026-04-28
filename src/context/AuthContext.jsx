@@ -1,44 +1,56 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { USERS } from "../data/users"; // 🔥 IMPORTANTE
+import { supabase } from "@/lib/supabase";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // ⏳ evita flash de login
 
-  // 🔄 Mantener sesión
+  // 🔄 Escuchar cambios de sesión (login, logout, refresh de token)
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+    // Recuperar sesión activa al montar
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
-  // 🔐 LOGIN REAL
-  const login = (email, password) => {
-    const foundUser = USERS.find(
-      (u) =>
-        u.email.toLowerCase() === email.trim().toLowerCase() &&
-        u.password === password
+    // Suscribirse a cambios (login, logout, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
     );
 
-    if (foundUser) {
-      setUser(foundUser);
-      localStorage.setItem("user", JSON.stringify(foundUser));
-      return true;
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // 🔐 LOGIN con Supabase Auth
+  const login = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password,
+    });
+
+    if (error) {
+      return { success: false, message: error.message };
     }
 
-    return false;
+    return { success: true, user: data.user };
   };
 
   // 🚪 LOGOUT
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem("user");
   };
 
+  // 🎭 Rol del usuario desde user_metadata (configurable en Supabase Dashboard)
+  // Auth > Users > Edit user > Raw user meta data: { "role": "admin" } o { "role": "tecnico" }
+  const role = user?.user_metadata?.role ?? null;
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, role, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
