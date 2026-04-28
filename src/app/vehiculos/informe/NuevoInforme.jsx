@@ -255,11 +255,11 @@ useEffect(() => {
   =========================== */
   const compressAndUploadImage = async (file, folder = "actividad") => {
     const compressedFile = await imageCompression(file, {
-      maxSizeMB: 0.3,
-      maxWidthOrHeight: 1200,
+      maxSizeMB: 0.25,
+      maxWidthOrHeight: 1024,
       useWebWorker: true,
       fileType: "image/jpeg",
-      initialQuality: 0.75,
+      initialQuality: 0.7,
       exifOrientation: 1,
     });
 
