@@ -201,26 +201,35 @@ export default function InformeHome() {
             className="bg-gray-50 border rounded-xl p-4 flex justify-between items-center"
           >
             <div>
-              <p className="font-semibold text-gray-900">
-                {r.data?.cliente || "Sin cliente"}
-              </p>
+  <p className="font-semibold text-gray-900">
+    {r.data?.cliente || "Sin cliente"}
+  </p>
 
-              <p className="text-xs text-gray-500">
-                {new Date(
-                  r.updated_at || r.created_at
-                ).toLocaleString()}
-              </p>
+  {/* 🔥 FIX PEDIDO */}
+  <p className="text-xs text-gray-600">
+    Pedido:{" "}
+    <strong>
+      {r.data?.referenciaContrato ||
+        r.data?.codInf ||
+        "—"}
+    </strong>
+  </p>
 
-              <p className="text-xs text-gray-600">
-                Estado:{" "}
-                <strong className="text-gray-900">
-                  {r.estado === "completado"
-                    ? "Completado"
-                    : "Borrador"}
-                </strong>
-              </p>
-            </div>
+  <p className="text-xs text-gray-500">
+    {new Date(
+      r.updated_at || r.created_at
+    ).toLocaleString()}
+  </p>
 
+  <p className="text-xs text-gray-600">
+    Estado:{" "}
+    <strong className="text-gray-900">
+      {r.estado === "completado"
+        ? "Completado"
+        : "Borrador"}
+    </strong>
+  </p>
+</div>
             <div className="flex gap-3 text-sm">
               <button
                 onClick={() => openReport(r)}
