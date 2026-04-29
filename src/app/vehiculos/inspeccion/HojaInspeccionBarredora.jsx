@@ -1,11 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import {
-  markInspectionCompleted,
-  getInspectionById,
-  saveInspectionDraft
-} from "@/utils/inspectionStorage";
+import { saveOrUpdateReport } from "@/services/reportService";
+import { supabase } from "@/lib/supabase";
 
 /* =============================
    PRUEBAS PREVIAS AL SERVICIO
@@ -142,8 +139,8 @@ useEffect(() => {
   const loadInspection = async () => {
     if (!id) return;
 
-    const stored = await getInspectionById("barredora", id);
-
+// const stored = await getInspectionById("barredora", id);
+    
     if (stored?.data) {
       setFormData({
         ...baseState,
@@ -239,8 +236,15 @@ useEffect(() => {
  const handleSubmit = async (e) => {
   e.preventDefault();
 
-  const firmaTecnico = firmaTecnicoRef.current?.toDataURL() || "";
-  const firmaCliente = firmaClienteRef.current?.toDataURL() || "";
+  const firmaTecnico =
+  firmaTecnicoRef.current?.isEmpty()
+    ? ""
+    : firmaTecnicoRef.current.toDataURL();
+
+const firmaCliente =
+  firmaClienteRef.current?.isEmpty()
+    ? ""
+    : firmaClienteRef.current.toDataURL();
 
   const payload = {
     ...formData,
@@ -251,13 +255,21 @@ useEffect(() => {
   };
 
   // 🔥 VALIDACIÓN REAL
-  if (firmaTecnico && firmaCliente) {
-    await markInspectionCompleted("barredora", id, payload);
-  } else {
-    await saveInspectionDraft("barredora", id, payload);
-  }
+  const { data: { user } } = await supabase.auth.getUser();
 
-  navigate("/inspeccion");
+const estadoFinal =
+  firmaTecnico && firmaCliente ? "completado" : "borrador";
+
+await saveOrUpdateReport({
+  id: id && id !== "nuevo" ? id : null,
+  tipo: "inspeccion",
+  subtipo: "barredora",
+  data: payload,
+  estado: estadoFinal,
+  user_id: user?.id,
+});
+
+navigate("/inspeccion");
 };
 
   /* =============================
@@ -376,11 +388,15 @@ useEffect(() => {
         {formData.estadoEquipoPuntos.map((pt) => (
           <div key={pt.id} className="flex gap-2">
             <span className="font-semibold">{pt.id})</span>
-            <input
-              className="flex-1 border p-1"
-              value={pt.nota}
-              onChange={(e) => handleNotaChange(pt.id, e.target.value)}
-            />
+            <textarea
+  value={formData.items[codigo]?.observacion || ""}
+  onChange={(e) => {
+    handleItemChange(codigo, "observacion", e.target.value);
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
+  }}
+  className="w-full border px-1 text-xs resize-none overflow-hidden min-h-[40px]"
+/>
           </div>
         ))}
       </section>
@@ -423,13 +439,16 @@ useEffect(() => {
                   />
                 </td>
                 <td>
-                  <input
-                    className="w-full border px-1"
-                    value={formData.items[codigo]?.observacion || ""}
-                    onChange={(e) =>
-                      handleItemChange(codigo, "observacion", e.target.value)
-                    }
-                  />
+                 <textarea
+  value={formData.items[codigo]?.observacion || ""}
+  onChange={(e) => {
+    handleItemChange(codigo, "observacion", e.target.value);
+
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
+  }}
+  className="w-full border px-1 text-xs resize-none overflow-hidden min-h-[40px]"
+/>
                 </td>
               </tr>
             ))}
