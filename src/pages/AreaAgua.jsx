@@ -20,7 +20,7 @@ export default function AreaAgua() {
         <CardModulo
           titulo="Informes"
           descripcion="Reportes técnicos de sistemas hidráulicos."
-          ruta="/informe"
+          ruta="/agua/informe"
           color="bg-blue-600"
           icono={<FileText size={20} />}
         />
@@ -28,7 +28,7 @@ export default function AreaAgua() {
         <CardModulo
           titulo="Inspección"
           descripcion="Evaluación de redes y equipos hidráulicos."
-          ruta="/inspeccion"
+          ruta="/agua/inspeccion"
           color="bg-yellow-600"
           icono={<ClipboardCheck size={20} />}
         />
