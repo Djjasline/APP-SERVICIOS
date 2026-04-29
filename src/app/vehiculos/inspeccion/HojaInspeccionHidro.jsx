@@ -365,11 +365,14 @@ const url = await uploadRegistroImage(
               </td>
             ))}
             <td className="border p-1">
-              <input
-                className="w-full border-0 outline-none text-xs p-0.5"
-                value={formData.items[codigo]?.observacion || ""}
-                onChange={(e) => handleItemChange(codigo, "observacion", e.target.value)}
-              />
+             <textarea
+  className="w-full border-0 outline-none text-xs p-0.5 resize-none"
+  rows={2}
+  value={formData.items[codigo]?.observacion || ""}
+  onChange={(e) =>
+    handleItemChange(codigo, "observacion", e.target.value)
+  }
+/>
             </td>
           </tr>
         ))}
@@ -638,13 +641,18 @@ const url = await uploadRegistroImage(
         <section className="border rounded p-4">
           <h2 className="font-semibold mb-2 uppercase">Nota / Observación final del técnico</h2>
           <textarea
-            name="notaFinal"
-            rows={4}
-            value={formData.notaFinal || ""}
-            onChange={handleChange}
-            placeholder="Escriba aquí cualquier observación general, novedad adicional o comentario de cierre..."
-            className="w-full border rounded p-2 text-sm outline-none resize-y"
-          />
+  name="notaFinal"
+  value={formData.notaFinal || ""}
+  onChange={(e) => {
+    handleChange(e);
+
+    // 🔥 AUTO-RESIZE
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
+  }}
+  placeholder="Escriba aquí cualquier observación general..."
+  className="w-full border rounded p-2 text-sm outline-none overflow-hidden resize-none"
+/>
         </section>
 
         {/* ── FIRMAS ── */}
