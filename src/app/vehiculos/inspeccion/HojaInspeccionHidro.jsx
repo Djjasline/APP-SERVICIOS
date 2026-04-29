@@ -7,6 +7,7 @@ import PdfInspeccionButtons from "./components/PdfInspeccionButtons";
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
+import React from "react";
 
 /* =============================
    PRUEBAS PREVIAS AL SERVICIO
@@ -336,7 +337,7 @@ const url = await uploadRegistroImage(
   };
 
   /* ─── COMPONENTE TABLA DE ÍTEMS (SI / NO / N/A) ─── */
-  const TablaItems = ({ lista }) => (
+  const TablaItems = React.memo(({ lista, items, onItemChange }) => (
     <table className="w-full text-sm border border-collapse">
       <thead className="bg-gray-100">
         <tr>
@@ -358,8 +359,8 @@ const url = await uploadRegistroImage(
                 <input
                   type="radio"
                   name={`${codigo}-estado`}
-                  checked={formData.items[codigo]?.estado === op}
-                  onChange={() => handleItemChange(codigo, "estado", op)}
+                  checked={items[codigo]?.estado === op}
+onChange={() => onItemChange(codigo, "estado", op)}
                   className="cursor-pointer"
                 />
               </td>
@@ -367,10 +368,10 @@ const url = await uploadRegistroImage(
             <td className="border p-1">
             <textarea
   key={codigo} // 🔥 MUY IMPORTANTE
-  value={formData.items[codigo]?.observacion || ""}
-  onChange={(e) =>
-    handleItemChange(codigo, "observacion", e.target.value)
-  }
+  value={items[codigo]?.observacion || ""}
+onChange={(e) =>
+  onItemChange(codigo, "observacion", e.target.value)
+}
   className="w-full border-0 outline-none text-xs p-0.5 resize-none"
   rows={2}
 />
@@ -581,7 +582,11 @@ const url = await uploadRegistroImage(
           <h2 className="font-semibold mb-3">
             1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
           </h2>
-          <TablaItems lista={pruebasPrevias} />
+          <TablaItems
+  lista={pruebasPrevias}
+  items={formData.items}
+  onItemChange={handleItemChange}
+/>
         </section>
 
         {/* ── SECCIONES A–D ── */}
@@ -592,7 +597,11 @@ const url = await uploadRegistroImage(
         {secciones.map((sec) => (
           <section key={sec.id} className="border rounded p-4">
             <h2 className="font-semibold mb-3">{sec.titulo}</h2>
-            <TablaItems lista={sec.items} />
+            <TablaItems
+  lista={sec.items}
+  items={formData.items}
+  onItemChange={handleItemChange}
+/>
           </section>
         ))}
 
