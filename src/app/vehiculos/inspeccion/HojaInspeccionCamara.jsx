@@ -198,30 +198,6 @@ export default function HojaInspeccionCamara() {
     loadInspection();
   }, [id]);
 
-  /* ─── AUTO-RELLENAR TÉCNICO LOGUEADO ─── */
-  useEffect(() => {
-    if (id && id !== "nuevo") return;
-
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (!data?.user) return;
-
-      const tech = TECHNICIANS.find(
-        (t) => t.email.toLowerCase() === data.user.email.toLowerCase()
-      );
-
-      if (tech) {
-        setFormData((p) => ({
-          ...p,
-          tecnicoNombre:   tech.name,
-          tecnicoTelefono: tech.phone,
-          tecnicoCorreo:   tech.email,
-        }));
-      }
-    };
-
-    getUser();
-  }, []);
 
   /* ─── HELPERS ─── */
   const handleChange = (e) => {
@@ -534,7 +510,7 @@ export default function HojaInspeccionCamara() {
               onClick={handleImageClick}
             >
               <img
-                src={formData.estadoEquipoImagenUrl || "/estado-equipo-camara.png"}
+                src={formData.estadoEquipoImagenUrl || "/estado equipo camara.png"}
                 crossOrigin="anonymous"
                 className="w-full"
                 draggable={false}
@@ -690,9 +666,6 @@ export default function HojaInspeccionCamara() {
               </tr>
             </tbody>
           </table>
-
-          {/* ── BOTONES PDF ── */}
-          <PdfInspeccionButtons targetId="pdf-inspeccion-camara" />
 
         </div>{/* fin pdf-container */}
 
