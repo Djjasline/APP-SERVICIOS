@@ -1,35 +1,53 @@
 import { TECHNICIANS } from "@/data/technicians";
-import { useAuth } from "@/context/AuthContext";
-import { getLoggedTechnician } from "@/utils/getLoggedTechnician";
 import { saveOrUpdateReport } from "@/services/reportService";
-import imageCompression from "browser-image-compression";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
+import imageCompression from "browser-image-compression";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import ReportHeader from "@/components/report/ReportHeader";
 
-export default function NuevoInforme() {
+/* ─────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────── */
+const Field = ({ label, children, span = 1 }) => (
+  <>
+    <td className={`border p-2 font-semibold bg-gray-50 text-xs w-44`}>{label}</td>
+    <td className={`border p-1 ${span > 1 ? `colspan-fix` : ""}`} colSpan={span > 1 ? (span * 2 - 1) : 1}>
+      {children}
+    </td>
+  </>
+);
+
+const Input = ({ value, onChange, placeholder = "", readOnly = false, className = "" }) => (
+  <input
+    value={value || ""}
+    onChange={onChange}
+    readOnly={readOnly}
+    placeholder={placeholder}
+    className={`w-full border-0 outline-none p-1 text-sm ${readOnly ? "bg-gray-100" : ""} ${className}`}
+  />
+);
+
+export default function NuevoInformeBombaValvula() {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const sigTecnico = useRef(null);
+  const sigCliente = useRef(null);
 
   const [uploadingCount, setUploadingCount] = useState(0);
-  const uploading = uploadingCount > 0;
-
-  const { id } = useParams();
+  const [successMsg, setSuccessMsg] = useState("");
   const isEditing = !!id;
 
-  /* ===========================
-     ESTADO BASE
-  =========================== */
+  /* ─── ESTADO BASE ─── */
   const emptyReport = {
+    // Encabezado
     referenciaContrato: "",
-    pedidoDemanda: "",
     descripcion: "",
     codInf: "",
+    pedidoDemanda: "",
 
-    // Datos cliente
+    // Cliente
     cliente: "",
     direccion: "",
     contacto: "",
@@ -37,37 +55,77 @@ export default function NuevoInforme() {
     correo: "",
     fechaServicio: "",
 
-    // Datos técnico
+    // Técnico
     tecnicoNombre: "",
     tecnicoTelefono: "",
     tecnicoCorreo: "",
 
-    // Estado del equipo
-    estadoEquipo: {
-      imagenes: [],
+    // Tipo de informe: "bomba" | "valvula"
+    tipoInforme: "bomba",
+
+    // ── EQUIPO BOMBA ──
+    bomba: {
+      fluido: "",
+      marca: "",
+      modeloTipo: "",
+      serie: "",
+      lugarProcedencia: "",
+      caudal: "",
+      tdh: "",
+      velocidadGiro: "",
+      fotoPlacaBomba: "",       // URL Supabase
+      // Motor
+      marcaMotor: "",
+      modeloTipoMotor: "",
+      voltajeFaseFrecuencia: "",
+      factorServicio: "",
+      gradoProteccion: "",
+      tipoConstruccionMotor: "",
+      fotoPlacaMotor: "",       // URL Supabase
+      // Accesorio
+      accesorio: "",
+      dimensionesAccesorio: "",
+      obraCivil: "",
+      dimensionesObraCivil: "",
+      fotoPlacaBaseMetalica: "", // URL Supabase
+      fotoBaseConcrete: "",      // URL Supabase
+    },
+
+    // ── EQUIPO VÁLVULA ──
+    valvula: {
+      fluido: "",
+      marca: "",
+      modeloTipo: "",
+      serie: "",
+      lugarProcedencia: "",
+      diametro: "",
+      presion: "",
+      conexion: "",
+      normaBridado: "",
+      operacion: "",
+      operacionActuador: "",
+      tipoActuador: "",
+      voltajeFaseFrecuencia: "",
+      protocoloComunicacion: "",
+      fotoPlacaValvula: "",      // URL Supabase
+      fotoPlacaActuador1: "",    // URL Supabase
+      fotoPlacaActuador2: "",    // URL Supabase
+      // Dimensiones
+      distanciaEntreCaras: "",
+      longitudCuerpo: "",
+      espesorContraBridas: "",
+      numPerforaciones: "",
+      diametroAgujero: "",
+      materialTornilleria: "",
+      registroFotoDimensional: [], // URLs Supabase
     },
 
     // Actividades
     actividades: [{ titulo: "", detalle: "", imagenes: [] }],
 
-    // Cierre
+    // Conclusiones y recomendaciones
     conclusiones: [""],
     recomendaciones: [""],
-
-    // Equipo
-    equipo: {
-      nota: "",
-      marca: "",
-      modelo: "",
-      serie: "",
-      anio: "",
-      vin: "",
-      placa: "",
-      horasModulo: "",
-      horasChasis: "",
-      kilometraje: "",
-      horometro: "",
-    },
 
     // Firmas
     firmas: {
@@ -78,1136 +136,805 @@ export default function NuevoInforme() {
   };
 
   const [data, setData] = useState(emptyReport);
-  const sigTecnico = useRef(null);
-  const sigCliente = useRef(null);
 
-  /* ===========================
-     AUTO RESIZE TEXTAREA
-  =========================== */
-  const autoResize = (e) => {
-    e.target.style.height = "auto";
-    e.target.style.height = `${e.target.scrollHeight}px`;
-  };
-
-  /* ===========================
-     PRELLENAR TÉCNICO LOGUEADO
-  =========================== */
+  /* ─── CARGAR EXISTENTE ─── */
   useEffect(() => {
-    if (!user || id) return;
-
-    const tech = getLoggedTechnician(user);
-    if (!tech) return;
-
-    setData((prev) => ({
-      ...prev,
-      tecnicoNombre: tech.name,
-      tecnicoTelefono: tech.phone,
-      tecnicoCorreo: tech.email,
-    }));
-  }, [user, id]);
-
-  /* ===========================
-     LIMPIAR OVERFLOW AL DESMONTAR
-  =========================== */
-  useEffect(() => {
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
-
-  /* ===========================
-     CARGAR INFORME EXISTENTE
-  =========================== */
-  useEffect(() => {
-    const loadReport = async () => {
-      if (!id) {
-        setData(emptyReport);
-        return;
-      }
-
+    const load = async () => {
+      if (!id) return;
       const { data: report, error } = await supabase
         .from("registros")
         .select("*")
         .eq("id", id)
         .single();
 
-      if (error || !report) {
-        console.error("Error cargando informe:", error);
-        setData(emptyReport);
-        return;
-      }
+      if (error || !report) return;
 
-      const cleanData = {
+      const d = report.data || {};
+      setData({
         ...emptyReport,
-        ...(report.data || {}),
-        estadoEquipo: {
-          imagenes: Array.isArray(report.data?.estadoEquipo?.imagenes)
-            ? report.data.estadoEquipo.imagenes.map((img, imgIndex) => ({
-                id: img?.id || `img-${imgIndex}-${Date.now()}`,
-                url: img?.url || "",
-                puntos: Array.isArray(img?.puntos)
-                  ? img.puntos.map((p, pointIndex) => ({
-                      id: p?.id || `p-${imgIndex}-${pointIndex}-${Date.now()}`,
-                      x: typeof p?.x === "number" ? p.x : 0,
-                      y: typeof p?.y === "number" ? p.y : 0,
-                      observacion: p?.observacion || "",
-                    }))
-                  : [],
-              }))
-            : [],
-        },
-        actividades: Array.isArray(report.data?.actividades)
-          ? report.data.actividades.map((a) => ({
-              titulo: a?.titulo || "",
-              detalle: a?.detalle || "",
-              imagenes: Array.isArray(a?.imagenes) ? a.imagenes : [],
-            }))
-          : [{ titulo: "", detalle: "", imagenes: [] }],
-        firmas: {
-          tecnico: report.data?.firmas?.tecnico || "",
-          cliente: report.data?.firmas?.cliente || "",
-          clienteCedula: report.data?.firmas?.clienteCedula || "",
-        },
-      };
-
-      setData(cleanData);
+        ...d,
+        bomba:    { ...emptyReport.bomba,    ...(d.bomba    || {}) },
+        valvula:  { ...emptyReport.valvula,  ...(d.valvula  || {}) },
+        actividades: Array.isArray(d.actividades) ? d.actividades : emptyReport.actividades,
+        conclusiones: Array.isArray(d.conclusiones) ? d.conclusiones : emptyReport.conclusiones,
+        recomendaciones: Array.isArray(d.recomendaciones) ? d.recomendaciones : emptyReport.recomendaciones,
+        firmas: { ...emptyReport.firmas, ...(d.firmas || {}) },
+      });
 
       setTimeout(() => {
-        if (report.data?.firmas?.tecnico) {
-          sigTecnico.current?.fromDataURL(report.data.firmas.tecnico);
-        }
-        if (report.data?.firmas?.cliente) {
-          sigCliente.current?.fromDataURL(report.data.firmas.cliente);
-        }
-      }, 0);
+        if (d.firmas?.tecnico) sigTecnico.current?.fromDataURL(d.firmas.tecnico);
+        if (d.firmas?.cliente) sigCliente.current?.fromDataURL(d.firmas.cliente);
+      }, 100);
     };
-
-    loadReport();
+    load();
   }, [id]);
 
-  /* ===========================
-     UPDATE GENÉRICO
-  =========================== */
-  const update = (path, value) => {
-    setData((prev) => {
-      const copy = { ...prev };
-      let ref = copy;
-
-      for (let i = 0; i < path.length - 1; i++) {
-        if (Array.isArray(ref[path[i]])) {
-          ref[path[i]] = [...ref[path[i]]];
-        } else {
-          ref[path[i]] = { ...ref[path[i]] };
-        }
-        ref = ref[path[i]];
+  /* ─── AUTO-RELLENAR TÉCNICO ─── */
+  useEffect(() => {
+    if (id) return;
+    const getUser = async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth?.user) return;
+      const tech = TECHNICIANS.find(
+        (t) => t.email.toLowerCase() === auth.user.email.toLowerCase()
+      );
+      if (tech) {
+        setData((p) => ({
+          ...p,
+          tecnicoNombre:   tech.name,
+          tecnicoTelefono: tech.phone,
+          tecnicoCorreo:   tech.email,
+        }));
       }
+    };
+    getUser();
+  }, []);
 
-      ref[path[path.length - 1]] = value;
-      return copy;
-    });
-  };
+  /* ─── HELPERS ESTADO ─── */
+  const set = (field, value) => setData((p) => ({ ...p, [field]: value }));
 
-  /* ===========================
-     SUBIDA / COMPRESIÓN
-  =========================== */
-  const compressAndUploadImage = async (file, folder = "actividad") => {
-    const compressedFile = await imageCompression(file, {
-      maxSizeMB: 0.3,
+  const setBomba = (field, value) =>
+    setData((p) => ({ ...p, bomba: { ...p.bomba, [field]: value } }));
+
+  const setValvula = (field, value) =>
+    setData((p) => ({ ...p, valvula: { ...p.valvula, [field]: value } }));
+
+  /* ─── SUBIDA DE IMÁGENES ─── */
+  const compress = async (file) =>
+    imageCompression(file, {
+      maxSizeMB: 0.4,
       maxWidthOrHeight: 1200,
       useWebWorker: true,
       fileType: "image/jpeg",
-      initialQuality: 0.75,
-      exifOrientation: 1,
+      initialQuality: 0.8,
     });
 
-    const url = await uploadRegistroImage(compressedFile, id || "temp", folder);
-    return url;
-  };
-
-  /* ===========================
-     SUBIDA DE IMÁGENES ACTIVIDADES
-  =========================== */
-  const handleImageUpload = async (file, actividadIndex) => {
-    if (!file) return;
-
-    const currentImages = data.actividades?.[actividadIndex]?.imagenes || [];
-    if (currentImages.length >= 4) {
-      alert("Máximo 4 imágenes por actividad");
-      return;
-    }
-
-    setUploadingCount((prev) => prev + 1);
-
+  const uploadSingle = async (file, folder) => {
+    setUploadingCount((c) => c + 1);
     try {
-      const url = await compressAndUploadImage(file, "actividad");
-      if (!url) return;
-
-      setData((prev) => {
-        if (!prev.actividades[actividadIndex]) return prev;
-
-        const copy = { ...prev };
-        copy.actividades = [...copy.actividades];
-
-        const actividad = { ...copy.actividades[actividadIndex] };
-        const imagenes = Array.isArray(actividad.imagenes)
-          ? [...actividad.imagenes]
-          : [];
-
-        if (imagenes.length >= 4) return prev;
-
-        imagenes.push(url);
-        actividad.imagenes = imagenes;
-        copy.actividades[actividadIndex] = actividad;
-
-        return copy;
-      });
-    } catch (error) {
-      console.error("Error subiendo imagen:", error);
+      const compressed = await compress(file);
+      return await uploadRegistroImage(compressed, id || "temp", folder);
+    } catch {
+      return null;
     } finally {
-      setUploadingCount((prev) => prev - 1);
+      setUploadingCount((c) => c - 1);
     }
   };
 
-  /* ===========================
-     ESTADO DEL EQUIPO - FOTOS
-  =========================== */
-  const handleEstadoEquipoImagesUpload = async (files) => {
-    const selectedFiles = Array.from(files || []);
-    if (selectedFiles.length === 0) return;
+  const handleSingleImage = async (e, setter, folder) => {
+    const file = e.target.files[0];
+    e.target.value = null;
+    if (!file) return;
+    const url = await uploadSingle(file, folder);
+    if (url) setter(url);
+  };
 
-    setUploadingCount((prev) => prev + selectedFiles.length);
+  const handleMultiImages = async (e, currentList, setter, folder, maxCount = 4) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = null;
+    if (!files.length) return;
 
-    try {
-      for (const file of selectedFiles) {
-        const url = await compressAndUploadImage(file, "estado-equipo");
-        if (!url) continue;
+    const disponibles = maxCount - currentList.length;
+    if (disponibles <= 0) { alert(`Máximo ${maxCount} imágenes`); return; }
 
-        setData((prev) => {
-          const actuales = prev.estadoEquipo?.imagenes || [];
+    for (const file of files.slice(0, disponibles)) {
+      const url = await uploadSingle(file, folder);
+      if (url) setter((prev) => [...prev, url]);
+    }
+  };
 
-          const nuevaImagen = {
-            id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-            url,
-            puntos: [],
-          };
+  /* ─── ACTIVIDADES ─── */
+  const handleActividadImageUpload = async (e, idx) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = null;
+    const actuales = data.actividades[idx]?.imagenes?.length || 0;
+    const disponibles = 4 - actuales;
+    if (disponibles <= 0) { alert("Máximo 4 imágenes por actividad"); return; }
 
-          return {
-            ...prev,
-            estadoEquipo: {
-              ...prev.estadoEquipo,
-              imagenes: [...actuales, nuevaImagen],
-            },
-          };
+    for (const file of files.slice(0, disponibles)) {
+      const url = await uploadSingle(file, "actividad");
+      if (url) {
+        setData((p) => {
+          const acts = [...p.actividades];
+          acts[idx] = { ...acts[idx], imagenes: [...(acts[idx].imagenes || []), url] };
+          return { ...p, actividades: acts };
         });
       }
-    } catch (error) {
-      console.error("Error subiendo imágenes de estado del equipo:", error);
-    } finally {
-      setUploadingCount((prev) => prev - selectedFiles.length);
     }
   };
 
-  const removeEstadoEquipoImage = (imageId) => {
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).filter(
-          (img) => img.id !== imageId
-        ),
-      },
-    }));
+  const removeActividadImage = (actIdx, imgIdx) => {
+    setData((p) => {
+      const acts = [...p.actividades];
+      const imgs = [...(acts[actIdx].imagenes || [])];
+      imgs.splice(imgIdx, 1);
+      acts[actIdx] = { ...acts[actIdx], imagenes: imgs };
+      return { ...p, actividades: acts };
+    });
   };
 
-  const clearEstadoEquipoImagePoints = (imageId) => {
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
-          img.id === imageId ? { ...img, puntos: [] } : img
-        ),
+  /* ─── GUARDAR ─── */
+  const save = async () => {
+    if (!data.cliente)       { alert("Cliente requerido"); return; }
+    if (!data.tecnicoNombre) { alert("Técnico requerido"); return; }
+    if (!data.fechaServicio) { alert("Fecha requerida");  return; }
+    if (uploadingCount > 0)  { alert("Espera que terminen las imágenes"); return; }
+
+    const firmaTecnico = sigTecnico.current?.isEmpty?.() === false
+      ? sigTecnico.current.toDataURL() : data.firmas.tecnico;
+    const firmaCliente = sigCliente.current?.isEmpty?.() === false
+      ? sigCliente.current.toDataURL() : data.firmas.cliente;
+
+    const finalData = {
+      ...data,
+      firmas: {
+        ...data.firmas,
+        tecnico: firmaTecnico,
+        cliente: firmaCliente,
       },
-    }));
-  };
-
-  const handleEstadoEquipoImageClick = (e, imageId) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-
-    const nuevoPunto = {
-      id: `p-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      x: Number(x.toFixed(4)),
-      y: Number(y.toFixed(4)),
-      observacion: "",
     };
 
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
-          img.id === imageId
-            ? { ...img, puntos: [...(img.puntos || []), nuevoPunto] }
-            : img
-        ),
-      },
-    }));
-  };
+    const estadoFinal = firmaTecnico ? "completado" : "borrador";
+    const { data: { user } } = await supabase.auth.getUser();
 
-  const removeEstadoEquipoPoint = (imageId, pointId) => {
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
-          img.id === imageId
-            ? {
-                ...img,
-                puntos: (img.puntos || []).filter((p) => p.id !== pointId),
-              }
-            : img
-        ),
-      },
-    }));
-  };
-
-  const updateEstadoEquipoPointObservation = (imageId, pointId, value) => {
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
-          img.id === imageId
-            ? {
-                ...img,
-                puntos: (img.puntos || []).map((p) =>
-                  p.id === pointId ? { ...p, observacion: value } : p
-                ),
-              }
-            : img
-        ),
-      },
-    }));
-  };
-
-  /* ===========================
-     ACTIVIDADES
-  =========================== */
-  const addActividad = () =>
-    setData((prev) => ({
-      ...prev,
-      actividades: [
-        ...prev.actividades,
-        { titulo: "", detalle: "", imagenes: [] },
-      ],
-    }));
-
-  const removeActividad = (index) =>
-    setData((prev) => ({
-      ...prev,
-      actividades: prev.actividades.filter((_, i) => i !== index),
-    }));
-
-  /* ===========================
-     CONCLUSIONES / RECOMENDACIONES
-  =========================== */
-  const addConclusionRow = () =>
-    setData((prev) => ({
-      ...prev,
-      conclusiones: [...prev.conclusiones, ""],
-      recomendaciones: [...prev.recomendaciones, ""],
-    }));
-
-  const removeConclusionRow = (index) =>
-    setData((prev) => ({
-      ...prev,
-      conclusiones: prev.conclusiones.filter((_, i) => i !== index),
-      recomendaciones: prev.recomendaciones.filter((_, i) => i !== index),
-    }));
-const validateReport = () => {
-  if (!data.cliente) return "Cliente es obligatorio";
-  if (!data.tecnicoNombre) return "Técnico es obligatorio";
-  if (!data.fechaServicio) return "Fecha es obligatoria";
-
-  if (!data.actividades || data.actividades.length === 0) {
-    return "Debe existir al menos una actividad";
-  }
-
-  const actividadValida = data.actividades.some(
-    (a) => a.titulo || a.detalle
-  );
-
-  if (!actividadValida) {
-    return "Debe completar al menos una actividad";
-  }
-
-  return null;
-};
-  /* ===========================
-     GUARDAR INFORME
-  =========================== */
-  const saveReport = async () => {
-    if (uploading) {
-      alert("Espera que terminen de subir las imágenes");
-      return;
-    }
-const error = validateReport();
-if (error) {
-  alert(error);
-  return;
-}
     try {
-      const firmaTecnico =
-        sigTecnico.current?.isEmpty?.() === false
-          ? sigTecnico.current.toDataURL()
-          : "";
-
-      const firmaCliente =
-        sigCliente.current?.isEmpty?.() === false
-          ? sigCliente.current.toDataURL()
-          : "";
-
-      const firmaTecnicoFinal = firmaTecnico || data.firmas?.tecnico || "";
-      const firmaClienteFinal = firmaCliente || data.firmas?.cliente || "";
-      const estadoFinal = firmaTecnicoFinal ? "completado" : "borrador";
-
-      const finalData = {
-        ...data,
-        firmas: {
-          ...data.firmas,
-          tecnico: firmaTecnicoFinal,
-          cliente: firmaClienteFinal,
-          clienteCedula: data.firmas?.clienteCedula || "",
-        },
-      };
-
       await saveOrUpdateReport({
         id: isEditing ? id : null,
         tipo: "informe",
-        subtipo: "general",
+        subtipo: data.tipoInforme === "bomba" ? "bomba-valvula-bomba" : "bomba-valvula-valvula",
         data: finalData,
         estado: estadoFinal,
-        user_id: user?.id || null,
+        user_id: user?.id,
       });
 
-      alert(
-        isEditing
-          ? "Informe actualizado correctamente ✅"
-          : "Informe guardado correctamente ✅"
-      );
-
-      navigate("/informe");
-    } catch (error) {
-      console.error("❌ Error real al guardar:", error);
-      alert(`Error guardando informe ❌\n${error.message || "Revisa la consola"}`);
+      setSuccessMsg(isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
+      setTimeout(() => navigate("/informe"), 1200);
+    } catch (err) {
+      console.error(err);
+      setSuccessMsg("Error al guardar ❌");
     }
   };
 
-  /* ===========================
-     RENDER
-  =========================== */
+  const uploading = uploadingCount > 0;
+  const isBomba   = data.tipoInforme === "bomba";
+
+  /* ─── RENDER ─── */
   return (
-    <div className="p-3 md:p-6 bg-gray-100 min-h-screen">
-      <div className="bg-white p-4 md:p-6 rounded shadow w-full max-w-screen-xl mx-auto space-y-6">
-        <ReportHeader data={data} onChange={update} />
+    <>
+      {successMsg && (
+        <div className={`fixed top-6 right-6 px-4 py-3 rounded shadow-lg z-50 text-white transition-all ${successMsg.includes("Error") ? "bg-red-600" : "bg-green-600"}`}>
+          {successMsg}
+        </div>
+      )}
 
-        {/* ── DATOS DEL CLIENTE Y TÉCNICO ── */}
-        <h3 className="font-bold text-sm border-b pb-1">
-          DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE
-        </h3>
+      <div className="p-3 md:p-6 bg-gray-100 min-h-screen">
+        <div className="bg-white p-4 md:p-6 rounded shadow w-full max-w-screen-xl mx-auto space-y-6">
 
-        <table className="pdf-table w-full">
-          <tbody>
-            <tr>
-              <td className="pdf-label">CLIENTE</td>
-              <td>
-                <input
-                  className="pdf-input w-full"
-                  value={data.cliente}
-                  onChange={(e) => update(["cliente"], e.target.value)}
-                />
-              </td>
-              <td className="pdf-label">DIRECCIÓN</td>
-              <td>
-                <input
-                  className="pdf-input w-full"
-                  value={data.direccion}
-                  onChange={(e) => update(["direccion"], e.target.value)}
-                />
-              </td>
-            </tr>
-
-            <tr>
-              <td className="pdf-label">CONTACTO</td>
-              <td>
-                <input
-                  className="pdf-input w-full"
-                  value={data.contacto}
-                  onChange={(e) => update(["contacto"], e.target.value)}
-                />
-              </td>
-              <td className="pdf-label">TELÉFONO</td>
-              <td>
-                <input
-                  className="pdf-input w-full"
-                  value={data.telefono}
-                  onChange={(e) => update(["telefono"], e.target.value)}
-                />
-              </td>
-            </tr>
-
-            <tr>
-              <td className="pdf-label">CORREO</td>
-              <td>
-                <input
-                  className="pdf-input w-full"
-                  value={data.correo}
-                  onChange={(e) => update(["correo"], e.target.value)}
-                />
-              </td>
-              <td className="pdf-label">TÉCNICO RESPONSABLE</td>
-              <td>
-                <select
-                  className="pdf-input w-full"
-                  value={data.tecnicoNombre}
-                  onChange={(e) => {
-                    const tech = TECHNICIANS.find(
-                      (t) => t.name === e.target.value
-                    );
-
-                    update(["tecnicoNombre"], tech?.name || "");
-                    update(["tecnicoTelefono"], tech?.phone || "");
-                    update(["tecnicoCorreo"], tech?.email || "");
-                  }}
-                >
-                  <option value="">Seleccionar técnico</option>
-                  {TECHNICIANS.map((t, i) => (
-                    <option key={i} value={t.name}>
-                      {t.name}
-                    </option>
-                  ))}
-                </select>
-              </td>
-            </tr>
-
-            <tr>
-              <td className="pdf-label">TELÉFONO TÉCNICO</td>
-              <td>
-                <input
-                  className="pdf-input w-full bg-gray-100"
-                  value={data.tecnicoTelefono}
-                  readOnly
-                />
-              </td>
-              <td className="pdf-label">CORREO TÉCNICO</td>
-              <td>
-                <input
-                  className="pdf-input w-full bg-gray-100"
-                  value={data.tecnicoCorreo}
-                  readOnly
-                />
-              </td>
-            </tr>
-
-            <tr>
-              <td className="pdf-label">FECHA DE SERVICIO</td>
-              <td colSpan={3}>
-                <input
-                  type="date"
-                  className="pdf-input w-full"
-                  value={data.fechaServicio}
-                  onChange={(e) => update(["fechaServicio"], e.target.value)}
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        {/* ── DESCRIPCIÓN DEL EQUIPO ── */}
-        <h3 className="font-bold text-sm border-b pb-1">
-          DESCRIPCIÓN DEL EQUIPO
-        </h3>
-
-        <table className="pdf-table w-full">
-          <thead>
-            <tr>
-              <th colSpan={4} style={{ textAlign: "center" }}>
-                DESCRIPCIÓN DEL EQUIPO
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              ["NOTA", "nota"],
-              ["MARCA", "marca"],
-              ["MODELO", "modelo"],
-              ["N° SERIE", "serie"],
-              ["AÑO MODELO", "anio"],
-              ["VIN / CHASIS", "vin"],
-              ["PLACA", "placa"],
-              ["HORAS MÓDULO", "horasModulo"],
-              ["HORAS CHASIS", "horasChasis"],
-              ["KILOMETRAJE", "kilometraje"],
-            ].reduce((rows, field, idx, arr) => {
-              if (idx % 2 === 0) {
-                const next = arr[idx + 1];
-                rows.push(
-                  <tr key={field[1]}>
-                    <td className="pdf-label">{field[0]}</td>
-                    <td>
-                      <input
-                        className="pdf-input w-full"
-                        value={data.equipo[field[1]]}
-                        onChange={(e) =>
-                          update(["equipo", field[1]], e.target.value)
-                        }
-                      />
-                    </td>
-                    {next ? (
-                      <>
-                        <td className="pdf-label">{next[0]}</td>
-                        <td>
-                          <input
-                            className="pdf-input w-full"
-                            value={data.equipo[next[1]]}
-                            onChange={(e) =>
-                              update(["equipo", next[1]], e.target.value)
-                            }
-                          />
-                        </td>
-                      </>
-                    ) : (
-                      <td colSpan={2} />
-                    )}
-                  </tr>
-                );
-              }
-              return rows;
-            }, [])}
-          </tbody>
-        </table>
-
-        {/* ── ESTADO DEL EQUIPO ── */}
-        <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
-
-        <div className="border rounded bg-white p-3 md:p-4 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-2">
-            <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer text-center hover:bg-gray-700 transition">
-              📁 Subir fotografías
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                style={{ display: "none" }}
-                onChange={(e) => {
-                  handleEstadoEquipoImagesUpload(e.target.files || []);
-                  e.target.value = null;
-                }}
-              />
-            </label>
-
-            <label className="bg-blue-600 text-white text-xs px-3 py-2 rounded cursor-pointer text-center hover:bg-blue-700 transition">
-              📷 Tomar fotos
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                multiple
-                style={{ display: "none" }}
-                onChange={(e) => {
-                  handleEstadoEquipoImagesUpload(e.target.files || []);
-                  e.target.value = null;
-                }}
-              />
-            </label>
+          {/* ── SELECTOR TIPO ── */}
+          <div className="flex gap-3 items-center">
+            <span className="font-semibold text-sm">Tipo de informe:</span>
+            {["bomba", "valvula"].map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => set("tipoInforme", t)}
+                className={`px-4 py-1.5 rounded text-sm font-medium border transition ${
+                  data.tipoInforme === t
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                {t === "bomba" ? "🔧 Bomba" : "🔩 Válvula"}
+              </button>
+            ))}
           </div>
 
-          {(data.estadoEquipo?.imagenes || []).length === 0 ? (
-            <div className="border rounded bg-gray-50 h-[220px] flex items-center justify-center text-sm text-gray-400">
-              Sin fotografías cargadas
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {(data.estadoEquipo?.imagenes || []).map((img, imageIndex) => (
-                  <div
-                    key={img.id}
-                    className="border rounded p-2 bg-gray-50 space-y-2"
-                  >
-                    <div className="flex justify-between items-center gap-2">
-                      <span className="text-xs font-medium text-gray-600">
-                        Imagen {imageIndex + 1}
-                      </span>
+          {/* ── ENCABEZADO ── */}
+          <section className="border rounded overflow-hidden">
+            <table className="w-full text-sm border-collapse">
+              <tbody>
+                <tr className="border-b">
+                  <td rowSpan={4} className="w-32 border-r p-3 text-center align-middle">
+                    <img src="/astap-logo.jpg" className="mx-auto max-h-20" alt="ASTAP" />
+                  </td>
+                  <td colSpan={3} className="border-r text-center font-bold py-3 text-base">
+                    {isBomba ? "INFORME GENERAL DE CAMPO" : "INFORME GENERAL DE SERVICIOS"}
+                  </td>
+                  <td className="p-2 text-xs w-40">
+                    <div>Fecha versión: <strong>01-01-26</strong></div>
+                    <div>Versión: <strong>01</strong></div>
+                  </td>
+                </tr>
+                <tr className="border-b">
+                  <td className="border-r p-2 font-semibold bg-gray-50 w-44">REFERENCIA CONTRATO</td>
+                  <td colSpan={3} className="border p-1">
+                    <Input value={data.referenciaContrato} onChange={(e) => set("referenciaContrato", e.target.value)} />
+                  </td>
+                </tr>
+                <tr className="border-b">
+                  <td className="border-r p-2 font-semibold bg-gray-50">DESCRIPCIÓN</td>
+                  <td colSpan={3} className="border p-1">
+                    <Input value={data.descripcion} onChange={(e) => set("descripcion", e.target.value)} />
+                  </td>
+                </tr>
+                <tr className="border-b">
+                  <td className="border-r p-2 font-semibold bg-gray-50">COD. INF.</td>
+                  <td className="border p-1">
+                    <Input value={data.codInf} onChange={(e) => set("codInf", e.target.value)} />
+                  </td>
+                  <td className="border p-2 font-semibold bg-gray-50 w-40">PEDIDO / DEMANDA</td>
+                  <td className="border p-1">
+                    <Input value={data.pedidoDemanda} onChange={(e) => set("pedidoDemanda", e.target.value)} />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
 
-                      <div className="flex gap-2">
-                        {!!img.puntos?.length && (
-                          <button
-                            type="button"
-                            onClick={() => clearEstadoEquipoImagePoints(img.id)}
-                            className="text-[11px] border px-2 py-1 rounded hover:bg-gray-100"
-                          >
-                            Limpiar puntos
-                          </button>
-                        )}
+          {/* ── DATOS CLIENTE Y TÉCNICO ── */}
+          <section className="border rounded overflow-hidden">
+            <table className="w-full text-sm border-collapse">
+              <tbody>
+                {[
+                  ["CLIENTE", "cliente", "DIRECCIÓN", "direccion"],
+                  ["CONTACTO", "contacto", "TELÉFONO", "telefono"],
+                  ["CORREO", "correo", null, null],
+                ].map(([l1, f1, l2, f2], i) => (
+                  <tr key={i} className="border-b">
+                    <td className="border p-2 font-semibold bg-gray-50 w-44">{l1}</td>
+                    <td className="border p-1" colSpan={l2 ? 1 : 3}>
+                      <Input value={data[f1]} onChange={(e) => set(f1, e.target.value)} />
+                    </td>
+                    {l2 && (
+                      <>
+                        <td className="border p-2 font-semibold bg-gray-50 w-44">{l2}</td>
+                        <td className="border p-1">
+                          <Input value={data[f2]} onChange={(e) => set(f2, e.target.value)} />
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+                <tr className="border-b">
+                  <td className="border p-2 font-semibold bg-gray-50">TÉCNICO RESPONSABLE</td>
+                  <td className="border p-1">
+                    <select
+                      className="w-full border-0 p-1 outline-none bg-white text-sm"
+                      value={data.tecnicoNombre}
+                      onChange={(e) => {
+                        const tech = TECHNICIANS.find((t) => t.name === e.target.value);
+                        setData((p) => ({
+                          ...p,
+                          tecnicoNombre:   tech?.name  || "",
+                          tecnicoTelefono: tech?.phone || "",
+                          tecnicoCorreo:   tech?.email || "",
+                        }));
+                      }}
+                    >
+                      <option value="">Seleccionar técnico</option>
+                      {TECHNICIANS.map((t, i) => (
+                        <option key={i} value={t.name}>{t.name}</option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="border p-2 font-semibold bg-gray-50">TELÉFONO TÉCNICO</td>
+                  <td className="border p-1">
+                    <Input value={data.tecnicoTelefono} readOnly />
+                  </td>
+                </tr>
+                <tr className="border-b">
+                  <td className="border p-2 font-semibold bg-gray-50">CORREO TÉCNICO</td>
+                  <td className="border p-1">
+                    <Input value={data.tecnicoCorreo} readOnly />
+                  </td>
+                  <td className="border p-2 font-semibold bg-gray-50">FECHA DE SERVICIO</td>
+                  <td className="border p-1">
+                    <input
+                      type="date"
+                      value={data.fechaServicio}
+                      onChange={(e) => set("fechaServicio", e.target.value)}
+                      className="w-full border-0 outline-none p-1 text-sm"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
 
-                        <button
-                          type="button"
-                          onClick={() => removeEstadoEquipoImage(img.id)}
-                          className="text-[11px] text-red-600 border border-red-200 px-2 py-1 rounded hover:bg-red-50"
-                        >
-                          Eliminar foto
-                        </button>
-                      </div>
-                    </div>
+          {/* ════════════════════════════════════
+              DESCRIPCIÓN DEL EQUIPO — BOMBA
+          ════════════════════════════════════ */}
+          {isBomba && (
+            <section className="border rounded overflow-hidden">
+              <div className="bg-gray-100 p-2 font-semibold text-sm text-center uppercase">
+                Descripción del Equipo
+              </div>
+              <table className="w-full text-sm border-collapse">
+                <tbody>
+                  {/* ── BOMBA ── */}
+                  <tr className="border-b bg-blue-50">
+                    <td colSpan={4} className="p-2 font-bold text-blue-800">🔧 BOMBA</td>
+                  </tr>
+                  {[
+                    ["FLUIDO",              "fluido",             "MARCA",                "marca"],
+                    ["MODELO / TIPO",       "modeloTipo",         "N° SERIE",             "serie"],
+                    ["LUGAR DE PROCEDENCIA","lugarProcedencia",   "Q (Caudal)",           "caudal"],
+                    ["TDH (cabeza)",        "tdh",                "VELOCIDAD DE GIRO",    "velocidadGiro"],
+                  ].map(([l1, f1, l2, f2], i) => (
+                    <tr key={i} className="border-b">
+                      <td className="border p-2 font-semibold bg-gray-50 w-44">{l1}</td>
+                      <td className="border p-1"><Input value={data.bomba[f1]} onChange={(e) => setBomba(f1, e.target.value)} /></td>
+                      <td className="border p-2 font-semibold bg-gray-50 w-44">{l2}</td>
+                      <td className="border p-1"><Input value={data.bomba[f2]} onChange={(e) => setBomba(f2, e.target.value)} /></td>
+                    </tr>
+                  ))}
 
-                    <div className="relative w-full border rounded overflow-hidden bg-white">
-                      <img
-                        src={img.url}
-                        alt={`estado-equipo-${imageIndex + 1}`}
-                        className="w-full aspect-[4/3] object-contain bg-white cursor-crosshair"
-                        onClick={(e) => handleEstadoEquipoImageClick(e, img.id)}
+                  {/* Foto placa bomba */}
+                  <tr className="border-b">
+                    <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA BOMBA</td>
+                    <td colSpan={3} className="border p-2">
+                      <ImageUploadField
+                        url={data.bomba.fotoPlacaBomba}
+                        onUpload={(e) => handleSingleImage(e, (url) => setBomba("fotoPlacaBomba", url), "placa-bomba")}
+                        onRemove={() => setBomba("fotoPlacaBomba", "")}
+                        label="Foto placa bomba"
                       />
+                    </td>
+                  </tr>
 
-                      {(img.puntos || []).map((p, pointIndex) => (
-                        <button
-                          key={p.id}
-                          type="button"
-                          title="Quitar punto"
-                          onClick={() => removeEstadoEquipoPoint(img.id, p.id)}
-                          className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow"
-                          style={{
-                            left: `${p.x * 100}%`,
-                            top: `${p.y * 100}%`,
-                            transform: "translate(-50%, -50%)",
-                          }}
-                        >
-                          <span className="sr-only">
-                            Punto {pointIndex + 1}
-                          </span>
-                        </button>
+                  {/* ── MOTOR ── */}
+                  <tr className="border-b bg-blue-50">
+                    <td colSpan={4} className="p-2 font-bold text-blue-800">⚡ MOTOR</td>
+                  </tr>
+                  {[
+                    ["MARCA",                    "marcaMotor",            "MODELO / TIPO",             "modeloTipoMotor"],
+                    ["VOLTAJE / FASE / FREC.",   "voltajeFaseFrecuencia", "S.F (FACTOR DE SERVICIO)",  "factorServicio"],
+                    ["GRADO DE PROTECCIÓN",      "gradoProteccion",       "TIPO DE CONSTRUCCIÓN",      "tipoConstruccionMotor"],
+                  ].map(([l1, f1, l2, f2], i) => (
+                    <tr key={i} className="border-b">
+                      <td className="border p-2 font-semibold bg-gray-50">{l1}</td>
+                      <td className="border p-1"><Input value={data.bomba[f1]} onChange={(e) => setBomba(f1, e.target.value)} /></td>
+                      <td className="border p-2 font-semibold bg-gray-50">{l2}</td>
+                      <td className="border p-1"><Input value={data.bomba[f2]} onChange={(e) => setBomba(f2, e.target.value)} /></td>
+                    </tr>
+                  ))}
+
+                  {/* Foto placa motor */}
+                  <tr className="border-b">
+                    <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA DEL MOTOR</td>
+                    <td colSpan={3} className="border p-2">
+                      <ImageUploadField
+                        url={data.bomba.fotoPlacaMotor}
+                        onUpload={(e) => handleSingleImage(e, (url) => setBomba("fotoPlacaMotor", url), "placa-motor")}
+                        onRemove={() => setBomba("fotoPlacaMotor", "")}
+                        label="Foto placa motor"
+                      />
+                    </td>
+                  </tr>
+
+                  {/* ── ACCESORIO / OBRA CIVIL ── */}
+                  <tr className="border-b bg-blue-50">
+                    <td colSpan={4} className="p-2 font-bold text-blue-800">🏗️ ACCESORIO / OBRA CIVIL</td>
+                  </tr>
+                  {[
+                    ["ACCESORIO",                    "accesorio",             "DIMENSIONES ACCESORIO (L/A/H)", "dimensionesAccesorio"],
+                    ["OBRA CIVIL",                   "obraCivil",             "DIMENSIONES OBRA CIVIL (L/A/H)","dimensionesObraCivil"],
+                  ].map(([l1, f1, l2, f2], i) => (
+                    <tr key={i} className="border-b">
+                      <td className="border p-2 font-semibold bg-gray-50">{l1}</td>
+                      <td className="border p-1"><Input value={data.bomba[f1]} onChange={(e) => setBomba(f1, e.target.value)} /></td>
+                      <td className="border p-2 font-semibold bg-gray-50">{l2}</td>
+                      <td className="border p-1"><Input value={data.bomba[f2]} onChange={(e) => setBomba(f2, e.target.value)} /></td>
+                    </tr>
+                  ))}
+
+                  {/* Fotos base */}
+                  <tr className="border-b">
+                    <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA BASE METÁLICA</td>
+                    <td className="border p-2">
+                      <ImageUploadField
+                        url={data.bomba.fotoPlacaBaseMetalica}
+                        onUpload={(e) => handleSingleImage(e, (url) => setBomba("fotoPlacaBaseMetalica", url), "base-metalica")}
+                        onRemove={() => setBomba("fotoPlacaBaseMetalica", "")}
+                        label="Foto base metálica"
+                      />
+                    </td>
+                    <td className="border p-2 font-semibold bg-gray-50">FOTO BASE DE CONCRETO</td>
+                    <td className="border p-2">
+                      <ImageUploadField
+                        url={data.bomba.fotoBaseConcrete}
+                        onUpload={(e) => handleSingleImage(e, (url) => setBomba("fotoBaseConcrete", url), "base-concreto")}
+                        onRemove={() => setBomba("fotoBaseConcrete", "")}
+                        label="Foto base concreto"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+          )}
+
+          {/* ════════════════════════════════════
+              DESCRIPCIÓN DEL EQUIPO — VÁLVULA
+          ════════════════════════════════════ */}
+          {!isBomba && (
+            <section className="border rounded overflow-hidden">
+              <div className="bg-gray-100 p-2 font-semibold text-sm text-center uppercase">
+                Descripción del Equipo
+              </div>
+              <table className="w-full text-sm border-collapse">
+                <tbody>
+                  <tr className="border-b bg-blue-50">
+                    <td colSpan={4} className="p-2 font-bold text-blue-800">🔩 VÁLVULA</td>
+                  </tr>
+                  {[
+                    ["FLUIDO",                    "fluido",                "MARCA",                  "marca"],
+                    ["MODELO / TIPO",             "modeloTipo",            "N° SERIE",               "serie"],
+                    ["LUGAR DE PROCEDENCIA",      "lugarProcedencia",      "DIÁMETRO",               "diametro"],
+                    ["PRESIÓN",                   "presion",               "CONEXIÓN",               "conexion"],
+                    ["NORMA DE BRIDADO",          "normaBridado",          "OPERACIÓN",              "operacion"],
+                    ["OPERACIÓN ACTUADOR",        "operacionActuador",     "TIPO DE ACTUADOR",       "tipoActuador"],
+                    ["VOLTAJE / FASE / FREC.",    "voltajeFaseFrecuencia", "PROTOCOLO COMUNICACIÓN", "protocoloComunicacion"],
+                  ].map(([l1, f1, l2, f2], i) => (
+                    <tr key={i} className="border-b">
+                      <td className="border p-2 font-semibold bg-gray-50 w-44">{l1}</td>
+                      <td className="border p-1"><Input value={data.valvula[f1]} onChange={(e) => setValvula(f1, e.target.value)} /></td>
+                      <td className="border p-2 font-semibold bg-gray-50 w-44">{l2}</td>
+                      <td className="border p-1"><Input value={data.valvula[f2]} onChange={(e) => setValvula(f2, e.target.value)} /></td>
+                    </tr>
+                  ))}
+
+                  {/* Foto placa válvula */}
+                  <tr className="border-b">
+                    <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA VÁLVULA</td>
+                    <td colSpan={3} className="border p-2">
+                      <ImageUploadField
+                        url={data.valvula.fotoPlacaValvula}
+                        onUpload={(e) => handleSingleImage(e, (url) => setValvula("fotoPlacaValvula", url), "placa-valvula")}
+                        onRemove={() => setValvula("fotoPlacaValvula", "")}
+                        label="Foto placa válvula"
+                      />
+                    </td>
+                  </tr>
+
+                  {/* Fotos actuador (siempre dos) */}
+                  <tr className="border-b">
+                    <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA ACTUADOR 1</td>
+                    <td className="border p-2">
+                      <ImageUploadField
+                        url={data.valvula.fotoPlacaActuador1}
+                        onUpload={(e) => handleSingleImage(e, (url) => setValvula("fotoPlacaActuador1", url), "actuador-1")}
+                        onRemove={() => setValvula("fotoPlacaActuador1", "")}
+                        label="Actuador 1"
+                      />
+                    </td>
+                    <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA ACTUADOR 2</td>
+                    <td className="border p-2">
+                      <ImageUploadField
+                        url={data.valvula.fotoPlacaActuador2}
+                        onUpload={(e) => handleSingleImage(e, (url) => setValvula("fotoPlacaActuador2", url), "actuador-2")}
+                        onRemove={() => setValvula("fotoPlacaActuador2", "")}
+                        label="Actuador 2"
+                      />
+                    </td>
+                  </tr>
+
+                  {/* ── DIMENSIONES ── */}
+                  <tr className="border-b bg-blue-50">
+                    <td colSpan={4} className="p-2 font-bold text-blue-800">📐 DIMENSIONES</td>
+                  </tr>
+                  {[
+                    ["DIST. ENTRE CARAS (F2F)",      "distanciaEntreCaras",  "LONGITUD CUERPO VÁLVULA",   "longitudCuerpo"],
+                    ["ESPESOR CONTRA BRIDAS",         "espesorContraBridas",  "N° PERFORACIONES EN BRIDA", "numPerforaciones"],
+                    ["DIÁMETRO AGUJERO EN BRIDA",     "diametroAgujero",      "MATERIAL TORNILLERÍA",      "materialTornilleria"],
+                  ].map(([l1, f1, l2, f2], i) => (
+                    <tr key={i} className="border-b">
+                      <td className="border p-2 font-semibold bg-gray-50">{l1}</td>
+                      <td className="border p-1"><Input value={data.valvula[f1]} onChange={(e) => setValvula(f1, e.target.value)} /></td>
+                      <td className="border p-2 font-semibold bg-gray-50">{l2}</td>
+                      <td className="border p-1"><Input value={data.valvula[f2]} onChange={(e) => setValvula(f2, e.target.value)} /></td>
+                    </tr>
+                  ))}
+
+                  {/* Registro fotográfico dimensional */}
+                  <tr className="border-b">
+                    <td className="border p-2 font-semibold bg-gray-50 align-top">REGISTRO FOTOGRÁFICO DIMENSIONAL</td>
+                    <td colSpan={3} className="border p-2">
+                      <div className="flex gap-2 mb-2 flex-wrap">
+                        <label className="bg-gray-600 text-white text-xs px-3 py-1.5 rounded cursor-pointer hover:bg-gray-700">
+                          📁 Galería
+                          <input type="file" accept="image/*" multiple className="hidden"
+                            onChange={(e) => handleMultiImages(e, data.valvula.registroFotoDimensional,
+                              (cb) => setData((p) => {
+                                const updated = typeof cb === "function"
+                                  ? cb(p.valvula.registroFotoDimensional)
+                                  : cb;
+                                return { ...p, valvula: { ...p.valvula, registroFotoDimensional: updated } };
+                              }), "registro-dimensional"
+                            )}
+                          />
+                        </label>
+                        <label className="bg-blue-600 text-white text-xs px-3 py-1.5 rounded cursor-pointer hover:bg-blue-700">
+                          📷 Cámara
+                          <input type="file" accept="image/*" capture="environment" multiple className="hidden"
+                            onChange={(e) => handleMultiImages(e, data.valvula.registroFotoDimensional,
+                              (cb) => setData((p) => {
+                                const updated = typeof cb === "function"
+                                  ? cb(p.valvula.registroFotoDimensional)
+                                  : cb;
+                                return { ...p, valvula: { ...p.valvula, registroFotoDimensional: updated } };
+                              }), "registro-dimensional"
+                            )}
+                          />
+                        </label>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {(data.valvula.registroFotoDimensional || []).map((url, i) => (
+                          <div key={i} className="relative">
+                            <img src={url} className="w-full h-32 object-cover rounded border" />
+                            <button type="button"
+                              onClick={() => setData((p) => ({
+                                ...p,
+                                valvula: {
+                                  ...p.valvula,
+                                  registroFotoDimensional: p.valvula.registroFotoDimensional.filter((_, j) => j !== i)
+                                }
+                              }))}
+                              className="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow"
+                            >✕</button>
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+          )}
+
+          {/* ── ACTIVIDADES REALIZADAS ── */}
+          <h3 className="font-bold text-sm border-b pb-1">ACTIVIDADES REALIZADAS</h3>
+          <table className="w-full text-sm border-collapse border">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border p-2 w-12">ÍTEM</th>
+                <th className="border p-2 w-2/5">DESCRIPCIÓN</th>
+                <th className="border p-2">IMÁGENES</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.actividades.map((act, i) => (
+                <tr key={i}>
+                  <td className="border p-2 text-center align-top">{i + 1}</td>
+                  <td className="border p-2 align-top">
+                    <input
+                      className="w-full border rounded p-1 text-xs mb-1"
+                      placeholder="Título de la actividad"
+                      value={act.titulo}
+                      onChange={(e) => {
+                        const acts = [...data.actividades];
+                        acts[i] = { ...acts[i], titulo: e.target.value };
+                        set("actividades", acts);
+                      }}
+                    />
+                    <textarea
+                      className="w-full border rounded p-1 text-xs resize-none"
+                      rows={5}
+                      placeholder="Detalle de la actividad"
+                      value={act.detalle}
+                      onChange={(e) => {
+                        const acts = [...data.actividades];
+                        acts[i] = { ...acts[i], detalle: e.target.value };
+                        set("actividades", acts);
+                      }}
+                    />
+                    {data.actividades.length > 1 && (
+                      <button type="button"
+                        onClick={() => set("actividades", data.actividades.filter((_, j) => j !== i))}
+                        className="text-red-600 text-xs mt-1 hover:underline"
+                      >− Eliminar actividad</button>
+                    )}
+                  </td>
+                  <td className="border p-2 align-top">
+                    <div className="flex gap-2 mb-2 flex-wrap">
+                      <label className="bg-gray-600 text-white text-xs px-2 py-1 rounded cursor-pointer hover:bg-gray-700">
+                        📁 Seleccionar de galería
+                        <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleActividadImageUpload(e, i)} />
+                      </label>
+                      <label className="bg-blue-600 text-white text-xs px-2 py-1 rounded cursor-pointer hover:bg-blue-700">
+                        📷 Tomar foto con cámara
+                        <input type="file" accept="image/*" capture="environment" multiple className="hidden" onChange={(e) => handleActividadImageUpload(e, i)} />
+                      </label>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(act.imagenes || []).map((url, j) => (
+                        <div key={j} className="relative">
+                          <img src={url} className="w-full h-36 object-cover rounded border" />
+                          <button type="button"
+                            onClick={() => removeActividadImage(i, j)}
+                            className="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow"
+                          >✕</button>
+                        </div>
                       ))}
                     </div>
-
-                    <p className="text-[11px] text-gray-500">
-                      Toque sobre la fotografía para agregar puntos rojos en las
-                      novedades observadas.
-                    </p>
-
-                    <div className="space-y-2">
-                      {(img.puntos || []).length === 0 ? (
-                        <div className="text-xs text-gray-400">
-                          Sin puntos marcados
-                        </div>
-                      ) : (
-                        img.puntos.map((p, pointIndex) => (
-                          <div key={p.id} className="flex items-start gap-2">
-                            <div className="text-sm text-gray-700 pt-2 min-w-[24px]">
-                              {pointIndex + 1})
-                            </div>
-                            <input
-                              className="pdf-input w-full"
-                              placeholder={`Observación punto ${pointIndex + 1}`}
-                              value={p.observacion}
-                              onChange={(e) =>
-                                updateEstadoEquipoPointObservation(
-                                  img.id,
-                                  p.id,
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── ACTIVIDADES REALIZADAS ── */}
-        <h3 className="font-bold text-sm border-b pb-1">
-          ACTIVIDADES REALIZADAS
-        </h3>
-
-        <table className="pdf-table w-full">
-          <thead>
-            <tr>
-              <th style={{ width: 50 }}>ÍTEM</th>
-              <th style={{ width: "35%" }}>DESCRIPCIÓN</th>
-              <th style={{ width: "55%" }}>IMÁGENES</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.actividades.map((a, i) => (
-              <tr key={i}>
-                <td className="text-center align-top">{i + 1}</td>
-
-                <td className="align-top">
-                  <textarea
-                    className="pdf-textarea w-full resize-none overflow-hidden"
-                    placeholder="Título de la actividad"
-                    value={a.titulo}
-                    rows={2}
-                    style={{ minHeight: "48px" }}
-                    onInput={autoResize}
-                    onChange={(e) =>
-                      update(["actividades", i, "titulo"], e.target.value)
-                    }
-                  />
-
-                  <textarea
-                    className="pdf-textarea w-full resize-none overflow-hidden mt-2"
-                    placeholder="Detalle de la actividad"
-                    value={a.detalle}
-                    rows={6}
-                    style={{ minHeight: "150px" }}
-                    onInput={autoResize}
-                    onChange={(e) =>
-                      update(["actividades", i, "detalle"], e.target.value)
-                    }
-                  />
-
-                  {data.actividades.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeActividad(i)}
-                      className="text-red-600 text-xs mt-2 hover:underline"
-                    >
-                      − Eliminar actividad
-                    </button>
-                  )}
-                </td>
-
-                <td className="align-top">
-                  <div className="flex flex-col md:flex-row gap-2 mb-3">
-                    <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer text-center hover:bg-gray-700 transition">
-                      📁 Seleccionar de galería
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        style={{ display: "none" }}
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files || []);
-                          const actuales =
-                            data.actividades?.[i]?.imagenes?.length || 0;
-                          const disponibles = Math.max(0, 4 - actuales);
-
-                          if (disponibles <= 0) {
-                            alert("Máximo 4 imágenes por actividad");
-                            e.target.value = null;
-                            return;
-                          }
-
-                          files.slice(0, disponibles).forEach((file) => {
-                            handleImageUpload(file, i);
-                          });
-
-                          if (files.length > disponibles) {
-                            alert("Máximo 4 imágenes por actividad");
-                          }
-
-                          e.target.value = null;
-                        }}
-                      />
-                    </label>
-
-                    <label className="bg-blue-600 text-white text-xs px-3 py-2 rounded cursor-pointer text-center hover:bg-blue-700 transition">
-                      📷 Tomar foto con cámara
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        multiple
-                        style={{ display: "none" }}
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files || []);
-                          const actuales =
-                            data.actividades?.[i]?.imagenes?.length || 0;
-                          const disponibles = Math.max(0, 4 - actuales);
-
-                          if (disponibles <= 0) {
-                            alert("Máximo 4 imágenes por actividad");
-                            e.target.value = null;
-                            return;
-                          }
-
-                          files.slice(0, disponibles).forEach((file) => {
-                            handleImageUpload(file, i);
-                          });
-
-                          if (files.length > disponibles) {
-                            alert("Máximo 4 imágenes por actividad");
-                          }
-
-                          e.target.value = null;
-                        }}
-                      />
-                    </label>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    {(a.imagenes || []).map((img, imgIndex) => (
-                      <div key={imgIndex} className="relative">
-                        <img
-                          src={img}
-                          alt="actividad"
-                          className="w-full aspect-[4/3] object-cover bg-gray-100 border rounded"
-                        />
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setData((prev) => {
-                              const copy = { ...prev };
-                              copy.actividades = [...copy.actividades];
-
-                              const actividad = {
-                                ...copy.actividades[i],
-                                imagenes: [...(copy.actividades[i].imagenes || [])],
-                              };
-
-                              actividad.imagenes.splice(imgIndex, 1);
-                              copy.actividades[i] = actividad;
-
-                              return copy;
-                            });
-                          }}
-                          className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center shadow"
-                        >
-                          ✕
-                        </button>
+                    {!(act.imagenes?.length) && (
+                      <div className="border rounded bg-gray-50 h-28 flex items-center justify-center text-xs text-gray-400">
+                        Sin imágenes cargadas
                       </div>
-                    ))}
-                  </div>
-
-                  {(a.imagenes || []).length === 0 && (
-                    <div className="border rounded bg-gray-50 h-[170px] flex items-center justify-center text-sm text-gray-400">
-                      Sin imágenes cargadas
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <button
-          type="button"
-          onClick={addActividad}
-          className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded transition"
-        >
-          + Agregar actividad
-        </button>
-
-        {/* ── CONCLUSIONES Y RECOMENDACIONES ── */}
-        <h3 className="font-bold text-sm border-b pb-1">
-          CONCLUSIONES Y RECOMENDACIONES
-        </h3>
-
-        <table className="pdf-table w-full">
-          <thead>
-            <tr>
-              <th style={{ width: 30 }}>#</th>
-              <th>CONCLUSIONES</th>
-              <th style={{ width: 30 }}>#</th>
-              <th>RECOMENDACIONES</th>
-              {data.conclusiones.length > 1 && (
-                <th style={{ width: 60 }}></th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {data.conclusiones.map((_, i) => (
-              <tr key={i}>
-                <td style={{ textAlign: "center" }}>{i + 1}</td>
-                <td>
-                  <textarea
-                    className="pdf-textarea w-full resize-none overflow-hidden"
-                    placeholder="Conclusión"
-                    value={data.conclusiones[i]}
-                    rows={3}
-                    style={{ minHeight: "70px" }}
-                    onInput={autoResize}
-                    onChange={(e) =>
-                      update(["conclusiones", i], e.target.value)
-                    }
-                  />
-                </td>
-
-                <td style={{ textAlign: "center" }}>{i + 1}</td>
-                <td>
-                  <textarea
-                    className="pdf-textarea w-full resize-none overflow-hidden"
-                    placeholder="Recomendación"
-                    value={data.recomendaciones[i]}
-                    rows={3}
-                    style={{ minHeight: "70px" }}
-                    onInput={autoResize}
-                    onChange={(e) =>
-                      update(["recomendaciones", i], e.target.value)
-                    }
-                  />
-                </td>
-
-                {data.conclusiones.length > 1 && (
-                  <td className="text-center">
-                    <button
-                      type="button"
-                      onClick={() => removeConclusionRow(i)}
-                      className="text-red-600 text-xs hover:underline"
-                    >
-                      − Eliminar
-                    </button>
+                    )}
                   </td>
-                )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <button type="button"
+            onClick={() => set("actividades", [...data.actividades, { titulo: "", detalle: "", imagenes: [] }])}
+            className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded"
+          >+ Agregar actividad</button>
+
+          {/* ── CONCLUSIONES Y RECOMENDACIONES ── */}
+          <h3 className="font-bold text-sm border-b pb-1">CONCLUSIONES Y RECOMENDACIONES</h3>
+          <table className="w-full text-sm border-collapse border">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border p-2 w-8">#</th>
+                <th className="border p-2">CONCLUSIONES</th>
+                <th className="border p-2 w-8">#</th>
+                <th className="border p-2">RECOMENDACIONES</th>
+                {data.conclusiones.length > 1 && <th className="border p-2 w-16"></th>}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.conclusiones.map((_, i) => (
+                <tr key={i}>
+                  <td className="border p-2 text-center">{i + 1}</td>
+                  <td className="border p-1">
+                    <textarea className="w-full border-0 outline-none text-xs p-1 resize-none" rows={3}
+                      value={data.conclusiones[i]}
+                      onChange={(e) => {
+                        const c = [...data.conclusiones]; c[i] = e.target.value; set("conclusiones", c);
+                      }}
+                    />
+                  </td>
+                  <td className="border p-2 text-center">{i + 1}</td>
+                  <td className="border p-1">
+                    <textarea className="w-full border-0 outline-none text-xs p-1 resize-none" rows={3}
+                      value={data.recomendaciones[i]}
+                      onChange={(e) => {
+                        const r = [...data.recomendaciones]; r[i] = e.target.value; set("recomendaciones", r);
+                      }}
+                    />
+                  </td>
+                  {data.conclusiones.length > 1 && (
+                    <td className="border p-2 text-center">
+                      <button type="button" className="text-red-600 text-xs hover:underline"
+                        onClick={() => {
+                          set("conclusiones", data.conclusiones.filter((_, j) => j !== i));
+                          set("recomendaciones", data.recomendaciones.filter((_, j) => j !== i));
+                        }}
+                      >− Eliminar</button>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <button type="button"
+            onClick={() => { set("conclusiones", [...data.conclusiones, ""]); set("recomendaciones", [...data.recomendaciones, ""]); }}
+            className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded"
+          >+ Agregar conclusión / recomendación</button>
 
-        <button
-          type="button"
-          onClick={addConclusionRow}
-          className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded transition"
-        >
-          + Agregar conclusión / recomendación
-        </button>
-
-        {/* ── FIRMAS ── */}
-        <table className="pdf-table w-full">
-          <thead>
-            <tr>
-              <th>FIRMA TÉCNICO ASTAP</th>
-              <th>FIRMA CLIENTE</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style={{ height: 220 }}>
-                <div className="border rounded bg-white h-[160px]">
-                  <SignatureCanvas
-                    ref={sigTecnico}
-                    onBegin={() => {
-                      document.activeElement?.blur();
-                      document.body.style.overflow = "hidden";
-                    }}
-                    onEnd={() => {
-                      document.body.style.overflow = "";
-                    }}
-                    canvasProps={{
-                      className: "w-full h-full",
-                    }}
+          {/* ── FIRMAS ── */}
+          <table className="w-full text-sm border-collapse border">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border p-2 text-center">FIRMA TÉCNICO ASTAP</th>
+                <th className="border p-2 text-center">FIRMA CLIENTE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border p-2 align-top" style={{ height: 200 }}>
+                  <div className="border rounded bg-white h-36">
+                    <SignatureCanvas ref={sigTecnico} penColor="black" minWidth={0.5} maxWidth={1.5}
+                      onBegin={() => { document.activeElement?.blur(); document.body.style.overflow = "hidden"; }}
+                      onEnd={() => { document.body.style.overflow = ""; }}
+                      canvasProps={{ className: "w-full h-full touch-none" }}
+                    />
+                  </div>
+                  <div className="text-center font-medium text-sm mt-2">{data.tecnicoNombre || "—"}</div>
+                  <div className="text-center">
+                    <button type="button" onClick={() => { sigTecnico.current?.clear(); set("firmas", { ...data.firmas, tecnico: "" }); }}
+                      className="text-xs text-red-600 hover:underline">Borrar firma</button>
+                  </div>
+                </td>
+                <td className="border p-2 align-top" style={{ height: 200 }}>
+                  <div className="border rounded bg-white h-36">
+                    <SignatureCanvas ref={sigCliente} penColor="black" minWidth={0.5} maxWidth={1.5}
+                      onBegin={() => { document.activeElement?.blur(); document.body.style.overflow = "hidden"; }}
+                      onEnd={() => { document.body.style.overflow = ""; }}
+                      canvasProps={{ className: "w-full h-full touch-none" }}
+                    />
+                  </div>
+                  <input className="w-full border rounded mt-2 text-xs p-1 bg-gray-100" value={data.contacto} readOnly placeholder="Nombre del contacto" />
+                  <input className="w-full border rounded mt-1 text-xs p-1"
+                    value={data.firmas.clienteCedula || ""}
+                    onChange={(e) => set("firmas", { ...data.firmas, clienteCedula: e.target.value })}
+                    placeholder="Cédula del cliente"
                   />
-                </div>
+                  <div className="text-center mt-1">
+                    <button type="button" onClick={() => { sigCliente.current?.clear(); set("firmas", { ...data.firmas, cliente: "" }); }}
+                      className="text-xs text-red-600 hover:underline">Borrar firma</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
-                <div className="mt-2 text-sm">
-                  <div className="font-medium">{data.tecnicoNombre || "—"}</div>
-                </div>
+          {/* ── BOTONES ── */}
+          <div className="flex justify-between gap-3 pt-4">
+            <button type="button" onClick={() => navigate("/informe")}
+              className="border px-6 py-2 rounded hover:bg-gray-50 transition">
+              Volver
+            </button>
+            <button type="button" onClick={save} disabled={uploading}
+              className={`px-6 py-2 rounded text-white transition ${uploading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"}`}>
+              {uploading
+                ? `Subiendo imágenes (${uploadingCount})...`
+                : isEditing ? "Actualizar informe" : "Guardar informe"}
+            </button>
+          </div>
 
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sigTecnico.current?.clear();
-                      setData((prev) => ({
-                        ...prev,
-                        firmas: { ...prev.firmas, tecnico: "" },
-                      }));
-                    }}
-                    className="text-xs text-red-600 mt-2 hover:underline"
-                  >
-                    Borrar firma
-                  </button>
-                </div>
-              </td>
-
-              <td style={{ height: 220 }}>
-                <div className="border rounded bg-white h-[160px]">
-                  <SignatureCanvas
-                    ref={sigCliente}
-                    onBegin={() => {
-                      document.activeElement?.blur();
-                      document.body.style.overflow = "hidden";
-                    }}
-                    onEnd={() => {
-                      document.body.style.overflow = "";
-                    }}
-                    canvasProps={{
-                      className: "w-full h-full",
-                    }}
-                  />
-                </div>
-
-                <div className="mt-2 space-y-1">
-                  <input
-                    className="pdf-input w-full bg-gray-100"
-                    value={data.cliente}
-                    readOnly
-                    placeholder="Nombre del cliente"
-                  />
-
-                  <input
-                    className="pdf-input w-full"
-                    value={data.firmas?.clienteCedula || ""}
-                    onChange={(e) =>
-                      update(["firmas", "clienteCedula"], e.target.value)
-                    }
-                    placeholder="Número de cédula del cliente"
-                  />
-                </div>
-
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sigCliente.current?.clear();
-                      setData((prev) => ({
-                        ...prev,
-                        firmas: { ...prev.firmas, cliente: "" },
-                      }));
-                    }}
-                    className="text-xs text-red-600 mt-2 hover:underline"
-                  >
-                    Borrar firma
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        {/* ── BOTONES ── */}
-        <div className="flex flex-col md:flex-row justify-between gap-3 pt-6">
-          <button
-            type="button"
-            onClick={() => navigate("/informe")}
-            className="border px-6 py-2 rounded hover:bg-gray-50 transition"
-          >
-            Volver
-          </button>
-
-          <button
-            type="button"
-            onClick={saveReport}
-            disabled={uploading}
-            className={`px-6 py-2 rounded text-white transition ${
-              uploading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-            }`}
-          >
-            {uploading
-              ? `Subiendo imágenes (${uploadingCount})...`
-              : isEditing
-              ? "Actualizar informe"
-              : "Guardar informe"}
-          </button>
         </div>
       </div>
+    </>
+  );
+}
+
+/* ─── Componente reutilizable para imagen única ─── */
+function ImageUploadField({ url, onUpload, onRemove, label }) {
+  return (
+    <div>
+      {url ? (
+        <div className="relative inline-block">
+          <img src={url} alt={label} className="max-h-48 rounded border object-contain" />
+          <button type="button" onClick={onRemove}
+            className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow">
+            ✕
+          </button>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <label className="bg-gray-600 text-white text-xs px-3 py-1.5 rounded cursor-pointer hover:bg-gray-700">
+            📁 Galería
+            <input type="file" accept="image/*" className="hidden" onChange={onUpload} />
+          </label>
+          <label className="bg-blue-600 text-white text-xs px-3 py-1.5 rounded cursor-pointer hover:bg-blue-700">
+            📷 Cámara
+            <input type="file" accept="image/*" capture="environment" className="hidden" onChange={onUpload} />
+          </label>
+        </div>
+      )}
     </div>
   );
 }
