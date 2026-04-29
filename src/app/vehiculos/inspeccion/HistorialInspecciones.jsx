@@ -229,15 +229,48 @@ export default function IndexInspeccion() {
               key={item.id}
               className="border rounded-lg p-3 flex justify-between items-center text-sm"
             >
-              <div>
-                <p className="font-medium">
-                  {item.data?.cliente || "Sin cliente"}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {item.subtipo} - {item.estado}
-                </p>
-              </div>
+      <div>
+  {/* 🔥 EXTRA: TIPO + ESTADO */}
+  <p className="text-[10px] text-gray-400 mb-1">
+    {item.subtipo} - {item.estado}
+  </p>
 
+  {/* CLIENTE */}
+  <p className="font-semibold text-gray-900">
+    {item.data?.cliente || "Sin cliente"}
+  </p>
+
+  {/* PEDIDO + INFORME */}
+  <p className="text-xs text-gray-600">
+    Pedido:{" "}
+    <strong>{item.data?.pedidoDemanda || "—"}</strong>{" "}
+    | Informe:{" "}
+    <strong>{item.data?.codInf || "—"}</strong>
+  </p>
+
+  {/* DESCRIPCIÓN */}
+  <p className="text-xs text-gray-500 italic">
+    {item.data?.descripcion || "Sin descripción"}
+  </p>
+
+  {/* FECHA */}
+  <p className="text-xs text-gray-400">
+    {new Date(item.updated_at || item.created_at).toLocaleString()}
+  </p>
+
+  {/* ESTADO VISUAL */}
+  <p className="mt-1">
+    <span
+      className={`px-2 py-0.5 rounded text-white text-[10px] ${
+        item.estado === "completado"
+          ? "bg-green-600"
+          : "bg-yellow-500"
+      }`}
+    >
+      {item.estado === "completado" ? "Completado" : "Borrador"}
+    </span>
+  </p>
+</div>
               <div className="flex gap-3 text-xs">
 
                 {item.estado === "completado" && (
