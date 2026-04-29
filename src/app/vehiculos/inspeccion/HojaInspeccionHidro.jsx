@@ -193,30 +193,7 @@ export default function HojaInspeccionHidro() {
   }, [id]);
 
   /* ─── AUTO-RELLENAR TÉCNICO LOGUEADO ─── */
-  useEffect(() => {
-    if (id && id !== "nuevo") return;
-
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (!data?.user) return;
-
-      const tech = TECHNICIANS.find(
-        (t) => t.email.toLowerCase() === data.user.email.toLowerCase()
-      );
-
-      if (tech) {
-        setFormData((p) => ({
-          ...p,
-          tecnicoNombre:   tech.name,
-          tecnicoTelefono: tech.phone,
-          tecnicoCorreo:   tech.email,
-        }));
-      }
-    };
-
-    getUser();
-  }, []);
-
+  
   /* ─── HELPERS ─── */
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -224,15 +201,17 @@ export default function HojaInspeccionHidro() {
   };
 
   const handleItemChange = (codigo, campo, valor) => {
-    setFormData((p) => ({
-      ...p,
-      items: {
-        ...p.items,
-        [codigo]: { ...p.items[codigo], [campo]: valor },
+  setFormData((prev) => ({
+    ...prev,
+    items: {
+      ...prev.items,
+      [codigo]: {
+        ...(prev.items[codigo] || {}), // 🔥 FIX
+        [campo]: valor,
       },
-    }));
-  };
-
+    },
+  }));
+};
   /* ─── PROGRESO CHECKLIST ─── */
   const itemsMarcados = todosLosItems.filter((c) => formData.items[c]?.estado).length;
   const totalItems    = todosLosItems.length;
@@ -719,7 +698,7 @@ export default function HojaInspeccionHidro() {
         </table>
 
         {/* ── BOTONES PDF ── */}
-        <PdfInspeccionButtons targetId="pdf-inspeccion-hidro" />
+        
 
       </div>{/* fin pdf-container */}
 
