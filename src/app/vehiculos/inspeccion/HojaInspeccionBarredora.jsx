@@ -243,31 +243,7 @@ export default function HojaInspeccionBarredora() {
     loadInspection();
   }, [id]);
 
-  /* ─── AUTO-RELLENAR TÉCNICO LOGUEADO ─── */
-  useEffect(() => {
-    if (id && id !== "nuevo") return;
-
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (!data?.user) return;
-
-      const tech = TECHNICIANS.find(
-        (t) => t.email.toLowerCase() === data.user.email.toLowerCase()
-      );
-
-      if (tech) {
-        setFormData((p) => ({
-          ...p,
-          tecnicoNombre:   tech.name,
-          tecnicoTelefono: tech.phone,
-          tecnicoCorreo:   tech.email,
-        }));
-      }
-    };
-
-    getUser();
-  }, []);
-
+ 
   /* ─── HELPERS ─── */
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -753,9 +729,6 @@ export default function HojaInspeccionBarredora() {
               </tr>
             </tbody>
           </table>
-
-          {/* ── BOTONES PDF ── */}
-          <PdfInspeccionButtons targetId="pdf-inspeccion-barredora" />
 
         </div>{/* fin pdf-container */}
 
