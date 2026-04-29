@@ -208,6 +208,7 @@ export default function HojaInspeccionHidro() {
   };
 
   const [formData, setFormData] = useState(baseState);
+   const [successMsg, setSuccessMsg] = useState("");
 
   /* ─── CARGAR REGISTRO EXISTENTE ─── */
   useEffect(() => {
@@ -377,19 +378,29 @@ const { data: { user } } = await supabase.auth.getUser();
 
 try {
   await saveOrUpdateReport({
-    id: id && id !== "nuevo" ? id : null,
-    tipo: "inspeccion",
-    subtipo: "hidro",
-    data: payload,
-    estado: estadoFinal,
-    user_id: user?.id, // ✅ ahora sí existe
-  });
+  id: id && id !== "nuevo" ? id : null,
+  tipo: "inspeccion",
+  subtipo: "hidro",
+  data: payload,
+  estado: estadoFinal,
+  user_id: user?.id,
+});
 
-  alert("Guardado correctamente ✅");
+// 🔥 mensaje visual
+setSuccessMsg("Guardado correctamente ✅");
 
-} catch (err) {
+setTimeout(() => {
+  navigate("/inspeccion");
+}, 1200);
+
+// 🔥 redirección automática
+setTimeout(() => {
+  navigate("/inspeccion"); // 🔥 OJO: esta es tu ruta real
+}, 1200);
+
+}catch (err) {
   console.error("ERROR REAL:", err);
-  alert(err.message);
+  setSuccessMsg("Error al guardar ❌");
 }
   };
 
@@ -399,6 +410,15 @@ try {
   const inspeccionLista = formData.firmas?.tecnico && formData.firmas?.cliente;
 
   return (
+     <>
+     {successMsg && (
+  <div
+    className={`fixed top-6 right-6 px-4 py-3 rounded shadow-lg z-50 transition-all duration-300 text-white
+    ${successMsg.includes("Error") ? "bg-red-600" : "bg-green-600"}`}
+  >
+    {successMsg}
+  </div>
+)}
     <form
       onSubmit={handleSubmit}
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
