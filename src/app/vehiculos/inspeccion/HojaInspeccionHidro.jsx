@@ -129,10 +129,22 @@ onChange={() => onItemChange(codigo, "estado", op)}
             <td className="border p-1">
           <textarea
   value={items[codigo]?.observacion || ""}
-  onChange={(e) =>
-    onItemChange(codigo, "observacion", e.target.value)
-  }
-  className="w-full border-0 outline-none text-xs p-1 resize-y min-h-[40px]"
+  onChange={(e) => {
+    onItemChange(codigo, "observacion", e.target.value);
+
+    // 🔥 AUTO EXPANSIÓN EN TIEMPO REAL
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
+  }}
+  ref={(el) => {
+    if (el) {
+      // 🔥 AJUSTE AUTOMÁTICO AL CARGAR (cuando viene de DB)
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
+    }
+  }}
+  placeholder="Observaciones..."
+  className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[40px]"
 />
             </td>
           </tr>
