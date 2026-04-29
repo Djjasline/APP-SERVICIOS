@@ -97,7 +97,49 @@ const todosLosItems = [
   ...pruebasPrevias.map(([c]) => c),
   ...secciones.flatMap((s) => s.items.map(([c]) => c)),
 ];
-
+ /* ─── COMPONENTE TABLA DE ÍTEMS (SI / NO / N/A) ─── */
+  const TablaItems = ({ lista, items, onItemChange }) => (
+    <table className="w-full text-sm border border-collapse">
+      <thead className="bg-gray-100">
+        <tr>
+          <th className="border p-1 w-14 text-center">Artículo</th>
+          <th className="border p-1 text-left">Detalle</th>
+          <th className="border p-1 w-10 text-center">SI</th>
+          <th className="border p-1 w-10 text-center">NO</th>
+          <th className="border p-1 w-10 text-center">N/A</th>
+          <th className="border p-1 text-left">Observación</th>
+        </tr>
+      </thead>
+      <tbody>
+        {lista.map(([codigo, texto]) => (
+          <tr key={codigo} className="hover:bg-gray-50">
+            <td className="border p-1 text-center font-mono text-xs">{codigo}</td>
+            <td className="border p-1">{texto}</td>
+            {["SI", "NO", "N/A"].map((op) => (
+              <td key={op} className="border p-1 text-center">
+                <input
+                  type="radio"
+                  name={`${codigo}-estado`}
+                  checked={items[codigo]?.estado === op}
+onChange={() => onItemChange(codigo, "estado", op)}
+                  className="cursor-pointer"
+                />
+              </td>
+            ))}
+            <td className="border p-1">
+          <textarea
+  value={items[codigo]?.observacion || ""}
+  onChange={(e) =>
+    onItemChange(codigo, "observacion", e.target.value)
+  }
+  className="w-full border-0 outline-none text-xs p-1 resize-y min-h-[40px]"
+/>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 export default function HojaInspeccionHidro() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -336,49 +378,7 @@ const url = await uploadRegistroImage(
     }
   };
 
-  /* ─── COMPONENTE TABLA DE ÍTEMS (SI / NO / N/A) ─── */
-  const TablaItems = ({ lista, items, onItemChange }) => (
-    <table className="w-full text-sm border border-collapse">
-      <thead className="bg-gray-100">
-        <tr>
-          <th className="border p-1 w-14 text-center">Artículo</th>
-          <th className="border p-1 text-left">Detalle</th>
-          <th className="border p-1 w-10 text-center">SI</th>
-          <th className="border p-1 w-10 text-center">NO</th>
-          <th className="border p-1 w-10 text-center">N/A</th>
-          <th className="border p-1 text-left">Observación</th>
-        </tr>
-      </thead>
-      <tbody>
-        {lista.map(([codigo, texto]) => (
-          <tr key={codigo} className="hover:bg-gray-50">
-            <td className="border p-1 text-center font-mono text-xs">{codigo}</td>
-            <td className="border p-1">{texto}</td>
-            {["SI", "NO", "N/A"].map((op) => (
-              <td key={op} className="border p-1 text-center">
-                <input
-                  type="radio"
-                  name={`${codigo}-estado`}
-                  checked={items[codigo]?.estado === op}
-onChange={() => onItemChange(codigo, "estado", op)}
-                  className="cursor-pointer"
-                />
-              </td>
-            ))}
-            <td className="border p-1">
-          <textarea
-  value={items[codigo]?.observacion || ""}
-  onChange={(e) =>
-    onItemChange(codigo, "observacion", e.target.value)
-  }
-  className="w-full border-0 outline-none text-xs p-1 resize-y min-h-[40px]"
-/>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+ 
 
   /* ─── RENDER ─── */
   const inspeccionLista = formData.firmas?.tecnico && formData.firmas?.cliente;
