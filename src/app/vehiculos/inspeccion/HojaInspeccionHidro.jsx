@@ -365,8 +365,9 @@ const url = await uploadRegistroImage(
               </td>
             ))}
             <td className="border p-1">
-             <textarea
-  defaultValue={formData.items[codigo]?.observacion || ""}
+            <textarea
+  key={codigo} // 🔥 MUY IMPORTANTE
+  value={formData.items[codigo]?.observacion || ""}
   onChange={(e) =>
     handleItemChange(codigo, "observacion", e.target.value)
   }
