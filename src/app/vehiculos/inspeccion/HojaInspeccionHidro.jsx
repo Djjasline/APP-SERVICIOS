@@ -366,12 +366,12 @@ const url = await uploadRegistroImage(
             ))}
             <td className="border p-1">
              <textarea
-  className="w-full border-0 outline-none text-xs p-0.5 resize-none"
-  rows={2}
-  value={formData.items[codigo]?.observacion || ""}
+  defaultValue={formData.items[codigo]?.observacion || ""}
   onChange={(e) =>
     handleItemChange(codigo, "observacion", e.target.value)
   }
+  className="w-full border-0 outline-none text-xs p-0.5 resize-none"
+  rows={2}
 />
             </td>
           </tr>
