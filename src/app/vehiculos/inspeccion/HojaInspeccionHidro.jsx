@@ -369,25 +369,28 @@ const url = await uploadRegistroImage(
       },
     };
 
-    const estadoFinal =
-      payload.firmas.tecnico && payload.firmas.cliente ? "completado" : "borrador";
+   const estadoFinal =
+  payload.firmas.tecnico && payload.firmas.cliente ? "completado" : "borrador";
 
-    try {
-     await saveOrUpdateReport({
-  id: id && id !== "nuevo" ? id : null,
-  tipo: "inspeccion",
-  subtipo: "hidro",
-  data: payload,
-  estado: estadoFinal,
-  user_id: user?.id, // 🔥 CLAVE
-});
+// 🔥 ESTA LÍNEA FALTABA
+const { data: { user } } = await supabase.auth.getUser();
 
-      alert("Inspección guardada ✅");
-      navigate("/inspeccion");
-    } catch (err) {
-      console.error("Error guardando:", err);
-      alert("Error guardando ❌");
-    }
+try {
+  await saveOrUpdateReport({
+    id: id && id !== "nuevo" ? id : null,
+    tipo: "inspeccion",
+    subtipo: "hidro",
+    data: payload,
+    estado: estadoFinal,
+    user_id: user?.id, // ✅ ahora sí existe
+  });
+
+  alert("Guardado correctamente ✅");
+
+} catch (err) {
+  console.error("ERROR REAL:", err);
+  alert(err.message);
+}
   };
 
  
