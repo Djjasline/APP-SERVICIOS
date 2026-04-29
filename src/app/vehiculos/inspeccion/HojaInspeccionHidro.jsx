@@ -337,7 +337,7 @@ const url = await uploadRegistroImage(
   };
 
   /* ─── COMPONENTE TABLA DE ÍTEMS (SI / NO / N/A) ─── */
-  const TablaItems = React.memo(({ lista, items, onItemChange }) => (
+  const TablaItems = ({ lista, items, onItemChange }) => (
     <table className="w-full text-sm border border-collapse">
       <thead className="bg-gray-100">
         <tr>
@@ -366,14 +366,12 @@ onChange={() => onItemChange(codigo, "estado", op)}
               </td>
             ))}
             <td className="border p-1">
-            <textarea
-  key={codigo} // 🔥 MUY IMPORTANTE
+          <textarea
   value={items[codigo]?.observacion || ""}
-onChange={(e) =>
-  onItemChange(codigo, "observacion", e.target.value)
-}
-  className="w-full border-0 outline-none text-xs p-0.5 resize-none"
-  rows={2}
+  onChange={(e) =>
+    onItemChange(codigo, "observacion", e.target.value)
+  }
+  className="w-full border-0 outline-none text-xs p-1 resize-y min-h-[40px]"
 />
             </td>
           </tr>
