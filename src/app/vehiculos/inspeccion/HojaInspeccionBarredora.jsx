@@ -579,7 +579,7 @@ export default function HojaInspeccionBarredora() {
               onClick={handleImageClick}
             >
               <img
-                src={formData.estadoEquipoImagenUrl || "/estado-equipo-barredora.png"}
+                src={formData.estadoEquipoImagenUrl || "/estado equipo barredora.png"}
                 crossOrigin="anonymous"
                 className="w-full"
                 draggable={false}
