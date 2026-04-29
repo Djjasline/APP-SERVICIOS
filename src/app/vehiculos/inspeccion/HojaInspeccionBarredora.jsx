@@ -64,7 +64,7 @@ const secciones = [
   },
   {
     id: "D",
-    titulo: "D) SISTEMA DE SUCCIÓN",
+    titulo: "D) SISTEMA DE RECOLECCIÓN",
     items: [
       ["D.1", "Estado de la banda"],
       ["D.2", "Estado de las cerdas de los cepillos"],
