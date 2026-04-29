@@ -393,11 +393,6 @@ setTimeout(() => {
   navigate("/inspeccion");
 }, 1200);
 
-// 🔥 redirección automática
-setTimeout(() => {
-  navigate("/inspeccion"); // 🔥 OJO: esta es tu ruta real
-}, 1200);
-
 }catch (err) {
   console.error("ERROR REAL:", err);
   setSuccessMsg("Error al guardar ❌");
@@ -784,5 +779,6 @@ setTimeout(() => {
         </button>
       </div>
     </form>
+     </>
   );
 }
