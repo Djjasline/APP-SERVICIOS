@@ -235,7 +235,13 @@ export default function HojaInspeccionHidro() {
         initialQuality: 0.8,
       });
 
-      const url = await uploadRegistroImage(compressed, id || "temp", "estado-equipo");
+      const realId = id && id !== "nuevo" ? id : crypto.randomUUID();
+
+const url = await uploadRegistroImage(
+  compressed,
+  realId,
+  "estado-equipo"
+);
 
       if (url) {
         setFormData((p) => ({
@@ -312,13 +318,14 @@ export default function HojaInspeccionHidro() {
       payload.firmas.tecnico && payload.firmas.cliente ? "completado" : "borrador";
 
     try {
-      await saveOrUpdateReport({
-        id: id && id !== "nuevo" ? id : null,
-        tipo: "inspeccion",
-        subtipo: "hidro",
-        data: payload,
-        estado: estadoFinal,
-      });
+     await saveOrUpdateReport({
+  id: id && id !== "nuevo" ? id : null,
+  tipo: "inspeccion",
+  subtipo: "hidro",
+  data: payload,
+  estado: estadoFinal,
+  user_id: user?.id, // 🔥 CLAVE
+});
 
       alert("Inspección guardada ✅");
       navigate("/inspeccion");
@@ -534,11 +541,11 @@ export default function HojaInspeccionHidro() {
             onClick={handleImageClick}
           >
             <img
-              src={formData.estadoEquipoImagenUrl || "/estado-equipo.png"}
-              className="w-full"
-              draggable={false}
-              alt="estado equipo"
-            />
+  src={formData.estadoEquipoImagenUrl || "/estado-equipo.png"}
+  crossOrigin="anonymous" // 🔥 AÑADIR
+  className="w-full"
+  draggable={false}
+/>
             {formData.estadoEquipoPuntos.map((pt) => (
               <div
                 key={pt.id}
