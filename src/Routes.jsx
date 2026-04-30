@@ -19,10 +19,20 @@ import AreaPetroleo from "./pages/AreaPetroleo";
 import AreaOperaciones from "./pages/AreaOperaciones";
 import AreaRepositorios from "./pages/AreaRepositorios";
 
-// ================= INFORMES =================
+// ================= INFORMES VEHÍCULOS =================
 import InformeHome from "./app/vehiculos/informe/InformeHome";
 import NuevoInforme from "./app/vehiculos/informe/NuevoInforme";
 import InformePDF from "./app/vehiculos/informe/InformePDF";
+
+// ================= INFORMES AGUA =================
+import AguaInformeHome from "./app/agua/informe/InformeHome";
+import AguaNuevoInforme from "./app/agua/informe/NuevoInforme";
+import AguaInformePDF from "./app/agua/informe/InformePDF";
+
+// ================= INFORMES PETRÓLEO =================
+import PetroleoInformeHome from "./app/petroleo/informe/InformeHome";
+import PetroleoNuevoInforme from "./app/petroleo/informe/NuevoInforme";
+import PetroleoInformePDF from "./app/petroleo/informe/InformePDF";
 
 // ================= INSPECCIONES =================
 import HistorialInspecciones from "./app/vehiculos/inspeccion/HistorialInspecciones";
@@ -45,6 +55,14 @@ import HojaRecepcion from "./app/operaciones/recepcion/HojaRecepcion";
 
 import RegistroHome from "./app/operaciones/registro/RegistroHome";
 
+const TechRoute = ({ children }) => (
+  <RoleRoute allowedRoles={["admin", "tecnico"]}>{children}</RoleRoute>
+);
+
+const AdminRoute = ({ children }) => (
+  <RoleRoute allowedRoles={["admin"]}>{children}</RoleRoute>
+);
+
 export default function RoutesApp() {
   return (
     <AuthProvider>
@@ -65,327 +83,100 @@ export default function RoutesApp() {
             <Route path="/" element={<PanelServicios />} />
 
             {/* ================= ÁREAS ================= */}
-            <Route
-              path="/area/vehiculos"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <AreaVehiculos />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/area/agua"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <AreaAgua />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/area/petroleo"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <AreaPetroleo />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/operaciones"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <AreaOperaciones />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/repositorios"
-              element={
-                <RoleRoute allowedRoles={["admin"]}>
-                  <AreaRepositorios />
-                </RoleRoute>
-              }
-            />
+            <Route path="/area/vehiculos" element={<TechRoute><AreaVehiculos /></TechRoute>} />
+            <Route path="/area/agua" element={<TechRoute><AreaAgua /></TechRoute>} />
+            <Route path="/area/petroleo" element={<TechRoute><AreaPetroleo /></TechRoute>} />
+            <Route path="/operaciones" element={<TechRoute><AreaOperaciones /></TechRoute>} />
+            <Route path="/repositorios" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
 
             {/* ================= VEHÍCULOS / INFORMES ================= */}
-            <Route
-              path="/informe"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <InformeHome />
-                </RoleRoute>
-              }
-            />
+            <Route path="/informe" element={<TechRoute><InformeHome /></TechRoute>} />
+            <Route path="/informe/nuevo" element={<TechRoute><NuevoInforme /></TechRoute>} />
+            <Route path="/informe/:id" element={<TechRoute><NuevoInforme /></TechRoute>} />
 
-            <Route
-              path="/informe/nuevo"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <NuevoInforme />
-                </RoleRoute>
-              }
-            />
+            <Route path="/vehiculos/informe" element={<TechRoute><InformeHome /></TechRoute>} />
+            <Route path="/vehiculos/informe/nuevo" element={<TechRoute><NuevoInforme /></TechRoute>} />
+            <Route path="/vehiculos/informe/:id" element={<TechRoute><NuevoInforme /></TechRoute>} />
 
-            <Route
-              path="/informe/:id"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <NuevoInforme />
-                </RoleRoute>
-              }
-            />
+            {/* ================= AGUA / INFORMES ================= */}
+            <Route path="/agua/informe" element={<TechRoute><AguaInformeHome /></TechRoute>} />
+            <Route path="/agua/informe/nuevo" element={<TechRoute><AguaNuevoInforme /></TechRoute>} />
+            <Route path="/agua/informe/:id" element={<TechRoute><AguaNuevoInforme /></TechRoute>} />
 
-            {/* ================= AGUA ================= */}
-            <Route
-              path="/agua/informe"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <InformeHome />
-                </RoleRoute>
-              }
-            />
+            {/* ================= PETRÓLEO / INFORMES ================= */}
+            <Route path="/petroleo/informe" element={<TechRoute><PetroleoInformeHome /></TechRoute>} />
+            <Route path="/petroleo/informe/nuevo" element={<TechRoute><PetroleoNuevoInforme /></TechRoute>} />
+            <Route path="/petroleo/informe/:id" element={<TechRoute><PetroleoNuevoInforme /></TechRoute>} />
 
-            <Route
-              path="/agua/informe/nuevo"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <NuevoInforme />
-                </RoleRoute>
-              }
-            />
+            {/* ================= INSPECCIÓN ================= */}
+            <Route path="/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
+            <Route path="/vehiculos/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
+            <Route path="/agua/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
+            <Route path="/petroleo/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
 
-            <Route
-              path="/agua/informe/:id"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <NuevoInforme />
-                </RoleRoute>
-              }
-            />
+            <Route path="/inspeccion/hidro/new" element={<TechRoute><HojaInspeccionHidro /></TechRoute>} />
+            <Route path="/inspeccion/hidro/:id" element={<TechRoute><HojaInspeccionHidro /></TechRoute>} />
 
-            <Route
-              path="/agua/inspeccion"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HistorialInspecciones />
-                </RoleRoute>
-              }
-            />
+            <Route path="/inspeccion/barredora/new" element={<TechRoute><HojaInspeccionBarredora /></TechRoute>} />
+            <Route path="/inspeccion/barredora/:id" element={<TechRoute><HojaInspeccionBarredora /></TechRoute>} />
 
-            {/* ================= PETRÓLEO ================= */}
-            <Route
-              path="/petroleo/informe"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <InformeHome />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/petroleo/informe/nuevo"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <NuevoInforme />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/petroleo/informe/:id"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <NuevoInforme />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/petroleo/inspeccion"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HistorialInspecciones />
-                </RoleRoute>
-              }
-            />
-
-            {/* ================= INSPECCIÓN VEHÍCULOS ================= */}
-            <Route
-              path="/inspeccion"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HistorialInspecciones />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/inspeccion/hidro/new"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HojaInspeccionHidro />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/inspeccion/hidro/:id"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HojaInspeccionHidro />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/inspeccion/barredora/new"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HojaInspeccionBarredora />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/inspeccion/barredora/:id"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HojaInspeccionBarredora />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/inspeccion/camara/new"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HojaInspeccionCamara />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/inspeccion/camara/:id"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HojaInspeccionCamara />
-                </RoleRoute>
-              }
-            />
+            <Route path="/inspeccion/camara/new" element={<TechRoute><HojaInspeccionCamara /></TechRoute>} />
+            <Route path="/inspeccion/camara/:id" element={<TechRoute><HojaInspeccionCamara /></TechRoute>} />
 
             {/* ================= MANTENIMIENTO ================= */}
-            <Route
-              path="/mantenimiento"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <IndexMantenimiento />
-                </RoleRoute>
-              }
-            />
+            <Route path="/mantenimiento" element={<TechRoute><IndexMantenimiento /></TechRoute>} />
+            <Route path="/vehiculos/mantenimiento" element={<TechRoute><IndexMantenimiento /></TechRoute>} />
+            <Route path="/petroleo/mantenimiento" element={<TechRoute><IndexMantenimiento /></TechRoute>} />
 
-            <Route
-              path="/mantenimiento/hidro/new"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HojaMantenimientoHidro />
-                </RoleRoute>
-              }
-            />
+            <Route path="/mantenimiento/hidro/new" element={<TechRoute><HojaMantenimientoHidro /></TechRoute>} />
+            <Route path="/mantenimiento/hidro/:id" element={<TechRoute><HojaMantenimientoHidro /></TechRoute>} />
 
-            <Route
-              path="/mantenimiento/hidro/:id"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HojaMantenimientoHidro />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/mantenimiento/barredora/new"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HojaMantenimientoBarredora />
-                </RoleRoute>
-              }
-            />
-
-            <Route
-              path="/mantenimiento/barredora/:id"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HojaMantenimientoBarredora />
-                </RoleRoute>
-              }
-            />
+            <Route path="/mantenimiento/barredora/new" element={<TechRoute><HojaMantenimientoBarredora /></TechRoute>} />
+            <Route path="/mantenimiento/barredora/:id" element={<TechRoute><HojaMantenimientoBarredora /></TechRoute>} />
 
             {/* ================= OPERACIONES ================= */}
-            <Route
-              path="/liberacion"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <LiberacionHome />
-                </RoleRoute>
-              }
-            />
+            <Route path="/liberacion" element={<TechRoute><LiberacionHome /></TechRoute>} />
+            <Route path="/liberacion/new" element={<TechRoute><LiberacionForm /></TechRoute>} />
+            <Route path="/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
 
-            <Route
-              path="/liberacion/new"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <LiberacionForm />
-                </RoleRoute>
-              }
-            />
+            <Route path="/operaciones/liberacion" element={<TechRoute><LiberacionHome /></TechRoute>} />
+            <Route path="/operaciones/liberacion/new" element={<TechRoute><LiberacionForm /></TechRoute>} />
+            <Route path="/operaciones/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
 
-            <Route
-              path="/liberacion/:id"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <LiberacionDetalle />
-                </RoleRoute>
-              }
-            />
+            <Route path="/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
+            <Route path="/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
 
-            <Route
-              path="/recepcion"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <RecepcionHome />
-                </RoleRoute>
-              }
-            />
+            <Route path="/operaciones/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
+            <Route path="/operaciones/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
 
-            <Route
-              path="/recepcion/new"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <HojaRecepcion />
-                </RoleRoute>
-              }
-            />
+            <Route path="/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
+            <Route path="/operaciones/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
 
-            <Route
-              path="/registro"
-              element={
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <RegistroHome />
-                </RoleRoute>
-              }
-            />
+            {/* ================= REPOSITORIOS ================= */}
+            <Route path="/repositorios/documentos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
+            <Route path="/repositorios/pdf" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
+            <Route path="/repositorios/archivos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
           </Route>
 
-          {/* 🔥 PDF FUERA DEL LAYOUT */}
+          {/* ================= PDF FUERA DEL LAYOUT ================= */}
           <Route
             path="/informe/pdf/:id"
             element={
               <ProtectedRoute>
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
+                <TechRoute>
                   <InformePDF />
-                </RoleRoute>
+                </TechRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/vehiculos/informe/pdf/:id"
+            element={
+              <ProtectedRoute>
+                <TechRoute>
+                  <InformePDF />
+                </TechRoute>
               </ProtectedRoute>
             }
           />
@@ -394,9 +185,9 @@ export default function RoutesApp() {
             path="/agua/informe/pdf/:id"
             element={
               <ProtectedRoute>
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <InformePDF />
-                </RoleRoute>
+                <TechRoute>
+                  <AguaInformePDF />
+                </TechRoute>
               </ProtectedRoute>
             }
           />
@@ -405,9 +196,9 @@ export default function RoutesApp() {
             path="/petroleo/informe/pdf/:id"
             element={
               <ProtectedRoute>
-                <RoleRoute allowedRoles={["admin", "tecnico"]}>
-                  <InformePDF />
-                </RoleRoute>
+                <TechRoute>
+                  <PetroleoInformePDF />
+                </TechRoute>
               </ProtectedRoute>
             }
           />
