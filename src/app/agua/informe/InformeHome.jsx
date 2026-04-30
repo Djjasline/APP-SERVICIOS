@@ -8,7 +8,6 @@ export default function InformeHome() {
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState("todos");
 
-  // 🔥 FIX: agregado tecnico
   const [filters, setFilters] = useState({
     cliente: "",
     pedido: "",
@@ -25,6 +24,7 @@ export default function InformeHome() {
         const { data, error } = await supabase
           .from("registros")
           .select("*")
+          .eq("tipo", "informe")
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -48,7 +48,9 @@ export default function InformeHome() {
   =========================== */
   const filteredReports = reports.filter((r) => {
     const cliente = r.data?.cliente?.toLowerCase() || "";
+
     const pedido =
+      r.data?.pedidoDemanda?.toLowerCase() ||
       r.data?.referenciaContrato?.toLowerCase() ||
       r.data?.codInf?.toLowerCase() ||
       "";
@@ -60,11 +62,9 @@ export default function InformeHome() {
       (filter === "todos" ||
         (filter === "borrador" && r.estado !== "completado") ||
         (filter === "completado" && r.estado === "completado")) &&
-
       cliente.includes((filters.cliente || "").toLowerCase()) &&
       pedido.includes((filters.pedido || "").toLowerCase()) &&
       tecnico.includes((filters.tecnico || "").toLowerCase()) &&
-
       (!filters.fecha || (fecha && fecha.startsWith(filters.fecha)))
     );
   });
@@ -73,7 +73,7 @@ export default function InformeHome() {
      ABRIR
   =========================== */
   const openReport = (report) => {
-    navigate(`/informe/${report.id}`);
+    navigate(`/agua/informe/${report.id}`);
   };
 
   /* ===========================
@@ -98,18 +98,17 @@ export default function InformeHome() {
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
-
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <h1 className="text-lg font-semibold text-gray-900">
-          Informe general
+          Informe general - Agua
         </h1>
 
         <div className="flex items-center gap-3">
           <SyncStatus />
 
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/area/agua")}
             className="border border-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-100 transition"
           >
             Volver
@@ -119,7 +118,7 @@ export default function InformeHome() {
 
       {/* NUEVO */}
       <button
-        onClick={() => navigate("/informe/nuevo")}
+        onClick={() => navigate("/agua/informe/nuevo")}
         className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg transition"
       >
         Nuevo informe
@@ -144,7 +143,6 @@ export default function InformeHome() {
 
       {/* FILTROS INPUT */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-
         <input
           type="text"
           placeholder="Buscar cliente..."
@@ -183,12 +181,10 @@ export default function InformeHome() {
           }
           className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm"
         />
-
       </div>
 
       {/* LISTADO */}
       <div className="space-y-3">
-
         {filteredReports.length === 0 && (
           <div className="bg-gray-50 border rounded-xl p-6 text-gray-500">
             Sin registros
@@ -205,18 +201,27 @@ export default function InformeHome() {
                 {r.data?.cliente || "Sin cliente"}
               </p>
 
+              <p className="text-xs text-gray-600">
+                Pedido:{" "}
+                <strong>{r.data?.pedidoDemanda || "—"}</strong>{" "}
+                Informe:{" "}
+                <strong>{r.data?.codInf || "—"}</strong>
+              </p>
+
+              <p className="text-xs text-gray-500 italic">
+                {r.data?.referenciaContrato ||
+                  r.data?.descripcion ||
+                  "Sin descripción"}
+              </p>
+
               <p className="text-xs text-gray-500">
-                {new Date(
-                  r.updated_at || r.created_at
-                ).toLocaleString()}
+                {new Date(r.updated_at || r.created_at).toLocaleString()}
               </p>
 
               <p className="text-xs text-gray-600">
                 Estado:{" "}
                 <strong className="text-gray-900">
-                  {r.estado === "completado"
-                    ? "Completado"
-                    : "Borrador"}
+                  {r.estado === "completado" ? "Completado" : "Borrador"}
                 </strong>
               </p>
             </div>
@@ -231,7 +236,7 @@ export default function InformeHome() {
 
               {r.estado === "completado" && (
                 <button
-                  onClick={() => navigate(`/informe/pdf/${r.id}`)}
+                  onClick={() => navigate(`/agua/informe/pdf/${r.id}`)}
                   className="text-green-600 hover:underline font-semibold"
                 >
                   PDF
@@ -247,9 +252,7 @@ export default function InformeHome() {
             </div>
           </div>
         ))}
-
       </div>
-
     </div>
   );
 }
