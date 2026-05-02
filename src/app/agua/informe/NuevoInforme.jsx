@@ -429,6 +429,12 @@ export default function NuevoInformeBombaValvula() {
 
  {/* ── DATOS CLIENTE Y TÉCNICO ── */}
 <section className="border rounded overflow-hidden">
+   
+  {/* 🔥 TÍTULO */}
+  <div className="bg-gray-100 p-2 font-semibold text-sm uppercase">
+    DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE
+  </div>
+
   <table className="w-full text-sm border-collapse">
     <tbody>
       <tr className="border-b">
