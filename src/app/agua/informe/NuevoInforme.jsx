@@ -791,7 +791,7 @@ export default function NuevoInformeBombaValvula() {
             </tbody>
           </table>
           <button type="button"
-            ={() => set("actividades", [...data.actividades, { titulo: "", detalle: "", imagenes: [] }])}
+            onClick={() => set("actividades", [...data.actividades, { titulo: "", detalle: "", imagenes: [] }])}
             className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded"
           >+ Agregar actividad</button>
 
