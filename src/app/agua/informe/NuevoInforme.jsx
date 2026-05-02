@@ -287,6 +287,9 @@ export default function NuevoInformeBombaValvula() {
 
     const finalData = {
       ...data,
+      // 🔥 IDENTIFICADOR DEL MÓDULO
+  area: "agua",
+  modulo: "agua", 
       firmas: {
         ...data.firmas,
         tecnico: firmaTecnico,
@@ -308,7 +311,7 @@ export default function NuevoInformeBombaValvula() {
       });
 
       setSuccessMsg(isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
-      setTimeout(() => navigate("/informe"), 1200);
+      setTimeout(() => navigate("/agua/informe"), 1200);
     } catch (err) {
       console.error(err);
       setSuccessMsg("Error al guardar ❌");
@@ -788,7 +791,7 @@ export default function NuevoInformeBombaValvula() {
             </tbody>
           </table>
           <button type="button"
-            onClick={() => set("actividades", [...data.actividades, { titulo: "", detalle: "", imagenes: [] }])}
+            ={() => set("actividades", [...data.actividades, { titulo: "", detalle: "", imagenes: [] }])}
             className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded"
           >+ Agregar actividad</button>
 
@@ -893,7 +896,7 @@ export default function NuevoInformeBombaValvula() {
 
           {/* ── BOTONES ── */}
           <div className="flex justify-between gap-3 pt-4">
-            <button type="button" onClick={() => navigate("/informe")}
+            <button type="button" onClick={() => navigate("/agua/informe")}
               className="border px-6 py-2 rounded hover:bg-gray-50 transition">
               Volver
             </button>
