@@ -19,36 +19,34 @@ export default function InformeHome() {
      CARGAR DATA
   =========================== */
   useEffect(() => {
-    const loadReports = async () => {
-      try {
-    const { data, error } = await supabase
-  .from("registros")
-  .select("*")
-  .eq("tipo", "informe")
-  .order("created_at", { ascending: false });
+  const loadReports = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("registros")
+        .select("*")
+        .eq("tipo", "informe")
+        .order("created_at", { ascending: false });
 
-if (error) {
-  console.error("Error:", error);
-  setReports([]);
-  return;
-}
-
-// 🔥 SOLO INFORMES DE AGUA
-const onlyAgua = (data || []).filter(
-  (r) => r.data?.area === "agua" || r.data?.modulo === "agua"
-);
-
-setReports(onlyAgua);
-
-        setReports(data || []);
-      } catch (err) {
-        console.error("Error cargando:", err);
+      if (error) {
+        console.error("Error:", error);
         setReports([]);
+        return;
       }
-    };
 
-    loadReports();
-  }, []);
+      // 🔥 SOLO INFORMES DE AGUA
+      const onlyAgua = (data || []).filter(
+        (r) => r.data?.area === "agua" || r.data?.modulo === "agua"
+      );
+
+      setReports(onlyAgua);
+    } catch (err) {
+      console.error("Error cargando:", err);
+      setReports([]);
+    }
+  };
+
+  loadReports();
+}, []);
 
   /* ===========================
      FILTROS
