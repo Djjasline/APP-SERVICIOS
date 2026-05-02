@@ -359,90 +359,128 @@ export default function NuevoInformeBombaValvula() {
                     <Input value={data.descripcion} onChange={(e) => set("descripcion", e.target.value)} />
                   </td>
                 </tr>
-                <tr className="border-b">
-                  <td className="border-r p-2 font-semibold bg-gray-50">COD. INF.</td>
-                  <td className="border p-1">
-                    <Input value={data.codInf} onChange={(e) => set("codInf", e.target.value)} />
-                  </td>
-                  <td className="border p-2 font-semibold bg-gray-50 w-40">PEDIDO / DEMANDA</td>
-                  <td className="border p-1">
-                    <Input value={data.pedidoDemanda} onChange={(e) => set("pedidoDemanda", e.target.value)} />
-                  </td>
-                </tr>
+<tr className="border-b">
+  <td className="border-r p-2 font-semibold bg-gray-50 w-44">
+    COD. INF.
+  </td>
+  <td className="border p-1">
+    <Input
+      value={data.codInf}
+      onChange={(e) => set("codInf", e.target.value)}
+    />
+  </td>
+  <td className="border-r p-2 font-semibold bg-gray-50 w-44">
+    PEDIDO / DEMANDA
+  </td>
+  <td className="border p-1">
+    <Input
+      value={data.pedidoDemanda}
+      onChange={(e) => set("pedidoDemanda", e.target.value)}
+    />
+  </td>
+</tr>
+               
               </tbody>
             </table>
           </section>
 
           {/* ── DATOS CLIENTE Y TÉCNICO ── */}
-          <section className="border rounded overflow-hidden">
-            <table className="w-full text-sm border-collapse">
-              <tbody>
-                {[
-                  ["CLIENTE", "cliente", "DIRECCIÓN", "direccion"],
-                  ["CONTACTO", "contacto", "TELÉFONO", "telefono"],
-                  ["CORREO", "correo", null, null],
-                ].map(([l1, f1, l2, f2], i) => (
-                  <tr key={i} className="border-b">
-                    <td className="border p-2 font-semibold bg-gray-50 w-44">{l1}</td>
-                    <td className="border p-1" colSpan={l2 ? 1 : 3}>
-                      <Input value={data[f1]} onChange={(e) => set(f1, e.target.value)} />
-                    </td>
-                    {l2 && (
-                      <>
-                        <td className="border p-2 font-semibold bg-gray-50 w-44">{l2}</td>
-                        <td className="border p-1">
-                          <Input value={data[f2]} onChange={(e) => set(f2, e.target.value)} />
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                ))}
-                <tr className="border-b">
-                  <td className="border p-2 font-semibold bg-gray-50">TÉCNICO RESPONSABLE</td>
-                  <td className="border p-1">
-                    <select
-                      className="w-full border-0 p-1 outline-none bg-white text-sm"
-                      value={data.tecnicoNombre}
-                      onChange={(e) => {
-                        const tech = TECHNICIANS.find((t) => t.name === e.target.value);
-                        setData((p) => ({
-                          ...p,
-                          tecnicoNombre:   tech?.name  || "",
-                          tecnicoTelefono: tech?.phone || "",
-                          tecnicoCorreo:   tech?.email || "",
-                        }));
-                      }}
-                    >
-                      <option value="">Seleccionar técnico</option>
-                      {TECHNICIANS.map((t, i) => (
-                        <option key={i} value={t.name}>{t.name}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="border p-2 font-semibold bg-gray-50">TELÉFONO TÉCNICO</td>
-                  <td className="border p-1">
-                    <Input value={data.tecnicoTelefono} readOnly />
-                  </td>
-                </tr>
-                <tr className="border-b">
-                  <td className="border p-2 font-semibold bg-gray-50">CORREO TÉCNICO</td>
-                  <td className="border p-1">
-                    <Input value={data.tecnicoCorreo} readOnly />
-                  </td>
-                  <td className="border p-2 font-semibold bg-gray-50">FECHA DE SERVICIO</td>
-                  <td className="border p-1">
-                    <input
-                      type="date"
-                      value={data.fechaServicio}
-                      onChange={(e) => set("fechaServicio", e.target.value)}
-                      className="w-full border-0 outline-none p-1 text-sm"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
+<section className="border rounded overflow-hidden">
+  <table className="w-full text-sm border-collapse">
+    <tbody>
 
+      {/* FILA SUPERIOR */}
+      <tr className="border-b">
+        <td
+          rowSpan={5}
+          className="w-32 border-r p-3 text-center align-middle"
+        >
+          <img
+            src="/astap-logo.jpg"
+            className="mx-auto max-h-20"
+            alt="ASTAP"
+          />
+        </td>
+
+        <td
+          colSpan={3}
+          className="border-r text-center font-bold py-3 text-base"
+        >
+          REPORTE TÉCNICO DE SERVICIO
+        </td>
+
+        <td className="p-2 text-xs w-40">
+          <div>Fecha versión: <strong>01-01-26</strong></div>
+          <div>Versión: <strong>01</strong></div>
+        </td>
+      </tr>
+
+      {/* REFERENCIA */}
+      <tr className="border-b">
+        <td className="border-r p-2 font-semibold bg-gray-50 w-44">
+          REFERENCIA DE CONTRATO
+        </td>
+        <td colSpan={3} className="border p-1">
+          <Input
+            value={data.referenciaContrato}
+            onChange={(e) =>
+              set("referenciaContrato", e.target.value)
+            }
+            placeholder="Ej: Contrato marco / cliente"
+          />
+        </td>
+      </tr>
+
+      {/* PEDIDO */}
+      <tr className="border-b">
+        <td className="border-r p-2 font-semibold bg-gray-50">
+          PEDIDO / DEMANDA
+        </td>
+        <td colSpan={3} className="border p-1">
+          <Input
+            value={data.pedidoDemanda}
+            onChange={(e) =>
+              set("pedidoDemanda", e.target.value)
+            }
+            placeholder="Ej: P-23-046 o D-45821"
+          />
+        </td>
+      </tr>
+
+      {/* DESCRIPCIÓN */}
+      <tr className="border-b">
+        <td className="border-r p-2 font-semibold bg-gray-50">
+          DESCRIPCIÓN
+        </td>
+        <td colSpan={3} className="border p-1">
+          <Input
+            value={data.descripcion}
+            onChange={(e) =>
+              set("descripcion", e.target.value)
+            }
+          />
+        </td>
+      </tr>
+
+      {/* CODIGO */}
+      <tr className="border-b">
+        <td className="border-r p-2 font-semibold bg-gray-50">
+          CÓDIGO INFORME
+        </td>
+        <td colSpan={3} className="border p-1">
+          <Input
+            value={data.codInf}
+            onChange={(e) => set("codInf", e.target.value)}
+            placeholder="Ej: P-23-046-001 o D-45821-001"
+          />
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+</section>
+           
+          
           {/* ════════════════════════════════════
               DESCRIPCIÓN DEL EQUIPO — BOMBA
           ════════════════════════════════════ */}
