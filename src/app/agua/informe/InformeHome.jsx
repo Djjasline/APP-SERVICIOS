@@ -21,17 +21,24 @@ export default function InformeHome() {
   useEffect(() => {
     const loadReports = async () => {
       try {
-        const { data, error } = await supabase
-          .from("registros")
-          .select("*")
-          .eq("tipo", "informe")
-          .order("created_at", { ascending: false });
+    const { data, error } = await supabase
+  .from("registros")
+  .select("*")
+  .eq("tipo", "informe")
+  .order("created_at", { ascending: false });
 
-        if (error) {
-          console.error("Error:", error);
-          setReports([]);
-          return;
-        }
+if (error) {
+  console.error("Error:", error);
+  setReports([]);
+  return;
+}
+
+// 🔥 SOLO INFORMES DE AGUA
+const onlyAgua = (data || []).filter(
+  (r) => r.data?.area === "agua" || r.data?.modulo === "agua"
+);
+
+setReports(onlyAgua);
 
         setReports(data || []);
       } catch (err) {
