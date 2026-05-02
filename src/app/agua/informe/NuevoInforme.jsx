@@ -332,60 +332,7 @@ export default function NuevoInformeBombaValvula() {
           </div>
 
           {/* ── ENCABEZADO ── */}
-          <section className="border rounded overflow-hidden">
-            <table className="w-full text-sm border-collapse">
-              <tbody>
-                <tr className="border-b">
-                  <td rowSpan={4} className="w-32 border-r p-3 text-center align-middle">
-                    <img src="/astap-logo.jpg" className="mx-auto max-h-20" alt="ASTAP" />
-                  </td>
-                  <td colSpan={3} className="border-r text-center font-bold py-3 text-base">
-                    {isBomba ? "INFORME GENERAL DE CAMPO" : "INFORME GENERAL DE SERVICIOS"}
-                  </td>
-                  <td className="p-2 text-xs w-40">
-                    <div>Fecha versión: <strong>01-01-26</strong></div>
-                    <div>Versión: <strong>01</strong></div>
-                  </td>
-                </tr>
-                <tr className="border-b">
-                  <td className="border-r p-2 font-semibold bg-gray-50 w-44">REFERENCIA CONTRATO</td>
-                  <td colSpan={3} className="border p-1">
-                    <Input value={data.referenciaContrato} onChange={(e) => set("referenciaContrato", e.target.value)} />
-                  </td>
-                </tr>
-                <tr className="border-b">
-                  <td className="border-r p-2 font-semibold bg-gray-50">DESCRIPCIÓN</td>
-                  <td colSpan={3} className="border p-1">
-                    <Input value={data.descripcion} onChange={(e) => set("descripcion", e.target.value)} />
-                  </td>
-                </tr>
-<tr className="border-b">
-  <td className="border-r p-2 font-semibold bg-gray-50 w-44">
-    COD. INF.
-  </td>
-  <td className="border p-1">
-    <Input
-      value={data.codInf}
-      onChange={(e) => set("codInf", e.target.value)}
-    />
-  </td>
-  <td className="border-r p-2 font-semibold bg-gray-50 w-44">
-    PEDIDO / DEMANDA
-  </td>
-  <td className="border p-1">
-    <Input
-      value={data.pedidoDemanda}
-      onChange={(e) => set("pedidoDemanda", e.target.value)}
-    />
-  </td>
-</tr>
-               
-              </tbody>
-            </table>
-          </section>
-
-          {/* ── DATOS CLIENTE Y TÉCNICO ── */}
-<section className="border rounded overflow-hidden">
+        <section className="border rounded overflow-hidden">
   <table className="w-full text-sm border-collapse">
     <tbody>
 
@@ -406,7 +353,7 @@ export default function NuevoInformeBombaValvula() {
           colSpan={3}
           className="border-r text-center font-bold py-3 text-base"
         >
-          REPORTE TÉCNICO DE SERVICIO
+          INFORME GENERAL DE CAMPO
         </td>
 
         <td className="p-2 text-xs w-40">
@@ -478,7 +425,9 @@ export default function NuevoInformeBombaValvula() {
 
     </tbody>
   </table>
-</section>
+</section> 
+
+          
            
           
           {/* ════════════════════════════════════
