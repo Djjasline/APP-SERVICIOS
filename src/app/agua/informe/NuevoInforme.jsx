@@ -427,7 +427,127 @@ export default function NuevoInformeBombaValvula() {
   </table>
 </section> 
 
-          
+ {/* ── DATOS CLIENTE Y TÉCNICO ── */}
+<section className="border rounded overflow-hidden">
+  <table className="w-full text-sm border-collapse">
+    <tbody>
+      <tr className="border-b">
+        <td className="border p-2 font-semibold bg-gray-50 w-44">
+          CLIENTE
+        </td>
+        <td className="border p-1">
+          <Input
+            value={data.cliente}
+            onChange={(e) => set("cliente", e.target.value)}
+          />
+        </td>
+
+        <td className="border p-2 font-semibold bg-gray-50 w-44">
+          DIRECCIÓN
+        </td>
+        <td className="border p-1">
+          <Input
+            value={data.direccion}
+            onChange={(e) => set("direccion", e.target.value)}
+          />
+        </td>
+      </tr>
+
+      <tr className="border-b">
+        <td className="border p-2 font-semibold bg-gray-50">
+          CONTACTO
+        </td>
+        <td className="border p-1">
+          <Input
+            value={data.contacto}
+            onChange={(e) => set("contacto", e.target.value)}
+          />
+        </td>
+
+        <td className="border p-2 font-semibold bg-gray-50">
+          TELÉFONO
+        </td>
+        <td className="border p-1">
+          <Input
+            value={data.telefono}
+            onChange={(e) => set("telefono", e.target.value)}
+          />
+        </td>
+      </tr>
+
+      <tr className="border-b">
+        <td className="border p-2 font-semibold bg-gray-50">
+          CORREO
+        </td>
+        <td colSpan={3} className="border p-1">
+          <Input
+            value={data.correo}
+            onChange={(e) => set("correo", e.target.value)}
+          />
+        </td>
+      </tr>
+
+      <tr className="border-b">
+        <td className="border p-2 font-semibold bg-gray-50">
+          TÉCNICO RESPONSABLE
+        </td>
+        <td className="border p-1">
+          <select
+            className="w-full border-0 p-1 outline-none bg-white text-sm"
+            value={data.tecnicoNombre}
+            onChange={(e) => {
+              const tech = TECHNICIANS.find(
+                (t) => t.name === e.target.value
+              );
+
+              setData((p) => ({
+                ...p,
+                tecnicoNombre: tech?.name || "",
+                tecnicoTelefono: tech?.phone || "",
+                tecnicoCorreo: tech?.email || "",
+              }));
+            }}
+          >
+            <option value="">Seleccionar técnico</option>
+            {TECHNICIANS.map((t, i) => (
+              <option key={i} value={t.name}>
+                {t.name}
+              </option>
+            ))}
+          </select>
+        </td>
+
+        <td className="border p-2 font-semibold bg-gray-50">
+          TELÉFONO TÉCNICO
+        </td>
+        <td className="border p-1">
+          <Input value={data.tecnicoTelefono} readOnly />
+        </td>
+      </tr>
+
+      <tr className="border-b">
+        <td className="border p-2 font-semibold bg-gray-50">
+          CORREO TÉCNICO
+        </td>
+        <td className="border p-1">
+          <Input value={data.tecnicoCorreo} readOnly />
+        </td>
+
+        <td className="border p-2 font-semibold bg-gray-50">
+          FECHA DE SERVICIO
+        </td>
+        <td className="border p-1">
+          <input
+            type="date"
+            value={data.fechaServicio}
+            onChange={(e) => set("fechaServicio", e.target.value)}
+            className="w-full border-0 outline-none p-1 text-sm"
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>         
            
           
           {/* ════════════════════════════════════
