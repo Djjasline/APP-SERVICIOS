@@ -169,27 +169,6 @@ export default function NuevoInformeBombaValvula() {
     load();
   }, [id]);
 
-  /* ─── AUTO-RELLENAR TÉCNICO ─── */
-  useEffect(() => {
-    if (id) return;
-    const getUser = async () => {
-      const { data: auth } = await supabase.auth.getUser();
-      if (!auth?.user) return;
-      const tech = TECHNICIANS.find(
-        (t) => t.email.toLowerCase() === auth.user.email.toLowerCase()
-      );
-      if (tech) {
-        setData((p) => ({
-          ...p,
-          tecnicoNombre:   tech.name,
-          tecnicoTelefono: tech.phone,
-          tecnicoCorreo:   tech.email,
-        }));
-      }
-    };
-    getUser();
-  }, []);
-
   /* ─── HELPERS ESTADO ─── */
   const set = (field, value) => setData((p) => ({ ...p, [field]: value }));
 
