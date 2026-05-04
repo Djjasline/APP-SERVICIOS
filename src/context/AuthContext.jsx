@@ -3,29 +3,28 @@ import { supabase } from "@/lib/supabase";
 
 const AuthContext = createContext();
 
+const SUPER_ADMIN_EMAIL = "smaviles@astap.com";
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // ⏳ evita flash de login
+  const [loading, setLoading] = useState(true);
 
-  // 🔄 Escuchar cambios de sesión (login, logout, refresh de token)
   useEffect(() => {
-    // Recuperar sesión activa al montar
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Suscribirse a cambios (login, logout, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  // 🔐 LOGIN con Supabase Auth
   const login = async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
@@ -36,21 +35,37 @@ export function AuthProvider({ children }) {
       return { success: false, message: error.message };
     }
 
+    setUser(data.user);
+
     return { success: true, user: data.user };
   };
 
-  // 🚪 LOGOUT
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
   };
 
-  // 🎭 Rol del usuario desde user_metadata (configurable en Supabase Dashboard)
-  // Auth > Users > Edit user > Raw user meta data: { "role": "admin" } o { "role": "tecnico" }
-  const role = user?.user_metadata?.role ?? null;
+  const email = user?.email?.toLowerCase() || "";
+
+  const role =
+    email === SUPER_ADMIN_EMAIL
+      ? "super_admin"
+      : user?.user_metadata?.role || "tecnico";
+
+  const isSuperAdmin = role === "super_admin";
 
   return (
-    <AuthContext.Provider value={{ user, role, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        email,
+        role,
+        isSuperAdmin,
+        login,
+        logout,
+        loading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
