@@ -6,28 +6,52 @@ export const saveOrUpdateReport = async ({
   subtipo,
   data,
   estado = "borrador",
-  user_id = null,
 }) => {
   try {
+    /* ===========================
+       OBTENER USUARIO LOGUEADO
+    =========================== */
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.error("❌ Error obteniendo usuario:", userError);
+      throw new Error("Usuario no autenticado");
+    }
+
+    /* ===========================
+       PAYLOAD FINAL
+    =========================== */
     const payload = {
       tipo,
       subtipo,
       data,
       estado,
-      ...(user_id ? { user_id } : {}),
+      user_id: user.id, // 🔥 CLAVE: dueño del registro
       updated_at: new Date().toISOString(),
     };
 
     let query;
 
+    /* ===========================
+       UPDATE
+    =========================== */
     if (id) {
       query = supabase
         .from("registros")
         .update(payload)
         .eq("id", id)
+        .eq("user_id", user.id) // 🔥 SEGURIDAD: solo su propio registro
         .select()
         .single();
-    } else {
+    }
+
+    /* ===========================
+       INSERT
+    =========================== */
+    else {
       query = supabase
         .from("registros")
         .insert(payload)
