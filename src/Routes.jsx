@@ -56,11 +56,15 @@ import HojaRecepcion from "./app/operaciones/recepcion/HojaRecepcion";
 import RegistroHome from "./app/operaciones/registro/RegistroHome";
 
 const TechRoute = ({ children }) => (
-  <RoleRoute allowedRoles={["admin", "tecnico"]}>{children}</RoleRoute>
+  <RoleRoute allowedRoles={["super_admin", "admin", "tecnico"]}>
+    {children}
+  </RoleRoute>
 );
 
 const AdminRoute = ({ children }) => (
-  <RoleRoute allowedRoles={["admin"]}>{children}</RoleRoute>
+  <RoleRoute allowedRoles={["super_admin", "admin"]}>
+    {children}
+  </RoleRoute>
 );
 
 export default function RoutesApp() {
