@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function InformeHome() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
 
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState("todos");
@@ -26,13 +26,20 @@ export default function InformeHome() {
 
     const loadReports = async () => {
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from("registros")
           .select("*")
-          .eq("user_id", user.id)
           .eq("tipo", "informe")
           .eq("subtipo", "general")
           .order("created_at", { ascending: false });
+
+        // Técnicos normales solo ven lo suyo
+        // Santiago / super_admin ve todo
+        if (!isSuperAdmin) {
+          query = query.eq("user_id", user.id);
+        }
+
+        const { data, error } = await query;
 
         if (error) {
           console.error("Error:", error);
@@ -48,7 +55,7 @@ export default function InformeHome() {
     };
 
     loadReports();
-  }, [user?.id]);
+  }, [user?.id, isSuperAdmin]);
 
   /* ===========================
      FILTROS
@@ -93,11 +100,13 @@ export default function InformeHome() {
 
     if (!confirm("¿Eliminar este informe?")) return;
 
-    const { error } = await supabase
-      .from("registros")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", user.id);
+    let query = supabase.from("registros").delete().eq("id", id);
+
+    if (!isSuperAdmin) {
+      query = query.eq("user_id", user.id);
+    }
+
+    const { error } = await query;
 
     if (error) {
       console.error(error);
@@ -110,7 +119,6 @@ export default function InformeHome() {
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
-
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <h1 className="text-lg font-semibold text-gray-900">
@@ -128,6 +136,13 @@ export default function InformeHome() {
           </button>
         </div>
       </div>
+
+      {/* AVISO SUPER ADMIN */}
+      {isSuperAdmin && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg text-sm">
+          Modo super administrador: estás viendo todos los informes.
+        </div>
+      )}
 
       {/* NUEVO */}
       <button
@@ -156,7 +171,6 @@ export default function InformeHome() {
 
       {/* FILTROS INPUT */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-
         <input
           type="text"
           placeholder="Buscar cliente..."
@@ -195,12 +209,10 @@ export default function InformeHome() {
           }
           className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm"
         />
-
       </div>
 
       {/* LISTADO */}
       <div className="space-y-3">
-
         {filteredReports.length === 0 && (
           <div className="bg-gray-50 border rounded-xl p-6 text-gray-500">
             Sin registros
@@ -213,13 +225,10 @@ export default function InformeHome() {
             className="bg-gray-50 border rounded-xl p-4 flex flex-col md:flex-row md:justify-between md:items-center gap-3"
           >
             <div className="space-y-1">
-
-              {/* CLIENTE */}
               <p className="font-semibold text-gray-900">
                 {r.data?.cliente || "Sin cliente"}
               </p>
 
-              {/* PEDIDO + INFORME */}
               <div className="flex flex-wrap gap-3 text-xs text-gray-600">
                 <span>
                   Pedido:{" "}
@@ -236,20 +245,21 @@ export default function InformeHome() {
                 </span>
               </div>
 
-              {/* DESCRIPCIÓN */}
               <p className="text-xs text-gray-500 italic">
                 {r.data?.referenciaContrato || "Sin descripción"}
               </p>
 
-              {/* FOOTER INFO */}
               <div className="flex flex-wrap justify-between items-center text-xs pt-1 gap-3">
-
-                {/* FECHA */}
                 <span className="text-gray-500">
                   {new Date(r.updated_at || r.created_at).toLocaleString()}
                 </span>
 
-                {/* ESTADO BADGE */}
+                {isSuperAdmin && (
+                  <span className="text-[11px] text-gray-500">
+                    Usuario: {r.user_id || "—"}
+                  </span>
+                )}
+
                 <span
                   className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
                     r.estado === "completado"
@@ -288,9 +298,7 @@ export default function InformeHome() {
             </div>
           </div>
         ))}
-
       </div>
-
     </div>
   );
 }
