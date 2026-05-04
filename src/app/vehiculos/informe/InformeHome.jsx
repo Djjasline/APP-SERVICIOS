@@ -1,14 +1,16 @@
 import SyncStatus from "@/components/SyncStatus";
+import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function InformeHome() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState("todos");
 
-  // 🔥 FIX: agregado tecnico
   const [filters, setFilters] = useState({
     cliente: "",
     pedido: "",
@@ -20,11 +22,16 @@ export default function InformeHome() {
      CARGAR DATA
   =========================== */
   useEffect(() => {
+    if (!user?.id) return;
+
     const loadReports = async () => {
       try {
         const { data, error } = await supabase
           .from("registros")
           .select("*")
+          .eq("user_id", user.id)
+          .eq("tipo", "informe")
+          .eq("subtipo", "general")
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -41,17 +48,19 @@ export default function InformeHome() {
     };
 
     loadReports();
-  }, []);
+  }, [user?.id]);
 
   /* ===========================
      FILTROS
   =========================== */
   const filteredReports = reports.filter((r) => {
     const cliente = r.data?.cliente?.toLowerCase() || "";
+
     const pedido =
-  r.data?.pedidoDemanda?.toLowerCase() ||
-  r.data?.codInf?.toLowerCase() ||
-  "";
+      r.data?.pedidoDemanda?.toLowerCase() ||
+      r.data?.codInf?.toLowerCase() ||
+      "";
+
     const tecnico = r.data?.tecnicoNombre?.toLowerCase() || "";
     const fecha = r.updated_at || r.created_at;
 
@@ -59,11 +68,9 @@ export default function InformeHome() {
       (filter === "todos" ||
         (filter === "borrador" && r.estado !== "completado") ||
         (filter === "completado" && r.estado === "completado")) &&
-
       cliente.includes((filters.cliente || "").toLowerCase()) &&
       pedido.includes((filters.pedido || "").toLowerCase()) &&
       tecnico.includes((filters.tecnico || "").toLowerCase()) &&
-
       (!filters.fecha || (fecha && fecha.startsWith(filters.fecha)))
     );
   });
@@ -79,12 +86,18 @@ export default function InformeHome() {
      ELIMINAR
   =========================== */
   const deleteReport = async (id) => {
+    if (!user?.id) {
+      alert("Usuario no autenticado");
+      return;
+    }
+
     if (!confirm("¿Eliminar este informe?")) return;
 
     const { error } = await supabase
       .from("registros")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", user.id);
 
     if (error) {
       console.error(error);
@@ -199,58 +212,57 @@ export default function InformeHome() {
             key={r.id}
             className="bg-gray-50 border rounded-xl p-4 flex flex-col md:flex-row md:justify-between md:items-center gap-3"
           >
-           <div className="space-y-1">
-  {/* CLIENTE */}
-  <p className="font-semibold text-gray-900">
-    {r.data?.cliente || "Sin cliente"}
-  </p>
+            <div className="space-y-1">
 
-  {/* PEDIDO + INFORME */}
-  <div className="flex flex-wrap gap-3 text-xs text-gray-600">
-    <span>
-      Pedido:{" "}
-      <strong className="text-gray-800">
-        {r.data?.pedidoDemanda || "—"}
-      </strong>
-    </span>
+              {/* CLIENTE */}
+              <p className="font-semibold text-gray-900">
+                {r.data?.cliente || "Sin cliente"}
+              </p>
 
-    <span>
-      Informe:{" "}
-      <strong className="text-gray-800">
-        {r.data?.codInf || "—"}
-      </strong>
-    </span>
-  </div>
+              {/* PEDIDO + INFORME */}
+              <div className="flex flex-wrap gap-3 text-xs text-gray-600">
+                <span>
+                  Pedido:{" "}
+                  <strong className="text-gray-800">
+                    {r.data?.pedidoDemanda || "—"}
+                  </strong>
+                </span>
 
-  {/* DESCRIPCIÓN */}
-  <p className="text-xs text-gray-500 italic">
-    {r.data?.referenciaContrato || "Sin descripción"}
-  </p>
+                <span>
+                  Informe:{" "}
+                  <strong className="text-gray-800">
+                    {r.data?.codInf || "—"}
+                  </strong>
+                </span>
+              </div>
 
-  {/* FOOTER INFO */}
-  <div className="flex flex-wrap justify-between items-center text-xs pt-1">
-    {/* FECHA */}
-    <span className="text-gray-500">
-      {new Date(
-        r.updated_at || r.created_at
-      ).toLocaleString()}
-    </span>
+              {/* DESCRIPCIÓN */}
+              <p className="text-xs text-gray-500 italic">
+                {r.data?.referenciaContrato || "Sin descripción"}
+              </p>
 
-    {/* ESTADO BADGE */}
-    <span
-      className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-        r.estado === "completado"
-          ? "bg-green-100 text-green-700"
-          : "bg-gray-200 text-gray-700"
-      }`}
-    >
-      {r.estado === "completado"
-        ? "Completado"
-        : "Borrador"}
-    </span>
-  </div>
-</div>
-           <div className="flex gap-3 text-sm shrink-0">
+              {/* FOOTER INFO */}
+              <div className="flex flex-wrap justify-between items-center text-xs pt-1 gap-3">
+
+                {/* FECHA */}
+                <span className="text-gray-500">
+                  {new Date(r.updated_at || r.created_at).toLocaleString()}
+                </span>
+
+                {/* ESTADO BADGE */}
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                    r.estado === "completado"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  {r.estado === "completado" ? "Completado" : "Borrador"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3 text-sm shrink-0">
               <button
                 onClick={() => openReport(r)}
                 className="text-blue-600 hover:underline"
