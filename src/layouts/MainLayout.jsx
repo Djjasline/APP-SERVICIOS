@@ -151,43 +151,19 @@ const { user, logout, role } = useAuth();
       </div>
 
       {/* OPCIONES */}
-      <div className="flex flex-col gap-2 text-sm">
+<div className="flex flex-col gap-2 text-sm">
 
-        <button
-          onClick={() => {
-            navigate("/informe");
-            setOpenMenu(false);
-            setOpenSidebar(false);
-          }}
-          className="text-left hover:bg-white/10 px-2 py-1 rounded"
-        >
-          📄 Mis informes
-        </button>
+  <button
+    onClick={() => {
+      navigate("/perfil");
+      setOpenMenu(false);
+    }}
+    className="text-left hover:bg-white/10 px-2 py-1 rounded"
+  >
+    👤 Mi perfil
+  </button>
 
-        <button
-          onClick={() => {
-            navigate("/inspeccion");
-            setOpenMenu(false);
-            setOpenSidebar(false);
-          }}
-          className="text-left hover:bg-white/10 px-2 py-1 rounded"
-        >
-          📊 Inspecciones
-        </button>
-
-        <button
-          onClick={() => {
-            navigate("/mantenimiento");
-            setOpenMenu(false);
-            setOpenSidebar(false);
-          }}
-          className="text-left hover:bg-white/10 px-2 py-1 rounded"
-        >
-          🛠 Mantenimiento
-        </button>
-
-      </div>
-
+</div>
       <div className="border-t border-white/20 my-3" />
 
       {/* LOGOUT */}
