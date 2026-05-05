@@ -54,6 +54,7 @@ import RecepcionHome from "./app/operaciones/recepcion/RecepcionHome";
 import HojaRecepcion from "./app/operaciones/recepcion/HojaRecepcion";
 
 import RegistroHome from "./app/operaciones/registro/RegistroHome";
+import HojaRegistroHerramientas from "./app/operaciones/registro/HojaRegistroHerramientas"; // ✅ AGREGADO
 
 const TechRoute = ({ children }) => (
   <RoleRoute allowedRoles={["super_admin", "admin", "tecnico"]}>
@@ -139,22 +140,33 @@ export default function RoutesApp() {
             <Route path="/mantenimiento/barredora/:id" element={<TechRoute><HojaMantenimientoBarredora /></TechRoute>} />
 
             {/* ================= OPERACIONES ================= */}
+
+            {/* BITÁCORA / LIBERACIÓN ✅ new → nuevo */}
             <Route path="/liberacion" element={<TechRoute><LiberacionHome /></TechRoute>} />
-            <Route path="/liberacion/new" element={<TechRoute><LiberacionForm /></TechRoute>} />
+            <Route path="/liberacion/nuevo" element={<TechRoute><LiberacionForm /></TechRoute>} />
             <Route path="/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
 
             <Route path="/operaciones/liberacion" element={<TechRoute><LiberacionHome /></TechRoute>} />
-            <Route path="/operaciones/liberacion/new" element={<TechRoute><LiberacionForm /></TechRoute>} />
+            <Route path="/operaciones/liberacion/nuevo" element={<TechRoute><LiberacionForm /></TechRoute>} />
             <Route path="/operaciones/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
 
+            {/* RECEPCIÓN ✅ agregada ruta /:id */}
             <Route path="/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
             <Route path="/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
+            <Route path="/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
 
             <Route path="/operaciones/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
             <Route path="/operaciones/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
+            <Route path="/operaciones/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
 
+            {/* REGISTRO HERRAMIENTAS ✅ agregadas rutas /new y /:id */}
             <Route path="/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
+            <Route path="/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
+            <Route path="/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
+
             <Route path="/operaciones/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
+            <Route path="/operaciones/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
+            <Route path="/operaciones/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
 
             {/* ================= REPOSITORIOS ================= */}
             <Route path="/repositorios/documentos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
