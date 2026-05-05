@@ -207,8 +207,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
               <button onClick={() => go("/repositorios")} className={subItemClass("/repositorios")}>General</button>
               <button onClick={() => go("/repositorios/documentos")} className={subItemClass("/repositorios/documentos")}>Documentos</button>
-              <button onClick={() => go("/repositorios/imagenes")} className={subItemClass("/repositorios/imagenes")}>Imágenes</button>
-            </div>
+ </div>
           )}
         </div>
 
