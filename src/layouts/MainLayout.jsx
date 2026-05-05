@@ -11,7 +11,7 @@ export default function MainLayout() {
   const [touchStartX, setTouchStartX] = useState(null);
 
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+const { user, logout, role } = useAuth();
 
   /* =========================
      DETECTAR DISPOSITIVO REAL
@@ -145,9 +145,9 @@ export default function MainLayout() {
                   <div className="font-semibold">
                     {user?.email || "Usuario"}
                   </div>
-                  <div className="text-xs text-gray-300">
-                    Rol: {user?.role || "-"}
-                  </div>
+<div className="text-xs text-gray-300">
+  Rol: {role || "-"}
+</div>
                 </div>
 
                 {/* OPCIONES */}
