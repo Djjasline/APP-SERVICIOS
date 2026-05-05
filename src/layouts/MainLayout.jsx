@@ -119,101 +119,91 @@ const { user, logout, role } = useAuth();
 
           </div>
 
-          {/* ================= USUARIO ================= */}
-          <div className="relative z-[9999]">
+{/* ================= USUARIO ================= */}
+<div className="relative z-[9999]">
 
-            <div
-              onClick={() => setOpenMenu(!openMenu)}
-              className="w-10 h-10 rounded-full 
-              bg-white/10 backdrop-blur-md 
-              border border-white/20 
-              flex items-center justify-center 
-              cursor-pointer 
-              hover:bg-white/20 transition-all duration-200"
-            >
-              <User size={18} className="text-white" />
-            </div>
+  <div
+    onClick={() => setOpenMenu(!openMenu)}
+    className="w-10 h-10 rounded-full 
+    bg-white/10 backdrop-blur-md 
+    border border-white/20 
+    flex items-center justify-center 
+    cursor-pointer 
+    hover:bg-white/20 transition-all duration-200"
+  >
+    <User size={18} className="text-white" />
+  </div>
 
-            {openMenu && (
-              <div className="absolute right-0 mt-2 w-60 
-                bg-black/70 backdrop-blur-xl 
-                border border-white/20 rounded-xl shadow-xl 
-                p-4 text-sm text-white animate-fadeIn">
+  {openMenu && (
+    <div className="absolute right-0 mt-2 w-60 
+      bg-black/70 backdrop-blur-xl 
+      border border-white/20 rounded-xl shadow-xl 
+      p-4 text-sm text-white animate-fadeIn">
 
-                {/* INFO USUARIO */}
-                <div className="mb-3 border-b border-white/20 pb-2">
-                  <div className="font-semibold">
-                    {user?.email || "Usuario"}
-                  </div>
-<div className="text-xs text-gray-300">
-  Rol: {role || "-"}
+      {/* INFO USUARIO */}
+      <div className="mb-3 border-b border-white/20 pb-2">
+        <div className="font-semibold">
+          {user?.email || "Usuario"}
+        </div>
+        <div className="text-xs text-gray-300">
+          Rol: {role || "-"}
+        </div>
+      </div>
+
+      {/* OPCIONES */}
+      <div className="flex flex-col gap-2 text-sm">
+
+        <button
+          onClick={() => {
+            navigate("/informe");
+            setOpenMenu(false);
+            setOpenSidebar(false);
+          }}
+          className="text-left hover:bg-white/10 px-2 py-1 rounded"
+        >
+          📄 Mis informes
+        </button>
+
+        <button
+          onClick={() => {
+            navigate("/inspeccion");
+            setOpenMenu(false);
+            setOpenSidebar(false);
+          }}
+          className="text-left hover:bg-white/10 px-2 py-1 rounded"
+        >
+          📊 Inspecciones
+        </button>
+
+        <button
+          onClick={() => {
+            navigate("/mantenimiento");
+            setOpenMenu(false);
+            setOpenSidebar(false);
+          }}
+          className="text-left hover:bg-white/10 px-2 py-1 rounded"
+        >
+          🛠 Mantenimiento
+        </button>
+
+      </div>
+
+      <div className="border-t border-white/20 my-3" />
+
+      {/* LOGOUT */}
+      <button
+        onClick={() => {
+          logout();
+          setOpenMenu(false);
+        }}
+        className="w-full text-left text-red-400 hover:text-red-300"
+      >
+        🚪 Cerrar sesión
+      </button>
+
+    </div>
+  )}
 </div>
-                </div>
-
-                {/* OPCIONES */}
-                <div className="flex flex-col gap-2 text-sm">
-
-                  <button
-                    onClick={() => {
-                      navigate("/perfil");
-                      setOpenMenu(false);
-                    }}
-                    className="text-left hover:bg-white/10 px-2 py-1 rounded"
-                  >
-                    👤 Mi perfil
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      navigate("/informe");
-                      setOpenMenu(false);
-                      setOpenSidebar(false);
-                    }}
-                    className="text-left hover:bg-white/10 px-2 py-1 rounded"
-                  >
-                    📄 Mis informes
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      navigate("/inspeccion");
-                      setOpenMenu(false);
-                      setOpenSidebar(false);
-                    }}
-                    className="text-left hover:bg-white/10 px-2 py-1 rounded"
-                  >
-                    📊 Inspecciones
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      navigate("/mantenimiento");
-                      setOpenMenu(false);
-                      setOpenSidebar(false);
-                    }}
-                    className="text-left hover:bg-white/10 px-2 py-1 rounded"
-                  >
-                    🛠 Mantenimiento
-                  </button>
-
-                </div>
-
-                <div className="border-t border-white/20 my-3" />
-
-                {/* LOGOUT */}
-                <button
-                  onClick={() => {
-                    logout();
-                    setOpenMenu(false);
-                  }}
-                  className="w-full text-left text-red-400 hover:text-red-300"
-                >
-                  🚪 Cerrar sesión
-                </button>
-
-              </div>
-            )}
-          </div>
 
         </header>
 
