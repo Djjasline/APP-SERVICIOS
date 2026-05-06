@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { TECHNICIANS } from "@/data/technicians";
 import {
-  createRegistro,
   getRegistroById,
   updateRegistro,
 } from "@/utils/registroStorage";
@@ -19,13 +18,8 @@ export default function HojaRegistroHerramientas() {
 
   const [previewImage, setPreviewImage] = useState(null);
   const [guardando, setGuardando] = useState(false);
-  const [registroId, setRegistroId] = useState(id || null);
 
   const baseState = {
-    tecnicoSalida: "",
-    tecnicoIngreso: "",
-    fechaSalida: "",
-    fechaIngreso: "",
     items: [],
     firmaResponsable: "",
     firmaAprobador: "",
@@ -34,9 +28,9 @@ export default function HojaRegistroHerramientas() {
   const [formData, setFormData] = useState(baseState);
   const [estado, setEstado] = useState("salida");
 
-  /* ================= CARGAR REGISTRO (solo si hay id) ================= */
+  /* ================= CARGAR REGISTRO ================= */
   useEffect(() => {
-    if (!id) return; // ← nuevo registro, no cargar nada
+    if (!id) return;
 
     const load = async () => {
       const registro = await getRegistroById(id);
@@ -67,10 +61,10 @@ export default function HojaRegistroHerramientas() {
         ...prev.items,
         {
           id: Date.now(),
-          fechaSalida: new Date().toISOString().split("T")[0],
-          tecnicoSalida: "",
           detalle: "",
           pedido: "",
+          tecnicoSalida: "",
+          fechaSalida: new Date().toISOString().split("T")[0],
           imagenSalidaUrl: "",
           fechaIngreso: "",
           tecnicoIngreso: "",
@@ -99,26 +93,23 @@ export default function HojaRegistroHerramientas() {
   };
 
   /* ================= SUBIR IMAGEN ================= */
-  const handleImageUpload = async (e, itemId, tipo) => {
+  const handleImageUpload = async (e, itemId, campo) => {
     const file = e.target.files[0];
     if (!file) return;
 
     try {
-      const options = {
+      const compressedFile = await imageCompression(file, {
         maxSizeMB: 0.4,
         maxWidthOrHeight: 1280,
         useWebWorker: true,
-      };
+      });
 
-      const compressedFile = await imageCompression(file, options);
-      const uploadId = registroId || "temp-" + Date.now();
-      const url = await uploadRegistroImage(compressedFile, uploadId, tipo);
-
+      const url = await uploadRegistroImage(compressedFile, id, campo);
       if (!url) return;
 
-      updateItem(itemId, tipo, url);
+      updateItem(itemId, campo, url);
     } catch (error) {
-      console.error("Error al comprimir imagen:", error);
+      console.error("Error al subir imagen:", error);
     }
   };
 
@@ -151,18 +142,11 @@ export default function HojaRegistroHerramientas() {
       const nuevoEstado =
         allIngresosCompletos && firmaResponsable && firmaAprobador
           ? "completado"
-          : "borrador";
+          : "salida";
 
-      if (registroId) {
-        // ✅ ACTUALIZAR registro existente
-        await updateRegistro(registroId, payload, nuevoEstado);
-      } else {
-        // ✅ CREAR nuevo registro
-        const result = await createRegistro({ data: payload });
-        if (result?.id) setRegistroId(result.id);
-      }
-
+      await updateRegistro(id, payload, nuevoEstado);
       setEstado(nuevoEstado);
+
       alert("Guardado correctamente");
       navigate("/registro"); // ✅ ruta correcta
     } catch (error) {
@@ -173,53 +157,119 @@ export default function HojaRegistroHerramientas() {
     }
   };
 
+  /* ================= BOTÓN DE IMAGEN ================= */
+  const ImagenCell = ({ item, campo, label }) => {
+    const url = item[campo];
+
+    if (url) {
+      return (
+        <div className="flex flex-col items-center gap-1">
+          <img
+            src={url}
+            alt={label}
+            className="h-16 border rounded cursor-pointer object-cover"
+            onClick={() => setPreviewImage(url)}
+          />
+          {!isLocked && (
+            <button
+              type="button"
+              onClick={() => updateItem(item.id, campo, "")}
+              className="text-red-500 text-[10px] hover:underline"
+            >
+              ❌ Quitar
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    if (isLocked) return <span className="text-gray-400 text-xs">—</span>;
+
+    return (
+      <div className="flex flex-col gap-1">
+        <label className="bg-gray-600 text-white text-[10px] px-2 py-1 rounded cursor-pointer text-center">
+          📁 Galería
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => handleImageUpload(e, item.id, campo)}
+          />
+        </label>
+        <label className="bg-blue-600 text-white text-[10px] px-2 py-1 rounded cursor-pointer text-center">
+          📷 Cámara
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(e) => handleImageUpload(e, item.id, campo)}
+          />
+        </label>
+      </div>
+    );
+  };
+
+  /* ================= RENDER ================= */
   return (
     <form
       onSubmit={handleSubmit}
       className="max-w-7xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6"
     >
       {/* HEADER */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap gap-2">
         <h1 className="text-xl font-semibold">
           Control de salida e ingreso de herramientas
         </h1>
+
         {estado === "completado" && (
           <span className="bg-green-100 text-green-700 text-sm px-3 py-1 rounded-full">
-            ✅ Completado
+            ✅ Registro cerrado
+          </span>
+        )}
+        {estado !== "completado" && (
+          <span className="bg-yellow-100 text-yellow-700 text-sm px-3 py-1 rounded-full">
+            🔴 En campo
           </span>
         )}
       </div>
 
-      <button
-        type="button"
-        onClick={addItem}
-        disabled={isLocked}
-        className="bg-purple-600 text-white px-3 py-2 rounded disabled:opacity-50"
-      >
-        + Agregar herramienta
-      </button>
+      {/* BOTÓN AGREGAR */}
+      {!isLocked && (
+        <button
+          type="button"
+          onClick={addItem}
+          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded text-sm"
+        >
+          + Agregar herramienta
+        </button>
+      )}
 
-      {/* ================= TABLA ================= */}
-      <div className="overflow-x-auto">
-        <table className="w-full border text-sm">
-          <thead className="bg-gray-100">
+      {/* ================= TABLA — una fila por herramienta ================= */}
+      <div className="overflow-x-auto border rounded-xl">
+        <table className="w-full text-xs border-collapse">
+          <thead className="bg-gray-100 text-gray-700">
             <tr>
-              <th className="p-2">Estado</th>
-              <th className="p-2">Detalle</th>
-              <th className="p-2">Pedido</th>
-              <th className="p-2">Técnico Salida</th>
-              <th className="p-2">Fecha Salida</th>
-              <th className="p-2">Imagen Salida</th>
-              <th className="p-2">Fecha Ingreso</th>
-              <th className="p-2">Imagen Ingreso</th>
-              <th className="p-2"></th>
+              <th className="px-3 py-2 text-center">Estado</th>
+              <th className="px-3 py-2 text-left">Herramienta / Detalle</th>
+              <th className="px-3 py-2 text-left">N° Pedido</th>
+              <th className="px-3 py-2 text-left">Técnico Salida</th>
+              <th className="px-3 py-2 text-left">Fecha Salida</th>
+              <th className="px-3 py-2 text-center">Foto Antes 📷</th>
+              <th className="px-3 py-2 text-left">Técnico Ingreso</th>
+              <th className="px-3 py-2 text-left">Fecha Ingreso</th>
+              <th className="px-3 py-2 text-center">Foto Después 📷</th>
+              {!isLocked && <th className="px-3 py-2"></th>}
             </tr>
           </thead>
 
           <tbody>
             {formData.items.length === 0 && (
               <tr>
-                <td colSpan="9" className="text-center py-6 text-gray-400">
+                <td
+                  colSpan={isLocked ? 9 : 10}
+                  className="text-center py-8 text-gray-400"
+                >
                   Sin herramientas. Haz clic en "+ Agregar herramienta".
                 </td>
               </tr>
@@ -229,47 +279,48 @@ export default function HojaRegistroHerramientas() {
               const ingresoCompleto = !!item.imagenIngresoUrl;
 
               return (
-                <tr key={item.id} className="border-t">
-                  <td className="text-center p-2">
-                    {ingresoCompleto ? (
-                      <span className="text-green-600 font-bold">🟢</span>
-                    ) : (
-                      <span className="text-red-600 font-bold">🔴</span>
-                    )}
+                <tr key={item.id} className="border-t hover:bg-gray-50">
+
+                  {/* ESTADO */}
+                  <td className="px-3 py-2 text-center text-base">
+                    {ingresoCompleto ? "🟢" : "🔴"}
                   </td>
 
-                  <td className="p-1">
+                  {/* DETALLE */}
+                  <td className="px-2 py-2">
                     <input
                       value={item.detalle}
                       onChange={(e) =>
                         updateItem(item.id, "detalle", e.target.value)
                       }
                       disabled={isLocked}
-                      className="border p-1 w-full"
-                      placeholder="Descripción"
+                      placeholder="Descripción herramienta"
+                      className="border rounded px-2 py-1 w-full min-w-[140px] disabled:bg-gray-50"
                     />
                   </td>
 
-                  <td className="p-1">
+                  {/* PEDIDO */}
+                  <td className="px-2 py-2">
                     <input
                       value={item.pedido}
                       onChange={(e) =>
                         updateItem(item.id, "pedido", e.target.value)
                       }
                       disabled={isLocked}
-                      className="border p-1 w-full"
                       placeholder="N° Pedido"
+                      className="border rounded px-2 py-1 w-full min-w-[90px] disabled:bg-gray-50"
                     />
                   </td>
 
-                  <td className="p-1">
+                  {/* TÉCNICO SALIDA */}
+                  <td className="px-2 py-2">
                     <select
                       value={item.tecnicoSalida}
                       onChange={(e) =>
                         updateItem(item.id, "tecnicoSalida", e.target.value)
                       }
                       disabled={isLocked}
-                      className="border p-1"
+                      className="border rounded px-2 py-1 w-full min-w-[140px] disabled:bg-gray-50"
                     >
                       <option value="">Seleccione</option>
                       {TECHNICIANS.map((t) => (
@@ -280,155 +331,82 @@ export default function HojaRegistroHerramientas() {
                     </select>
                   </td>
 
-                  <td className="p-1">
+                  {/* FECHA SALIDA */}
+                  <td className="px-2 py-2">
                     <input
                       type="date"
                       value={item.fechaSalida || ""}
                       onChange={(e) =>
                         updateItem(item.id, "fechaSalida", e.target.value)
                       }
-                      className="border p-1 text-xs"
                       disabled={isLocked}
+                      className="border rounded px-2 py-1 disabled:bg-gray-50"
                     />
                   </td>
 
-                  {/* IMAGEN SALIDA */}
-                  <td className="text-center p-2 space-y-1">
-                    {item.imagenSalidaUrl ? (
-                      <div className="flex flex-col items-center gap-1">
-                        <img
-                          src={item.imagenSalidaUrl}
-                          alt="Salida"
-                          className="h-20 border rounded cursor-pointer"
-                          onClick={() => setPreviewImage(item.imagenSalidaUrl)}
-                        />
-                        {!isLocked && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              updateItem(item.id, "imagenSalidaUrl", "")
-                            }
-                            className="text-red-600 text-xs"
-                          >
-                            ❌ Quitar
-                          </button>
-                        )}
-                      </div>
-                    ) : (
-                      !isLocked && (
-                        <div className="flex flex-col gap-1">
-                          <label className="bg-gray-600 text-white text-xs px-2 py-1 rounded cursor-pointer">
-                            📁 Galería
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) =>
-                                handleImageUpload(e, item.id, "imagenSalidaUrl")
-                              }
-                            />
-                          </label>
-                          <label className="bg-blue-600 text-white text-xs px-2 py-1 rounded cursor-pointer">
-                            📷 Cámara
-                            <input
-                              type="file"
-                              accept="image/*"
-                              capture="environment"
-                              className="hidden"
-                              onChange={(e) =>
-                                handleImageUpload(e, item.id, "imagenSalidaUrl")
-                              }
-                            />
-                          </label>
-                        </div>
-                      )
-                    )}
+                  {/* FOTO ANTES */}
+                  <td className="px-2 py-2 text-center">
+                    <ImagenCell
+                      item={item}
+                      campo="imagenSalidaUrl"
+                      label="Foto antes"
+                    />
                   </td>
 
-                  <td className="p-1">
+                  {/* TÉCNICO INGRESO */}
+                  <td className="px-2 py-2">
+                    <select
+                      value={item.tecnicoIngreso || ""}
+                      onChange={(e) =>
+                        updateItem(item.id, "tecnicoIngreso", e.target.value)
+                      }
+                      disabled={isLocked}
+                      className="border rounded px-2 py-1 w-full min-w-[140px] disabled:bg-gray-50"
+                    >
+                      <option value="">Seleccione</option>
+                      {TECHNICIANS.map((t) => (
+                        <option key={t.name} value={t.name}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+
+                  {/* FECHA INGRESO */}
+                  <td className="px-2 py-2">
                     <input
                       type="date"
                       value={item.fechaIngreso || ""}
                       onChange={(e) =>
                         updateItem(item.id, "fechaIngreso", e.target.value)
                       }
-                      className="border p-1 text-xs"
                       disabled={isLocked}
+                      className="border rounded px-2 py-1 disabled:bg-gray-50"
                     />
                   </td>
 
-                  {/* IMAGEN INGRESO */}
-                  <td className="text-center p-2 space-y-1">
-                    {item.imagenIngresoUrl ? (
-                      <div className="flex flex-col items-center gap-1">
-                        <img
-                          src={item.imagenIngresoUrl}
-                          alt="Ingreso"
-                          className="h-20 border rounded cursor-pointer"
-                          onClick={() => setPreviewImage(item.imagenIngresoUrl)}
-                        />
-                        {!isLocked && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              updateItem(item.id, "imagenIngresoUrl", "")
-                            }
-                            className="text-red-600 text-xs"
-                          >
-                            ❌ Quitar
-                          </button>
-                        )}
-                      </div>
-                    ) : (
-                      !isLocked && (
-                        <div className="flex flex-col gap-1">
-                          <label className="bg-gray-600 text-white text-xs px-2 py-1 rounded cursor-pointer">
-                            📁 Galería
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) =>
-                                handleImageUpload(
-                                  e,
-                                  item.id,
-                                  "imagenIngresoUrl"
-                                )
-                              }
-                            />
-                          </label>
-                          <label className="bg-blue-600 text-white text-xs px-2 py-1 rounded cursor-pointer">
-                            📷 Cámara
-                            <input
-                              type="file"
-                              accept="image/*"
-                              capture="environment"
-                              className="hidden"
-                              onChange={(e) =>
-                                handleImageUpload(
-                                  e,
-                                  item.id,
-                                  "imagenIngresoUrl"
-                                )
-                              }
-                            />
-                          </label>
-                        </div>
-                      )
-                    )}
+                  {/* FOTO DESPUÉS */}
+                  <td className="px-2 py-2 text-center">
+                    <ImagenCell
+                      item={item}
+                      campo="imagenIngresoUrl"
+                      label="Foto después"
+                    />
                   </td>
 
-                  <td className="p-1">
-                    {!isLocked && (
+                  {/* ELIMINAR */}
+                  {!isLocked && (
+                    <td className="px-2 py-2 text-center">
                       <button
                         type="button"
                         onClick={() => removeItem(item.id)}
-                        className="text-red-600"
+                        className="text-red-500 hover:text-red-700 text-base"
+                        title="Eliminar fila"
                       >
                         ✕
                       </button>
-                    )}
-                  </td>
+                    </td>
+                  )}
                 </tr>
               );
             })}
@@ -439,57 +417,57 @@ export default function HojaRegistroHerramientas() {
       {/* ================= FIRMAS ================= */}
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <p className="font-semibold mb-1">Firma Responsable</p>
+          <p className="font-semibold mb-1 text-sm">Firma Responsable</p>
           <SignatureCanvas
             ref={firmaResponsableRef}
-            canvasProps={{ className: "border w-full h-32" }}
+            canvasProps={{ className: "border w-full h-32 rounded" }}
           />
           {!isLocked && (
             <button
               type="button"
               onClick={() => firmaResponsableRef.current?.clear()}
-              className="text-xs text-red-500 mt-1"
+              className="text-xs text-red-500 mt-1 hover:underline"
             >
-              Limpiar firma
+              Limpiar
             </button>
           )}
         </div>
 
         <div>
-          <p className="font-semibold mb-1">Firma Aprobador</p>
+          <p className="font-semibold mb-1 text-sm">Firma Aprobador</p>
           <SignatureCanvas
             ref={firmaAprobadorRef}
-            canvasProps={{ className: "border w-full h-32" }}
+            canvasProps={{ className: "border w-full h-32 rounded" }}
           />
           {!isLocked && (
             <button
               type="button"
               onClick={() => firmaAprobadorRef.current?.clear()}
-              className="text-xs text-red-500 mt-1"
+              className="text-xs text-red-500 mt-1 hover:underline"
             >
-              Limpiar firma
+              Limpiar
             </button>
           )}
         </div>
       </div>
 
       {/* ================= BOTONES ================= */}
-      <div className="flex justify-end gap-4">
+      <div className="flex justify-between items-center">
         <button
           type="button"
           onClick={() => navigate("/registro")} // ✅ ruta correcta
-          className="border px-4 py-2 rounded hover:bg-gray-50"
+          className="border px-4 py-2 rounded hover:bg-gray-50 text-sm"
         >
-          Volver
+          ← Volver
         </button>
 
         {!isLocked && (
           <button
             type="submit"
             disabled={guardando}
-            className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded text-sm disabled:opacity-50"
           >
-            {guardando ? "Guardando..." : "Guardar"}
+            {guardando ? "Guardando..." : "💾 Guardar"}
           </button>
         )}
       </div>
@@ -497,13 +475,13 @@ export default function HojaRegistroHerramientas() {
       {/* ================= MODAL PREVIEW ================= */}
       {previewImage && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
           onClick={() => setPreviewImage(null)}
         >
           <img
             src={previewImage}
-            alt="Preview"
-            className="max-h-[90%] max-w-[90%] rounded shadow-lg"
+            alt="Vista previa"
+            className="max-h-[90vh] max-w-[90vw] rounded shadow-2xl"
           />
         </div>
       )}
