@@ -14,13 +14,21 @@ export default function RegistroHome() {
     fecha: "",
   });
 
-  // 🔄 CARGAR DATA
+  // 🔄 CARGAR DATA — tabla correcta: "registros" con tipo y subtipo
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase
-        .from("registros_herramientas")
+      const { data, error } = await supabase
+        .from("registros")
         .select("*")
+        .eq("tipo", "registro")
+        .eq("subtipo", "herramienta")
         .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error cargando registros:", error);
+        setRegistros([]);
+        return;
+      }
 
       setRegistros(data || []);
     };
@@ -46,11 +54,12 @@ export default function RegistroHome() {
 
   const open = (r) => navigate(`/registro/${r.id}`);
 
+  // 🗑️ ELIMINAR — tabla correcta
   const remove = async (id) => {
     if (!confirm("¿Eliminar registro?")) return;
 
     await supabase
-      .from("registros_herramientas")
+      .from("registros")
       .delete()
       .eq("id", id);
 
@@ -123,7 +132,6 @@ export default function RegistroHome() {
       <div className="overflow-x-auto border rounded-xl">
         <table className="w-full text-sm">
 
-          {/* HEADER */}
           <thead className="bg-gray-100 text-gray-700">
             <tr>
               <th className="text-left px-4 py-2">Herramienta</th>
@@ -134,7 +142,6 @@ export default function RegistroHome() {
             </tr>
           </thead>
 
-          {/* BODY */}
           <tbody>
             {filtered.length === 0 && (
               <tr>
@@ -155,7 +162,6 @@ export default function RegistroHome() {
                   {r.data?.codigo || "—"}
                 </td>
 
-                {/* ESTADO */}
                 <td className="px-4 py-2">
                   <span
                     className={`px-2 py-1 text-xs rounded-full ${
@@ -164,16 +170,12 @@ export default function RegistroHome() {
                         : "bg-yellow-100 text-yellow-700"
                     }`}
                   >
-                    {r.estado === "completado"
-                      ? "Completado"
-                      : "Borrador"}
+                    {r.estado === "completado" ? "Completado" : "Borrador"}
                   </span>
                 </td>
 
                 <td className="px-4 py-2 text-gray-500">
-                  {new Date(
-                    r.updated_at || r.created_at
-                  ).toLocaleDateString()}
+                  {new Date(r.updated_at || r.created_at).toLocaleDateString()}
                 </td>
 
                 <td className="px-4 py-2 text-right space-x-2">
