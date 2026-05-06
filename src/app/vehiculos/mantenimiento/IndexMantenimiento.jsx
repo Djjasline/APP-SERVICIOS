@@ -6,9 +6,7 @@ export default function IndexMantenimiento() {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
 
-  /* =============================
-     CARGAR DATOS
-  ============================== */
+  /* ── CARGAR DATOS ── */
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase
@@ -29,30 +27,22 @@ export default function IndexMantenimiento() {
     load();
   }, []);
 
-  /* =============================
-     AGRUPAR
-  ============================== */
+  /* ── AGRUPAR POR SUBTIPO ── */
   const safe = Array.isArray(items) ? items : [];
 
   const byType = {
-    hidro: safe.filter((i) => i.subtipo === "hidro"),
+    hidro:     safe.filter((i) => i.subtipo === "hidro"),
     barredora: safe.filter((i) => i.subtipo === "barredora"),
+    vcam:      safe.filter((i) => i.subtipo === "vcam"),
   };
 
-  /* =============================
-     ACCIONES
-  ============================== */
-  const handleOpen = (type, id) => {
-    navigate(`/mantenimiento/${type}/${id}`);
-  };
+  /* ── ACCIONES ── */
+  const handleOpen = (type, id) => navigate(`/mantenimiento/${type}/${id}`);
 
   const handleDelete = async (id) => {
     if (!confirm("¿Eliminar mantenimiento?")) return;
 
-    const { error } = await supabase
-      .from("registros")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("registros").delete().eq("id", id);
 
     if (error) {
       console.error(error);
@@ -63,15 +53,20 @@ export default function IndexMantenimiento() {
     setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
-  /* =============================
-     CARD REUTILIZABLE
-  ============================== */
-  const renderCard = (title, desc, type, list, colorBtn) => (
+  /* ── CARD REUTILIZABLE ── */
+  const renderCard = (title, desc, type, list, colorBtn, enConstruccion = false) => (
     <div className="bg-white rounded-xl p-5 shadow border border-gray-200 space-y-4 hover:shadow-lg hover:-translate-y-1 transition duration-300">
 
-      <div>
-        <h2 className="font-semibold text-gray-900">{title}</h2>
-        <p className="text-xs text-gray-600">{desc}</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h2 className="font-semibold text-gray-900">{title}</h2>
+          <p className="text-xs text-gray-600">{desc}</p>
+        </div>
+        {enConstruccion && (
+          <span className="bg-yellow-100 text-yellow-700 text-[10px] font-semibold px-2 py-1 rounded-full whitespace-nowrap">
+            🚧 En construcción
+          </span>
+        )}
       </div>
 
       <button
@@ -81,64 +76,53 @@ export default function IndexMantenimiento() {
         Crear mantenimiento
       </button>
 
-      <div className="space-y-2">
-        {list.length === 0 ? (
-          <p className="text-xs text-gray-600">
-            Sin registros
-          </p>
-        ) : (
-          list.map((item) => (
-            <div
-              key={item.id}
-              className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs flex flex-col gap-2"
-            >
-              <div className="flex justify-between items-center">
-                <span className="font-medium text-gray-900">
-                  {item.data?.cliente || "Sin cliente"}
+      {/* Lista de registros — oculta si está en construcción */}
+      {!enConstruccion && (
+        <div className="space-y-2">
+          {list.length === 0 ? (
+            <p className="text-xs text-gray-500">Sin registros</p>
+          ) : (
+            list.map((item) => (
+              <div
+                key={item.id}
+                className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs flex flex-col gap-2"
+              >
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-gray-900">
+                    {item.data?.cliente || "Sin cliente"}
+                  </span>
+                  <span
+                    className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                      item.estado === "completado"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-yellow-100 text-yellow-700"
+                    }`}
+                  >
+                    {item.estado}
+                  </span>
+                </div>
+
+                <span className="text-[10px] text-gray-400">
+                  {new Date(item.updated_at || item.created_at).toLocaleString()}
                 </span>
 
-                <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                    item.estado === "completado"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-yellow-100 text-yellow-700"
-                  }`}
-                >
-                  {item.estado}
-                </span>
+                <div className="flex gap-3 pt-1">
+                  <button onClick={() => handleOpen(type, item.id)} className="text-blue-600 hover:underline">
+                    Abrir
+                  </button>
+                  <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:underline">
+                    Eliminar
+                  </button>
+                </div>
               </div>
-
-              <span className="text-[10px] text-gray-500">
-                {new Date(
-                  item.updated_at || item.created_at
-                ).toLocaleString()}
-              </span>
-
-              <div className="flex gap-3 pt-1 text-xs">
-                <button
-                  onClick={() => handleOpen(type, item.id)}
-                  className="text-blue-600 hover:underline"
-                >
-                  Abrir
-                </button>
-
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="text-red-600 hover:underline"
-                >
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 
-  /* =============================
-     UI
-  ============================== */
+  /* ── UI ── */
   return (
     <div className="p-6 space-y-6">
 
@@ -147,7 +131,6 @@ export default function IndexMantenimiento() {
         <h1 className="text-xl font-semibold text-white">
           Servicio de mantenimiento
         </h1>
-
         <button
           onClick={() => navigate("/area/vehiculos")}
           className="border border-gray-300 text-white bg-transparent px-4 py-1 rounded text-sm hover:bg-white/10 transition"
@@ -156,8 +139,8 @@ export default function IndexMantenimiento() {
         </button>
       </div>
 
-      {/* GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* GRID — 3 columnas en pantallas grandes */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
         {renderCard(
           "Mantenimiento Hidrosuccionador",
@@ -173,6 +156,15 @@ export default function IndexMantenimiento() {
           "barredora",
           byType.barredora,
           "bg-green-600"
+        )}
+
+        {renderCard(
+          "Mantenimiento Cámara V-Cam6",
+          "Mantenimiento de cámara de inspección V-Cam6",
+          "vcam",
+          byType.vcam,
+          "bg-yellow-500",
+          true  // ← en construcción
         )}
 
       </div>
