@@ -44,6 +44,7 @@ import HojaInspeccionCamara from "./app/vehiculos/inspeccion/HojaInspeccionCamar
 import IndexMantenimiento from "./app/vehiculos/mantenimiento/IndexMantenimiento";
 import HojaMantenimientoHidro from "./app/vehiculos/mantenimiento/HojaMantenimientoHidro";
 import HojaMantenimientoBarredora from "./app/vehiculos/mantenimiento/HojaMantenimientoBarredora";
+import HojaMantenimientoVCam from "./app/vehiculos/mantenimiento/HojaMantenimientoVCam";
 
 // ================= OPERACIONES =================
 import LiberacionHome from "./app/operaciones/liberacion/LiberacionHome";
@@ -138,7 +139,10 @@ export default function RoutesApp() {
 
             <Route path="/mantenimiento/barredora/new" element={<TechRoute><HojaMantenimientoBarredora /></TechRoute>} />
             <Route path="/mantenimiento/barredora/:id" element={<TechRoute><HojaMantenimientoBarredora /></TechRoute>} />
+            <Route path="/mantenimiento/vcam/new" element={<TechRoute><HojaMantenimientoVCam /></TechRoute>} />
+            <Route path="/mantenimiento/vcam/:id"  element={<TechRoute><HojaMantenimientoVCam /></TechRoute>} />
 
+            
             {/* ================= OPERACIONES ================= */}
 
             {/* BITÁCORA / LIBERACIÓN ✅ new → nuevo */}
