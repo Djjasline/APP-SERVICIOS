@@ -158,17 +158,35 @@ export default function Perfil() {
             </div>
           )}
 
-          <label className="absolute bottom-0 right-0 bg-white border rounded-full p-1 cursor-pointer shadow hover:bg-gray-50">
-            {uploadingAvatar ? "⏳" : "📷"}
-            <input
-              type="file"
-              accept="image/*"
-              capture="user"
-              className="hidden"
-              onChange={handleAvatar}
-              disabled={uploadingAvatar}
-            />
-          </label>
+        // DESPUÉS — cámara + galería
+<div className="absolute bottom-0 right-0 flex gap-1">
+
+  {/* CÁMARA */}
+  <label className="bg-white border rounded-full p-1 cursor-pointer shadow hover:bg-gray-50" title="Tomar foto">
+    {uploadingAvatar ? "⏳" : "📷"}
+    <input
+      type="file"
+      accept="image/*"
+      capture="user"
+      className="hidden"
+      onChange={handleAvatar}
+      disabled={uploadingAvatar}
+    />
+  </label>
+
+  {/* GALERÍA */}
+  <label className="bg-white border rounded-full p-1 cursor-pointer shadow hover:bg-gray-50" title="Elegir de galería">
+    🖼️
+    <input
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={handleAvatar}
+      disabled={uploadingAvatar}
+    />
+  </label>
+
+</div>  
         </div>
 
         <p className="text-xs text-gray-400">Toca 📷 para cambiar la foto</p>
