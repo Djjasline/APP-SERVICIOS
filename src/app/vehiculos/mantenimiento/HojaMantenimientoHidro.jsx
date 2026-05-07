@@ -5,6 +5,7 @@ import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
 import imageCompression from "browser-image-compression";
+import { TECHNICIANS } from "@/data/technicians";
 
 /* =============================
    SECCIONES – MANTENIMIENTO HIDRO
@@ -85,6 +86,7 @@ export default function HojaMantenimientoHidro() {
 
   const [formData, setFormData] = useState({
     referenciaContrato: "",
+     pedidoDemanda: "",
     descripcion: "",
     codInf: "",
     cliente: "",
@@ -92,7 +94,7 @@ export default function HojaMantenimientoHidro() {
     contacto: "",
     telefono: "",
     correo: "",
-    tecnicoResponsable: "",
+    tecnicoNombre: "",
     telefonoTecnico: "",
     correoTecnico: "",
     fechaServicio: "",
@@ -128,7 +130,14 @@ export default function HojaMantenimientoHidro() {
       if (error || !data) return;
 
       if (data.data) {
-        setFormData(data.data);
+        setFormData((prev) => ({
+  ...prev,
+  ...data.data,
+  tecnicoNombre:
+    data.data.tecnicoNombre ||
+    data.data.tecnicoResponsable ||
+    "",
+}));
 
         setTimeout(() => {
           if (data.data.firmas?.tecnico && firmaTecnicoRef.current)
@@ -268,53 +277,189 @@ export default function HojaMantenimientoHidro() {
       className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
     >
       {/* ── ENCABEZADO ── */}
-      <section className="border rounded overflow-hidden">
-        <table className="w-full text-xs border-collapse">
-          <tbody>
-            <tr className="border-b">
-              <td rowSpan={4} className="w-32 border-r p-3 text-center">
-                <img src="/astap-logo.jpg" className="mx-auto max-h-20" alt="ASTAP" />
-              </td>
-              <td colSpan={2} className="border-r text-center font-bold p-2">
-                HOJA DE MANTENIMIENTO HIDROSUCCIONADOR
-              </td>
-              <td className="p-2">
-                <div>Fecha versión: <strong>01-01-2026</strong></div>
-                <div>Versión: <strong>01</strong></div>
-              </td>
-            </tr>
-            {[
-              ["REFERENCIA DE CONTRATO", "referenciaContrato"],
-              ["DESCRIPCIÓN", "descripcion"],
-              ["COD. INF.", "codInf"],
-            ].map(([label, name]) => (
-              <tr key={name} className="border-b">
-                <td className="border-r p-2 font-semibold">{label}</td>
-                <td colSpan={2} className="p-1">
-                  <input name={name} value={formData[name]} onChange={handleChange} className="w-full border p-1 rounded" />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+<section className="border rounded overflow-hidden">
+  <table className="w-full text-xs border-collapse">
+    <tbody>
+      <tr className="border-b">
+        <td rowSpan={5} className="w-32 border-r p-3 text-center align-middle">
+          <img
+            src="/astap-logo.jpg"
+            className="mx-auto max-h-20"
+            alt="ASTAP"
+          />
+        </td>
+
+        <td colSpan={2} className="border-r text-center font-bold p-2">
+          HOJA DE MANTENIMIENTO HIDROSUCCIONADOR
+        </td>
+
+        <td className="p-2">
+          <div>
+            Fecha versión: <strong>01-01-2026</strong>
+          </div>
+          <div>
+            Versión: <strong>01</strong>
+          </div>
+        </td>
+      </tr>
+
+      {[
+        ["REFERENCIA DE CONTRATO", "referenciaContrato"],
+        ["PEDIDO / DEMANDA", "pedidoDemanda"],
+        ["DESCRIPCIÓN", "descripcion"],
+        ["CÓDIGO INFORME", "codInf"],
+      ].map(([label, name]) => (
+        <tr key={name} className="border-b">
+          <td className="border-r p-2 font-semibold uppercase">
+            {label}
+          </td>
+
+          <td colSpan={2} className="p-1">
+            <input
+              name={name}
+              value={formData[name] || ""}
+              onChange={handleChange}
+              className="w-full border p-1 rounded"
+            />
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</section>
 
       {/* ── DATOS CLIENTE / TÉCNICO ── */}
-      <section className="grid md:grid-cols-2 gap-3 border rounded p-4">
-        {[
-          ["cliente",           "Cliente"],
-          ["direccion",         "Dirección"],
-          ["contacto",          "Contacto"],
-          ["telefono",          "Teléfono"],
-          ["correo",            "Correo"],
-          ["tecnicoResponsable","Técnico responsable"],
-          ["telefonoTecnico",   "Teléfono técnico"],
-          ["correoTecnico",     "Correo técnico"],
-        ].map(([n, p]) => (
-          <input key={n} name={n} value={formData[n]} placeholder={p} onChange={handleChange} className="border rounded p-2 w-full" />
-        ))}
-        <input type="date" name="fechaServicio" value={formData.fechaServicio} onChange={handleChange} className="border rounded p-2 md:col-span-2" />
-      </section>
+<section className="border rounded overflow-hidden">
+  <div className="bg-gray-100 border-b px-3 py-2 font-bold text-xs uppercase">
+    Datos del cliente y técnico responsable
+  </div>
+
+  <table className="w-full text-xs border-collapse">
+    <tbody>
+      <tr className="border-b">
+        <td className="border-r p-2 font-semibold w-40">CLIENTE</td>
+        <td className="border-r p-1">
+          <input
+            name="cliente"
+            value={formData.cliente || ""}
+            onChange={handleChange}
+            className="w-full border p-1 rounded"
+          />
+        </td>
+
+        <td className="border-r p-2 font-semibold w-40">DIRECCIÓN</td>
+        <td className="p-1">
+          <input
+            name="direccion"
+            value={formData.direccion || ""}
+            onChange={handleChange}
+            className="w-full border p-1 rounded"
+          />
+        </td>
+      </tr>
+
+      <tr className="border-b">
+        <td className="border-r p-2 font-semibold">CONTACTO</td>
+        <td className="border-r p-1">
+          <input
+            name="contacto"
+            value={formData.contacto || ""}
+            onChange={handleChange}
+            className="w-full border p-1 rounded"
+          />
+        </td>
+
+        <td className="border-r p-2 font-semibold">TELÉFONO</td>
+        <td className="p-1">
+          <input
+            name="telefono"
+            value={formData.telefono || ""}
+            onChange={handleChange}
+            className="w-full border p-1 rounded"
+          />
+        </td>
+      </tr>
+
+      <tr className="border-b">
+        <td className="border-r p-2 font-semibold">CORREO</td>
+        <td className="border-r p-1">
+          <input
+            name="correo"
+            value={formData.correo || ""}
+            onChange={handleChange}
+            className="w-full border p-1 rounded"
+          />
+        </td>
+
+        <td className="border-r p-2 font-semibold">TÉCNICO RESPONSABLE</td>
+        <td className="p-1">
+          <select
+            name="tecnicoNombre"
+            value={formData.tecnicoNombre || ""}
+            onChange={(e) => {
+              const selected = TECHNICIANS.find(
+                (t) => t.nombre === e.target.value
+              );
+
+              setFormData((p) => ({
+                ...p,
+                tecnicoNombre: selected?.nombre || "",
+                telefonoTecnico: selected?.telefono || "",
+                correoTecnico: selected?.correo || "",
+              }));
+            }}
+            className="w-full border p-1 rounded"
+          >
+            <option value="">Seleccione técnico</option>
+
+            {TECHNICIANS.map((t) => (
+              <option key={t.nombre} value={t.nombre}>
+                {t.nombre}
+              </option>
+            ))}
+          </select>
+        </td>
+      </tr>
+
+      <tr className="border-b">
+        <td className="border-r p-2 font-semibold">TELÉFONO TÉCNICO</td>
+        <td className="border-r p-1">
+          <input
+            name="telefonoTecnico"
+            value={formData.telefonoTecnico || ""}
+            onChange={handleChange}
+            className="w-full border p-1 rounded bg-gray-100"
+            readOnly
+          />
+        </td>
+
+        <td className="border-r p-2 font-semibold">CORREO TÉCNICO</td>
+        <td className="p-1">
+          <input
+            name="correoTecnico"
+            value={formData.correoTecnico || ""}
+            onChange={handleChange}
+            className="w-full border p-1 rounded bg-gray-100"
+            readOnly
+          />
+        </td>
+      </tr>
+
+      <tr>
+        <td className="border-r p-2 font-semibold">FECHA DE SERVICIO</td>
+        <td colSpan={3} className="p-1">
+          <input
+            type="date"
+            name="fechaServicio"
+            value={formData.fechaServicio || ""}
+            onChange={handleChange}
+            className="w-full border p-1 rounded"
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
 
       {/* ── ESTADO DEL EQUIPO (igual que inspección) ── */}
       <section className="border rounded p-4 space-y-3">
