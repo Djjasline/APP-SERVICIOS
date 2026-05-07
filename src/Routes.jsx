@@ -12,6 +12,9 @@ import MainLayout from "./layouts/MainLayout";
 // ================= PANEL =================
 import PanelServicios from "./pages/PanelServicios";
 
+// ================= PERFIL =================
+import Perfil from "./pages/Perfil";
+
 // ================= ÁREAS =================
 import AreaVehiculos from "./pages/AreaVehiculos";
 import AreaAgua from "./pages/AreaAgua";
@@ -55,7 +58,7 @@ import RecepcionHome from "./app/operaciones/recepcion/RecepcionHome";
 import HojaRecepcion from "./app/operaciones/recepcion/HojaRecepcion";
 
 import RegistroHome from "./app/operaciones/registro/RegistroHome";
-import HojaRegistroHerramientas from "./app/operaciones/registro/HojaRegistroHerramientas"; // ✅ AGREGADO
+import HojaRegistroHerramientas from "./app/operaciones/registro/HojaRegistroHerramientas";
 
 const TechRoute = ({ children }) => (
   <RoleRoute allowedRoles={["super_admin", "admin", "tecnico"]}>
@@ -87,6 +90,9 @@ export default function RoutesApp() {
           >
             {/* ================= PANEL ================= */}
             <Route path="/" element={<PanelServicios />} />
+
+            {/* ================= PERFIL ================= */}
+            <Route path="/perfil" element={<Perfil />} />
 
             {/* ================= ÁREAS ================= */}
             <Route path="/area/vehiculos" element={<TechRoute><AreaVehiculos /></TechRoute>} />
@@ -139,13 +145,13 @@ export default function RoutesApp() {
 
             <Route path="/mantenimiento/barredora/new" element={<TechRoute><HojaMantenimientoBarredora /></TechRoute>} />
             <Route path="/mantenimiento/barredora/:id" element={<TechRoute><HojaMantenimientoBarredora /></TechRoute>} />
+
             <Route path="/mantenimiento/vcam/new" element={<TechRoute><HojaMantenimientoVCam /></TechRoute>} />
             <Route path="/mantenimiento/vcam/:id"  element={<TechRoute><HojaMantenimientoVCam /></TechRoute>} />
 
-            
             {/* ================= OPERACIONES ================= */}
 
-            {/* BITÁCORA / LIBERACIÓN ✅ new → nuevo */}
+            {/* BITÁCORA / LIBERACIÓN */}
             <Route path="/liberacion" element={<TechRoute><LiberacionHome /></TechRoute>} />
             <Route path="/liberacion/nuevo" element={<TechRoute><LiberacionForm /></TechRoute>} />
             <Route path="/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
@@ -154,7 +160,7 @@ export default function RoutesApp() {
             <Route path="/operaciones/liberacion/nuevo" element={<TechRoute><LiberacionForm /></TechRoute>} />
             <Route path="/operaciones/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
 
-            {/* RECEPCIÓN ✅ agregada ruta /:id */}
+            {/* RECEPCIÓN */}
             <Route path="/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
             <Route path="/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
             <Route path="/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
@@ -163,7 +169,7 @@ export default function RoutesApp() {
             <Route path="/operaciones/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
             <Route path="/operaciones/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
 
-            {/* REGISTRO HERRAMIENTAS ✅ agregadas rutas /new y /:id */}
+            {/* REGISTRO HERRAMIENTAS */}
             <Route path="/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
             <Route path="/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
             <Route path="/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
@@ -176,6 +182,7 @@ export default function RoutesApp() {
             <Route path="/repositorios/documentos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
             <Route path="/repositorios/pdf" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
             <Route path="/repositorios/archivos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
+
           </Route>
 
           {/* ================= PDF FUERA DEL LAYOUT ================= */}
@@ -222,6 +229,7 @@ export default function RoutesApp() {
               </ProtectedRoute>
             }
           />
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>
