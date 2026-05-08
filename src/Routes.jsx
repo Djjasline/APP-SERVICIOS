@@ -60,6 +60,9 @@ import HojaRecepcion from "./app/operaciones/recepcion/HojaRecepcion";
 import RegistroHome from "./app/operaciones/registro/RegistroHome";
 import HojaRegistroHerramientas from "./app/operaciones/registro/HojaRegistroHerramientas";
 
+// ================= REPOSITORIO =================
+import ManualesTecnicos from "./app/repositorios/ManualesTecnicos";
+
 const TechRoute = ({ children }) => (
   <RoleRoute allowedRoles={["super_admin", "admin", "tecnico"]}>
     {children}
@@ -179,10 +182,24 @@ export default function RoutesApp() {
             <Route path="/operaciones/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
 
             {/* ================= REPOSITORIOS ================= */}
-            <Route path="/repositorios/documentos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
-            <Route path="/repositorios/pdf" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
-            <Route path="/repositorios/archivos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
+<Route
+  path="/repositorios/manuales-tecnicos"
+  element={
+    <AdminRoute>
+      <ManualesTecnicos />
+    </AdminRoute>
+  }
+/>
 
+<Route
+  path="/repositorios/base-datos"
+  element={
+    <AdminRoute>
+      <AreaRepositorios />
+    </AdminRoute>
+  }
+/>
+            
           </Route>
 
           {/* ================= PDF FUERA DEL LAYOUT ================= */}
