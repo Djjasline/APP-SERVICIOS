@@ -42,6 +42,9 @@ import HistorialInspecciones from "./app/vehiculos/inspeccion/HistorialInspeccio
 import HojaInspeccionHidro from "./app/vehiculos/inspeccion/HojaInspeccionHidro";
 import HojaInspeccionBarredora from "./app/vehiculos/inspeccion/HojaInspeccionBarredora";
 import HojaInspeccionCamara from "./app/vehiculos/inspeccion/HojaInspeccionCamara";
+import InspeccionHidroPdf from "./app/vehiculos/inspeccion/pages/pdf/InspeccionHidroPdf";
+import InspeccionBarredoraPdf from "./app/vehiculos/inspeccion/pages/pdf/InspeccionBarredoraPdf";
+import InspeccionCamaraPdf from "./app/vehiculos/inspeccion/pages/pdf/InspeccionCamaraPdf";
 
 // ================= MANTENIMIENTO =================
 import IndexMantenimiento from "./app/vehiculos/mantenimiento/IndexMantenimiento";
@@ -225,6 +228,40 @@ export default function RoutesApp() {
             }
           />
 
+{/* ================= PDF INSPECCIONES ================= */}
+<Route
+  path="/inspeccion/hidro/:id/pdf"
+  element={
+    <ProtectedRoute>
+      <TechRoute>
+        <InspeccionHidroPdf />
+      </TechRoute>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/inspeccion/barredora/:id/pdf"
+  element={
+    <ProtectedRoute>
+      <TechRoute>
+        <InspeccionBarredoraPdf />
+      </TechRoute>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/inspeccion/camara/:id/pdf"
+  element={
+    <ProtectedRoute>
+      <TechRoute>
+        <InspeccionCamaraPdf />
+      </TechRoute>
+    </ProtectedRoute>
+  }
+/>
+          
           <Route
             path="/agua/informe/pdf/:id"
             element={
