@@ -620,11 +620,14 @@ export default function HojaMantenimientoBarredora() {
                   <SignatureCanvas ref={sigCliente} penColor="black"
                     minWidth={0.5} maxWidth={1.5}
                     canvasProps={{ className: "w-full h-full touch-none" }} />
-                </div>
-                <div className="mt-2 text-center">
-                  <input className="pdf-input w-full bg-gray-100"
-                    value={data.contacto} readOnly placeholder="Nombre del contacto" />
-                </div>
+                <div className="mt-2 space-y-1 text-center">
+  <input className="pdf-input w-full bg-gray-100"
+    value={data.contacto} readOnly placeholder="Nombre del contacto" />
+  <input className="pdf-input w-full"
+    value={data.firmas?.clienteCedula || ""}
+    onChange={(e) => update(["firmas", "clienteCedula"], e.target.value)}
+    placeholder="Número de cédula del cliente" />
+</div>
                 <div className="text-center">
                   <button type="button" onClick={() => sigCliente.current?.clear()}
                     className="text-xs text-red-600 mt-1 hover:underline">
