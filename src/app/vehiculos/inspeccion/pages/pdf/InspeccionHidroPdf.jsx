@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getInspectionById } from "@/utils/inspectionStorage";
+import { supabase } from "@/lib/supabase";
 
 /* =============================
    PRUEBAS PREVIAS
@@ -84,11 +84,31 @@ const secciones = [
 export default function InspeccionHidroPdf() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [inspection, setInspection] = useState(null);
 
+  /* =============================
+     CARGAR DESDE SUPABASE
+  ============================= */
   useEffect(() => {
-    const found = getInspectionById("hidro", id);
-    if (found) setInspection(found);
+    const loadInspection = async () => {
+      const { data, error } = await supabase
+        .from("registros")
+        .select("*")
+        .eq("id", id)
+        .eq("tipo", "inspeccion")
+        .eq("subtipo", "hidro")
+        .single();
+
+      if (error) {
+        console.error("Error cargando PDF:", error);
+        return;
+      }
+
+      setInspection(data);
+    };
+
+    loadInspection();
   }, [id]);
 
   if (!inspection) {
@@ -106,24 +126,34 @@ export default function InspeccionHidroPdf() {
           <tbody>
             <tr>
               <td rowSpan={5} style={{ width: 140, textAlign: "center" }}>
-                <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
+                <img
+                  src="/astap-logo.jpg"
+                  style={{ maxHeight: 70 }}
+                  alt="ASTAP"
+                />
               </td>
+
               <td colSpan={2} className="pdf-title">
                 HOJA DE INSPECCIÓN HIDROSUCCIONADOR
               </td>
+
               <td>
-                <strong>Fecha versión:</strong> 01-01-26<br />
+                <strong>Fecha versión:</strong> 01-01-26
+                <br />
                 <strong>Versión:</strong> 01
               </td>
             </tr>
+
             <tr>
               <td className="pdf-label">REFERENCIA DE CONTRATO</td>
               <td colSpan={2}>{data.referenciaContrato || "—"}</td>
             </tr>
+
             <tr>
               <td className="pdf-label">DESCRIPCIÓN</td>
               <td colSpan={2}>{data.descripcion || "—"}</td>
             </tr>
+
             <tr>
               <td className="pdf-label">COD. INF.</td>
               <td colSpan={2}>{data.codInf || "—"}</td>
@@ -132,39 +162,44 @@ export default function InspeccionHidroPdf() {
         </table>
 
         {/* ================= DATOS CLIENTE ================= */}
-<table className="pdf-table mt-4">
-  <tbody>
-    {[
-      ["CLIENTE", data.cliente],
-      ["DIRECCIÓN", data.direccion],
-      ["CONTACTO", data.contacto],
-      ["TELÉFONO", data.telefono],
-      ["CORREO", data.correo],
-      ["TÉCNICO RESPONSABLE", data.tecnicoResponsable],
-      ["TELÉFONO TÉCNICO", data.telefonoTecnico],
-      ["CORREO TÉCNICO", data.correoTecnico],
-      ["FECHA DE SERVICIO", data.fechaServicio],
-    ].map(([l, v], i) => (
-      <tr key={i}>
-        <td className="pdf-label">{l}</td>
-        <td>{v || "—"}</td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-
+        <table className="pdf-table mt-4">
+          <tbody>
+            {[
+              ["CLIENTE", data.cliente],
+              ["DIRECCIÓN", data.direccion],
+              ["CONTACTO", data.contacto],
+              ["TELÉFONO", data.telefono],
+              ["CORREO", data.correo],
+              ["TÉCNICO RESPONSABLE", data.tecnicoResponsable],
+              ["TELÉFONO TÉCNICO", data.telefonoTecnico],
+              ["CORREO TÉCNICO", data.correoTecnico],
+              ["FECHA DE SERVICIO", data.fechaServicio],
+            ].map(([l, v], i) => (
+              <tr key={i}>
+                <td className="pdf-label">{l}</td>
+                <td>{v || "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         {/* ================= ESTADO DEL EQUIPO ================= */}
-        <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
+        <h3 className="pdf-title mt-4">
+          ESTADO DEL EQUIPO
+        </h3>
 
         <table className="pdf-table">
           <tbody>
             <tr>
               <td colSpan={2} style={{ position: "relative" }}>
                 <img
-                  src="/estado-equipo.png"
+                  src={
+                    data.estadoEquipoImagenUrl || "/estado-equipo.png"
+                  }
                   style={{ width: "100%" }}
+                  alt="Estado equipo"
                 />
+
                 {data.estadoEquipoPuntos?.map((pt) => (
                   <div
                     key={pt.id}
@@ -221,9 +256,11 @@ export default function InspeccionHidroPdf() {
               <th>Observación</th>
             </tr>
           </thead>
+
           <tbody>
             {pruebasPrevias.map(([codigo, texto]) => {
               const item = data.items?.[codigo] || {};
+
               return (
                 <tr key={codigo}>
                   <td>{codigo}</td>
@@ -239,7 +276,10 @@ export default function InspeccionHidroPdf() {
         {/* ================= SECCIONES ================= */}
         {secciones.map((sec) => (
           <div key={sec.titulo}>
-            <h3 className="pdf-title mt-4">{sec.titulo}</h3>
+            <h3 className="pdf-title mt-4">
+              {sec.titulo}
+            </h3>
+
             <table className="pdf-table">
               <thead>
                 <tr>
@@ -249,9 +289,11 @@ export default function InspeccionHidroPdf() {
                   <th>Observación</th>
                 </tr>
               </thead>
+
               <tbody>
                 {sec.items.map(([codigo, texto]) => {
                   const item = data.items?.[codigo] || {};
+
                   return (
                     <tr key={codigo}>
                       <td>{codigo}</td>
@@ -267,7 +309,9 @@ export default function InspeccionHidroPdf() {
         ))}
 
         {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-        <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
+        <h3 className="pdf-title mt-4">
+          DESCRIPCIÓN DEL EQUIPO
+        </h3>
 
         <table className="pdf-table">
           <tbody>
@@ -275,6 +319,7 @@ export default function InspeccionHidroPdf() {
               <td className="pdf-label">NOTA</td>
               <td>{data.nota || "—"}</td>
             </tr>
+
             {[
               ["MARCA", data.marca],
               ["MODELO", data.modelo],
@@ -302,17 +347,35 @@ export default function InspeccionHidroPdf() {
               <th>FIRMA CLIENTE</th>
             </tr>
           </thead>
+
           <tbody>
             <tr>
               <td style={{ height: 120, textAlign: "center" }}>
                 {data.firmas?.tecnico && (
-                  <img src={data.firmas.tecnico} style={{ maxHeight: 100 }} />
+                  <img
+                    src={data.firmas.tecnico}
+                    style={{ maxHeight: 100 }}
+                    alt="Firma técnico"
+                  />
                 )}
+
+                <div className="mt-2 text-xs font-semibold">
+                  {data.tecnicoResponsable || "—"}
+                </div>
               </td>
+
               <td style={{ height: 120, textAlign: "center" }}>
                 {data.firmas?.cliente && (
-                  <img src={data.firmas.cliente} style={{ maxHeight: 100 }} />
+                  <img
+                    src={data.firmas.cliente}
+                    style={{ maxHeight: 100 }}
+                    alt="Firma cliente"
+                  />
                 )}
+
+                <div className="mt-2 text-xs font-semibold">
+                  {data.contacto || "—"}
+                </div>
               </td>
             </tr>
           </tbody>
@@ -326,6 +389,7 @@ export default function InspeccionHidroPdf() {
           >
             Volver
           </button>
+
           <button
             onClick={() => window.print()}
             className="bg-green-600 text-white px-4 py-2 rounded"
