@@ -107,7 +107,7 @@ const emptyForm = {
   },
   estadoEquipo: { imagenes: [] },
   items: {},
-  firmas: { tecnico: "", cliente: "" },
+  firmas: { tecnico: "", cliente: "", clienteCedula: "" },
 };
 
 export default function HojaMantenimientoBarredora() {
@@ -290,8 +290,15 @@ export default function HojaMantenimientoBarredora() {
         id:      isEditing ? id : null,
         tipo:    "mantenimiento",
         subtipo: "barredora",
-        data:    { ...data, firmas: { tecnico: firmaTecnico, cliente: firmaCliente } },
-        estado:  firmaTecnico ? "completado" : "borrador",
+        data: {
+          ...data,
+          firmas: {
+            tecnico:       firmaTecnico,
+            cliente:       firmaCliente,
+            clienteCedula: data.firmas?.clienteCedula || "",
+          },
+        },
+        estado: firmaTecnico ? "completado" : "borrador",
       });
 
       alert(isEditing ? "Mantenimiento actualizado ✅" : "Mantenimiento guardado ✅");
@@ -599,6 +606,7 @@ export default function HojaMantenimientoBarredora() {
           </thead>
           <tbody>
             <tr>
+              {/* FIRMA TÉCNICO */}
               <td className="align-top" style={{ height: 240 }}>
                 <div className="border rounded bg-white h-[150px] flex items-center justify-center">
                   <SignatureCanvas ref={sigTecnico} penColor="black"
@@ -615,19 +623,23 @@ export default function HojaMantenimientoBarredora() {
                   </button>
                 </div>
               </td>
+
+              {/* FIRMA CLIENTE */}
               <td className="align-top" style={{ height: 240 }}>
                 <div className="border rounded bg-white h-[150px] flex items-center justify-center">
                   <SignatureCanvas ref={sigCliente} penColor="black"
                     minWidth={0.5} maxWidth={1.5}
                     canvasProps={{ className: "w-full h-full touch-none" }} />
+                </div>
                 <div className="mt-2 space-y-1 text-center">
-  <input className="pdf-input w-full bg-gray-100"
-    value={data.contacto} readOnly placeholder="Nombre del contacto" />
-  <input className="pdf-input w-full"
-    value={data.firmas?.clienteCedula || ""}
-    onChange={(e) => update(["firmas", "clienteCedula"], e.target.value)}
-    placeholder="Número de cédula del cliente" />
-</div>
+                  <input className="pdf-input w-full bg-gray-100"
+                    value={data.contacto} readOnly
+                    placeholder="Nombre del contacto presente" />
+                  <input className="pdf-input w-full"
+                    value={data.firmas?.clienteCedula || ""}
+                    onChange={(e) => update(["firmas", "clienteCedula"], e.target.value)}
+                    placeholder="Número de cédula del cliente" />
+                </div>
                 <div className="text-center">
                   <button type="button" onClick={() => sigCliente.current?.clear()}
                     className="text-xs text-red-600 mt-1 hover:underline">
