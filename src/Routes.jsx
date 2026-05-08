@@ -183,7 +183,7 @@ export default function RoutesApp() {
 
             {/* ================= REPOSITORIOS ================= */}
 <Route
-  path="/Repositorios/manuales-tecnicos"
+  path="/repositorios/manuales-tecnicos"
   element={
     <AdminRoute>
       <ManualesTecnicos />
@@ -192,7 +192,7 @@ export default function RoutesApp() {
 />
 
 <Route
-  path="/Repositorios/base-datos"
+  path="/repositorios/base-datos"
   element={
     <AdminRoute>
       <AreaRepositorios />
