@@ -9,6 +9,8 @@ import {
   FolderOpen,
   ChevronDown,
   ChevronRight,
+  BookOpen,
+  Database,
 } from "lucide-react";
 
 export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
@@ -21,13 +23,11 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const [openPetroleo, setOpenPetroleo] = useState(false);
   const [openRepositorios, setOpenRepositorios] = useState(false);
 
-  /* ================= ACTIVE ================= */
   const isActive = (path) => {
     if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
   };
 
-  /* ================= AUTO OPEN ================= */
   useEffect(() => {
     if (
       location.pathname.includes("/vehiculos") ||
@@ -55,7 +55,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
     }
   }, [location.pathname]);
 
-  /* ================= CLASES ================= */
   const itemBase = `
     group relative flex items-center w-full py-2 rounded-xl
     transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
@@ -117,7 +116,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
       {/* CONTENIDO */}
       <div className="flex-1 p-3 space-y-2 text-sm overflow-y-auto">
-
         {/* DASHBOARD */}
         <div onClick={() => go("/")} className={itemClass(isActive("/"))}>
           <LayoutDashboard size={20} className={iconClass} />
@@ -127,7 +125,10 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
         {/* VEHÍCULOS */}
         <div>
-          <div onClick={() => setOpenVehiculos(!openVehiculos)} className={itemClass(isActive("/vehiculos"))}>
+          <div
+            onClick={() => setOpenVehiculos(!openVehiculos)}
+            className={itemClass(isActive("/vehiculos"))}
+          >
             <Truck size={20} className={iconClass} />
             {openSidebar && "Vehículos"}
             {openSidebar && (openVehiculos ? <ChevronDown /> : <ChevronRight />)}
@@ -135,17 +136,28 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
           {openSidebar && openVehiculos && (
             <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-              <button onClick={() => go("/area/vehiculos")} className={subItemClass("/area/vehiculos")}>Panel</button>
-              <button onClick={() => go("/informe")} className={subItemClass("/informe")}>Informes</button>
-              <button onClick={() => go("/inspeccion")} className={subItemClass("/inspeccion")}>Inspección</button>
-              <button onClick={() => go("/mantenimiento")} className={subItemClass("/mantenimiento")}>Mantenimiento</button>
+              <button onClick={() => go("/area/vehiculos")} className={subItemClass("/area/vehiculos")}>
+                Panel
+              </button>
+              <button onClick={() => go("/informe")} className={subItemClass("/informe")}>
+                Informes
+              </button>
+              <button onClick={() => go("/inspeccion")} className={subItemClass("/inspeccion")}>
+                Inspección
+              </button>
+              <button onClick={() => go("/mantenimiento")} className={subItemClass("/mantenimiento")}>
+                Mantenimiento
+              </button>
             </div>
           )}
         </div>
 
         {/* AGUA */}
         <div>
-          <div onClick={() => setOpenAgua(!openAgua)} className={itemClass(location.pathname.includes("/agua"))}>
+          <div
+            onClick={() => setOpenAgua(!openAgua)}
+            className={itemClass(location.pathname.includes("/agua"))}
+          >
             <Droplet size={20} className={iconClass} />
             {openSidebar && "Agua"}
             {openSidebar && (openAgua ? <ChevronDown /> : <ChevronRight />)}
@@ -153,16 +165,25 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
           {openSidebar && openAgua && (
             <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-              <button onClick={() => go("/area/agua")} className={subItemClass("/area/agua")}>Panel</button>
-              <button onClick={() => go("/agua/informe")} className={subItemClass("/agua/informe")}>Informes</button>
-              <button onClick={() => go("/agua/inspeccion")} className={subItemClass("/agua/inspeccion")}>Inspección</button>
+              <button onClick={() => go("/area/agua")} className={subItemClass("/area/agua")}>
+                Panel
+              </button>
+              <button onClick={() => go("/agua/informe")} className={subItemClass("/agua/informe")}>
+                Informes
+              </button>
+              <button onClick={() => go("/agua/inspeccion")} className={subItemClass("/agua/inspeccion")}>
+                Inspección
+              </button>
             </div>
           )}
         </div>
 
         {/* PETRÓLEO */}
         <div>
-          <div onClick={() => setOpenPetroleo(!openPetroleo)} className={itemClass(location.pathname.includes("/petroleo"))}>
+          <div
+            onClick={() => setOpenPetroleo(!openPetroleo)}
+            className={itemClass(location.pathname.includes("/petroleo"))}
+          >
             <Fuel size={20} className={iconClass} />
             {openSidebar && "Petróleo"}
             {openSidebar && (openPetroleo ? <ChevronDown /> : <ChevronRight />)}
@@ -170,16 +191,25 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
           {openSidebar && openPetroleo && (
             <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-              <button onClick={() => go("/area/petroleo")} className={subItemClass("/area/petroleo")}>Panel</button>
-              <button onClick={() => go("/petroleo/informe")} className={subItemClass("/petroleo/informe")}>Informes</button>
-              <button onClick={() => go("/petroleo/inspeccion")} className={subItemClass("/petroleo/inspeccion")}>Inspección</button>
+              <button onClick={() => go("/area/petroleo")} className={subItemClass("/area/petroleo")}>
+                Panel
+              </button>
+              <button onClick={() => go("/petroleo/informe")} className={subItemClass("/petroleo/informe")}>
+                Informes
+              </button>
+              <button onClick={() => go("/petroleo/inspeccion")} className={subItemClass("/petroleo/inspeccion")}>
+                Inspección
+              </button>
             </div>
           )}
         </div>
 
         {/* OPERACIONES */}
         <div>
-          <div onClick={() => setOpenOperaciones(!openOperaciones)} className={itemClass(isActive("/operaciones"))}>
+          <div
+            onClick={() => setOpenOperaciones(!openOperaciones)}
+            className={itemClass(isActive("/operaciones"))}
+          >
             <Settings size={20} className={iconClass} />
             {openSidebar && "Operaciones"}
             {openSidebar && (openOperaciones ? <ChevronDown /> : <ChevronRight />)}
@@ -187,17 +217,28 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
           {openSidebar && openOperaciones && (
             <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-              <button onClick={() => go("/operaciones")} className={subItemClass("/operaciones")}>Panel</button>
-              <button onClick={() => go("/operaciones/registro")} className={subItemClass("/operaciones/registro")}>Registro</button>
-              <button onClick={() => go("/operaciones/recepcion")} className={subItemClass("/operaciones/recepcion")}>Recepción</button>
-              <button onClick={() => go("/operaciones/liberacion")} className={subItemClass("/operaciones/liberacion")}>Liberación</button>
+              <button onClick={() => go("/operaciones")} className={subItemClass("/operaciones")}>
+                Panel
+              </button>
+              <button onClick={() => go("/operaciones/registro")} className={subItemClass("/operaciones/registro")}>
+                Registro
+              </button>
+              <button onClick={() => go("/operaciones/recepcion")} className={subItemClass("/operaciones/recepcion")}>
+                Recepción
+              </button>
+              <button onClick={() => go("/operaciones/liberacion")} className={subItemClass("/operaciones/liberacion")}>
+                Liberación
+              </button>
             </div>
           )}
         </div>
 
         {/* REPOSITORIOS */}
         <div>
-          <div onClick={() => setOpenRepositorios(!openRepositorios)} className={itemClass(isActive("/repositorios"))}>
+          <div
+            onClick={() => setOpenRepositorios(!openRepositorios)}
+            className={itemClass(isActive("/repositorios"))}
+          >
             <FolderOpen size={20} className={iconClass} />
             {openSidebar && "Repositorios"}
             {openSidebar && (openRepositorios ? <ChevronDown /> : <ChevronRight />)}
@@ -205,12 +246,35 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
           {openSidebar && openRepositorios && (
             <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-              <button onClick={() => go("/repositorios")} className={subItemClass("/repositorios")}>General</button>
-              <button onClick={() => go("/repositorios/documentos")} className={subItemClass("/repositorios/documentos")}>Documentos</button>
- </div>
+              <button
+                onClick={() => go("/repositorios")}
+                className={subItemClass("/repositorios")}
+              >
+                General
+              </button>
+
+              <button
+                onClick={() => go("/repositorios/manuales-tecnicos")}
+                className={subItemClass("/repositorios/manuales-tecnicos")}
+              >
+                <span className="inline-flex items-center gap-2">
+                  <BookOpen size={14} />
+                  Manuales técnicos
+                </span>
+              </button>
+
+              <button
+                onClick={() => go("/repositorios/base-datos")}
+                className={subItemClass("/repositorios/base-datos")}
+              >
+                <span className="inline-flex items-center gap-2">
+                  <Database size={14} />
+                  Base de datos
+                </span>
+              </button>
+            </div>
           )}
         </div>
-
       </div>
 
       {/* FOOTER */}
@@ -220,7 +284,9 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             <p className="font-semibold text-white/80">ASTAP</p>
             <p>© 2026 • By Santiago Avilés</p>
           </>
-        ) : "©"}
+        ) : (
+          "©"
+        )}
       </div>
     </aside>
   );
