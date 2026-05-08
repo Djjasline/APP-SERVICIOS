@@ -18,30 +18,22 @@ export default function AreaRepositorios() {
       <div className="grid md:grid-cols-2 gap-6">
 
         <CardModulo
-          titulo="Documentos"
-          descripcion="Gestión de documentos técnicos y manuales."
-          ruta="/repositorios/documentos"
+          titulo="Manuales técnicos de vehículos especiales"
+          descripcion="Acceso a manuales técnicos, catalogos y documentación técnica por marca de equipo"
+          ruta="/repositorios/Manuales-tecnicos-de-vehiculos-especiales"
           color="bg-blue-600"
           icono={<FileText size={20} />}
         />
 
         <CardModulo
-          titulo="PDF"
-          descripcion="Acceso a informes generados en PDF."
-          ruta="/repositorios/pdf"
+          titulo="Base de datos"
+          descripcion="Acceso a base de datos empresarial."
+          ruta="/repositorios/Base-de-datos"
           color="bg-red-600"
           icono={<File size={20} />}
         />
 
-        <CardModulo
-          titulo="Archivos"
-          descripcion="Almacenamiento general de archivos técnicos."
-          ruta="/repositorios/archivos"
-          color="bg-green-600"
-          icono={<Folder size={20} />}
-        />
-
-      </div>
+             </div>
     </div>
   );
 }
