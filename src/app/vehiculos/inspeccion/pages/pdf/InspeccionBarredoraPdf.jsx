@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getInspectionById } from "@/utils/inspectionStorage";
+import { supabase } from "@/lib/supabase";
 
 /* =============================
    PRUEBAS PREVIAS (IGUAL HIDRO)
@@ -81,254 +81,381 @@ const secciones = [
 export default function InspeccionBarredoraPdf() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [inspection, setInspection] = useState(null);
 
+  const [inspection, setInspection] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  /* =============================
+     CARGAR DESDE SUPABASE
+  ============================= */
   useEffect(() => {
-    const found = getInspectionById("barredora", id);
-    if (found) setInspection(found);
+    const loadInspection = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("registros")
+          .select("*")
+          .eq("id", id)
+          .eq("tipo", "inspeccion")
+          .eq("subtipo", "barredora")
+          .single();
+
+        if (error || !data) {
+          console.error("Error cargando PDF barredora:", error);
+          setInspection(null);
+          return;
+        }
+
+        setInspection(data);
+      } catch (err) {
+        console.error("Error inesperado cargando PDF barredora:", err);
+        setInspection(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) loadInspection();
   }, [id]);
 
-  if (!inspection) {
+  if (loading) {
     return <div className="p-6">Cargando inspección…</div>;
   }
 
-  const { data } = inspection;
+  if (!inspection) {
+    return (
+      <div className="p-6">
+        <p>No se encontró la inspección de barredora.</p>
+        <button
+          onClick={() => navigate("/inspeccion")}
+          className="border px-4 py-2 rounded mt-4"
+        >
+          Volver
+        </button>
+      </div>
+    );
+  }
+
+  const data = inspection.data || {};
+
+  const handlePrint = () => {
+    const cliente = (data.cliente || "cliente").replace(/\s+/g, "-");
+    const pedido = (data.pedidoDemanda || "pedido").replace(/\s+/g, "");
+    const codigo = (data.codInf || data.codigo || "inspeccion").replace(
+      /\s+/g,
+      ""
+    );
+
+    document.title = `${cliente}_${pedido}_${codigo}_Inspeccion_Barredora_ASTAP`;
+    window.print();
+
+    setTimeout(() => {
+      document.title = "App Servicios - ASTAP";
+    }, 1000);
+  };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="pdf-container max-w-6xl mx-auto">
+      <div className="print-area">
+        <div className="pdf-container max-w-6xl mx-auto bg-white">
+          {/* ================= ENCABEZADO ================= */}
+          <table className="pdf-table">
+            <tbody>
+              <tr>
+                <td rowSpan={5} style={{ width: 140, textAlign: "center" }}>
+                  <img
+                    src="/astap-logo.jpg"
+                    style={{ maxHeight: 70, margin: "0 auto" }}
+                    alt="ASTAP"
+                  />
+                </td>
 
-{/* ================= ENCABEZADO ================= */}
-        <table className="pdf-table">
-          <tbody>
-            <tr>
-              <td rowSpan={5} style={{ width: 140, textAlign: "center" }}>
-                <img src="/astap-logo.jpg" style={{ maxHeight: 70 }} />
-              </td>
-              <td colSpan={2} className="pdf-title">
-                HOJA DE INSPECCIÓN BARREDORA
-              </td>
-              <td>
-                <strong>Fecha versión:</strong> 01-01-26<br />
-                <strong>Versión:</strong> 01
-              </td>
-            </tr>
-            <tr>
-              <td className="pdf-label">REFERENCIA DE CONTRATO</td>
-              <td colSpan={2}>{data.referenciaContrato || "—"}</td>
-            </tr>
-            <tr>
-              <td className="pdf-label">DESCRIPCIÓN</td>
-              <td colSpan={2}>{data.descripcion || "—"}</td>
-            </tr>
-            <tr>
-              <td className="pdf-label">COD. INF.</td>
-              <td colSpan={2}>{data.codInf || "—"}</td>
-            </tr>
-          </tbody>
-        </table>
+                <td colSpan={2} className="pdf-title">
+                  HOJA DE INSPECCIÓN BARREDORA
+                </td>
 
-
-{/* ================= DATOS CLIENTE ================= */}
-<table className="pdf-table mt-4">
-  <tbody>
-    {[
-      ["CLIENTE", data.cliente],
-      ["DIRECCIÓN", data.direccion],
-      ["CONTACTO", data.contacto],
-      ["TELÉFONO", data.telefono],
-      ["CORREO", data.correo],
-      ["TÉCNICO RESPONSABLE", data.tecnicoResponsable],
-      ["TELÉFONO TÉCNICO", data.telefonoTecnico],
-      ["CORREO TÉCNICO", data.correoTecnico],
-      ["FECHA DE SERVICIO", data.fechaServicio],
-    ].map(([l, v], i) => (
-      <tr key={i}>
-        <td className="pdf-label">{l}</td>
-        <td>{v || "—"}</td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-
- {/* ================= ESTADO DEL EQUIPO ================= */}
-        <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
-
-        <table className="pdf-table">
-          <tbody>
-            <tr>
-              <td colSpan={2} style={{ position: "relative" }}>
-                <img
-                  src="/estado equipo barredora.png"
-                  style={{ width: "100%" }}
-                />
-                {data.estadoEquipoPuntos?.map((pt) => (
-                  <div
-                    key={pt.id}
-                    style={{
-                      position: "absolute",
-                      left: `${pt.x}%`,
-                      top: `${pt.y}%`,
-                      transform: "translate(-50%, -50%)",
-                      background: "red",
-                      color: "white",
-                      width: 18,
-                      height: 18,
-                      borderRadius: "50%",
-                      fontSize: 10,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {pt.id}
-                  </div>
-                ))}
-              </td>
-            </tr>
-
-            {data.estadoEquipoPuntos?.map((pt) => (
-              <tr key={pt.id}>
-                <td className="pdf-label">{pt.id}</td>
-                <td>{pt.nota || "—"}</td>
+                <td>
+                  <strong>Fecha versión:</strong> 01-01-26
+                  <br />
+                  <strong>Versión:</strong> 01
+                </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-         
-        {/* ================= PRUEBAS PREVIAS ================= */}
-        <h3 className="pdf-title mt-4">
-          1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO
-        </h3>
 
-        <table className="pdf-table">
-          <thead>
-            <tr>
-              <th>Ítem</th>
-              <th>Detalle</th>
-              <th>Estado</th>
-              <th>Observación</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pruebasPrevias.map(([codigo, texto]) => {
-              const item = data.items?.[codigo] || {};
-              return (
-                <tr key={codigo}>
-                  <td>{codigo}</td>
-                  <td>{texto}</td>
-                  <td>{item.estado || "—"}</td>
-                  <td>{item.observacion || ""}</td>
+              <tr>
+                <td className="pdf-label">REFERENCIA DE CONTRATO</td>
+                <td colSpan={2}>{data.referenciaContrato || "—"}</td>
+              </tr>
+
+              <tr>
+                <td className="pdf-label">PEDIDO / DEMANDA</td>
+                <td colSpan={2}>{data.pedidoDemanda || "—"}</td>
+              </tr>
+
+              <tr>
+                <td className="pdf-label">DESCRIPCIÓN</td>
+                <td colSpan={2}>{data.descripcion || "—"}</td>
+              </tr>
+
+              <tr>
+                <td className="pdf-label">COD. INF.</td>
+                <td colSpan={2}>{data.codInf || data.codigo || "—"}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* ================= DATOS CLIENTE ================= */}
+          <table className="pdf-table mt-4">
+            <tbody>
+              {[
+                ["CLIENTE", data.cliente],
+                ["DIRECCIÓN", data.direccion],
+                ["CONTACTO", data.contacto],
+                ["TELÉFONO", data.telefono],
+                ["CORREO", data.correo],
+                [
+                  "TÉCNICO RESPONSABLE",
+                  data.tecnicoNombre || data.tecnicoResponsable,
+                ],
+                [
+                  "TELÉFONO TÉCNICO",
+                  data.tecnicoTelefono || data.telefonoTecnico,
+                ],
+                [
+                  "CORREO TÉCNICO",
+                  data.tecnicoCorreo || data.correoTecnico,
+                ],
+                ["FECHA DE SERVICIO", data.fechaServicio],
+              ].map(([l, v], i) => (
+                <tr key={i}>
+                  <td className="pdf-label">{l}</td>
+                  <td>{v || "—"}</td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
 
-       
+          {/* ================= ESTADO DEL EQUIPO ================= */}
+          <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
 
-        {/* ================= SECCIONES ================= */}
-        {secciones.map((sec) => (
-          <div key={sec.titulo}>
-            <h3 className="pdf-title mt-4">{sec.titulo}</h3>
-            <table className="pdf-table">
-              <thead>
+          <table className="pdf-table">
+            <tbody>
+              <tr>
+                <td colSpan={2} style={{ position: "relative" }}>
+                  <img
+                    src={data.estadoEquipoImagenUrl || "/estado equipo barredora.png"}
+                    style={{ width: "100%" }}
+                    alt="Estado equipo barredora"
+                  />
+
+                  {(data.estadoEquipoPuntos || []).map((pt) => (
+                    <div
+                      key={pt.id}
+                      style={{
+                        position: "absolute",
+                        left: `${pt.x}%`,
+                        top: `${pt.y}%`,
+                        transform: "translate(-50%, -50%)",
+                        background: "red",
+                        color: "white",
+                        width: 18,
+                        height: 18,
+                        borderRadius: "50%",
+                        fontSize: 10,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {pt.id}
+                    </div>
+                  ))}
+                </td>
+              </tr>
+
+              {(data.estadoEquipoPuntos || []).length > 0 ? (
+                data.estadoEquipoPuntos.map((pt) => (
+                  <tr key={pt.id}>
+                    <td className="pdf-label">{pt.id}</td>
+                    <td>{pt.nota || "—"}</td>
+                  </tr>
+                ))
+              ) : (
                 <tr>
-                  <th>Ítem</th>
-                  <th>Detalle</th>
-                  <th>Estado</th>
-                  <th>Observación</th>
+                  <td colSpan={2} style={{ textAlign: "center" }}>
+                    — Sin observaciones —
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {sec.items.map(([codigo, texto]) => {
-                  const item = data.items?.[codigo] || {};
-                  return (
-                    <tr key={codigo}>
-                      <td>{codigo}</td>
-                      <td>{texto}</td>
-                      <td>{item.estado || "—"}</td>
-                      <td>{item.observacion || ""}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ))}
+              )}
+            </tbody>
+          </table>
 
-        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-        <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
+          {/* ================= PRUEBAS PREVIAS ================= */}
+          <h3 className="pdf-title mt-4">
+            1. PRUEBAS DE ENCENDIDO Y FUNCIONAMIENTO
+          </h3>
 
-        <table className="pdf-table">
-          <tbody>
-            {[
-              ["NOTA", data.nota],
-              ["MARCA", data.marca],
-              ["MODELO", data.modelo],
-              ["SERIE", data.serie],
-              ["AÑO MODELO", data.anioModelo],
-              ["VIN / CHASIS", data.vin],
-              ["PLACA", data.placa],
-              ["HORAS MÓDULO", data.horasModulo],
-              ["HORAS CHASIS", data.horasChasis],
-              ["KILOMETRAJE", data.kilometraje],
-            ].map(([l, v], i) => (
-              <tr key={i}>
-                <td className="pdf-label">{l}</td>
-                <td>{v || "—"}</td>
+          <table className="pdf-table">
+            <thead>
+              <tr>
+                <th>Ítem</th>
+                <th>Detalle</th>
+                <th>Estado</th>
+                <th>Observación</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
 
-        {/* ================= FIRMAS ================= */}
-        <table className="pdf-table mt-4">
-          <thead>
-            <tr>
-              <th>FIRMA TÉCNICO</th>
-              <th>FIRMA CLIENTE</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style={{ height: 120, textAlign: "center" }}>
-                {data.firmas?.tecnico && (
-                  <img
-                    src={data.firmas.tecnico}
-                    style={{ maxHeight: "100px", maxWidth: "100%" }}
-                  />
-                )}
-              </td>
-              <td style={{ height: 120, textAlign: "center" }}>
-                {data.firmas?.cliente && (
-                  <img
-                    src={data.firmas.cliente}
-                    style={{ maxHeight: "100px", maxWidth: "100%" }}
-                  />
-                )}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+            <tbody>
+              {pruebasPrevias.map(([codigo, texto]) => {
+                const item = data.items?.[codigo] || {};
 
-        {/* ================= BOTONES ================= */}
-        <div className="no-print flex justify-between mt-6">
-          <button
-            onClick={() => navigate("/inspeccion")}
-            className="border px-4 py-2 rounded"
-          >
-            Volver
-          </button>
+                return (
+                  <tr key={codigo}>
+                    <td>{codigo}</td>
+                    <td>{texto}</td>
+                    <td>{item.estado || "—"}</td>
+                    <td>{item.observacion || ""}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
 
-          <button
-            onClick={() => window.print()}
-            className="bg-green-600 text-white px-4 py-2 rounded"
-          >
-            Descargar PDF
-          </button>
+          {/* ================= SECCIONES ================= */}
+          {secciones.map((sec) => (
+            <div key={sec.titulo}>
+              <h3 className="pdf-title mt-4">{sec.titulo}</h3>
+
+              <table className="pdf-table">
+                <thead>
+                  <tr>
+                    <th>Ítem</th>
+                    <th>Detalle</th>
+                    <th>Estado</th>
+                    <th>Observación</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {sec.items.map(([codigo, texto]) => {
+                    const item = data.items?.[codigo] || {};
+
+                    return (
+                      <tr key={codigo}>
+                        <td>{codigo}</td>
+                        <td>{texto}</td>
+                        <td>{item.estado || "—"}</td>
+                        <td>{item.observacion || ""}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ))}
+
+          {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+          <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
+
+          <table className="pdf-table">
+            <tbody>
+              {[
+                ["NOTA", data.nota],
+                ["MARCA", data.marca],
+                ["MODELO", data.modelo],
+                ["SERIE", data.serie],
+                ["AÑO MODELO", data.anioModelo],
+                ["VIN / CHASIS", data.vin],
+                ["PLACA", data.placa],
+                ["HORAS MÓDULO", data.horasModulo],
+                ["HORAS CHASIS", data.horasChasis],
+                ["KILOMETRAJE", data.kilometraje],
+              ].map(([l, v], i) => (
+                <tr key={i}>
+                  <td className="pdf-label">{l}</td>
+                  <td>{v || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* ================= FIRMAS ================= */}
+          <table className="pdf-table mt-4">
+            <thead>
+              <tr>
+                <th>FIRMA TÉCNICO</th>
+                <th>FIRMA CLIENTE / CONTACTO</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td style={{ height: 150, textAlign: "center" }}>
+                  {data.firmas?.tecnico && (
+                    <img
+                      src={data.firmas.tecnico}
+                      alt="Firma técnico"
+                      style={{
+                        width: "100%",
+                        maxWidth: 240,
+                        height: "auto",
+                        objectFit: "contain",
+                        display: "block",
+                        margin: "0 auto",
+                      }}
+                    />
+                  )}
+
+                  <div style={{ marginTop: 8, fontWeight: 600 }}>
+                    {data.tecnicoNombre || data.tecnicoResponsable || "—"}
+                  </div>
+                </td>
+
+                <td style={{ height: 150, textAlign: "center" }}>
+                  {data.firmas?.cliente && (
+                    <img
+                      src={data.firmas.cliente}
+                      alt="Firma cliente"
+                      style={{
+                        width: "100%",
+                        maxWidth: 240,
+                        height: "auto",
+                        objectFit: "contain",
+                        display: "block",
+                        margin: "0 auto",
+                      }}
+                    />
+                  )}
+
+                  <div style={{ marginTop: 8, fontWeight: 600 }}>
+                    {data.contacto || data.cliente || "—"}
+                  </div>
+
+                  {data.firmas?.clienteCedula && (
+                    <div style={{ marginTop: 4 }}>
+                      Cédula: {data.firmas.clienteCedula}
+                    </div>
+                  )}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
 
+      {/* ================= BOTONES ================= */}
+      <div className="no-print flex justify-between mt-6 max-w-6xl mx-auto">
+        <button
+          onClick={() => navigate("/inspeccion")}
+          className="border px-4 py-2 rounded"
+        >
+          Volver
+        </button>
+
+        <button
+          onClick={handlePrint}
+          className="bg-green-600 text-white px-4 py-2 rounded"
+        >
+          Descargar PDF
+        </button>
       </div>
     </div>
   );
