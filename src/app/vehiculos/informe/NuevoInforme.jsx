@@ -1,4 +1,4 @@
-import { TECHNICIANS } from "@/data/technicians";
+import { useTechnicians } from "@/hooks/useTechnicians";
 import { useAuth } from "@/context/AuthContext";
 import { getLoggedTechnician } from "@/utils/getLoggedTechnician";
 import { saveOrUpdateReport } from "@/services/reportService";
