@@ -13,7 +13,10 @@ import ReportHeader from "@/components/report/ReportHeader";
 export default function NuevoInforme() {
   const navigate = useNavigate();
   const { user } = useAuth();
-
+const {
+  technicians,
+  loading: loadingTechnicians,
+} = useTechnicians();
   const [uploadingCount, setUploadingCount] = useState(0);
   const uploading = uploadingCount > 0;
 
@@ -105,9 +108,9 @@ export default function NuevoInforme() {
      PRELLENAR TÉCNICO LOGUEADO
   =========================== */
   useEffect(() => {
-    if (!user || id) return;
+    if (!user || id || loadingTechnicians) return;
 
-    const tech = getLoggedTechnician(user);
+   const tech = getLoggedTechnician(user, technicians);
     if (!tech) return;
 
     setData((prev) => ({
@@ -116,7 +119,7 @@ export default function NuevoInforme() {
       tecnicoTelefono: tech.phone,
       tecnicoCorreo: tech.email,
     }));
-  }, [user, id]);
+  }, [user, id, technicians, loadingTechnicians]);
 
   /* ===========================
      LIMPIAR OVERFLOW AL DESMONTAR
@@ -613,25 +616,31 @@ if (error) {
               <td className="pdf-label">TÉCNICO RESPONSABLE</td>
               <td>
                 <select
-                  className="pdf-input w-full"
-                  value={data.tecnicoNombre}
-                  onChange={(e) => {
-                    const tech = TECHNICIANS.find(
-                      (t) => t.name === e.target.value
-                    );
+  className="pdf-input w-full"
+  value={data.tecnicoNombre}
+  disabled={loadingTechnicians}
+  onChange={(e) => {
+    const tech = technicians.find(
+      (t) => t.name === e.target.value
+    );
 
-                    update(["tecnicoNombre"], tech?.name || "");
-                    update(["tecnicoTelefono"], tech?.phone || "");
-                    update(["tecnicoCorreo"], tech?.email || "");
-                  }}
-                >
-                  <option value="">Seleccionar técnico</option>
-                  {TECHNICIANS.map((t, i) => (
-                    <option key={i} value={t.name}>
-                      {t.name}
-                    </option>
-                  ))}
-                </select>
+    update(["tecnicoNombre"], tech?.name || "");
+    update(["tecnicoTelefono"], tech?.phone || "");
+    update(["tecnicoCorreo"], tech?.email || "");
+  }}
+>
+  <option value="">
+    {loadingTechnicians
+      ? "Cargando técnicos..."
+      : "Seleccionar técnico"}
+  </option>
+
+  {technicians.map((t, i) => (
+    <option key={t.email || i} value={t.name}>
+      {t.name}
+    </option>
+  ))}
+</select>
               </td>
             </tr>
 
