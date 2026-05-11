@@ -620,7 +620,7 @@ if (error) {
   value={data.tecnicoNombre}
   disabled={loadingTechnicians}
   onChange={(e) => {
-    const tech = technicians.find(
+    const tech = (technicians || []).find(
       (t) => t.name === e.target.value
     );
 
@@ -635,7 +635,7 @@ if (error) {
       : "Seleccionar técnico"}
   </option>
 
-  {technicians.map((t, i) => (
+  {(technicians || []).map((t, i) => (
     <option key={t.email || i} value={t.name}>
       {t.name}
     </option>
