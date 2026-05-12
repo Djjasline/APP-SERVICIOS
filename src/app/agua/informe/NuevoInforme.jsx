@@ -1,4 +1,4 @@
-import { TECHNICIANS } from "@/data/technicians";
+import { useTechnicians } from "@/hooks/useTechnicians";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
@@ -32,6 +32,12 @@ const Input = ({ value, onChange, placeholder = "", readOnly = false, className 
 export default function NuevoInformeBombaValvula() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const {
+    technicians,
+    loading: loadingTechnicians,
+  } = useTechnicians();
+
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
 
@@ -498,29 +504,35 @@ export default function NuevoInformeBombaValvula() {
           TÉCNICO RESPONSABLE
         </td>
         <td className="border p-1">
-          <select
-            className="w-full border-0 p-1 outline-none bg-white text-sm"
-            value={data.tecnicoNombre}
-            onChange={(e) => {
-              const tech = TECHNICIANS.find(
-                (t) => t.name === e.target.value
-              );
+         <select
+  className="w-full border-0 p-1 outline-none bg-white text-sm"
+  value={data.tecnicoNombre}
+  disabled={loadingTechnicians}
+  onChange={(e) => {
+    const tech = (technicians || []).find(
+      (t) => t.name === e.target.value
+    );
 
-              setData((p) => ({
-                ...p,
-                tecnicoNombre: tech?.name || "",
-                tecnicoTelefono: tech?.phone || "",
-                tecnicoCorreo: tech?.email || "",
-              }));
-            }}
-          >
-            <option value="">Seleccionar técnico</option>
-            {TECHNICIANS.map((t, i) => (
-              <option key={i} value={t.name}>
-                {t.name}
-              </option>
-            ))}
-          </select>
+    setData((p) => ({
+      ...p,
+      tecnicoNombre: tech?.name || "",
+      tecnicoTelefono: tech?.phone || "",
+      tecnicoCorreo: tech?.email || "",
+    }));
+  }}
+>
+  <option value="">
+    {loadingTechnicians
+      ? "Cargando técnicos..."
+      : "Seleccionar técnico"}
+  </option>
+
+  {(technicians || []).map((t, i) => (
+    <option key={t.email || i} value={t.name}>
+      {t.name}
+    </option>
+  ))}
+</select>
         </td>
 
         <td className="border p-2 font-semibold bg-gray-50">
