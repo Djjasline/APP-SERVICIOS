@@ -1,4 +1,4 @@
-import useTechnicians from "@/hooks/useTechnicians";
+import { useTechnicians } from "@/hooks/useTechnicians";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
