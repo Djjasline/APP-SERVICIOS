@@ -42,15 +42,17 @@ import HistorialInspecciones from "./app/vehiculos/inspeccion/HistorialInspeccio
 import HojaInspeccionHidro from "./app/vehiculos/inspeccion/HojaInspeccionHidro";
 import HojaInspeccionBarredora from "./app/vehiculos/inspeccion/HojaInspeccionBarredora";
 import HojaInspeccionCamara from "./app/vehiculos/inspeccion/HojaInspeccionCamara";
-import InspeccionHidroPdf from "./app/vehiculos/inspeccion/pages/pdf/InspeccionHidroPdf";
-import InspeccionBarredoraPdf from "./app/vehiculos/inspeccion/pages/pdf/InspeccionBarredoraPdf";
-import InspeccionCamaraPdf from "./app/vehiculos/inspeccion/pages/pdf/InspeccionCamaraPdf";
+import InspeccionHidroPDF from "./app/vehiculos/inspeccion/InspeccionHidroPDF";
+import InspeccionBarredoraPDF from "./app/vehiculos/inspeccion/InspeccionBarredoraPDF";
+import InspeccionCamaraPDF from "./app/vehiculos/inspeccion/InspeccionCamaraPDF";
 
 // ================= MANTENIMIENTO =================
 import IndexMantenimiento from "./app/vehiculos/mantenimiento/IndexMantenimiento";
 import HojaMantenimientoHidro from "./app/vehiculos/mantenimiento/HojaMantenimientoHidro";
 import HojaMantenimientoBarredora from "./app/vehiculos/mantenimiento/HojaMantenimientoBarredora";
 import HojaMantenimientoVCam from "./app/vehiculos/mantenimiento/HojaMantenimientoVCam";
+import MantenimientoHidroPDF from "./app/vehiculos/mantenimiento/MantenimientoHidroPDF";
+import MantenimientoBarredoraPDF from "./app/vehiculos/mantenimiento/MantenimientoBarredoraPDF";
 
 // ================= OPERACIONES =================
 import LiberacionHome from "./app/operaciones/liberacion/LiberacionHome";
@@ -62,9 +64,6 @@ import HojaRecepcion from "./app/operaciones/recepcion/HojaRecepcion";
 
 import RegistroHome from "./app/operaciones/registro/RegistroHome";
 import HojaRegistroHerramientas from "./app/operaciones/registro/HojaRegistroHerramientas";
-
-// ================= REPOSITORIO =================
-import ManualesTecnicos from "./app/repositorios/ManualesTecnicos";
 
 const TechRoute = ({ children }) => (
   <RoleRoute allowedRoles={["super_admin", "admin", "tecnico"]}>
@@ -156,8 +155,6 @@ export default function RoutesApp() {
             <Route path="/mantenimiento/vcam/:id"  element={<TechRoute><HojaMantenimientoVCam /></TechRoute>} />
 
             {/* ================= OPERACIONES ================= */}
-
-            {/* BITÁCORA / LIBERACIÓN */}
             <Route path="/liberacion" element={<TechRoute><LiberacionHome /></TechRoute>} />
             <Route path="/liberacion/nuevo" element={<TechRoute><LiberacionForm /></TechRoute>} />
             <Route path="/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
@@ -166,7 +163,6 @@ export default function RoutesApp() {
             <Route path="/operaciones/liberacion/nuevo" element={<TechRoute><LiberacionForm /></TechRoute>} />
             <Route path="/operaciones/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
 
-            {/* RECEPCIÓN */}
             <Route path="/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
             <Route path="/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
             <Route path="/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
@@ -175,7 +171,6 @@ export default function RoutesApp() {
             <Route path="/operaciones/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
             <Route path="/operaciones/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
 
-            {/* REGISTRO HERRAMIENTAS */}
             <Route path="/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
             <Route path="/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
             <Route path="/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
@@ -185,104 +180,28 @@ export default function RoutesApp() {
             <Route path="/operaciones/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
 
             {/* ================= REPOSITORIOS ================= */}
-<Route
-  path="/repositorios/manuales-tecnicos"
-  element={
-    <AdminRoute>
-      <ManualesTecnicos />
-    </AdminRoute>
-  }
-/>
+            <Route path="/repositorios/documentos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
+            <Route path="/repositorios/pdf" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
+            <Route path="/repositorios/archivos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
 
-<Route
-  path="/repositorios/base-datos"
-  element={
-    <AdminRoute>
-      <AreaRepositorios />
-    </AdminRoute>
-  }
-/>
-            
           </Route>
 
           {/* ================= PDF FUERA DEL LAYOUT ================= */}
-          <Route
-            path="/informe/pdf/:id"
-            element={
-              <ProtectedRoute>
-                <TechRoute>
-                  <InformePDF />
-                </TechRoute>
-              </ProtectedRoute>
-            }
-          />
 
-          <Route
-            path="/vehiculos/informe/pdf/:id"
-            element={
-              <ProtectedRoute>
-                <TechRoute>
-                  <InformePDF />
-                </TechRoute>
-              </ProtectedRoute>
-            }
-          />
+          {/* Informes */}
+          <Route path="/informe/pdf/:id" element={<ProtectedRoute><TechRoute><InformePDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/informe/pdf/:id" element={<ProtectedRoute><TechRoute><InformePDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/agua/informe/pdf/:id" element={<ProtectedRoute><TechRoute><AguaInformePDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/petroleo/informe/pdf/:id" element={<ProtectedRoute><TechRoute><PetroleoInformePDF /></TechRoute></ProtectedRoute>} />
 
-{/* ================= PDF INSPECCIONES ================= */}
-<Route
-  path="/inspeccion/hidro/:id/pdf"
-  element={
-    <ProtectedRoute>
-      <TechRoute>
-        <InspeccionHidroPdf />
-      </TechRoute>
-    </ProtectedRoute>
-  }
-/>
+          {/* Inspecciones PDF */}
+          <Route path="/inspeccion/hidro/:id/pdf" element={<ProtectedRoute><TechRoute><InspeccionHidroPDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/inspeccion/barredora/:id/pdf" element={<ProtectedRoute><TechRoute><InspeccionBarredoraPDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/inspeccion/camara/:id/pdf" element={<ProtectedRoute><TechRoute><InspeccionCamaraPDF /></TechRoute></ProtectedRoute>} />
 
-<Route
-  path="/inspeccion/barredora/:id/pdf"
-  element={
-    <ProtectedRoute>
-      <TechRoute>
-        <InspeccionBarredoraPdf />
-      </TechRoute>
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/inspeccion/camara/:id/pdf"
-  element={
-    <ProtectedRoute>
-      <TechRoute>
-        <InspeccionCamaraPdf />
-      </TechRoute>
-    </ProtectedRoute>
-  }
-/>
-          
-          <Route
-            path="/agua/informe/pdf/:id"
-            element={
-              <ProtectedRoute>
-                <TechRoute>
-                  <AguaInformePDF />
-                </TechRoute>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/petroleo/informe/pdf/:id"
-            element={
-              <ProtectedRoute>
-                <TechRoute>
-                  <PetroleoInformePDF />
-                </TechRoute>
-              </ProtectedRoute>
-            }
-          />
+          {/* Mantenimiento PDF */}
+          <Route path="/mantenimiento/hidro/:id/pdf" element={<ProtectedRoute><TechRoute><MantenimientoHidroPDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/mantenimiento/barredora/:id/pdf" element={<ProtectedRoute><TechRoute><MantenimientoBarredoraPDF /></TechRoute></ProtectedRoute>} />
 
         </Routes>
       </BrowserRouter>
