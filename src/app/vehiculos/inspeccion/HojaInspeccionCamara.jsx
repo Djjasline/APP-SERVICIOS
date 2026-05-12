@@ -1,4 +1,4 @@
-import { TECHNICIANS } from "@/data/technicians";
+import useTechnicians from "@/hooks/useTechnicians";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
@@ -106,9 +106,14 @@ const TablaItems = ({ lista, items, onItemChange }) => (
   </table>
 );
 
-export default function HojaInspeccionCamara() {
+export default function HojaInspeccionBarredora() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const {
+    technicians,
+    loading: loadingTechnicians,
+  } = useTechnicians();
 
   const firmaTecnicoRef = useRef(null);
   const firmaClienteRef = useRef(null);
@@ -432,24 +437,35 @@ export default function HojaInspeccionCamara() {
                   </td>
                   <td className="border p-2 font-semibold bg-gray-50">TÉCNICO RESPONSABLE</td>
                   <td className="border p-1">
-                    <select
-                      className="w-full border-0 p-1 outline-none bg-white"
-                      value={formData.tecnicoNombre}
-                      onChange={(e) => {
-                        const tech = TECHNICIANS.find((t) => t.name === e.target.value);
-                        setFormData((p) => ({
-                          ...p,
-                          tecnicoNombre:   tech?.name  || "",
-                          tecnicoTelefono: tech?.phone || "",
-                          tecnicoCorreo:   tech?.email || "",
-                        }));
-                      }}
-                    >
-                      <option value="">Seleccionar técnico</option>
-                      {TECHNICIANS.map((t, i) => (
-                        <option key={i} value={t.name}>{t.name}</option>
-                      ))}
-                    </select>
+<select
+  className="w-full border-0 p-1 outline-none bg-white"
+  value={formData.tecnicoNombre}
+  disabled={loadingTechnicians}
+  onChange={(e) => {
+    const selected = technicians.find(
+      (t) => t.nombre === e.target.value
+    );
+
+    setFormData((p) => ({
+      ...p,
+      tecnicoNombre: selected?.nombre || "",
+      tecnicoTelefono: selected?.telefono || "",
+      tecnicoCorreo: selected?.correo || "",
+    }));
+  }}
+>
+  <option value="">
+    {loadingTechnicians
+      ? "Cargando técnicos..."
+      : "Seleccionar técnico"}
+  </option>
+
+  {technicians.map((t) => (
+    <option key={t.id} value={t.nombre}>
+      {t.nombre}
+    </option>
+  ))}
+</select>
                   </td>
                 </tr>
                 <tr>
