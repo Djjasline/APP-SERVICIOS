@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import { TECHNICIANS } from "@/data/technicians";
+import { useTechnicians } from "@/hooks/useTechnicians";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
@@ -114,6 +114,11 @@ export default function HojaMantenimientoBarredora() {
   const { id }    = useParams();
   const navigate  = useNavigate();
   const isEditing = !!id;
+
+  const {
+    technicians,
+    loading: loadingTechnicians,
+  } = useTechnicians();
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
@@ -401,18 +406,32 @@ export default function HojaMantenimientoBarredora() {
                 onChange={(e) => update(["correo"], e.target.value)} /></td>
               <td className="pdf-label">TÉCNICO RESPONSABLE</td>
               <td>
-                <select className="pdf-input w-full" value={data.tecnicoNombre}
-                  onChange={(e) => {
-                    const tech = TECHNICIANS.find((t) => t.name === e.target.value);
-                    update(["tecnicoNombre"],   tech?.name  || "");
-                    update(["tecnicoTelefono"], tech?.phone || "");
-                    update(["tecnicoCorreo"],   tech?.email || "");
-                  }}>
-                  <option value="">Seleccionar técnico</option>
-                  {TECHNICIANS.map((t, i) => (
-                    <option key={i} value={t.name}>{t.name}</option>
-                  ))}
-                </select>
+               <select
+  className="pdf-input w-full"
+  value={data.tecnicoNombre}
+  disabled={loadingTechnicians}
+  onChange={(e) => {
+    const tech = (technicians || []).find(
+      (t) => t.name === e.target.value
+    );
+
+    update(["tecnicoNombre"], tech?.name || "");
+    update(["tecnicoTelefono"], tech?.phone || "");
+    update(["tecnicoCorreo"], tech?.email || "");
+  }}
+>
+  <option value="">
+    {loadingTechnicians
+      ? "Cargando técnicos..."
+      : "Seleccionar técnico"}
+  </option>
+
+  {(technicians || []).map((t, i) => (
+    <option key={t.email || i} value={t.name}>
+      {t.name}
+    </option>
+  ))}
+</select>
               </td>
             </tr>
             <tr>
