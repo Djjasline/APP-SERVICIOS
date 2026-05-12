@@ -469,91 +469,171 @@ setTimeout(() => {
           </table>
         </section>
 
-        {/* ── DATOS CLIENTE Y TÉCNICO ── */}
-        <section className="border rounded p-4">
-          <h2 className="font-semibold text-sm mb-3 uppercase">Datos del cliente y técnico responsable</h2>
-          <table className="w-full text-sm border-collapse border">
-            <tbody>
-              <tr>
-                <td className="border p-2 font-semibold bg-gray-50 w-40">CLIENTE</td>
-                <td className="border p-1">
-                  <input name="cliente" value={formData.cliente} onChange={handleChange} className="w-full border-0 p-1 outline-none" />
-                </td>
-                <td className="border p-2 font-semibold bg-gray-50 w-40">DIRECCIÓN</td>
-                <td className="border p-1">
-                  <input name="direccion" value={formData.direccion} onChange={handleChange} className="w-full border-0 p-1 outline-none" />
-                </td>
-              </tr>
-              <tr>
-                <td className="border p-2 font-semibold bg-gray-50">CONTACTO</td>
-                <td className="border p-1">
-                  <input name="contacto" value={formData.contacto} onChange={handleChange} className="w-full border-0 p-1 outline-none" />
-                </td>
-                <td className="border p-2 font-semibold bg-gray-50">TELÉFONO</td>
-                <td className="border p-1">
-                  <input name="telefono" value={formData.telefono} onChange={handleChange} className="w-full border-0 p-1 outline-none" />
-                </td>
-              </tr>
-              <tr>
-                <td className="border p-2 font-semibold bg-gray-50">CORREO</td>
-                <td className="border p-1">
-                  <input name="correo" value={formData.correo} onChange={handleChange} className="w-full border-0 p-1 outline-none" />
-                </td>
-                <td className="border p-2 font-semibold bg-gray-50">TÉCNICO RESPONSABLE</td>
-                <td className="border p-1">
-                  <select
-  className="w-full border-0 p-1 outline-none bg-white"
-  value={formData.tecnicoNombre}
-  disabled={loadingTechnicians}
-  onChange={(e) => {
-    const tech = (technicians || []).find(
-      (t) => t.name === e.target.value
-    );
+{/* ── DATOS CLIENTE Y TÉCNICO ── */}
+<section className="border rounded p-4">
+  <h2 className="font-semibold text-sm mb-3 uppercase">
+    Datos del cliente y técnico responsable
+  </h2>
 
-    setFormData((p) => ({
-      ...p,
-      tecnicoNombre: tech?.name || "",
-      tecnicoTelefono: tech?.phone || "",
-      tecnicoCorreo: tech?.email || "",
-    }));
-  }}
->
-  <option value="">
-    {loadingTechnicians ? "Cargando técnicos..." : "Seleccionar técnico"}
-  </option>
+  <table className="w-full text-sm border-collapse border">
+    <tbody>
+      <tr>
+        <td className="border p-2 font-semibold bg-gray-50 w-40">
+          CLIENTE
+        </td>
 
-  {(technicians || []).map((t, i) => (
-    <option key={t.email || i} value={t.name}>
-      {t.name}
-    </option>
-  ))}
-</select>
-                    <option value="">Seleccionar técnico</option>
-                    {TECHNICIANS.map((t, i) => (
-                      <option key={i} value={t.name}>{t.name}</option>
-                    ))}
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <td className="border p-2 font-semibold bg-gray-50">TELÉFONO TÉCNICO</td>
-                <td className="border p-1">
-                  <input value={formData.tecnicoTelefono} readOnly className="w-full border-0 p-1 outline-none bg-gray-100" />
-                </td>
-                <td className="border p-2 font-semibold bg-gray-50">CORREO TÉCNICO</td>
-                <td className="border p-1">
-                  <input value={formData.tecnicoCorreo} readOnly className="w-full border-0 p-1 outline-none bg-gray-100" />
-                </td>
-              </tr>
-              <tr>
-                <td className="border p-2 font-semibold bg-gray-50">FECHA DE SERVICIO</td>
-                <td colSpan={3} className="border p-1">
-                  <input type="date" name="fechaServicio" value={formData.fechaServicio} onChange={handleChange} className="w-full border-0 p-1 outline-none" />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
+        <td className="border p-1">
+          <input
+            name="cliente"
+            value={formData.cliente || ""}
+            onChange={handleChange}
+            className="w-full border-0 p-1 outline-none"
+          />
+        </td>
+
+        <td className="border p-2 font-semibold bg-gray-50 w-40">
+          DIRECCIÓN
+        </td>
+
+        <td className="border p-1">
+          <input
+            name="direccion"
+            value={formData.direccion || ""}
+            onChange={handleChange}
+            className="w-full border-0 p-1 outline-none"
+          />
+        </td>
+      </tr>
+
+      <tr>
+        <td className="border p-2 font-semibold bg-gray-50">
+          CONTACTO
+        </td>
+
+        <td className="border p-1">
+          <input
+            name="contacto"
+            value={formData.contacto || ""}
+            onChange={handleChange}
+            className="w-full border-0 p-1 outline-none"
+          />
+        </td>
+
+        <td className="border p-2 font-semibold bg-gray-50">
+          TELÉFONO
+        </td>
+
+        <td className="border p-1">
+          <input
+            name="telefono"
+            value={formData.telefono || ""}
+            onChange={handleChange}
+            className="w-full border-0 p-1 outline-none"
+          />
+        </td>
+      </tr>
+
+      <tr>
+        <td className="border p-2 font-semibold bg-gray-50">
+          CORREO
+        </td>
+
+        <td className="border p-1">
+          <input
+            name="correo"
+            value={formData.correo || ""}
+            onChange={handleChange}
+            className="w-full border-0 p-1 outline-none"
+          />
+        </td>
+
+        <td className="border p-2 font-semibold bg-gray-50">
+          TÉCNICO RESPONSABLE
+        </td>
+
+        <td className="border p-1">
+          <select
+            className="w-full border-0 p-1 outline-none bg-white"
+            value={formData.tecnicoNombre || ""}
+            disabled={loadingTechnicians}
+            onChange={(e) => {
+              const tech = (technicians || []).find((t) => {
+                const nombre = t.name || t.nombre || "";
+                return nombre === e.target.value;
+              });
+
+              setFormData((p) => ({
+                ...p,
+                tecnicoNombre: tech?.name || tech?.nombre || "",
+                tecnicoTelefono: tech?.phone || tech?.telefono || "",
+                tecnicoCorreo: tech?.email || tech?.correo || "",
+              }));
+            }}
+          >
+            <option value="">
+              {loadingTechnicians
+                ? "Cargando técnicos..."
+                : "Seleccionar técnico"}
+            </option>
+
+            {(technicians || []).map((t, i) => {
+              const nombre = t.name || t.nombre || "";
+              const correo = t.email || t.correo || "";
+
+              return (
+                <option key={correo || i} value={nombre}>
+                  {nombre}
+                </option>
+              );
+            })}
+          </select>
+        </td>
+      </tr>
+
+      <tr>
+        <td className="border p-2 font-semibold bg-gray-50">
+          TELÉFONO TÉCNICO
+        </td>
+
+        <td className="border p-1">
+          <input
+            value={formData.tecnicoTelefono || ""}
+            readOnly
+            className="w-full border-0 p-1 outline-none bg-gray-100"
+          />
+        </td>
+
+        <td className="border p-2 font-semibold bg-gray-50">
+          CORREO TÉCNICO
+        </td>
+
+        <td className="border p-1">
+          <input
+            value={formData.tecnicoCorreo || ""}
+            readOnly
+            className="w-full border-0 p-1 outline-none bg-gray-100"
+          />
+        </td>
+      </tr>
+
+      <tr>
+        <td className="border p-2 font-semibold bg-gray-50">
+          FECHA DE SERVICIO
+        </td>
+
+        <td colSpan={3} className="border p-1">
+          <input
+            type="date"
+            name="fechaServicio"
+            value={formData.fechaServicio || ""}
+            onChange={handleChange}
+            className="w-full border-0 p-1 outline-none"
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
 
         {/* ── ESTADO DEL EQUIPO ── */}
         <section className="border rounded p-4 space-y-3">
