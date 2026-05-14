@@ -80,8 +80,9 @@ export default {
         '300': '300ms',
       },
       transitionTimingFunction: {
-        'ease-out': 'cubic-bezier(0, 0, 0.2, 1)',
-      },
+  'ease-out': 'cubic-bezier(0, 0, 0.2, 1)',
+  smooth: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+},
       zIndex: {
         '1000': '1000',
         '1050': '1050',
