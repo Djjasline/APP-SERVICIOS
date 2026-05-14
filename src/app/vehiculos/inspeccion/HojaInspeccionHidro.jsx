@@ -197,6 +197,7 @@ useEffect(() => {
     tecnicoCorreo: loggedTech.email || loggedTech.correo || "",
   }));
 }, [user?.email, isEditing, loadingTecnicos, technicians]);
+
 /* ── LIMPIAR SCROLL LOCK ── */
 useEffect(() => {
   return () => {
