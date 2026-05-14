@@ -57,7 +57,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
   const itemBase = `
     group relative flex items-center w-full py-2 rounded-xl
-    transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
+    transition-all duration-300 ease-smooth
     cursor-pointer
   `;
 
