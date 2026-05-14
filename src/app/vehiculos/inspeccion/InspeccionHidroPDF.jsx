@@ -123,15 +123,32 @@ export default function InspeccionHidroPDF() {
           </tbody></table>
         </div>
 
-        {/* DESCRIPCIÓN EQUIPO */}
-        <div className="no-break">
-          <p style={S.sectionTitle}>DESCRIPCIÓN DEL EQUIPO</p>
-          <table style={S.tbl}><tbody>
-            {[["NOTA",d.equipo?.nota],["MARCA",d.equipo?.marca],["MODELO",d.equipo?.modelo],["N° SERIE",d.equipo?.serie],["AÑO MODELO",d.equipo?.anio],["VIN / CHASIS",d.equipo?.vin],["PLACA",d.equipo?.placa],["HORAS MÓDULO",d.equipo?.horasModulo],["HORAS CHASIS",d.equipo?.horasChasis],["KILOMETRAJE",d.equipo?.kilometraje]].map(([l,v],i)=>(
-              <tr key={i}><td style={S.label}>{l}</td><td style={S.cell}>{v||"—"}</td></tr>
-            ))}
-          </tbody></table>
-        </div>
+       {/* DESCRIPCIÓN EQUIPO */}
+<div className="no-break">
+  <p style={S.sectionTitle}>DESCRIPCIÓN DEL EQUIPO</p>
+  <table style={S.tbl}>
+    <tbody>
+      {[
+        ["NOTA", d.equipo?.nota],
+        ["MARCA", d.equipo?.marca],
+        ["MODELO", d.equipo?.modelo],
+        ["N° SERIE", d.equipo?.serie],
+        ["AÑO MODELO", d.equipo?.anio],
+        ["VIN / CHASIS", d.equipo?.vin],
+        ["PLACA", d.equipo?.placa],
+        ["HORAS MÓDULO", d.equipo?.horasModulo],
+        ["HORAS CHASIS", d.equipo?.horasChasis],
+        ["KILOMETRAJE", d.equipo?.kilometraje],
+        ["HORÓMETRO", d.equipo?.horometro],
+      ].map(([l, v], i) => (
+        <tr key={i}>
+          <td style={S.label}>{l}</td>
+          <td style={S.cell}>{v || "—"}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
         {/* ESTADO DEL EQUIPO */}
         <div className="no-break">
@@ -185,6 +202,26 @@ export default function InspeccionHidroPDF() {
             </tbody>
           </table>
         </div>
+
+        {/* NOTA FINAL */}
+<div className="no-break">
+  <p style={S.sectionTitle}>NOTA / OBSERVACIÓN FINAL DEL TÉCNICO</p>
+  <table style={S.tbl}>
+    <tbody>
+      <tr>
+        <td
+          style={{
+            ...S.cell,
+            whiteSpace: "pre-wrap",
+            minHeight: 60,
+          }}
+        >
+          {d.notaFinal || "—"}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
         {/* FIRMAS */}
         <div className="no-break">
