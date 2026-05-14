@@ -179,6 +179,32 @@ export default function HojaInspeccionHidro() {
     load();
   }, [id]);
 
+   /* ── AUTO-RELLENAR TÉCNICO LOGUEADO ── */
+useEffect(() => {
+  if (!user?.email || isEditing || loadingTecnicos) return;
+
+  const loggedTech = (technicians || []).find((t) => {
+    const email = t.email || t.correo || "";
+    return email.toLowerCase() === user.email.toLowerCase();
+  });
+
+  if (!loggedTech) return;
+
+  setData((prev) => ({
+    ...prev,
+    tecnicoNombre: loggedTech.name || loggedTech.nombre || "",
+    tecnicoTelefono: loggedTech.phone || loggedTech.telefono || "",
+    tecnicoCorreo: loggedTech.email || loggedTech.correo || "",
+  }));
+}, [user?.email, isEditing, loadingTecnicos, technicians]);
+/* ── LIMPIAR SCROLL LOCK ── */
+useEffect(() => {
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, []);
+   
+   
   /* ── COMPRIMIR Y SUBIR ── */
   const compressAndUpload = async (file, folder) => {
     const c = await imageCompression(file, {
@@ -368,17 +394,19 @@ export default function HojaInspeccionHidro() {
           <table className="pdf-table w-full">
             <tbody>
               <tr>
-                <td rowSpan={5} style={{ width:130, textAlign:"center", verticalAlign:"middle" }}>
-                  <img src="/astap-logo.jpg" alt="ASTAP" className="object-contain mx-auto" style={{ maxHeight:90 }} />
-                </td>
-                <td colSpan={2} style={{ textAlign:"center", fontWeight:"bold", fontSize:16, verticalAlign:"middle" }}>
-                  HOJA DE INSPECCIÓN HIDROSUCCIONADOR
-                </td>
-                <td className="text-[10px]" style={{ width:160 }}>
-                  <div>Fecha versión: <strong>01-01-26</strong></div>
-                  <div>Versión: <strong>01</strong></div>
-                </td>
-              </tr>
+  <td rowSpan={5} style={{ width:130, textAlign:"center", verticalAlign:"middle" }}>
+    <img src="/astap-logo.jpg" alt="ASTAP" className="object-contain mx-auto" style={{ maxHeight:90 }} />
+  </td>
+
+  <td colSpan={2} style={{ textAlign:"center", fontWeight:"bold", fontSize:16, verticalAlign:"middle" }}>
+    HOJA DE INSPECCIÓN HIDROSUCCIONADOR
+  </td>
+
+  <td className="text-[10px]" style={{ width:160 }}>
+    <div>Fecha versión: <strong>01-01-26</strong></div>
+    <div>Versión: <strong>01</strong></div>
+  </td>
+</tr>
               {[
                 ["REFERENCIA DE CONTRATO","referenciaContrato"],
                 ["PEDIDO / DEMANDA","pedidoDemanda"],
@@ -414,16 +442,36 @@ export default function HojaInspeccionHidro() {
                 <td><input className="pdf-input w-full" value={data.correo} onChange={(e) => update(["correo"], e.target.value)} /></td>
                 <td className="pdf-label">TÉCNICO RESPONSABLE</td>
                 <td>
-                  <select className="pdf-input w-full" value={data.tecnicoNombre} disabled={loadingTecnicos}
-                    onChange={(e) => {
-                      const t = technicians.find((x) => x.name === e.target.value);
-                      update(["tecnicoNombre"],   t?.name  || "");
-                      update(["tecnicoTelefono"], t?.phone || "");
-                      update(["tecnicoCorreo"],   t?.email || "");
-                    }}>
-                    <option value="">{loadingTecnicos ? "Cargando..." : "Seleccionar técnico"}</option>
-                    {technicians.map((t, i) => <option key={i} value={t.name}>{t.name}</option>)}
-                  </select>
+                 <select
+  className="pdf-input w-full"
+  value={data.tecnicoNombre || ""}
+  disabled={loadingTecnicos}
+  onChange={(e) => {
+    const t = (technicians || []).find((x) => {
+      const nombre = x.name || x.nombre || "";
+      return nombre === e.target.value;
+    });
+
+    update(["tecnicoNombre"], t?.name || t?.nombre || "");
+    update(["tecnicoTelefono"], t?.phone || t?.telefono || "");
+    update(["tecnicoCorreo"], t?.email || t?.correo || "");
+  }}
+>
+  <option value="">
+    {loadingTecnicos ? "Cargando..." : "Seleccionar técnico"}
+  </option>
+
+  {(technicians || []).map((t, i) => {
+    const nombre = t.name || t.nombre || "";
+    const correo = t.email || t.correo || "";
+
+    return (
+      <option key={correo || i} value={nombre}>
+        {nombre}
+      </option>
+    );
+  })}
+</select>
                 </td>
               </tr>
               <tr>
@@ -502,11 +550,19 @@ export default function HojaInspeccionHidro() {
                         className="w-full aspect-[4/3] object-contain cursor-crosshair"
                         onClick={(e) => handleEstadoClick(e, img.id)} />
                       {(img.puntos||[]).map((p, pi) => (
-                        <button key={p.id} type="button" onClick={() => removePoint(img.id, p.id)}
-                          className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow"
-                          style={{ left:`${p.x*100}%`, top:`${p.y*100}%`, transform:"translate(-50%,-50%)" }}>
-                          <span className="sr-only">Punto {pi+1}</span>
-                        </button>
+                        <button
+  key={p.id}
+  type="button"
+  onClick={() => removePoint(img.id, p.id)}
+  className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow text-[10px] text-white font-bold flex items-center justify-center"
+  style={{
+    left:`${p.x*100}%`,
+    top:`${p.y*100}%`,
+    transform:"translate(-50%,-50%)"
+  }}
+>
+  {pi + 1}
+</button>
                       ))}
                     </div>
                     <p className="text-[11px] text-gray-500">Toque la fotografía para marcar puntos rojos.</p>
