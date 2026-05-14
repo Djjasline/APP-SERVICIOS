@@ -51,8 +51,8 @@ import IndexMantenimiento from "./app/vehiculos/mantenimiento/IndexMantenimiento
 import HojaMantenimientoHidro from "./app/vehiculos/mantenimiento/HojaMantenimientoHidro";
 import HojaMantenimientoBarredora from "./app/vehiculos/mantenimiento/HojaMantenimientoBarredora";
 import HojaMantenimientoVCam from "./app/vehiculos/mantenimiento/HojaMantenimientoVCam";
-import MantenimientoHidroPDF from "./app/vehiculos/mantenimiento/MantenimientoHidroPDF";
-import MantenimientoBarredoraPDF from "./app/vehiculos/mantenimiento/MantenimientoBarredoraPDF";
+import MantenimientoHidroPDF from "./app/vehiculos/mantenimiento/MantenimientoHidroPdf";
+import MantenimientoBarredoraPDF from "./app/vehiculos/mantenimiento/MantenimientoBarredoraPdf";
 
 // ================= OPERACIONES =================
 import LiberacionHome from "./app/operaciones/liberacion/LiberacionHome";
