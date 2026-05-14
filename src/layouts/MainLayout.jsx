@@ -63,7 +63,7 @@ const { user, logout, role } = useAuth();
       <div
         className={`
           fixed top-0 left-0 h-full z-50
-          transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
+          transition-all duration-300 ease-smooth
           ${openSidebar ? "translate-x-0" : "-translate-x-full"}
         `}
       >
