@@ -90,6 +90,9 @@ const todosLosItems = [
   ...secciones.flatMap((s) => s.items.map(([c]) => c)),
 ];
 
+/* ── IMAGEN BASE HIDRO ── */
+const EQUIPO_IMG_PATH = "/hidro-base.png";
+
 /* ══════════════════════════════
    ESTADO INICIAL
 ══════════════════════════════ */
@@ -103,7 +106,10 @@ const emptyForm = {
     vin: "", placa: "", horasModulo: "", horasChasis: "",
     kilometraje: "", horometro: "",
   },
-  estadoEquipo: { imagenes: [] },
+  estadoEquipo: {
+  imagenes: [],
+  puntosBase: [],
+},
   items: {},
   conclusiones: [""], recomendaciones: [""],
   notaFinal: "",
@@ -156,19 +162,30 @@ export default function HojaInspeccionHidro() {
 
       const d = { ...emptyForm, ...(reg.data || {}) };
       d.estadoEquipo = {
-        imagenes: Array.isArray(reg.data?.estadoEquipo?.imagenes)
-          ? reg.data.estadoEquipo.imagenes.map((img, i) => ({
-              id: img?.id || `img-${i}`, url: img?.url || "",
-              puntos: Array.isArray(img?.puntos)
-                ? img.puntos.map((p, j) => ({
-                    id: p?.id || `p-${i}-${j}`,
-                    x: p?.x ?? 0, y: p?.y ?? 0,
-                    observacion: p?.observacion || "",
-                  }))
-                : [],
+  imagenes: Array.isArray(reg.data?.estadoEquipo?.imagenes)
+    ? reg.data.estadoEquipo.imagenes.map((img, i) => ({
+        id: img?.id || `img-${i}`,
+        url: img?.url || "",
+        puntos: Array.isArray(img?.puntos)
+          ? img.puntos.map((p, j) => ({
+              id: p?.id || `p-${i}-${j}`,
+              x: p?.x ?? 0,
+              y: p?.y ?? 0,
+              observacion: p?.observacion || "",
             }))
           : [],
-      };
+      }))
+    : [],
+
+  puntosBase: Array.isArray(reg.data?.estadoEquipo?.puntosBase)
+    ? reg.data.estadoEquipo.puntosBase.map((p, i) => ({
+        id: p?.id || `base-${i}`,
+        x: p?.x ?? 0,
+        y: p?.y ?? 0,
+        observacion: p?.observacion || "",
+      }))
+    : [],
+};
       setData(d);
 
       setTimeout(() => {
@@ -277,19 +294,79 @@ useEffect(() => {
       },
     }));
 
-  const updatePointObs = (imgId, ptId, value) =>
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
-          img.id === imgId
-            ? { ...img, puntos: (img.puntos||[]).map((p) => p.id===ptId ? {...p, observacion:value} : p) }
-            : img
-        ),
-      },
-    }));
+const updatePointObs = (imgId, ptId, value) =>
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+        img.id === imgId
+          ? {
+              ...img,
+              puntos: (img.puntos || []).map((p) =>
+                p.id === ptId
+                  ? { ...p, observacion: value }
+                  : p
+              ),
+            }
+          : img
+      ),
+    },
+  }));
 
+/* ── PUNTOS SOBRE PLANTILLA BASE ── */
+
+const handleBaseImageClick = (e) => {
+  const r = e.currentTarget.getBoundingClientRect();
+
+  const x = Number(
+    ((e.clientX - r.left) / r.width).toFixed(4)
+  );
+
+  const y = Number(
+    ((e.clientY - r.top) / r.height).toFixed(4)
+  );
+
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      puntosBase: [
+        ...(prev.estadoEquipo?.puntosBase || []),
+        {
+          id: `base-${Date.now()}`,
+          x,
+          y,
+          observacion: "",
+        },
+      ],
+    },
+  }));
+};
+
+const removeBasePoint = (ptId) =>
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      puntosBase: (prev.estadoEquipo?.puntosBase || []).filter(
+        (p) => p.id !== ptId
+      ),
+    },
+  }));
+
+const updateBasePointObs = (ptId, value) =>
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      puntosBase: (prev.estadoEquipo?.puntosBase || []).map((p) =>
+        p.id === ptId
+          ? { ...p, observacion: value }
+          : p
+      ),
+    },
+  }));
   /* ── ITEM CHECKLIST ── */
   const handleItem = (codigo, campo, valor) =>
     setData((prev) => ({
@@ -517,6 +594,62 @@ useEffect(() => {
 
           {/* ══ 4. ESTADO DEL EQUIPO — MÚLTIPLES FOTOS ══ */}
           <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
+          {/* ── PLANTILLA BASE DEL HIDRO ── */}
+
+<div className="border rounded bg-gray-50 p-3 mb-4 space-y-3">
+
+  <div className="text-xs font-semibold text-gray-600">
+    Vista general del equipo
+  </div>
+
+  <div
+    className="relative border rounded overflow-hidden bg-white cursor-crosshair"
+    onClick={handleBaseImageClick}
+  >
+    <img
+      src={EQUIPO_IMG_PATH}
+      alt="Vista general hidro"
+      className="w-full object-contain"
+    />
+
+    {(data.estadoEquipo?.puntosBase || []).map((p, pi) => (
+      <button
+        key={p.id}
+        type="button"
+        onClick={() => removeBasePoint(p.id)}
+        className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow text-[10px] text-white font-bold flex items-center justify-center"
+        style={{
+          left: `${p.x * 100}%`,
+          top: `${p.y * 100}%`,
+          transform: "translate(-50%,-50%)",
+        }}
+      >
+        {pi + 1}
+      </button>
+    ))}
+  </div>
+
+  <p className="text-[11px] text-gray-500">
+    Toque la imagen para agregar novedades generales.
+  </p>
+
+  {(data.estadoEquipo?.puntosBase || []).map((p, pi) => (
+    <div key={p.id} className="flex items-start gap-2">
+      <span className="text-sm text-gray-700 pt-2 min-w-[24px]">
+        {pi + 1})
+      </span>
+
+      <input
+        className="pdf-input w-full"
+        placeholder={`Observación punto ${pi + 1}`}
+        value={p.observacion}
+        onChange={(e) =>
+          updateBasePointObs(p.id, e.target.value)
+        }
+      />
+    </div>
+  ))}
+</div> 
           <div className="border rounded bg-white p-3 space-y-4">
             <div className="flex gap-2">
               <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-gray-700">
