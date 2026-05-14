@@ -175,7 +175,9 @@ export default function InspeccionHidroPDF() {
 
         {/* PRUEBAS PREVIAS */}
         <div className="page-break" />
-        <p style={{ ...S.sectionTitle, marginTop: 0 }}>1. PRUEBAS PREVIAS AL SERVICIO</p>
+        <p style={{ ...S.sectionTitle, marginTop: 0 }}>
+  1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
+</p>
         <ChecklistTable items={pruebasPrevias} data={d} />
 
         {/* SECCIONES */}
