@@ -224,13 +224,30 @@ useEffect(() => {
    
    
   /* ── COMPRIMIR Y SUBIR ── */
-  const compressAndUpload = async (file, folder) => {
-    const c = await imageCompression(file, {
-      maxSizeMB: 0.25, maxWidthOrHeight: 1024,
-      useWebWorker: true, fileType: "image/jpeg", initialQuality: 0.7,
-    });
-    return await uploadRegistroImage(c, id || "temp-insp-hidro", folder);
-  };
+const compressAndUpload = async (file, folder) => {
+
+  const compressedFile = await imageCompression(file, {
+    maxSizeMB: 0.8,
+    useWebWorker: true,
+
+    // mantener dimensiones originales
+    alwaysKeepResolution: true,
+
+    // compresión suave
+    initialQuality: 0.92,
+
+    // NO forzar ancho/alto
+    maxWidthOrHeight: undefined,
+
+    fileType: file.type || "image/jpeg",
+  });
+
+  return await uploadRegistroImage(
+    compressedFile,
+    id || "temp-insp-hidro",
+    folder
+  );
+};te sien
 
   /* ── ESTADO EQUIPO — MÚLTIPLES FOTOS ── */
   const handleEstadoUpload = async (files) => {
