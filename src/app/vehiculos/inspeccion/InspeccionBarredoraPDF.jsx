@@ -21,7 +21,9 @@ function ChecklistTable({ items, data }) {
         <tr>
           <th style={{ ...S.th, width: 50 }}>ÍTEM</th>
           <th style={{ ...S.th, textAlign: "left" }}>DESCRIPCIÓN</th>
-          <th style={S.thSI}>SI</th><th style={S.thSI}>NO</th><th style={S.thSI}>N/A</th>
+          <th style={S.thSI}>SI</th>
+          <th style={S.thSI}>NO</th>
+          <th style={S.thSI}>N/A</th>
           <th style={{ ...S.th, textAlign: "left" }}>OBSERVACIÓN</th>
         </tr>
       </thead>
@@ -44,7 +46,11 @@ function ChecklistTable({ items, data }) {
   );
 }
 
-const pruebasPrevias = [["1.1","Arranque y pruebas iniciales del equipo"],["1.2","Funcionamiento general del sistema"],["1.3","Revisión de alarmas o mensajes de fallo"]];
+const pruebasPrevias = [
+  ["1.1","Arranque y pruebas iniciales del equipo"],
+  ["1.2","Funcionamiento general del sistema"],
+  ["1.3","Revisión de alarmas o mensajes de fallo"],
+];
 const secciones = [
   { titulo: "A) SISTEMA DE BARRIDO", items: [["A.1","Estado de cepillos principales"],["A.2","Estado de cepillos laterales"],["A.3","Sistema de aspiración central"],["A.4","Toberas de agua / pulverización"],["A.5","Caucho de zapatas laterales"],["A.6","Caucho de zapata esquinera"],["A.7","Cadena banda transportadora"],["A.8","Piñón hidromotor banda transportadora"]] },
   { titulo: "B) SISTEMA HIDRÁULICO", items: [["B.1","Fugas hidráulicas (mangueras / acoples / bancos)"],["B.2","Nivel de aceite hidráulico"],["B.3","Filtro hidráulico — estado y presión"],["B.4","Cilindros hidráulicos (fugas o daños)"],["B.5","Bomba hidráulica — ruidos o vibraciones anormales"],["B.6","Tapones de drenaje"]] },
@@ -70,26 +76,37 @@ export default function InspeccionBarredoraPDF() {
   if (report.estado !== "completado") return (<div className="p-6 text-center"><p>Esta inspección no está completada.</p><button onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded mt-4">Volver</button></div>);
 
   const { data: d } = report;
-  const handlePrint = () => { const cliente = (d.cliente||"cliente").replace(/\s+/g,"-"); const pedido = (d.pedidoDemanda||"pedido").replace(/\s+/g,""); const codigo = (d.codInf||"000").replace(/\s+/g,""); printPdf("pdf-content", `Inspeccion_Barredora_${cliente}_${pedido}_${codigo}_ASTAP`); };
+  const handlePrint = () => { 
+    const cliente = (d.cliente||"cliente").replace(/\s+/g,"-"); 
+    const pedido = (d.pedidoDemanda||"pedido").replace(/\s+/g,""); 
+    const codigo = (d.codInf||"000").replace(/\s+/g,""); 
+    printPdf("pdf-content", `Inspeccion_Barredora_${cliente}_${pedido}_${codigo}_ASTAP`);
+  };
   const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
 
   return (
     <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
       <div id="pdf-content" style={{ maxWidth: 794, margin: "0 auto", background: "#fff", padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.12)", borderRadius: 6 }}>
 
+        {/* ENCABEZADO */}
         <div className="no-break">
-          <table style={S.tbl}><tbody>
+          <table style={S.tbl}>
+            <tbody>
             <tr>
-              <td rowSpan={5} style={{ ...S.cell, width: 130, textAlign: "center" }}><img src="/astap-logo.jpg" alt="ASTAP" style={{ maxHeight: 65, margin: "0 auto", display: "block" }} /></td>
+              <td rowSpan={5} style={{ ...S.cell, width: 130, textAlign: "center" }}>
+                <img src="/astap-logo.jpg" alt="ASTAP" style={{ maxHeight: 65, margin: "0 auto", display: "block" }} />
+              </td>
               <td colSpan={2} style={{ ...S.cell, textAlign: "center", fontWeight: 800, fontSize: 13, textTransform: "uppercase" }}>HOJA DE INSPECCIÓN BARREDORA</td>
               <td style={{ ...S.cell, width: 170 }}><div>Fecha versión: <strong>01-01-26</strong></div><div>Versión: <strong>01</strong></div></td>
             </tr>
             {[["REFERENCIA CONTRATO",d.referenciaContrato],["PEDIDO / DEMANDA",d.pedidoDemanda],["DESCRIPCIÓN",d.descripcion],["COD. INF.",d.codInf]].map(([l,v],i)=>(
               <tr key={i}><td style={{ ...S.label, width: "25%" }}>{l}</td><td colSpan={2} style={S.cell}>{v||"—"}</td></tr>
             ))}
-          </tbody></table>
+          </tbody>
+          </table>
         </div>
 
+         {/* DATOS SERVICIO */}
         <div className="no-break">
           <p style={S.sectionTitle}>DATOS DEL SERVICIO</p>
           <table style={S.tbl}><tbody>
@@ -99,10 +116,13 @@ export default function InspeccionBarredoraPDF() {
           </tbody></table>
         </div>
 
+               {/* DESCRIPCIÓN EQUIPO */}
         <div className="no-break">
           <p style={S.sectionTitle}>DESCRIPCIÓN DEL EQUIPO</p>
-          <table style={S.tbl}><tbody>
-            {[["NOTA",d.equipo?.nota],
+          <table style={S.tbl}>
+            <tbody>
+            {[
+              ["NOTA",d.equipo?.nota],
               ["MARCA",d.equipo?.marca],
               ["MODELO",d.equipo?.modelo],
               ["N° SERIE",d.equipo?.serie],
@@ -114,12 +134,17 @@ export default function InspeccionBarredoraPDF() {
               ["KILOMETRAJE",d.equipo?.kilometraje],
               ["HORÓMETRO",d.equipo?.horometro],
              ].map(([l,v],i)=>(
-              <tr key={i}><td style={S.label}>{l}</td><td style={S.cell}>{v||"—"}</td></tr>
+              <tr key={i}>
+                <td style={S.label}>{l}</td>
+                <td style={S.cell}>{v||"—"}</td>
+              </tr>
             ))}
-          </tbody></table>
+          </tbody>
+          </table>
         </div>
 
-        <div className="no-break">
+         {/* ESTADO DEL EQUIPO */}
+        <div>
           <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
           {estadoEquipoImagenes.length === 0 ? (
             <table style={S.tbl}><tbody><tr><td style={{ ...S.cell, textAlign: "center", color: "#6b7280", padding: 20 }}>Sin registros de estado del equipo</td></tr></tbody></table>
@@ -137,10 +162,15 @@ export default function InspeccionBarredoraPDF() {
           ))}
         </div>
 
+        {/* PRUEBAS PREVIAS */}
         <div className="page-break" />
-        <p style={{ ...S.sectionTitle, marginTop: 0 }}>1. PRUEBAS PREVIAS AL SERVICIO</p>
+        <p style={{ ...S.sectionTitle, marginTop: 0 }}>
+          1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
+        </p>
         <ChecklistTable items={pruebasPrevias} data={d} />
+</div>
 
+       {/* SECCIONES */}
         {secciones.map((sec, i) => (
           <div key={i} className="no-break">
             <p style={S.sectionTitle}>{sec.titulo}</p>
@@ -148,6 +178,7 @@ export default function InspeccionBarredoraPDF() {
           </div>
         ))}
 
+      {/* CONCLUSIONES */}
         <div className="no-break">
           <table style={{ ...S.tbl, marginTop: 14 }}>
             <thead><tr><th colSpan={2} style={S.th}>CONCLUSIONES</th><th colSpan={2} style={S.th}>RECOMENDACIONES</th></tr></thead>
@@ -167,14 +198,11 @@ export default function InspeccionBarredoraPDF() {
 
 {/* NOTA FINAL */}
 <div className="no-break">
-
   <p style={S.sectionTitle}>
     NOTA / OBSERVACIÓN FINAL DEL TÉCNICO
   </p>
-
   <table style={S.tbl}>
     <tbody>
-
       <tr>
         <td
           style={{
@@ -186,12 +214,9 @@ export default function InspeccionBarredoraPDF() {
           {d.notaFinal || "—"}
         </td>
       </tr>
-
     </tbody>
   </table>
-
 </div>
-
 
         
 {/* FIRMAS */}
@@ -322,8 +347,8 @@ export default function InspeccionBarredoraPDF() {
   </table>
 </div>
 
-
       </div>
+     {/* BOTONES */}
       <div className="no-print" style={{ display:"flex", justifyContent:"space-between", maxWidth:794, margin:"24px auto 0" }}>
         <button onClick={() => navigate("/inspeccion")} className="border px-6 py-2 rounded">Volver</button>
         <button onClick={handlePrint} className="bg-green-600 text-white px-6 py-2 rounded">Descargar PDF</button>
