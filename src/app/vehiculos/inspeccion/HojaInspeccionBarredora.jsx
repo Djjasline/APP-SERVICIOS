@@ -834,7 +834,7 @@ const handleSubmit = async (e) => {
   >
     <img
       src={EQUIPO_IMG_PATH}
-      alt="Vista general hidro"
+      alt="Vista general barredora"
       className="w-full max-h-[420px] object-contain"
     />
 
@@ -963,15 +963,59 @@ const handleSubmit = async (e) => {
           </h2>
 
           {secciones.map((sec) => (
-           <section key={sec.id} className="border rounded p-4 no-break">
-              <h2 className="font-semibold mb-3">{sec.titulo}</h2>
-              <TablaItems
-                lista={sec.items}
-                items={data.items}
-                onItemChange={handleItem}
-              />
-            </section>
-          ))}
+  <section key={sec.id}>
+
+    <h3 className="font-bold text-xs border-b pb-1 mb-2">
+      {sec.titulo}
+    </h3>
+
+    <table className="pdf-table w-full">
+
+      <thead>
+        <tr>
+          <th
+            className="text-left"
+            style={{ width: 50 }}
+          >
+            ÍTEM
+          </th>
+
+          <th className="text-left">
+            DESCRIPCIÓN
+          </th>
+
+          <th style={{ width: 40 }}>
+            SI
+          </th>
+
+          <th style={{ width: 40 }}>
+            NO
+          </th>
+
+          <th style={{ width: 40 }}>
+            N/A
+          </th>
+
+          <th className="text-left">
+            OBSERVACIÓN
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {sec.items.map(([c, d]) => (
+          <CheckRow
+            key={c}
+            codigo={c}
+            descripcion={d}
+          />
+        ))}
+      </tbody>
+
+    </table>
+
+  </section>
+))}
 
           {/* ══ 7. CONCLUSIONES Y RECOMENDACIONES ══ */}
           <h3 className="font-bold text-sm border-b pb-1">CONCLUSIONES Y RECOMENDACIONES</h3>
@@ -1076,12 +1120,12 @@ const handleSubmit = async (e) => {
             <div className="flex gap-3">
               {isEditing && inspeccionLista && (
                 <button type="button"
-                  onClick={() => navigate(`/inspeccion/hidro/${id}/pdf`)}
+                  onClick={() => navigate(`/inspeccion/barredora/${id}/pdf`)}
                   className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
                   Ver PDF
                 </button>
               )}
-              <button type="button" onClick={handleSubmit} disabled={guardando || uploading}
+              <button type="submit" onClick disabled={guardando || uploading}
                 className={`px-6 py-2 rounded text-white transition ${
                   guardando || uploading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
                 }`}>
