@@ -182,8 +182,9 @@ export default function HojaInspeccionBarredora() {
     tecnicoTelefono: "",
     tecnicoCorreo: "",
 
-    estadoEquipoPuntos: [],
-    estadoEquipoImagenUrl: null,
+    estadoEquipo: {
+  imagenes: []
+},
 
     notaFinal: "",
 
@@ -211,7 +212,7 @@ export default function HojaInspeccionBarredora() {
 
   const [formData, setFormData] = useState(baseState);
 
-  /* ─── CARGAR REGISTRO EXISTENTE ─── */
+    /* ─── CARGAR REGISTRO EXISTENTE ─── */
   useEffect(() => {
     const loadInspection = async () => {
       if (!id || id === "nuevo") return;
@@ -227,27 +228,44 @@ export default function HojaInspeccionBarredora() {
       setFormData({
         ...baseState,
         ...(data.data || {}),
-        estadoEquipoPuntos: data.data?.estadoEquipoPuntos || [],
-        equipo: { ...baseState.equipo, ...(data.data?.equipo || {}) },
+
+        equipo: {
+          ...baseState.equipo,
+          ...(data.data?.equipo || {}),
+        },
+
+        estadoEquipo: {
+          imagenes: data.data?.estadoEquipo?.imagenes || [],
+        },
+
         items: data.data?.items || {},
-        firmas: { tecnico: "", cliente: "", ...(data.data?.firmas || {}) },
+
+        firmas: {
+          tecnico: "",
+          cliente: "",
+          ...(data.data?.firmas || {}),
+        },
       });
 
       setTimeout(() => {
         if (data.data?.firmas?.tecnico && firmaTecnicoRef.current) {
           firmaTecnicoRef.current.clear();
-          firmaTecnicoRef.current.fromDataURL(data.data.firmas.tecnico);
+          firmaTecnicoRef.current.fromDataURL(
+            data.data.firmas.tecnico
+          );
         }
+
         if (data.data?.firmas?.cliente && firmaClienteRef.current) {
           firmaClienteRef.current.clear();
-          firmaClienteRef.current.fromDataURL(data.data.firmas.cliente);
+          firmaClienteRef.current.fromDataURL(
+            data.data.firmas.cliente
+          );
         }
       }, 100);
     };
 
     loadInspection();
   }, [id]);
-
  
   /* ─── HELPERS ─── */
   const handleChange = (e) => {
@@ -273,72 +291,159 @@ export default function HojaInspeccionBarredora() {
   const totalItems    = todosLosItems.length;
   const progresoPct   = Math.round((itemsMarcados / totalItems) * 100);
 
-  /* ─── IMAGEN ESTADO EQUIPO → SUPABASE STORAGE ─── */
+  /* ─── SUBIR IMÁGENES ESTADO EQUIPO ─── */
   const handleImageEquipo = async (e) => {
-    const file = e.target.files[0];
+    const files = Array.from(e.target.files || []);
     e.target.value = null;
-    if (!file) return;
 
-    if (!file.type.startsWith("image/")) { alert("Archivo no válido"); return; }
+    if (!files.length) return;
 
     setUploadingImg(true);
+
     try {
-      const compressed = await imageCompression(file, {
-        maxSizeMB: 0.5,
-        maxWidthOrHeight: 1200,
-        useWebWorker: true,
-        fileType: "image/jpeg",
-        initialQuality: 0.8,
-      });
+      const realId =
+        id && id !== "nuevo"
+          ? id
+          : crypto.randomUUID();
 
-      const realId = id && id !== "nuevo" ? id : crypto.randomUUID();
-      const url = await uploadRegistroImage(compressed, realId, "estado-equipo");
+      const nuevasImagenes = [];
 
-      if (url) {
-        setFormData((p) => ({
-          ...p,
-          estadoEquipoImagenUrl: url,
-          estadoEquipoPuntos: [],
+      for (const file of files) {
+        if (!file.type.startsWith("image/")) continue;
+
+        const compressed = await imageCompression(file, {
+          maxSizeMB: 0.5,
+          maxWidthOrHeight: 1400,
+          useWebWorker: true,
+          fileType: "image/jpeg",
+          initialQuality: 0.8,
+        });
+
+        const url = await uploadRegistroImage(
+          compressed,
+          realId,
+          "estado-equipo"
+        );
+
+        if (url) {
+          nuevasImagenes.push({
+            id: crypto.randomUUID(),
+            url,
+            puntos: [],
+          });
+        }
+      }
+
+      if (nuevasImagenes.length) {
+        setFormData((prev) => ({
+          ...prev,
+          estadoEquipo: {
+            imagenes: [
+              ...(prev.estadoEquipo?.imagenes || []),
+              ...nuevasImagenes,
+            ],
+          },
         }));
       }
+
     } catch (err) {
-      console.error("Error subiendo imagen:", err);
-      alert("Error subiendo imagen");
+      console.error("Error subiendo imágenes:", err);
+      alert("Error subiendo imágenes");
     } finally {
       setUploadingImg(false);
     }
   };
-
-  /* ─── PUNTOS SOBRE IMAGEN ─── */
-  const handleImageClick = (e) => {
+  /* ─── AGREGAR PUNTO EN IMAGEN ─── */
+  const handleImageClick = (e, imageId) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-    setFormData((p) => ({
-      ...p,
-      estadoEquipoPuntos: [
-        ...p.estadoEquipoPuntos,
-        { id: p.estadoEquipoPuntos.length + 1, x, y, nota: "" },
-      ],
+    const x =
+      ((e.clientX - rect.left) / rect.width) * 100;
+
+    const y =
+      ((e.clientY - rect.top) / rect.height) * 100;
+
+    setFormData((prev) => ({
+      ...prev,
+
+      estadoEquipo: {
+        imagenes: prev.estadoEquipo.imagenes.map((img) => {
+
+          if (img.id !== imageId) return img;
+
+          const puntos = img.puntos || [];
+
+          return {
+            ...img,
+
+            puntos: [
+              ...puntos,
+              {
+                id: puntos.length + 1,
+                x,
+                y,
+                nota: "",
+              },
+            ],
+          };
+        }),
+      },
     }));
   };
 
-  const handleRemovePoint = (pid) => {
-    setFormData((p) => ({
-      ...p,
-      estadoEquipoPuntos: p.estadoEquipoPuntos
-        .filter((pt) => pt.id !== pid)
-        .map((pt, i) => ({ ...pt, id: i + 1 })),
+  /* ─── ELIMINAR PUNTO ─── */
+  const handleRemovePoint = (imageId, pointId) => {
+
+    setFormData((prev) => ({
+      ...prev,
+
+      estadoEquipo: {
+        imagenes: prev.estadoEquipo.imagenes.map((img) => {
+
+          if (img.id !== imageId) return img;
+
+          const nuevosPuntos = (img.puntos || [])
+            .filter((pt) => pt.id !== pointId)
+            .map((pt, i) => ({
+              ...pt,
+              id: i + 1,
+            }));
+
+          return {
+            ...img,
+            puntos: nuevosPuntos,
+          };
+        }),
+      },
     }));
   };
 
-  const handleNotaChange = (pid, value) => {
-    setFormData((p) => ({
-      ...p,
-      estadoEquipoPuntos: p.estadoEquipoPuntos.map((pt) =>
-        pt.id === pid ? { ...pt, nota: value } : pt
-      ),
+  /* ─── OBSERVACIÓN PUNTO ─── */
+  const handleNotaChange = (
+    imageId,
+    pointId,
+    value
+  ) => {
+
+    setFormData((prev) => ({
+      ...prev,
+
+      estadoEquipo: {
+        imagenes: prev.estadoEquipo.imagenes.map((img) => {
+
+          if (img.id !== imageId) return img;
+
+          return {
+            ...img,
+
+            puntos: (img.puntos || []).map((pt) =>
+              pt.id === pointId
+                ? { ...pt, nota: value }
+                : pt
+            ),
+          };
+        }),
+      },
     }));
   };
 
@@ -352,8 +457,10 @@ export default function HojaInspeccionBarredora() {
       !formData.fechaServicio ? "Fecha requerida"    : null;
 
     if (validationError) { alert(validationError); return; }
-    if (uploadingImg)    { alert("Espera que termine de subir la imagen"); return; }
-
+   if (uploadingImg) {
+  alert("Espera que terminen de subir las imágenes");
+  return;
+}
     const isTecnicoEmpty = firmaTecnicoRef.current?.isEmpty();
     const isClienteEmpty = firmaClienteRef.current?.isEmpty();
 
@@ -410,7 +517,7 @@ export default function HojaInspeccionBarredora() {
           <span className="font-semibold">{progresoPct}% ítems marcados ({itemsMarcados}/{totalItems})</span>
         </div>
 
-        <div id="pdf-inspeccion-barredora" className="pdf-container print-area space-y-6">
+        <div id="pdf-inspeccion-barredora" className="print-area space-y-6">
 
           {/* ── ENCABEZADO ── */}
           <section className="border rounded overflow-hidden">
@@ -533,76 +640,149 @@ export default function HojaInspeccionBarredora() {
             </table>
           </section>
 
-          {/* ── ESTADO DEL EQUIPO ── */}
-          <section className="border rounded p-4 space-y-3">
+                   {/* ── ESTADO DEL EQUIPO ── */}
+          <section className="border rounded p-4 space-y-4">
+
             <div className="flex justify-between items-center flex-wrap gap-2">
               <p className="font-semibold">
                 Estado del equipo
-                <span className="text-xs text-gray-500 ml-2">(clic en la imagen para marcar puntos — doble clic para eliminar)</span>
               </p>
-              <div className="flex gap-2 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => setFormData((p) => ({ ...p, estadoEquipoImagenUrl: null, estadoEquipoPuntos: [] }))}
-                  className={`text-xs px-2 py-1 rounded ${!formData.estadoEquipoImagenUrl ? "bg-blue-600 text-white" : "border"}`}
-                >
-                  Imagen base
-                </button>
 
-                <label className={`text-xs px-2 py-1 rounded cursor-pointer ${formData.estadoEquipoImagenUrl ? "bg-green-600 text-white" : "border"}`}>
-                  {uploadingImg ? "Subiendo..." : "📷 Cámara / Galería"}
-                  <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageEquipo} disabled={uploadingImg} />
-                </label>
+              <label
+                className={`text-xs px-3 py-2 rounded cursor-pointer ${
+                  uploadingImg
+                    ? "bg-gray-300 text-gray-600"
+                    : "bg-green-600 text-white"
+                }`}
+              >
+                {uploadingImg
+                  ? "Subiendo..."
+                  : "📷 Agregar imágenes"}
 
-                {formData.estadoEquipoPuntos.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setFormData((p) => ({ ...p, estadoEquipoPuntos: [] }))}
-                    className="text-xs border px-2 py-1 rounded"
-                  >
-                    Limpiar puntos
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div
-              className="relative border rounded cursor-crosshair overflow-hidden"
-              onClick={handleImageClick}
-            >
-              <img
-                src={formData.estadoEquipoImagenUrl || "/estado equipo barredora.png"}
-                crossOrigin="anonymous"
-                className="w-full"
-                draggable={false}
-                alt="estado equipo barredora"
-              />
-              {formData.estadoEquipoPuntos.map((pt) => (
-                <div
-                  key={pt.id}
-                  onDoubleClick={(e) => { e.stopPropagation(); handleRemovePoint(pt.id); }}
-                  className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full cursor-pointer select-none shadow"
-                  style={{ left: `${pt.x}%`, top: `${pt.y}%`, transform: "translate(-50%, -50%)" }}
-                  title="Doble clic para eliminar"
-                >
-                  {pt.id}
-                </div>
-              ))}
-            </div>
-
-            {formData.estadoEquipoPuntos.map((pt) => (
-              <div key={pt.id} className="flex gap-2 items-center">
-                <span className="font-semibold text-red-600 w-6 text-center shrink-0">{pt.id}</span>
                 <input
-                  className="w-full border rounded px-2 py-1 text-xs"
-                  placeholder={`Observación punto ${pt.id}`}
-                  value={pt.nota}
-                  onChange={(e) => handleNotaChange(pt.id, e.target.value)}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  multiple
+                  className="hidden"
+                  onChange={handleImageEquipo}
+                  disabled={uploadingImg}
                 />
-              </div>
-            ))}
-          </section>
+              </label>
+            </div>
 
+            {/* SIN IMÁGENES */}
+            {!formData.estadoEquipo?.imagenes?.length && (
+              <div className="border rounded bg-gray-50 h-[120px] flex items-center justify-center text-sm text-gray-400">
+                Sin fotografías cargadas
+              </div>
+            )}
+
+            {/* IMÁGENES */}
+            <div className="grid grid-cols-1 gap-4">
+
+              {(formData.estadoEquipo?.imagenes || []).map((img) => (
+
+                <div
+                  key={img.id}
+                  className="border rounded p-3 bg-gray-50 space-y-3"
+                >
+
+                                   {/* IMAGEN */}
+                  <div
+                    className="relative border rounded overflow-hidden bg-white flex items-center justify-center cursor-crosshair"
+                    onClick={(e) => handleImageClick(e, img.id)}
+                  >
+
+                    <img
+                      src={img.url}
+                      alt="Estado equipo"
+                      className="w-auto max-w-full max-h-[220px] object-contain mx-auto"
+                      draggable={false}
+                    />
+
+                    {/* PUNTOS */}
+                    {(img.puntos || []).map((pt) => (
+                      <div
+                        key={pt.id}
+                        onDoubleClick={(e) => {
+                          e.stopPropagation();
+                          handleRemovePoint(img.id, pt.id);
+                        }}
+                        className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full shadow cursor-pointer select-none"
+                        style={{
+                          left: `${pt.x}%`,
+                          top: `${pt.y}%`,
+                          transform: "translate(-50%, -50%)",
+                        }}
+                        title="Doble clic para eliminar"
+                      >
+                        {pt.id}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* OBSERVACIONES */}
+                  {(img.puntos || []).length > 0 && (
+                    <div className="space-y-2">
+
+                      {(img.puntos || []).map((pt) => (
+
+                        <div
+                          key={pt.id}
+                          className="flex gap-2 items-start"
+                        >
+
+                          <div className="bg-red-600 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1">
+                            {pt.id}
+                          </div>
+
+                          <textarea
+                            value={pt.nota || ""}
+                            onChange={(e) =>
+                              handleNotaChange(
+                                img.id,
+                                pt.id,
+                                e.target.value
+                              )
+                            }
+                            placeholder={`Observación punto ${pt.id}`}
+                            className="w-full border rounded p-2 text-xs resize-none overflow-hidden min-h-[60px]"
+                          />
+                        </div>
+
+                      ))}
+
+                    </div>
+                  )}
+
+                  {/* BOTONES */}
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          estadoEquipo: {
+                            imagenes: prev.estadoEquipo.imagenes.filter(
+                              (i) => i.id !== img.id
+                            ),
+                          },
+                        }));
+                      }}
+                      className="text-xs text-red-600 hover:underline"
+                    >
+                      Eliminar imagen
+                    </button>
+                  </div>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          </section>
           {/* ── PRUEBAS PREVIAS ── */}
           <section className="border rounded p-4">
             <h2 className="font-semibold mb-3">
@@ -700,7 +880,7 @@ export default function HojaInspeccionBarredora() {
             <tbody>
               <tr>
                 {/* Técnico */}
-                <td className="border p-2 align-top" style={{ height: 200 }}>
+                <td className="border p-2 align-top" style={{ height: 140 }}>
                   <SignatureCanvas
                     ref={firmaTecnicoRef}
                     penColor="black"
@@ -719,7 +899,7 @@ export default function HojaInspeccionBarredora() {
                 </td>
 
                 {/* Cliente */}
-                <td className="border p-2 align-top" style={{ height: 200 }}>
+                <td className="border p-2 align-top" style={{ height: 140 }}>
                   <SignatureCanvas
                     ref={firmaClienteRef}
                     penColor="black"
@@ -764,9 +944,9 @@ export default function HojaInspeccionBarredora() {
               uploadingImg ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
             }`}
           >
-            {uploadingImg
-              ? "Subiendo imagen..."
-              : inspeccionLista
+            uploadingImg
+  ? "Subiendo imágenes..."
+  : inspeccionLista
               ? "Guardar y completar"
               : "Guardar borrador"}
           </button>
