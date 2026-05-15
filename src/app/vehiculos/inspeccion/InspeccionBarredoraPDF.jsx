@@ -102,7 +102,18 @@ export default function InspeccionBarredoraPDF() {
         <div className="no-break">
           <p style={S.sectionTitle}>DESCRIPCIÓN DEL EQUIPO</p>
           <table style={S.tbl}><tbody>
-            {[["NOTA",d.equipo?.nota],["MARCA",d.equipo?.marca],["MODELO",d.equipo?.modelo],["N° SERIE",d.equipo?.serie],["AÑO MODELO",d.equipo?.anio],["VIN / CHASIS",d.equipo?.vin],["PLACA",d.equipo?.placa],["HORAS MÓDULO",d.equipo?.horasModulo],["HORAS CHASIS",d.equipo?.horasChasis],["KILOMETRAJE",d.equipo?.kilometraje],["HORÓMETRO",d.equipo?.horometro]].map(([l,v],i)=>(
+            {[["NOTA",d.equipo?.nota],
+              ["MARCA",d.equipo?.marca],
+              ["MODELO",d.equipo?.modelo],
+              ["N° SERIE",d.equipo?.serie],
+              ["AÑO MODELO",d.equipo?.anio],
+              ["VIN / CHASIS",d.equipo?.vin],
+              ["PLACA",d.equipo?.placa],
+              ["HORAS MÓDULO",d.equipo?.horasModulo],
+              ["HORAS CHASIS",d.equipo?.horasChasis],
+              ["KILOMETRAJE",d.equipo?.kilometraje],
+              ["HORÓMETRO",d.equipo?.horometro],
+             ].map(([l,v],i)=>(
               <tr key={i}><td style={S.label}>{l}</td><td style={S.cell}>{v||"—"}</td></tr>
             ))}
           </tbody></table>
