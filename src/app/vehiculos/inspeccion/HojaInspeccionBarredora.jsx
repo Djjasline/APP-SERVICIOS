@@ -183,7 +183,7 @@ export default function HojaInspeccionBarredora() {
     tecnicoCorreo: "",
 
     estadoEquipo: {
-  imagenes: []
+  imagenes: [],
 },
 
     notaFinal: "",
@@ -656,7 +656,7 @@ export default function HojaInspeccionBarredora() {
                 }`}
               >
                 {uploadingImg
-                  ? "Subiendo..."
+                  ? "Subiendo imágenes..."
                   : "📷 Agregar imágenes"}
 
                 <input
@@ -739,13 +739,26 @@ export default function HojaInspeccionBarredora() {
 
                           <textarea
                             value={pt.nota || ""}
-                            onChange={(e) =>
-                              handleNotaChange(
-                                img.id,
-                                pt.id,
-                                e.target.value
-                              )
-                            }
+                            ref={(el) => {
+  if (el) {
+    el.style.height = "auto";
+    el.style.height =
+      el.scrollHeight + "px";
+  }
+}} 
+                            onChange={(e) => {
+
+  handleNotaChange(
+    img.id,
+    pt.id,
+    e.target.value
+  );
+
+  e.target.style.height = "auto";
+
+  e.target.style.height =
+    e.target.scrollHeight + "px";
+}}
                             placeholder={`Observación punto ${pt.id}`}
                             className="w-full border rounded p-2 text-xs resize-none overflow-hidden min-h-[60px]"
                           />
@@ -888,7 +901,9 @@ export default function HojaInspeccionBarredora() {
                     maxWidth={1.5}
                     onBegin={() => { document.activeElement?.blur(); document.body.style.overflow = "hidden"; }}
                     onEnd={() => { document.body.style.overflow = ""; }}
-                    canvasProps={{ className: "w-full h-32 border rounded touch-none" }}
+                    canvasProps={{
+  className: "w-full h-24 border rounded touch-none bg-white"
+}}
                   />
                   <div className="text-center mt-1">
                     <button type="button" onClick={() => firmaTecnicoRef.current?.clear()} className="text-xs text-red-600 hover:underline">
@@ -907,7 +922,9 @@ export default function HojaInspeccionBarredora() {
                     maxWidth={1.5}
                     onBegin={() => { document.activeElement?.blur(); document.body.style.overflow = "hidden"; }}
                     onEnd={() => { document.body.style.overflow = ""; }}
-                    canvasProps={{ className: "w-full h-32 border rounded touch-none" }}
+                    canvasProps={{
+  className: "w-full h-24 border rounded touch-none bg-white"
+}}
                   />
                   <div className="text-center mt-1">
                     <button type="button" onClick={() => firmaClienteRef.current?.clear()} className="text-xs text-red-600 hover:underline">
@@ -938,20 +955,26 @@ export default function HojaInspeccionBarredora() {
             Volver
           </button>
           <button
-            type="submit"
-            disabled={uploadingImg}
-            className={`px-4 py-2 rounded text-white transition ${
-              uploadingImg ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
-            }`}
-          >
-            uploadingImg
-  ? "Subiendo imágenes..."
-  : inspeccionLista
-              ? "Guardar y completar"
-              : "Guardar borrador"}
-          </button>
+  type="submit"
+  disabled={uploadingImg}
+  className={`px-4 py-2 rounded text-white transition ${
+    uploadingImg
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-green-600 hover:bg-green-700"
+  }`}
+>
+  {uploadingImg
+    ? "Subiendo imágenes..."
+    : inspeccionLista
+      ? "Guardar y completar"
+      : "Guardar borrador"}
+</button>
         </div>
       </form>
+       <PdfInspeccionButtons
+  targetId="pdf-inspeccion-barredora"
+  fileName="INSPECCION_BARREDORA"
+/>
     </>
   );
 }
