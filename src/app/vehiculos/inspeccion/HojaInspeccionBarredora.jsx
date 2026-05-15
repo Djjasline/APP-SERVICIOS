@@ -1470,8 +1470,8 @@ onChange={(e) =>
           }}
 
           canvasProps={{
-            className:
-              "w-full h-24 border rounded touch-none bg-white",
+           className:
+  "w-full h-20 border rounded touch-none bg-white"
           }}
         />
 
@@ -1519,8 +1519,8 @@ onChange={(e) =>
           }}
 
           canvasProps={{
-            className:
-              "w-full h-24 border rounded touch-none bg-white",
+           className:
+  "w-full h-20 border rounded touch-none bg-white"
           }}
         />
 
