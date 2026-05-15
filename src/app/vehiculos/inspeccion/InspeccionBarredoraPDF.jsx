@@ -102,7 +102,7 @@ export default function InspeccionBarredoraPDF() {
         <div className="no-break">
           <p style={S.sectionTitle}>DESCRIPCIÓN DEL EQUIPO</p>
           <table style={S.tbl}><tbody>
-            {[["NOTA",d.equipo?.nota],["MARCA",d.equipo?.marca],["MODELO",d.equipo?.modelo],["N° SERIE",d.equipo?.serie],["AÑO MODELO",d.equipo?.anio],["VIN / CHASIS",d.equipo?.vin],["PLACA",d.equipo?.placa],["HORAS MÓDULO",d.equipo?.horasModulo],["HORAS CHASIS",d.equipo?.horasChasis],["KILOMETRAJE",d.equipo?.kilometraje]].map(([l,v],i)=>(
+            {[["NOTA",d.equipo?.nota],["MARCA",d.equipo?.marca],["MODELO",d.equipo?.modelo],["N° SERIE",d.equipo?.serie],["AÑO MODELO",d.equipo?.anio],["VIN / CHASIS",d.equipo?.vin],["PLACA",d.equipo?.placa],["HORAS MÓDULO",d.equipo?.horasModulo],["HORAS CHASIS",d.equipo?.horasChasis],["KILOMETRAJE",d.equipo?.kilometraje],["HORÓMETRO",d.equipo?.horometro]].map(([l,v],i)=>(
               <tr key={i}><td style={S.label}>{l}</td><td style={S.cell}>{v||"—"}</td></tr>
             ))}
           </tbody></table>
@@ -153,24 +153,164 @@ export default function InspeccionBarredoraPDF() {
           </table>
         </div>
 
-        <div className="no-break">
-          <table style={{ ...S.tbl, marginTop: 14 }}>
-            <thead><tr><th style={S.th}>FIRMA TÉCNICO ASTAP</th><th style={S.th}>FIRMA CLIENTE</th></tr></thead>
-            <tbody>
-              <tr>
-                <td style={{ ...S.cell, height:160, textAlign:"center", verticalAlign:"top", paddingTop:12 }}>
-                  {d.firmas?.tecnico && <img src={d.firmas.tecnico} alt="Firma técnico" style={{ width:"100%", maxWidth:240, height:"auto", objectFit:"contain", margin:"0 auto", display:"block" }} />}
-                  <div style={{ marginTop:10, fontSize:12, fontWeight:700 }}>{d.tecnicoNombre||"—"}</div>
-                </td>
-                <td style={{ ...S.cell, height:160, textAlign:"center", verticalAlign:"top", paddingTop:12 }}>
-                  {d.firmas?.cliente && <img src={d.firmas.cliente} alt="Firma cliente" style={{ width:"100%", maxWidth:240, height:"auto", objectFit:"contain", margin:"0 auto", display:"block" }} />}
-                  <div style={{ marginTop:10, fontSize:12, fontWeight:700 }}>{d.cliente||"—"}</div>
-                  <div style={{ marginTop:4, fontSize:11 }}>Cédula: {d.firmas?.clienteCedula||"—"}</div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+
+{/* NOTA FINAL */}
+<div className="no-break">
+
+  <p style={S.sectionTitle}>
+    NOTA / OBSERVACIÓN FINAL DEL TÉCNICO
+  </p>
+
+  <table style={S.tbl}>
+    <tbody>
+
+      <tr>
+        <td
+          style={{
+            ...S.cell,
+            whiteSpace: "pre-wrap",
+            minHeight: 60,
+          }}
+        >
+          {d.notaFinal || "—"}
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+
+</div>
+
+
+        
+{/* FIRMAS */}
+<div className="no-break">
+  <table style={{ ...S.tbl, marginTop: 10 }}>
+    <thead>
+      <tr>
+        <th style={S.th}>FIRMA TÉCNICO ASTAP</th>
+        <th style={S.th}>FIRMA CLIENTE</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+
+        {/* FIRMA TÉCNICO */}
+        <td
+          style={{
+            ...S.cell,
+            height: 85,
+            textAlign: "center",
+            verticalAlign: "middle",
+            padding: "6px 8px",
+          }}
+        >
+          <div
+            style={{
+              height: 45,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {d.firmas?.tecnico ? (
+              <img
+                src={d.firmas.tecnico}
+                alt="Firma técnico"
+                style={{
+                  maxHeight: 38,
+                  width: "auto",
+                  maxWidth: 160,
+                  objectFit: "contain",
+                  display: "block",
+                  filter: "contrast(1.05)",
+                }}
+              />
+            ) : (
+              <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                Sin firma
+              </span>
+            )}
+          </div>
+
+          <div
+            style={{
+              marginTop: 6,
+              fontSize: 10,
+              fontWeight: 700,
+              textTransform: "uppercase",
+            }}
+          >
+            {d.tecnicoNombre || "—"}
+          </div>
+        </td>
+
+        {/* FIRMA CLIENTE */}
+        <td
+          style={{
+            ...S.cell,
+            height: 85,
+            textAlign: "center",
+            verticalAlign: "middle",
+            padding: "6px 8px",
+          }}
+        >
+          <div
+            style={{
+              height: 45,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {d.firmas?.cliente ? (
+              <img
+                src={d.firmas.cliente}
+                alt="Firma cliente"
+                style={{
+                  maxHeight: 38,
+                  width: "auto",
+                  maxWidth: 160,
+                  objectFit: "contain",
+                  display: "block",
+                  filter: "contrast(1.05)",
+                }}
+              />
+            ) : (
+              <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                Sin firma
+              </span>
+            )}
+          </div>
+
+          <div
+            style={{
+              marginTop: 6,
+              fontSize: 10,
+              fontWeight: 700,
+              textTransform: "uppercase",
+            }}
+          >
+            {d.cliente || "—"}
+          </div>
+
+          <div
+            style={{
+              marginTop: 1,
+              fontSize: 9,
+              color: "#4b5563",
+            }}
+          >
+            Cédula: {d.firmas?.clienteCedula || "—"}
+          </div>
+        </td>
+
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 
       </div>
       <div className="no-print" style={{ display:"flex", justifyContent:"space-between", maxWidth:794, margin:"24px auto 0" }}>
