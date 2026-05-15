@@ -18,7 +18,7 @@ const pruebasPrevias = [
 ];
 
 /* =============================
-   SECCIONES – BARREDORA
+   SECCIONES – HIDROSUCCIONADOR
 ============================= */
 const secciones = [
   {
