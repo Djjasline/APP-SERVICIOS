@@ -3,10 +3,11 @@ import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
 import imageCompression from "browser-image-compression";
-import PdfInspeccionButtons from "./components/PdfInspeccionButtons";
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
+import { useAuth } from "@/context/AuthContext";
+
 
 /* =============================
    PRUEBAS PREVIAS AL SERVICIO
@@ -152,354 +153,525 @@ const TablaItems = ({ lista, items, onItemChange }) => (
 );
 
 export default function HojaInspeccionBarredora() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id }     = useParams();
+  const navigate   = useNavigate();
+  const { user }   = useAuth();
+  const isEditing  = !!id;
 
   const {
     technicians,
     loading: loadingTechnicians,
   } = useTechnicians();
 
-  const firmaTecnicoRef = useRef(null);
-  const firmaClienteRef = useRef(null);
+const sigTecnico = useRef(null);
+const sigCliente = useRef(null);
 
-  const [uploadingImg, setUploadingImg] = useState(false);
-  const [successMsg, setSuccessMsg]     = useState("");
+const [guardando, setGuardando]           = useState(false);
+const [uploadingCount, setUploadingCount] = useState(0);
+const [successMsg, setSuccessMsg]         = useState("");
 
-  /* ─── ESTADO BASE ─── */
-  const baseState = {
-    referenciaContrato: "",
-    pedidoDemanda: "",
-    descripcion: "",
-    codInf: "",
+const uploading = uploadingCount > 0;
 
-    cliente: "",
-    cedulaCliente: "",
-    direccion: "",
-    contacto: "",
-    telefono: "",
-    correo: "",
-    fechaServicio: "",
 
-    tecnicoNombre: "",
-    tecnicoTelefono: "",
-    tecnicoCorreo: "",
+
+/* ══════════════════════════════
+   ESTADO INICIAL
+══════════════════════════════ */
+const emptyForm = {
+  referenciaContrato: "",
+  pedidoDemanda: "",
+  descripcion: "",
+  codInf: "",
+
+  cliente: "",
+  cedulaCliente: "",
+  direccion: "",
+  contacto: "",
+  telefono: "",
+  correo: "",
+  fechaServicio: "",
+
+  tecnicoNombre: "",
+  tecnicoTelefono: "",
+  tecnicoCorreo: "",
+
+  equipo: {
+    nota: "",
+    marca: "",
+    modelo: "",
+    serie: "",
+    anio: "",
+    vin: "",
+    placa: "",
+    horasModulo: "",
+    horasChasis: "",
+    kilometraje: "",
+    horometro: "",
+  },
 
   estadoEquipo: {
-  imagenes: [],
-},
+    imagenes: [],
+    puntosBase: [],
+  },
 
-    notaFinal: "",
+  items: {},
 
-    equipo: {
-      nota: "",
-      marca: "",
-      modelo: "",
-      serie: "",
-      anio: "",
-      vin: "",
-      placa: "",
-      horasModulo: "",
-      horasChasis: "",
-      kilometraje: "",
-      horometro: "",
-    },
+  conclusiones: [""],
+  recomendaciones: [""],
 
-    items: {},
+  notaFinal: "",
 
-    firmas: {
-      tecnico: "",
-      cliente: "",
-    },
-  };
+  firmas: {
+    tecnico: "",
+    cliente: "",
+    clienteCedula: "",
+  },
+};
 
-  const [formData, setFormData] = useState(baseState);
+const [data, setData] = useState(emptyForm);
 
-    /* ─── CARGAR REGISTRO EXISTENTE ─── */
-  useEffect(() => {
-    const loadInspection = async () => {
-      if (!id || id === "nuevo") return;
 
-      const { data, error } = await supabase
-        .from("registros")
-        .select("*")
-        .eq("id", id)
-        .single();
+/* ── CARGAR DESDE SUPABASE ── */
+useEffect(() => {
+  if (!id) return;
 
-      if (error || !data) return;
+  const load = async () => {
+    const { data: reg, error } = await supabase
+      .from("registros")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-      setFormData({
-        ...baseState,
-        ...(data.data || {}),
+    if (error || !reg) return;
 
-        equipo: {
-          ...baseState.equipo,
-          ...(data.data?.equipo || {}),
-        },
-
-        estadoEquipo: {
-          imagenes: data.data?.estadoEquipo?.imagenes || [],
-        },
-
-        items: data.data?.items || {},
-
-        firmas: {
-          tecnico: "",
-          cliente: "",
-          ...(data.data?.firmas || {}),
-        },
-      });
-
-      setTimeout(() => {
-        if (data.data?.firmas?.tecnico && firmaTecnicoRef.current) {
-          firmaTecnicoRef.current.clear();
-          firmaTecnicoRef.current.fromDataURL(
-            data.data.firmas.tecnico
-          );
-        }
-
-        if (data.data?.firmas?.cliente && firmaClienteRef.current) {
-          firmaClienteRef.current.clear();
-          firmaClienteRef.current.fromDataURL(
-            data.data.firmas.cliente
-          );
-        }
-      }, 100);
+    const d = {
+      ...emptyForm,
+      ...(reg.data || {}),
     };
 
-    loadInspection();
-  }, [id]);
- 
-  /* ─── HELPERS ─── */
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
-  };
+    d.estadoEquipo = {
+      imagenes: Array.isArray(reg.data?.estadoEquipo?.imagenes)
+        ? reg.data.estadoEquipo.imagenes.map((img, i) => ({
+            id: img?.id || `img-${i}`,
+            url: img?.url || "",
 
-  const handleItemChange = (codigo, campo, valor) => {
-    setFormData((prev) => ({
-      ...prev,
-      items: {
-        ...prev.items,
-        [codigo]: {
-          ...(prev.items[codigo] || {}),
-          [campo]: valor,
-        },
-      },
-    }));
-  };
+            puntos: Array.isArray(img?.puntos)
+              ? img.puntos.map((p, j) => ({
+                  id: p?.id || `p-${i}-${j}`,
+                  x: p?.x ?? 0,
+                  y: p?.y ?? 0,
+                  observacion: p?.observacion || "",
+                }))
+              : [],
+          }))
+        : [],
 
-  /* ─── PROGRESO CHECKLIST ─── */
-  const itemsMarcados = todosLosItems.filter((c) => formData.items[c]?.estado).length;
-  const totalItems    = todosLosItems.length;
-  const progresoPct   = Math.round((itemsMarcados / totalItems) * 100);
+      puntosBase: Array.isArray(reg.data?.estadoEquipo?.puntosBase)
+        ? reg.data.estadoEquipo.puntosBase.map((p, i) => ({
+            id: p?.id || `base-${i}`,
+            x: p?.x ?? 0,
+            y: p?.y ?? 0,
+            observacion: p?.observacion || "",
+          }))
+        : [],
+    };
 
-  /* ─── SUBIR IMÁGENES ESTADO EQUIPO ─── */
-  const handleImageEquipo = async (e) => {
-    const files = Array.from(e.target.files || []);
-    e.target.value = null;
+    setData(d);
 
-    if (!files.length) return;
-
-    setUploadingImg(true);
-
-    try {
-      const realId =
-        id && id !== "nuevo"
-          ? id
-          : crypto.randomUUID();
-
-      const nuevasImagenes = [];
-
-      for (const file of files) {
-        if (!file.type.startsWith("image/")) continue;
-
-        const compressed = await imageCompression(file, {
-          maxSizeMB: 0.5,
-          maxWidthOrHeight: 1400,
-          useWebWorker: true,
-          fileType: "image/jpeg",
-          initialQuality: 0.8,
-        });
-
-        const url = await uploadRegistroImage(
-          compressed,
-          realId,
-          "estado-equipo"
+    setTimeout(() => {
+      if (reg.data?.firmas?.tecnico) {
+        sigTecnico.current?.fromDataURL(
+          reg.data.firmas.tecnico
         );
-
-        if (url) {
-          nuevasImagenes.push({
-            id: crypto.randomUUID(),
-            url,
-            puntos: [],
-          });
-        }
       }
 
-      if (nuevasImagenes.length) {
-        setFormData((prev) => ({
-          ...prev,
-          estadoEquipo: {
-            imagenes: [
-              ...(prev.estadoEquipo?.imagenes || []),
-              ...nuevasImagenes,
-            ],
-          },
-        }));
+      if (reg.data?.firmas?.cliente) {
+        sigCliente.current?.fromDataURL(
+          reg.data.firmas.cliente
+        );
       }
+    }, 300);
+  };
 
-    } catch (err) {
-      console.error("Error subiendo imágenes:", err);
-      alert("Error subiendo imágenes");
-    } finally {
-      setUploadingImg(false);
+  load();
+}, [id]);
+
+/* ── AUTO-RELLENAR TÉCNICO LOGUEADO ── */
+useEffect(() => {
+  if (!user?.email || isEditing || loadingTechnicians) return;
+
+  const loggedTech = (technicians || []).find((t) => {
+    const email = t.email || t.correo || "";
+
+    return (
+      email.toLowerCase() ===
+      user.email.toLowerCase()
+    );
+  });
+
+  if (!loggedTech) return;
+
+  setData((prev) => ({
+    ...prev,
+
+    tecnicoNombre:
+      loggedTech.name ||
+      loggedTech.nombre ||
+      "",
+
+    tecnicoTelefono:
+      loggedTech.phone ||
+      loggedTech.telefono ||
+      "",
+
+    tecnicoCorreo:
+      loggedTech.email ||
+      loggedTech.correo ||
+      "",
+  }));
+}, [
+  user?.email,
+  isEditing,
+  loadingTechnicians,
+  technicians,
+]);
+
+
+/* ── LIMPIAR SCROLL LOCK ── */
+useEffect(() => {
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, []);
+
+   
+/* ── UPDATE PATH-BASED ── */
+const update = (path, value) => {
+  setData((prev) => {
+    const copy = { ...prev };
+
+    let ref = copy;
+
+    for (let i = 0; i < path.length - 1; i++) {
+      ref[path[i]] = Array.isArray(ref[path[i]])
+        ? [...ref[path[i]]]
+        : { ...ref[path[i]] };
+
+      ref = ref[path[i]];
     }
-  };
-  /* ─── AGREGAR PUNTO EN IMAGEN ─── */
-  const handleImageClick = (e, imageId) => {
-    const rect = e.currentTarget.getBoundingClientRect();
 
-    const x =
-      ((e.clientX - rect.left) / rect.width) * 100;
+    ref[path[path.length - 1]] = value;
 
-    const y =
-      ((e.clientY - rect.top) / rect.height) * 100;
+    return copy;
+  });
+};
 
-    setFormData((prev) => ({
-      ...prev,
-
-      estadoEquipo: {
-        imagenes: prev.estadoEquipo.imagenes.map((img) => {
-
-          if (img.id !== imageId) return img;
-
-          const puntos = img.puntos || [];
-
-          return {
-            ...img,
-
-            puntos: [
-              ...puntos,
-              {
-                id: puntos.length + 1,
-                x,
-                y,
-                nota: "",
-              },
-            ],
-          };
-        }),
+/* ── ITEM CHECKLIST ── */
+const handleItem = (codigo, campo, valor) =>
+  setData((prev) => ({
+    ...prev,
+    items: {
+      ...prev.items,
+      [codigo]: {
+        ...(prev.items[codigo] || {}),
+        [campo]: valor,
       },
-    }));
-  };
+    },
+  }));
 
-  /* ─── ELIMINAR PUNTO ─── */
-  const handleRemovePoint = (imageId, pointId) => {
 
-    setFormData((prev) => ({
-      ...prev,
+/* ── PROGRESO ── */
+const itemsMarcados = todosLosItems.filter(
+  (c) => data.items?.[c]?.estado
+).length;
 
-      estadoEquipo: {
-        imagenes: prev.estadoEquipo.imagenes.map((img) => {
+const totalItems = todosLosItems.length;
 
-          if (img.id !== imageId) return img;
+const progresoPct = Math.round(
+  (itemsMarcados / totalItems) * 100
+);
 
-          const nuevosPuntos = (img.puntos || [])
-            .filter((pt) => pt.id !== pointId)
-            .map((pt, i) => ({
-              ...pt,
-              id: i + 1,
-            }));
 
-          return {
-            ...img,
-            puntos: nuevosPuntos,
-          };
-        }),
-      },
-    }));
-  };
+/* ── COMPRIMIR Y SUBIR ── */
+const compressAndUpload = async (file, folder) => {
 
-  /* ─── OBSERVACIÓN PUNTO ─── */
-  const handleNotaChange = (
-    imageId,
-    pointId,
-    value
-  ) => {
+  const compressedFile = await imageCompression(file, {
+    maxSizeMB: 0.8,
+    useWebWorker: true,
+    alwaysKeepResolution: true,
+    initialQuality: 0.92,
+    maxWidthOrHeight: undefined,
+    fileType: file.type || "image/jpeg",
+  });
 
-    setFormData((prev) => ({
-      ...prev,
+  return await uploadRegistroImage(
+    compressedFile,
+    id || "temp-insp-barredora",
+    folder
+  );
+};
 
-      estadoEquipo: {
-        imagenes: prev.estadoEquipo.imagenes.map((img) => {
+/* ── ESTADO EQUIPO — MÚLTIPLES FOTOS ── */
+const handleEstadoUpload = async (files) => {
 
-          if (img.id !== imageId) return img;
+  const arr = Array.from(files || []);
 
-          return {
-            ...img,
+  if (!arr.length) return;
 
-            puntos: (img.puntos || []).map((pt) =>
-              pt.id === pointId
-                ? { ...pt, nota: value }
-                : pt
-            ),
-          };
-        }),
-      },
-    }));
-  };
+  setUploadingCount((p) => p + arr.length);
 
-  /* ─── GUARDAR ─── */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  try {
 
-    const validationError =
-      !formData.cliente       ? "Cliente requerido"  :
-      !formData.tecnicoNombre ? "Técnico requerido"  :
-      !formData.fechaServicio ? "Fecha requerida"    : null;
+    for (const file of arr) {
 
-    if (validationError) { alert(validationError); return; }
-   if (uploadingImg) {
-  alert("Espera que terminen de subir las imágenes");
-  return;
-}
-    const isTecnicoEmpty = firmaTecnicoRef.current?.isEmpty();
-    const isClienteEmpty = firmaClienteRef.current?.isEmpty();
+      const url = await compressAndUpload(
+        file,
+        "estado-equipo"
+      );
+
+      if (!url) continue;
+
+      setData((prev) => ({
+        ...prev,
+
+        estadoEquipo: {
+          ...prev.estadoEquipo,
+
+          imagenes: [
+            ...(prev.estadoEquipo?.imagenes || []),
+
+            {
+              id: `img-${Date.now()}-${Math.random()
+                .toString(36)
+                .slice(2, 6)}`,
+
+              url,
+              puntos: [],
+            },
+          ],
+        },
+      }));
+    }
+
+  } finally {
+
+    setUploadingCount((p) => p - arr.length);
+  }
+};
+
+/* ── ELIMINAR FOTO ── */
+const removeEstadoImg = (imgId) =>
+  setData((prev) => ({
+    ...prev,
+
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+
+      imagenes: (
+        prev.estadoEquipo?.imagenes || []
+      ).filter((i) => i.id !== imgId),
+    },
+  }));
+
+/* ── AGREGAR PUNTO ── */
+const handleEstadoClick = (e, imgId) => {
+
+  const r = e.currentTarget.getBoundingClientRect();
+
+  const x = Number(
+    ((e.clientX - r.left) / r.width).toFixed(4)
+  );
+
+  const y = Number(
+    ((e.clientY - r.top) / r.height).toFixed(4)
+  );
+
+  setData((prev) => ({
+    ...prev,
+
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+
+      imagenes: (
+        prev.estadoEquipo?.imagenes || []
+      ).map((img) =>
+        img.id === imgId
+          ? {
+              ...img,
+
+              puntos: [
+                ...(img.puntos || []),
+
+                {
+                  id: `p-${Date.now()}`,
+                  x,
+                  y,
+                  observacion: "",
+                },
+              ],
+            }
+          : img
+      ),
+    },
+  }));
+};
+
+/* ── ELIMINAR PUNTO ── */
+const removePoint = (imgId, ptId) =>
+  setData((prev) => ({
+    ...prev,
+
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+
+      imagenes: (
+        prev.estadoEquipo?.imagenes || []
+      ).map((img) =>
+        img.id === imgId
+          ? {
+              ...img,
+
+              puntos: (
+                img.puntos || []
+              ).filter((p) => p.id !== ptId),
+            }
+          : img
+      ),
+    },
+  }));
+
+/* ── ACTUALIZAR OBSERVACIÓN ── */
+const updatePointObs = (
+  imgId,
+  ptId,
+  value
+) =>
+  setData((prev) => ({
+    ...prev,
+
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+
+      imagenes: (
+        prev.estadoEquipo?.imagenes || []
+      ).map((img) =>
+        img.id === imgId
+          ? {
+              ...img,
+
+              puntos: (
+                img.puntos || []
+              ).map((p) =>
+                p.id === ptId
+                  ? {
+                      ...p,
+                      observacion: value,
+                    }
+                  : p
+              ),
+            }
+          : img
+      ),
+    },
+  }));
+  
+/* ── GUARDAR ── */
+const handleSubmit = async (e) => {
+
+  e.preventDefault();
+
+  if (uploading) {
+    alert(
+      "Espere que terminen de subir las imágenes"
+    );
+    return;
+  }
+
+  if (!data.cliente) {
+    alert("Cliente requerido");
+    return;
+  }
+
+  if (!data.tecnicoNombre) {
+    alert("Técnico requerido");
+    return;
+  }
+
+  if (!data.fechaServicio) {
+    alert("Fecha requerida");
+    return;
+  }
+
+  setGuardando(true);
+
+  try {
 
     const payload = {
-      ...formData,
+      ...data,
+
       firmas: {
-        tecnico: !isTecnicoEmpty ? firmaTecnicoRef.current.toDataURL() : formData.firmas.tecnico,
-        cliente: !isClienteEmpty ? firmaClienteRef.current.toDataURL() : formData.firmas.cliente,
+        ...data.firmas,
+
+        tecnico: sigTecnico.current?.isEmpty()
+          ? data.firmas?.tecnico || ""
+          : sigTecnico.current
+              ?.getTrimmedCanvas()
+              .toDataURL("image/png"),
+
+        cliente: sigCliente.current?.isEmpty()
+          ? data.firmas?.cliente || ""
+          : sigCliente.current
+              ?.getTrimmedCanvas()
+              .toDataURL("image/png"),
       },
     };
 
     const estadoFinal =
-      payload.firmas.tecnico && payload.firmas.cliente ? "completado" : "borrador";
+      payload.firmas.tecnico &&
+      payload.firmas.cliente
+        ? "completado"
+        : "borrador";
 
-    const { data: { user } } = await supabase.auth.getUser();
+    await saveOrUpdateReport({
+      id: isEditing ? id : null,
 
-    try {
-      await saveOrUpdateReport({
-        id: id && id !== "nuevo" ? id : null,
-        tipo: "inspeccion",
-        subtipo: "barredora",
-        data: payload,
-        estado: estadoFinal,
-        user_id: user?.id,
-      });
+      tipo: "inspeccion",
+      subtipo: "barredora",
 
-      setSuccessMsg("Guardado correctamente ✅");
-      setTimeout(() => navigate("/inspeccion"), 1200);
-    } catch (err) {
-      console.error("Error guardando:", err);
-      setSuccessMsg("Error al guardar ❌");
-    }
-  };
+      data: payload,
 
-  /* ─── RENDER ─── */
-  const inspeccionLista = formData.firmas?.tecnico && formData.firmas?.cliente;
+      estado: estadoFinal,
+
+      user_id: user?.id,
+    });
+
+    setSuccessMsg(
+      "Inspección guardada correctamente ✅"
+    );
+
+    setTimeout(() => {
+      navigate("/inspeccion");
+    }, 1200);
+
+  } catch (err) {
+
+    console.error(err);
+
+    setSuccessMsg(
+      "Error guardando inspección ❌"
+    );
+
+  } finally {
+
+    setGuardando(false);
+  }
+};
+
+
+  /* ─── RENDER ─── */}
+  const inspeccionLista =
+  data.firmas?.tecnico &&
+  data.firmas?.cliente;
 
   return (
     <>
@@ -549,8 +721,13 @@ export default function HojaInspeccionBarredora() {
                     <td colSpan={2} className="p-1">
                       <input
                         name={name}
-                        value={formData[name] || ""}
-                        onChange={handleChange}
+                 
+value={data[name] || ""}
+
+onChange={(e) =>
+  update([name], e.target.value)
+}
+
                         className="w-full border-0 outline-none p-1"
                       />
                     </td>
@@ -560,88 +737,289 @@ export default function HojaInspeccionBarredora() {
             </table>
           </section>
 
-          {/* ── DATOS CLIENTE Y TÉCNICO ── */}
-          <section className="border rounded p-4">
-            <h2 className="font-semibold text-sm mb-3 uppercase">Datos del cliente y técnico responsable</h2>
-            <table className="w-full text-sm border-collapse border">
-              <tbody>
-                <tr>
-                  <td className="border p-2 font-semibold bg-gray-50 w-40">CLIENTE</td>
-                  <td className="border p-1">
-                    <input name="cliente" value={formData.cliente} onChange={handleChange} className="w-full border-0 p-1 outline-none" />
-                  </td>
-                  <td className="border p-2 font-semibold bg-gray-50 w-40">DIRECCIÓN</td>
-                  <td className="border p-1">
-                    <input name="direccion" value={formData.direccion} onChange={handleChange} className="w-full border-0 p-1 outline-none" />
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border p-2 font-semibold bg-gray-50">CONTACTO</td>
-                  <td className="border p-1">
-                    <input name="contacto" value={formData.contacto} onChange={handleChange} className="w-full border-0 p-1 outline-none" />
-                  </td>
-                  <td className="border p-2 font-semibold bg-gray-50">TELÉFONO</td>
-                  <td className="border p-1">
-                    <input name="telefono" value={formData.telefono} onChange={handleChange} className="w-full border-0 p-1 outline-none" />
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border p-2 font-semibold bg-gray-50">CORREO</td>
-                  <td className="border p-1">
-                    <input name="correo" value={formData.correo} onChange={handleChange} className="w-full border-0 p-1 outline-none" />
-                  </td>
-                  <td className="border p-2 font-semibold bg-gray-50">TÉCNICO RESPONSABLE</td>
-                  <td className="border p-1">
-                   <select
-  className="w-full border-0 p-1 outline-none bg-white"
-  value={formData.tecnicoNombre}
-  disabled={loadingTechnicians}
-  onChange={(e) => {
-    const tech = (technicians || []).find(
-      (t) => t.name === e.target.value
-    );
+{/* ── DATOS CLIENTE Y TÉCNICO ── */}
+<section className="border rounded p-4">
 
-    setFormData((p) => ({
-      ...p,
-      tecnicoNombre: tech?.name || "",
-      tecnicoTelefono: tech?.phone || "",
-      tecnicoCorreo: tech?.email || "",
-    }));
-  }}
->
-  <option value="">
-    {loadingTechnicians
-      ? "Cargando técnicos..."
-      : "Seleccionar técnico"}
-  </option>
+  <h2 className="font-semibold text-sm mb-3 uppercase">
+    Datos del cliente y técnico responsable
+  </h2>
 
-  {(technicians || []).map((t, i) => (
-    <option key={t.email || i} value={t.name}>
-      {t.name}
-    </option>
-  ))}
-</select>    
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border p-2 font-semibold bg-gray-50">TELÉFONO TÉCNICO</td>
-                  <td className="border p-1">
-                    <input value={formData.tecnicoTelefono} readOnly className="w-full border-0 p-1 outline-none bg-gray-100" />
-                  </td>
-                  <td className="border p-2 font-semibold bg-gray-50">CORREO TÉCNICO</td>
-                  <td className="border p-1">
-                    <input value={formData.tecnicoCorreo} readOnly className="w-full border-0 p-1 outline-none bg-gray-100" />
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border p-2 font-semibold bg-gray-50">FECHA DE SERVICIO</td>
-                  <td colSpan={3} className="border p-1">
-                    <input type="date" name="fechaServicio" value={formData.fechaServicio} onChange={handleChange} className="w-full border-0 p-1 outline-none" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
+  <table className="w-full text-sm border-collapse border">
+
+    <tbody>
+
+      <tr>
+        <td className="border p-2 font-semibold bg-gray-50 w-40">
+          CLIENTE
+        </td>
+
+        <td className="border p-1">
+          <input
+            value={data.cliente || ""}
+            onChange={(e) =>
+              update(["cliente"], e.target.value)
+            }
+            className="w-full border-0 p-1 outline-none"
+          />
+        </td>
+
+        <td className="border p-2 font-semibold bg-gray-50 w-40">
+          DIRECCIÓN
+        </td>
+
+        <td className="border p-1">
+          <input
+            value={data.direccion || ""}
+            onChange={(e) =>
+              update(["direccion"], e.target.value)
+            }
+            className="w-full border-0 p-1 outline-none"
+          />
+        </td>
+      </tr>
+
+      <tr>
+
+        <td className="border p-2 font-semibold bg-gray-50">
+          CONTACTO
+        </td>
+
+        <td className="border p-1">
+          <input
+            value={data.contacto || ""}
+            onChange={(e) =>
+              update(["contacto"], e.target.value)
+            }
+            className="w-full border-0 p-1 outline-none"
+          />
+        </td>
+
+        <td className="border p-2 font-semibold bg-gray-50">
+          TELÉFONO
+        </td>
+
+        <td className="border p-1">
+          <input
+            value={data.telefono || ""}
+            onChange={(e) =>
+              update(["telefono"], e.target.value)
+            }
+            className="w-full border-0 p-1 outline-none"
+          />
+        </td>
+
+      </tr>
+
+      <tr>
+
+        <td className="border p-2 font-semibold bg-gray-50">
+          CORREO
+        </td>
+
+        <td className="border p-1">
+          <input
+            value={data.correo || ""}
+            onChange={(e) =>
+              update(["correo"], e.target.value)
+            }
+            className="w-full border-0 p-1 outline-none"
+          />
+        </td>
+
+        <td className="border p-2 font-semibold bg-gray-50">
+          TÉCNICO RESPONSABLE
+        </td>
+
+        <td className="border p-1">
+
+          <select
+            className="w-full border-0 p-1 outline-none bg-white"
+            value={data.tecnicoNombre || ""}
+            disabled={loadingTechnicians}
+
+            onChange={(e) => {
+
+              const tech = (
+                technicians || []
+              ).find(
+                (t) => t.name === e.target.value
+              );
+
+              setData((prev) => ({
+                ...prev,
+
+                tecnicoNombre:
+                  tech?.name || "",
+
+                tecnicoTelefono:
+                  tech?.phone || "",
+
+                tecnicoCorreo:
+                  tech?.email || "",
+              }));
+            }}
+          >
+
+            <option value="">
+              {loadingTechnicians
+                ? "Cargando técnicos..."
+                : "Seleccionar técnico"}
+            </option>
+
+            {(technicians || []).map((t, i) => (
+
+              <option
+                key={t.email || i}
+                value={t.name}
+              >
+                {t.name}
+              </option>
+
+            ))}
+
+          </select>
+
+        </td>
+
+      </tr>
+
+      <tr>
+
+        <td className="border p-2 font-semibold bg-gray-50">
+          TELÉFONO TÉCNICO
+        </td>
+
+        <td className="border p-1">
+          <input
+            value={data.tecnicoTelefono || ""}
+            readOnly
+            className="w-full border-0 p-1 outline-none bg-gray-100"
+          />
+        </td>
+
+        <td className="border p-2 font-semibold bg-gray-50">
+          CORREO TÉCNICO
+        </td>
+
+        <td className="border p-1">
+          <input
+            value={data.tecnicoCorreo || ""}
+            readOnly
+            className="w-full border-0 p-1 outline-none bg-gray-100"
+          />
+        </td>
+
+      </tr>
+
+      <tr>
+
+        <td className="border p-2 font-semibold bg-gray-50">
+          FECHA DE SERVICIO
+        </td>
+
+        <td
+          colSpan={3}
+          className="border p-1"
+        >
+
+          <input
+            type="date"
+            value={data.fechaServicio || ""}
+            onChange={(e) =>
+              update(
+                ["fechaServicio"],
+                e.target.value
+              )
+            }
+            className="w-full border-0 p-1 outline-none"
+          />
+
+        </td>
+
+      </tr>
+
+    </tbody>
+
+  </table>
+
+</section>
+           {/* ── DESCRIPCIÓN DEL EQUIPO ── */}
+<section className="border rounded p-4 no-break">
+
+  <h2 className="font-semibold text-center mb-3 uppercase">
+    Descripción del equipo
+  </h2>
+
+  <table className="w-full text-sm border-collapse border">
+
+    <tbody>
+
+      {[
+        ["NOTA",         "nota",        "MARCA",        "marca"],
+        ["MODELO",       "modelo",      "N° SERIE",     "serie"],
+        ["AÑO MODELO",   "anio",        "VIN / CHASIS", "vin"],
+        ["PLACA",        "placa",       "HORAS MÓDULO", "horasModulo"],
+        ["HORAS CHASIS", "horasChasis", "KILOMETRAJE",  "kilometraje"],
+        ["HORÓMETRO",    "horometro",   null,           null],
+      ].map(([l1, f1, l2, f2], i) => (
+
+        <tr key={i}>
+
+          <td className="border p-2 font-semibold bg-gray-50 w-36">
+            {l1}
+          </td>
+
+          <td className="border p-1">
+
+            <input
+              value={data.equipo?.[f1] || ""}
+              onChange={(e) =>
+                update(
+                  ["equipo", f1],
+                  e.target.value
+                )
+              }
+              className="w-full border-0 p-1 outline-none"
+            />
+
+          </td>
+
+          {l2 ? (
+            <>
+
+              <td className="border p-2 font-semibold bg-gray-50 w-36">
+                {l2}
+              </td>
+
+              <td className="border p-1">
+
+                <input
+                  value={data.equipo?.[f2] || ""}
+                  onChange={(e) =>
+                    update(
+                      ["equipo", f2],
+                      e.target.value
+                    )
+                  }
+                  className="w-full border-0 p-1 outline-none"
+                />
+
+              </td>
+
+            </>
+          ) : (
+            <td colSpan={2} className="border" />
+          )}
+
+        </tr>
+
+      ))}
+
+    </tbody>
+
+  </table>
+
+</section>
 
                    {/* ── ESTADO DEL EQUIPO ── */}
           <section className="border rounded p-4 space-y-4">
@@ -653,12 +1031,12 @@ export default function HojaInspeccionBarredora() {
 
               <label
                 className={`text-xs px-3 py-2 rounded cursor-pointer ${
-                  uploadingImg
+                  uploading
                     ? "bg-gray-300 text-gray-600"
                     : "bg-green-600 text-white"
                 }`}
               >
-                {uploadingImg
+                {uploading
                   ? "Subiendo imágenes..."
                   : "📷 Agregar imágenes"}
 
@@ -668,35 +1046,39 @@ export default function HojaInspeccionBarredora() {
                   capture="environment"
                   multiple
                   className="hidden"
-                  onChange={handleImageEquipo}
-                  disabled={uploadingImg}
+                   
+                  onChange={(e) => {
+  handleEstadoUpload(e.target.files);
+  e.target.value = null;
+}}
+                  disabled={uploading}
                 />
               </label>
             </div>
 
-       {/* IMAGEN BASE DEL EQUIPO */}
-{!(formData.estadoEquipo?.imagenes || []).length && (
+/* IMAGEN BASE */
+{!(data.estadoEquipo?.imagenes || []).length && (
 
   <div className="border rounded bg-white p-3">
 
     <div className="border rounded bg-gray-50 p-3">
 
-  <p className="text-xs text-gray-500 mb-2">
-    Vista general del equipo
-  </p>
+      <p className="text-xs text-gray-500 mb-2">
+        Vista general del equipo
+      </p>
 
-  <div className="flex justify-center">
+      <div className="flex justify-center">
 
-    <img
-      src={EQUIPO_IMG_PATH}
-      alt="Estado base barredora"
-      className="w-full max-w-[620px] object-contain"
-      draggable={false}
-    />
+        <img
+          src={EQUIPO_IMG_PATH}
+          alt="Estado base barredora"
+          className="w-full max-w-[620px] object-contain"
+          draggable={false}
+        />
 
-  </div>
+      </div>
 
-</div>
+    </div>
 
     <p className="text-xs text-gray-500 mt-2 text-center">
       Utilice “Agregar imágenes” para registrar novedades del equipo.
@@ -705,124 +1087,124 @@ export default function HojaInspeccionBarredora() {
   </div>
 
 )}
-            {/* IMÁGENES */}
-            <div className="grid grid-cols-1 gap-4">
 
-              {(formData.estadoEquipo?.imagenes || []).map((img) => (
+{/* IMÁGENES */}
+<div className="grid grid-cols-1 gap-4">
 
-                <div
-                  key={img.id}
-                  className="border rounded p-3 bg-gray-50 space-y-3"
-                >
+  {(data.estadoEquipo?.imagenes || []).map((img) => (
 
-                                   {/* IMAGEN */}
-                  <div
-                    className="relative border rounded overflow-hidden bg-white flex items-center justify-center cursor-crosshair"
-                    onClick={(e) => handleImageClick(e, img.id)}
-                  >
+    <div
+      key={img.id}
+      className="border rounded p-3 bg-gray-50 space-y-3"
+    >
 
-                    <img
-                      src={img.url}
-                      alt="Estado equipo"
-                      className="w-auto max-w-full max-h-[180px] object-contain mx-auto"
-                      draggable={false}
-                    />
+      {/* IMAGEN */}
+      <div
+        className="relative border rounded overflow-hidden bg-white flex items-center justify-center cursor-crosshair"
+        onClick={(e) => handleEstadoClick(e, img.id)}
+      >
 
-                    {/* PUNTOS */}
-                    {(img.puntos || []).map((pt) => (
-                      <div
-                        key={pt.id}
-                        onDoubleClick={(e) => {
-                          e.stopPropagation();
-                          handleRemovePoint(img.id, pt.id);
-                        }}
-                        className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full shadow cursor-pointer select-none"
-                        style={{
-                          left: `${pt.x}%`,
-                          top: `${pt.y}%`,
-                          transform: "translate(-50%, -50%)",
-                        }}
-                        title="Doble clic para eliminar"
-                      >
-                        {pt.id}
-                      </div>
-                    ))}
-                  </div>
+        <img
+          src={img.url}
+          alt="Estado equipo"
+          className="w-auto max-w-full max-h-[180px] object-contain mx-auto"
+          draggable={false}
+        />
 
-                  {/* OBSERVACIONES */}
-                  {(img.puntos || []).length > 0 && (
-                    <div className="space-y-2">
+        {/* PUNTOS */}
+        {(img.puntos || []).map((pt, index) => (
 
-                      {(img.puntos || []).map((pt) => (
+          <div
+            key={pt.id}
+            onDoubleClick={(e) => {
+              e.stopPropagation();
+              removePoint(img.id, pt.id);
+            }}
+            className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full shadow cursor-pointer select-none"
+            style={{
+              left: `${pt.x * 100}%`,
+              top: `${pt.y * 100}%`,
+              transform: "translate(-50%, -50%)",
+            }}
+            title="Doble clic para eliminar"
+          >
+            {index + 1}
+          </div>
 
-                        <div
-                          key={pt.id}
-                          className="flex gap-2 items-start"
-                        >
+        ))}
+      </div>
 
-                          <div className="bg-red-600 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1">
-                            {pt.id}
-                          </div>
+      {/* OBSERVACIONES */}
+      {(img.puntos || []).length > 0 && (
 
-                          <textarea
-                            value={pt.nota || ""}
-                            ref={(el) => {
-  if (el) {
-    el.style.height = "auto";
-    el.style.height =
-      el.scrollHeight + "px";
-  }
-}} 
-                            onChange={(e) => {
+        <div className="space-y-2">
 
-  handleNotaChange(
-    img.id,
-    pt.id,
-    e.target.value
-  );
+          {(img.puntos || []).map((pt, index) => (
 
-  e.target.style.height = "auto";
+            <div
+              key={pt.id}
+              className="flex gap-2 items-start"
+            >
 
-  e.target.style.height =
-    e.target.scrollHeight + "px";
-}}
-                            placeholder={`Observación punto ${pt.id}`}
-                            className="w-full border rounded p-2 text-xs resize-none overflow-hidden min-h-[60px]"
-                          />
-                        </div>
+              <div className="bg-red-600 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1">
+                {index + 1}
+              </div>
 
-                      ))}
+              <textarea
+                value={pt.observacion || ""}
+                ref={(el) => {
+                  if (el) {
+                    el.style.height = "auto";
+                    el.style.height =
+                      el.scrollHeight + "px";
+                  }
+                }}
+                onChange={(e) => {
 
-                    </div>
-                  )}
+                  updatePointObs(
+                    img.id,
+                    pt.id,
+                    e.target.value
+                  );
 
-                  {/* BOTONES */}
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          estadoEquipo: {
-                            imagenes: prev.estadoEquipo.imagenes.filter(
-                              (i) => i.id !== img.id
-                            ),
-                          },
-                        }));
-                      }}
-                      className="text-xs text-red-600 hover:underline"
-                    >
-                      Eliminar imagen
-                    </button>
-                  </div>
+                  e.target.style.height = "auto";
 
-                </div>
-
-              ))}
-
+                  e.target.style.height =
+                    e.target.scrollHeight + "px";
+                }}
+                placeholder={`Observación punto ${index + 1}`}
+                className="w-full border rounded p-2 text-xs resize-none overflow-hidden min-h-[60px]"
+              />
             </div>
 
-          </section>
+          ))}
+
+        </div>
+
+      )}
+
+      {/* BOTÓN */}
+      <div className="flex justify-end">
+
+        <button
+          type="button"
+          onClick={() => removeEstadoImg(img.id)}
+          className="text-xs text-red-600 hover:underline"
+        >
+          Eliminar imagen
+        </button>
+
+      </div>
+
+    </div>
+
+  ))}
+
+</div>
+
+</section>
+
+
           {/* ── PRUEBAS PREVIAS ── */}
           <section className="border rounded p-4 no-break">
             <h2 className="font-semibold mb-3">
@@ -830,8 +1212,8 @@ export default function HojaInspeccionBarredora() {
             </h2>
             <TablaItems
               lista={pruebasPrevias}
-              items={formData.items}
-              onItemChange={handleItemChange}
+              items={data.items}
+              onItemChange={handleItem}
             />
           </section>
 
@@ -845,163 +1227,389 @@ export default function HojaInspeccionBarredora() {
               <h2 className="font-semibold mb-3">{sec.titulo}</h2>
               <TablaItems
                 lista={sec.items}
-                items={formData.items}
-                onItemChange={handleItemChange}
+                items={data.items}
+                onItemChange={handleItem}
               />
             </section>
           ))}
 
-          {/* ── DESCRIPCIÓN DEL EQUIPO ── */}
-          <section className="border rounded p-4 no-break">
-            <h2 className="font-semibold text-center mb-3 uppercase">Descripción del equipo</h2>
-            <table className="w-full text-sm border-collapse border">
-              <tbody>
-                {[
-                  ["NOTA",         "nota",        "MARCA",        "marca"],
-                  ["MODELO",       "modelo",      "N° SERIE",     "serie"],
-                  ["AÑO MODELO",   "anio",        "VIN / CHASIS", "vin"],
-                  ["PLACA",        "placa",       "HORAS MÓDULO", "horasModulo"],
-                  ["HORAS CHASIS", "horasChasis", "KILOMETRAJE",  "kilometraje"],
-                  ["HORÓMETRO",    "horometro",   null,           null],
-                ].map(([l1, f1, l2, f2], i) => (
-                  <tr key={i}>
-                    <td className="border p-2 font-semibold bg-gray-50 w-36">{l1}</td>
-                    <td className="border p-1">
-                      <input
-                        value={formData.equipo[f1] || ""}
-                        onChange={(e) => setFormData((p) => ({ ...p, equipo: { ...p.equipo, [f1]: e.target.value } }))}
-                        className="w-full border-0 p-1 outline-none"
-                      />
-                    </td>
-                    {l2 ? (
-                      <>
-                        <td className="border p-2 font-semibold bg-gray-50 w-36">{l2}</td>
-                        <td className="border p-1">
-                          <input
-                            value={formData.equipo[f2] || ""}
-                            onChange={(e) => setFormData((p) => ({ ...p, equipo: { ...p.equipo, [f2]: e.target.value } }))}
-                            className="w-full border-0 p-1 outline-none"
-                          />
-                        </td>
-                      </>
-                    ) : (
-                      <td colSpan={2} className="border" />
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
+           {/* ── CONCLUSIONES ── */}
+<section className="border rounded p-4 no-break space-y-3">
 
-          {/* ── NOTA FINAL ── */}
-          <section className="border rounded p-4 no-break">
-            <h2 className="font-semibold mb-2 uppercase">Nota / Observación final del técnico</h2>
-            <textarea
-              name="notaFinal"
-              value={formData.notaFinal || ""}
-              onChange={(e) => {
-                handleChange(e);
-                e.target.style.height = "auto";
-                e.target.style.height = e.target.scrollHeight + "px";
-              }}
-              placeholder="Escriba aquí cualquier observación general, novedad adicional o comentario de cierre..."
-              className="w-full border rounded p-2 text-sm outline-none overflow-hidden resize-none min-h-[80px]"
-            />
-          </section>
+  <div className="flex justify-between items-center">
 
-          {/* ── FIRMAS ── */}
-          <table className="pdf-table w-full no-break">
-            <thead>
-              <tr>
-                <th className="border p-2 text-center">FIRMA TÉCNICO ASTAP</th>
-                <th className="border p-2 text-center">FIRMA CLIENTE</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                {/* Técnico */}
-                <td className="border p-2 align-top" style={{ height: 110 }}>
-                  <SignatureCanvas
-                    ref={firmaTecnicoRef}
-                    penColor="black"
-                    minWidth={0.5}
-                    maxWidth={1.5}
-                    onBegin={() => { document.activeElement?.blur(); document.body.style.overflow = "hidden"; }}
-                    onEnd={() => { document.body.style.overflow = ""; }}
-                    canvasProps={{
-  className: "w-full h-24 border rounded touch-none bg-white"
-}}
-                  />
-                  <div className="text-center mt-1">
-                    <button type="button" onClick={() => firmaTecnicoRef.current?.clear()} className="text-xs text-red-600 hover:underline">
-                      Borrar firma
-                    </button>
-                  </div>
-                  <input value={formData.tecnicoNombre || ""} readOnly className="w-full border mt-2 text-xs p-1 bg-gray-100 rounded" />
-                </td>
+    <h2 className="font-semibold uppercase">
+      Conclusiones
+    </h2>
 
-                {/* Cliente */}
-                <td className="border p-2 align-top" style={{ height: 110 }}>
-                  <SignatureCanvas
-                    ref={firmaClienteRef}
-                    penColor="black"
-                    minWidth={0.5}
-                    maxWidth={1.5}
-                    onBegin={() => { document.activeElement?.blur(); document.body.style.overflow = "hidden"; }}
-                    onEnd={() => { document.body.style.overflow = ""; }}
-                    canvasProps={{
-  className: "w-full h-24 border rounded touch-none bg-white"
-}}
-                  />
-                  <div className="text-center mt-1">
-                    <button type="button" onClick={() => firmaClienteRef.current?.clear()} className="text-xs text-red-600 hover:underline">
-                      Borrar firma
-                    </button>
-                  </div>
-                  <input value={formData.cliente || ""} readOnly className="w-full border mt-2 text-xs p-1 bg-gray-100 rounded" />
-                  <input
-                    placeholder="Cédula cliente"
-                    value={formData.cedulaCliente || ""}
-                    onChange={(e) => setFormData((p) => ({ ...p, cedulaCliente: e.target.value }))}
-                    className="w-full border mt-1 text-xs p-1 rounded"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
+    <button
+      type="button"
+      onClick={() =>
+        update(
+          ["conclusiones"],
+          [...(data.conclusiones || []), ""]
+        )
+      }
+      className="text-xs bg-blue-600 text-white px-2 py-1 rounded"
+    >
+      + Agregar
+    </button>
 
-        </div>{/* fin pdf-container */}
+  </div>
 
-        {/* ── ACCIONES ── */}
-        <div className="flex justify-between gap-4 pt-2">
+  {(data.conclusiones || []).map((c, i) => (
+
+    <div
+      key={i}
+      className="flex gap-2"
+    >
+
+      <textarea
+        value={c}
+
+        onChange={(e) => {
+
+          const arr = [
+            ...(data.conclusiones || [])
+          ];
+
+          arr[i] = e.target.value;
+
+          update(["conclusiones"], arr);
+
+          e.target.style.height = "auto";
+
+          e.target.style.height =
+            e.target.scrollHeight + "px";
+        }}
+
+        className="w-full border rounded p-2 text-sm resize-none overflow-hidden min-h-[60px]"
+
+        placeholder={`Conclusión ${i + 1}`}
+      />
+
+      {(data.conclusiones || []).length > 1 && (
+
+        <button
+          type="button"
+          onClick={() => {
+
+            const arr = (
+              data.conclusiones || []
+            ).filter((_, idx) => idx !== i);
+
+            update(["conclusiones"], arr);
+          }}
+
+          className="text-red-600 text-xs"
+        >
+          ✕
+        </button>
+
+      )}
+
+    </div>
+
+  ))}
+
+</section>
+
+           {/* ── RECOMENDACIONES ── */}
+<section className="border rounded p-4 no-break space-y-3">
+
+  <div className="flex justify-between items-center">
+
+    <h2 className="font-semibold uppercase">
+      Recomendaciones
+    </h2>
+
+    <button
+      type="button"
+      onClick={() =>
+        update(
+          ["recomendaciones"],
+          [...(data.recomendaciones || []), ""]
+        )
+      }
+      className="text-xs bg-blue-600 text-white px-2 py-1 rounded"
+    >
+      + Agregar
+    </button>
+
+  </div>
+
+  {(data.recomendaciones || []).map((r, i) => (
+
+    <div
+      key={i}
+      className="flex gap-2"
+    >
+
+      <textarea
+        value={r}
+
+        onChange={(e) => {
+
+          const arr = [
+            ...(data.recomendaciones || [])
+          ];
+
+          arr[i] = e.target.value;
+
+          update(["recomendaciones"], arr);
+
+          e.target.style.height = "auto";
+
+          e.target.style.height =
+            e.target.scrollHeight + "px";
+        }}
+
+        className="w-full border rounded p-2 text-sm resize-none overflow-hidden min-h-[60px]"
+
+        placeholder={`Recomendación ${i + 1}`}
+      />
+
+      {(data.recomendaciones || []).length > 1 && (
+
+        <button
+          type="button"
+          onClick={() => {
+
+            const arr = (
+              data.recomendaciones || []
+            ).filter((_, idx) => idx !== i);
+
+            update(["recomendaciones"], arr);
+          }}
+
+          className="text-red-600 text-xs"
+        >
+          ✕
+        </button>
+
+      )}
+
+    </div>
+
+  ))}
+
+</section>
+
+           {/* ── NOTA FINAL ── */}
+<section className="border rounded p-4 no-break">
+
+  <h2 className="font-semibold mb-2 uppercase">
+    Nota / Observación final del técnico
+  </h2>
+
+  <textarea
+    value={data.notaFinal || ""}
+
+    onChange={(e) => {
+
+      update(
+        ["notaFinal"],
+        e.target.value
+      );
+
+      e.target.style.height = "auto";
+
+      e.target.style.height =
+        e.target.scrollHeight + "px";
+    }}
+
+    placeholder="Escriba aquí cualquier observación general, novedad adicional o comentario de cierre..."
+
+    className="w-full border rounded p-2 text-sm outline-none overflow-hidden resize-none min-h-[80px]"
+  />
+
+</section>
+
+           {/* ── FIRMAS ── */}
+<table className="pdf-table w-full no-break">
+
+  <thead>
+
+    <tr>
+
+      <th className="border p-2 text-center">
+        FIRMA TÉCNICO ASTAP
+      </th>
+
+      <th className="border p-2 text-center">
+        FIRMA CLIENTE
+      </th>
+
+    </tr>
+
+  </thead>
+
+  <tbody>
+
+    <tr>
+
+      {/* TÉCNICO */}
+      <td
+        className="border p-2 align-top"
+        style={{ height: 110 }}
+      >
+
+        <SignatureCanvas
+          ref={sigTecnico}
+          penColor="black"
+          minWidth={0.5}
+          maxWidth={1.5}
+
+          onBegin={() => {
+            document.activeElement?.blur();
+            document.body.style.overflow = "hidden";
+          }}
+
+          onEnd={() => {
+            document.body.style.overflow = "";
+          }}
+
+          canvasProps={{
+            className:
+              "w-full h-24 border rounded touch-none bg-white",
+          }}
+        />
+
+        <div className="text-center mt-1">
+
           <button
             type="button"
-            onClick={() => navigate("/inspeccion")}
-            className="border px-4 py-2 rounded hover:bg-gray-50 transition"
+            onClick={() =>
+              sigTecnico.current?.clear()
+            }
+            className="text-xs text-red-600 hover:underline"
           >
-            Volver
+            Borrar firma
           </button>
-          <button
-  type="submit"
-  disabled={uploadingImg}
-  className={`px-4 py-2 rounded text-white transition ${
-    uploadingImg
-      ? "bg-gray-400 cursor-not-allowed"
-      : "bg-green-600 hover:bg-green-700"
-  }`}
->
-  {uploadingImg
-    ? "Subiendo imágenes..."
-    : inspeccionLista
-      ? "Guardar y completar"
-      : "Guardar borrador"}
-</button>
+
         </div>
-      </form>
-       <PdfInspeccionButtons
-  targetId="pdf-inspeccion-barredora"
-  fileName="INSPECCION_BARREDORA"
-/>
-    </>
-  );
+
+        <input
+          value={data.tecnicoNombre || ""}
+          readOnly
+          className="w-full border mt-2 text-xs p-1 bg-gray-100 rounded"
+        />
+
+      </td>
+
+      {/* CLIENTE */}
+      <td
+        className="border p-2 align-top"
+        style={{ height: 110 }}
+      >
+
+        <SignatureCanvas
+          ref={sigCliente}
+          penColor="black"
+          minWidth={0.5}
+          maxWidth={1.5}
+
+          onBegin={() => {
+            document.activeElement?.blur();
+            document.body.style.overflow = "hidden";
+          }}
+
+          onEnd={() => {
+            document.body.style.overflow = "";
+          }}
+
+          canvasProps={{
+            className:
+              "w-full h-24 border rounded touch-none bg-white",
+          }}
+        />
+
+        <div className="text-center mt-1">
+
+          <button
+            type="button"
+            onClick={() =>
+              sigCliente.current?.clear()
+            }
+            className="text-xs text-red-600 hover:underline"
+          >
+            Borrar firma
+          </button>
+
+        </div>
+
+        <input
+          value={data.cliente || ""}
+          readOnly
+          className="w-full border mt-2 text-xs p-1 bg-gray-100 rounded"
+        />
+
+        <input
+          placeholder="Cédula cliente"
+
+          value={
+            data.firmas?.clienteCedula || ""
+          }
+
+          onChange={(e) =>
+            update(
+              ["firmas", "clienteCedula"],
+              e.target.value
+            )
+          }
+
+          className="w-full border mt-1 text-xs p-1 rounded"
+        />
+
+      </td>
+
+    </tr>
+
+  </tbody>
+
+</table>
+
+           
+</div>{/* fin pdf-container */}
+
+         {/* ── ACCIONES ── */}
+<div className="flex justify-between gap-4 pt-2">
+
+  <button
+    type="button"
+    onClick={() => navigate("/inspeccion")}
+    className="border px-4 py-2 rounded hover:bg-gray-50 transition"
+  >
+    Volver
+  </button>
+
+  <button
+    type="submit"
+
+    disabled={uploading || guardando}
+
+    className={`px-4 py-2 rounded text-white transition ${
+      uploading || guardando
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-green-600 hover:bg-green-700"
+    }`}
+  >
+
+    {uploading
+      ? "Subiendo imágenes..."
+      : guardando
+        ? "Guardando..."
+        : inspeccionLista
+          ? "Guardar y completar"
+          : "Guardar borrador"}
+
+  </button>
+
+</div>
+
+</form>
+
+</>
+
+);
 }
