@@ -182,7 +182,7 @@ export default function HojaInspeccionBarredora() {
     tecnicoTelefono: "",
     tecnicoCorreo: "",
 
-    estadoEquipo: {
+  estadoEquipo: {
   imagenes: [],
 },
 
@@ -697,7 +697,7 @@ export default function HojaInspeccionBarredora() {
                     <img
                       src={img.url}
                       alt="Estado equipo"
-                      className="w-auto max-w-full max-h-[220px] object-contain mx-auto"
+                      className="w-auto max-w-full max-h-[180px] object-contain mx-auto"
                       draggable={false}
                     />
 
@@ -797,7 +797,7 @@ export default function HojaInspeccionBarredora() {
 
           </section>
           {/* ── PRUEBAS PREVIAS ── */}
-          <section className="border rounded p-4">
+          <section className="border rounded p-4 no-break">
             <h2 className="font-semibold mb-3">
               1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
             </h2>
@@ -814,7 +814,7 @@ export default function HojaInspeccionBarredora() {
           </h2>
 
           {secciones.map((sec) => (
-            <section key={sec.id} className="border rounded p-4">
+            <section key={sec.id} className="border rou<section key={sec.id} className="border rounded p-4 no-break">nded p-4">
               <h2 className="font-semibold mb-3">{sec.titulo}</h2>
               <TablaItems
                 lista={sec.items}
@@ -825,7 +825,7 @@ export default function HojaInspeccionBarredora() {
           ))}
 
           {/* ── DESCRIPCIÓN DEL EQUIPO ── */}
-          <section className="border rounded p-4">
+          <section className="border rounded p-4 no-break">
             <h2 className="font-semibold text-center mb-3 uppercase">Descripción del equipo</h2>
             <table className="w-full text-sm border-collapse border">
               <tbody>
@@ -867,7 +867,7 @@ export default function HojaInspeccionBarredora() {
           </section>
 
           {/* ── NOTA FINAL ── */}
-          <section className="border rounded p-4">
+          <section className="border rounded p-4 no-break">
             <h2 className="font-semibold mb-2 uppercase">Nota / Observación final del técnico</h2>
             <textarea
               name="notaFinal"
@@ -883,7 +883,7 @@ export default function HojaInspeccionBarredora() {
           </section>
 
           {/* ── FIRMAS ── */}
-          <table className="pdf-table w-full">
+          <table className="pdf-table w-full no-break">
             <thead>
               <tr>
                 <th className="border p-2 text-center">FIRMA TÉCNICO ASTAP</th>
@@ -893,7 +893,7 @@ export default function HojaInspeccionBarredora() {
             <tbody>
               <tr>
                 {/* Técnico */}
-                <td className="border p-2 align-top" style={{ height: 140 }}>
+                <td className="border p-2 align-top" style={{ height: 110 }}>
                   <SignatureCanvas
                     ref={firmaTecnicoRef}
                     penColor="black"
@@ -914,7 +914,7 @@ export default function HojaInspeccionBarredora() {
                 </td>
 
                 {/* Cliente */}
-                <td className="border p-2 align-top" style={{ height: 140 }}>
+                <td className="border p-2 align-top" style={{ height: 110 }}>
                   <SignatureCanvas
                     ref={firmaClienteRef}
                     penColor="black"
