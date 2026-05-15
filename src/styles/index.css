@@ -2,12 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-/* OPCIONAL (tu estilo base) */
+/* ══════════════════════════════
+   ESTILO BASE
+══════════════════════════════ */
+
 body {
   margin: 0;
   padding: 0;
   font-family: Inter, sans-serif;
+  background: #f3f4f6;
 }
+
+/* ══════════════════════════════
+   TABLAS PDF
+══════════════════════════════ */
+
+.pdf-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+
+.pdf-table td,
+.pdf-table th {
+  border: 1px solid #9ca3af;
+  padding: 5px 7px;
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+.pdf-label {
+  background: #f3f4f6;
+  font-weight: 600;
+  width: 180px;
+  white-space: nowrap;
+}
+
+.pdf-input,
+.pdf-textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 12px;
+  resize: none;
+}
+
+/* ══════════════════════════════
+   IMPRESIÓN / PDF
+══════════════════════════════ */
+
 @media print {
 
   @page {
@@ -22,6 +66,10 @@ body {
     background: white !important;
   }
 
+  body {
+    zoom: 0.96;
+  }
+
   .pdf-table {
     margin-bottom: 6px !important;
   }
@@ -33,6 +81,8 @@ body {
     line-height: 1.15 !important;
   }
 
+  .pdf-input,
+  .pdf-textarea,
   textarea,
   input {
     padding: 2px 4px !important;
