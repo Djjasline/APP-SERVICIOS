@@ -789,73 +789,8 @@ const handleSubmit = async (e) => {
               </tr>
             </tbody>
           </table>
+
            
-          {/* ══ 2. DATOS CLIENTE / TÉCNICO ══ */}
-          <h3 className="font-bold text-sm border-b pb-1">DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE</h3>
-          <table className="pdf-table w-full">
-            <tbody>
-              <tr>
-                <td className="pdf-label">CLIENTE</td>
-                <td><input className="pdf-input w-full" value={data.cliente} onChange={(e) => update(["cliente"], e.target.value)} /></td>
-                <td className="pdf-label">DIRECCIÓN</td>
-                <td><input className="pdf-input w-full" value={data.direccion} onChange={(e) => update(["direccion"], e.target.value)} /></td>
-              </tr>
-              <tr>
-                <td className="pdf-label">CONTACTO</td>
-                <td><input className="pdf-input w-full" value={data.contacto} onChange={(e) => update(["contacto"], e.target.value)} /></td>
-                <td className="pdf-label">TELÉFONO</td>
-                <td><input className="pdf-input w-full" value={data.telefono} onChange={(e) => update(["telefono"], e.target.value)} /></td>
-              </tr>
-              <tr>
-                <td className="pdf-label">CORREO</td>
-                <td><input className="pdf-input w-full" value={data.correo} onChange={(e) => update(["correo"], e.target.value)} /></td>
-                <td className="pdf-label">TÉCNICO RESPONSABLE</td>
-                <td>
-                 <select
-  className="pdf-input w-full"
-  value={data.tecnicoNombre || ""}
-  disabled={loadingTechnicians}
-  onChange={(e) => {
-    const t = (technicians || []).find((x) => {
-      const nombre = x.name || x.nombre || "";
-      return nombre === e.target.value;
-    });
-
-    update(["tecnicoNombre"], t?.name || t?.nombre || "");
-    update(["tecnicoTelefono"], t?.phone || t?.telefono || "");
-    update(["tecnicoCorreo"], t?.email || t?.correo || "");
-  }}
->
-  <option value="">
-    {loadingTechnicians ? "Cargando..." : "Seleccionar técnico"}
-  </option>
-
-  {(technicians || []).map((t, i) => {
-    const nombre = t.name || t.nombre || "";
-    const correo = t.email || t.correo || "";
-
-    return (
-      <option key={correo || i} value={nombre}>
-        {nombre}
-      </option>
-    );
-  })}
-</select>
-                </td>
-              </tr>
-              <tr>
-                <td className="pdf-label">TELÉFONO TÉCNICO</td>
-                <td><input className="pdf-input w-full bg-gray-100" value={data.tecnicoTelefono} readOnly /></td>
-                <td className="pdf-label">CORREO TÉCNICO</td>
-                <td><input className="pdf-input w-full bg-gray-100" value={data.tecnicoCorreo} readOnly /></td>
-              </tr>
-              <tr>
-                <td className="pdf-label">FECHA DE SERVICIO</td>
-                <td colSpan={3}><input type="date" className="pdf-input w-full" value={data.fechaServicio} onChange={(e) => update(["fechaServicio"], e.target.value)} /></td>
-              </tr>
-            </tbody>
-          </table>
-
           {/* ══ 3. DESCRIPCIÓN DEL EQUIPO ══ */}
           <h3 className="font-bold text-sm border-b pb-1">DESCRIPCIÓN DEL EQUIPO</h3>
           <table className="pdf-table w-full">
@@ -1146,7 +1081,7 @@ const handleSubmit = async (e) => {
                   Ver PDF
                 </button>
               )}
-              <button type="button" onClick={handleGuardar} disabled={guardando || uploading}
+              <button type="button" onClick={handleSubmit} disabled={guardando || uploading}
                 className={`px-6 py-2 rounded text-white transition ${
                   guardando || uploading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
                 }`}>
