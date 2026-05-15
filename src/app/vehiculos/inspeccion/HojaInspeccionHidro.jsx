@@ -668,7 +668,7 @@ const updateBasePointObs = (ptId, value) =>
     </div>
   ))}
 </div> 
-          <div className="border rounded bg-white p-3 space-y-4 break-inside-auto">
+          <div className="border rounded bg-white p-3 space-y-4 print:block">
             <div className="flex gap-2">
               <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-gray-700">
                 📁 Subir fotografías
@@ -687,12 +687,12 @@ const updateBasePointObs = (ptId, value) =>
                 Sin fotografías cargadas
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-3 print:block">
                 {(data.estadoEquipo?.imagenes || []).map((img, idx) => (
-                  <div   
-                     key={img.id}   
-                     className="border rounded p-2 bg-gray-50 space-y-2 break-inside-auto" 
-                     >
+                 <div
+  key={img.id}
+  className="border rounded p-2 bg-gray-50 space-y-2 mb-3 print:mb-2"
+>
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600">Imagen {idx + 1}</span>
                       <button type="button" onClick={() => removeEstadoImg(img.id)}
@@ -702,7 +702,7 @@ const updateBasePointObs = (ptId, value) =>
                     </div>
                     <div className="relative border rounded overflow-hidden bg-white flex items-center justify-center">
                       <img src={img.url} alt={`estado-${idx+1}`}
-                        className="w-auto max-w-full max-h-[380px] object-contain cursor-crosshair mx-auto"
+                        className="w-auto max-w-full max-h-[320px] object-contain cursor-crosshair mx-auto"
                         onClick={(e) => handleEstadoClick(e, img.id)} />
                       {(img.puntos||[]).map((p, pi) => (
                         <button
