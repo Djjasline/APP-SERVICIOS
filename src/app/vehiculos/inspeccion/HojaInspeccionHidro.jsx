@@ -627,7 +627,7 @@ const updateBasePointObs = (ptId, value) =>
     <img
       src={EQUIPO_IMG_PATH}
       alt="Vista general hidro"
-      className="w-full object-contain"
+      className="w-full max-h-[420px] object-contain"
     />
 
     {(data.estadoEquipo?.puntosBase || []).map((p, pi) => (
@@ -699,7 +699,7 @@ const updateBasePointObs = (ptId, value) =>
                     </div>
                     <div className="relative border rounded overflow-hidden bg-white">
                       <img src={img.url} alt={`estado-${idx+1}`}
-                        className="w-full aspect-[4/3] object-contain cursor-crosshair"
+                        className="w-full aspect-auto object-contain cursor-crosshair"
                         onClick={(e) => handleEstadoClick(e, img.id)} />
                       {(img.puntos||[]).map((p, pi) => (
                         <button
