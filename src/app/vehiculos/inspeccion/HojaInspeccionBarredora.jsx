@@ -881,7 +881,7 @@ setTimeout(() => {
     </div>
   ))}
 </div> 
-          <div className="border bg-white p-2 space-y-3 print:block">
+          <div className="border bg-white p-3 space-y-4 print:block">
             <div className="flex gap-2">
               <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-gray-700">
                 📁 Subir fotografías
@@ -904,7 +904,7 @@ setTimeout(() => {
                 {(data.estadoEquipo?.imagenes || []).map((img, idx) => (
                  <div
   key={img.id}
-  className="border p-2 bg-gray-50 space-y-2 mb-2 print:mb-2"
+  className="border rounded p-2 bg-gray-50 space-y-2 mb-3 print:mb-2"
 >
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-medium text-gray-600">Imagen {idx + 1}</span>
@@ -1080,8 +1080,8 @@ setTimeout(() => {
             </tr></thead>
             <tbody>
               <tr>
-                <td className="align-top" style={{ height:190 }}>
-                  <div className="border rounded bg-white h-[110px]">
+                <td className="align-top" style={{ height:240 }}>
+                  <div className="border rounded bg-white h-[150px]">
                     <SignatureCanvas ref={sigTecnico} penColor="black" minWidth={0.5} maxWidth={1.5}
                       onBegin={() => { document.body.style.overflow = "hidden"; }}
                       onEnd={() => { document.body.style.overflow = ""; }}
