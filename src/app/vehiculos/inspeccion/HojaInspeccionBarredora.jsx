@@ -89,6 +89,9 @@ const secciones = [
   },
 ];
 
+/* ── IMAGEN BASE BARREDORA ── */
+const EQUIPO_IMG_PATH = "/barredora-base.png";
+
 /* ── Lista plana para calcular progreso ── */
 const todosLosItems = [
   ...pruebasPrevias.map(([c]) => c),
@@ -679,7 +682,7 @@ export default function HojaInspeccionBarredora() {
     <div className="relative flex items-center justify-center">
 
       <img
-        src="/imgbarredora-base.png"
+       src={EQUIPO_IMG_PATH}
         alt="Estado base barredora"
         className="w-full max-h-[320px] object-contain mx-auto"
         draggable={false}
