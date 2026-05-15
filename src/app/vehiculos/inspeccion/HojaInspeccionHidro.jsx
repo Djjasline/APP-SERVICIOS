@@ -700,9 +700,9 @@ const updateBasePointObs = (ptId, value) =>
                         Eliminar foto
                       </button>
                     </div>
-                    <div className="relative border rounded overflow-hidden bg-white">
+                    <div className="relative border rounded overflow-hidden bg-white flex items-center justify-center">
                       <img src={img.url} alt={`estado-${idx+1}`}
-                        className="w-full aspect-auto object-contain cursor-crosshair"
+                        className="w-auto max-w-full max-h-[380px] object-contain cursor-crosshair mx-auto"
                         onClick={(e) => handleEstadoClick(e, img.id)} />
                       {(img.puntos||[]).map((p, pi) => (
                         <button
