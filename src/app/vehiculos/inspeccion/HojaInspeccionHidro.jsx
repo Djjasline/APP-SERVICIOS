@@ -275,7 +275,8 @@ const compressAndUpload = async (file, folder) => {
       }
     } finally { setUploadingCount((p) => p - arr.length); }
   };
-
+   
+/* ── ELIMINAR FOTO ── */
   const removeEstadoImg = (imgId) =>
     setData((prev) => ({
       ...prev,
@@ -284,7 +285,8 @@ const compressAndUpload = async (file, folder) => {
         imagenes: (prev.estadoEquipo?.imagenes || []).filter((i) => i.id !== imgId),
       },
     }));
-
+   
+/* ── AGREGAR PUNTO ── */
   const handleEstadoClick = (e, imgId) => {
     const r = e.currentTarget.getBoundingClientRect();
     const x = Number(((e.clientX - r.left) / r.width).toFixed(4));
@@ -302,6 +304,7 @@ const compressAndUpload = async (file, folder) => {
     }));
   };
 
+   /* ── ELIMINAR PUNTO ── */
   const removePoint = (imgId, ptId) =>
     setData((prev) => ({
       ...prev,
@@ -315,6 +318,7 @@ const compressAndUpload = async (file, folder) => {
       },
     }));
 
+   /* ── ACTUALIZAR OBSERVACIÓN ── */
 const updatePointObs = (imgId, ptId, value) =>
   setData((prev) => ({
     ...prev,
