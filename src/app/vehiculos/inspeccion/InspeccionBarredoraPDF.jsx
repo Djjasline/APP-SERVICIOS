@@ -168,7 +168,7 @@ export default function InspeccionBarredoraPDF() {
           1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
         </p>
         <ChecklistTable items={pruebasPrevias} data={d} />
-</div>
+
 
        {/* SECCIONES */}
         {secciones.map((sec, i) => (
