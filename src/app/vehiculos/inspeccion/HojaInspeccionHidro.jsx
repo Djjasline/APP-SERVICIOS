@@ -9,7 +9,7 @@ import SignatureCanvas from "react-signature-canvas";
 import { useAuth } from "@/context/AuthContext";
 
 /* ══════════════════════════════
-   CHECKLIST – HIDROSUCCIONADOR
+   PRUEBAS PREVIAS AL SERVICIO
 ══════════════════════════════ */
 const pruebasPrevias = [
   ["1.1", "Prueba de encendido general del equipo"],
@@ -17,6 +17,9 @@ const pruebasPrevias = [
   ["1.3", "Revisión de alarmas o mensajes de fallo"],
 ];
 
+/* =============================
+   SECCIONES – BARREDORA
+============================= */
 const secciones = [
   {
     id: "A", titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
