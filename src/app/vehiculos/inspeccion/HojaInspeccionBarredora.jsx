@@ -679,16 +679,24 @@ export default function HojaInspeccionBarredora() {
 
   <div className="border rounded bg-white p-3">
 
-    <div className="relative flex items-center justify-center">
+    <div className="border rounded bg-gray-50 p-3">
 
-      <img
-       src={EQUIPO_IMG_PATH}
-        alt="Estado base barredora"
-        className="w-full max-h-[320px] object-contain mx-auto"
-        draggable={false}
-      />
+  <p className="text-xs text-gray-500 mb-2">
+    Vista general del equipo
+  </p>
 
-    </div>
+  <div className="flex justify-center">
+
+    <img
+      src={EQUIPO_IMG_PATH}
+      alt="Estado base barredora"
+      className="w-full max-w-[620px] object-contain"
+      draggable={false}
+    />
+
+  </div>
+
+</div>
 
     <p className="text-xs text-gray-500 mt-2 text-center">
       Utilice “Agregar imágenes” para registrar novedades del equipo.
