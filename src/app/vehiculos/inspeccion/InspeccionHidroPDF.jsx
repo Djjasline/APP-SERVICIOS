@@ -229,7 +229,7 @@ export default function InspeccionHidroPDF() {
 
         {/* FIRMAS */}
         <div className="no-break">
-          <table style={{ ...S.tbl, marginTop: 12 }}>
+          <table style={{ ...S.tbl, marginTop: 10 }}>
             <thead>
               <tr>
                 <th style={S.th}>FIRMA TÉCNICO ASTAP</th>
@@ -243,44 +243,44 @@ export default function InspeccionHidroPDF() {
                 <td
                   style={{
                     ...S.cell,
-                    height: 100,
+                    height: 85,
                     textAlign: "center",
                     verticalAlign: "middle",
-                    padding: "8px",
+                    padding: "6px 8px",
                   }}
                 >
-                  {d.firmas?.tecnico ? (
-                    <img
-                      src={d.firmas.tecnico}
-                      alt="Firma técnico"
-                      style={{
-                        maxHeight: 55,
-                        width: "auto",
-                        maxWidth: 180,
-                        objectFit: "contain",
-                        margin: "0 auto",
-                        display: "block",
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        height: 55,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "#9ca3af",
-                        fontSize: 11,
-                      }}
-                    >
-                      Sin firma
-                    </div>
-                  )}
+                  <div
+                    style={{
+                      height: 45,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {d.firmas?.tecnico ? (
+                      <img
+                        src={d.firmas.tecnico}
+                        alt="Firma técnico"
+                        style={{
+                          maxHeight: 38,
+                          width: "auto",
+                          maxWidth: 160,
+                          objectFit: "contain",
+                          display: "block",
+                          filter: "contrast(1.05)",
+                        }}
+                      />
+                    ) : (
+                      <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                        Sin firma
+                      </span>
+                    )}
+                  </div>
 
                   <div
                     style={{
-                      marginTop: 8,
-                      fontSize: 11,
+                      marginTop: 6,
+                      fontSize: 10,
                       fontWeight: 700,
                       textTransform: "uppercase",
                     }}
@@ -293,44 +293,44 @@ export default function InspeccionHidroPDF() {
                 <td
                   style={{
                     ...S.cell,
-                    height: 100,
+                    height: 85,
                     textAlign: "center",
                     verticalAlign: "middle",
-                    padding: "8px",
+                    padding: "6px 8px",
                   }}
                 >
-                  {d.firmas?.cliente ? (
-                    <img
-                      src={d.firmas.cliente}
-                      alt="Firma cliente"
-                      style={{
-                        maxHeight: 55,
-                        width: "auto",
-                        maxWidth: 180,
-                        objectFit: "contain",
-                        margin: "0 auto",
-                        display: "block",
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        height: 55,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "#9ca3af",
-                        fontSize: 11,
-                      }}
-                    >
-                      Sin firma
-                    </div>
-                  )}
+                  <div
+                    style={{
+                      height: 45,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {d.firmas?.cliente ? (
+                      <img
+                        src={d.firmas.cliente}
+                        alt="Firma cliente"
+                        style={{
+                          maxHeight: 38,
+                          width: "auto",
+                          maxWidth: 160,
+                          objectFit: "contain",
+                          display: "block",
+                          filter: "contrast(1.05)",
+                        }}
+                      />
+                    ) : (
+                      <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                        Sin firma
+                      </span>
+                    )}
+                  </div>
 
                   <div
                     style={{
-                      marginTop: 8,
-                      fontSize: 11,
+                      marginTop: 6,
+                      fontSize: 10,
                       fontWeight: 700,
                       textTransform: "uppercase",
                     }}
@@ -340,8 +340,8 @@ export default function InspeccionHidroPDF() {
 
                   <div
                     style={{
-                      marginTop: 2,
-                      fontSize: 10,
+                      marginTop: 1,
+                      fontSize: 9,
                       color: "#4b5563",
                     }}
                   >
