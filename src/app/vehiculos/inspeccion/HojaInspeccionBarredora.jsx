@@ -668,7 +668,7 @@ const handleSubmit = async (e) => {
 };
 
 
-  /* ─── RENDER ─── */}
+  /* ─── RENDER ─── */
   const inspeccionLista =
   data.firmas?.tecnico &&
   data.firmas?.cliente;
@@ -1056,7 +1056,7 @@ onChange={(e) =>
               </label>
             </div>
 
-/* IMAGEN BASE */
+{/* IMAGEN BASE */}
 {!(data.estadoEquipo?.imagenes || []).length && (
 
   <div className="border rounded bg-white p-3">
