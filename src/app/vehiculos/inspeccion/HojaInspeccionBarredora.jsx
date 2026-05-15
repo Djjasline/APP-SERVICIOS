@@ -684,7 +684,7 @@ const handleSubmit = async (e) => {
 
       <form
         onSubmit={handleSubmit}
-        className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6 text-sm"
+        className="max-w-6xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-4 text-sm"
       >
         {/* ── BANNER ESTADO ── */}
         <div className={`p-2 rounded text-xs flex items-center justify-between gap-2 ${inspeccionLista ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
@@ -692,7 +692,7 @@ const handleSubmit = async (e) => {
           <span className="font-semibold">{progresoPct}% ítems marcados ({itemsMarcados}/{totalItems})</span>
         </div>
 
-        <div id="pdf-inspeccion-barredora" className="print-area space-y-6">
+        <div id="pdf-inspeccion-barredora" className="print-area space-y-4">
 
           {/* ── ENCABEZADO ── */}
           <section className="border rounded overflow-hidden">
@@ -1072,7 +1072,7 @@ onChange={(e) =>
         <img
           src={EQUIPO_IMG_PATH}
           alt="Estado base barredora"
-          className="w-full max-w-[620px] object-contain"
+          className="w-full max-w-[420px] object-contain"
           draggable={false}
         />
 
@@ -1451,7 +1451,7 @@ onChange={(e) =>
       {/* TÉCNICO */}
       <td
         className="border p-2 align-top"
-        style={{ height: 110 }}
+       style={{ height: 85 }}
       >
 
         <SignatureCanvas
@@ -1591,7 +1591,7 @@ onChange={(e) =>
     className={`px-4 py-2 rounded text-white transition ${
       uploading || guardando
         ? "bg-gray-400 cursor-not-allowed"
-        : "bg-green-600 hover:bg-green-700"
+        : "bg-blue-600 hover:bg-blue-700"
     }`}
   >
 
