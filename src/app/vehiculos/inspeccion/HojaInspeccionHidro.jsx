@@ -247,6 +247,7 @@ const compressAndUpload = async (file, folder) => {
     id || "temp-insp-hidro",
     folder
   );
+};
 
 
   /* ── ESTADO EQUIPO — MÚLTIPLES FOTOS ── */
