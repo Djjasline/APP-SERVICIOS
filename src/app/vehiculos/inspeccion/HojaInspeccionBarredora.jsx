@@ -169,10 +169,9 @@ const sigCliente = useRef(null);
 const [guardando, setGuardando]           = useState(false);
 const [uploadingCount, setUploadingCount] = useState(0);
 const [successMsg, setSuccessMsg]         = useState("");
+const [data, setData] = useState(emptyForm);
 
-const uploading = uploadingCount > 0;
-
-   /* ── PROGRESO ── */
+/* ── PROGRESO ── */
 const itemsMarcados = todosLosItems.filter(
   (c) => data.items?.[c]?.estado
 ).length;
@@ -182,7 +181,13 @@ const totalItems = todosLosItems.length;
 const progresoPct = Math.round(
   (itemsMarcados / totalItems) * 100
 );
-const inspeccionLista = !!(data.firmas?.tecnico && data.firmas?.cliente);
+
+const inspeccionLista = !!(
+  data.firmas?.tecnico &&
+  data.firmas?.cliente
+);   
+
+const uploading = uploadingCount > 0;
 
    /* ── UPDATE PATH-BASED ── */
 const update = (path, value) => {
@@ -743,7 +748,7 @@ const handleSubmit = async (e) => {
                  <select
   className="pdf-input w-full"
   value={data.tecnicoNombre || ""}
-  disabled={loadingTecnicos}
+  disabled={loadingTechnicians}
   onChange={(e) => {
     const t = (technicians || []).find((x) => {
       const nombre = x.name || x.nombre || "";
@@ -756,7 +761,7 @@ const handleSubmit = async (e) => {
   }}
 >
   <option value="">
-    {loadingTecnicos ? "Cargando..." : "Seleccionar técnico"}
+    {loadingTechnicians ? "Cargando..." : "Seleccionar técnico"}
   </option>
 
   {(technicians || []).map((t, i) => {
@@ -809,7 +814,7 @@ const handleSubmit = async (e) => {
                  <select
   className="pdf-input w-full"
   value={data.tecnicoNombre || ""}
-  disabled={loadingTecnicos}
+  disabled={loadingTechnicians}
   onChange={(e) => {
     const t = (technicians || []).find((x) => {
       const nombre = x.name || x.nombre || "";
@@ -822,7 +827,7 @@ const handleSubmit = async (e) => {
   }}
 >
   <option value="">
-    {loadingTecnicos ? "Cargando..." : "Seleccionar técnico"}
+    {loadingTechnicians ? "Cargando..." : "Seleccionar técnico"}
   </option>
 
   {(technicians || []).map((t, i) => {
