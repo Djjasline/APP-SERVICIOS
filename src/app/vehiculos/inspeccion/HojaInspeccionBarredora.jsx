@@ -946,7 +946,7 @@ onChange={(e) =>
            {/* ── DESCRIPCIÓN DEL EQUIPO ── */}
 <section className="border rounded p-4 no-break">
 
-  <h2 className="font-semibold text-center mb-3 uppercase">
+  <h2 className="font-semibold mb-3 uppercase">
     Descripción del equipo
   </h2>
 
@@ -1031,9 +1031,9 @@ onChange={(e) =>
   {/* IMAGEN BASE */}
   {!(data.estadoEquipo?.imagenes || []).length && (
 
-    <div className="border rounded bg-white p-3">
+    <div className="border bg-white p-2">
 
-      <div className="border rounded bg-gray-50 p-3">
+      <div className="border bg-gray-50 p-2">
 
         <p className="text-xs text-gray-500 mb-2">
           Vista general del equipo
@@ -1067,7 +1067,7 @@ onChange={(e) =>
 
       <div
         key={img.id}
-        className="border rounded p-2 bg-gray-50 space-y-2"
+        className="border p-2 bg-gray-50 space-y-2"
       >
 
         {/* IMAGEN */}
