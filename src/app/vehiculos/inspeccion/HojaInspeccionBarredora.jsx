@@ -1021,186 +1021,188 @@ onChange={(e) =>
 
 </section>
 
-                   {/* ── ESTADO DEL EQUIPO ── */}
-          <section className="border rounded p-4 space-y-4">
+{/* ── ESTADO DEL EQUIPO ── */}
+<section className="border rounded p-4 space-y-3">
 
-            <div className="flex justify-between items-center flex-wrap gap-2">
-              <p className="font-semibold">
-                Estado del equipo
-              </p>
+  <h2 className="font-semibold text-sm uppercase">
+    Estado del equipo
+  </h2>
 
-              <label
-                className={`text-xs px-3 py-2 rounded cursor-pointer ${
-                  uploading
-                    ? "bg-gray-300 text-gray-600"
-                    : "bg-green-600 text-white"
-                }`}
-              >
-                {uploading
-                  ? "Subiendo imágenes..."
-                  : "📷 Agregar imágenes"}
+  {/* IMAGEN BASE */}
+  {!(data.estadoEquipo?.imagenes || []).length && (
 
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  multiple
-                  className="hidden"
-                   
-                  onChange={(e) => {
-  handleEstadoUpload(e.target.files);
-  e.target.value = null;
-}}
-                  disabled={uploading}
-                />
-              </label>
-            </div>
+    <div className="border rounded bg-white p-3">
 
-{/* IMAGEN BASE */}
-{!(data.estadoEquipo?.imagenes || []).length && (
+      <div className="border rounded bg-gray-50 p-3">
 
-  <div className="border rounded bg-white p-3">
+        <p className="text-xs text-gray-500 mb-2">
+          Vista general del equipo
+        </p>
 
-    <div className="border rounded bg-gray-50 p-3">
+        <div className="flex justify-center">
 
-      <p className="text-xs text-gray-500 mb-2">
-        Vista general del equipo
-      </p>
+          <img
+            src={EQUIPO_IMG_PATH}
+            alt="Estado base barredora"
+            className="w-full max-w-[380px] object-contain"
+            draggable={false}
+          />
 
-      <div className="flex justify-center">
-
-        <img
-          src={EQUIPO_IMG_PATH}
-          alt="Estado base barredora"
-          className="w-full max-w-[420px] object-contain"
-          draggable={false}
-        />
+        </div>
 
       </div>
+
+      <p className="text-xs text-gray-500 mt-2 text-center">
+        Utilice “Agregar imágenes” para registrar novedades del equipo.
+      </p>
 
     </div>
 
-    <p className="text-xs text-gray-500 mt-2 text-center">
-      Utilice “Agregar imágenes” para registrar novedades del equipo.
-    </p>
+  )}
 
-  </div>
+  {/* IMÁGENES */}
+  <div className="grid grid-cols-1 gap-3">
 
-)}
+    {(data.estadoEquipo?.imagenes || []).map((img) => (
 
-{/* IMÁGENES */}
-<div className="grid grid-cols-1 gap-4">
-
-  {(data.estadoEquipo?.imagenes || []).map((img) => (
-
-    <div
-      key={img.id}
-      className="border rounded p-3 bg-gray-50 space-y-3"
-    >
-
-      {/* IMAGEN */}
       <div
-        className="relative border rounded overflow-hidden bg-white flex items-center justify-center cursor-crosshair"
-        onClick={(e) => handleEstadoClick(e, img.id)}
+        key={img.id}
+        className="border rounded p-2 bg-gray-50 space-y-2"
       >
 
-        <img
-          src={img.url}
-          alt="Estado equipo"
-          className="w-auto max-w-full max-h-[180px] object-contain mx-auto"
-          draggable={false}
-        />
+        {/* IMAGEN */}
+        <div
+          className="relative border rounded overflow-hidden bg-white flex items-center justify-center cursor-crosshair"
+          onClick={(e) => handleEstadoClick(e, img.id)}
+        >
 
-        {/* PUNTOS */}
-        {(img.puntos || []).map((pt, index) => (
+          <img
+            src={img.url}
+            alt="Estado equipo"
+            className="w-auto max-w-full max-h-[120px] object-contain mx-auto"
+            draggable={false}
+          />
 
-          <div
-            key={pt.id}
-            onDoubleClick={(e) => {
-              e.stopPropagation();
-              removePoint(img.id, pt.id);
-            }}
-            className="absolute bg-red-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full shadow cursor-pointer select-none"
-            style={{
-              left: `${pt.x * 100}%`,
-              top: `${pt.y * 100}%`,
-              transform: "translate(-50%, -50%)",
-            }}
-            title="Doble clic para eliminar"
-          >
-            {index + 1}
-          </div>
-
-        ))}
-      </div>
-
-      {/* OBSERVACIONES */}
-      {(img.puntos || []).length > 0 && (
-
-        <div className="space-y-2">
-
+          {/* PUNTOS */}
           {(img.puntos || []).map((pt, index) => (
 
             <div
               key={pt.id}
-              className="flex gap-2 items-start"
+              onDoubleClick={(e) => {
+                e.stopPropagation();
+                removePoint(img.id, pt.id);
+              }}
+              className="absolute bg-red-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full shadow cursor-pointer select-none"
+              style={{
+                left: `${pt.x * 100}%`,
+                top: `${pt.y * 100}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+              title="Doble clic para eliminar"
             >
-
-              <div className="bg-red-600 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1">
-                {index + 1}
-              </div>
-
-              <textarea
-                value={pt.observacion || ""}
-                ref={(el) => {
-                  if (el) {
-                    el.style.height = "auto";
-                    el.style.height =
-                      el.scrollHeight + "px";
-                  }
-                }}
-                onChange={(e) => {
-
-                  updatePointObs(
-                    img.id,
-                    pt.id,
-                    e.target.value
-                  );
-
-                  e.target.style.height = "auto";
-
-                  e.target.style.height =
-                    e.target.scrollHeight + "px";
-                }}
-                placeholder={`Observación punto ${index + 1}`}
-                className="w-full border rounded p-2 text-xs resize-none overflow-hidden min-h-[60px]"
-              />
+              {index + 1}
             </div>
 
           ))}
+        </div>
+
+        {/* OBSERVACIONES */}
+        {(img.puntos || []).length > 0 && (
+
+          <div className="space-y-1">
+
+            {(img.puntos || []).map((pt, index) => (
+
+              <div
+                key={pt.id}
+                className="flex gap-2 items-start"
+              >
+
+                <div className="bg-red-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-1">
+                  {index + 1}
+                </div>
+
+                <textarea
+                  value={pt.observacion || ""}
+                  ref={(el) => {
+                    if (el) {
+                      el.style.height = "auto";
+                      el.style.height =
+                        el.scrollHeight + "px";
+                    }
+                  }}
+                  onChange={(e) => {
+
+                    updatePointObs(
+                      img.id,
+                      pt.id,
+                      e.target.value
+                    );
+
+                    e.target.style.height = "auto";
+
+                    e.target.style.height =
+                      e.target.scrollHeight + "px";
+                  }}
+                  placeholder={`Observación punto ${index + 1}`}
+                  className="w-full border rounded p-1 text-xs resize-none overflow-hidden min-h-[50px]"
+                />
+              </div>
+
+            ))}
+
+          </div>
+
+        )}
+
+        {/* ELIMINAR */}
+        <div className="flex justify-end">
+
+          <button
+            type="button"
+            onClick={() => removeEstadoImg(img.id)}
+            className="text-[11px] text-red-600 hover:underline"
+          >
+            Eliminar imagen
+          </button>
 
         </div>
 
-      )}
-
-      {/* BOTÓN */}
-      <div className="flex justify-end">
-
-        <button
-          type="button"
-          onClick={() => removeEstadoImg(img.id)}
-          className="text-xs text-red-600 hover:underline"
-        >
-          Eliminar imagen
-        </button>
-
       </div>
 
-    </div>
+    ))}
 
-  ))}
+  </div>
 
-</div>
+  {/* BOTONES */}
+  <div className="flex gap-2 pt-1">
+
+    <label
+      className={`text-xs px-3 py-2 rounded cursor-pointer ${
+        uploading
+          ? "bg-gray-300 text-gray-600"
+          : "bg-yellow-500 text-black"
+      }`}
+    >
+      📁 Subir fotografías
+
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        multiple
+        className="hidden"
+
+        onChange={(e) => {
+          handleEstadoUpload(e.target.files);
+          e.target.value = null;
+        }}
+
+        disabled={uploading}
+      />
+    </label>
+
+  </div>
 
 </section>
 
@@ -1500,7 +1502,7 @@ onChange={(e) =>
       {/* CLIENTE */}
       <td
         className="border p-2 align-top"
-        style={{ height: 110 }}
+        style={{ height: 85 }}
       >
 
         <SignatureCanvas
