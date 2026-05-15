@@ -587,11 +587,11 @@ const handleSubmit = async (e) => {
 
         tecnico: sigTecnico.current?.isEmpty()
           ? data.firmas?.tecnico || ""
-          : sigTecnico.current?.toDataURL()
+          : sigTecnico.current?.toDataURL(),
 
         cliente: sigCliente.current?.isEmpty()
           ? data.firmas?.cliente || ""
-          : sigCliente.current?.toDataURL()
+          : sigCliente.current?.toDataURL(),
       },
     };
 
