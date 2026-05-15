@@ -679,7 +679,7 @@ export default function HojaInspeccionBarredora() {
     <div className="relative flex items-center justify-center">
 
       <img
-        src="/img/barredora-base.png"
+        src="/imgbarredora-base.png"
         alt="Estado base barredora"
         className="w-full max-h-[320px] object-contain mx-auto"
         draggable={false}
