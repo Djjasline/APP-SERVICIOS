@@ -587,15 +587,11 @@ const handleSubmit = async (e) => {
 
         tecnico: sigTecnico.current?.isEmpty()
           ? data.firmas?.tecnico || ""
-          : sigTecnico.current
-              ?.getTrimmedCanvas()
-              .toDataURL("image/png"),
+          : sigTecnico.current?.toDataURL()
 
         cliente: sigCliente.current?.isEmpty()
           ? data.firmas?.cliente || ""
-          : sigCliente.current
-              ?.getTrimmedCanvas()
-              .toDataURL("image/png"),
+          : sigCliente.current?.toDataURL()
       },
     };
 
@@ -605,9 +601,35 @@ const handleSubmit = async (e) => {
         ? "completado"
         : "borrador";
 
-    const result = await saveOrUpdateReport({ ... });
-if (!isEditing && result?.id) navigate(`/inspeccion/barredora/${result.id}`);
-else navigate("/inspeccion");
+const result = await saveOrUpdateReport({
+  id: isEditing ? id : null,
+
+  tipo: "inspeccion",
+  subtipo: "barredora",
+
+  data: payload,
+
+  estado: estadoFinal,
+
+  user_id: user?.id,
+});
+
+setSuccessMsg(
+  estadoFinal === "completado"
+    ? "Inspección completada ✅"
+    : "Borrador guardado ✅"
+);
+
+setTimeout(() => {
+
+  if (!isEditing && result?.id) {
+    navigate(`/inspeccion/barredora/${result.id}`);
+  } else {
+    navigate("/inspeccion");
+  }
+
+}, 1200);
+
 
   } catch (err) {
 
