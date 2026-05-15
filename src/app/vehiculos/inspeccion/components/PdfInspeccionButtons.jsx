@@ -15,13 +15,13 @@ export default function PdfInspeccionButtons({
     }
 
     const options = {
-      margin: 5,
+      margin: 3,
 
       filename: `ASTAP_${fileName}_${Date.now()}.pdf`,
 
       image: {
         type: "jpeg",
-        quality: 0.95,
+        quality: 0.92,
       },
 
       html2canvas: {
