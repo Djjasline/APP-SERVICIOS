@@ -671,24 +671,21 @@ export default function HojaInspeccionBarredora() {
               </label>
             </div>
 
-            {/* IMAGEN BASE BARREDORA */}
-{!formData.estadoEquipo?.imagenes?.length && (
+          {/* IMAGEN BASE DEL EQUIPO */}
+<div className="border rounded bg-white p-3">
 
-  <div className="border rounded bg-white p-3">
+  <img
+    src="/img/barredora-base.png"
+    alt="Estado base barredora"
+    className="w-full max-h-[320px] object-contain mx-auto"
+    draggable={false}
+  />
 
-    <img
-      src="/img/barredora-base.png"
-      alt="Estado base barredora"
-      className="w-full max-h-[320px] object-contain mx-auto"
-      draggable={false}
-    />
+  <p className="text-xs text-gray-500 mt-2 text-center">
+    Utilice “Agregar imágenes” para registrar novedades del equipo.
+  </p>
 
-    <p className="text-xs text-gray-500 mt-2 text-center">
-      Toque “Agregar imágenes” para registrar novedades del equipo.
-    </p>
-
-  </div>
-
+</div>
 )}
             {/* IMÁGENES */}
             <div className="grid grid-cols-1 gap-4">
