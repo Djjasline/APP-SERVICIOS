@@ -605,26 +605,9 @@ const handleSubmit = async (e) => {
         ? "completado"
         : "borrador";
 
-    await saveOrUpdateReport({
-      id: isEditing ? id : null,
-
-      tipo: "inspeccion",
-      subtipo: "barredora",
-
-      data: payload,
-
-      estado: estadoFinal,
-
-      user_id: user?.id,
-    });
-
-    setSuccessMsg(
-      "Inspección guardada correctamente ✅"
-    );
-
-    setTimeout(() => {
-      navigate("/inspeccion");
-    }, 1200);
+    const result = await saveOrUpdateReport({ ... });
+if (!isEditing && result?.id) navigate(`/inspeccion/barredora/${result.id}`);
+else navigate("/inspeccion");
 
   } catch (err) {
 
