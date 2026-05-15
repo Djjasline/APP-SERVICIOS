@@ -1,8 +1,13 @@
 import html2pdf from "html2pdf.js";
 
-export default function PdfInspeccionButtons() {
+export default function PdfInspeccionButtons({
+  targetId,
+  fileName = "INSPECCION",
+}) {
+
   const generatePdf = () => {
-    const element = document.getElementById("pdf-inspeccion-hidro");
+
+    const element = document.getElementById(targetId);
 
     if (!element) {
       alert("No se encontró el formulario para generar el PDF.");
@@ -10,26 +15,36 @@ export default function PdfInspeccionButtons() {
     }
 
     const options = {
-      margin: 8,
-      filename: `ASTAP_INSPECCION_HIDRO_${Date.now()}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
+      margin: 5,
+
+      filename: `ASTAP_${fileName}_${Date.now()}.pdf`,
+
+      image: {
+        type: "jpeg",
+        quality: 0.95,
+      },
+
       html2canvas: {
         scale: 2,
         useCORS: true,
         scrollY: 0,
       },
+
       jsPDF: {
         unit: "mm",
         format: "a4",
         orientation: "portrait",
       },
-      pagebreak: { mode: ["css", "legacy"] },
+
+      pagebreak: {
+        mode: ["css", "legacy"],
+      },
     };
 
     html2pdf()
       .set(options)
       .from(element)
-      .save(); // 👈 ESTA LÍNEA ES LA CLAVE
+      .save();
   };
 
   return (
