@@ -814,7 +814,7 @@ export default function HojaInspeccionBarredora() {
           </h2>
 
           {secciones.map((sec) => (
-            <section key={sec.id} className="border rou<section key={sec.id} className="border rounded p-4 no-break">nded p-4">
+           <section key={sec.id} className="border rounded p-4 no-break">
               <h2 className="font-semibold mb-3">{sec.titulo}</h2>
               <TablaItems
                 lista={sec.items}
