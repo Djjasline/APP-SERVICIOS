@@ -53,7 +53,10 @@ import HojaMantenimientoBarredora from "./app/vehiculos/mantenimiento/HojaManten
 import HojaMantenimientoVCam from "./app/vehiculos/mantenimiento/HojaMantenimientoVCam";
 import MantenimientoHidroPDF from "./app/vehiculos/mantenimiento/MantenimientoHidroPdf";
 import MantenimientoBarredoraPDF from "./app/vehiculos/mantenimiento/MantenimientoBarredoraPdf";
-import MantenimientoVCamPdf from "./app/vehiculos/mantenimiento/MantenimientoVCamPdf";
+import MantenimientoVCamPDF from "./app/vehiculos/mantenimiento/MantenimientoVCamPdf";
+
+// ================= REPOSITORIOS =================
+import ManualesTecnicos from "./app/repositorios/ManualesTecnicos";
 
 // ================= OPERACIONES =================
 import LiberacionHome from "./app/operaciones/liberacion/LiberacionHome";
@@ -184,6 +187,7 @@ export default function RoutesApp() {
             <Route path="/repositorios/documentos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
             <Route path="/repositorios/pdf" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
             <Route path="/repositorios/archivos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
+            <Route path="/repositorios/manuales-tecnicos" element={<AdminRoute><ManualesTecnicos /></AdminRoute>} />
 
           </Route>
 
@@ -203,16 +207,7 @@ export default function RoutesApp() {
           {/* Mantenimiento PDF */}
           <Route path="/mantenimiento/hidro/:id/pdf" element={<ProtectedRoute><TechRoute><MantenimientoHidroPDF /></TechRoute></ProtectedRoute>} />
           <Route path="/mantenimiento/barredora/:id/pdf" element={<ProtectedRoute><TechRoute><MantenimientoBarredoraPDF /></TechRoute></ProtectedRoute>} />
-          <Route
-  path="/mantenimiento/vcam/:id/pdf"
-  element={
-    <ProtectedRoute>
-      <TechRoute>
-        <MantenimientoVCamPdf />
-      </TechRoute>
-    </ProtectedRoute>
-  }
-/>
+          <Route path="/mantenimiento/vcam/:id/pdf" element={<ProtectedRoute><TechRoute><MantenimientoVCamPDF /></TechRoute></ProtectedRoute>} />
 
         </Routes>
       </BrowserRouter>
