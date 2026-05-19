@@ -1,105 +1,182 @@
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import SignatureCanvas from "react-signature-canvas";
+import imageCompression from "browser-image-compression";
+
+import { useAuth } from "@/context/AuthContext";
 import { useTechnicians } from "@/hooks/useTechnicians";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
-import imageCompression from "browser-image-compression";
-import { useState, useRef, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import SignatureCanvas from "react-signature-canvas";
-import { useAuth } from "@/context/AuthContext";
 
-/* ══════════════════════════════
-   PRUEBAS PREVIAS AL SERVICIO
-══════════════════════════════ */
-const pruebasPrevias = [
-  ["1.1", "Prueba de encendido general del equipo"],
-  ["1.2", "Verificación de funcionamiento de controles principales"],
-  ["1.3", "Revisión de alarmas o mensajes de fallo"],
-];
+/* ═══════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════ */
+const newId     = (prefix = "id") => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const techName  = (t) => t?.name  || t?.nombre   || "";
+const techPhone = (t) => t?.phone || t?.telefono  || "";
+const techEmail = (t) => t?.email || t?.correo    || "";
 
-/* =============================
-   SECCIONES – V-CAM6
-============================= */
+/* ═══════════════════════════════════════
+   SECCIONES – MANTENIMIENTO V-CAM6
+═══════════════════════════════════════ */
 const secciones = [
   {
-    id: "A",
-    titulo: "A) CARRETE Y ESTRUCTURA",
+    id: "1",
+    titulo: "1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, PREVIOS AL SERVICIO",
+    tipo: "simple",
     items: [
-      ["A.1", "Estructura del carrete sin deformaciones ni soldaduras rotas"],
-      ["A.2", "Pintura y acabado sin corrosión ni desprendimientos"],
-      ["A.3", "Mango, manivela o freno en buen estado y funcionamiento suave"],
-      ["A.4", "Base estable, sin vibraciones al girar el tambor"],
-      ["A.5", "Ruedas (si aplica) sin desgaste"],
+      ["1.1", "Prueba de encendido general del equipo"],
+      ["1.2", "Verificación de funcionamiento de controles principales"],
+      ["1.3", "Verificación de pantalla / monitor"],
+      ["1.4", "Verificación de iluminación LED del cabezal"],
+      ["1.5", "Revisión de alarmas o mensajes de fallo"],
     ],
   },
   {
-    id: "B",
-    titulo: "B) CABLE Y SISTEMA DE TRANSMISIÓN",
+    id: "2",
+    titulo: "2. MANTENIMIENTO DEL SISTEMA CÁMARA V-CAM6",
+    tipo: "simple",
     items: [
-      ["B.1", "Cable limpio, libre de cortes, dobleces o secciones planas"],
-      ["B.2", "Recubrimiento sin grietas ni desgaste visible"],
-      ["B.3", "Longitud total verificada (según especificación)"],
-      ["B.4", "Marcadores de longitud visibles y legibles"],
-      ["B.5", "Giro libre del cable en ambos sentidos al enrollar / desenrollar"],
-      ["B.6", "Cable y carrete completamente limpios"],
-      ["B.7", "Lubricación ligera de ejes y rodamientos"],
-      ["B.8", "Tapones y protecciones instalados para transporte"],
-      ["B.9", "Empaque o caja en buen estado"],
+      ["2.1",  "Limpieza exterior del carrete"],
+      ["2.2",  "Limpieza de cable y guía de enrollado"],
+      ["2.3",  "Inspección visual del cable de 12 mm"],
+      ["2.4",  "Revisión de cortes, dobleces o zonas planas del cable"],
+      ["2.5",  "Revisión de marcadores de longitud"],
+      ["2.6",  "Revisión de conectores eléctricos"],
+      ["2.7",  "Limpieza de lente del cabezal de cámara"],
+      ["2.8",  "Verificación de estado del resorte de terminación"],
+      ["2.9",  "Verificación de estanqueidad del cabezal"],
+      ["2.10", "Lubricación ligera de ejes y puntos móviles del carrete"],
+      ["2.11", "Verificación de giro libre del carrete"],
+      ["2.12", "Verificación de calidad de imagen"],
+      ["2.13", "Verificación de señal sin interferencias"],
+      ["2.14", "Revisión de caja / maleta de transporte"],
     ],
   },
   {
-    id: "C",
-    titulo: "C) CABEZAL Y SISTEMA ÓPTICO",
+    id: "3",
+    titulo: "3. REPUESTOS USADOS",
+    tipo: "cantidad",
     items: [
-      ["C.1", "Lente limpio y sin rayaduras"],
-      ["C.2", "Iluminación LED funcional (probar con fuente)"],
-      ["C.3", "Alineación y estanqueidad verificada (sin fugas)"],
-      ["C.4", "Protección frontal y resorte de entrada intactos"],
-      ["C.5", "Imagen estable y centrada"],
-      ["C.6", "LEDs responden a control de intensidad"],
-      ["C.7", "Sin interferencias ni pérdida de señal al enrollar cable"],
+      ["2.104.24.00006", "Kit base de terminación 12 mm"],
+      ["3.02.01.000032", "Cordón de seguridad / lanyard usado en kits estándar de terminación 12 mm"],
+      ["2.104.24.00004", "Ensamble de cable espiralado estándar 12 mm"],
+      ["3.02.07.000014", "Resorte de terminación estándar 12 mm"],
+    ],
+  },
+  {
+    id: "4",
+    titulo: "4. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POSTERIOR AL SERVICIO",
+    tipo: "simple",
+    items: [
+      ["4.1", "Encendido general posterior al mantenimiento"],
+      ["4.2", "Verificación de imagen estable y centrada"],
+      ["4.3", "Verificación de iluminación LED"],
+      ["4.4", "Verificación de avance y retroceso del cable"],
+      ["4.5", "Verificación de funcionamiento de controles"],
+      ["4.6", "Prueba final del sistema completo"],
     ],
   },
 ];
 
 /* Lista plana para calcular progreso */
-const todosLosItems = [
-  ...pruebasPrevias.map(([c]) => c),
-  ...secciones.flatMap((s) => s.items.map(([c]) => c)),
-];
+const todosLosItems = secciones.flatMap((sec) => sec.items.map(([codigo]) => codigo));
 
-/* ── IMAGEN BASE CÁMARA ── */
-const EQUIPO_IMG_PATH = "/estado-equipo-camara.png";
-
-/* ══════════════════════════════
+/* ═══════════════════════════════════════
    ESTADO INICIAL
-══════════════════════════════ */
+═══════════════════════════════════════ */
 const emptyForm = {
   referenciaContrato: "", pedidoDemanda: "", descripcion: "", codInf: "",
-  cliente: "", cedulaCliente: "", direccion: "", contacto: "",
-  telefono: "", correo: "", fechaServicio: "",
+  cliente: "", direccion: "", contacto: "", telefono: "", correo: "",
+  fechaServicio: "",
   tecnicoNombre: "", tecnicoTelefono: "", tecnicoCorreo: "",
   equipo: {
-    nota: "", marca: "", modelo: "", anio: "",
+    nota: "", marca: "", modelo: "",
     serieModulo: "", serieCarrete: "", serieCabezal: "",
+    anio: "", longitudCable: "", diametroCable: "12 mm",
+    versionSoftware: "", accesorios: "",
   },
-  estadoEquipo: {
-    imagenes: [],
-    puntosBase: [],
-  },
+  estadoEquipo: { imagenes: [] },
   items: {},
-  conclusiones: [""], recomendaciones: [""],
   notaFinal: "",
   firmas: { tecnico: "", cliente: "", clienteCedula: "" },
 };
 
-export default function HojaInspeccionCamara() {
+/* ═══════════════════════════════════════
+   TABLA DE ÍTEMS
+═══════════════════════════════════════ */
+function TablaItems({ seccion, data, handleItem }) {
+  return (
+    <table className="pdf-table w-full">
+      <thead>
+        <tr>
+          <th className="text-left" style={{ width: 120 }}>ÍTEM</th>
+          <th className="text-left">DETALLE</th>
+          {seccion.tipo === "cantidad" && <th style={{ width: 90 }}>CANTIDAD</th>}
+          <th style={{ width: 40 }}>SI</th>
+          <th style={{ width: 40 }}>NO</th>
+          <th style={{ width: 40 }}>N/A</th>
+          <th className="text-left">OBSERVACIÓN</th>
+        </tr>
+      </thead>
+      <tbody>
+        {seccion.items.map(([codigo, texto]) => (
+          <tr key={codigo} className="hover:bg-gray-50">
+            <td className="pdf-label">{codigo}</td>
+            <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>{texto}</td>
+            {seccion.tipo === "cantidad" && (
+              <td style={{ border: "1px solid #d1d5db", padding: "4px", textAlign: "center" }}>
+                <input
+                  type="number" min="0"
+                  className="pdf-input w-20 text-center"
+                  value={data.items?.[codigo]?.cantidad || ""}
+                  onChange={(e) => handleItem(codigo, "cantidad", e.target.value)}
+                />
+              </td>
+            )}
+            {["SI", "NO", "N/A"].map((op) => (
+              <td key={op} style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+                <input
+                  type="radio"
+                  name={`estado-${codigo}`}
+                  checked={data.items?.[codigo]?.estado === op}
+                  onChange={() => handleItem(codigo, "estado", op)}
+                />
+              </td>
+            ))}
+            <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
+              <textarea
+                value={data.items?.[codigo]?.observacion || ""}
+                placeholder="Observación..."
+                className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
+                onChange={(e) => {
+                  handleItem(codigo, "observacion", e.target.value);
+                  e.target.style.height = "auto";
+                  e.target.style.height = e.target.scrollHeight + "px";
+                }}
+                ref={(el) => {
+                  if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
+                }}
+              />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+/* ═══════════════════════════════════════
+   COMPONENTE PRINCIPAL
+═══════════════════════════════════════ */
+export default function HojaMantenimientoVCam() {
   const { id }    = useParams();
   const navigate  = useNavigate();
-  const { user }  = useAuth();
   const isEditing = !!id;
 
-  const { technicians, loading: loadingTecnicos } = useTechnicians();
+  const { user }                                    = useAuth();
+  const { technicians, loading: loadingTechnicians } = useTechnicians();
 
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
@@ -111,10 +188,10 @@ export default function HojaInspeccionCamara() {
   const uploading = uploadingCount > 0;
 
   /* ── PROGRESO ── */
-  const itemsMarcados  = todosLosItems.filter((c) => data.items[c]?.estado).length;
-  const totalItems     = todosLosItems.length;
-  const progresoPct    = Math.round((itemsMarcados / totalItems) * 100);
-  const inspeccionLista = !!(data.firmas?.tecnico && data.firmas?.cliente);
+  const itemsMarcados    = todosLosItems.filter((c) => data.items?.[c]?.estado).length;
+  const totalItems       = todosLosItems.length;
+  const progresoPct      = totalItems > 0 ? Math.round((itemsMarcados / totalItems) * 100) : 0;
+  const mantenimientoListo = !!(data.firmas?.tecnico && data.firmas?.cliente);
 
   /* ── UPDATE PATH-BASED ── */
   const update = (path, value) => {
@@ -122,9 +199,7 @@ export default function HojaInspeccionCamara() {
       const copy = { ...prev };
       let ref = copy;
       for (let i = 0; i < path.length - 1; i++) {
-        ref[path[i]] = Array.isArray(ref[path[i]])
-          ? [...ref[path[i]]]
-          : { ...ref[path[i]] };
+        ref[path[i]] = Array.isArray(ref[path[i]]) ? [...ref[path[i]]] : { ...ref[path[i]] };
         ref = ref[path[i]];
       }
       ref[path[path.length - 1]] = value;
@@ -132,68 +207,60 @@ export default function HojaInspeccionCamara() {
     });
   };
 
-  /* ── CARGAR DESDE SUPABASE ── */
+  /* ── AUTO-RELLENAR TÉCNICO LOGUEADO ── */
+  useEffect(() => {
+    if (!user?.email || isEditing || loadingTechnicians) return;
+    const loggedTech = (technicians || []).find(
+      (t) => techEmail(t).toLowerCase() === user.email.toLowerCase()
+    );
+    if (!loggedTech) return;
+    setData((prev) => ({
+      ...prev,
+      tecnicoNombre:   techName(loggedTech),
+      tecnicoTelefono: techPhone(loggedTech),
+      tecnicoCorreo:   techEmail(loggedTech),
+    }));
+  }, [user?.email, isEditing, technicians, loadingTechnicians]);
+
+  /* ── CARGAR REGISTRO ── */
   useEffect(() => {
     if (!id) return;
     const load = async () => {
       const { data: reg, error } = await supabase
         .from("registros").select("*").eq("id", id).single();
-      if (error || !reg) return;
+      if (error || !reg) { console.error(error); return; }
 
-      const d = { ...emptyForm, ...(reg.data || {}) };
-      d.equipo = { ...emptyForm.equipo, ...(reg.data?.equipo || {}) };
-      d.estadoEquipo = {
-        imagenes: Array.isArray(reg.data?.estadoEquipo?.imagenes)
-          ? reg.data.estadoEquipo.imagenes.map((img, i) => ({
-              id: img?.id || `img-${i}`,
-              url: img?.url || "",
-              puntos: Array.isArray(img?.puntos)
-                ? img.puntos.map((p, j) => ({
-                    id: p?.id || `p-${i}-${j}`,
-                    x: p?.x ?? 0,
-                    y: p?.y ?? 0,
-                    observacion: p?.observacion || "",
-                  }))
-                : [],
-            }))
-          : [],
-        puntosBase: Array.isArray(reg.data?.estadoEquipo?.puntosBase)
-          ? reg.data.estadoEquipo.puntosBase.map((p, i) => ({
-              id: p?.id || `base-${i}`,
-              x: p?.x ?? 0,
-              y: p?.y ?? 0,
-              observacion: p?.observacion || "",
-            }))
-          : [],
+      const d = {
+        ...emptyForm, ...(reg.data || {}),
+        equipo: { ...emptyForm.equipo, ...(reg.data?.equipo || {}) },
+        firmas: { ...emptyForm.firmas, ...(reg.data?.firmas || {}) },
+        estadoEquipo: {
+          imagenes: Array.isArray(reg.data?.estadoEquipo?.imagenes)
+            ? reg.data.estadoEquipo.imagenes.map((img, i) => ({
+                id: img?.id || `img-${i}`,
+                url: img?.url || "",
+                puntos: Array.isArray(img?.puntos)
+                  ? img.puntos.map((p, j) => ({
+                      id: p?.id || `p-${i}-${j}`,
+                      x:  typeof p?.x === "number" ? p.x : 0,
+                      y:  typeof p?.y === "number" ? p.y : 0,
+                      observacion: p?.observacion || "",
+                    }))
+                  : [],
+              }))
+            : [],
+        },
+        items: reg.data?.items || {},
       };
       setData(d);
 
       setTimeout(() => {
-        if (reg.data?.firmas?.tecnico) sigTecnico.current?.fromDataURL(reg.data.firmas.tecnico);
-        if (reg.data?.firmas?.cliente) sigCliente.current?.fromDataURL(reg.data.firmas.cliente);
+        if (d.firmas?.tecnico) sigTecnico.current?.fromDataURL(d.firmas.tecnico);
+        if (d.firmas?.cliente) sigCliente.current?.fromDataURL(d.firmas.cliente);
       }, 300);
     };
     load();
   }, [id]);
-
-  /* ── AUTO-RELLENAR TÉCNICO LOGUEADO ── */
-  useEffect(() => {
-    if (!user?.email || isEditing || loadingTecnicos) return;
-
-    const loggedTech = (technicians || []).find((t) => {
-      const email = t.email || t.correo || "";
-      return email.toLowerCase() === user.email.toLowerCase();
-    });
-
-    if (!loggedTech) return;
-
-    setData((prev) => ({
-      ...prev,
-      tecnicoNombre:   loggedTech.name     || loggedTech.nombre  || "",
-      tecnicoTelefono: loggedTech.phone    || loggedTech.telefono || "",
-      tecnicoCorreo:   loggedTech.email    || loggedTech.correo   || "",
-    }));
-  }, [user?.email, isEditing, loadingTecnicos, technicians]);
 
   /* ── LIMPIAR SCROLL LOCK ── */
   useEffect(() => {
@@ -201,7 +268,7 @@ export default function HojaInspeccionCamara() {
   }, []);
 
   /* ── COMPRIMIR Y SUBIR ── */
-  const compressAndUpload = async (file, folder) => {
+  const compressAndUpload = async (file, folder = "estado-equipo") => {
     const compressed = await imageCompression(file, {
       maxSizeMB: 0.8,
       useWebWorker: true,
@@ -210,12 +277,12 @@ export default function HojaInspeccionCamara() {
       maxWidthOrHeight: undefined,
       fileType: file.type || "image/jpeg",
     });
-    return await uploadRegistroImage(compressed, id || "temp-insp-camara", folder);
+    return await uploadRegistroImage(compressed, id || `temp-vcam-${Date.now()}`, folder);
   };
 
-  /* ── ESTADO EQUIPO — MÚLTIPLES FOTOS ── */
+  /* ── IMÁGENES ESTADO EQUIPO ── */
   const handleEstadoUpload = async (files) => {
-    const arr = Array.from(files || []);
+    const arr = Array.from(files || []).filter((f) => f.type.startsWith("image/"));
     if (!arr.length) return;
     setUploadingCount((p) => p + arr.length);
     try {
@@ -226,49 +293,69 @@ export default function HojaInspeccionCamara() {
           ...prev,
           estadoEquipo: {
             ...prev.estadoEquipo,
-            imagenes: [
-              ...(prev.estadoEquipo?.imagenes || []),
-              {
-                id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-                url,
-                puntos: [],
-              },
-            ],
+            imagenes: [...(prev.estadoEquipo?.imagenes || []), { id: newId("img"), url, puntos: [] }],
           },
         }));
       }
+    } catch (err) {
+      console.error("Error subiendo imagen:", err);
     } finally { setUploadingCount((p) => p - arr.length); }
   };
 
-  /* ── ELIMINAR FOTO ── */
+  const addBaseImage = () => {
+    const exists = (data.estadoEquipo?.imagenes || []).some(
+      (img) => img.url === "/estado-equipo-camara.png"
+    );
+    if (exists) return;
+    setData((prev) => ({
+      ...prev,
+      estadoEquipo: {
+        ...prev.estadoEquipo,
+        imagenes: [
+          ...(prev.estadoEquipo?.imagenes || []),
+          { id: newId("base"), url: "/estado-equipo-camara.png", puntos: [] },
+        ],
+      },
+    }));
+  };
+
   const removeEstadoImg = (imgId) =>
     setData((prev) => ({
       ...prev,
       estadoEquipo: {
         ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).filter((i) => i.id !== imgId),
+        imagenes: (prev.estadoEquipo?.imagenes || []).filter((img) => img.id !== imgId),
       },
     }));
 
-  /* ── AGREGAR PUNTO EN FOTO ── */
+  const clearImagePoints = (imgId) =>
+    setData((prev) => ({
+      ...prev,
+      estadoEquipo: {
+        ...prev.estadoEquipo,
+        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+          img.id === imgId ? { ...img, puntos: [] } : img
+        ),
+      },
+    }));
+
   const handleEstadoClick = (e, imgId) => {
     const r = e.currentTarget.getBoundingClientRect();
     const x = Number(((e.clientX - r.left) / r.width).toFixed(4));
-    const y = Number(((e.clientY - r.top) / r.height).toFixed(4));
+    const y = Number(((e.clientY - r.top)  / r.height).toFixed(4));
     setData((prev) => ({
       ...prev,
       estadoEquipo: {
         ...prev.estadoEquipo,
         imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
           img.id === imgId
-            ? { ...img, puntos: [...(img.puntos || []), { id: `p-${Date.now()}`, x, y, observacion: "" }] }
+            ? { ...img, puntos: [...(img.puntos || []), { id: newId("p"), x, y, observacion: "" }] }
             : img
         ),
       },
     }));
   };
 
-  /* ── ELIMINAR PUNTO EN FOTO ── */
   const removePoint = (imgId, ptId) =>
     setData((prev) => ({
       ...prev,
@@ -282,7 +369,6 @@ export default function HojaInspeccionCamara() {
       },
     }));
 
-  /* ── OBSERVACIÓN PUNTO EN FOTO ── */
   const updatePointObs = (imgId, ptId, value) =>
     setData((prev) => ({
       ...prev,
@@ -290,62 +376,17 @@ export default function HojaInspeccionCamara() {
         ...prev.estadoEquipo,
         imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
           img.id === imgId
-            ? {
-                ...img,
-                puntos: (img.puntos || []).map((p) =>
-                  p.id === ptId ? { ...p, observacion: value } : p
-                ),
-              }
+            ? { ...img, puntos: (img.puntos || []).map((p) => p.id === ptId ? { ...p, observacion: value } : p) }
             : img
         ),
       },
     }));
 
-  /* ── PUNTOS SOBRE PLANTILLA BASE ── */
-  const handleBaseImageClick = (e) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const x = Number(((e.clientX - r.left) / r.width).toFixed(4));
-    const y = Number(((e.clientY - r.top) / r.height).toFixed(4));
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        puntosBase: [
-          ...(prev.estadoEquipo?.puntosBase || []),
-          { id: `base-${Date.now()}`, x, y, observacion: "" },
-        ],
-      },
-    }));
-  };
-
-  const removeBasePoint = (ptId) =>
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        puntosBase: (prev.estadoEquipo?.puntosBase || []).filter((p) => p.id !== ptId),
-      },
-    }));
-
-  const updateBasePointObs = (ptId, value) =>
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        puntosBase: (prev.estadoEquipo?.puntosBase || []).map((p) =>
-          p.id === ptId ? { ...p, observacion: value } : p
-        ),
-      },
-    }));
-
-  /* ── ITEM CHECKLIST ── */
+  /* ── ÍTEMS ── */
   const handleItem = (codigo, campo, valor) =>
     setData((prev) => ({
       ...prev,
-      items: {
-        ...prev.items,
-        [codigo]: { ...(prev.items[codigo] || {}), [campo]: valor },
-      },
+      items: { ...prev.items, [codigo]: { ...(prev.items?.[codigo] || {}), [campo]: valor } },
     }));
 
   /* ── GUARDAR ── */
@@ -369,27 +410,21 @@ export default function HojaInspeccionCamara() {
       const estadoFinal = firmaTecnico && firmaCliente ? "completado" : "borrador";
 
       const result = await saveOrUpdateReport({
-        id: isEditing ? id : null,
-        tipo: "inspeccion",
-        subtipo: "camara",
+        id:      isEditing ? id : null,
+        tipo:    "mantenimiento",
+        subtipo: "vcam",
         data: {
           ...data,
-          firmas: {
-            tecnico: firmaTecnico,
-            cliente: firmaCliente,
-            clienteCedula: data.firmas?.clienteCedula || "",
-          },
+          firmas: { tecnico: firmaTecnico, cliente: firmaCliente, clienteCedula: data.firmas?.clienteCedula || "" },
         },
-        estado: estadoFinal,
+        estado:  estadoFinal,
         user_id: user?.id || null,
       });
 
-      setSuccessMsg(
-        estadoFinal === "completado" ? "Inspección completada ✅" : "Borrador guardado ✅"
-      );
+      setSuccessMsg(estadoFinal === "completado" ? "Mantenimiento completado ✅" : "Borrador guardado ✅");
       setTimeout(() => {
-        if (!isEditing && result?.id) navigate(`/inspeccion/camara/${result.id}`);
-        else navigate("/inspeccion");
+        if (!isEditing && result?.id) navigate(`/mantenimiento/vcam/${result.id}`);
+        else navigate("/mantenimiento");
       }, 1200);
     } catch (err) {
       console.error(err);
@@ -398,60 +433,16 @@ export default function HojaInspeccionCamara() {
     } finally { setGuardando(false); }
   };
 
-  /* ── FILA CHECKLIST ── */
-  const CheckRow = ({ codigo, descripcion }) => (
-    <tr className="hover:bg-gray-50">
-      <td className="pdf-label text-xs">{codigo}</td>
-      <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>
-        {descripcion}
-      </td>
-      {["SI", "NO", "NA"].map((opt) => (
-        <td
-          key={opt}
-          className="text-center"
-          style={{ border: "1px solid #d1d5db", padding: "4px", width: 40 }}
-        >
-          <input
-            type="radio"
-            name={`chk-${codigo}`}
-            checked={data.items?.[codigo]?.estado === opt}
-            onChange={() => handleItem(codigo, "estado", opt)}
-          />
-        </td>
-      ))}
-      <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
-        <textarea
-          value={data.items?.[codigo]?.observacion || ""}
-          onChange={(e) => {
-            handleItem(codigo, "observacion", e.target.value);
-            e.target.style.height = "auto";
-            e.target.style.height = e.target.scrollHeight + "px";
-          }}
-          ref={(el) => {
-            if (el) {
-              el.style.height = "auto";
-              el.style.height = el.scrollHeight + "px";
-            }
-          }}
-          placeholder="Observaciones..."
-          className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
-        />
-      </td>
-    </tr>
-  );
-
-  /* ══════════════════════════════
+  /* ═══════════════════════════════════════
      RENDER
-  ══════════════════════════════ */
+  ═══════════════════════════════════════ */
   return (
     <>
       {/* TOAST */}
       {successMsg && (
-        <div
-          className={`fixed top-6 right-6 px-4 py-3 rounded shadow-lg z-50 text-white transition-all ${
-            successMsg.includes("Error") ? "bg-red-600" : "bg-green-600"
-          }`}
-        >
+        <div className={`fixed top-6 right-6 px-4 py-3 rounded shadow-lg z-50 text-white transition-all ${
+          successMsg.includes("Error") ? "bg-red-600" : "bg-green-600"
+        }`}>
           {successMsg}
         </div>
       )}
@@ -460,48 +451,22 @@ export default function HojaInspeccionCamara() {
         <div className="bg-white p-4 md:p-6 rounded shadow w-full max-w-screen-xl mx-auto space-y-6">
 
           {/* ── BANNER PROGRESO ── */}
-          <div
-            className={`p-2 rounded text-xs flex items-center justify-between gap-2 ${
-              inspeccionLista
-                ? "bg-green-100 text-green-700"
-                : "bg-yellow-100 text-yellow-700"
-            }`}
-          >
-            <span>
-              {inspeccionLista
-                ? "✔ Inspección lista para completar"
-                : "⚠ Pendiente de firmas para completar"}
-            </span>
-            <span className="font-semibold">
-              {progresoPct}% ítems marcados ({itemsMarcados}/{totalItems})
-            </span>
+          <div className={`p-2 rounded text-xs flex items-center justify-between gap-2 ${
+            mantenimientoListo ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
+          }`}>
+            <span>{mantenimientoListo ? "✔ Mantenimiento listo para completar" : "⚠ Pendiente de firmas para completar"}</span>
+            <span className="font-semibold">{progresoPct}% ítems marcados ({itemsMarcados}/{totalItems})</span>
           </div>
 
           {/* ══ 1. ENCABEZADO ══ */}
           <table className="pdf-table w-full">
             <tbody>
               <tr>
-                <td
-                  rowSpan={5}
-                  style={{ width: 130, textAlign: "center", verticalAlign: "middle" }}
-                >
-                  <img
-                    src="/astap-logo.jpg"
-                    alt="ASTAP"
-                    className="object-contain mx-auto"
-                    style={{ maxHeight: 90 }}
-                  />
+                <td rowSpan={5} style={{ width: 130, verticalAlign: "middle", textAlign: "center" }}>
+                  <img src="/astap-logo.jpg" alt="ASTAP" className="object-contain mx-auto" style={{ maxHeight: 90 }} />
                 </td>
-                <td
-                  colSpan={2}
-                  style={{
-                    textAlign: "center",
-                    fontWeight: "bold",
-                    fontSize: 16,
-                    verticalAlign: "middle",
-                  }}
-                >
-                  HOJA DE INSPECCIÓN CÁMARA V-CAM6
+                <td colSpan={2} style={{ textAlign: "center", fontWeight: "bold", fontSize: 16, verticalAlign: "middle" }}>
+                  HOJA DE MANTENIMIENTO CÁMARA V-CAM6
                 </td>
                 <td className="text-[10px]" style={{ width: 160 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>
@@ -517,11 +482,8 @@ export default function HojaInspeccionCamara() {
                 <tr key={key}>
                   <td className="pdf-label">{label}</td>
                   <td colSpan={2}>
-                    <input
-                      className="pdf-input w-full"
-                      value={data[key]}
-                      onChange={(e) => update([key], e.target.value)}
-                    />
+                    <input className="pdf-input w-full" value={data[key]}
+                      onChange={(e) => update([key], e.target.value)} />
                   </td>
                 </tr>
               ))}
@@ -529,114 +491,52 @@ export default function HojaInspeccionCamara() {
           </table>
 
           {/* ══ 2. DATOS CLIENTE / TÉCNICO ══ */}
-          <h3 className="font-bold text-sm border-b pb-1">
-            DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE
-          </h3>
+          <h3 className="font-bold text-sm border-b pb-1">DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE</h3>
           <table className="pdf-table w-full">
             <tbody>
               <tr>
                 <td className="pdf-label">CLIENTE</td>
-                <td>
-                  <input
-                    className="pdf-input w-full"
-                    value={data.cliente}
-                    onChange={(e) => update(["cliente"], e.target.value)}
-                  />
-                </td>
+                <td><input className="pdf-input w-full" value={data.cliente} onChange={(e) => update(["cliente"], e.target.value)} /></td>
                 <td className="pdf-label">DIRECCIÓN</td>
-                <td>
-                  <input
-                    className="pdf-input w-full"
-                    value={data.direccion}
-                    onChange={(e) => update(["direccion"], e.target.value)}
-                  />
-                </td>
+                <td><input className="pdf-input w-full" value={data.direccion} onChange={(e) => update(["direccion"], e.target.value)} /></td>
               </tr>
               <tr>
                 <td className="pdf-label">CONTACTO</td>
-                <td>
-                  <input
-                    className="pdf-input w-full"
-                    value={data.contacto}
-                    onChange={(e) => update(["contacto"], e.target.value)}
-                  />
-                </td>
+                <td><input className="pdf-input w-full" value={data.contacto} onChange={(e) => update(["contacto"], e.target.value)} /></td>
                 <td className="pdf-label">TELÉFONO</td>
-                <td>
-                  <input
-                    className="pdf-input w-full"
-                    value={data.telefono}
-                    onChange={(e) => update(["telefono"], e.target.value)}
-                  />
-                </td>
+                <td><input className="pdf-input w-full" value={data.telefono} onChange={(e) => update(["telefono"], e.target.value)} /></td>
               </tr>
               <tr>
                 <td className="pdf-label">CORREO</td>
-                <td>
-                  <input
-                    className="pdf-input w-full"
-                    value={data.correo}
-                    onChange={(e) => update(["correo"], e.target.value)}
-                  />
-                </td>
+                <td><input className="pdf-input w-full" value={data.correo} onChange={(e) => update(["correo"], e.target.value)} /></td>
                 <td className="pdf-label">TÉCNICO RESPONSABLE</td>
                 <td>
-                  <select
-                    className="pdf-input w-full"
-                    value={data.tecnicoNombre || ""}
-                    disabled={loadingTecnicos}
+                  <select className="pdf-input w-full" value={data.tecnicoNombre} disabled={loadingTechnicians}
                     onChange={(e) => {
-                      const t = (technicians || []).find((x) => {
-                        const nombre = x.name || x.nombre || "";
-                        return nombre === e.target.value;
-                      });
-                      update(["tecnicoNombre"],   t?.name     || t?.nombre   || "");
-                      update(["tecnicoTelefono"], t?.phone    || t?.telefono || "");
-                      update(["tecnicoCorreo"],   t?.email    || t?.correo   || "");
+                      const t = (technicians || []).find((x) => techName(x) === e.target.value);
+                      update(["tecnicoNombre"],   techName(t));
+                      update(["tecnicoTelefono"], techPhone(t));
+                      update(["tecnicoCorreo"],   techEmail(t));
                     }}
                   >
-                    <option value="">
-                      {loadingTecnicos ? "Cargando..." : "Seleccionar técnico"}
-                    </option>
-                    {(technicians || []).map((t, i) => {
-                      const nombre = t.name || t.nombre || "";
-                      const correo = t.email || t.correo || "";
-                      return (
-                        <option key={correo || i} value={nombre}>
-                          {nombre}
-                        </option>
-                      );
-                    })}
+                    <option value="">{loadingTechnicians ? "Cargando..." : "Seleccionar técnico"}</option>
+                    {(technicians || []).map((t, i) => (
+                      <option key={techEmail(t) || i} value={techName(t)}>{techName(t)}</option>
+                    ))}
                   </select>
                 </td>
               </tr>
               <tr>
                 <td className="pdf-label">TELÉFONO TÉCNICO</td>
-                <td>
-                  <input
-                    className="pdf-input w-full bg-gray-100"
-                    value={data.tecnicoTelefono}
-                    readOnly
-                  />
-                </td>
+                <td><input className="pdf-input w-full bg-gray-100" value={data.tecnicoTelefono} readOnly /></td>
                 <td className="pdf-label">CORREO TÉCNICO</td>
-                <td>
-                  <input
-                    className="pdf-input w-full bg-gray-100"
-                    value={data.tecnicoCorreo}
-                    readOnly
-                  />
-                </td>
+                <td><input className="pdf-input w-full bg-gray-100" value={data.tecnicoCorreo} readOnly /></td>
               </tr>
               <tr>
                 <td className="pdf-label">FECHA DE SERVICIO</td>
                 <td colSpan={3}>
-                  <input
-                    type="date"
-                    className="pdf-input w-full"
-                    value={data.fechaServicio}
-                    onChange={(e) => update(["fechaServicio"], e.target.value)}
-                  />
+                  <input type="date" className="pdf-input w-full" value={data.fechaServicio}
+                    onChange={(e) => update(["fechaServicio"], e.target.value)} />
                 </td>
               </tr>
             </tbody>
@@ -646,120 +546,56 @@ export default function HojaInspeccionCamara() {
           <h3 className="font-bold text-sm border-b pb-1">DESCRIPCIÓN DEL EQUIPO</h3>
           <table className="pdf-table w-full">
             <thead>
-              <tr>
-                <th colSpan={4} style={{ textAlign: "center" }}>
-                  DESCRIPCIÓN DEL EQUIPO — V-CAM6
-                </th>
-              </tr>
+              <tr><th colSpan={4} style={{ textAlign: "center" }}>DESCRIPCIÓN DEL EQUIPO — V-CAM6</th></tr>
             </thead>
             <tbody>
               {[
-                ["NOTA",             "nota",         "MARCA",            "marca"],
-                ["MODELO",           "modelo",       "AÑO MODELO",       "anio"],
-                ["N° SERIE MÓDULO",  "serieModulo",  "N° SERIE CARRETE", "serieCarrete"],
-                ["N° SERIE CABEZAL", "serieCabezal", null,               null],
-              ].map(([l1, f1, l2, f2], idx) => (
-                <tr key={idx}>
-                  <td className="pdf-label">{l1}</td>
-                  <td>
-                    <input
-                      className="pdf-input w-full"
-                      value={data.equipo[f1] || ""}
-                      onChange={(e) => update(["equipo", f1], e.target.value)}
-                    />
-                  </td>
-                  {l2 ? (
-                    <>
-                      <td className="pdf-label">{l2}</td>
-                      <td>
-                        <input
-                          className="pdf-input w-full"
-                          value={data.equipo[f2] || ""}
-                          onChange={(e) => update(["equipo", f2], e.target.value)}
-                        />
-                      </td>
-                    </>
-                  ) : (
-                    <td colSpan={2} />
-                  )}
-                </tr>
-              ))}
+                ["NOTA",              "nota"],           ["MARCA",            "marca"],
+                ["MODELO",            "modelo"],         ["N° SERIE MÓDULO",  "serieModulo"],
+                ["N° SERIE CARRETE",  "serieCarrete"],   ["N° SERIE CABEZAL", "serieCabezal"],
+                ["AÑO MODELO",        "anio"],           ["LONGITUD CABLE",   "longitudCable"],
+                ["DIÁMETRO CABLE",    "diametroCable"],  ["VERSIÓN SOFTWARE", "versionSoftware"],
+                ["ACCESORIOS",        "accesorios"],     [null, null],
+              ].reduce((rows, field, idx, arr) => {
+                if (idx % 2 === 0) {
+                  const next = arr[idx + 1];
+                  rows.push(
+                    <tr key={field[1] || idx}>
+                      {field[0] ? (
+                        <><td className="pdf-label">{field[0]}</td>
+                        <td><input className="pdf-input w-full" value={data.equipo[field[1]] || ""}
+                          onChange={(e) => update(["equipo", field[1]], e.target.value)} /></td></>
+                      ) : <td colSpan={2} />}
+                      {next && next[0] ? (
+                        <><td className="pdf-label">{next[0]}</td>
+                        <td><input className="pdf-input w-full" value={data.equipo[next[1]] || ""}
+                          onChange={(e) => update(["equipo", next[1]], e.target.value)} /></td></>
+                      ) : <td colSpan={2} />}
+                    </tr>
+                  );
+                }
+                return rows;
+              }, [])}
             </tbody>
           </table>
 
           {/* ══ 4. ESTADO DEL EQUIPO ══ */}
           <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
-
-          {/* ── PLANTILLA BASE ── */}
-          <div className="border rounded bg-gray-50 p-3 mb-4 space-y-3">
-            <div className="text-xs font-semibold text-gray-600">Vista general del equipo</div>
-
-            <div
-              className="relative border rounded overflow-hidden bg-white cursor-crosshair"
-              onClick={handleBaseImageClick}
-            >
-              <img
-                src={EQUIPO_IMG_PATH}
-                alt="Vista general cámara V-CAM6"
-                className="w-full max-h-[420px] object-contain"
-              />
-              {(data.estadoEquipo?.puntosBase || []).map((p, pi) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); removeBasePoint(p.id); }}
-                  className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow text-[10px] text-white font-bold flex items-center justify-center"
-                  style={{
-                    left: `${p.x * 100}%`,
-                    top: `${p.y * 100}%`,
-                    transform: "translate(-50%,-50%)",
-                  }}
-                >
-                  {pi + 1}
-                </button>
-              ))}
-            </div>
-
-            <p className="text-[11px] text-gray-500">
-              Toque la imagen para agregar novedades generales. Toque el número para eliminar.
-            </p>
-
-            {(data.estadoEquipo?.puntosBase || []).map((p, pi) => (
-              <div key={p.id} className="flex items-start gap-2">
-                <span className="text-sm text-gray-700 pt-2 min-w-[24px]">{pi + 1})</span>
-                <input
-                  className="pdf-input w-full"
-                  placeholder={`Observación punto ${pi + 1}`}
-                  value={p.observacion}
-                  onChange={(e) => updateBasePointObs(p.id, e.target.value)}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* ── FOTOGRAFÍAS ADICIONALES ── */}
-          <div className="border rounded bg-white p-3 space-y-4 print:block">
-            <div className="flex gap-2">
-              <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-gray-700">
+          <div className="border rounded bg-white p-3 space-y-4">
+            <div className="flex flex-col sm:flex-row gap-2 flex-wrap">
+              <button type="button" onClick={addBaseImage}
+                className="bg-indigo-600 text-white text-xs px-3 py-2 rounded hover:bg-indigo-700 transition">
+                🧩 Usar imagen base
+              </button>
+              <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-gray-700 transition">
                 📁 Subir fotografías
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  style={{ display: "none" }}
-                  onChange={(e) => { handleEstadoUpload(e.target.files); e.target.value = null; }}
-                />
+                <input type="file" accept="image/*" multiple style={{ display: "none" }}
+                  onChange={(e) => { handleEstadoUpload(e.target.files); e.target.value = null; }} />
               </label>
-              <label className="bg-blue-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-blue-700">
+              <label className="bg-blue-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-blue-700 transition">
                 📷 Tomar fotos
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  multiple
-                  style={{ display: "none" }}
-                  onChange={(e) => { handleEstadoUpload(e.target.files); e.target.value = null; }}
-                />
+                <input type="file" accept="image/*" capture="environment" multiple style={{ display: "none" }}
+                  onChange={(e) => { handleEstadoUpload(e.target.files); e.target.value = null; }} />
               </label>
               {uploading && (
                 <span className="text-xs text-gray-500 self-center">
@@ -773,61 +609,42 @@ export default function HojaInspeccionCamara() {
                 Sin fotografías cargadas
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-3 print:block">
+              <div className="grid grid-cols-1 gap-3">
                 {(data.estadoEquipo?.imagenes || []).map((img, idx) => (
-                  <div
-                    key={img.id}
-                    className="border rounded p-2 bg-gray-50 space-y-2 mb-3 print:mb-2"
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600">
-                        Imagen {idx + 1}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => removeEstadoImg(img.id)}
-                        className="text-[11px] text-red-600 border border-red-200 px-2 py-1 rounded hover:bg-red-50"
-                      >
-                        Eliminar foto
-                      </button>
+                  <div key={img.id} className="border rounded p-2 bg-gray-50 space-y-2">
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="text-xs font-medium text-gray-600">Imagen {idx + 1}</span>
+                      <div className="flex gap-2">
+                        {(img.puntos || []).length > 0 && (
+                          <button type="button" onClick={() => clearImagePoints(img.id)}
+                            className="text-[11px] border px-2 py-1 rounded hover:bg-gray-100">
+                            Limpiar puntos
+                          </button>
+                        )}
+                        <button type="button" onClick={() => removeEstadoImg(img.id)}
+                          className="text-[11px] text-red-600 border border-red-200 px-2 py-1 rounded hover:bg-red-50">
+                          Eliminar foto
+                        </button>
+                      </div>
                     </div>
                     <div className="relative border rounded overflow-hidden bg-white flex items-center justify-center">
-                      <img
-                        src={img.url}
-                        alt={`estado-${idx + 1}`}
+                      <img src={img.url} alt={`estado-${idx + 1}`}
                         className="w-auto max-w-full max-h-[320px] object-contain cursor-crosshair mx-auto"
-                        onClick={(e) => handleEstadoClick(e, img.id)}
-                      />
+                        onClick={(e) => handleEstadoClick(e, img.id)} />
                       {(img.puntos || []).map((p, pi) => (
-                        <button
-                          key={p.id}
-                          type="button"
-                          onClick={() => removePoint(img.id, p.id)}
+                        <button key={p.id} type="button" onClick={() => removePoint(img.id, p.id)}
                           className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow text-[10px] text-white font-bold flex items-center justify-center"
-                          style={{
-                            left: `${p.x * 100}%`,
-                            top: `${p.y * 100}%`,
-                            transform: "translate(-50%,-50%)",
-                          }}
-                        >
+                          style={{ left: `${p.x * 100}%`, top: `${p.y * 100}%`, transform: "translate(-50%,-50%)" }}>
                           {pi + 1}
                         </button>
                       ))}
                     </div>
-                    <p className="text-[11px] text-gray-500">
-                      Toque la fotografía para marcar puntos. Toque el número para eliminar.
-                    </p>
+                    <p className="text-[11px] text-gray-500">Toque la fotografía para marcar puntos. Toque el número para eliminar.</p>
                     {(img.puntos || []).map((p, pi) => (
                       <div key={p.id} className="flex items-start gap-2">
-                        <span className="text-sm text-gray-700 pt-2 min-w-[24px]">
-                          {pi + 1})
-                        </span>
-                        <input
-                          className="pdf-input w-full"
-                          placeholder={`Observación punto ${pi + 1}`}
-                          value={p.observacion}
-                          onChange={(e) => updatePointObs(img.id, p.id, e.target.value)}
-                        />
+                        <span className="text-sm text-gray-700 pt-2 min-w-[24px]">{pi + 1})</span>
+                        <input className="pdf-input w-full" placeholder={`Observación punto ${pi + 1}`}
+                          value={p.observacion} onChange={(e) => updatePointObs(img.id, p.id, e.target.value)} />
                       </div>
                     ))}
                   </div>
@@ -836,143 +653,31 @@ export default function HojaInspeccionCamara() {
             )}
           </div>
 
-          {/* ══ 5. PRUEBAS PREVIAS ══ */}
-          <h3 className="font-bold text-xs border-b pb-1">
-            1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
-          </h3>
-          <table className="pdf-table w-full">
-            <thead>
-              <tr>
-                <th className="text-left" style={{ width: 50 }}>ÍTEM</th>
-                <th className="text-left">DESCRIPCIÓN</th>
-                <th style={{ width: 40 }}>SI</th>
-                <th style={{ width: 40 }}>NO</th>
-                <th style={{ width: 40 }}>N/A</th>
-                <th className="text-left">OBSERVACIÓN</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pruebasPrevias.map(([c, d]) => (
-                <CheckRow key={c} codigo={c} descripcion={d} />
-              ))}
-            </tbody>
-          </table>
-
-          {/* ══ 6. SECCIONES A–C ══ */}
-          <h3 className="font-bold text-xs border-b pb-1">
-            2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O SISTEMAS
-          </h3>
+          {/* ══ 5. SECCIONES DE MANTENIMIENTO ══ */}
           {secciones.map((sec) => (
             <section key={sec.id}>
               <h3 className="font-bold text-xs border-b pb-1 mb-2">{sec.titulo}</h3>
-              <table className="pdf-table w-full">
-                <thead>
-                  <tr>
-                    <th className="text-left" style={{ width: 50 }}>ÍTEM</th>
-                    <th className="text-left">DESCRIPCIÓN</th>
-                    <th style={{ width: 40 }}>SI</th>
-                    <th style={{ width: 40 }}>NO</th>
-                    <th style={{ width: 40 }}>N/A</th>
-                    <th className="text-left">OBSERVACIÓN</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sec.items.map(([c, d]) => (
-                    <CheckRow key={c} codigo={c} descripcion={d} />
-                  ))}
-                </tbody>
-              </table>
+              <TablaItems seccion={sec} data={data} handleItem={handleItem} />
             </section>
           ))}
 
-          {/* ══ 7. CONCLUSIONES Y RECOMENDACIONES ══ */}
-          <h3 className="font-bold text-sm border-b pb-1">
-            CONCLUSIONES Y RECOMENDACIONES
-          </h3>
-          <table className="pdf-table w-full">
-            <thead>
-              <tr>
-                <th style={{ width: 30 }}>#</th>
-                <th>CONCLUSIONES</th>
-                <th style={{ width: 30 }}>#</th>
-                <th>RECOMENDACIONES</th>
-                {data.conclusiones.length > 1 && <th style={{ width: 60 }}></th>}
-              </tr>
-            </thead>
-            <tbody>
-              {data.conclusiones.map((_, i) => (
-                <tr key={i}>
-                  <td style={{ textAlign: "center" }}>{i + 1}</td>
-                  <td>
-                    <textarea
-                      className="pdf-textarea w-full resize-none"
-                      rows={3}
-                      style={{ minHeight: 70 }}
-                      value={data.conclusiones[i]}
-                      onChange={(e) => update(["conclusiones", i], e.target.value)}
-                    />
-                  </td>
-                  <td style={{ textAlign: "center" }}>{i + 1}</td>
-                  <td>
-                    <textarea
-                      className="pdf-textarea w-full resize-none"
-                      rows={3}
-                      style={{ minHeight: 70 }}
-                      value={data.recomendaciones[i] || ""}
-                      onChange={(e) => update(["recomendaciones", i], e.target.value)}
-                    />
-                  </td>
-                  {data.conclusiones.length > 1 && (
-                    <td className="text-center">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          update(["conclusiones"],   data.conclusiones.filter((_, j) => j !== i));
-                          update(["recomendaciones"], data.recomendaciones.filter((_, j) => j !== i));
-                        }}
-                        className="text-red-600 text-xs hover:underline"
-                      >
-                        − Eliminar
-                      </button>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <button
-            type="button"
-            onClick={() => {
-              update(["conclusiones"],   [...data.conclusiones, ""]);
-              update(["recomendaciones"], [...data.recomendaciones, ""]);
-            }}
-            className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded"
-          >
-            + Agregar fila
-          </button>
-
-          {/* ══ 8. NOTA FINAL ══ */}
-          <h3 className="font-bold text-sm border-b pb-1">
-            NOTA / OBSERVACIÓN FINAL DEL TÉCNICO
-          </h3>
+          {/* ══ 6. NOTA FINAL ══ */}
+          <h3 className="font-bold text-sm border-b pb-1">NOTA / OBSERVACIÓN FINAL DEL TÉCNICO</h3>
           <textarea
             value={data.notaFinal || ""}
+            placeholder="Escriba aquí observaciones generales del mantenimiento..."
+            className="w-full border rounded p-2 text-sm outline-none overflow-hidden resize-none min-h-[80px]"
             onChange={(e) => {
               update(["notaFinal"], e.target.value);
               e.target.style.height = "auto";
               e.target.style.height = e.target.scrollHeight + "px";
             }}
             ref={(el) => {
-              if (el) {
-                el.style.height = "auto";
-                el.style.height = el.scrollHeight + "px";
-              }
+              if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
             }}
-            placeholder="Escriba aquí cualquier observación general..."
-            className="w-full border rounded p-2 text-sm outline-none overflow-hidden resize-none min-h-[80px]"
           />
 
-          {/* ══ 9. FIRMAS ══ */}
+          {/* ══ 7. FIRMAS ══ */}
           <table className="pdf-table w-full">
             <thead>
               <tr>
@@ -982,106 +687,63 @@ export default function HojaInspeccionCamara() {
             </thead>
             <tbody>
               <tr>
-                {/* TÉCNICO */}
                 <td className="align-top" style={{ height: 240 }}>
                   <div className="border rounded bg-white h-[150px]">
-                    <SignatureCanvas
-                      ref={sigTecnico}
-                      penColor="black"
-                      minWidth={0.5}
-                      maxWidth={1.5}
+                    <SignatureCanvas ref={sigTecnico} penColor="black" minWidth={0.5} maxWidth={1.5}
                       onBegin={() => { document.body.style.overflow = "hidden"; }}
                       onEnd={() => { document.body.style.overflow = ""; }}
-                      canvasProps={{ className: "w-full h-full touch-none" }}
-                    />
+                      canvasProps={{ className: "w-full h-full touch-none" }} />
                   </div>
-                  <div className="mt-2 text-sm text-center font-medium">
-                    {data.tecnicoNombre || "—"}
-                  </div>
+                  <div className="mt-2 text-sm text-center font-medium">{data.tecnicoNombre || "—"}</div>
                   <div className="text-center">
-                    <button
-                      type="button"
-                      onClick={() => sigTecnico.current?.clear()}
-                      className="text-xs text-red-600 mt-1 hover:underline"
-                    >
-                      Borrar firma
-                    </button>
+                    <button type="button" onClick={() => sigTecnico.current?.clear()}
+                      className="text-xs text-red-600 mt-1 hover:underline">Borrar firma</button>
                   </div>
                 </td>
-
-                {/* CLIENTE */}
                 <td className="align-top" style={{ height: 240 }}>
                   <div className="border rounded bg-white h-[150px]">
-                    <SignatureCanvas
-                      ref={sigCliente}
-                      penColor="black"
-                      minWidth={0.5}
-                      maxWidth={1.5}
+                    <SignatureCanvas ref={sigCliente} penColor="black" minWidth={0.5} maxWidth={1.5}
                       onBegin={() => { document.body.style.overflow = "hidden"; }}
                       onEnd={() => { document.body.style.overflow = ""; }}
-                      canvasProps={{ className: "w-full h-full touch-none" }}
-                    />
+                      canvasProps={{ className: "w-full h-full touch-none" }} />
                   </div>
                   <div className="mt-2 space-y-1 text-center">
-                    <input
-                      className="pdf-input w-full bg-gray-100"
-                      value={data.contacto}
-                      readOnly
-                      placeholder="Nombre del contacto"
-                    />
-                    <input
-                      className="pdf-input w-full"
-                      value={data.firmas?.clienteCedula || ""}
+                    <input className="pdf-input w-full bg-gray-100" value={data.contacto} readOnly placeholder="Nombre del contacto" />
+                    <input className="pdf-input w-full" value={data.firmas?.clienteCedula || ""}
                       onChange={(e) => update(["firmas", "clienteCedula"], e.target.value)}
-                      placeholder="Número de cédula del cliente"
-                    />
+                      placeholder="Número de cédula del cliente" />
                   </div>
                   <div className="text-center">
-                    <button
-                      type="button"
-                      onClick={() => sigCliente.current?.clear()}
-                      className="text-xs text-red-600 mt-1 hover:underline"
-                    >
-                      Borrar firma
-                    </button>
+                    <button type="button" onClick={() => sigCliente.current?.clear()}
+                      className="text-xs text-red-600 mt-1 hover:underline">Borrar firma</button>
                   </div>
                 </td>
               </tr>
             </tbody>
           </table>
 
-          {/* ══ 10. BOTONES ══ */}
+          {/* ══ 8. BOTONES ══ */}
           <div className="flex flex-col md:flex-row justify-between gap-3 pt-4">
-            <button
-              type="button"
-              onClick={() => navigate("/inspeccion")}
-              className="border px-6 py-2 rounded hover:bg-gray-50 transition"
-            >
+            <button type="button" onClick={() => navigate("/mantenimiento")}
+              className="border px-6 py-2 rounded hover:bg-gray-50 transition">
               ← Volver
             </button>
             <div className="flex gap-3">
-              {isEditing && inspeccionLista && (
-                <button
-                  type="button"
-                  onClick={() => navigate(`/inspeccion/camara/${id}/pdf`)}
-                  className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition"
-                >
+              {isEditing && mantenimientoListo && (
+                <button type="button" onClick={() => navigate(`/mantenimiento/vcam/${id}/pdf`)}
+                  className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
                   Ver PDF
                 </button>
               )}
-              <button
-                type="button"
-                onClick={handleGuardar}
-                disabled={guardando || uploading}
+              <button type="button" onClick={handleGuardar} disabled={guardando || uploading}
                 className={`px-6 py-2 rounded text-white transition ${
                   guardando || uploading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-                }`}
-              >
+                }`}>
                 {guardando
                   ? "Guardando..."
                   : uploading
                   ? `Subiendo (${uploadingCount})...`
-                  : inspeccionLista
+                  : mantenimientoListo
                   ? "Guardar y completar"
                   : isEditing
                   ? "Actualizar borrador"
