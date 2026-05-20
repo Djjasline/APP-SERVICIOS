@@ -125,12 +125,16 @@ export default function HojaRecepcion() {
       };
 
       const result = await saveOrUpdateReport({
-        id: registroId,
-        tipo: "recepcion",
-        subtipo: "equipo",
-        data: payload,
-        estado: "borrador",
-      });
+  id: isEditing ? id : null,
+
+  area: "operaciones",
+
+  tipo: "recepcion",
+  subtipo: "general",
+
+  data: finalData,
+  estado: estadoFinal,
+});
 
       if (result?.id) setRegistroId(result.id);
 
