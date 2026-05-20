@@ -329,13 +329,13 @@ export default function HojaMantenimientoHidro() {
 
       const estadoFinal = firmaTecnico && firmaCliente ? "completado" : "borrador";
 
-      const result = await saveOrUpdateReport({
+const result = await saveOrUpdateReport({
   id: isEditing ? id : null,
 
   area: "vehiculos",
 
   tipo: "mantenimiento",
-  subtipo: "hidro",
+  subtipo: "barredora",
 
   data: {
     ...data,
