@@ -284,8 +284,7 @@ export default function NuevoInformeBombaValvula() {
     };
 
     const estadoFinal = firmaTecnico ? "completado" : "borrador";
-    const { data: { user } } = await supabase.auth.getUser();
-
+   
     try {
       await saveOrUpdateReport({
         id: isEditing ? id : null,
@@ -570,120 +569,306 @@ export default function NuevoInformeBombaValvula() {
   </table>
 </section>         
            
-          
           {/* ════════════════════════════════════
-              DESCRIPCIÓN DEL EQUIPO — BOMBA
-          ════════════════════════════════════ */}
-          {isBomba && (
-            <section className="border rounded overflow-hidden">
-              <div className="bg-gray-100 p-2 font-semibold text-sm text-center uppercase">
-                Descripción del Equipo
-              </div>
-              <table className="w-full text-sm border-collapse">
-                <tbody>
-                  {/* ── BOMBA ── */}
-                  <tr className="border-b bg-blue-50">
-                    <td colSpan={4} className="p-2 font-bold text-blue-800">🔧 BOMBA</td>
-                  </tr>
-         {[
-  ["FLUIDO", "fluido", "MARCA", "marca"],
-  ["MODELO / TIPO", "modeloTipo", "N° SERIE", "serie"],
-  ["LUGAR DE PROCEDENCIA", "lugarProcedencia", "Q (Caudal)", "caudal"],
-  ["TDH (cabeza)", "tdh", "VELOCIDAD DE GIRO", "velocidadGiro"],
-  ["ORIENTACIÓN", "orientacion", null, null],
-].map(([l1, f1, l2, f2], i) => (
-                    <tr key={i} className="border-b">
-                      <td className="border p-2 font-semibold bg-gray-50 w-44">{l1}</td>
-                      <td className="border p-1"><Input value={data.bomba[f1]} onChange={(e) => setBomba(f1, e.target.value)} /></td>
-                      <td className="border p-2 font-semibold bg-gray-50 w-44">{l2}</td>
-                      <td className="border p-1"><Input value={data.bomba[f2]} onChange={(e) => setBomba(f2, e.target.value)} /></td>
-                    </tr>
-                  ))}
+    DESCRIPCIÓN DEL EQUIPO — BOMBA
+════════════════════════════════════ */}
+{isBomba && (
+  <section className="border rounded overflow-hidden">
+    <div className="bg-gray-100 p-2 font-semibold text-sm text-center uppercase">
+      Descripción del Equipo
+    </div>
 
-                  {/* Foto placa bomba */}
-                  <tr className="border-b">
-                    <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA BOMBA</td>
-                    <td colSpan={3} className="border p-2">
-                      <ImageUploadField
-                        url={data.bomba.fotoPlacaBomba}
-                        onUpload={(e) => handleSingleImage(e, (url) => setBomba("fotoPlacaBomba", url), "placa-bomba")}
-                        onRemove={() => setBomba("fotoPlacaBomba", "")}
-                        label="Foto placa bomba"
-                      />
-                    </td>
-                  </tr>
+    <table className="w-full text-sm border-collapse">
+      <tbody>
 
-                  {/* ── MOTOR ── */}
-                  <tr className="border-b bg-blue-50">
-                    <td colSpan={4} className="p-2 font-bold text-blue-800">⚡ MOTOR</td>
-                  </tr>
-                  {[
-                    ["MARCA",                    "marcaMotor",            "MODELO / TIPO",             "modeloTipoMotor"],
-                    ["VOLTAJE / FASE / FREC.",   "voltajeFaseFrecuencia", "S.F (FACTOR DE SERVICIO)",  "factorServicio"],
-                    ["GRADO DE PROTECCIÓN",      "gradoProteccion",       "TIPO DE CONSTRUCCIÓN",      "tipoConstruccionMotor"],
-                  ].map(([l1, f1, l2, f2], i) => (
-                    <tr key={i} className="border-b">
-                      <td className="border p-2 font-semibold bg-gray-50">{l1}</td>
-                      <td className="border p-1"><Input value={data.bomba[f1]} onChange={(e) => setBomba(f1, e.target.value)} /></td>
-                      <td className="border p-2 font-semibold bg-gray-50">{l2}</td>
-                      <td className="border p-1"><Input value={data.bomba[f2]} onChange={(e) => setBomba(f2, e.target.value)} /></td>
-                    </tr>
-                  ))}
+        {/* ── BOMBA ── */}
+        <tr className="border-b bg-blue-50">
+          <td colSpan={4} className="p-2 font-bold text-blue-800">
+            🔧 BOMBA
+          </td>
+        </tr>
 
-                  {/* Foto placa motor */}
-                  <tr className="border-b">
-                    <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA DEL MOTOR</td>
-                    <td colSpan={3} className="border p-2">
-                      <ImageUploadField
-                        url={data.bomba.fotoPlacaMotor}
-                        onUpload={(e) => handleSingleImage(e, (url) => setBomba("fotoPlacaMotor", url), "placa-motor")}
-                        onRemove={() => setBomba("fotoPlacaMotor", "")}
-                        label="Foto placa motor"
-                      />
-                    </td>
-                  </tr>
+        {[
+          ["FLUIDO", "fluido", "MARCA", "marca"],
 
-                  {/* ── ACCESORIO / OBRA CIVIL ── */}
-                  <tr className="border-b bg-blue-50">
-                    <td colSpan={4} className="p-2 font-bold text-blue-800">🏗️ ACCESORIO / OBRA CIVIL</td>
-                  </tr>
-                  {[
-                    ["ACCESORIO",                    "accesorio",             "DIMENSIONES ACCESORIO (L/A/H)", "dimensionesAccesorio"],
-                    ["OBRA CIVIL",                   "obraCivil",             "DIMENSIONES OBRA CIVIL (L/A/H)","dimensionesObraCivil"],
-                  ].map(([l1, f1, l2, f2], i) => (
-                    <tr key={i} className="border-b">
-                      <td className="border p-2 font-semibold bg-gray-50">{l1}</td>
-                      <td className="border p-1"><Input value={data.bomba[f1]} onChange={(e) => setBomba(f1, e.target.value)} /></td>
-                      <td className="border p-2 font-semibold bg-gray-50">{l2}</td>
-                      <td className="border p-1"><Input value={data.bomba[f2]} onChange={(e) => setBomba(f2, e.target.value)} /></td>
-                    </tr>
-                  ))}
+          ["MODELO / TIPO", "modeloTipo", "N° SERIE", "serie"],
 
-                  {/* Fotos base */}
-                  <tr className="border-b">
-                    <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA BASE METÁLICA</td>
-                    <td className="border p-2">
-                      <ImageUploadField
-                        url={data.bomba.fotoPlacaBaseMetalica}
-                        onUpload={(e) => handleSingleImage(e, (url) => setBomba("fotoPlacaBaseMetalica", url), "base-metalica")}
-                        onRemove={() => setBomba("fotoPlacaBaseMetalica", "")}
-                        label="Foto base metálica"
-                      />
-                    </td>
-                    <td className="border p-2 font-semibold bg-gray-50">FOTO BASE DE CONCRETO</td>
-                    <td className="border p-2">
-                      <ImageUploadField
-                        url={data.bomba.fotoBaseConcrete}
-                        onUpload={(e) => handleSingleImage(e, (url) => setBomba("fotoBaseConcrete", url), "base-concreto")}
-                        onRemove={() => setBomba("fotoBaseConcrete", "")}
-                        label="Foto base concreto"
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </section>
-          )}
+          ["LUGAR DE PROCEDENCIA", "lugarProcedencia", "Q (Caudal)", "caudal"],
+
+          ["TDH (cabeza)", "tdh", "VELOCIDAD DE GIRO", "velocidadGiro"],
+
+          ["ORIENTACIÓN", "orientacion", null, null],
+
+        ].map(([l1, f1, l2, f2], i) => (
+          <tr key={i} className="border-b">
+
+            {/* CAMPO IZQUIERDO */}
+            <td className="border p-2 font-semibold bg-gray-50 w-44">
+              {l1}
+            </td>
+
+            <td className="border p-1">
+              <Input
+                value={data.bomba[f1]}
+                onChange={(e) =>
+                  setBomba(f1, e.target.value)
+                }
+                placeholder={
+                  f1 === "orientacion"
+                    ? "Vertical / Horizontal"
+                    : ""
+                }
+              />
+            </td>
+
+            {/* CAMPO DERECHO */}
+            {l2 ? (
+              <>
+                <td className="border p-2 font-semibold bg-gray-50 w-44">
+                  {l2}
+                </td>
+
+                <td className="border p-1">
+                  <Input
+                    value={data.bomba[f2]}
+                    onChange={(e) =>
+                      setBomba(f2, e.target.value)
+                    }
+                  />
+                </td>
+              </>
+            ) : (
+              <td colSpan={2} className="border bg-white" />
+            )}
+
+          </tr>
+        ))}
+
+        {/* FOTO PLACA BOMBA */}
+        <tr className="border-b">
+          <td className="border p-2 font-semibold bg-gray-50">
+            FOTO PLACA BOMBA
+          </td>
+
+          <td colSpan={3} className="border p-2">
+            <ImageUploadField
+              url={data.bomba.fotoPlacaBomba}
+              onUpload={(e) =>
+                handleSingleImage(
+                  e,
+                  (url) =>
+                    setBomba("fotoPlacaBomba", url),
+                  "placa-bomba"
+                )
+              }
+              onRemove={() =>
+                setBomba("fotoPlacaBomba", "")
+              }
+              label="Foto placa bomba"
+            />
+          </td>
+        </tr>
+
+        {/* ── MOTOR ── */}
+        <tr className="border-b bg-blue-50">
+          <td colSpan={4} className="p-2 font-bold text-blue-800">
+            ⚡ MOTOR
+          </td>
+        </tr>
+
+        {[
+          [
+            "MARCA",
+            "marcaMotor",
+            "MODELO / TIPO",
+            "modeloTipoMotor",
+          ],
+
+          [
+            "VOLTAJE / FASE / FREC.",
+            "voltajeFaseFrecuencia",
+            "S.F (FACTOR DE SERVICIO)",
+            "factorServicio",
+          ],
+
+          [
+            "GRADO DE PROTECCIÓN",
+            "gradoProteccion",
+            "TIPO DE CONSTRUCCIÓN",
+            "tipoConstruccionMotor",
+          ],
+        ].map(([l1, f1, l2, f2], i) => (
+          <tr key={i} className="border-b">
+
+            <td className="border p-2 font-semibold bg-gray-50">
+              {l1}
+            </td>
+
+            <td className="border p-1">
+              <Input
+                value={data.bomba[f1]}
+                onChange={(e) =>
+                  setBomba(f1, e.target.value)
+                }
+              />
+            </td>
+
+            <td className="border p-2 font-semibold bg-gray-50">
+              {l2}
+            </td>
+
+            <td className="border p-1">
+              <Input
+                value={data.bomba[f2]}
+                onChange={(e) =>
+                  setBomba(f2, e.target.value)
+                }
+              />
+            </td>
+
+          </tr>
+        ))}
+
+        {/* FOTO PLACA MOTOR */}
+        <tr className="border-b">
+          <td className="border p-2 font-semibold bg-gray-50">
+            FOTO PLACA DEL MOTOR
+          </td>
+
+          <td colSpan={3} className="border p-2">
+            <ImageUploadField
+              url={data.bomba.fotoPlacaMotor}
+              onUpload={(e) =>
+                handleSingleImage(
+                  e,
+                  (url) =>
+                    setBomba("fotoPlacaMotor", url),
+                  "placa-motor"
+                )
+              }
+              onRemove={() =>
+                setBomba("fotoPlacaMotor", "")
+              }
+              label="Foto placa motor"
+            />
+          </td>
+        </tr>
+
+        {/* ── ACCESORIO / OBRA CIVIL ── */}
+        <tr className="border-b bg-blue-50">
+          <td colSpan={4} className="p-2 font-bold text-blue-800">
+            🏗️ ACCESORIO / OBRA CIVIL
+          </td>
+        </tr>
+
+        {[
+          [
+            "ACCESORIO",
+            "accesorio",
+            "DIMENSIONES ACCESORIO (L/A/H)",
+            "dimensionesAccesorio",
+          ],
+
+          [
+            "OBRA CIVIL",
+            "obraCivil",
+            "DIMENSIONES OBRA CIVIL (L/A/H)",
+            "dimensionesObraCivil",
+          ],
+        ].map(([l1, f1, l2, f2], i) => (
+          <tr key={i} className="border-b">
+
+            <td className="border p-2 font-semibold bg-gray-50">
+              {l1}
+            </td>
+
+            <td className="border p-1">
+              <Input
+                value={data.bomba[f1]}
+                onChange={(e) =>
+                  setBomba(f1, e.target.value)
+                }
+              />
+            </td>
+
+            <td className="border p-2 font-semibold bg-gray-50">
+              {l2}
+            </td>
+
+            <td className="border p-1">
+              <Input
+                value={data.bomba[f2]}
+                onChange={(e) =>
+                  setBomba(f2, e.target.value)
+                }
+              />
+            </td>
+
+          </tr>
+        ))}
+
+        {/* FOTOS BASE */}
+        <tr className="border-b">
+
+          <td className="border p-2 font-semibold bg-gray-50">
+            FOTO PLACA BASE METÁLICA
+          </td>
+
+          <td className="border p-2">
+            <ImageUploadField
+              url={data.bomba.fotoPlacaBaseMetalica}
+              onUpload={(e) =>
+                handleSingleImage(
+                  e,
+                  (url) =>
+                    setBomba(
+                      "fotoPlacaBaseMetalica",
+                      url
+                    ),
+                  "base-metalica"
+                )
+              }
+              onRemove={() =>
+                setBomba(
+                  "fotoPlacaBaseMetalica",
+                  ""
+                )
+              }
+              label="Foto base metálica"
+            />
+          </td>
+
+          <td className="border p-2 font-semibold bg-gray-50">
+            FOTO BASE DE CONCRETO
+          </td>
+
+          <td className="border p-2">
+            <ImageUploadField
+              url={data.bomba.fotoBaseConcrete}
+              onUpload={(e) =>
+                handleSingleImage(
+                  e,
+                  (url) =>
+                    setBomba(
+                      "fotoBaseConcrete",
+                      url
+                    ),
+                  "base-concreto"
+                )
+              }
+              onRemove={() =>
+                setBomba("fotoBaseConcrete", "")
+              }
+              label="Foto base concreto"
+            />
+          </td>
+
+        </tr>
+
+      </tbody>
+    </table>
+  </section>
+)}
 
           {/* ════════════════════════════════════
               DESCRIPCIÓN DEL EQUIPO — VÁLVULA
