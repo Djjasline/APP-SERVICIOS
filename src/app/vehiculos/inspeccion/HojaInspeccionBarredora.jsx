@@ -604,14 +604,21 @@ const handleSubmit = async (e) => {
 const result = await saveOrUpdateReport({
   id: isEditing ? id : null,
 
+  area: "vehiculos",
+
   tipo: "inspeccion",
   subtipo: "barredora",
 
-  data: payload,
+  data: {
+    ...data,
+    firmas: {
+      tecnico: firmaTecnico,
+      cliente: firmaCliente,
+      clienteCedula: data.firmas?.clienteCedula || "",
+    },
+  },
 
   estado: estadoFinal,
-
-  user_id: user?.id,
 });
 
 setSuccessMsg(
