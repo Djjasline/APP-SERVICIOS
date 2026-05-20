@@ -79,6 +79,7 @@ export default function NuevoInformeBombaValvula() {
       caudal: "",
       tdh: "",
       velocidadGiro: "",
+       orientacion: "",
       fotoPlacaBomba: "",       // URL Supabase
       // Motor
       marcaMotor: "",
@@ -584,12 +585,13 @@ export default function NuevoInformeBombaValvula() {
                   <tr className="border-b bg-blue-50">
                     <td colSpan={4} className="p-2 font-bold text-blue-800">🔧 BOMBA</td>
                   </tr>
-                  {[
-                    ["FLUIDO",              "fluido",             "MARCA",                "marca"],
-                    ["MODELO / TIPO",       "modeloTipo",         "N° SERIE",             "serie"],
-                    ["LUGAR DE PROCEDENCIA","lugarProcedencia",   "Q (Caudal)",           "caudal"],
-                    ["TDH (cabeza)",        "tdh",                "VELOCIDAD DE GIRO",    "velocidadGiro"],
-                  ].map(([l1, f1, l2, f2], i) => (
+         {[
+  ["FLUIDO", "fluido", "MARCA", "marca"],
+  ["MODELO / TIPO", "modeloTipo", "N° SERIE", "serie"],
+  ["LUGAR DE PROCEDENCIA", "lugarProcedencia", "Q (Caudal)", "caudal"],
+  ["TDH (cabeza)", "tdh", "VELOCIDAD DE GIRO", "velocidadGiro"],
+  ["ORIENTACIÓN", "orientacion", null, null],
+].map(([l1, f1, l2, f2], i) => (
                     <tr key={i} className="border-b">
                       <td className="border p-2 font-semibold bg-gray-50 w-44">{l1}</td>
                       <td className="border p-1"><Input value={data.bomba[f1]} onChange={(e) => setBomba(f1, e.target.value)} /></td>
