@@ -1,10 +1,13 @@
 import SyncStatus from "@/components/SyncStatus";
+import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function InformeHome() {
   const navigate = useNavigate();
+  const { user, isSuperAdmin } = useAuth();
+
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState("todos");
 
@@ -15,42 +18,40 @@ export default function InformeHome() {
     tecnico: "",
   });
 
-  /* ===========================
-     CARGAR DATA
-  =========================== */
   useEffect(() => {
-  const loadReports = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("registros")
-        .select("*")
-        .eq("tipo", "informe")
-        .order("created_at", { ascending: false });
+    if (!user?.id) return;
 
-      if (error) {
-        console.error("Error:", error);
+    const loadReports = async () => {
+      try {
+        let query = supabase
+          .from("registros")
+          .select("*")
+          .eq("area", "agua")
+          .eq("tipo", "informe")
+          .order("created_at", { ascending: false });
+
+        if (!isSuperAdmin) {
+          query = query.eq("user_id", user.id);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+          console.error("Error:", error);
+          setReports([]);
+          return;
+        }
+
+        setReports(data || []);
+      } catch (err) {
+        console.error("Error cargando:", err);
         setReports([]);
-        return;
       }
+    };
 
-      // 🔥 SOLO INFORMES DE AGUA
-      const onlyAgua = (data || []).filter(
-        (r) => r.data?.area === "agua" || r.data?.modulo === "agua"
-      );
+    loadReports();
+  }, [user?.id, isSuperAdmin]);
 
-      setReports(onlyAgua);
-    } catch (err) {
-      console.error("Error cargando:", err);
-      setReports([]);
-    }
-  };
-
-  loadReports();
-}, []);
-
-  /* ===========================
-     FILTROS
-  =========================== */
   const filteredReports = reports.filter((r) => {
     const cliente = r.data?.cliente?.toLowerCase() || "";
 
@@ -74,23 +75,30 @@ export default function InformeHome() {
     );
   });
 
-  /* ===========================
-     ABRIR
-  =========================== */
   const openReport = (report) => {
     navigate(`/agua/informe/${report.id}`);
   };
 
-  /* ===========================
-     ELIMINAR
-  =========================== */
   const deleteReport = async (id) => {
+    if (!user?.id) {
+      alert("Usuario no autenticado");
+      return;
+    }
+
     if (!confirm("¿Eliminar este informe?")) return;
 
-    const { error } = await supabase
+    let query = supabase
       .from("registros")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .eq("area", "agua")
+      .eq("tipo", "informe");
+
+    if (!isSuperAdmin) {
+      query = query.eq("user_id", user.id);
+    }
+
+    const { error } = await query;
 
     if (error) {
       console.error(error);
@@ -103,7 +111,6 @@ export default function InformeHome() {
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
-      {/* HEADER */}
       <div className="flex justify-between items-center">
         <h1 className="text-lg font-semibold text-gray-900">
           Informe general - Agua
@@ -121,7 +128,12 @@ export default function InformeHome() {
         </div>
       </div>
 
-      {/* NUEVO */}
+      {isSuperAdmin && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg text-sm">
+          Modo super administrador: estás viendo todos los informes de Agua.
+        </div>
+      )}
+
       <button
         onClick={() => navigate("/agua/informe/nuevo")}
         className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg transition"
@@ -129,7 +141,6 @@ export default function InformeHome() {
         Nuevo informe
       </button>
 
-      {/* FILTRO ESTADO */}
       <div className="flex gap-2">
         {["todos", "borrador", "completado"].map((f) => (
           <button
@@ -146,7 +157,6 @@ export default function InformeHome() {
         ))}
       </div>
 
-      {/* FILTROS INPUT */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <input
           type="text"
@@ -188,7 +198,6 @@ export default function InformeHome() {
         />
       </div>
 
-      {/* LISTADO */}
       <div className="space-y-3">
         {filteredReports.length === 0 && (
           <div className="bg-gray-50 border rounded-xl p-6 text-gray-500">
@@ -199,19 +208,35 @@ export default function InformeHome() {
         {filteredReports.map((r) => (
           <div
             key={r.id}
-            className="bg-gray-50 border rounded-xl p-4 flex justify-between items-center"
+            className="bg-gray-50 border rounded-xl p-4 flex flex-col md:flex-row md:justify-between md:items-center gap-3"
           >
-            <div>
+            <div className="space-y-1">
               <p className="font-semibold text-gray-900">
                 {r.data?.cliente || "Sin cliente"}
               </p>
 
-              <p className="text-xs text-gray-600">
-                Pedido:{" "}
-                <strong>{r.data?.pedidoDemanda || "—"}</strong>{" "}
-                Informe:{" "}
-                <strong>{r.data?.codInf || "—"}</strong>
-              </p>
+              <div className="flex flex-wrap gap-3 text-xs text-gray-600">
+                <span>
+                  Pedido:{" "}
+                  <strong className="text-gray-800">
+                    {r.data?.pedidoDemanda || "—"}
+                  </strong>
+                </span>
+
+                <span>
+                  Informe:{" "}
+                  <strong className="text-gray-800">
+                    {r.data?.codInf || "—"}
+                  </strong>
+                </span>
+
+                <span>
+                  Tipo:{" "}
+                  <strong className="text-gray-800">
+                    {r.subtipo || "—"}
+                  </strong>
+                </span>
+              </div>
 
               <p className="text-xs text-gray-500 italic">
                 {r.data?.referenciaContrato ||
@@ -219,19 +244,30 @@ export default function InformeHome() {
                   "Sin descripción"}
               </p>
 
-              <p className="text-xs text-gray-500">
-                {new Date(r.updated_at || r.created_at).toLocaleString()}
-              </p>
+              <div className="flex flex-wrap justify-between items-center text-xs pt-1 gap-3">
+                <span className="text-gray-500">
+                  {new Date(r.updated_at || r.created_at).toLocaleString()}
+                </span>
 
-              <p className="text-xs text-gray-600">
-                Estado:{" "}
-                <strong className="text-gray-900">
+                {isSuperAdmin && (
+                  <span className="text-[11px] text-gray-500">
+                    Usuario: {r.user_id || "—"}
+                  </span>
+                )}
+
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                    r.estado === "completado"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
                   {r.estado === "completado" ? "Completado" : "Borrador"}
-                </strong>
-              </p>
+                </span>
+              </div>
             </div>
 
-            <div className="flex gap-3 text-sm">
+            <div className="flex gap-3 text-sm shrink-0">
               <button
                 onClick={() => openReport(r)}
                 className="text-blue-600 hover:underline"
