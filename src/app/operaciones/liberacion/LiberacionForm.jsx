@@ -85,13 +85,14 @@ const sync = async () => {
   const pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
 
   for (let p of pendientes) {
-    await saveOrUpdateReport({
-      id: p.id || null,
-      tipo: p.tipo,
-      subtipo: p.subtipo,
-      data: p.data,
-      estado: p.estado
-    });
+await saveOrUpdateReport({
+  id: p.id || null,
+  area: p.area || "operaciones",
+  tipo: p.tipo || "liberacion",
+  subtipo: p.subtipo || "general",
+  data: p.data,
+  estado: p.estado,
+});
   }
 
   localStorage.removeItem("pending_registros");
@@ -129,8 +130,8 @@ const sync = async () => {
   };
 
   try {
-    const result = await saveOrUpdateReport({
-  id: isEditing ? id : null,
+await saveOrUpdateReport({
+  id: null,
 
   area: "operaciones",
 
@@ -140,9 +141,8 @@ const sync = async () => {
   data: finalData,
   estado: estadoFinal,
 });
-
     alert("Guardado correctamente");
-    navigate("/liberacion");
+    navigate("/operaciones/liberacion");
 
   } catch (error) {
     console.error(error);
@@ -150,17 +150,18 @@ const sync = async () => {
     // 🔥 fallback offline (SIN duplicar)
     let pendientes = JSON.parse(localStorage.getItem("pending_registros") || "[]");
 
-    pendientes.push({
-      tipo: "liberacion",
-      subtipo: "vehiculo",
-      estado: estadoFinal,
-      data: finalData
-    });
+pendientes.push({
+  area: "operaciones",
+  tipo: "liberacion",
+  subtipo: "general",
+  estado: estadoFinal,
+  data: finalData,
+});
 
     localStorage.setItem("pending_registros", JSON.stringify(pendientes));
 
     alert("Guardado offline");
-    navigate("/liberacion");
+    navigate("/operaciones/liberacion");
   }
 };
   return (
@@ -304,7 +305,7 @@ const sync = async () => {
 
         {/* BOTONES */}
         <div className="flex justify-between mt-6">
-          <button onClick={() => navigate("/liberacion")} className="border px-4 py-2">
+          <button onClick={() => navigate("/operaciones/liberacion")} className="border px-4 py-2">
             Volver
           </button>
 
