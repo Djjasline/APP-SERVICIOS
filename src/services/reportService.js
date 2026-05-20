@@ -2,15 +2,13 @@ import { supabase } from "../lib/supabase";
 
 export const saveOrUpdateReport = async ({
   id = null,
+  area = "vehiculos",
   tipo,
-  subtipo,
+  subtipo = "general",
   data,
   estado = "borrador",
 }) => {
   try {
-    /* ===========================
-       OBTENER USUARIO LOGUEADO
-    =========================== */
     const {
       data: { user },
       error: userError,
@@ -21,37 +19,27 @@ export const saveOrUpdateReport = async ({
       throw new Error("Usuario no autenticado");
     }
 
-    /* ===========================
-       PAYLOAD FINAL
-    =========================== */
     const payload = {
-      tipo,
-      subtipo,
+      area, // vehiculos | agua | petroleo | operaciones
+      tipo, // informe | inspeccion | mantenimiento | liberacion | recepcion | registro
+      subtipo, // general | hidro | barredora | camara | bomba | valvula
       data,
       estado,
-      user_id: user.id, // 🔥 CLAVE: dueño del registro
+      user_id: user.id,
       updated_at: new Date().toISOString(),
     };
 
     let query;
 
-    /* ===========================
-       UPDATE
-    =========================== */
     if (id) {
       query = supabase
         .from("registros")
         .update(payload)
         .eq("id", id)
-        .eq("user_id", user.id) // 🔥 SEGURIDAD: solo su propio registro
+        .eq("user_id", user.id)
         .select()
         .single();
-    }
-
-    /* ===========================
-       INSERT
-    =========================== */
-    else {
+    } else {
       query = supabase
         .from("registros")
         .insert(payload)
