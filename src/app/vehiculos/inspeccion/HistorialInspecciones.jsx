@@ -26,11 +26,12 @@ export default function IndexInspeccion() {
     if (!user?.id) return;
 
     const loadInspections = async () => {
-      let query = supabase
-        .from("registros")
-        .select("*")
-        .eq("tipo", "inspeccion")
-        .order("created_at", { ascending: false });
+let query = supabase
+  .from("registros")
+  .select("*")
+  .eq("area", "vehiculos")
+  .eq("tipo", "inspeccion")
+  .order("created_at", { ascending: false });
 
       if (!isSuperAdmin) {
         query = query.eq("user_id", user.id);
@@ -117,10 +118,12 @@ export default function IndexInspeccion() {
 
     if (!confirm("¿Eliminar inspección?")) return;
 
-    let query = supabase
-      .from("registros")
-      .delete()
-      .eq("id", item.id);
+ let query = supabase
+  .from("registros")
+  .delete()
+  .eq("id", item.id)
+  .eq("area", "vehiculos")
+  .eq("tipo", "inspeccion");
 
     if (!isSuperAdmin) {
       query = query.eq("user_id", user.id);
