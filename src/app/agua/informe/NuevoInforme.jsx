@@ -288,11 +288,13 @@ export default function NuevoInformeBombaValvula() {
     try {
       await saveOrUpdateReport({
         id: isEditing ? id : null,
+        area: "agua",
         tipo: "informe",
-        subtipo: data.tipoInforme === "bomba" ? "bomba-valvula-bomba" : "bomba-valvula-valvula",
+        subtipo: data.tipoInforme === "bomba" 
+        ? "bomba" 
+        : "valvula",
         data: finalData,
         estado: estadoFinal,
-        user_id: user?.id,
       });
 
       setSuccessMsg(isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
