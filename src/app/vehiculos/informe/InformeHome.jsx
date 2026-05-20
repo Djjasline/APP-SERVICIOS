@@ -26,12 +26,13 @@ export default function InformeHome() {
 
     const loadReports = async () => {
       try {
-        let query = supabase
-          .from("registros")
-          .select("*")
-          .eq("tipo", "informe")
-          .eq("subtipo", "general")
-          .order("created_at", { ascending: false });
+let query = supabase
+  .from("registros")
+  .select("*")
+  .eq("area", "vehiculos")
+  .eq("tipo", "informe")
+  .eq("subtipo", "general")
+  .order("created_at", { ascending: false });
 
         // Técnicos normales solo ven lo suyo
         // Santiago / super_admin ve todo
