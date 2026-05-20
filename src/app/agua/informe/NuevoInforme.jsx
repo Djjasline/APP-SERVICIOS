@@ -10,15 +10,7 @@ import SignatureCanvas from "react-signature-canvas";
 /* ─────────────────────────────────────────
    HELPERS
 ───────────────────────────────────────── */
-const Field = ({ label, children, span = 1 }) => (
-  <>
-    <td className={`border p-2 font-semibold bg-gray-50 text-xs w-44`}>{label}</td>
-    <td className={`border p-1 ${span > 1 ? `colspan-fix` : ""}`} colSpan={span > 1 ? (span * 2 - 1) : 1}>
-      {children}
-    </td>
-  </>
-);
-
+  
 const Input = ({ value, onChange, placeholder = "", readOnly = false, className = "" }) => (
   <input
     value={value || ""}
@@ -79,7 +71,7 @@ export default function NuevoInformeBombaValvula() {
       caudal: "",
       tdh: "",
       velocidadGiro: "",
-       orientacion: "",
+      orientacion: "",
       fotoPlacaBomba: "",       // URL Supabase
       // Motor
       marcaMotor: "",
