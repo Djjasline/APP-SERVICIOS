@@ -409,17 +409,25 @@ export default function HojaMantenimientoVCam() {
 
       const estadoFinal = firmaTecnico && firmaCliente ? "completado" : "borrador";
 
-      const result = await saveOrUpdateReport({
-        id:      isEditing ? id : null,
-        tipo:    "mantenimiento",
-        subtipo: "vcam",
-        data: {
-          ...data,
-          firmas: { tecnico: firmaTecnico, cliente: firmaCliente, clienteCedula: data.firmas?.clienteCedula || "" },
-        },
-        estado:  estadoFinal,
-        user_id: user?.id || null,
-      });
+const result = await saveOrUpdateReport({
+  id: isEditing ? id : null,
+
+  area: "vehiculos",
+
+  tipo: "mantenimiento",
+  subtipo: "camara",
+
+  data: {
+    ...data,
+    firmas: {
+      tecnico: firmaTecnico,
+      cliente: firmaCliente,
+      clienteCedula: data.firmas?.clienteCedula || "",
+    },
+  },
+
+  estado: estadoFinal,
+});
 
       setSuccessMsg(estadoFinal === "completado" ? "Mantenimiento completado ✅" : "Borrador guardado ✅");
       setTimeout(() => {
