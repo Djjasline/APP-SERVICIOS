@@ -416,19 +416,24 @@ const updateBasePointObs = (ptId, value) =>
       const estadoFinal = firmaTecnico && firmaCliente ? "completado" : "borrador";
 
       const result = await saveOrUpdateReport({
-        id: isEditing ? id : null,
-        tipo: "inspeccion", subtipo: "hidro",
-        data: {
-          ...data,
-          firmas: {
-            tecnico: firmaTecnico,
-            cliente: firmaCliente,
-            clienteCedula: data.firmas?.clienteCedula || "",
-          },
-        },
-        estado: estadoFinal,
-        user_id: user?.id || null,
-      });
+  id: isEditing ? id : null,
+
+  area: "vehiculos",
+
+  tipo: "inspeccion",
+  subtipo: "hidro",
+
+  data: {
+    ...data,
+    firmas: {
+      tecnico: firmaTecnico,
+      cliente: firmaCliente,
+      clienteCedula: data.firmas?.clienteCedula || "",
+    },
+  },
+
+  estado: estadoFinal,
+});
 
       setSuccessMsg(estadoFinal === "completado" ? "Inspección completada ✅" : "Borrador guardado ✅");
       setTimeout(() => {
