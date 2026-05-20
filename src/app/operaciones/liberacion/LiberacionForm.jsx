@@ -1,6 +1,5 @@
 import { saveOrUpdateReport } from "@/services/reportService"
 import { useState, useRef, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 
@@ -66,7 +65,6 @@ export default function LiberacionForm() {
   const navigate = useNavigate();
   const sigRef = useRef();
 
-  const [loading, setLoading] = useState(false);
   const [licencia, setLicencia] = useState("");
 
   const [form, setForm] = useState({
@@ -275,7 +273,7 @@ pendientes.push({
               key={opt}
               onClick={() => setForm({ ...form, estadoFinal: opt })}
               className={`px-4 py-2 border ${
-                form.estadoFinal === opt ? "blue-600 text-white" : ""
+                form.estadoFinal === opt ? "bg-blue-600 text-white" : ""
               }`}
             >
               {opt}
