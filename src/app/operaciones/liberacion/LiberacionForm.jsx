@@ -130,12 +130,16 @@ const sync = async () => {
 
   try {
     const result = await saveOrUpdateReport({
-      id: null,
-      tipo: "liberacion",
-      subtipo: "vehiculo",
-      data: finalData,
-      estado: estadoFinal
-    });
+  id: isEditing ? id : null,
+
+  area: "operaciones",
+
+  tipo: "liberacion",
+  subtipo: "general",
+
+  data: finalData,
+  estado: estadoFinal,
+});
 
     alert("Guardado correctamente");
     navigate("/liberacion");
