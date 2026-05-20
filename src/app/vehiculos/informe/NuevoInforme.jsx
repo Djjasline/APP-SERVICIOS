@@ -531,11 +531,11 @@ if (error) {
 
       await saveOrUpdateReport({
         id: isEditing ? id : null,
+        area: "vehiculos",
         tipo: "informe",
         subtipo: "general",
         data: finalData,
         estado: estadoFinal,
-        user_id: user?.id || null,
       });
 
       alert(
