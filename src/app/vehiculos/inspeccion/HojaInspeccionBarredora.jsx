@@ -603,21 +603,10 @@ const handleSubmit = async (e) => {
 
 const result = await saveOrUpdateReport({
   id: isEditing ? id : null,
-
   area: "vehiculos",
-
   tipo: "inspeccion",
   subtipo: "barredora",
-
-  data: {
-    ...data,
-    firmas: {
-      tecnico: firmaTecnico,
-      cliente: firmaCliente,
-      clienteCedula: data.firmas?.clienteCedula || "",
-    },
-  },
-
+  data: payload,
   estado: estadoFinal,
 });
 
@@ -629,9 +618,13 @@ setSuccessMsg(
 
 setTimeout(() => {
 
+  // 🔥 NUEVO REGISTRO
   if (!isEditing && result?.id) {
     navigate(`/inspeccion/barredora/${result.id}`);
-  } else {
+  }
+
+  // 🔥 EDICIÓN
+  else {
     navigate("/inspeccion");
   }
 
