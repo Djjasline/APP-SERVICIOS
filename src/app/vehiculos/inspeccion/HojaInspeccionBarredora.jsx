@@ -2,11 +2,12 @@ import { useTechnicians } from "@/hooks/useTechnicians";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 import imageCompression from "browser-image-compression";
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import { useAuth } from "@/context/AuthContext";
+
 
 /* =============================
    PRUEBAS PREVIAS AL SERVICIO
@@ -153,11 +154,10 @@ const emptyForm = {
 };
 
 export default function HojaInspeccionBarredora() {
-  const { id }     = useParams();
-  const navigate   = useNavigate();
-  const { user }   = useAuth();
-  const isEditing  = !!id;
-
+const { id } = useParams();
+const navigate = useNavigate();
+const { user } = useAuth();
+const isEditing = !!id;
   const {
     technicians,
     loading: loadingTechnicians,
