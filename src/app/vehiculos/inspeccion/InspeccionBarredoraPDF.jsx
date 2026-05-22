@@ -116,7 +116,7 @@ const secciones = [
 /* ══════════════════════════════
    COMPONENTE PRINCIPAL
 ══════════════════════════════ */
-export default function InspeccionCamaraPDF() {
+export default function InspeccionBarredoraPDF() {
   const navigate = useNavigate();
   const { id }   = useParams();
   const [report, setReport] = useState(null);
@@ -124,12 +124,13 @@ export default function InspeccionCamaraPDF() {
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase
-        .from("registros")
-        .select("*")
-        .eq("id", id)
-        .eq("tipo", "inspeccion")
-        .eq("subtipo", "camara")
-        .single();
+  .from("registros")
+  .select("*")
+  .eq("id", id)
+  .eq("area", "vehiculos")
+  .eq("tipo", "inspeccion")
+  .eq("subtipo", "barredora")
+  .single();
 
       if (error || !data) { console.error(error); return; }
       setReport({ id: data.id, estado: data.estado, data: data.data, createdAt: data.created_at });
