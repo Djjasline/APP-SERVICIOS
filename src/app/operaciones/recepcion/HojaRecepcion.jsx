@@ -50,15 +50,16 @@ export default function HojaRecepcion() {
     if (!id) return;
 
     const load = async () => {
-      const { createClient } = await import("@supabase/supabase-js");
-      const { supabase } = await import("@/lib/supabase");
+    const { supabase } = await import("@/lib/supabase");
 
       const { data: reg, error } = await supabase
-        .from("registros")
-        .select("*")
-        .eq("id", id)
-        .single();
-
+  .from("registros")
+  .select("*")
+  .eq("id", id)
+  .eq("area", "operaciones")
+  .eq("tipo", "recepcion")
+  .eq("subtipo", "general")
+  .single();
       if (error || !reg) return;
 
       if (reg.data) {
@@ -124,22 +125,21 @@ export default function HojaRecepcion() {
         fuelLevel,
       };
 
-      const result = await saveOrUpdateReport({
-  id: isEditing ? id : null,
+  const result = await saveOrUpdateReport({
+  id: registroId || null,
 
   area: "operaciones",
 
   tipo: "recepcion",
   subtipo: "general",
 
-  data: finalData,
-  estado: estadoFinal,
+  data: payload,
+  estado: "borrador",
 });
-
       if (result?.id) setRegistroId(result.id);
 
       alert("Guardado correctamente");
-      navigate("/recepcion");
+      navigate("/operaciones/recepcion");
     } catch (error) {
       console.error("Error guardando:", error);
       alert("Error al guardar. Intenta de nuevo.");
@@ -155,7 +155,7 @@ export default function HojaRecepcion() {
       {/* ================= BOTONES SUPERIORES ================= */}
       <div className="flex justify-between items-center mb-2">
         <button
-          onClick={() => navigate("/recepcion")}
+          onClick={() => navigate("/operaciones/recepcion")}
           className="border px-4 py-2 rounded text-sm hover:bg-gray-50"
         >
           ← Volver
