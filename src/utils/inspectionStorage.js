@@ -104,7 +104,7 @@ export async function createInspection(type) {
       estado: "borrador",
     })
 
-    return result.id
+    return result?.id || null
   } catch (error) {
     console.error("Error creando inspección:", error)
     return null
