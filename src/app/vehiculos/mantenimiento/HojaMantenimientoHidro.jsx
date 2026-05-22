@@ -335,7 +335,7 @@ const result = await saveOrUpdateReport({
   area: "vehiculos",
 
   tipo: "mantenimiento",
-  subtipo: "barredora",
+  subtipo: "hidro",
 
   data: {
     ...data,
