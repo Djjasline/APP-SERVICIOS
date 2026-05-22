@@ -136,7 +136,7 @@ export default function HojaRecepcion() {
   subtipo: "general",
 
   data: payload,
-  estado: "borrador",
+estado: data.cliente && data.codigo && data.fecha ? "completado" : "borrador",
 });
       if (result?.id) setRegistroId(result.id);
 
