@@ -65,6 +65,7 @@ import LiberacionDetalle from "./app/operaciones/liberacion/LiberacionDetalle";
 
 import RecepcionHome from "./app/operaciones/recepcion/RecepcionHome";
 import HojaRecepcion from "./app/operaciones/recepcion/HojaRecepcion";
+import HojaRecepcionPDF from "./app/operaciones/recepcion/HojaRecepcionPDF";
 
 import RegistroHome from "./app/operaciones/registro/RegistroHome";
 import HojaRegistroHerramientas from "./app/operaciones/registro/HojaRegistroHerramientas";
@@ -204,6 +205,18 @@ export default function RoutesApp() {
           <Route path="/inspeccion/barredora/:id/pdf" element={<ProtectedRoute><TechRoute><InspeccionBarredoraPDF /></TechRoute></ProtectedRoute>} />
           <Route path="/inspeccion/camara/:id/pdf" element={<ProtectedRoute><TechRoute><InspeccionCamaraPDF /></TechRoute></ProtectedRoute>} />
 
+{/* Recepción PDF */}
+<Route
+  path="/operaciones/recepcion/:id/pdf"
+  element={
+    <ProtectedRoute>
+      <TechRoute>
+        <HojaRecepcionPDF />
+      </TechRoute>
+    </ProtectedRoute>
+  }
+/>
+          
           {/* Mantenimiento PDF */}
           <Route path="/mantenimiento/hidro/:id/pdf" element={<ProtectedRoute><TechRoute><MantenimientoHidroPDF /></TechRoute></ProtectedRoute>} />
           <Route path="/mantenimiento/barredora/:id/pdf" element={<ProtectedRoute><TechRoute><MantenimientoBarredoraPDF /></TechRoute></ProtectedRoute>} />
