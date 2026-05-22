@@ -62,6 +62,8 @@ export default function HojaRecepcion() {
   .single();
       if (error || !reg) return;
 
+      setRegistroId(reg.id);
+
       if (reg.data) {
         setData(reg.data.formulario || data);
         setChecks(reg.data.checks || {});
