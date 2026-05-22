@@ -59,7 +59,14 @@ export default function InspeccionCamaraPDF() {
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase.from("registros").select("*").eq("id", id).eq("tipo", "inspeccion").eq("subtipo", "camara").single();
+      const { data, error } = await supabase
+  .from("registros")
+  .select("*")
+  .eq("id", id)
+  .eq("area", "vehiculos")
+  .eq("tipo", "inspeccion")
+  .eq("subtipo", "camara")
+  .single();
       if (error || !data) { console.error(error); return; }
       setReport({ estado: data.estado, data: data.data });
     };
