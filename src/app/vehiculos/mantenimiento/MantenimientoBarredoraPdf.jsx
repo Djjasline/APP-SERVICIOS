@@ -154,13 +154,13 @@ export default function MantenimientoBarredoraPDF() {
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase
-        .from("registros")
-        .select("*")
-        .eq("id", id)
-        .eq("tipo", "mantenimiento")
-        .eq("subtipo", "barredora")
-        .single();
-
+  .from("registros")
+  .select("*")
+  .eq("id", id)
+  .eq("area", "vehiculos")
+  .eq("tipo", "mantenimiento")
+  .eq("subtipo", "barredora")
+  .single();
       if (error || !data) { console.error(error); return; }
       setReport({ id: data.id, estado: data.estado, data: data.data, createdAt: data.created_at });
     };
