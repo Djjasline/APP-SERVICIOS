@@ -216,11 +216,13 @@ useEffect(() => {
 
   const load = async () => {
     const { data: reg, error } = await supabase
-      .from("registros")
-      .select("*")
-      .eq("id", id)
-      .single();
-
+  .from("registros")
+  .select("*")
+  .eq("id", id)
+  .eq("area", "vehiculos")
+  .eq("tipo", "inspeccion")
+  .eq("subtipo", "barredora")
+  .single();
     if (error || !reg) return;
 
     const d = {
