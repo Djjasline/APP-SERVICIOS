@@ -8,9 +8,9 @@ import HojaInspeccionCamara from "./HojaInspeccionCamara";
 import HojaFirma from "./HojaFirma";
 
 /* ===== PDFS ===== */
-import InspeccionHidroPdf from "./InspeccionHidroPdf";
-import InspeccionBarredoraPdf from "./InspeccionBarredoraPdf";
-import InspeccionCamaraPdf from "./InspeccionCamaraPdf";
+import InspeccionHidroPDF from "./InspeccionHidroPDF";
+import InspeccionBarredoraPDF from "./InspeccionBarredoraPDF";
+import InspeccionCamaraPDF from "./InspeccionCamaraPDF";
 
 export default function InspectionRoutes() {
   return (
@@ -20,17 +20,17 @@ export default function InspectionRoutes() {
 
       {/* ================= HIDRO ================= */}
       <Route path="hidro/:id" element={<HojaInspeccionHidro />} />
-      <Route path="hidro/:id/pdf" element={<InspeccionHidroPdf />} />
+      <Route path="hidro/:id/pdf" element={<InspeccionHidroPDF />} />
       <Route path="hidro/:id/firma" element={<HojaFirma />} />
 
       {/* ================= BARREDORA ================= */}
       <Route path="barredora/:id" element={<HojaInspeccionBarredora />} />
-      <Route path="barredora/:id/pdf" element={<InspeccionBarredoraPdf />} /> 
+      <Route path="barredora/:id/pdf" element={<InspeccionBarredoraPDF />} /> 
       <Route path="barredora/:id/firma" element={<HojaFirma />} />
 
       {/* ================= CÁMARA ================= */}
       <Route path="camara/:id" element={<HojaInspeccionCamara />} />
-      <Route path="camara/:id/pdf" element={<InspeccionCamaraPdf />} />
+      <Route path="camara/:id/pdf" element={<InspeccionCamaraPDF />} />
       <Route path="camara/:id/firma" element={<HojaFirma />} />
     </Routes>
   );
