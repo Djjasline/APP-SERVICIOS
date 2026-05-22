@@ -17,10 +17,19 @@ export default function RecepcionHome() {
   // 🔄 CARGAR DATA
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase
-        .from("recepciones")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase
+  .from("registros")
+  .select("*")
+  .eq("area", "operaciones")
+  .eq("tipo", "recepcion")
+  .eq("subtipo", "general")
+  .order("created_at", { ascending: false });
+
+if (error) {
+  console.error(error);
+  setRegistros([]);
+  return;
+}
 
       setRegistros(data || []);
     };
@@ -30,8 +39,9 @@ export default function RecepcionHome() {
 
   // 🎯 FILTROS
   const filtered = registros.filter((r) => {
-    const equipo = r.data?.equipo?.toLowerCase() || "";
-    const codigo = r.data?.codigo?.toLowerCase() || "";
+    const form = r.data?.formulario || {};
+const equipo = form.equipo?.marca?.toLowerCase() || form.equipo?.modelo?.toLowerCase() || "";
+const codigo = form.codigo?.toLowerCase() || "";
     const fecha = r.updated_at || r.created_at;
 
     return (
@@ -44,15 +54,24 @@ export default function RecepcionHome() {
     );
   });
 
-  const open = (r) => navigate(`/recepcion/${r.id}`);
+  const open = (r) => navigate(`/operaciones/recepcion/${r.id}`);
 
   const remove = async (id) => {
     if (!confirm("¿Eliminar recepción?")) return;
 
-    await supabase
-      .from("recepciones")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase
+  .from("registros")
+  .delete()
+  .eq("id", id)
+  .eq("area", "operaciones")
+  .eq("tipo", "recepcion")
+  .eq("subtipo", "general");
+
+if (error) {
+  console.error(error);
+  alert("Error eliminando ❌");
+  return;
+}
 
     setRegistros((prev) => prev.filter((r) => r.id !== id));
   };
@@ -67,7 +86,7 @@ export default function RecepcionHome() {
         </h1>
 
         <button
-          onClick={() => navigate("/recepcion/new")}
+          onClick={() => navigate("/operaciones/recepcion/new")}
           className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
         >
           + Nueva recepción
@@ -150,11 +169,13 @@ export default function RecepcionHome() {
               <tr key={r.id} className="border-t hover:bg-gray-50">
 
                 <td className="px-4 py-2 font-medium text-gray-900">
-                  {r.data?.equipo || "—"}
+                  {r.data?.formulario?.equipo?.marca ||
+                   r.data?.formulario?.equipo?.modelo ||
+                   "—"}
                 </td>
 
                 <td className="px-4 py-2 text-gray-600">
-                  {r.data?.codigo || "—"}
+                  {r.data?.formulario?.codigo || "—"}
                 </td>
 
                 {/* ESTADO */}
