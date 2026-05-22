@@ -40,7 +40,7 @@ if (error) {
   // 🎯 FILTROS
   const filtered = registros.filter((r) => {
     const form = r.data?.formulario || {};
-const equipo = form.equipo?.marca?.toLowerCase() || form.equipo?.modelo?.toLowerCase() || "";
+const equipo = `${form.equipo?.marca || ""} ${form.equipo?.modelo || ""}`.toLowerCase();
 const codigo = form.codigo?.toLowerCase() || "";
     const fecha = r.updated_at || r.created_at;
 
@@ -169,9 +169,10 @@ if (error) {
               <tr key={r.id} className="border-t hover:bg-gray-50">
 
                 <td className="px-4 py-2 font-medium text-gray-900">
-                  {r.data?.formulario?.equipo?.marca ||
-                   r.data?.formulario?.equipo?.modelo ||
-                   "—"}
+                  {[
+  r.data?.formulario?.equipo?.marca,
+  r.data?.formulario?.equipo?.modelo,
+].filter(Boolean).join(" / ") || "—"}
                 </td>
 
                 <td className="px-4 py-2 text-gray-600">
