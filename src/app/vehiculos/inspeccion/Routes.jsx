@@ -8,9 +8,9 @@ import HojaInspeccionCamara from "./HojaInspeccionCamara";
 import HojaFirma from "./HojaFirma";
 
 /* ===== PDFS ===== */
-import InspeccionHidroPdf from "./pages/pdf/InspeccionHidroPdf";
-import InspeccionBarredoraPdf from "./pages/pdf/InspeccionBarredoraPdf";
-import InspeccionCamaraPdf from "./pages/pdf/InspeccionCamaraPdf";
+import InspeccionHidroPdf from "./InspeccionHidroPdf";
+import InspeccionBarredoraPdf from "./InspeccionBarredoraPdf";
+import InspeccionCamaraPdf from "./InspeccionCamaraPdf";
 
 export default function InspectionRoutes() {
   return (
