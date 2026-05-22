@@ -10,11 +10,12 @@ export default function IndexMantenimiento() {
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase
-        .from("registros")
-        .select("*")
-        .eq("tipo", "mantenimiento")
-        .order("created_at", { ascending: false });
-
+  .from("registros")
+  .select("*")
+  .eq("area", "vehiculos")
+  .eq("tipo", "mantenimiento")
+  .order("created_at", { ascending: false });
+      
       if (error) {
         console.error(error);
         setItems([]);
