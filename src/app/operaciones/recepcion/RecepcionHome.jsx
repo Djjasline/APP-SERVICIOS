@@ -201,21 +201,29 @@ if (error) {
                 </td>
 
                 <td className="px-4 py-2 text-right space-x-2">
-                  <button
-                    onClick={() => open(r)}
-                    className="text-blue-600 hover:underline"
-                  >
-                    Abrir
-                  </button>
+  <button
+    onClick={() => open(r)}
+    className="text-blue-600 hover:underline"
+  >
+    Abrir
+  </button>
 
-                  <button
-                    onClick={() => remove(r.id)}
-                    className="text-red-500 hover:underline"
-                  >
-                    Eliminar
-                  </button>
-                </td>
+  {r.estado === "completado" && (
+    <button
+      onClick={() => navigate(`/operaciones/recepcion/${r.id}/pdf`)}
+      className="text-green-600 hover:underline font-semibold"
+    >
+      PDF
+    </button>
+  )}
 
+  <button
+    onClick={() => remove(r.id)}
+    className="text-red-500 hover:underline"
+  >
+    Eliminar
+  </button>
+</td>
               </tr>
             ))}
           </tbody>
