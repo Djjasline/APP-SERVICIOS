@@ -66,6 +66,7 @@ import LiberacionDetalle from "./app/operaciones/liberacion/LiberacionDetalle";
 import RecepcionHome from "./app/operaciones/recepcion/RecepcionHome";
 import HojaRecepcion from "./app/operaciones/recepcion/HojaRecepcion";
 import HojaRecepcionPDF from "./app/operaciones/recepcion/HojaRecepcionPDF";
+import RecepcionPDF from "./app/operaciones/recepcion/RecepcionPDF";
 
 import RegistroHome from "./app/operaciones/registro/RegistroHome";
 import HojaRegistroHerramientas from "./app/operaciones/registro/HojaRegistroHerramientas";
@@ -175,7 +176,17 @@ export default function RoutesApp() {
             <Route path="/operaciones/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
             <Route path="/operaciones/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
             <Route path="/operaciones/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
-
+            <Route
+  path="/operaciones/recepcion/:id/pdf"
+  element={
+    <ProtectedRoute>
+      <TechRoute>
+        <RecepcionPDF />
+      </TechRoute>
+    </ProtectedRoute>
+  }
+/>
+            
             <Route path="/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
             <Route path="/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
             <Route path="/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
