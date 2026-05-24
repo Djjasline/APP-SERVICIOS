@@ -1,21 +1,50 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 
+const tipos = [
+  {
+    type: "hidro",
+    title: "Hidrosuccionador",
+    desc: "Mantenimiento preventivo de hidrosuccionador",
+    btn: "bg-blue-600 hover:bg-blue-700",
+  },
+  {
+    type: "barredora",
+    title: "Barredora",
+    desc: "Mantenimiento de barredoras",
+    btn: "bg-green-600 hover:bg-green-700",
+  },
+  {
+    type: "vcam",
+    title: "Cámara V-Cam6",
+    desc: "Mantenimiento de cámara de inspección",
+    btn: "bg-yellow-500 hover:bg-yellow-600",
+  },
+];
+
 export default function IndexMantenimiento() {
   const navigate = useNavigate();
-  const [items, setItems] = useState([]);
 
-  /* ── CARGAR DATOS ── */
+  const [items, setItems] = useState([]);
+  const [estado, setEstado] = useState("todos");
+
+  const [filters, setFilters] = useState({
+    cliente: "",
+    codigo: "",
+    tecnico: "",
+    equipo: "",
+  });
+
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase
-  .from("registros")
-  .select("*")
-  .eq("area", "vehiculos")
-  .eq("tipo", "mantenimiento")
-  .order("updated_at", { ascending: false });
-      
+        .from("registros")
+        .select("*")
+        .eq("area", "vehiculos")
+        .eq("tipo", "mantenimiento")
+        .order("updated_at", { ascending: false });
+
       if (error) {
         console.error(error);
         setItems([]);
@@ -28,28 +57,16 @@ export default function IndexMantenimiento() {
     load();
   }, []);
 
-  /* ── AGRUPAR POR SUBTIPO ── */
-  const safe = Array.isArray(items) ? items : [];
-
-  const byType = {
-    hidro:     safe.filter((i) => i.subtipo === "hidro"),
-    barredora: safe.filter((i) => i.subtipo === "barredora"),
-    vcam:      safe.filter((i) => i.subtipo === "vcam"),
-  };
-
-  /* ── ACCIONES ── */
-  const handleOpen = (type, id) => navigate(`/mantenimiento/${type}/${id}`);
-
   const handleDelete = async (id) => {
     if (!confirm("¿Eliminar mantenimiento?")) return;
 
     const { error } = await supabase
-  .from("registros")
-  .delete()
-  .eq("id", id)
-  .eq("area", "vehiculos")
-  .eq("tipo", "mantenimiento");
-    
+      .from("registros")
+      .delete()
+      .eq("id", id)
+      .eq("area", "vehiculos")
+      .eq("tipo", "mantenimiento");
+
     if (error) {
       console.error(error);
       alert("Error eliminando ❌");
@@ -59,92 +76,45 @@ export default function IndexMantenimiento() {
     setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
-  /* ── CARD REUTILIZABLE ── */
-  const renderCard = (title, desc, type, list, colorBtn, enConstruccion = false) => (
-    <div className="bg-white rounded-xl p-5 shadow border border-gray-200 space-y-4 hover:shadow-lg hover:-translate-y-1 transition duration-300">
+  const filtered = useMemo(() => {
+    return (items || []).filter((item) => {
+      const d = item.data || {};
+      const equipo = d.equipo || {};
 
-      <div className="flex justify-between items-start">
-        <div>
-          <h2 className="font-semibold text-gray-900">{title}</h2>
-          <p className="text-xs text-gray-600">{desc}</p>
-        </div>
-        {enConstruccion && (
-          <span className="bg-yellow-100 text-yellow-700 text-[10px] font-semibold px-2 py-1 rounded-full whitespace-nowrap">
-            🚧 En construcción
-          </span>
-        )}
+      const cliente = (d.cliente || "").toLowerCase();
+      const codigo = `${d.codInf || ""} ${d.pedidoDemanda || ""}`.toLowerCase();
+      const tecnico = (d.tecnicoNombre || "").toLowerCase();
+      const equipoTxt = `${equipo.marca || ""} ${equipo.modelo || ""} ${equipo.placa || ""} ${equipo.serie || ""}`.toLowerCase();
+
+      return (
+        (estado === "todos" || item.estado === estado) &&
+        cliente.includes(filters.cliente.toLowerCase()) &&
+        codigo.includes(filters.codigo.toLowerCase()) &&
+        tecnico.includes(filters.tecnico.toLowerCase()) &&
+        (filters.equipo === "" || item.subtipo === filters.equipo || equipoTxt.includes(filters.equipo.toLowerCase()))
+      );
+    });
+  }, [items, estado, filters]);
+
+  const renderCard = ({ type, title, desc, btn }) => (
+    <div
+      key={type}
+      className="bg-white rounded-xl p-5 shadow border border-gray-200 space-y-4"
+    >
+      <div>
+        <h2 className="font-semibold text-gray-900">{title}</h2>
+        <p className="text-sm text-gray-600">{desc}</p>
       </div>
 
       <button
         onClick={() => navigate(`/mantenimiento/${type}/new`)}
-        className={`px-3 py-2 ${colorBtn} hover:opacity-90 text-white rounded text-sm transition`}
+        className={`w-full px-4 py-2 text-white rounded text-sm transition ${btn}`}
       >
-        Crear mantenimiento
+        + Nuevo mantenimiento
       </button>
-
-      {/* Lista de registros — oculta si está en construcción */}
-      {!enConstruccion && (
-        <div className="space-y-2">
-          {list.length === 0 ? (
-            <p className="text-xs text-gray-500">Sin registros</p>
-          ) : (
-            list.map((item) => (
-              <div
-                key={item.id}
-                className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs flex flex-col gap-2"
-              >
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-gray-900">
-                    {item.data?.cliente || "Sin cliente"}
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                      item.estado === "completado"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}
-                  >
-                    {item.estado}
-                  </span>
-                </div>
-
-                <span className="text-[10px] text-gray-400">
-                  {new Date(item.updated_at || item.created_at).toLocaleString()}
-                </span>
-
-               <div className="flex gap-3 pt-1">
-  <button
-    onClick={() => handleOpen(type, item.id)}
-    className="text-blue-600 hover:underline"
-  >
-    Abrir
-  </button>
-
-  {item.estado === "completado" && (
-    <button
-      onClick={() => navigate(`/mantenimiento/${type}/${item.id}/pdf`)}
-      className="text-green-600 hover:underline font-semibold"
-    >
-      PDF
-    </button>
-  )}
-
-  <button
-    onClick={() => handleDelete(item.id)}
-    className="text-red-600 hover:underline"
-  >
-    Eliminar
-  </button>
-</div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
     </div>
   );
 
-  /* ── UI ── */
   return (
     <div className="p-6 space-y-6">
 
@@ -153,6 +123,7 @@ export default function IndexMantenimiento() {
         <h1 className="text-xl font-semibold text-white">
           Servicio de mantenimiento
         </h1>
+
         <button
           onClick={() => navigate("/area/vehiculos")}
           className="border border-gray-300 text-white bg-transparent px-4 py-1 rounded text-sm hover:bg-white/10 transition"
@@ -161,33 +132,147 @@ export default function IndexMantenimiento() {
         </button>
       </div>
 
-      {/* GRID — 3 columnas en pantallas grandes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      {/* CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {tipos.map(renderCard)}
+      </div>
 
-        {renderCard(
-          "Mantenimiento Hidrosuccionador",
-          "Control de mantenimiento preventivo de equipos",
-          "hidro",
-          byType.hidro,
-          "bg-blue-600"
+      {/* FILTROS */}
+      <div className="bg-white rounded-xl p-5 shadow border space-y-4">
+        <div className="flex gap-2">
+          {["todos", "borrador", "completado"].map((e) => (
+            <button
+              key={e}
+              onClick={() => setEstado(e)}
+              className={`px-4 py-2 rounded text-sm ${
+                estado === e
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {e}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <input
+            placeholder="Buscar cliente..."
+            value={filters.cliente}
+            onChange={(e) =>
+              setFilters((f) => ({ ...f, cliente: e.target.value }))
+            }
+            className="border rounded px-3 py-2 text-sm"
+          />
+
+          <input
+            placeholder="Pedido / Código..."
+            value={filters.codigo}
+            onChange={(e) =>
+              setFilters((f) => ({ ...f, codigo: e.target.value }))
+            }
+            className="border rounded px-3 py-2 text-sm"
+          />
+
+          <input
+            placeholder="Técnico..."
+            value={filters.tecnico}
+            onChange={(e) =>
+              setFilters((f) => ({ ...f, tecnico: e.target.value }))
+            }
+            className="border rounded px-3 py-2 text-sm"
+          />
+
+          <select
+            value={filters.equipo}
+            onChange={(e) =>
+              setFilters((f) => ({ ...f, equipo: e.target.value }))
+            }
+            className="border rounded px-3 py-2 text-sm"
+          >
+            <option value="">Equipo</option>
+            <option value="hidro">Hidrosuccionador</option>
+            <option value="barredora">Barredora</option>
+            <option value="vcam">Cámara V-Cam6</option>
+          </select>
+        </div>
+      </div>
+
+      {/* HISTORIAL */}
+      <div className="bg-white rounded-xl p-5 shadow border">
+        {filtered.length === 0 ? (
+          <p className="text-gray-400 text-sm">Sin resultados</p>
+        ) : (
+          <div className="space-y-3">
+            {filtered.map((item) => {
+              const d = item.data || {};
+              const equipo = d.equipo || {};
+              const tipoInfo = tipos.find((t) => t.type === item.subtipo);
+
+              return (
+                <div
+                  key={item.id}
+                  className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-gray-900">
+                        {d.cliente || "Sin cliente"}
+                      </h3>
+
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                          item.estado === "completado"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {item.estado || "borrador"}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-gray-600">
+                      {tipoInfo?.title || item.subtipo} · {equipo.marca || "—"} {equipo.modelo || ""}
+                    </p>
+
+                    <p className="text-[11px] text-gray-400">
+                      {new Date(item.updated_at || item.created_at).toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3 text-sm">
+                    <button
+                      onClick={() =>
+                        navigate(`/mantenimiento/${item.subtipo}/${item.id}`)
+                      }
+                      className="text-blue-600 hover:underline"
+                    >
+                      Abrir
+                    </button>
+
+                    {item.estado === "completado" && (
+                      <button
+                        onClick={() =>
+                          navigate(`/mantenimiento/${item.subtipo}/${item.id}/pdf`)
+                        }
+                        className="text-green-600 hover:underline font-semibold"
+                      >
+                        PDF
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
-
-        {renderCard(
-          "Mantenimiento Barredora",
-          "Gestión de mantenimiento de barredoras",
-          "barredora",
-          byType.barredora,
-          "bg-green-600"
-        )}
-
-        {renderCard(
-          "Mantenimiento Cámara V-Cam6",
-          "Mantenimiento de cámara de inspección V-Cam6",
-          "vcam",
-          byType.vcam,
-          "bg-yellow-500",
-          )}
-
       </div>
     </div>
   );
