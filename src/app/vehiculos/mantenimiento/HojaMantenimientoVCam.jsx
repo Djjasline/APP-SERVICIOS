@@ -415,7 +415,7 @@ const result = await saveOrUpdateReport({
   area: "vehiculos",
 
   tipo: "mantenimiento",
-  subtipo: "camara",
+  subtipo: "vcam",
 
   data: {
     ...data,
