@@ -43,8 +43,13 @@ export default function IndexMantenimiento() {
   const handleDelete = async (id) => {
     if (!confirm("¿Eliminar mantenimiento?")) return;
 
-    const { error } = await supabase.from("registros").delete().eq("id", id);
-
+    const { error } = await supabase
+  .from("registros")
+  .delete()
+  .eq("id", id)
+  .eq("area", "vehiculos")
+  .eq("tipo", "mantenimiento");
+    
     if (error) {
       console.error(error);
       alert("Error eliminando ❌");
@@ -107,14 +112,30 @@ export default function IndexMantenimiento() {
                   {new Date(item.updated_at || item.created_at).toLocaleString()}
                 </span>
 
-                <div className="flex gap-3 pt-1">
-                  <button onClick={() => handleOpen(type, item.id)} className="text-blue-600 hover:underline">
-                    Abrir
-                  </button>
-                  <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:underline">
-                    Eliminar
-                  </button>
-                </div>
+               <div className="flex gap-3 pt-1">
+  <button
+    onClick={() => handleOpen(type, item.id)}
+    className="text-blue-600 hover:underline"
+  >
+    Abrir
+  </button>
+
+  {item.estado === "completado" && (
+    <button
+      onClick={() => navigate(`/mantenimiento/${type}/${item.id}/pdf`)}
+      className="text-green-600 hover:underline font-semibold"
+    >
+      PDF
+    </button>
+  )}
+
+  <button
+    onClick={() => handleDelete(item.id)}
+    className="text-red-600 hover:underline"
+  >
+    Eliminar
+  </button>
+</div>
               </div>
             ))
           )}
