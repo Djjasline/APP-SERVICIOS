@@ -186,8 +186,7 @@ export default function IndexMantenimiento() {
           "vcam",
           byType.vcam,
           "bg-yellow-500",
-          true  // ← en construcción
-        )}
+          )}
 
       </div>
     </div>
