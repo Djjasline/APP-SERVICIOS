@@ -143,8 +143,13 @@ let query = supabase
   /* =============================
      CARD SIMPLE
   ============================== */
-  const renderCard = (title, desc, type) => (
-    <div className="bg-white p-5 rounded-xl shadow flex flex-col gap-4 hover:shadow-lg hover:-translate-y-1 transition">
+  const renderCard = (
+  title,
+  desc,
+  type,
+  colorBtn = "bg-blue-600 hover:bg-blue-700"
+) => (
+  <div className="bg-white p-5 rounded-xl shadow flex flex-col gap-4 hover:shadow-lg hover:-translate-y-1 transition">
       <div>
         <h2 className="font-semibold text-gray-900">{title}</h2>
         <p className="text-sm text-gray-500">{desc}</p>
@@ -152,7 +157,7 @@ let query = supabase
 
       <button
         onClick={() => navigate(`/inspeccion/${type}/new`)}
-        className="bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-500 transition"
+        className={`${colorBtn} text-white py-2 rounded-lg text-sm transition`}
       >
         + Nueva inspección
       </button>
