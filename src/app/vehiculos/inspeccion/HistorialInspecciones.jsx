@@ -186,10 +186,26 @@ let query = supabase
 
       {/* CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {renderCard("Hidrosuccionador", "Inspección general del equipo", "hidro")}
-        {renderCard("Barredora", "Inspección de barredoras", "barredora")}
-        {renderCard("Cámara", "Inspección con cámara", "camara")}
-      </div>
+       {renderCard(
+  "Hidrosuccionador",
+  "Inspección general del equipo",
+  "hidro",
+  "bg-blue-600 hover:bg-blue-700"
+)}
+
+{renderCard(
+  "Barredora",
+  "Inspección de barredoras",
+  "barredora",
+  "bg-green-600 hover:bg-green-700"
+)}
+
+{renderCard(
+  "Cámara",
+  "Inspección con cámara",
+  "camara",
+  "bg-yellow-500 hover:bg-yellow-600"
+)}      </div>
 
       {/* FILTROS */}
       <div className="bg-white p-4 rounded-xl shadow space-y-4">
