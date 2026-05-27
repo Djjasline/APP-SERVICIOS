@@ -418,10 +418,10 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         <td
           style={{
             ...S.cell,
-            height: 160,
+            height: 120,
             textAlign: "center",
             verticalAlign: "top",
-            paddingTop: 12,
+            paddingTop: 6,
           }}
         >
           {data.firmas?.tecnico && (
@@ -430,7 +430,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
               alt="Firma técnico"
               style={{
                 width: "100%",
-                maxWidth: 240,
+                maxWidth: 180,
                 height: "auto",
                 objectFit: "contain",
                 display: "block",
@@ -457,7 +457,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             height: 160,
             textAlign: "center",
             verticalAlign: "top",
-            paddingTop: 12,
+            paddingTop: 6,
           }}
         >
           {data.firmas?.cliente && (
@@ -466,7 +466,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
               alt="Firma cliente"
               style={{
                 width: "100%",
-                maxWidth: 240,
+                maxWidth: 180,
                 height: "auto",
                 objectFit: "contain",
                 display: "block",
@@ -520,9 +520,10 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         >
           Descargar PDF
         </button>
-      </div>
+        </div>
 
     </div>
+    </>
   );
 }
 
