@@ -64,10 +64,9 @@ const secciones = [
     ],
   },
   {
-    titulo: "4. OTROS (ESPECIFICAR)",
-    tipo: "otros",
-    items: ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6"],
-  },
+  titulo: "4. OTROS (ESPECIFICAR)",
+  tipo: "otros",
+},
   {
     titulo: "5. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POSTERIOR AL SERVICIO",
     tipo: "simple",
@@ -82,22 +81,28 @@ const secciones = [
 ];
 
 /* ── TABLA DE SECCIÓN ── */
-function SeccionTable({ sec, items }) {
-  const esOtros   = sec.tipo === "otros";
+function SeccionTable({ sec, items, extras = [] }) {
+  const esOtros = sec.tipo === "otros";
   const esCantidad = sec.tipo === "cantidad";
 
-  const filas = sec.items
-    .map((it) => {
-      const codigo = Array.isArray(it) ? it[0] : it;
-      const texto  = Array.isArray(it) ? it[1] : "";
-      const item   = items?.[codigo] || {};
+  const filas = esOtros
+    ? extras.map((extra) => ({
+        codigo: extra.item,
+        texto: extra.detalle || "—",
+        item: {
+          estado: extra.estado,
+          observacion: extra.observacion,
+        },
+      }))
+    : sec.items
+        .map((it) => {
+          const codigo = Array.isArray(it) ? it[0] : it;
+          const texto = Array.isArray(it) ? it[1] : "";
+          const item = items?.[codigo] || {};
 
-      // Para "otros": sólo mostrar si tiene detalle o estado
-      if (esOtros && !item.detalle && !item.estado) return null;
-
-      return { codigo, texto, item };
-    })
-    .filter(Boolean);
+          return { codigo, texto, item };
+        })
+        .filter(Boolean);
 
   if (esOtros && filas.length === 0) return null;
 
@@ -113,35 +118,45 @@ function SeccionTable({ sec, items }) {
           <th style={{ ...S.th, textAlign: "left" }}>OBSERVACIÓN</th>
         </tr>
       </thead>
+
       <tbody>
         {filas.map(({ codigo, texto, item }) => {
           const esSI = item.estado === "SI";
           const esNO = item.estado === "NO";
+
           return (
             <tr key={codigo}>
               <td style={{ ...S.cell, fontWeight: 700 }}>{codigo}</td>
-              <td style={S.cell}>{esOtros ? (item.detalle || "—") : texto}</td>
+              <td style={S.cell}>{texto || "—"}</td>
+
               {esCantidad && (
                 <td style={{ ...S.cell, textAlign: "center" }}>
                   {item.cantidad || "—"}
                 </td>
               )}
-              <td style={{
-                ...S.cell,
-                textAlign: "center",
-                backgroundColor: esSI ? "#dcfce7" : "#fff",
-                fontWeight: esSI ? 700 : 400,
-              }}>
+
+              <td
+                style={{
+                  ...S.cell,
+                  textAlign: "center",
+                  backgroundColor: esSI ? "#dcfce7" : "#fff",
+                  fontWeight: esSI ? 700 : 400,
+                }}
+              >
                 {esSI ? "✓" : ""}
               </td>
-              <td style={{
-                ...S.cell,
-                textAlign: "center",
-                backgroundColor: esNO ? "#fee2e2" : "#fff",
-                fontWeight: esNO ? 700 : 400,
-              }}>
+
+              <td
+                style={{
+                  ...S.cell,
+                  textAlign: "center",
+                  backgroundColor: esNO ? "#fee2e2" : "#fff",
+                  fontWeight: esNO ? 700 : 400,
+                }}
+              >
                 {esNO ? "✓" : ""}
               </td>
+
               <td style={S.cell}>{item.observacion || "—"}</td>
             </tr>
           );
@@ -150,7 +165,6 @@ function SeccionTable({ sec, items }) {
     </table>
   );
 }
-
 /* ══════════════════════════════
    COMPONENTE PRINCIPAL
 ══════════════════════════════ */
@@ -384,17 +398,17 @@ export default function MantenimientoHidroPDF() {
         <div className="page-break" />
         {secciones.map((sec, i) => {
           // Para "otros": si ningún ítem tiene datos, omitir sección entera
-          if (sec.tipo === "otros") {
-            const tieneOtros = sec.items.some((codigo) => {
-              const item = d.items?.[codigo] || {};
-              return item.detalle || item.estado;
-            });
-            if (!tieneOtros) return null;
-          }
+          if (sec.tipo === "otros" && !(d.extras || []).length) {
+  return null;
+}
           return (
             <div key={i} className="no-break">
               <p style={{ ...S.sectionTitle, marginTop: i === 0 ? 0 : 14 }}>{sec.titulo}</p>
-              <SeccionTable sec={sec} items={d.items} />
+              <SeccionTable
+  sec={sec}
+  items={d.items}
+  extras={d.extras || []}
+/>
             </div>
           );
         })}
