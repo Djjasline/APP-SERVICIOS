@@ -447,13 +447,13 @@ export default function MantenimientoHidroPDF() {
                         src={d.firmas.tecnico}
                         alt="Firma técnico"
                         style={{
-                          maxHeight: 38,
-                          width: "auto",
-                          maxWidth: 160,
-                          objectFit: "contain",
-                          display: "block",
-                          filter: "contrast(1.05)",
-                        }}
+  maxHeight: 62,
+  width: "100%",
+  maxWidth: 240,
+  objectFit: "contain",
+  display: "block",
+  filter: "contrast(1.1)",
+}}
                       />
                     ) : (
                       <span style={{ fontSize: 10, color: "#9ca3af" }}>Sin firma</span>
