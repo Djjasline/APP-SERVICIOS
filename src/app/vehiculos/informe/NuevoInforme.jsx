@@ -13,10 +13,14 @@ import ReportHeader from "@/components/report/ReportHeader";
 export default function NuevoInforme() {
   const navigate = useNavigate();
   const { user } = useAuth();
-const {
-  technicians,
-  loading: loadingTechnicians,
-} = useTechnicians();
+
+  const esSantiago =
+    user?.email?.toLowerCase() === "smaviles@astap.com";
+
+  const {
+    technicians,
+    loading: loadingTechnicians,
+  } = useTechnicians();
   const [uploadingCount, setUploadingCount] = useState(0);
   const uploading = uploadingCount > 0;
 
@@ -107,19 +111,21 @@ const {
   /* ===========================
      PRELLENAR TÉCNICO LOGUEADO
   =========================== */
-  useEffect(() => {
-    if (!user || id || loadingTechnicians) return;
+ useEffect(() => {
+  if (!user || id || loadingTechnicians) return;
 
-   const tech = getLoggedTechnician(user, technicians);
-    if (!tech) return;
+  if (esSantiago) return;
 
-    setData((prev) => ({
-      ...prev,
-      tecnicoNombre: tech.name,
-      tecnicoTelefono: tech.phone,
-      tecnicoCorreo: tech.email,
-    }));
-  }, [user, id, technicians, loadingTechnicians]);
+  const tech = getLoggedTechnician(user, technicians);
+  if (!tech) return;
+
+  setData((prev) => ({
+    ...prev,
+    tecnicoNombre: tech.name,
+    tecnicoTelefono: tech.phone,
+    tecnicoCorreo: tech.email,
+  }));
+}, [user, id, technicians, loadingTechnicians, esSantiago]);
 
   /* ===========================
      LIMPIAR OVERFLOW AL DESMONTAR
@@ -615,10 +621,10 @@ if (error) {
               </td>
               <td className="pdf-label">TÉCNICO RESPONSABLE</td>
               <td>
-                <select
+               <select
   className="pdf-input w-full"
   value={data.tecnicoNombre}
-  disabled={loadingTechnicians}
+  disabled={loadingTechnicians || !esSantiago}
   onChange={(e) => {
     const tech = (technicians || []).find(
       (t) => t.name === e.target.value
