@@ -138,11 +138,7 @@ const sigCliente = useRef(null);
       document.body.style.overflow = "";
     };
   }, []);
-  useEffect(() => {
-  return () => {
-    document.body.style.overflow = "";
-  };
-}, []);
+ 
 
 useEffect(() => {
   const resize = () => {
@@ -267,7 +263,7 @@ useEffect(() => {
   =========================== */
   const compressAndUploadImage = async (file, folder = "actividad") => {
     const compressedFile = await imageCompression(file, {
-      maxSizeMB: 0.25,
+      maxSizeMB: 0.18,
       maxWidthOrHeight: 1024,
       useWebWorker: true,
       fileType: "image/jpeg",
@@ -309,7 +305,7 @@ useEffect(() => {
           : [];
 
         if (imagenes.length >= 4) return prev;
-
+if (imagenes.includes(url)) return prev;
         imagenes.push(url);
         actividad.imagenes = imagenes;
         copy.actividades[actividadIndex] = actividad;
@@ -328,6 +324,12 @@ useEffect(() => {
   =========================== */
   const handleEstadoEquipoImagesUpload = async (files) => {
     const selectedFiles = Array.from(files || []);
+    const actuales = data.estadoEquipo?.imagenes?.length || 0;
+
+if (actuales + selectedFiles.length > 12) {
+  alert("Máximo 12 fotografías");
+  return;
+}
     if (selectedFiles.length === 0) return;
 
     setUploadingCount((prev) => prev + selectedFiles.length);
