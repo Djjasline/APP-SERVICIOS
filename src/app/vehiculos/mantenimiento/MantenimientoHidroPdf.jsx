@@ -356,7 +356,7 @@ export default function MantenimientoHidroPDF() {
                     <img
                       src={img.url}
                       alt={`estado-${i + 1}`}
-                      style={{ width: "100%", maxHeight: 300, objectFit: "contain", display: "block" }}
+                      style={{ width: "100%", maxHeight: 230, objectFit: "contain", display: "block" }}
                     />
                     {(img.puntos || []).map((p, pi) => (
                       <div
@@ -395,14 +395,13 @@ export default function MantenimientoHidroPDF() {
         </div>
 
         {/* ── SECCIONES DE MANTENIMIENTO ── */}
-        <div className="page-break" />
-        {secciones.map((sec, i) => {
+{secciones.map((sec, i) => {
           // Para "otros": si ningún ítem tiene datos, omitir sección entera
           if (sec.tipo === "otros" && !(d.extras || []).length) {
   return null;
 }
           return (
-            <div key={i} className="no-break">
+            <div key={i}>
               <p style={{ ...S.sectionTitle, marginTop: i === 0 ? 0 : 14 }}>{sec.titulo}</p>
               <SeccionTable
   sec={sec}
