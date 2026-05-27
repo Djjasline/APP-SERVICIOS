@@ -238,7 +238,7 @@ if (esSantiago) return;
     tecnicoTelefono: loggedTech.phone || loggedTech.telefono || "",
     tecnicoCorreo: loggedTech.email || loggedTech.correo || "",
   }));
-}, [user?.email, isEditing, loadingTecnicos, technicians, superAdminActivo]);
+}, [user?.email, isEditing, loadingTecnicos, technicians, esSantiago]);
 
   /* ── LIMPIAR SCROLL LOCK ── */
   useEffect(() => {
