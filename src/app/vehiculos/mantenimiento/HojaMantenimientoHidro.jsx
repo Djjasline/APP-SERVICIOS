@@ -103,12 +103,15 @@ const emptyForm = {
    COMPONENTE
 ═══════════════════════════════════════ */
 export default function HojaMantenimientoHidro() {
-  const { id }    = useParams();
-  const navigate  = useNavigate();
-  const { user, isSuperAdmin } = useAuth();
-   const superAdminActivo =
-  typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
-   
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const { user } = useAuth();
+
+  // Santiago puede seleccionar cualquier técnico
+  const esSantiago =
+    user?.email?.toLowerCase() === "smaviles@astap.com";
+
   const isEditing = !!id;
 
   const { technicians, loading: loadingTecnicos } = useTechnicians();
@@ -116,12 +119,12 @@ export default function HojaMantenimientoHidro() {
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
 
-  const [data, setData]                     = useState(emptyForm);
-  const [guardando, setGuardando]           = useState(false);
+  const [data, setData] = useState(emptyForm);
+  const [guardando, setGuardando] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
-  const [successMsg, setSuccessMsg]         = useState("");
-  const uploading = uploadingCount > 0;
+  const [successMsg, setSuccessMsg] = useState("");
 
+  const uploading = uploadingCount > 0;
   /* ── PROGRESO ── */
   const itemsMarcados = todosLosItemsFijos.filter((c) => data.items[c]?.estado).length;
   const totalItems    = todosLosItemsFijos.length;
