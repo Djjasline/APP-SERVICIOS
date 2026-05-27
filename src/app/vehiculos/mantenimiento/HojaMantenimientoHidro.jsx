@@ -123,8 +123,10 @@ export default function HojaMantenimientoHidro() {
   const [guardando, setGuardando] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [successMsg, setSuccessMsg] = useState("");
+const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
+const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
 
-  const uploading = uploadingCount > 0;
+const uploading = uploadingCount > 0;
   /* ── PROGRESO ── */
   const itemsMarcados = todosLosItemsFijos.filter((c) => data.items[c]?.estado).length;
   const totalItems    = todosLosItemsFijos.length;
@@ -361,14 +363,15 @@ if (esSantiago) return;
 
     setGuardando(true);
     try {
-      const firmaTecnico =
-        sigTecnico.current?.isEmpty?.() === false
-          ? sigTecnico.current.toDataURL()
-          : data.firmas?.tecnico || "";
-      const firmaCliente =
-        sigCliente.current?.isEmpty?.() === false
-          ? sigCliente.current.toDataURL()
-          : data.firmas?.cliente || "";
+     const firmaTecnico =
+  firmaTecnicoEditada && sigTecnico.current?.isEmpty?.() === false
+    ? sigTecnico.current.toDataURL()
+    : data.firmas?.tecnico || "";
+
+const firmaCliente =
+  firmaClienteEditada && sigCliente.current?.isEmpty?.() === false
+    ? sigCliente.current.toDataURL()
+    : data.firmas?.cliente || "";
 
       const estadoFinal = firmaTecnico && firmaCliente ? "completado" : "borrador";
 
@@ -887,7 +890,10 @@ const result = await saveOrUpdateReport({
                       penColor="black"
                       minWidth={0.5}
                       maxWidth={1.5}
-                      onBegin={() => { document.body.style.overflow = "hidden"; }}
+                      onBegin={() => {
+  setFirmaTecnicoEditada(true);
+  document.body.style.overflow = "hidden";
+}}
                       onEnd={() => { document.body.style.overflow = ""; }}
                       canvasProps={{ className: "w-full h-full touch-none" }}
                     />
@@ -911,7 +917,10 @@ const result = await saveOrUpdateReport({
                       penColor="black"
                       minWidth={0.5}
                       maxWidth={1.5}
-                      onBegin={() => { document.body.style.overflow = "hidden"; }}
+                      onBegin={() => {
+  setFirmaClienteEditada(true);
+  document.body.style.overflow = "hidden";
+}}
                       onEnd={() => { document.body.style.overflow = ""; }}
                       canvasProps={{ className: "w-full h-full touch-none" }}
                     />
