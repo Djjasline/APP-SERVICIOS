@@ -454,7 +454,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         <td
           style={{
             ...S.cell,
-            height: 160,
+            height: 120,
             textAlign: "center",
             verticalAlign: "top",
             paddingTop: 6,
