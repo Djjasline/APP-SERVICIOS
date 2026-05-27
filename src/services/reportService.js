@@ -25,9 +25,12 @@ export const saveOrUpdateReport = async ({
       subtipo, // general | hidro | barredora | camara | bomba | valvula
       data,
       estado,
-      user_id: user.id,
       updated_at: new Date().toISOString(),
-    };
+};
+
+if (!id) {
+  payload.user_id = user.id;
+}
 
     let query;
 
