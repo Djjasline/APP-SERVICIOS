@@ -1161,7 +1161,7 @@ const firmaCliente =
             throttle={0}
             velocityFilterWeight={0.7}
             onBegin={() => {
-  setFirmaClienteEditada(true);
+  setFirmaTecnicoEditada(true);
   document.activeElement?.blur();
   document.body.style.overflow = "hidden";
 }}
@@ -1207,13 +1207,12 @@ onEnd={() => {
             maxWidth={1.5}
             throttle={0}
             velocityFilterWeight={0.7}
-           onBegin={() => {
+          onBegin={() => {
   setFirmaClienteEditada(true);
   document.activeElement?.blur();
   document.body.style.overflow = "hidden";
 }}
-            }}
-            onEnd={() => {
+onEnd={() => {
               document.body.style.overflow = "";
             }}
             canvasProps={{
