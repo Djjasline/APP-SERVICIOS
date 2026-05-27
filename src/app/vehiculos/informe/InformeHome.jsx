@@ -39,8 +39,8 @@ let query = supabase
 
         // Técnicos normales solo ven lo suyo
         // Santiago / super_admin ve todo
-       if (!superAdminActivo) {
-  query = query.eq("user_id", user.id);
+      if (!superAdminActivo) {
+  query = query.eq("data->>tecnicoCorreo", user.email);
 }
 
         const { data, error } = await query;
@@ -107,8 +107,8 @@ let query = supabase
     let query = supabase.from("registros").delete().eq("id", id);
 
    if (!superAdminActivo) {
-      query = query.eq("user_id", user.id);
-    }
+  query = query.eq("data->>tecnicoCorreo", user.email);
+}
 
     const { error } = await query;
 
