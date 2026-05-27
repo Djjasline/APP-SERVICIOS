@@ -84,9 +84,12 @@ export default function NuevoInforme() {
     },
   };
 
-  const [data, setData] = useState(emptyReport);
-  const sigTecnico = useRef(null);
-  const sigCliente = useRef(null);
+ const [data, setData] = useState(emptyReport);
+const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
+const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
+
+const sigTecnico = useRef(null);
+const sigCliente = useRef(null);
   const resizeCanvas = (canvas) => {
   if (!canvas) return;
 
@@ -512,14 +515,14 @@ if (error) {
 }
     try {
       const firmaTecnico =
-        sigTecnico.current?.isEmpty?.() === false
-          ? sigTecnico.current.toDataURL()
-          : "";
+  firmaTecnicoEditada && sigTecnico.current?.isEmpty?.() === false
+    ? sigTecnico.current.toDataURL()
+    : data.firmas?.tecnico || "";
 
-      const firmaCliente =
-        sigCliente.current?.isEmpty?.() === false
-          ? sigCliente.current.toDataURL()
-          : "";
+const firmaCliente =
+  firmaClienteEditada && sigCliente.current?.isEmpty?.() === false
+    ? sigCliente.current.toDataURL()
+    : data.firmas?.cliente || "";
 
       const firmaTecnicoFinal = firmaTecnico || data.firmas?.tecnico || "";
       const firmaClienteFinal = firmaCliente || data.firmas?.cliente || "";
@@ -1158,8 +1161,10 @@ if (error) {
             throttle={0}
             velocityFilterWeight={0.7}
             onBegin={() => {
-              document.activeElement?.blur();
-              document.body.style.overflow = "hidden";
+  setFirmaTecnicoEditada(true);
+  document.activeElement?.blur();
+  document.body.style.overflow = "hidden";
+}}
             }}
             onEnd={() => {
               document.body.style.overflow = "";
@@ -1203,9 +1208,11 @@ if (error) {
             maxWidth={1.5}
             throttle={0}
             velocityFilterWeight={0.7}
-            onBegin={() => {
-              document.activeElement?.blur();
-              document.body.style.overflow = "hidden";
+           onBegin={() => {
+  setFirmaClienteEditada(true);
+  document.activeElement?.blur();
+  document.body.style.overflow = "hidden";
+}}
             }}
             onEnd={() => {
               document.body.style.overflow = "";
