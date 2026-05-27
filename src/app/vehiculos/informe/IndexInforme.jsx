@@ -11,12 +11,12 @@ export default function IndexInforme() {
      CARGAR INFORMES (SOLO SUPABASE)
   =========================== */
   const cargarInformes = async () => {
-   const { data, error } = await supabase
+  const { data, error } = await supabase
   .from("registros")
   .select("*")
   .eq("area", "vehiculos")
   .eq("tipo", "informe")
-  .eq("subtipo", "general")
+  // .eq("subtipo", "general")
   .order("created_at", { ascending: false });
 
     if (error) {
