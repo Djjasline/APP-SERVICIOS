@@ -105,7 +105,7 @@ const emptyForm = {
 export default function HojaMantenimientoHidro() {
   const { id }    = useParams();
   const navigate  = useNavigate();
-  const { user }  = useAuth();
+  const { user, isSuperAdmin } = useAuth();
   const isEditing = !!id;
 
   const { technicians, loading: loadingTecnicos } = useTechnicians();
@@ -212,23 +212,27 @@ const updateExtra = (index, field, value) => {
   }, [id]);
 
   /* ── AUTO-RELLENAR TÉCNICO LOGUEADO ── */
-  useEffect(() => {
-    if (!user?.email || isEditing || loadingTecnicos) return;
+useEffect(() => {
+  if (!user?.email || isEditing || loadingTecnicos) return;
 
-    const loggedTech = (technicians || []).find((t) => {
-      const email = t.email || t.correo || "";
-      return email.toLowerCase() === user.email.toLowerCase();
-    });
+  // Si es super admin, no auto-rellenar técnico.
+  // Así Santiago puede seleccionar cualquier técnico manualmente.
+  if (isSuperAdmin) return;
 
-    if (!loggedTech) return;
+  const loggedTech = (technicians || []).find((t) => {
+    const email = t.email || t.correo || "";
+    return email.toLowerCase() === user.email.toLowerCase();
+  });
 
-    setData((prev) => ({
-      ...prev,
-      tecnicoNombre:   loggedTech.name     || loggedTech.nombre  || "",
-      tecnicoTelefono: loggedTech.phone    || loggedTech.telefono || "",
-      tecnicoCorreo:   loggedTech.email    || loggedTech.correo   || "",
-    }));
-  }, [user?.email, isEditing, loadingTecnicos, technicians]);
+  if (!loggedTech) return;
+
+  setData((prev) => ({
+    ...prev,
+    tecnicoNombre:   loggedTech.name     || loggedTech.nombre  || "",
+    tecnicoTelefono: loggedTech.phone    || loggedTech.telefono || "",
+    tecnicoCorreo:   loggedTech.email    || loggedTech.correo   || "",
+  }));
+}, [user?.email, isEditing, loadingTecnicos, technicians, isSuperAdmin]);
 
   /* ── LIMPIAR SCROLL LOCK ── */
   useEffect(() => {
