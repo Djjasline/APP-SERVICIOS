@@ -8,6 +8,11 @@ export default function InformeHome() {
   const navigate = useNavigate();
   const { user, isSuperAdmin } = useAuth();
 
+const superAdminActivo =
+  typeof isSuperAdmin === "function"
+    ? isSuperAdmin()
+    : !!isSuperAdmin;
+
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState("todos");
 
@@ -36,9 +41,9 @@ let query = supabase
 
         // Técnicos normales solo ven lo suyo
         // Santiago / super_admin ve todo
-        if (!isSuperAdmin) {
-          query = query.eq("user_id", user.id);
-        }
+       if (!superAdminActivo) {
+  query = query.eq("user_id", user.id);
+}
 
         const { data, error } = await query;
 
@@ -56,8 +61,8 @@ let query = supabase
     };
 
     loadReports();
-  }, [user?.id, isSuperAdmin]);
-
+ }, [user?.id, superAdminActivo]);
+  
   /* ===========================
      FILTROS
   =========================== */
@@ -103,7 +108,7 @@ let query = supabase
 
     let query = supabase.from("registros").delete().eq("id", id);
 
-    if (!isSuperAdmin) {
+   if (!superAdminActivo) {
       query = query.eq("user_id", user.id);
     }
 
@@ -139,7 +144,7 @@ let query = supabase
       </div>
 
       {/* AVISO SUPER ADMIN */}
-      {isSuperAdmin && (
+     {superAdminActivo && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg text-sm">
           Modo super administrador: estás viendo todos los informes.
         </div>
