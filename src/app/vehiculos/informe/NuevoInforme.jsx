@@ -1161,14 +1161,13 @@ const firmaCliente =
             throttle={0}
             velocityFilterWeight={0.7}
             onBegin={() => {
-  setFirmaTecnicoEditada(true);
+  setFirmaClienteEditada(true);
   document.activeElement?.blur();
   document.body.style.overflow = "hidden";
 }}
-            }}
-            onEnd={() => {
-              document.body.style.overflow = "";
-            }}
+onEnd={() => {
+  document.body.style.overflow = "";
+}}
             canvasProps={{
               className: "w-full h-full touch-none",
             }}
