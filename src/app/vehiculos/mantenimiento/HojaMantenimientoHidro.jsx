@@ -56,11 +56,10 @@ const secciones = [
     ],
   },
   {
-    id: "4",
-    titulo: "4. OTROS (ESPECIFICAR)",
-    tipo: "otros",
-    items: ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6"],
-  },
+  id: "4",
+  titulo: "4. OTROS (ESPECIFICAR)",
+  tipo: "otros",
+},
   {
     id: "5",
     titulo: "5. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POSTERIOR AL SERVICIO",
@@ -95,6 +94,7 @@ const emptyForm = {
   },
   estadoEquipo: { imagenes: [] },
   items: {},
+  extras: [], 
   notaFinal: "",
   firmas: { tecnico: "", cliente: "", clienteCedula: "" },
 };
@@ -140,7 +140,40 @@ export default function HojaMantenimientoHidro() {
       return copy;
     });
   };
+const agregarExtra = () => {
+  setData((prev) => ({
+    ...prev,
+    extras: [
+      ...prev.extras,
+      {
+        item: `4.${prev.extras.length + 1}`,
+        detalle: "",
+        estado: "",
+        observacion: "",
+      },
+    ],
+  }));
+};
 
+const eliminarExtra = (index) => {
+  setData((prev) => ({
+    ...prev,
+    extras: prev.extras.filter((_, i) => i !== index),
+  }));
+};
+
+const updateExtra = (index, field, value) => {
+  setData((prev) => {
+    const extras = [...prev.extras];
+
+    extras[index][field] = value;
+
+    return {
+      ...prev,
+      extras,
+    };
+  });
+};
   /* ── CARGAR DESDE SUPABASE ── */
   useEffect(() => {
     if (!id) return;
@@ -671,75 +704,110 @@ const result = await saveOrUpdateReport({
                   </tr>
                 </thead>
                 <tbody>
-                  {sec.items.map((it) => {
-                    const codigo = Array.isArray(it) ? it[0] : it;
-                    const texto  = Array.isArray(it) ? it[1] : "";
-                    return (
-                      <tr key={codigo} className="hover:bg-gray-50">
-                        <td className="pdf-label">{codigo}</td>
-                        <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>
-                          {sec.tipo === "otros" ? (
-                            <input
-                              className="pdf-input w-full"
-                              placeholder="Especificar..."
-                              value={data.items?.[codigo]?.detalle || ""}
-                              onChange={(e) => handleItem(codigo, "detalle", e.target.value)}
-                            />
-                          ) : (
-                            texto
-                          )}
-                        </td>
-                        {sec.tipo === "cantidad" && (
-                          <td style={{ border: "1px solid #d1d5db", padding: "4px", textAlign: "center" }}>
-                            <input
-                              type="number"
-                              className="pdf-input w-16 text-center"
-                              value={data.items?.[codigo]?.cantidad || ""}
-                              onChange={(e) => handleItem(codigo, "cantidad", e.target.value)}
-                            />
-                          </td>
-                        )}
-                        <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
-                          <input
-                            type="radio"
-                            name={`e-${codigo}`}
-                            checked={data.items?.[codigo]?.estado === "SI"}
-                            onChange={() => handleItem(codigo, "estado", "SI")}
-                          />
-                        </td>
-                        <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
-                          <input
-                            type="radio"
-                            name={`e-${codigo}`}
-                            checked={data.items?.[codigo]?.estado === "NO"}
-                            onChange={() => handleItem(codigo, "estado", "NO")}
-                          />
-                        </td>
-                        <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
-                          <textarea
-                            value={data.items?.[codigo]?.observacion || ""}
-                            onChange={(e) => {
-                              handleItem(codigo, "observacion", e.target.value);
-                              e.target.style.height = "auto";
-                              e.target.style.height = e.target.scrollHeight + "px";
-                            }}
-                            ref={(el) => {
-                              if (el) {
-                                el.style.height = "auto";
-                                el.style.height = el.scrollHeight + "px";
-                              }
-                            }}
-                            placeholder="Observaciones..."
-                            className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
-                          />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </section>
-          ))}
+       {sec.tipo === "otros"
+  ? data.extras.map((extra, index) => (
+      <tr key={index} className="hover:bg-gray-50">
+        <td className="pdf-label">{extra.item}</td>
+
+        <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>
+          <input
+            className="pdf-input w-full"
+            placeholder="Especificar..."
+            value={extra.detalle}
+            onChange={(e) => updateExtra(index, "detalle", e.target.value)}
+          />
+        </td>
+
+        <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+          <input
+            type="radio"
+            name={`extra-${index}`}
+            checked={extra.estado === "SI"}
+            onChange={() => updateExtra(index, "estado", "SI")}
+          />
+        </td>
+
+        <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+          <input
+            type="radio"
+            name={`extra-${index}`}
+            checked={extra.estado === "NO"}
+            onChange={() => updateExtra(index, "estado", "NO")}
+          />
+        </td>
+
+        <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
+          <textarea
+            value={extra.observacion}
+            onChange={(e) => updateExtra(index, "observacion", e.target.value)}
+            placeholder="Observaciones..."
+            className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
+          />
+        </td>
+      </tr>
+    ))
+  : sec.items.map((it) => {
+      const codigo = Array.isArray(it) ? it[0] : it;
+      const texto = Array.isArray(it) ? it[1] : "";
+
+      return (
+        <tr key={codigo} className="hover:bg-gray-50">
+          <td className="pdf-label">{codigo}</td>
+
+          <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>
+            {texto}
+          </td>
+
+          {sec.tipo === "cantidad" && (
+            <td style={{ border: "1px solid #d1d5db", padding: "4px", textAlign: "center" }}>
+              <input
+                type="number"
+                className="pdf-input w-16 text-center"
+                value={data.items?.[codigo]?.cantidad || ""}
+                onChange={(e) => handleItem(codigo, "cantidad", e.target.value)}
+              />
+            </td>
+          )}
+
+          <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+            <input
+              type="radio"
+              name={`e-${codigo}`}
+              checked={data.items?.[codigo]?.estado === "SI"}
+              onChange={() => handleItem(codigo, "estado", "SI")}
+            />
+          </td>
+
+          <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+            <input
+              type="radio"
+              name={`e-${codigo}`}
+              checked={data.items?.[codigo]?.estado === "NO"}
+              onChange={() => handleItem(codigo, "estado", "NO")}
+            />
+          </td>
+
+          <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
+            <textarea
+              value={data.items?.[codigo]?.observacion || ""}
+              onChange={(e) => {
+                handleItem(codigo, "observacion", e.target.value);
+                e.target.style.height = "auto";
+                e.target.style.height = e.target.scrollHeight + "px";
+              }}
+              ref={(el) => {
+                if (el) {
+                  el.style.height = "auto";
+                  el.style.height = el.scrollHeight + "px";
+                }
+              }}
+              placeholder="Observaciones..."
+              className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
+            />
+          </td>
+        </tr>
+      );
+    })}
 
           {/* ══ 6. NOTA FINAL ══ */}
           <h3 className="font-bold text-sm border-b pb-1">
