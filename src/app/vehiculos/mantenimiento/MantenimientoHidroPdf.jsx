@@ -440,7 +440,7 @@ export default function MantenimientoHidroPDF() {
             <tbody>
               <tr>
                 {/* TÉCNICO */}
-                <td style={{ ...S.cell, height: 85, textAlign: "center", verticalAlign: "middle", padding: "6px 8px" }}>
+                <td style={{ ...S.cell, height: 110, textAlign: "center", verticalAlign: "middle", padding: "6px 8px" }}>
                   <div style={{ height: 45, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {d.firmas?.tecnico ? (
                       <img
@@ -465,8 +465,8 @@ export default function MantenimientoHidroPDF() {
                 </td>
 
                 {/* CLIENTE */}
-                <td style={{ ...S.cell, height: 85, textAlign: "center", verticalAlign: "middle", padding: "6px 8px" }}>
-                  <div style={{ height: 45, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <td style={{ ...S.cell, height: 110, textAlign: "center", verticalAlign: "middle", padding: "6px 8px" }}>
+                  <div style={{ height: 70, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {d.firmas?.cliente ? (
                       <img
                         src={d.firmas.cliente}
