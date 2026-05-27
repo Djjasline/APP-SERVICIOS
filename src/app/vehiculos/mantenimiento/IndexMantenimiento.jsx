@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 
 const tipos = [
   {
@@ -25,6 +26,12 @@ const tipos = [
 
 export default function IndexMantenimiento() {
   const navigate = useNavigate();
+  const { user, isSuperAdmin } = useAuth();
+
+  const superAdminActivo =
+    typeof isSuperAdmin === "function"
+      ? isSuperAdmin()
+      : !!isSuperAdmin;
 
   const [items, setItems] = useState([]);
   const [estado, setEstado] = useState("todos");
@@ -38,13 +45,18 @@ export default function IndexMantenimiento() {
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase
-        .from("registros")
-        .select("*")
-        .eq("area", "vehiculos")
-        .eq("tipo", "mantenimiento")
-        .order("updated_at", { ascending: false });
+     let query = supabase
+  .from("registros")
+  .select("*")
+  .eq("area", "vehiculos")
+  .eq("tipo", "mantenimiento")
+  .order("updated_at", { ascending: false });
 
+if (!superAdminActivo) {
+  query = query.eq("data->>tecnicoCorreo", user.email);
+}
+
+const { data, error } = await query;
       if (error) {
         console.error(error);
         setItems([]);
@@ -55,7 +67,7 @@ export default function IndexMantenimiento() {
     };
 
     load();
-  }, []);
+  }, [user?.email, superAdminActivo]);
 
   const handleDelete = async (id) => {
     if (!confirm("¿Eliminar mantenimiento?")) return;
