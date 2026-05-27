@@ -688,126 +688,155 @@ const result = await saveOrUpdateReport({
             )}
           </div>
 
-          {/* ══ 5. SECCIONES DE MANTENIMIENTO ══ */}
-          {secciones.map((sec) => (
-            <section key={sec.id}>
-              <h3 className="font-bold text-xs border-b pb-1 mb-2">{sec.titulo}</h3>
-              <table className="pdf-table w-full">
-                <thead>
-                  <tr>
-                    <th className="text-left" style={{ width: 50 }}>ÍTEM</th>
-                    <th className="text-left">DETALLE</th>
-                    {sec.tipo === "cantidad" && <th style={{ width: 80 }}>CANTIDAD</th>}
-                    <th style={{ width: 40 }}>SI</th>
-                    <th style={{ width: 40 }}>NO</th>
-                    <th className="text-left">OBSERVACIÓN</th>
-                  </tr>
-                </thead>
-                <tbody>
-       {sec.tipo === "otros"
-  ? data.extras.map((extra, index) => (
-      <tr key={index} className="hover:bg-gray-50">
-        <td className="pdf-label">{extra.item}</td>
+{/* ══ 5. SECCIONES DE MANTENIMIENTO ══ */}
+{secciones.map((sec) => (
+  <section key={sec.id}>
+    <h3 className="font-bold text-xs border-b pb-1 mb-2">{sec.titulo}</h3>
 
-        <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>
-          <input
-            className="pdf-input w-full"
-            placeholder="Especificar..."
-            value={extra.detalle}
-            onChange={(e) => updateExtra(index, "detalle", e.target.value)}
-          />
-        </td>
-
-        <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
-          <input
-            type="radio"
-            name={`extra-${index}`}
-            checked={extra.estado === "SI"}
-            onChange={() => updateExtra(index, "estado", "SI")}
-          />
-        </td>
-
-        <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
-          <input
-            type="radio"
-            name={`extra-${index}`}
-            checked={extra.estado === "NO"}
-            onChange={() => updateExtra(index, "estado", "NO")}
-          />
-        </td>
-
-        <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
-          <textarea
-            value={extra.observacion}
-            onChange={(e) => updateExtra(index, "observacion", e.target.value)}
-            placeholder="Observaciones..."
-            className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
-          />
-        </td>
-      </tr>
-    ))
-  : sec.items.map((it) => {
-      const codigo = Array.isArray(it) ? it[0] : it;
-      const texto = Array.isArray(it) ? it[1] : "";
-
-      return (
-        <tr key={codigo} className="hover:bg-gray-50">
-          <td className="pdf-label">{codigo}</td>
-
-          <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>
-            {texto}
-          </td>
-
-          {sec.tipo === "cantidad" && (
-            <td style={{ border: "1px solid #d1d5db", padding: "4px", textAlign: "center" }}>
-              <input
-                type="number"
-                className="pdf-input w-16 text-center"
-                value={data.items?.[codigo]?.cantidad || ""}
-                onChange={(e) => handleItem(codigo, "cantidad", e.target.value)}
-              />
-            </td>
-          )}
-
-          <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
-            <input
-              type="radio"
-              name={`e-${codigo}`}
-              checked={data.items?.[codigo]?.estado === "SI"}
-              onChange={() => handleItem(codigo, "estado", "SI")}
-            />
-          </td>
-
-          <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
-            <input
-              type="radio"
-              name={`e-${codigo}`}
-              checked={data.items?.[codigo]?.estado === "NO"}
-              onChange={() => handleItem(codigo, "estado", "NO")}
-            />
-          </td>
-
-          <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
-            <textarea
-              value={data.items?.[codigo]?.observacion || ""}
-              onChange={(e) => {
-                handleItem(codigo, "observacion", e.target.value);
-                e.target.style.height = "auto";
-                e.target.style.height = e.target.scrollHeight + "px";
-              }}
-              ref={(el) => {
-                if (el) {
-                  el.style.height = "auto";
-                  el.style.height = el.scrollHeight + "px";
-                }
-              }}
-              placeholder="Observaciones..."
-              className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
-            />
-          </td>
+    <table className="pdf-table w-full">
+      <thead>
+        <tr>
+          <th className="text-left" style={{ width: 50 }}>ÍTEM</th>
+          <th className="text-left">DETALLE</th>
+          {sec.tipo === "cantidad" && <th style={{ width: 80 }}>CANTIDAD</th>}
+          <th style={{ width: 40 }}>SI</th>
+          <th style={{ width: 40 }}>NO</th>
+         <th className="text-left">OBSERVACIÓN</th>
+{sec.tipo === "otros" && <th style={{ width: 40 }}>ELIM.</th>}
         </tr>
-      );
-    })}
+      </thead>
+
+      <tbody>
+        {sec.tipo === "otros"
+          ? data.extras.map((extra, index) => (
+              <tr key={index} className="hover:bg-gray-50">
+                <td className="pdf-label">{extra.item}</td>
+
+                <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>
+                  <input
+                    className="pdf-input w-full"
+                    placeholder="Especificar..."
+                    value={extra.detalle}
+                    onChange={(e) => updateExtra(index, "detalle", e.target.value)}
+                  />
+                </td>
+
+                <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+                  <input
+                    type="radio"
+                    name={`extra-${index}`}
+                    checked={extra.estado === "SI"}
+                    onChange={() => updateExtra(index, "estado", "SI")}
+                  />
+                </td>
+
+                <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+                  <input
+                    type="radio"
+                    name={`extra-${index}`}
+                    checked={extra.estado === "NO"}
+                    onChange={() => updateExtra(index, "estado", "NO")}
+                  />
+                </td>
+
+                <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
+  <textarea
+    value={extra.observacion}
+    onChange={(e) => updateExtra(index, "observacion", e.target.value)}
+    placeholder="Observaciones..."
+    className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
+  />
+</td>
+
+<td style={{ border: "1px solid #d1d5db", padding: "4px", textAlign: "center" }}>
+  <button
+    type="button"
+    onClick={() => eliminarExtra(index)}
+    className="text-red-600 font-bold"
+  >
+    ✕
+  </button>
+</td>
+              </tr>
+            ))
+          : sec.items.map((it) => {
+              const codigo = Array.isArray(it) ? it[0] : it;
+              const texto = Array.isArray(it) ? it[1] : "";
+
+              return (
+                <tr key={codigo} className="hover:bg-gray-50">
+                  <td className="pdf-label">{codigo}</td>
+
+                  <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>
+                    {texto}
+                  </td>
+
+                  {sec.tipo === "cantidad" && (
+                    <td style={{ border: "1px solid #d1d5db", padding: "4px", textAlign: "center" }}>
+                      <input
+                        type="number"
+                        className="pdf-input w-16 text-center"
+                        value={data.items?.[codigo]?.cantidad || ""}
+                        onChange={(e) => handleItem(codigo, "cantidad", e.target.value)}
+                      />
+                    </td>
+                  )}
+
+                  <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+                    <input
+                      type="radio"
+                      name={`e-${codigo}`}
+                      checked={data.items?.[codigo]?.estado === "SI"}
+                      onChange={() => handleItem(codigo, "estado", "SI")}
+                    />
+                  </td>
+
+                  <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+                    <input
+                      type="radio"
+                      name={`e-${codigo}`}
+                      checked={data.items?.[codigo]?.estado === "NO"}
+                      onChange={() => handleItem(codigo, "estado", "NO")}
+                    />
+                  </td>
+
+                  <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
+                    <textarea
+                      value={data.items?.[codigo]?.observacion || ""}
+                      onChange={(e) => {
+                        handleItem(codigo, "observacion", e.target.value);
+                        e.target.style.height = "auto";
+                        e.target.style.height = e.target.scrollHeight + "px";
+                      }}
+                      ref={(el) => {
+                        if (el) {
+                          el.style.height = "auto";
+                          el.style.height = el.scrollHeight + "px";
+                        }
+                      }}
+                      placeholder="Observaciones..."
+                      className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
+                    />
+                  </td>
+                </tr>
+              );
+            })}
+      </tbody>
+    </table>
+
+    {sec.tipo === "otros" && (
+      <div className="mt-2">
+        <button
+          type="button"
+          onClick={agregarExtra}
+          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+        >
+          + Agregar extra
+        </button>
+      </div>
+    )}
+  </section>
+))}
 
           {/* ══ 6. NOTA FINAL ══ */}
           <h3 className="font-bold text-sm border-b pb-1">
