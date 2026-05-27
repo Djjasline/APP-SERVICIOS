@@ -106,6 +106,9 @@ export default function HojaMantenimientoHidro() {
   const { id }    = useParams();
   const navigate  = useNavigate();
   const { user, isSuperAdmin } = useAuth();
+   const superAdminActivo =
+  typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
+   
   const isEditing = !!id;
 
   const { technicians, loading: loadingTecnicos } = useTechnicians();
@@ -215,9 +218,17 @@ const updateExtra = (index, field, value) => {
 useEffect(() => {
   if (!user?.email || isEditing || loadingTecnicos) return;
 
-  // Si es super admin, no auto-rellenar técnico.
-  // Así Santiago puede seleccionar cualquier técnico manualmente.
-  if (isSuperAdmin) return;
+  // Super admin NO debe auto-rellenarse.
+  // Debe poder escoger cualquier técnico.
+  if (superAdminActivo) {
+    setData((prev) => ({
+      ...prev,
+      tecnicoNombre: "",
+      tecnicoTelefono: "",
+      tecnicoCorreo: "",
+    }));
+    return;
+  }
 
   const loggedTech = (technicians || []).find((t) => {
     const email = t.email || t.correo || "";
@@ -228,11 +239,11 @@ useEffect(() => {
 
   setData((prev) => ({
     ...prev,
-    tecnicoNombre:   loggedTech.name     || loggedTech.nombre  || "",
-    tecnicoTelefono: loggedTech.phone    || loggedTech.telefono || "",
-    tecnicoCorreo:   loggedTech.email    || loggedTech.correo   || "",
+    tecnicoNombre: loggedTech.name || loggedTech.nombre || "",
+    tecnicoTelefono: loggedTech.phone || loggedTech.telefono || "",
+    tecnicoCorreo: loggedTech.email || loggedTech.correo || "",
   }));
-}, [user?.email, isEditing, loadingTecnicos, technicians, isSuperAdmin]);
+}, [user?.email, isEditing, loadingTecnicos, technicians, superAdminActivo]);
 
   /* ── LIMPIAR SCROLL LOCK ── */
   useEffect(() => {
@@ -526,7 +537,7 @@ const result = await saveOrUpdateReport({
                   <select
                     className="pdf-input w-full"
                     value={data.tecnicoNombre || ""}
-                    disabled={loadingTecnicos}
+                    disabled={loadingTecnicos ? true : false}
                     onChange={(e) => {
                       const t = (technicians || []).find((x) => {
                         const nombre = x.name || x.nombre || "";
