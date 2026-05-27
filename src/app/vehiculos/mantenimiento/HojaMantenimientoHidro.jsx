@@ -223,7 +223,7 @@ useEffect(() => {
 
   // Super admin NO debe auto-rellenarse.
   // Debe poder escoger cualquier técnico.
-if (superAdminActivo) return;
+if (esSantiago) return;
 
   const loggedTech = (technicians || []).find((t) => {
     const email = t.email || t.correo || "";
@@ -532,7 +532,7 @@ const result = await saveOrUpdateReport({
                   <select
                     className="pdf-input w-full"
                     value={data.tecnicoNombre || ""}
-                    disabled={loadingTecnicos ? true : false}
+                    disabled={loadingTecnicos || !esSantiago}
                     onChange={(e) => {
                       const t = (technicians || []).find((x) => {
                         const nombre = x.name || x.nombre || "";
