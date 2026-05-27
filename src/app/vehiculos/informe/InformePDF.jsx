@@ -85,15 +85,15 @@ export default function InformePDF() {
 
   /* ── Estilos inline compartidos ── */
   const S = {
-    tbl:   { width: "100%", borderCollapse: "collapse", fontSize: 11 },
-    cell:  { border: "1px solid #374151", padding: "5px 8px", verticalAlign: "middle", fontSize: 11 },
+    tbl:   { width: "100%", borderCollapse: "collapse", fontSize: 10 },
+cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle", fontSize: 10 },
     label: {
       border: "1px solid #374151", padding: "5px 8px", verticalAlign: "middle",
       fontSize: 11, fontWeight: 700, backgroundColor: "#f3f4f6",
       whiteSpace: "nowrap", width: "35%",
     },
     th: {
-      border: "1px solid #374151", padding: "6px 8px",
+      border: "1px solid #374151", padding: "5px 6px",
       backgroundColor: "#1e3a5f", color: "#fff",
       fontWeight: 700, textAlign: "center",
       textTransform: "uppercase", fontSize: 11,
@@ -102,7 +102,7 @@ export default function InformePDF() {
       fontSize: 12, fontWeight: 800, textAlign: "center",
       textTransform: "uppercase", letterSpacing: "0.5px",
       padding: "6px 8px", backgroundColor: "#1e3a5f", color: "#fff",
-      margin: "14px 0 0 0", border: "1px solid #1e3a5f",
+      margin: "10px 0 0 0", border: "1px solid #1e3a5f",
     },
   };
 
@@ -120,7 +120,7 @@ export default function InformePDF() {
           maxWidth: 794,
           margin: "0 auto",
           background: "#fff",
-          padding: "24px",
+          padding: "18px",
           boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
           borderRadius: 6,
         }}
@@ -258,7 +258,7 @@ export default function InformePDF() {
                     <img
                       src={img.url}
                       alt={`estado-equipo-${imageIndex + 1}`}
-                      style={{ width: "100%", maxHeight: 380, objectFit: "contain", display: "block" }}
+                      style={{ width: "100%", maxHeight: 230, objectFit: "contain", display: "block" }}
                     />
                     {(img.puntos || []).map((p, pi) => (
                       <div
@@ -300,7 +300,7 @@ export default function InformePDF() {
         {/* ════════════════════
             ACTIVIDADES — página nueva
         ════════════════════ */}
-        <div className="page-break" />
+        {/* <div className="page-break" /> */}
 
         <p style={{ ...S.sectionTitle, marginTop: 0 }}>ACTIVIDADES REALIZADAS</p>
 
