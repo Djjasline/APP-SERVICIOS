@@ -19,14 +19,18 @@ export const saveOrUpdateReport = async ({
       throw new Error("Usuario no autenticado");
     }
 
-    const payload = {
-      area, // vehiculos | agua | petroleo | operaciones
-      tipo, // informe | inspeccion | mantenimiento | liberacion | recepcion | registro
-      subtipo, // general | hidro | barredora | camara | bomba | valvula
-      data,
-      estado,
-      updated_at: new Date().toISOString(),
+   const payload = {
+  area, // vehiculos | agua | petroleo | operaciones
+  tipo, // informe | inspeccion | mantenimiento | liberacion | recepcion | registro
+  subtipo, // general | hidro | barredora | camara | bomba | valvula
+  data,
+  estado,
+  updated_at: new Date().toISOString(),
 };
+
+if (!id) {
+  payload.user_id = user.id;
+}
 
 if (!id) {
   payload.user_id = user.id;
