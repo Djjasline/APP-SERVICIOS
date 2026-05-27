@@ -319,136 +319,145 @@ if (imagenes.includes(url)) return prev;
     }
   };
 
-  /* ===========================
-     ESTADO DEL EQUIPO - FOTOS
-  =========================== */
-  const handleEstadoEquipoImagesUpload = async (files) => {
-    const selectedFiles = Array.from(files || []);
-    const actuales = data.estadoEquipo?.imagenes?.length || 0;
+/* ===========================
+   ESTADO DEL EQUIPO - FOTOS
+=========================== */
+const handleEstadoEquipoImagesUpload = async (files) => {
+  const selectedFiles = Array.from(files || []);
+  if (selectedFiles.length === 0) return;
 
-if (actuales + selectedFiles.length > 12) {
-  alert("Máximo 12 fotografías");
-  return;
-}
-    if (selectedFiles.length === 0) return;
+  const actuales = data.estadoEquipo?.imagenes?.length || 0;
+  const disponibles = Math.max(0, 12 - actuales);
 
-    setUploadingCount((prev) => prev + selectedFiles.length);
+  if (disponibles <= 0) {
+    alert("Máximo 12 fotografías");
+    return;
+  }
 
-    try {
-      for (const file of selectedFiles) {
-        const url = await compressAndUploadImage(file, "estado-equipo");
-        if (!url) continue;
+  const filesToUpload = selectedFiles.slice(0, disponibles);
 
-        setData((prev) => {
-          const actuales = prev.estadoEquipo?.imagenes || [];
+  if (selectedFiles.length > disponibles) {
+    alert("Máximo 12 fotografías");
+  }
 
-          const nuevaImagen = {
-            id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-            url,
-            puntos: [],
-          };
+  setUploadingCount((prev) => prev + filesToUpload.length);
 
-          return {
-            ...prev,
-            estadoEquipo: {
-              ...prev.estadoEquipo,
-              imagenes: [...actuales, nuevaImagen],
-            },
-          };
-        });
-      }
-    } catch (error) {
-      console.error("Error subiendo imágenes de estado del equipo:", error);
-    } finally {
-      setUploadingCount((prev) => prev - selectedFiles.length);
+  try {
+    for (const file of filesToUpload) {
+      const url = await compressAndUploadImage(file, "estado-equipo");
+      if (!url) continue;
+
+      setData((prev) => {
+        const actuales = prev.estadoEquipo?.imagenes || [];
+
+        if (actuales.some((img) => img.url === url)) return prev;
+
+        const nuevaImagen = {
+          id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          url,
+          puntos: [],
+        };
+
+        return {
+          ...prev,
+          estadoEquipo: {
+            ...prev.estadoEquipo,
+            imagenes: [...actuales, nuevaImagen],
+          },
+        };
+      });
     }
+  } catch (error) {
+    console.error("Error subiendo imágenes de estado del equipo:", error);
+  } finally {
+    setUploadingCount((prev) => prev - filesToUpload.length);
+  }
+};
+
+const removeEstadoEquipoImage = (imageId) => {
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).filter(
+        (img) => img.id !== imageId
+      ),
+    },
+  }));
+};
+
+const clearEstadoEquipoImagePoints = (imageId) => {
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+        img.id === imageId ? { ...img, puntos: [] } : img
+      ),
+    },
+  }));
+};
+
+const handleEstadoEquipoImageClick = (e, imageId) => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width;
+  const y = (e.clientY - rect.top) / rect.height;
+
+  const nuevoPunto = {
+    id: `p-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    x: Number(x.toFixed(4)),
+    y: Number(y.toFixed(4)),
+    observacion: "",
   };
 
-  const removeEstadoEquipoImage = (imageId) => {
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).filter(
-          (img) => img.id !== imageId
-        ),
-      },
-    }));
-  };
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+        img.id === imageId
+          ? { ...img, puntos: [...(img.puntos || []), nuevoPunto] }
+          : img
+      ),
+    },
+  }));
+};
 
-  const clearEstadoEquipoImagePoints = (imageId) => {
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
-          img.id === imageId ? { ...img, puntos: [] } : img
-        ),
-      },
-    }));
-  };
+const removeEstadoEquipoPoint = (imageId, pointId) => {
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+        img.id === imageId
+          ? {
+              ...img,
+              puntos: (img.puntos || []).filter((p) => p.id !== pointId),
+            }
+          : img
+      ),
+    },
+  }));
+};
 
-  const handleEstadoEquipoImageClick = (e, imageId) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-
-    const nuevoPunto = {
-      id: `p-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      x: Number(x.toFixed(4)),
-      y: Number(y.toFixed(4)),
-      observacion: "",
-    };
-
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
-          img.id === imageId
-            ? { ...img, puntos: [...(img.puntos || []), nuevoPunto] }
-            : img
-        ),
-      },
-    }));
-  };
-
-  const removeEstadoEquipoPoint = (imageId, pointId) => {
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
-          img.id === imageId
-            ? {
-                ...img,
-                puntos: (img.puntos || []).filter((p) => p.id !== pointId),
-              }
-            : img
-        ),
-      },
-    }));
-  };
-
-  const updateEstadoEquipoPointObservation = (imageId, pointId, value) => {
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
-          img.id === imageId
-            ? {
-                ...img,
-                puntos: (img.puntos || []).map((p) =>
-                  p.id === pointId ? { ...p, observacion: value } : p
-                ),
-              }
-            : img
-        ),
-      },
-    }));
-  };
-
+const updateEstadoEquipoPointObservation = (imageId, pointId, value) => {
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+        img.id === imageId
+          ? {
+              ...img,
+              puntos: (img.puntos || []).map((p) =>
+                p.id === pointId ? { ...p, observacion: value } : p
+              ),
+            }
+          : img
+      ),
+    },
+  }));
+};
   /* ===========================
      ACTIVIDADES
   =========================== */
