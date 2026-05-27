@@ -33,18 +33,17 @@ export const saveOrUpdateReport = async ({
 
     if (id) {
       query = supabase
-        .from("registros")
-        .update(payload)
-        .eq("id", id)
-        .eq("user_id", user.id)
-        .select()
-        .single();
+  .from("registros")
+  .update(payload)
+  .eq("id", id)
+  .select()
+  .maybeSingle();
     } else {
       query = supabase
         .from("registros")
         .insert(payload)
         .select()
-        .single();
+.maybeSingle();
     }
 
     const { data: result, error } = await query;
