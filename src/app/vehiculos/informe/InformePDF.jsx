@@ -98,15 +98,50 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
       fontWeight: 700, textAlign: "center",
       textTransform: "uppercase", fontSize: 11,
     },
-    sectionTitle: {
-      fontSize: 12, fontWeight: 800, textAlign: "center",
-      textTransform: "uppercase", letterSpacing: "0.5px",
-      padding: "6px 8px", backgroundColor: "#1e3a5f", color: "#fff",
-      margin: "10px 0 0 0", border: "1px solid #1e3a5f",
-    },
+   sectionTitle: {
+  fontSize: 11,
+  fontWeight: 800,
+  textAlign: "center",
+  textTransform: "uppercase",
+  letterSpacing: "0.5px",
+  padding: "5px 6px",
+  backgroundColor: "#1e3a5f",
+  color: "#fff",
+  margin: "10px 0 0 0",
+  border: "1px solid #1e3a5f",
+},
   };
 
   return (
+    <>
+<style>{`
+@media print {
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  .no-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  table {
+    break-inside: auto;
+  }
+
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  img {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+}
+`}</style>
     <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
 
       {/* ══════════════════════════════════════════
