@@ -220,15 +220,7 @@ useEffect(() => {
 
   // Super admin NO debe auto-rellenarse.
   // Debe poder escoger cualquier técnico.
-  if (superAdminActivo) {
-    setData((prev) => ({
-      ...prev,
-      tecnicoNombre: "",
-      tecnicoTelefono: "",
-      tecnicoCorreo: "",
-    }));
-    return;
-  }
+if (superAdminActivo) return;
 
   const loggedTech = (technicians || []).find((t) => {
     const email = t.email || t.correo || "";
