@@ -7,15 +7,15 @@ import { printPdf } from "@/utils/printPdf";
    ESTILOS — IDÉNTICOS A HYDRO
 ══════════════════════════════ */
 const S = {
-  tbl:   { width: "100%", borderCollapse: "collapse", fontSize: 11 },
-  cell:  { border: "1px solid #374151", padding: "5px 8px", verticalAlign: "middle", fontSize: 11 },
-  label: { border: "1px solid #374151", padding: "5px 8px", verticalAlign: "middle", fontSize: 11, fontWeight: 700, backgroundColor: "#f3f4f6", whiteSpace: "nowrap", width: "35%" },
-  th:    { border: "1px solid #374151", padding: "6px 8px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", textTransform: "uppercase", fontSize: 11 },
+  tbl:   { width: "100%", borderCollapse: "collapse", fontSize: 10},
+  cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle", fontSize: 10},
+  label: { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle", fontSize: 11, fontWeight: 700, backgroundColor: "#f3f4f6", whiteSpace: "nowrap", width: "35%" },
+  th:    { border: "1px solid #374151", padding: "4px 6px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", textTransform: "uppercase", fontSize: 10},
   thSI:  { border: "1px solid #374151", padding: "6px 4px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", fontSize: 10, width: 36 },
   sectionTitle: {
-    fontSize: 12, fontWeight: 800, textAlign: "center", textTransform: "uppercase",
+    fontSize: 11, fontWeight: 800, textAlign: "center", textTransform: "uppercase",
     letterSpacing: "0.5px", padding: "6px 8px", backgroundColor: "#1e3a5f",
-    color: "#fff", margin: "14px 0 0 0", border: "1px solid #1e3a5f",
+    color: "#fff", margin: "10px 0 0 0", border: "1px solid #1e3a5f",
   },
 };
 
@@ -176,7 +176,7 @@ export default function MantenimientoVCamPDF() {
     <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
       <div id="pdf-content" style={{
         maxWidth: 794, margin: "0 auto", background: "#fff",
-        padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.12)", borderRadius: 6,
+        padding: 18, boxShadow: "0 2px 12px rgba(0,0,0,0.12)", borderRadius: 6,
       }}>
 
         {/* ── ENCABEZADO ── */}
@@ -275,7 +275,7 @@ export default function MantenimientoVCamPDF() {
                 <div style={{ padding: 10 }}>
                   <div style={{ position: "relative", width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden" }}>
                     <img src={img.url} alt={`estado-${i + 1}`}
-                      style={{ width: "100%", maxHeight: 300, objectFit: "contain", display: "block" }} />
+                      style={{ width: "100%", maxHeight: 240, objectFit: "contain", display: "block" }} />
                     {(img.puntos || []).map((p, pi) => (
                       <div key={p.id || pi} style={{
                         position: "absolute",
@@ -293,7 +293,7 @@ export default function MantenimientoVCamPDF() {
                   {(img.puntos || []).length > 0 && (
                     <div style={{ marginTop: 8 }}>
                       {img.puntos.map((p, pi) => (
-                        <div key={p.id || pi} style={{ display: "flex", gap: 8, marginBottom: 4, fontSize: 11 }}>
+                        <div key={p.id || pi} style={{ display: "flex", gap: 8, marginBottom: 4, fontSize: 10}}>
                           <span style={{ minWidth: 22, fontWeight: 700 }}>{pi + 1})</span>
                           <span>{p.observacion || "—"}</span>
                         </div>
@@ -340,7 +340,7 @@ export default function MantenimientoVCamPDF() {
                   <div style={{ height: 45, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {d.firmas?.tecnico ? (
                       <img src={d.firmas.tecnico} alt="Firma técnico"
-                        style={{ maxHeight: 38, width: "auto", maxWidth: 160, objectFit: "contain", display: "block", filter: "contrast(1.05)" }} />
+                        style={{ maxHeight: 34, width: "auto", maxWidth: 160, objectFit: "contain", display: "block", filter: "contrast(1.05)" }} />
                     ) : (
                       <span style={{ fontSize: 10, color: "#9ca3af" }}>Sin firma</span>
                     )}
@@ -353,7 +353,7 @@ export default function MantenimientoVCamPDF() {
                   <div style={{ height: 45, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {d.firmas?.cliente ? (
                       <img src={d.firmas.cliente} alt="Firma cliente"
-                        style={{ maxHeight: 38, width: "auto", maxWidth: 160, objectFit: "contain", display: "block", filter: "contrast(1.05)" }} />
+                        style={{ maxHeight: 34, width: "auto", maxWidth: 160, objectFit: "contain", display: "block", filter: "contrast(1.05)" }} />
                     ) : (
                       <span style={{ fontSize: 10, color: "#9ca3af" }}>Sin firma</span>
                     )}
