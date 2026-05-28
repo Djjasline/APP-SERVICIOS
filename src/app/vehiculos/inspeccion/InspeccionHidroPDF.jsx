@@ -4,12 +4,64 @@ import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
 
 const S = {
-  tbl:   { width: "100%", borderCollapse: "collapse", fontSize: 11 },
-  cell:  { border: "1px solid #374151", padding: "5px 8px", verticalAlign: "middle", fontSize: 11 },
-  label: { border: "1px solid #374151", padding: "5px 8px", verticalAlign: "middle", fontSize: 11, fontWeight: 700, backgroundColor: "#f3f4f6", whiteSpace: "nowrap", width: "35%" },
-  th:    { border: "1px solid #374151", padding: "6px 8px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", textTransform: "uppercase", fontSize: 11 },
-  thSI:  { border: "1px solid #374151", padding: "6px 4px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", fontSize: 10, width: 36 },
-  sectionTitle: { fontSize: 12, fontWeight: 800, textAlign: "center", textTransform: "uppercase", letterSpacing: "0.5px", padding: "6px 8px", backgroundColor: "#1e3a5f", color: "#fff", margin: "14px 0 0 0", border: "1px solid #1e3a5f" },
+  tbl: {
+    width: "100%",
+    borderCollapse: "collapse",
+    fontSize: 10,
+  },
+
+  cell: {
+    border: "1px solid #374151",
+    padding: "4px 6px",
+    verticalAlign: "middle",
+    fontSize: 10,
+  },
+
+  label: {
+    border: "1px solid #374151",
+    padding: "4px 6px",
+    verticalAlign: "middle",
+    fontSize: 10,
+    fontWeight: 700,
+    backgroundColor: "#f3f4f6",
+    whiteSpace: "nowrap",
+    width: "35%",
+  },
+
+  th: {
+    border: "1px solid #374151",
+    padding: "4px 6px",
+    backgroundColor: "#1e3a5f",
+    color: "#fff",
+    fontWeight: 700,
+    textAlign: "center",
+    textTransform: "uppercase",
+    fontSize: 10,
+  },
+
+  thSI: {
+    border: "1px solid #374151",
+    padding: "4px 4px",
+    backgroundColor: "#1e3a5f",
+    color: "#fff",
+    fontWeight: 700,
+    textAlign: "center",
+    fontSize: 10,
+    width: 36,
+  },
+
+  sectionTitle: {
+    fontSize: 10,
+    fontWeight: 800,
+    textAlign: "center",
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
+    padding: "5px 6px",
+    backgroundColor: "#1e3a5f",
+    color: "#fff",
+    margin: "10px 0 0 0",
+    border: "1px solid #1e3a5f",
+  },
 };
 
 const estadoColor = { SI: "#dcfce7", NO: "#fee2e2", NA: "#f3f4f6" };
@@ -101,7 +153,7 @@ export default function InspeccionHidroPDF() {
 
   return (
     <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
-      <div id="pdf-content" style={{ maxWidth: 794, margin: "0 auto", background: "#fff", padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.12)", borderRadius: 6 }}>
+      <div id="pdf-content" style={{ maxWidth: 794, margin: "0 auto", background: "#fff", padding: 18, boxShadow: "0 2px 12px rgba(0,0,0,0.12)", borderRadius: 6 }}>
 
         {/* ENCABEZADO */}
         <div className="no-break">
@@ -165,16 +217,16 @@ export default function InspeccionHidroPDF() {
             <table style={S.tbl}><tbody><tr><td style={{ ...S.cell, textAlign: "center", color: "#6b7280", padding: 20 }}>Sin registros de estado del equipo</td></tr></tbody></table>
           ) : estadoEquipoImagenes.map((img, i) => (
             <div key={img.id || i} className="no-break" style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}>
-              <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 11, fontWeight: 700, background: "#f9fafb" }}>Imagen {i + 1}</div>
+              <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 10, fontWeight: 700, background: "#f9fafb" }}>Imagen {i + 1}</div>
               <div style={{ padding: 10 }}>
                 <div style={{ position: "relative", width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden" }}>
-                  <img src={img.url} alt={`estado-${i+1}`} style={{ width: "100%", maxHeight: 350, objectFit: "contain", display: "block" }} />
+                  <img src={img.url} alt={`estado-${i+1}`} style={{ width: "100%", maxHeight: 240, objectFit: "contain", display: "block" }} />
                   {(img.puntos || []).map((p, pi) => (
                     <div key={p.id || pi} style={{ position: "absolute", left: `${p.x*100}%`, top: `${p.y*100}%`, transform: "translate(-50%,-50%)", width: 18, height: 18, borderRadius: "50%", background: "#dc2626", border: "2px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: "#fff", fontWeight: 700 }}>{pi+1}</div>
                   ))}
                 </div>
                 {(img.puntos || []).length > 0 && (
-                  <div style={{ marginTop: 8 }}>{img.puntos.map((p, pi) => (<div key={p.id || pi} style={{ display: "flex", gap: 8, marginBottom: 4, fontSize: 11 }}><span style={{ minWidth: 22, fontWeight: 700 }}>{pi+1})</span><span>{p.observacion || "—"}</span></div>))}</div>
+                  <div style={{ marginTop: 8 }}>{img.puntos.map((p, pi) => (<div key={p.id || pi} style={{ display: "flex", gap: 8, marginBottom: 4, fontSize: 10 }}><span style={{ minWidth: 22, fontWeight: 700 }}>{pi+1})</span><span>{p.observacion || "—"}</span></div>))}</div>
                 )}
               </div>
             </div>
@@ -270,7 +322,7 @@ export default function InspeccionHidroPDF() {
                         src={d.firmas.tecnico}
                         alt="Firma técnico"
                         style={{
-                          maxHeight: 38,
+                          maxHeight: 34,
                           width: "auto",
                           maxWidth: 160,
                           objectFit: "contain",
@@ -320,7 +372,7 @@ export default function InspeccionHidroPDF() {
                         src={d.firmas.cliente}
                         alt="Firma cliente"
                         style={{
-                          maxHeight: 38,
+                          maxHeight: 34,
                           width: "auto",
                           maxWidth: 160,
                           objectFit: "contain",
