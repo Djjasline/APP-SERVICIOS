@@ -7,15 +7,15 @@ import { printPdf } from "@/utils/printPdf";
    ESTILOS — IDÉNTICOS A HYDRO
 ══════════════════════════════ */
 const S = {
-  tbl:   { width: "100%", borderCollapse: "collapse", fontSize: 11 },
-  cell:  { border: "1px solid #374151", padding: "5px 8px", verticalAlign: "middle", fontSize: 11 },
+  tbl:   { width: "100%", borderCollapse: "collapse", fontSize: 10 },
+cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle", fontSize: 10 },
   label: { border: "1px solid #374151", padding: "5px 8px", verticalAlign: "middle", fontSize: 11, fontWeight: 700, backgroundColor: "#f3f4f6", whiteSpace: "nowrap", width: "35%" },
   th:    { border: "1px solid #374151", padding: "6px 8px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", textTransform: "uppercase", fontSize: 11 },
   thSI:  { border: "1px solid #374151", padding: "6px 4px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", fontSize: 10, width: 36 },
   sectionTitle: {
-    fontSize: 12, fontWeight: 800, textAlign: "center", textTransform: "uppercase",
-    letterSpacing: "0.5px", padding: "6px 8px", backgroundColor: "#1e3a5f",
-    color: "#fff", margin: "14px 0 0 0", border: "1px solid #1e3a5f",
+    fontSize: 11, fontWeight: 800, textAlign: "center", textTransform: "uppercase",
+    letterSpacing: "0.5px", padding: "5px 6px", backgroundColor: "#1e3a5f",
+    color: "#fff", margin: "10px 0 0 0", border: "1px solid #1e3a5f",
   },
 };
 
@@ -220,6 +220,34 @@ export default function MantenimientoHidroPDF() {
   const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
 
   return (
+  <>
+    <style>{`
+      @media print {
+        .page-break {
+          page-break-before: always;
+        }
+
+        .no-break {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        table {
+          break-inside: auto;
+        }
+
+        tr {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        img {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+      }
+    `}</style>
+
     <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
       <div
         id="pdf-content"
@@ -227,7 +255,7 @@ export default function MantenimientoHidroPDF() {
           maxWidth: 794,
           margin: "0 auto",
           background: "#fff",
-          padding: 24,
+          padding: 18,
           boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
           borderRadius: 6,
         }}
@@ -516,5 +544,6 @@ export default function MantenimientoHidroPDF() {
         </button>
       </div>
     </div>
-  );
+</>
+);
 }
