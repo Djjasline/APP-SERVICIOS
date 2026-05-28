@@ -225,6 +225,7 @@ const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
   /* ── AUTO-RELLENAR TÉCNICO LOGUEADO ── */
   useEffect(() => {
     if (!user?.email || isEditing || loadingTechnicians) return;
+   if (superAdminActivo) return;  
     const loggedTech = (technicians || []).find(
       (t) => techEmail(t).toLowerCase() === user.email.toLowerCase()
     );
