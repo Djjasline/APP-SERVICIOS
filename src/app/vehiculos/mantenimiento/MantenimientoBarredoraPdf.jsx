@@ -333,7 +333,7 @@ export default function MantenimientoBarredoraPDF() {
                     <img
                       src={img.url}
                       alt={`estado-${i + 1}`}
-                      style={{ width: "100%", maxHeight: 300, objectFit: "contain", display: "block" }}
+                      style={{ width: "100%", maxHeight: 240, objectFit: "contain", display: "block" }}
                     />
                     {(img.puntos || []).map((p, pi) => (
                       <div
@@ -358,7 +358,7 @@ export default function MantenimientoBarredoraPDF() {
                   {(img.puntos || []).length > 0 && (
                     <div style={{ marginTop: 8 }}>
                       {img.puntos.map((p, pi) => (
-                        <div key={p.id || pi} style={{ display: "flex", gap: 8, marginBottom: 4, fontSize: 11 }}>
+                        <div key={p.id || pi} style={{ display: "flex", gap: 8, marginBottom: 4, fontSize: 10 }}>
                           <span style={{ minWidth: 22, fontWeight: 700 }}>{pi + 1})</span>
                           <span>{p.observacion || "—"}</span>
                         </div>
@@ -415,7 +415,7 @@ export default function MantenimientoBarredoraPDF() {
                         src={d.firmas.tecnico}
                         alt="Firma técnico"
                         style={{
-                          maxHeight: 38, width: "auto", maxWidth: 160,
+                          maxHeight: 34, width: "auto", maxWidth: 160,
                           objectFit: "contain", display: "block",
                           filter: "contrast(1.05)",
                         }}
@@ -437,7 +437,7 @@ export default function MantenimientoBarredoraPDF() {
                         src={d.firmas.cliente}
                         alt="Firma cliente"
                         style={{
-                          maxHeight: 38, width: "auto", maxWidth: 160,
+                          maxHeight: 34, width: "auto", maxWidth: 160,
                           objectFit: "contain", display: "block",
                           filter: "contrast(1.05)",
                         }}
