@@ -241,23 +241,15 @@ useEffect(() => {
 }, []);
    
    
-  /* ── COMPRIMIR Y SUBIR ── */
+/* ── COMPRIMIR Y SUBIR ── */
 const compressAndUpload = async (file, folder) => {
-
   const compressedFile = await imageCompression(file, {
-    maxSizeMB: 0.8,
+    maxSizeMB: 0.18,
+    maxWidthOrHeight: 1024,
     useWebWorker: true,
-
-    // mantener dimensiones originales
-    alwaysKeepResolution: true,
-
-    // compresión suave
-    initialQuality: 0.92,
-
-    // NO forzar ancho/alto
-    maxWidthOrHeight: undefined,
-
-    fileType: file.type || "image/jpeg",
+    fileType: "image/jpeg",
+    initialQuality: 0.7,
+    exifOrientation: 1,
   });
 
   return await uploadRegistroImage(
@@ -266,8 +258,6 @@ const compressAndUpload = async (file, folder) => {
     folder
   );
 };
-
-
   /* ── ESTADO EQUIPO — MÚLTIPLES FOTOS ── */
   const handleEstadoUpload = async (files) => {
     const arr = Array.from(files || []);
@@ -423,10 +413,15 @@ const updateBasePointObs = (ptId, value) =>
 
     setGuardando(true);
     try {
-      const firmaTecnico = sigTecnico.current?.isEmpty?.() === false
-        ? sigTecnico.current.toDataURL() : data.firmas?.tecnico || "";
-      const firmaCliente = sigCliente.current?.isEmpty?.() === false
-        ? sigCliente.current.toDataURL() : data.firmas?.cliente || "";
+      const firmaTecnico =
+  firmaTecnicoEditada && sigTecnico.current?.isEmpty?.() === false
+    ? sigTecnico.current.toDataURL()
+    : data.firmas?.tecnico || "";
+
+const firmaCliente =
+  firmaClienteEditada && sigCliente.current?.isEmpty?.() === false
+    ? sigCliente.current.toDataURL()
+    : data.firmas?.cliente || "";
 
       const estadoFinal = firmaTecnico && firmaCliente ? "completado" : "borrador";
 
@@ -850,23 +845,41 @@ const updateBasePointObs = (ptId, value) =>
             </tr></thead>
             <tbody>
               <tr>
-                <td className="align-top" style={{ height:240 }}>
-                  <div className="border rounded bg-white h-[150px]">
+                <td className="align-top" style={{ height:190 }}>
+                  <div className="border rounded bg-white h-[120px]">
                     <SignatureCanvas ref={sigTecnico} penColor="black" minWidth={0.5} maxWidth={1.5}
-                      onBegin={() => { document.body.style.overflow = "hidden"; }}
+                      onBegin={() => {
+  setFirmaTecnicoEditada(true);
+  document.body.style.overflow = "hidden";
+}}
                       onEnd={() => { document.body.style.overflow = ""; }}
                       canvasProps={{ className:"w-full h-full touch-none" }} />
                   </div>
                   <div className="mt-2 text-sm text-center font-medium">{data.tecnicoNombre || "—"}</div>
                   <div className="text-center">
-                    <button type="button" onClick={() => sigTecnico.current?.clear()}
+                    <button type="button" 
+                       onClick={() => {
+  sigTecnico.current?.clear();
+  setFirmaTecnicoEditada(true);
+
+  setData((prev) => ({
+    ...prev,
+    firmas: {
+      ...prev.firmas,
+      tecnico: "",
+    },
+  }));
+}}
                       className="text-xs text-red-600 mt-1 hover:underline">Borrar firma</button>
                   </div>
                 </td>
-                <td className="align-top" style={{ height:240 }}>
-                  <div className="border rounded bg-white h-[150px]">
+                <td className="align-top" style={{ height:190 }}>
+                  <div className="border rounded bg-white h-[120px]">
                     <SignatureCanvas ref={sigCliente} penColor="black" minWidth={0.5} maxWidth={1.5}
-                      onBegin={() => { document.body.style.overflow = "hidden"; }}
+                      onBegin={() => {
+  setFirmaClienteEditada(true);
+  document.body.style.overflow = "hidden";
+}}
                       onEnd={() => { document.body.style.overflow = ""; }}
                       canvasProps={{ className:"w-full h-full touch-none" }} />
                   </div>
@@ -878,7 +891,19 @@ const updateBasePointObs = (ptId, value) =>
                       placeholder="Número de cédula del cliente" />
                   </div>
                   <div className="text-center">
-                    <button type="button" onClick={() => sigCliente.current?.clear()}
+                    <button type="button" 
+                       onClick={() => {
+  sigCliente.current?.clear();
+  setFirmaClienteEditada(true);
+
+  setData((prev) => ({
+    ...prev,
+    firmas: {
+      ...prev.firmas,
+      cliente: "",
+    },
+  }));
+}}
                       className="text-xs text-red-600 mt-1 hover:underline">Borrar firma</button>
                   </div>
                 </td>
