@@ -7,15 +7,15 @@ import { printPdf } from "@/utils/printPdf";
    ESTILOS — IDÉNTICOS A HYDRO
 ══════════════════════════════ */
 const S = {
-  tbl:   { width: "100%", borderCollapse: "collapse", fontSize: 11 },
-  cell:  { border: "1px solid #374151", padding: "5px 8px", verticalAlign: "middle", fontSize: 11 },
-  label: { border: "1px solid #374151", padding: "5px 8px", verticalAlign: "middle", fontSize: 11, fontWeight: 700, backgroundColor: "#f3f4f6", whiteSpace: "nowrap", width: "35%" },
-  th:    { border: "1px solid #374151", padding: "6px 8px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", textTransform: "uppercase", fontSize: 11 },
+  tbl:   { width: "100%", borderCollapse: "collapse", fontSize: 10 },
+  cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle", fontSize: 10 },
+  label: { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle", fontSize: 10, fontWeight: 700, backgroundColor: "#f3f4f6", whiteSpace: "nowrap", width: "35%" },
+  th:    { border: "1px solid #374151", padding: "6px 8px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", textTransform: "uppercase", fontSize: 10 },
   thSI:  { border: "1px solid #374151", padding: "6px 4px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", fontSize: 10, width: 36 },
   sectionTitle: {
-    fontSize: 12, fontWeight: 800, textAlign: "center", textTransform: "uppercase",
+    fontSize: 11, fontWeight: 800, textAlign: "center", textTransform: "uppercase",
     letterSpacing: "0.5px", padding: "6px 8px", backgroundColor: "#1e3a5f",
-    color: "#fff", margin: "14px 0 0 0", border: "1px solid #1e3a5f",
+    color: "#fff", margin: "10px 0 0 0", border: "1px solid #1e3a5f",
   },
 };
 
@@ -325,7 +325,7 @@ export default function MantenimientoBarredoraPDF() {
                 className="no-break"
                 style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}
               >
-                <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 11, fontWeight: 700, background: "#f9fafb" }}>
+                <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 10, fontWeight: 700, background: "#f9fafb" }}>
                   Fotografía {i + 1}
                 </div>
                 <div style={{ padding: 10 }}>
