@@ -175,7 +175,12 @@ export default function HojaMantenimientoVCam() {
   const navigate  = useNavigate();
   const isEditing = !!id;
 
-  const { user }                                    = useAuth();
+ const { user, isSuperAdmin } = useAuth();
+
+const superAdminActivo =
+  typeof isSuperAdmin === "function"
+    ? isSuperAdmin()
+    : !!isSuperAdmin;
   const { technicians, loading: loadingTechnicians } = useTechnicians();
 
   const sigTecnico = useRef(null);
@@ -185,13 +190,23 @@ export default function HojaMantenimientoVCam() {
   const [guardando, setGuardando]           = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [successMsg, setSuccessMsg]         = useState("");
+   const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
+const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
   const uploading = uploadingCount > 0;
 
   /* ── PROGRESO ── */
   const itemsMarcados    = todosLosItems.filter((c) => data.items?.[c]?.estado).length;
   const totalItems       = todosLosItems.length;
   const progresoPct      = totalItems > 0 ? Math.round((itemsMarcados / totalItems) * 100) : 0;
-  const mantenimientoListo = !!(data.firmas?.tecnico && data.firmas?.cliente);
+  const mantenimientoListo =
+  !!(
+    sigTecnico.current?.isEmpty?.() === false ||
+    data.firmas?.tecnico
+  ) &&
+  !!(
+    sigCliente.current?.isEmpty?.() === false ||
+    data.firmas?.cliente
+  );
 
   /* ── UPDATE PATH-BASED ── */
   const update = (path, value) => {
@@ -269,14 +284,14 @@ export default function HojaMantenimientoVCam() {
 
   /* ── COMPRIMIR Y SUBIR ── */
   const compressAndUpload = async (file, folder = "estado-equipo") => {
-    const compressed = await imageCompression(file, {
-      maxSizeMB: 0.8,
-      useWebWorker: true,
-      alwaysKeepResolution: true,
-      initialQuality: 0.92,
-      maxWidthOrHeight: undefined,
-      fileType: file.type || "image/jpeg",
-    });
+   const compressed = await imageCompression(file, {
+  maxSizeMB: 0.18,
+  maxWidthOrHeight: 1024,
+  useWebWorker: true,
+  fileType: "image/jpeg",
+  initialQuality: 0.7,
+  exifOrientation: 1,
+});
     return await uploadRegistroImage(compressed, id || `temp-vcam-${Date.now()}`, folder);
   };
 
@@ -519,7 +534,8 @@ const result = await saveOrUpdateReport({
                 <td><input className="pdf-input w-full" value={data.correo} onChange={(e) => update(["correo"], e.target.value)} /></td>
                 <td className="pdf-label">TÉCNICO RESPONSABLE</td>
                 <td>
-                  <select className="pdf-input w-full" value={data.tecnicoNombre} disabled={loadingTechnicians}
+                  <select className="pdf-input w-full" value={data.tecnicoNombre}
+                     disabled={loadingTechnicians || !superAdminActivo}
                     onChange={(e) => {
                       const t = (technicians || []).find((x) => techName(x) === e.target.value);
                       update(["tecnicoNombre"],   techName(t));
