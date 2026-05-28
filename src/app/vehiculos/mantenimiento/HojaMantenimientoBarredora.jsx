@@ -112,7 +112,12 @@ const emptyForm = {
 export default function HojaMantenimientoBarredora() {
   const { id }    = useParams();
   const navigate  = useNavigate();
-  const { user }  = useAuth();
+ const { user, isSuperAdmin } = useAuth();
+
+const superAdminActivo =
+  typeof isSuperAdmin === "function"
+    ? isSuperAdmin()
+    : !!isSuperAdmin;
   const isEditing = !!id;
 
   const { technicians, loading: loadingTecnicos } = useTechnicians();
@@ -130,7 +135,15 @@ export default function HojaMantenimientoBarredora() {
   const itemsMarcados    = todosLosItemsFijos.filter((c) => data.items[c]?.estado).length;
   const totalItems       = todosLosItemsFijos.length;
   const progresoPct      = Math.round((itemsMarcados / totalItems) * 100);
-  const mantenimientoListo = !!(data.firmas?.tecnico && data.firmas?.cliente);
+  const mantenimientoListo =
+  !!(
+    sigTecnico.current?.isEmpty?.() === false ||
+    data.firmas?.tecnico
+  ) &&
+  !!(
+    sigCliente.current?.isEmpty?.() === false ||
+    data.firmas?.cliente
+  );
 
   /* ── UPDATE PATH-BASED ── */
   const update = (path, value) => {
@@ -211,100 +224,146 @@ export default function HojaMantenimientoBarredora() {
 
   /* ── COMPRIMIR Y SUBIR ── */
   const compressAndUpload = async (file, folder = "estado-equipo") => {
-    const compressed = await imageCompression(file, {
-      maxSizeMB: 0.8,
-      useWebWorker: true,
-      alwaysKeepResolution: true,
-      initialQuality: 0.92,
-      maxWidthOrHeight: undefined,
-      fileType: file.type || "image/jpeg",
-    });
+const compressed = await imageCompression(file, {
+  maxSizeMB: 0.18,
+  maxWidthOrHeight: 1024,
+  useWebWorker: true,
+  fileType: "image/jpeg",
+  initialQuality: 0.7,
+  exifOrientation: 1,
+});
     return await uploadRegistroImage(compressed, id || "temp-mant-barredora", folder);
   };
 
-  /* ── ESTADO EQUIPO — IMÁGENES ── */
-  const handleEstadoUpload = async (files) => {
-    const arr = Array.from(files || []);
-    if (!arr.length) return;
-    setUploadingCount((p) => p + arr.length);
-    try {
-      for (const file of arr) {
-        const url = await compressAndUpload(file, "estado-equipo");
-        if (!url) continue;
-        setData((prev) => ({
+ /* ── ESTADO EQUIPO — IMÁGENES ── */
+const handleEstadoUpload = async (files) => {
+  const arr = Array.from(files || []);
+  if (!arr.length) return;
+
+  const actualesCount = data.estadoEquipo?.imagenes?.length || 0;
+  const disponibles = Math.max(0, 12 - actualesCount);
+
+  if (disponibles <= 0) {
+    alert("Máximo 12 fotografías");
+    return;
+  }
+
+  const filesToUpload = arr.slice(0, disponibles);
+
+  if (arr.length > disponibles) {
+    alert("Máximo 12 fotografías");
+  }
+
+  setUploadingCount((p) => p + filesToUpload.length);
+
+  try {
+    for (const file of filesToUpload) {
+      const url = await compressAndUpload(file, "estado-equipo");
+      if (!url) continue;
+
+      setData((prev) => {
+        const actuales = prev.estadoEquipo?.imagenes || [];
+
+        if (actuales.some((img) => img.url === url)) return prev;
+
+        return {
           ...prev,
           estadoEquipo: {
             ...prev.estadoEquipo,
             imagenes: [
-              ...(prev.estadoEquipo?.imagenes || []),
+              ...actuales,
               {
-                id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                id: `img-${Date.now()}-${Math.random()
+                  .toString(36)
+                  .slice(2, 6)}`,
                 url,
                 puntos: [],
               },
             ],
           },
-        }));
-      }
-    } finally { setUploadingCount((p) => p - arr.length); }
-  };
+        };
+      });
+    }
+  } finally {
+    setUploadingCount((p) => p - filesToUpload.length);
+  }
+};
 
-  const removeEstadoImg = (imgId) =>
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).filter((i) => i.id !== imgId),
-      },
-    }));
+const removeEstadoImg = (imgId) =>
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).filter(
+        (i) => i.id !== imgId
+      ),
+    },
+  }));
 
-  const handleEstadoClick = (e, imgId) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const x = Number(((e.clientX - r.left) / r.width).toFixed(4));
-    const y = Number(((e.clientY - r.top)  / r.height).toFixed(4));
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
-          img.id === imgId
-            ? { ...img, puntos: [...(img.puntos || []), { id: `p-${Date.now()}`, x, y, observacion: "" }] }
-            : img
-        ),
-      },
-    }));
-  };
+const handleEstadoClick = (e, imgId) => {
+  const r = e.currentTarget.getBoundingClientRect();
+  const x = Number(((e.clientX - r.left) / r.width).toFixed(4));
+  const y = Number(((e.clientY - r.top) / r.height).toFixed(4));
 
-  const removePoint = (imgId, ptId) =>
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
-          img.id === imgId
-            ? { ...img, puntos: (img.puntos || []).filter((p) => p.id !== ptId) }
-            : img
-        ),
-      },
-    }));
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+        img.id === imgId
+          ? {
+              ...img,
+              puntos: [
+                ...(img.puntos || []),
+                {
+                  id: `p-${Date.now()}-${Math.random()
+                    .toString(36)
+                    .slice(2, 6)}`,
+                  x,
+                  y,
+                  observacion: "",
+                },
+              ],
+            }
+          : img
+      ),
+    },
+  }));
+};
 
-  const updatePointObs = (imgId, ptId, value) =>
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
-          img.id === imgId
-            ? {
-                ...img,
-                puntos: (img.puntos || []).map((p) =>
-                  p.id === ptId ? { ...p, observacion: value } : p
-                ),
-              }
-            : img
-        ),
-      },
-    }));
+const removePoint = (imgId, ptId) =>
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+        img.id === imgId
+          ? {
+              ...img,
+              puntos: (img.puntos || []).filter((p) => p.id !== ptId),
+            }
+          : img
+      ),
+    },
+  }));
+
+const updatePointObs = (imgId, ptId, value) =>
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+        img.id === imgId
+          ? {
+              ...img,
+              puntos: (img.puntos || []).map((p) =>
+                p.id === ptId ? { ...p, observacion: value } : p
+              ),
+            }
+          : img
+      ),
+    },
+  }));
 
   /* ── ÍTEMS SECCIONES ── */
   const handleItem = (codigo, campo, valor) =>
@@ -491,7 +550,7 @@ const result = await saveOrUpdateReport({
                   <select
                     className="pdf-input w-full"
                     value={data.tecnicoNombre || ""}
-                    disabled={loadingTecnicos}
+                   disabled={loadingTecnicos || !superAdminActivo}
                     onChange={(e) => {
                       const t = (technicians || []).find((x) => {
                         const nombre = x.name || x.nombre || "";
