@@ -28,9 +28,6 @@ export const saveOrUpdateReport = async ({
   updated_at: new Date().toISOString(),
 };
 
-if (!id) {
-  payload.user_id = user.id;
-}
 
 if (!id) {
   payload.user_id = user.id;
