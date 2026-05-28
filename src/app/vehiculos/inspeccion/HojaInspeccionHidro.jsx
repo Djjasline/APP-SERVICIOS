@@ -260,7 +260,7 @@ const compressAndUpload = async (file, folder) => {
     folder
   );
 };
-  /* ── ESTADO EQUIPO — MÚLTIPLES FOTOS ── */
+/* ── ESTADO EQUIPO — MÚLTIPLES FOTOS ── */
 const handleEstadoUpload = async (files) => {
   const arr = Array.from(files || []).filter((f) =>
     f.type.startsWith("image/")
