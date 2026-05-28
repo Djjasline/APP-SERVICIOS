@@ -430,7 +430,7 @@ export default function MantenimientoHidroPDF() {
 }
           return (
             <div key={i}>
-              <p style={{ ...S.sectionTitle, marginTop: i === 0 ? 0 : 14 }}>{sec.titulo}</p>
+              <p style={{ ...S.sectionTitle, marginTop: i === 0 ? 0 : 10 }}>{sec.titulo}</p>
               <SeccionTable
   sec={sec}
   items={d.items}
