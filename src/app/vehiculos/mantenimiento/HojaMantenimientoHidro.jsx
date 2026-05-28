@@ -131,7 +131,15 @@ const uploading = uploadingCount > 0;
   const itemsMarcados = todosLosItemsFijos.filter((c) => data.items[c]?.estado).length;
   const totalItems    = todosLosItemsFijos.length;
   const progresoPct   = Math.round((itemsMarcados / totalItems) * 100);
-  const mantenimientoListo = !!(data.firmas?.tecnico && data.firmas?.cliente);
+  const mantenimientoListo =
+  !!(
+    (firmaTecnicoEditada
+      ? sigTecnico.current?.isEmpty?.() === false
+      : data.firmas?.tecnico) &&
+    (firmaClienteEditada
+      ? sigCliente.current?.isEmpty?.() === false
+      : data.firmas?.cliente)
+  );
 
   /* ── UPDATE PATH-BASED ── */
   const update = (path, value) => {
@@ -929,8 +937,8 @@ const result = await saveOrUpdateReport({
             <tbody>
               <tr>
                 {/* TÉCNICO */}
-                <td className="align-top" style={{ height: 240 }}>
-                  <div className="border rounded bg-white h-[150px]">
+                <td className="align-top" style={{ height: 190 }}>
+                  <div className="border rounded bg-white h-[120px]">
                     <SignatureCanvas
                       ref={sigTecnico}
                       penColor="black"
@@ -964,8 +972,8 @@ const result = await saveOrUpdateReport({
                 </td>
 
                 {/* CLIENTE */}
-                <td className="align-top" style={{ height: 240 }}>
-                  <div className="border rounded bg-white h-[150px]">
+                <td className="align-top" style={{ height: 190 }}>
+                  <div className="border rounded bg-white h-[120px]">
                     <SignatureCanvas
                       ref={sigCliente}
                       penColor="black"
