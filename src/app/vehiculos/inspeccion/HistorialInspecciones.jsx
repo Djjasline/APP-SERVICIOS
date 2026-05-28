@@ -41,7 +41,7 @@ let query = supabase
 if (!superAdminActivo) {
   query = query.eq("user_id", user.id);
 }
-      }
+    
 
       const { data, error } = await query;
 
