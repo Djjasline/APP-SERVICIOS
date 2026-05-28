@@ -51,7 +51,7 @@ const S = {
   },
 
   sectionTitle: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: 800,
     textAlign: "center",
     textTransform: "uppercase",
@@ -252,7 +252,7 @@ export default function InspeccionHidroPDF() {
 
         {/* CONCLUSIONES */}
         <div className="no-break">
-          <table style={{ ...S.tbl, marginTop: 14 }}>
+          <table style={{ ...S.tbl, marginTop: 10 }}>
             <thead><tr><th colSpan={2} style={S.th}>CONCLUSIONES</th><th colSpan={2} style={S.th}>RECOMENDACIONES</th></tr></thead>
             <tbody>
               {(d.conclusiones || []).map((c, i) => (
@@ -306,7 +306,7 @@ export default function InspeccionHidroPDF() {
                     height: 85,
                     textAlign: "center",
                     verticalAlign: "middle",
-                    padding: "6px 8px",
+                    padding: "4px 6px",
                   }}
                 >
                   <div
@@ -356,7 +356,7 @@ export default function InspeccionHidroPDF() {
                     height: 85,
                     textAlign: "center",
                     verticalAlign: "middle",
-                    padding: "6px 8px",
+                    padding: "4px 6px",
                   }}
                 >
                   <div
