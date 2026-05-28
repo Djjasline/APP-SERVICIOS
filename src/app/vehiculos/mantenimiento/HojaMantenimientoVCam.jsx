@@ -272,6 +272,8 @@ const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
       setTimeout(() => {
         if (d.firmas?.tecnico) sigTecnico.current?.fromDataURL(d.firmas.tecnico);
         if (d.firmas?.cliente) sigCliente.current?.fromDataURL(d.firmas.cliente);
+         setFirmaTecnicoEditada(false);
+setFirmaClienteEditada(false);
       }, 300);
     };
     load();
@@ -470,13 +472,14 @@ const updatePointObs = (imgId, ptId, value) =>
     setGuardando(true);
     try {
       const firmaTecnico =
-        sigTecnico.current?.isEmpty?.() === false
-          ? sigTecnico.current.toDataURL()
-          : data.firmas?.tecnico || "";
-      const firmaCliente =
-        sigCliente.current?.isEmpty?.() === false
-          ? sigCliente.current.toDataURL()
-          : data.firmas?.cliente || "";
+  firmaTecnicoEditada && sigTecnico.current?.isEmpty?.() === false
+    ? sigTecnico.current.toDataURL()
+    : data.firmas?.tecnico || "";
+
+const firmaCliente =
+  firmaClienteEditada && sigCliente.current?.isEmpty?.() === false
+    ? sigCliente.current.toDataURL()
+    : data.firmas?.cliente || "";
 
       const estadoFinal = firmaTecnico && firmaCliente ? "completado" : "borrador";
 
@@ -767,24 +770,46 @@ const result = await saveOrUpdateReport({
             </thead>
             <tbody>
               <tr>
-                <td className="align-top" style={{ height: 240 }}>
-                  <div className="border rounded bg-white h-[150px]">
+                <td className="align-top" style={{ height: 190 }}>
+                  <div className="border rounded bg-white h-[120px]">
                     <SignatureCanvas ref={sigTecnico} penColor="black" minWidth={0.5} maxWidth={1.5}
-                      onBegin={() => { document.body.style.overflow = "hidden"; }}
-                      onEnd={() => { document.body.style.overflow = ""; }}
+                      onBegin={() => {
+  setFirmaTecnicoEditada(true);
+  document.body.style.overflow = "hidden";
+}}
+                      onEnd={() => {
+  document.body.style.overflow = "";
+}}
                       canvasProps={{ className: "w-full h-full touch-none" }} />
                   </div>
                   <div className="mt-2 text-sm text-center font-medium">{data.tecnicoNombre || "—"}</div>
                   <div className="text-center">
-                    <button type="button" onClick={() => sigTecnico.current?.clear()}
+                    <button type="button" 
+                       onClick={() => {
+  sigTecnico.current?.clear();
+  setFirmaTecnicoEditada(true);
+
+  setData((prev) => ({
+    ...prev,
+    firmas: {
+      ...prev.firmas,
+      tecnico: "",
+    },
+  }));
+}}
                       className="text-xs text-red-600 mt-1 hover:underline">Borrar firma</button>
                   </div>
                 </td>
-                <td className="align-top" style={{ height: 240 }}>
-                  <div className="border rounded bg-white h-[150px]">
+                <td className="align-top" style={{ height: 190 }}>
+                  <div className="border rounded bg-white h-[120px]">
                     <SignatureCanvas ref={sigCliente} penColor="black" minWidth={0.5} maxWidth={1.5}
-                      onBegin={() => { document.body.style.overflow = "hidden"; }}
-                      onEnd={() => { document.body.style.overflow = ""; }}
+                      onBegin={() => {
+  setFirmaClienteEditada(true);
+  document.body.style.overflow = "hidden";
+}}
+                      onEnd={() => {
+  document.body.style.overflow = "";
+}}
                       canvasProps={{ className: "w-full h-full touch-none" }} />
                   </div>
                   <div className="mt-2 space-y-1 text-center">
@@ -794,7 +819,19 @@ const result = await saveOrUpdateReport({
                       placeholder="Número de cédula del cliente" />
                   </div>
                   <div className="text-center">
-                    <button type="button" onClick={() => sigCliente.current?.clear()}
+                    <button type="button" 
+                       onClick={() => {
+  sigCliente.current?.clear();
+  setFirmaClienteEditada(true);
+
+  setData((prev) => ({
+    ...prev,
+    firmas: {
+      ...prev.firmas,
+      cliente: "",
+    },
+  }));
+}}
                       className="text-xs text-red-600 mt-1 hover:underline">Borrar firma</button>
                   </div>
                 </td>
