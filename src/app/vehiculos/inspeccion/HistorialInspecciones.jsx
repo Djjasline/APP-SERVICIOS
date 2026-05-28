@@ -26,15 +26,21 @@ export default function IndexInspeccion() {
     if (!user?.id) return;
 
     const loadInspections = async () => {
+const superAdminActivo =
+  typeof isSuperAdmin === "function"
+    ? isSuperAdmin()
+    : !!isSuperAdmin;
+
 let query = supabase
   .from("registros")
   .select("*")
-  .eq("area", "vehiculos")
   .eq("tipo", "inspeccion")
+  .or("area.eq.vehiculos,area.is.null")
   .order("created_at", { ascending: false });
 
-      if (!isSuperAdmin) {
-        query = query.eq("user_id", user.id);
+if (!superAdminActivo) {
+  query = query.eq("user_id", user.id);
+}
       }
 
       const { data, error } = await query;
