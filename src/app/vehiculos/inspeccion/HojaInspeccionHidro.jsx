@@ -122,7 +122,12 @@ const emptyForm = {
 export default function HojaInspeccionHidro() {
   const { id }     = useParams();
   const navigate   = useNavigate();
-  const { user }   = useAuth();
+ const { user, isSuperAdmin } = useAuth();
+
+const superAdminActivo =
+  typeof isSuperAdmin === "function"
+    ? isSuperAdmin()
+    : !!isSuperAdmin;
   const isEditing  = !!id;
 
   const { technicians, loading: loadingTecnicos } = useTechnicians();
@@ -134,14 +139,23 @@ export default function HojaInspeccionHidro() {
   const [guardando, setGuardando]           = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [successMsg, setSuccessMsg]         = useState("");
+  const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
+const [firmaClienteEditada, setFirmaClienteEditada] = useState(false); 
   const uploading = uploadingCount > 0;
 
   /* ── PROGRESO ── */
   const itemsMarcados = todosLosItems.filter((c) => data.items[c]?.estado).length;
   const totalItems    = todosLosItems.length;
   const progresoPct   = Math.round((itemsMarcados / totalItems) * 100);
-  const inspeccionLista = !!(data.firmas?.tecnico && data.firmas?.cliente);
-
+  const inspeccionLista =
+  !!(
+    sigTecnico.current?.isEmpty?.() === false ||
+    data.firmas?.tecnico
+  ) &&
+  !!(
+    sigCliente.current?.isEmpty?.() === false ||
+    data.firmas?.cliente
+  );
   /* ── UPDATE PATH-BASED ── */
   const update = (path, value) => {
     setData((prev) => {
@@ -202,6 +216,7 @@ export default function HojaInspeccionHidro() {
    /* ── AUTO-RELLENAR TÉCNICO LOGUEADO ── */
 useEffect(() => {
   if (!user?.email || isEditing || loadingTecnicos) return;
+  if (superAdminActivo) return;
 
   const loggedTech = (technicians || []).find((t) => {
     const email = t.email || t.correo || "";
@@ -216,7 +231,7 @@ useEffect(() => {
     tecnicoTelefono: loggedTech.phone || loggedTech.telefono || "",
     tecnicoCorreo: loggedTech.email || loggedTech.correo || "",
   }));
-}, [user?.email, isEditing, loadingTecnicos, technicians]);
+}, [user?.email, isEditing, loadingTecnicos, technicians, superAdminActivo]);
 
 /* ── LIMPIAR SCROLL LOCK ── */
 useEffect(() => {
@@ -553,7 +568,7 @@ const updateBasePointObs = (ptId, value) =>
                  <select
   className="pdf-input w-full"
   value={data.tecnicoNombre || ""}
-  disabled={loadingTecnicos}
+  disabled={loadingTecnicos || !superAdminActivo}
   onChange={(e) => {
     const t = (technicians || []).find((x) => {
       const nombre = x.name || x.nombre || "";
