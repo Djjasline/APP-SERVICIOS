@@ -10,7 +10,7 @@ const S = {
   tbl:   { width: "100%", borderCollapse: "collapse", fontSize: 10 },
 cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle", fontSize: 10 },
   label: { border: "1px solid #374151", padding: "5px 8px", verticalAlign: "middle", fontSize: 11, fontWeight: 700, backgroundColor: "#f3f4f6", whiteSpace: "nowrap", width: "35%" },
-  th:    { border: "1px solid #374151", padding: "6px 8px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", textTransform: "uppercase", fontSize: 11 },
+  th:    { border: "1px solid #374151", padding: "4px 6px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", textTransform: "uppercase", fontSize: 11 },
   thSI:  { border: "1px solid #374151", padding: "6px 4px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", fontSize: 10, width: 36 },
   sectionTitle: {
     fontSize: 11, fontWeight: 800, textAlign: "center", textTransform: "uppercase",
@@ -468,16 +468,16 @@ export default function MantenimientoHidroPDF() {
             <tbody>
               <tr>
                 {/* TÉCNICO */}
-                <td style={{ ...S.cell, height: 110, textAlign: "center", verticalAlign: "middle", padding: "6px 8px" }}>
+                <td style={{ ...S.cell, height: 95, textAlign: "center", verticalAlign: "middle", padding: "4px 6px" }}>
                   <div style={{ height: 45, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {d.firmas?.tecnico ? (
                       <img
                         src={d.firmas.tecnico}
                         alt="Firma técnico"
                         style={{
-  maxHeight: 62,
+  maxHeight: 52,
   width: "100%",
-  maxWidth: 240,
+  maxWidth: 180,
   objectFit: "contain",
   display: "block",
   filter: "contrast(1.1)",
@@ -493,16 +493,16 @@ export default function MantenimientoHidroPDF() {
                 </td>
 
                 {/* CLIENTE */}
-                <td style={{ ...S.cell, height: 110, textAlign: "center", verticalAlign: "middle", padding: "6px 8px" }}>
+                <td style={{ ...S.cell, height: 95, textAlign: "center", verticalAlign: "middle", padding: "4px 6px" }}>
                   <div style={{ height: 70, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {d.firmas?.cliente ? (
                       <img
                         src={d.firmas.cliente}
                         alt="Firma cliente"
                         style={{
-                          maxHeight: 38,
+                          maxHeight: 34,
                           width: "auto",
-                          maxWidth: 160,
+                          maxWidth: 140,
                           objectFit: "contain",
                           display: "block",
                           filter: "contrast(1.05)",
