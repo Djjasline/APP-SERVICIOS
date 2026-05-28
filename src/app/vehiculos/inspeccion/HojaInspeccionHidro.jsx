@@ -208,6 +208,8 @@ const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
       setTimeout(() => {
         if (reg.data?.firmas?.tecnico) sigTecnico.current?.fromDataURL(reg.data.firmas.tecnico);
         if (reg.data?.firmas?.cliente) sigCliente.current?.fromDataURL(reg.data.firmas.cliente);
+         setFirmaTecnicoEditada(false);
+setFirmaClienteEditada(false);
       }, 300);
     };
     load();
@@ -852,7 +854,9 @@ const firmaCliente =
   setFirmaTecnicoEditada(true);
   document.body.style.overflow = "hidden";
 }}
-                      onEnd={() => { document.body.style.overflow = ""; }}
+                      onEnd={() => {
+  document.body.style.overflow = "";
+}}
                       canvasProps={{ className:"w-full h-full touch-none" }} />
                   </div>
                   <div className="mt-2 text-sm text-center font-medium">{data.tecnicoNombre || "—"}</div>
@@ -880,7 +884,9 @@ const firmaCliente =
   setFirmaClienteEditada(true);
   document.body.style.overflow = "hidden";
 }}
-                      onEnd={() => { document.body.style.overflow = ""; }}
+                      onEnd={() => {
+  document.body.style.overflow = "";
+}}
                       canvasProps={{ className:"w-full h-full touch-none" }} />
                   </div>
                   <div className="mt-2 space-y-1 text-center">
