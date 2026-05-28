@@ -948,7 +948,15 @@ const result = await saveOrUpdateReport({
                     {data.tecnicoNombre || "—"}
                   </div>
                   <div className="text-center">
-                    <button type="button" onClick={() => sigTecnico.current?.clear()}
+                    <button type="button" 
+                      onClick={() => {
+  sigTecnico.current?.clear();
+  setFirmaTecnicoEditada(true);
+  setData((prev) => ({
+    ...prev,
+    firmas: { ...prev.firmas, tecnico: "" },
+  }));
+}}
                       className="text-xs text-red-600 mt-1 hover:underline">
                       Borrar firma
                     </button>
@@ -986,7 +994,15 @@ const result = await saveOrUpdateReport({
                     />
                   </div>
                   <div className="text-center">
-                    <button type="button" onClick={() => sigCliente.current?.clear()}
+                    <button type="button" 
+                      onClick={() => {
+  sigCliente.current?.clear();
+  setFirmaClienteEditada(true);
+  setData((prev) => ({
+    ...prev,
+    firmas: { ...prev.firmas, cliente: "" },
+  }));
+}}
                       className="text-xs text-red-600 mt-1 hover:underline">
                       Borrar firma
                     </button>
