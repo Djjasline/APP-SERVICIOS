@@ -193,8 +193,12 @@ const superAdminActivo =
       setData(d);
 
       setTimeout(() => {
-        if (reg.data?.firmas?.tecnico) sigTecnico.current?.fromDataURL(reg.data.firmas.tecnico);
-        if (reg.data?.firmas?.cliente) sigCliente.current?.fromDataURL(reg.data.firmas.cliente);
+        if (reg.data?.firmas?.tecnico) 
+           sigTecnico.current?.fromDataURL(reg.data.firmas.tecnico);
+        if (reg.data?.firmas?.cliente) 
+           sigCliente.current?.fromDataURL(reg.data.firmas.cliente);
+         setFirmaTecnicoEditada(false);
+setFirmaClienteEditada(false);
       }, 300);
     };
     load();
@@ -833,7 +837,9 @@ const result = await saveOrUpdateReport({
   setFirmaTecnicoEditada(true);
   document.body.style.overflow = "hidden";
 }}
-                      onEnd={() => { document.body.style.overflow = ""; }}
+                      onEnd={() => {
+  document.body.style.overflow = "";
+}}
                       canvasProps={{ className: "w-full h-full touch-none" }}
                     />
                   </div>
@@ -868,7 +874,9 @@ const result = await saveOrUpdateReport({
   setFirmaClienteEditada(true);
   document.body.style.overflow = "hidden";
 }}
-                      onEnd={() => { document.body.style.overflow = ""; }}
+                      onEnd={() => {
+  document.body.style.overflow = "";
+}}
                       canvasProps={{ className: "w-full h-full touch-none" }}
                     />
                   </div>
