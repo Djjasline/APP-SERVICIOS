@@ -99,8 +99,9 @@ export default function HojaInspeccionCamara() {
   const { user, isSuperAdmin } = useAuth();
 
 const superAdminActivo =
-  isSuperAdmin &&
-  user?.email?.toLowerCase() === "servicios@astap.com.ec";
+  typeof isSuperAdmin === "function"
+    ? isSuperAdmin()
+    : !!isSuperAdmin;
   const isEditing = !!id;
 
   const { technicians, loading: loadingTecnicos } = useTechnicians();
@@ -119,6 +120,8 @@ const superAdminActivo =
   const totalItems     = todosLosItems.length;
   const progresoPct    = Math.round((itemsMarcados / totalItems) * 100);
   const inspeccionLista = !!(data.firmas?.tecnico && data.firmas?.cliente);
+   const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
+const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
 
   /* ── UPDATE PATH-BASED ── */
   const update = (path, value) => {
@@ -204,19 +207,23 @@ const superAdminActivo =
     return () => { document.body.style.overflow = ""; };
   }, []);
 
-  /* ── COMPRIMIR Y SUBIR ── */
-  const compressAndUpload = async (file, folder) => {
-    const compressed = await imageCompression(file, {
-      maxSizeMB: 0.18,
-      useWebWorker: true,
-      alwaysKeepResolution: true,
-      initialQuality: 0.75,
-      maxWidthOrHeight: undefined,
-      fileType: file.type || "image/jpeg",
-    });
-    return await uploadRegistroImage(compressed, id || "temp-insp-camara", folder);
-  };
+ /* ── COMPRIMIR Y SUBIR ── */
+const compressAndUpload = async (file, folder) => {
+  const compressed = await imageCompression(file, {
+    maxSizeMB: 0.18,
+    maxWidthOrHeight: 1024,
+    useWebWorker: true,
+    fileType: "image/jpeg",
+    initialQuality: 0.7,
+    exifOrientation: 1,
+  });
 
+  return await uploadRegistroImage(
+    compressed,
+    id || "temp-insp-camara",
+    folder
+  );
+};
 /* ── ESTADO EQUIPO — MÚLTIPLES FOTOS ── */
 const handleEstadoUpload = async (files) => {
   const arr = Array.from(files || []).filter((f) =>
