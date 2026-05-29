@@ -109,20 +109,36 @@ const superAdminActivo =
   const sigTecnico = useRef(null);
   const sigCliente = useRef(null);
 
-  const [data, setData]                     = useState(emptyForm);
-  const [guardando, setGuardando]           = useState(false);
-  const [uploadingCount, setUploadingCount] = useState(0);
-  const [successMsg, setSuccessMsg]         = useState("");
-  const uploading = uploadingCount > 0;
+const [data, setData] = useState(emptyForm);
+const [guardando, setGuardando] = useState(false);
+const [uploadingCount, setUploadingCount] = useState(0);
+const [successMsg, setSuccessMsg] = useState("");
 
-  /* ── PROGRESO ── */
-  const itemsMarcados  = todosLosItems.filter((c) => data.items[c]?.estado).length;
-  const totalItems     = todosLosItems.length;
-  const progresoPct    = Math.round((itemsMarcados / totalItems) * 100);
-  const inspeccionLista = !!(data.firmas?.tecnico && data.firmas?.cliente);
-   const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
+const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
 const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
 
+const uploading = uploadingCount > 0;
+
+/* ── PROGRESO ── */
+const itemsMarcados = todosLosItems.filter(
+  (c) => data.items[c]?.estado
+).length;
+
+const totalItems = todosLosItems.length;
+
+const progresoPct = Math.round(
+  (itemsMarcados / totalItems) * 100
+);
+
+const inspeccionLista =
+  !!(
+    sigTecnico.current?.isEmpty?.() === false ||
+    data.firmas?.tecnico
+  ) &&
+  !!(
+    sigCliente.current?.isEmpty?.() === false ||
+    data.firmas?.cliente
+  );
   /* ── UPDATE PATH-BASED ── */
   const update = (path, value) => {
     setData((prev) => {
