@@ -1,4 +1,5 @@
 import { useTechnicians } from "@/hooks/useTechnicians";
+import { useAuth } from "@/context/AuthContext";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
@@ -24,6 +25,8 @@ const Input = ({ value, onChange, placeholder = "", readOnly = false, className 
 export default function NuevoInformeBombaValvula() {
   const { id } = useParams();
   const navigate = useNavigate();
+   const { user, isSuperAdmin } = useAuth();
+const superAdminActivo = isSuperAdmin?.();
 
   const {
     technicians,
@@ -168,6 +171,35 @@ export default function NuevoInformeBombaValvula() {
     load();
   }, [id]);
 
+   /* ─── AUTO-RELLENAR TÉCNICO LOGUEADO ─── */
+useEffect(() => {
+  if (
+    !user?.email ||
+    superAdminActivo ||
+    isEditing ||
+    loadingTechnicians
+  ) return;
+
+  const loggedTech = (technicians || []).find((t) => {
+    const email = t.email || t.correo || "";
+    return email.toLowerCase() === user.email.toLowerCase();
+  });
+
+  if (!loggedTech) return;
+
+  setData((prev) => ({
+    ...prev,
+    tecnicoNombre: loggedTech.name || loggedTech.nombre || "",
+    tecnicoTelefono: loggedTech.phone || loggedTech.telefono || "",
+    tecnicoCorreo: loggedTech.email || loggedTech.correo || "",
+  }));
+}, [
+  user?.email,
+  superAdminActivo,
+  isEditing,
+  loadingTechnicians,
+  technicians,
+]);
   /* ─── HELPERS ESTADO ─── */
   const set = (field, value) => setData((p) => ({ ...p, [field]: value }));
 
@@ -501,7 +533,7 @@ export default function NuevoInformeBombaValvula() {
          <select
   className="w-full border-0 p-1 outline-none bg-white text-sm"
   value={data.tecnicoNombre}
-  disabled={loadingTechnicians}
+ disabled={loadingTechnicians || !superAdminActivo}
   onChange={(e) => {
     const tech = (technicians || []).find(
       (t) => t.name === e.target.value
