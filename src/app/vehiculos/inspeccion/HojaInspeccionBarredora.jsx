@@ -174,6 +174,8 @@ const sigCliente = useRef(null);
 const [guardando, setGuardando]           = useState(false);
 const [uploadingCount, setUploadingCount] = useState(0);
 const [successMsg, setSuccessMsg]         = useState("");
+   const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
+const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
 const [data, setData] = useState(emptyForm);
 
 /* ── PROGRESO ── */
@@ -187,10 +189,15 @@ const progresoPct = Math.round(
   (itemsMarcados / totalItems) * 100
 );
 
-const inspeccionLista = !!(
-  data.firmas?.tecnico &&
-  data.firmas?.cliente
-);   
+const inspeccionLista =
+  !!(
+    sigTecnico.current?.isEmpty?.() === false ||
+    data.firmas?.tecnico
+  ) &&
+  !!(
+    sigCliente.current?.isEmpty?.() === false ||
+    data.firmas?.cliente
+  ); 
 
 const uploading = uploadingCount > 0;
 
@@ -335,14 +342,13 @@ useEffect(() => {
 const compressAndUpload = async (file, folder) => {
 
   const compressedFile = await imageCompression(file, {
-    maxSizeMB: 0.8,
-    useWebWorker: true,
-    alwaysKeepResolution: true,
-    initialQuality: 0.92,
-    maxWidthOrHeight: undefined,
-    fileType: file.type || "image/jpeg",
-  });
-
+  maxSizeMB: 0.18,
+  maxWidthOrHeight: 1024,
+  useWebWorker: true,
+  fileType: "image/jpeg",
+  initialQuality: 0.7,
+  exifOrientation: 1,
+});
   return await uploadRegistroImage(
     compressedFile,
     id || "temp-insp-barredora",
@@ -592,16 +598,20 @@ const handleSubmit = async (e) => {
       ...data,
 
       firmas: {
-        ...data.firmas,
+  ...data.firmas,
 
-        tecnico: sigTecnico.current?.isEmpty()
-          ? data.firmas?.tecnico || ""
-          : sigTecnico.current?.toDataURL(),
+  tecnico:
+    firmaTecnicoEditada &&
+    sigTecnico.current?.isEmpty?.() === false
+      ? sigTecnico.current.toDataURL()
+      : data.firmas?.tecnico || "",
 
-        cliente: sigCliente.current?.isEmpty()
-          ? data.firmas?.cliente || ""
-          : sigCliente.current?.toDataURL(),
-      },
+  cliente:
+    firmaClienteEditada &&
+    sigCliente.current?.isEmpty?.() === false
+      ? sigCliente.current.toDataURL()
+      : data.firmas?.cliente || "",
+},
     };
 
     const estadoFinal =
