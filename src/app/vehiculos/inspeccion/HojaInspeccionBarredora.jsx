@@ -1170,7 +1170,9 @@ setTimeout(() => {
   setFirmaClienteEditada(true);
   document.body.style.overflow = "hidden";
 }}
-                      onEnd={() => { document.body.style.overflow = ""; }}
+                     onEnd={() => {
+  document.body.style.overflow = "";
+}}
                       canvasProps={{ className:"w-full h-full touch-none" }} />
                   </div>
                   <div className="mt-2 space-y-1 text-center">
