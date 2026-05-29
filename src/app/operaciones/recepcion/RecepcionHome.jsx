@@ -1,3 +1,53 @@
+import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { generarPDFRecepcion } from "./generarPDFRecepcion";
+
+export default function RecepcionHome() {
+  const navigate = useNavigate();
+
+  const [registros, setRegistros] = useState([]);
+  const [filter, setFilter] = useState("todos");
+  const [loading, setLoading] = useState(true);
+
+  const [filters, setFilters] = useState({
+    conductor: "",
+    placa: "",
+    pedido: "",
+    fecha: "",
+  });
+
+  const loadRegistros = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("registros")
+      .select("*")
+      .eq("tipo", "recepcion")
+      .eq("subtipo", "control_vehicular")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error cargando controles vehiculares:", error);
+      setRegistros([]);
+    } else {
+      setRegistros(data || []);
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadRegistros();
+  }, []);
+
+  const filtered = registros.filter((r) => {
+    const d = r.data || {};
+    const fecha = d.fecha || r.updated_at || r.created_at || "";
+
+    return (
+      (filter === "todos" ||
+        (filter === "borrador" && r.estado !== "completado") ||
         (filter === "completado" && r.estado === "completado")) &&
       (d.conductor || "").toLowerCase().includes(filters.conductor.toLowerCase()) &&
       (d.placa || "").toLowerCase().includes(filters.placa.toLowerCase()) &&
