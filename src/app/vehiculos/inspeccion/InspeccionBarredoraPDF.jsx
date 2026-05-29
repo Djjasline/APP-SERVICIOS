@@ -54,7 +54,7 @@ const S = {
   },
 
   sectionTitle: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: 800,
     textAlign: "center",
     textTransform: "uppercase",
