@@ -253,3 +253,31 @@ export default function InspeccionCamaraPDF() {
     </tbody>
   </table>
 </div>
+      </div>
+
+      <div
+        className="no-print"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          maxWidth: 794,
+          margin: "24px auto 0",
+        }}
+      >
+        <button
+          onClick={() => navigate("/inspeccion")}
+          className="border px-6 py-2 rounded"
+        >
+          Volver
+        </button>
+
+        <button
+          onClick={handlePrint}
+          className="bg-green-600 text-white px-6 py-2 rounded"
+        >
+          Descargar PDF
+        </button>
+      </div>
+    </div>
+  );
+}
