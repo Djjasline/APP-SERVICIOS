@@ -54,7 +54,7 @@ const S = {
   },
 
   sectionTitle: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: 800,
     textAlign: "center",
     textTransform: "uppercase",
@@ -368,7 +368,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                 style={{
                   padding: "5px 10px",
                   borderBottom: "1px solid #d1d5db",
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: 700,
                   background: "#f9fafb",
                 }}
@@ -387,7 +387,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                 >
                   <img
                     src="/barredora-base.png"
-                    alt="Vista general cámara"
+                    alt="Vista general barredora"
                     style={{ width: "100%", maxHeight: 240, objectFit: "contain", display: "block" }}
                   />
                   {puntosBase.map((p, pi) => (
@@ -459,7 +459,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                   style={{
                     padding: "5px 10px",
                     borderBottom: "1px solid #d1d5db",
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: 700,
                     background: "#f9fafb",
                   }}
@@ -516,7 +516,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                       {img.puntos.map((p, pi) => (
                         <div
                           key={p.id || pi}
-                          style={{ display: "flex", gap: 8, marginBottom: 4, fontSize: 11 }}
+                          style={{ display: "flex", gap: 8, marginBottom: 4, fontSize: 10 }}
                         >
                           <span style={{ minWidth: 22, fontWeight: 700 }}>{pi + 1})</span>
                           <span>{p.observacion || "—"}</span>
