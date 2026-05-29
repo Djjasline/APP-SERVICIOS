@@ -283,6 +283,8 @@ useEffect(() => {
           reg.data.firmas.cliente
         );
       }
+      setFirmaTecnicoEditada(false);
+setFirmaClienteEditada(false); 
     }, 300);
   };
 
@@ -1131,11 +1133,16 @@ setTimeout(() => {
             </tr></thead>
             <tbody>
               <tr>
-                <td className="align-top" style={{ height:240 }}>
-                  <div className="border rounded bg-white h-[150px]">
+                <td className="align-top" style={{ height:190 }}>
+                  <div className="border rounded bg-white h-[120px]">
                     <SignatureCanvas ref={sigTecnico} penColor="black" minWidth={0.5} maxWidth={1.5}
-                      onBegin={() => { document.body.style.overflow = "hidden"; }}
-                      onEnd={() => { document.body.style.overflow = ""; }}
+                     onBegin={() => {
+  setFirmaTecnicoEditada(true);
+  document.body.style.overflow = "hidden";
+}}
+                     onEnd={() => {
+  document.body.style.overflow = "";
+}}
                       canvasProps={{ className:"w-full h-full touch-none" }} />
                   </div>
                   <div className="mt-2 text-sm text-center font-medium">{data.tecnicoNombre || "—"}</div>
@@ -1157,9 +1164,12 @@ setTimeout(() => {
                   </div>
                 </td>
                 <td className="align-top" style={{ height:190 }}>
-                  <div className="border rounded bg-white h-[110px]">
+                  <div className="border rounded bg-white h-[120px]">
                     <SignatureCanvas ref={sigCliente} penColor="black" minWidth={0.5} maxWidth={1.5}
-                      onBegin={() => { document.body.style.overflow = "hidden"; }}
+                      onBegin={() => {
+  setFirmaClienteEditada(true);
+  document.body.style.overflow = "hidden";
+}}
                       onEnd={() => { document.body.style.overflow = ""; }}
                       canvasProps={{ className:"w-full h-full touch-none" }} />
                   </div>
