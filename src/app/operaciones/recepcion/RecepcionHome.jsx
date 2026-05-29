@@ -1,100 +1,46 @@
-import { supabase } from "@/lib/supabase";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-export default function RecepcionHome() {
-  const navigate = useNavigate();
-
-  const [registros, setRegistros] = useState([]);
-  const [filter, setFilter] = useState("todos");
-
-  const [filters, setFilters] = useState({
-    equipo: "",
-    codigo: "",
-    fecha: "",
-  });
-
-  // 🔄 CARGAR DATA
-  useEffect(() => {
-    const load = async () => {
-      const { data, error } = await supabase
-  .from("registros")
-  .select("*")
-  .eq("area", "operaciones")
-  .eq("tipo", "recepcion")
-  .eq("subtipo", "general")
-  .order("created_at", { ascending: false });
-
-if (error) {
-  console.error(error);
-  setRegistros([]);
-  return;
-}
-
-      setRegistros(data || []);
-    };
-
-    load();
-  }, []);
-
-  // 🎯 FILTROS
-  const filtered = registros.filter((r) => {
-    const form = r.data?.formulario || {};
-const equipo = `${form.equipo?.marca || ""} ${form.equipo?.modelo || ""}`.toLowerCase();
-const codigo = form.codigo?.toLowerCase() || "";
-    const fecha = r.updated_at || r.created_at;
-
-    return (
-      (filter === "todos" ||
-        (filter === "borrador" && r.estado !== "completado") ||
         (filter === "completado" && r.estado === "completado")) &&
-      equipo.includes(filters.equipo.toLowerCase()) &&
-      codigo.includes(filters.codigo.toLowerCase()) &&
-      (!filters.fecha || (fecha && fecha.startsWith(filters.fecha)))
+      (d.conductor || "").toLowerCase().includes(filters.conductor.toLowerCase()) &&
+      (d.placa || "").toLowerCase().includes(filters.placa.toLowerCase()) &&
+      (d.pedidoDemanda || "").toLowerCase().includes(filters.pedido.toLowerCase()) &&
+      (!filters.fecha || fecha.startsWith(filters.fecha))
     );
   });
 
-  const open = (r) => navigate(`/operaciones/recepcion/${r.id}`);
-
   const remove = async (id) => {
-    if (!confirm("¿Eliminar recepción?")) return;
+    if (!confirm("¿Eliminar control vehicular?")) return;
 
     const { error } = await supabase
-  .from("registros")
-  .delete()
-  .eq("id", id)
-  .eq("area", "operaciones")
-  .eq("tipo", "recepcion")
-  .eq("subtipo", "general");
+      .from("registros")
+      .delete()
+      .eq("id", id)
+      .eq("tipo", "recepcion")
+      .eq("subtipo", "control_vehicular");
 
-if (error) {
-  console.error(error);
-  alert("Error eliminando ❌");
-  return;
-}
+    if (error) {
+      console.error("Error eliminando control vehicular:", error);
+      alert("No se pudo eliminar el registro.");
+      return;
+    }
 
     setRegistros((prev) => prev.filter((r) => r.id !== id));
   };
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
-
-      {/* HEADER */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap justify-between items-center gap-3">
         <h1 className="text-lg font-semibold text-gray-900">
-          Recepción de equipos
+          Control vehicular
         </h1>
 
         <button
-          onClick={() => navigate("/operaciones/recepcion/new")}
+          onClick={() => navigate("/recepcion/new")}
           className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
         >
-          + Nueva recepción
+          + Nuevo control
         </button>
       </div>
 
-      {/* FILTROS */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {["todos", "borrador", "completado"].map((f) => (
           <button
             key={f}
@@ -110,126 +56,129 @@ if (error) {
         ))}
       </div>
 
-      {/* INPUTS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <input
-          placeholder="Buscar equipo..."
-          value={filters.equipo}
-          onChange={(e) =>
-            setFilters((f) => ({ ...f, equipo: e.target.value }))
-          }
+          placeholder="Buscar conductor..."
+          value={filters.conductor}
+          onChange={(e) => setFilters((f) => ({ ...f, conductor: e.target.value }))}
           className="border px-3 py-2 rounded text-sm"
         />
 
         <input
-          placeholder="Código..."
-          value={filters.codigo}
-          onChange={(e) =>
-            setFilters((f) => ({ ...f, codigo: e.target.value }))
-          }
+          placeholder="Placa..."
+          value={filters.placa}
+          onChange={(e) => setFilters((f) => ({ ...f, placa: e.target.value }))}
+          className="border px-3 py-2 rounded text-sm"
+        />
+
+        <input
+          placeholder="Pedido / demanda..."
+          value={filters.pedido}
+          onChange={(e) => setFilters((f) => ({ ...f, pedido: e.target.value }))}
           className="border px-3 py-2 rounded text-sm"
         />
 
         <input
           type="date"
           value={filters.fecha}
-          onChange={(e) =>
-            setFilters((f) => ({ ...f, fecha: e.target.value }))
-          }
+          onChange={(e) => setFilters((f) => ({ ...f, fecha: e.target.value }))}
           className="border px-3 py-2 rounded text-sm"
         />
       </div>
 
-      {/* TABLA */}
       <div className="overflow-x-auto border rounded-xl">
         <table className="w-full text-sm">
-
-          {/* HEADER */}
           <thead className="bg-gray-100 text-gray-700">
             <tr>
-              <th className="text-left px-4 py-2">Equipo</th>
-              <th className="text-left px-4 py-2">Código</th>
+              <th className="text-left px-4 py-2">Conductor</th>
+              <th className="text-left px-4 py-2">Placa</th>
+              <th className="text-left px-4 py-2">Pedido/Demanda</th>
               <th className="text-left px-4 py-2">Estado</th>
               <th className="text-left px-4 py-2">Fecha</th>
               <th className="text-right px-4 py-2">Acciones</th>
             </tr>
           </thead>
 
-          {/* BODY */}
           <tbody>
-            {filtered.length === 0 && (
+            {loading && (
               <tr>
-                <td colSpan="5" className="text-center py-6 text-gray-500">
-                  No hay recepciones registradas
+                <td colSpan="6" className="text-center py-6 text-gray-500">
+                  Cargando controles vehiculares...
                 </td>
               </tr>
             )}
 
-            {filtered.map((r) => (
-              <tr key={r.id} className="border-t hover:bg-gray-50">
-
-                <td className="px-4 py-2 font-medium text-gray-900">
-                  {[
-  r.data?.formulario?.equipo?.marca,
-  r.data?.formulario?.equipo?.modelo,
-].filter(Boolean).join(" / ") || "—"}
+            {!loading && filtered.length === 0 && (
+              <tr>
+                <td colSpan="6" className="text-center py-6 text-gray-500">
+                  No hay controles vehiculares registrados
                 </td>
-
-                <td className="px-4 py-2 text-gray-600">
-                  {r.data?.formulario?.codigo || "—"}
-                </td>
-
-                {/* ESTADO */}
-                <td className="px-4 py-2">
-                  <span
-                    className={`px-2 py-1 text-xs rounded-full ${
-                      r.estado === "completado"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}
-                  >
-                    {r.estado === "completado"
-                      ? "Completado"
-                      : "Borrador"}
-                  </span>
-                </td>
-
-                <td className="px-4 py-2 text-gray-500">
-                  {new Date(
-                    r.updated_at || r.created_at
-                  ).toLocaleDateString()}
-                </td>
-
-                <td className="px-4 py-2 text-right space-x-2">
-  <button
-    onClick={() => open(r)}
-    className="text-blue-600 hover:underline"
-  >
-    Abrir
-  </button>
-
-  {r.estado === "completado" && (
-    <button
-      onClick={() => navigate(`/operaciones/recepcion/${r.id}/pdf`)}
-      className="text-green-600 hover:underline font-semibold"
-    >
-      PDF
-    </button>
-  )}
-
-  <button
-    onClick={() => remove(r.id)}
-    className="text-red-500 hover:underline"
-  >
-    Eliminar
-  </button>
-</td>
               </tr>
-            ))}
+            )}
+
+            {!loading &&
+              filtered.map((r) => {
+                const d = r.data || {};
+                const fecha = d.fecha || r.updated_at || r.created_at;
+
+                return (
+                  <tr key={r.id} className="border-t hover:bg-gray-50">
+                    <td className="px-4 py-2 font-medium text-gray-900">
+                      {d.conductor || "-"}
+                    </td>
+
+                    <td className="px-4 py-2 text-gray-600">
+                      {d.placa || "-"}
+                    </td>
+
+                    <td className="px-4 py-2 text-gray-600">
+                      {d.pedidoDemanda || "-"}
+                    </td>
+
+                    <td className="px-4 py-2">
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full ${
+                          r.estado === "completado"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {r.estado === "completado" ? "Completado" : "Borrador"}
+                      </span>
+                    </td>
+
+                    <td className="px-4 py-2 text-gray-500">
+                      {fecha ? new Date(fecha).toLocaleDateString() : "-"}
+                    </td>
+
+                    <td className="px-4 py-2 text-right space-x-2 whitespace-nowrap">
+                      <button
+                        onClick={() => navigate(`/recepcion/${r.id}`)}
+                        className="text-blue-600 hover:underline"
+                      >
+                        Abrir
+                      </button>
+
+                      <button
+                        onClick={() => generarPDFRecepcion(d)}
+                        className="text-green-600 hover:underline"
+                      >
+                        PDF
+                      </button>
+
+                      <button
+                        onClick={() => remove(r.id)}
+                        className="text-red-500 hover:underline"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       </div>
-
     </div>
   );
 }
