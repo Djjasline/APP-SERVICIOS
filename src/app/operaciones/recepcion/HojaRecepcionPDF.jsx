@@ -1,338 +1,98 @@
-import { supabase } from "@/lib/supabase";
-import { printPdf } from "@/utils/printPdf";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { generarPDFRecepcion } from "./generarPDFRecepcion";
+import { ControlVehicularSheet } from "./HojaRecepcion";
+import { cloneRecepcionSchema } from "./recepcionSchema";
 
-const S = {
-  tbl: { width: "100%", borderCollapse: "collapse", fontSize: 11 },
-  cell: {
-    border: "1px solid #374151",
-    padding: "6px 8px",
-    verticalAlign: "middle",
-    fontSize: 11,
-  },
-  label: {
-    border: "1px solid #374151",
-    padding: "6px 8px",
-    verticalAlign: "middle",
-    fontSize: 11,
-    fontWeight: 700,
-    backgroundColor: "#f3f4f6",
-    width: "35%",
-  },
-  th: {
-    border: "1px solid #374151",
-    padding: "6px 8px",
-    backgroundColor: "#1e3a5f",
-    color: "#fff",
-    fontWeight: 700,
-    textAlign: "center",
-    fontSize: 11,
-  },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: 800,
-    textAlign: "center",
-    textTransform: "uppercase",
-    padding: "6px 8px",
-    backgroundColor: "#1e3a5f",
-    color: "#fff",
-    margin: "14px 0 0 0",
-    border: "1px solid #1e3a5f",
-  },
+const mergeDeep = (base, value) => {
+  if (Array.isArray(base)) return Array.isArray(value) ? value : [...base];
+  if (!base || typeof base !== "object") return value ?? base;
+
+  const source = value && typeof value === "object" ? value : {};
+  const merged = { ...source };
+
+  Object.keys(base).forEach((key) => {
+    merged[key] = mergeDeep(base[key], source[key]);
+  });
+
+  return merged;
 };
 
 export default function HojaRecepcionPDF() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [report, setReport] = useState(null);
+  const [data, setData] = useState(cloneRecepcionSchema());
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase
-        .from("registros")
-        .select("*")
-        .eq("id", id)
-        .eq("area", "operaciones")
-        .eq("tipo", "recepcion")
-        .eq("subtipo", "general")
-        .single();
-
-      if (error || !data) {
-        console.error(error);
+      if (!id) {
+        setLoading(false);
         return;
       }
 
-      setReport({
-        id: data.id,
-        estado: data.estado,
-        data: data.data,
-        createdAt: data.created_at,
-      });
+      const { data: registro, error } = await supabase
+        .from("registros")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (!error && registro?.data) {
+        setData(mergeDeep(cloneRecepcionSchema(), registro.data));
+      }
+
+      setLoading(false);
     };
 
     load();
   }, [id]);
 
-  if (!report) {
+  if (loading) {
     return (
-      <div className="p-6 text-center">
-        <p>No se encontró la recepción.</p>
-        <button
-          onClick={() => navigate("/operaciones/recepcion")}
-          className="border px-4 py-2 rounded mt-4"
-        >
-          Volver
-        </button>
+      <div className="p-6 text-sm text-gray-600">
+        Cargando hoja de control vehicular...
       </div>
     );
   }
 
-  const form = report.data?.formulario || {};
-  const checks = report.data?.checks || {};
-  const fuelLevel = report.data?.fuelLevel ?? 0.5;
-  const equipo = form.equipo || {};
-
-  const handlePrint = () => {
-    const cliente = (form.cliente || "cliente").replace(/\s+/g, "-");
-    const codigo = (form.codigo || "000").replace(/\s+/g, "");
-    printPdf("pdf-content", `Recepcion_${cliente}_${codigo}_ASTAP`);
-  };
-
-  const CheckValue = ({ value }) => (
-    <td
-      style={{
-        ...S.cell,
-        textAlign: "center",
-        fontWeight: 700,
-        backgroundColor: value ? "#dcfce7" : "#fff",
-      }}
-    >
-      {value ? "✓" : ""}
-    </td>
-  );
-
-  const renderCheckRow = (prefix, item) => {
-    const value = checks[`${prefix}_${item}`];
-
-    return (
-      <tr key={`${prefix}_${item}`}>
-        <td style={S.cell}>{item}</td>
-        <CheckValue value={value === "SI"} />
-        <CheckValue value={value === "NO"} />
-      </tr>
-    );
-  };
-
-  const interior = [
-    "GATA",
-    "LLAVE CRUZ",
-    "EXTINTOR",
-    "LUZ CABINA",
-    "RADIO",
-    "TAPETES",
-    "ENCENDEDOR",
-    "AIRE",
-    "ALARMA",
-  ];
-
-  const motor = [
-    "ACEITE",
-    "REFRIGERANTE",
-    "BATERIA",
-    "TAPON ACEITE",
-    "TAPA COMB",
-    "RADIADOR",
-  ];
-
-  const exterior = [
-    "PLUMAS",
-    "RETROVISOR",
-    "PLACAS",
-    "LLANTA",
-    "TAPACUBOS",
-    "LUCES",
-  ];
-
   return (
-    <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
-      <div
-        id="pdf-content"
-        style={{
-          maxWidth: 794,
-          margin: "0 auto",
-          background: "#fff",
-          padding: 24,
-          boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
-          borderRadius: 6,
-        }}
-      >
-        {/* ENCABEZADO */}
-        <table style={S.tbl}>
-          <tbody>
-            <tr>
-              <td rowSpan={4} style={{ ...S.cell, width: 130, textAlign: "center" }}>
-                <img
-                  src="/astap-logo.jpg"
-                  alt="ASTAP"
-                  style={{ maxHeight: 65, margin: "0 auto", display: "block" }}
-                />
-              </td>
-
-              <td
-                colSpan={2}
-                style={{
-                  ...S.cell,
-                  textAlign: "center",
-                  fontWeight: 800,
-                  fontSize: 14,
-                  textTransform: "uppercase",
-                }}
-              >
-                HOJA DE RECEPCIÓN
-              </td>
-
-              <td style={{ ...S.cell, width: 170 }}>
-                <div>Fecha versión: <strong>01-01-26</strong></div>
-                <div>Versión: <strong>01</strong></div>
-              </td>
-            </tr>
-
-            {[
-              ["REFERENCIA DE CONTRATO", form.referencia],
-              ["DESCRIPCIÓN", form.descripcion],
-              ["CÓDIGO", form.codigo],
-            ].map(([label, value]) => (
-              <tr key={label}>
-                <td style={S.label}>{label}</td>
-                <td colSpan={2} style={S.cell}>{value || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* DATOS CLIENTE */}
-        <p style={S.sectionTitle}>DATOS DEL CLIENTE Y TÉCNICO</p>
-        <table style={S.tbl}>
-          <tbody>
-            {[
-              ["CLIENTE", form.cliente],
-              ["DIRECCIÓN", form.direccion],
-              ["CONTACTO", form.contacto],
-              ["TELÉFONO", form.telefono],
-              ["CORREO", form.correo],
-              ["TÉCNICO RESPONSABLE", form.tecnico],
-              ["TELÉFONO TÉCNICO", form.telefonoTecnico],
-              ["CORREO TÉCNICO", form.correoTecnico],
-              ["FECHA", form.fecha],
-            ].map(([label, value]) => (
-              <tr key={label}>
-                <td style={S.label}>{label}</td>
-                <td style={S.cell}>{value || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* EQUIPO */}
-        <p style={S.sectionTitle}>DESCRIPCIÓN DEL EQUIPO</p>
-        <table style={S.tbl}>
-          <tbody>
-            {[
-              ["NOTA", equipo.nota],
-              ["MARCA", equipo.marca],
-              ["MODELO", equipo.modelo],
-              ["N° SERIE", equipo.serie],
-              ["AÑO MODELO", equipo.anio],
-              ["VIN / CHASIS", equipo.vin],
-              ["PLACA", equipo.placa],
-              ["HORAS MÓDULO", equipo.horasModulo],
-              ["HORAS CHASIS", equipo.horasChasis],
-              ["KILOMETRAJE", equipo.kilometraje],
-            ].map(([label, value]) => (
-              <tr key={label}>
-                <td style={S.label}>{label}</td>
-                <td style={S.cell}>{value || "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* CHECKS */}
-        <p style={S.sectionTitle}>DOCUMENTOS Y ESTADO DEL VEHÍCULO</p>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-          <table style={S.tbl}>
-            <thead>
-              <tr>
-                <th style={S.th}>INTERIOR</th>
-                <th style={S.th}>SI</th>
-                <th style={S.th}>NO</th>
-              </tr>
-            </thead>
-            <tbody>{interior.map((i) => renderCheckRow("int", i))}</tbody>
-          </table>
-
-          <table style={S.tbl}>
-            <thead>
-              <tr>
-                <th style={S.th}>MOTOR</th>
-                <th style={S.th}>SI</th>
-                <th style={S.th}>NO</th>
-              </tr>
-            </thead>
-            <tbody>{motor.map((i) => renderCheckRow("mot", i))}</tbody>
-          </table>
-
-          <table style={S.tbl}>
-            <thead>
-              <tr>
-                <th style={S.th}>EXTERIOR</th>
-                <th style={S.th}>SI</th>
-                <th style={S.th}>NO</th>
-              </tr>
-            </thead>
-            <tbody>{exterior.map((i) => renderCheckRow("ext", i))}</tbody>
-          </table>
-        </div>
-
-        {/* COMBUSTIBLE */}
-        <p style={S.sectionTitle}>COMBUSTIBLE</p>
-        <table style={S.tbl}>
-          <tbody>
-            <tr>
-              <td style={S.label}>NIVEL DE COMBUSTIBLE</td>
-              <td style={S.cell}>
-                {Math.round(fuelLevel * 100)}%
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {/* BOTONES */}
-      <div
-        className="no-print"
-        style={{
-          maxWidth: 794,
-          margin: "24px auto 0",
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
+    <div className="p-4 max-w-[1080px] mx-auto space-y-3 bg-white">
+      <div className="no-print flex flex-wrap justify-between gap-2">
         <button
-          onClick={() => navigate("/operaciones/recepcion")}
-          className="border px-6 py-2 rounded"
+          type="button"
+          onClick={() => navigate(-1)}
+          className="border px-4 py-2 rounded text-sm hover:bg-gray-50"
         >
           Volver
         </button>
 
-        <button
-          onClick={handlePrint}
-          className="bg-green-600 text-white px-6 py-2 rounded"
-        >
-          Descargar PDF
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="border px-4 py-2 rounded text-sm hover:bg-gray-50"
+          >
+            Imprimir
+          </button>
+
+          <button
+            type="button"
+            onClick={() => generarPDFRecepcion(data)}
+            className="bg-green-600 text-white px-4 py-2 rounded text-sm"
+          >
+            Descargar PDF
+          </button>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto bg-white shadow border p-2">
+        <ControlVehicularSheet
+          data={data}
+          setData={() => {}}
+          readOnly
+          signatureRefs={{}}
+        />
       </div>
     </div>
   );
