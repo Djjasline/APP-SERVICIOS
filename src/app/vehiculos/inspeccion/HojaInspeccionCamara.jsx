@@ -204,22 +204,27 @@ setFirmaClienteEditada(false);
 
   /* ── AUTO-RELLENAR TÉCNICO LOGUEADO ── */
   useEffect(() => {
-    if (!user?.email || isEditing || loadingTecnicos) return;
+  if (
+    !user?.email ||
+    superAdminActivo ||
+    isEditing ||
+    loadingTecnicos
+  ) return;
 
-    const loggedTech = (technicians || []).find((t) => {
-      const email = t.email || t.correo || "";
-      return email.toLowerCase() === user.email.toLowerCase();
-    });
+  const loggedTech = (technicians || []).find((t) => {
+    const email = t.email || t.correo || "";
+    return email.toLowerCase() === user.email.toLowerCase();
+  });
 
-    if (!loggedTech) return;
+  if (!loggedTech) return;
 
-    setData((prev) => ({
-      ...prev,
-      tecnicoNombre:   loggedTech.name     || loggedTech.nombre  || "",
-      tecnicoTelefono: loggedTech.phone    || loggedTech.telefono || "",
-      tecnicoCorreo:   loggedTech.email    || loggedTech.correo   || "",
-    }));
-  }, [user?.email, isEditing, loadingTecnicos, technicians]);
+  setData((prev) => ({
+    ...prev,
+    tecnicoNombre:   loggedTech.name || loggedTech.nombre || "",
+    tecnicoTelefono: loggedTech.phone || loggedTech.telefono || "",
+    tecnicoCorreo:   loggedTech.email || loggedTech.correo || "",
+  }));
+}, [user?.email, superAdminActivo, isEditing, loadingTecnicos, technicians]);
 
   /* ── LIMPIAR SCROLL LOCK ── */
   useEffect(() => {
