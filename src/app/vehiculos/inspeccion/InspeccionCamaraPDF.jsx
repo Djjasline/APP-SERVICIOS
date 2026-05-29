@@ -131,6 +131,7 @@ export default function InspeccionCamaraPDF() {
   const { data: d } = report;
   const handlePrint = () => { const cliente = (d.cliente||"cliente").replace(/\s+/g,"-"); const pedido = (d.pedidoDemanda||"pedido").replace(/\s+/g,""); const codigo = (d.codInf||"000").replace(/\s+/g,""); printPdf("pdf-content", `Inspeccion_Camara_${cliente}_${pedido}_${codigo}_ASTAP`); };
   const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
+  const puntosBase = d?.estadoEquipo?.puntosBase || [];
   
 
   return (
