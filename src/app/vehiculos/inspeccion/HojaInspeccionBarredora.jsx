@@ -358,31 +358,63 @@ const compressAndUpload = async (file, folder) => {
 
 /* ── ESTADO EQUIPO — MÚLTIPLES FOTOS ── */
 const handleEstadoUpload = async (files) => {
-  const arr = Array.from(files || []);
+  const arr = Array.from(files || []).filter((f) =>
+    f.type.startsWith("image/")
+  );
+
   if (!arr.length) return;
-  setUploadingCount((p) => p + arr.length);
+
+  const actualesCount = data.estadoEquipo?.imagenes?.length || 0;
+  const disponibles = Math.max(0, 12 - actualesCount);
+
+  if (disponibles <= 0) {
+    alert("Máximo 12 fotografías");
+    return;
+  }
+
+  const filesToUpload = arr.slice(0, disponibles);
+
+  if (arr.length > disponibles) {
+    alert("Máximo 12 fotografías");
+  }
+
+  setUploadingCount((p) => p + filesToUpload.length);
+
   try {
-    for (const file of arr) {
-      const url = await compressAndUpload(
-        file,
-        "estado-equipo"
-      );
+    for (const file of filesToUpload) {
+      const url = await compressAndUpload(file, "estado-equipo");
+
       if (!url) continue;
-      setData((prev) => ({
-        ...prev,
-        estadoEquipo: {
-          ...prev.estadoEquipo,
-          imagenes: [
-            ...(prev.estadoEquipo?.imagenes || []),
-           { id: `img-${Date.now()}-${Math.random().toString(36).slice(2,6)}`, url, puntos: [] },
+
+      setData((prev) => {
+        const actuales = prev.estadoEquipo?.imagenes || [];
+
+        if (actuales.some((img) => img.url === url)) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          estadoEquipo: {
+            ...prev.estadoEquipo,
+            imagenes: [
+              ...actuales,
+              {
+                id: `img-${Date.now()}-${Math.random()
+                  .toString(36)
+                  .slice(2, 6)}`,
+                url,
+                puntos: [],
+              },
             ],
           },
-        }));
-      }
-
-  } finally { setUploadingCount((p) => p - arr.length); }
+        };
+      });
+    }
+  } finally {
+    setUploadingCount((p) => p - filesToUpload.length);
+  }
 };
-
 /* ── ELIMINAR FOTO ── */
 const removeEstadoImg = (imgId) =>
   setData((prev) => ({
@@ -1108,7 +1140,19 @@ setTimeout(() => {
                   </div>
                   <div className="mt-2 text-sm text-center font-medium">{data.tecnicoNombre || "—"}</div>
                   <div className="text-center">
-                    <button type="button" onClick={() => sigTecnico.current?.clear()}
+                    <button type="button" 
+                       onClick={() => {
+  sigTecnico.current?.clear();
+  setFirmaTecnicoEditada(true);
+
+  setData((prev) => ({
+    ...prev,
+    firmas: {
+      ...prev.firmas,
+      tecnico: "",
+    },
+  }));
+}}
                       className="text-xs text-red-600 mt-1 hover:underline">Borrar firma</button>
                   </div>
                 </td>
@@ -1127,7 +1171,19 @@ setTimeout(() => {
                       placeholder="Número de cédula del cliente" />
                   </div>
                   <div className="text-center">
-                    <button type="button" onClick={() => sigCliente.current?.clear()}
+                    <button type="button" 
+                       onClick={() => {
+  sigCliente.current?.clear();
+  setFirmaClienteEditada(true);
+
+  setData((prev) => ({
+    ...prev,
+    firmas: {
+      ...prev.firmas,
+      cliente: "",
+    },
+  }));
+}}
                       className="text-xs text-red-600 mt-1 hover:underline">Borrar firma</button>
                   </div>
                 </td>
