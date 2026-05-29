@@ -131,6 +131,7 @@ export default function InspeccionCamaraPDF() {
   const { data: d } = report;
   const handlePrint = () => { const cliente = (d.cliente||"cliente").replace(/\s+/g,"-"); const pedido = (d.pedidoDemanda||"pedido").replace(/\s+/g,""); const codigo = (d.codInf||"000").replace(/\s+/g,""); printPdf("pdf-content", `Inspeccion_Camara_${cliente}_${pedido}_${codigo}_ASTAP`); };
   const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
+  
 
   return (
     <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
@@ -175,23 +176,217 @@ export default function InspeccionCamaraPDF() {
 </table>
         </div>
 
-        <div className="no-break">
-          <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
-          {estadoEquipoImagenes.length === 0 ? (
-            <table style={S.tbl}><tbody><tr><td style={{ ...S.cell, textAlign:"center", color:"#6b7280", padding:20 }}>Sin registros de estado del equipo</td></tr></tbody></table>
-          ) : estadoEquipoImagenes.map((img, i) => (
-            <div key={img.id||i} className="no-break" style={{ border:"1px solid #d1d5db", borderRadius:6, overflow:"hidden", marginTop:10 }}>
-              <div style={{ padding:"5px 10px", borderBottom:"1px solid #d1d5db", fontSize:10, fontWeight:700, background:"#f9fafb" }}>Imagen {i+1}</div>
-              <div style={{ padding:10 }}>
-                <div style={{ position:"relative", width:"100%", border:"1px solid #d1d5db", borderRadius:4, overflow:"hidden" }}>
-                  <img src={img.url} alt={`estado-${i+1}`} style={{ width:"100%", maxHeight:240, objectFit:"contain", display:"block" }} />
-                  {(img.puntos||[]).map((p,pi)=>(<div key={p.id||pi} style={{ position:"absolute", left:`${p.x*100}%`, top:`${p.y*100}%`, transform:"translate(-50%,-50%)", width:18, height:18, borderRadius:"50%", background:"#dc2626", border:"2px solid #fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, color:"#fff", fontWeight:700 }}>{pi+1}</div>))}
-                </div>
-                {(img.puntos||[]).length > 0 && <div style={{ marginTop:8 }}>{img.puntos.map((p,pi)=>(<div key={p.id||pi} style={{ display:"flex", gap:8, marginBottom:4, fontSize:10 }}><span style={{ minWidth:22, fontWeight:700 }}>{pi+1})</span><span>{p.observacion||"—"}</span></div>))}</div>}
-              </div>
+       <div>
+  <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
+
+  {/* Plantilla base con puntos */}
+  {puntosBase.length > 0 && (
+    <div
+      className="no-break"
+      style={{
+        border: "1px solid #d1d5db",
+        borderRadius: 6,
+        overflow: "hidden",
+        marginTop: 10,
+      }}
+    >
+      <div
+        style={{
+          padding: "5px 10px",
+          borderBottom: "1px solid #d1d5db",
+          fontSize: 10,
+          fontWeight: 700,
+          background: "#f9fafb",
+        }}
+      >
+        Vista general del equipo
+      </div>
+
+      <div style={{ padding: 10 }}>
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            border: "1px solid #d1d5db",
+            borderRadius: 4,
+            overflow: "hidden",
+          }}
+        >
+          <img
+            src="/estado-equipo-camara.png"
+            alt="Vista general cámara V-CAM6"
+            style={{
+              width: "100%",
+              maxHeight: 240,
+              objectFit: "contain",
+              display: "block",
+            }}
+          />
+
+          {puntosBase.map((p, pi) => (
+            <div
+              key={p.id || pi}
+              style={{
+                position: "absolute",
+                left: `${p.x * 100}%`,
+                top: `${p.y * 100}%`,
+                transform: "translate(-50%,-50%)",
+                width: 18,
+                height: 18,
+                borderRadius: "50%",
+                background: "#dc2626",
+                border: "2px solid #fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 9,
+                color: "#fff",
+                fontWeight: 700,
+              }}
+            >
+              {pi + 1}
             </div>
           ))}
         </div>
+
+        {puntosBase.length > 0 && (
+          <div style={{ marginTop: 8 }}>
+            {puntosBase.map((p, pi) => (
+              <div
+                key={p.id || pi}
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  marginBottom: 4,
+                  fontSize: 10,
+                }}
+              >
+                <span style={{ minWidth: 22, fontWeight: 700 }}>
+                  {pi + 1})
+                </span>
+                <span>{p.observacion || "—"}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )}
+
+  {/* Fotografías adicionales */}
+  {estadoEquipoImagenes.length === 0 && puntosBase.length === 0 ? (
+    <table style={S.tbl}>
+      <tbody>
+        <tr>
+          <td
+            style={{
+              ...S.cell,
+              textAlign: "center",
+              color: "#6b7280",
+              padding: 20,
+            }}
+          >
+            Sin registros de estado del equipo
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  ) : (
+    estadoEquipoImagenes.map((img, i) => (
+      <div
+        key={img.id || i}
+        className="no-break"
+        style={{
+          border: "1px solid #d1d5db",
+          borderRadius: 6,
+          overflow: "hidden",
+          marginTop: 10,
+        }}
+      >
+        <div
+          style={{
+            padding: "5px 10px",
+            borderBottom: "1px solid #d1d5db",
+            fontSize: 10,
+            fontWeight: 700,
+            background: "#f9fafb",
+          }}
+        >
+          Imagen {i + 1}
+        </div>
+
+        <div style={{ padding: 10 }}>
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              border: "1px solid #d1d5db",
+              borderRadius: 4,
+              overflow: "hidden",
+            }}
+          >
+            <img
+              src={img.url}
+              alt={`estado-${i + 1}`}
+              style={{
+                width: "100%",
+                maxHeight: 240,
+                objectFit: "contain",
+                display: "block",
+              }}
+            />
+
+            {(img.puntos || []).map((p, pi) => (
+              <div
+                key={p.id || pi}
+                style={{
+                  position: "absolute",
+                  left: `${p.x * 100}%`,
+                  top: `${p.y * 100}%`,
+                  transform: "translate(-50%,-50%)",
+                  width: 18,
+                  height: 18,
+                  borderRadius: "50%",
+                  background: "#dc2626",
+                  border: "2px solid #fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 9,
+                  color: "#fff",
+                  fontWeight: 700,
+                }}
+              >
+                {pi + 1}
+              </div>
+            ))}
+          </div>
+
+          {(img.puntos || []).length > 0 && (
+            <div style={{ marginTop: 8 }}>
+              {img.puntos.map((p, pi) => (
+                <div
+                  key={p.id || pi}
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    marginBottom: 4,
+                    fontSize: 10,
+                  }}
+                >
+                  <span style={{ minWidth: 22, fontWeight: 700 }}>
+                    {pi + 1})
+                  </span>
+                  <span>{p.observacion || "—"}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    ))
+  )}
+</div>
 
         <div className="page-break" />
         <p style={{ ...S.sectionTitle, marginTop:0 }}>1. PRUEBAS PREVIAS AL SERVICIO</p>
