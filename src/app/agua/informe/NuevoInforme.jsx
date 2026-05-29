@@ -139,37 +139,54 @@ const superAdminActivo = isSuperAdmin?.();
 
   const [data, setData] = useState(emptyReport);
 
-  /* ─── CARGAR EXISTENTE ─── */
-  useEffect(() => {
-    const load = async () => {
-      if (!id) return;
-      const { data: report, error } = await supabase
-        .from("registros")
-        .select("*")
-        .eq("id", id)
-        .single();
+ /* ─── CARGAR EXISTENTE ─── */
+useEffect(() => {
+  const load = async () => {
+    if (!id) return;
 
-      if (error || !report) return;
+    const { data: report, error } = await supabase
+      .from("registros")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-      const d = report.data || {};
-      setData({
-        ...emptyReport,
-        ...d,
-        bomba:    { ...emptyReport.bomba,    ...(d.bomba    || {}) },
-        valvula:  { ...emptyReport.valvula,  ...(d.valvula  || {}) },
-        actividades: Array.isArray(d.actividades) ? d.actividades : emptyReport.actividades,
-        conclusiones: Array.isArray(d.conclusiones) ? d.conclusiones : emptyReport.conclusiones,
-        recomendaciones: Array.isArray(d.recomendaciones) ? d.recomendaciones : emptyReport.recomendaciones,
-        firmas: { ...emptyReport.firmas, ...(d.firmas || {}) },
-      });
+    if (error || !report) return;
 
-      setTimeout(() => {
-        if (d.firmas?.tecnico) sigTecnico.current?.fromDataURL(d.firmas.tecnico);
-        if (d.firmas?.cliente) sigCliente.current?.fromDataURL(d.firmas.cliente);
-      }, 100);
-    };
-    load();
-  }, [id]);
+    const d = report.data || {};
+
+    setData({
+      ...emptyReport,
+      ...d,
+      bomba: { ...emptyReport.bomba, ...(d.bomba || {}) },
+      valvula: { ...emptyReport.valvula, ...(d.valvula || {}) },
+      actividades: Array.isArray(d.actividades)
+        ? d.actividades
+        : emptyReport.actividades,
+      conclusiones: Array.isArray(d.conclusiones)
+        ? d.conclusiones
+        : emptyReport.conclusiones,
+      recomendaciones: Array.isArray(d.recomendaciones)
+        ? d.recomendaciones
+        : emptyReport.recomendaciones,
+      firmas: { ...emptyReport.firmas, ...(d.firmas || {}) },
+    });
+
+    setTimeout(() => {
+      if (d.firmas?.tecnico) {
+        sigTecnico.current?.fromDataURL(d.firmas.tecnico);
+      }
+
+      if (d.firmas?.cliente) {
+        sigCliente.current?.fromDataURL(d.firmas.cliente);
+      }
+
+      setFirmaTecnicoEditada(false);
+      setFirmaClienteEditada(false);
+    }, 100);
+  };
+
+  load();
+}, [id]);
 
    /* ─── AUTO-RELLENAR TÉCNICO LOGUEADO ─── */
 useEffect(() => {
@@ -211,13 +228,18 @@ useEffect(() => {
 
   /* ─── SUBIDA DE IMÁGENES ─── */
   const compress = async (file) =>
-    imageCompression(file, {
-      maxSizeMB: 0.4,
-      maxWidthOrHeight: 1200,
-      useWebWorker: true,
-      fileType: "image/jpeg",
-      initialQuality: 0.8,
-    });
+  imageCompression(file, {
+    maxSizeMB: 0.18,
+    useWebWorker: true,
+
+    alwaysKeepResolution: true,
+
+    initialQuality: 0.7,
+
+    maxWidthOrHeight: undefined,
+
+    fileType: file.type || "image/jpeg",
+  });
 
   const uploadSingle = async (file, folder) => {
     setUploadingCount((c) => c + 1);
@@ -232,15 +254,21 @@ useEffect(() => {
   };
 
   const handleSingleImage = async (e, setter, folder) => {
-    const file = e.target.files[0];
+  const file = e.target.files?.[0];
     e.target.value = null;
     if (!file) return;
+     if (!file.type.startsWith("image/")) {
+  alert("Solo se permiten imágenes");
+  return;
+}
     const url = await uploadSingle(file, folder);
     if (url) setter(url);
   };
 
   const handleMultiImages = async (e, currentList, setter, folder, maxCount = 4) => {
-    const files = Array.from(e.target.files || []);
+    const files = Array.from(e.target.files || []).filter((file) =>
+  file.type.startsWith("image/")
+);
     e.target.value = null;
     if (!files.length) return;
 
@@ -255,7 +283,9 @@ useEffect(() => {
 
   /* ─── ACTIVIDADES ─── */
   const handleActividadImageUpload = async (e, idx) => {
-    const files = Array.from(e.target.files || []);
+    const files = Array.from(e.target.files || []).filter((file) =>
+  file.type.startsWith("image/")
+);
     e.target.value = null;
     const actuales = data.actividades[idx]?.imagenes?.length || 0;
     const disponibles = 4 - actuales;
@@ -283,20 +313,17 @@ useEffect(() => {
     });
   };
 
-  /* ─── GUARDAR ─── */
-  const save = async () => {
-    if (!data.cliente)       { alert("Cliente requerido"); return; }
-    if (!data.tecnicoNombre) { alert("Técnico requerido"); return; }
-    if (!data.fechaServicio) { alert("Fecha requerida");  return; }
-    if (uploadingCount > 0)  { alert("Espera que terminen las imágenes"); return; }
+const firmaTecnico =
+  firmaTecnicoEditada &&
+  sigTecnico.current?.isEmpty?.() === false
+    ? sigTecnico.current.toDataURL()
+    : data.firmas.tecnico || "";
 
-    const firmaTecnico = sigTecnico.current?.isEmpty?.() === false
-      ? sigTecnico.current.toDataURL() : data.firmas.tecnico;
-    const firmaCliente = sigCliente.current?.isEmpty?.() === false
-      ? sigCliente.current.toDataURL() : data.firmas.cliente;
-
-    const finalData = {
-      ...data,
+const firmaCliente =
+  firmaClienteEditada &&
+  sigCliente.current?.isEmpty?.() === false
+    ? sigCliente.current.toDataURL()
+    : data.firmas.cliente || "";
       // 🔥 IDENTIFICADOR DEL MÓDULO
   area: "agua",
   modulo: "agua", 
