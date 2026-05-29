@@ -198,29 +198,44 @@ export default function InspeccionCamaraPDF() {
         </div>
 
         <div className="no-break">
-          <table style={{ ...S.tbl, marginTop:10 }}>
-            <thead><tr><th style={S.th}>FIRMA TÉCNICO ASTAP</th><th style={S.th}>FIRMA CLIENTE</th></tr></thead>
-            <tbody>
-              <tr>
-                <td style={{ ...S.cell, height:85 textAlign:"center", verticalAlign:"top", padding: "4px 6px" }}>
-                  {d.firmas?.tecnico && <img src={d.firmas.tecnico} alt="Firma técnico" style={{ width:"100%", maxWidth:34, height:"auto", objectFit:"contain", margin:"0 auto", display:"block" }} />}
-                  <div style={{ marginTop:10, fontSize:10, fontWeight:700 }}>{d.tecnicoNombre||"—"}</div>
-                </td>
-                <td style={{ ...S.cell, height:85 textAlign:"center", verticalAlign:"top", padding: "4px 6px" }}>
-                  {d.firmas?.cliente && <img src={d.firmas.cliente} alt="Firma cliente" style={{ width:"100%", maxWidth:34, height:"auto", objectFit:"contain", margin:"0 auto", display:"block" }} />}
-                  <div style={{ marginTop:10, fontSize:10, fontWeight:700 }}>{d.cliente||"—"}</div>
-                  <div style={{ marginTop:4, fontSize:9 }}>Cédula: {d.firmas?.clienteCedula||"—"}</div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+  <table style={{ ...S.tbl, marginTop: 10 }}>
+    <thead>
+      <tr>
+        <th style={S.th}>FIRMA TÉCNICO ASTAP</th>
+        <th style={S.th}>FIRMA CLIENTE</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style={{ ...S.cell, height: 85, textAlign: "center", verticalAlign: "middle", padding: "4px 6px" }}>
+          {d.firmas?.tecnico && (
+            <img
+              src={d.firmas.tecnico}
+              alt="Firma técnico"
+              style={{ maxHeight: 34, width: "auto", maxWidth: 160, objectFit: "contain", margin: "0 auto", display: "block" }}
+            />
+          )}
+          <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700 }}>
+            {d.tecnicoNombre || "—"}
+          </div>
+        </td>
 
-      </div>
-      <div className="no-print" style={{ display:"flex", justifyContent:"space-between", maxWidth:794, margin:"24px auto 0" }}>
-        <button onClick={() => navigate("/inspeccion")} className="border px-6 py-2 rounded">Volver</button>
-        <button onClick={handlePrint} className="bg-green-600 text-white px-6 py-2 rounded">Descargar PDF</button>
-      </div>
-    </div>
-  );
-}
+        <td style={{ ...S.cell, height: 85, textAlign: "center", verticalAlign: "middle", padding: "4px 6px" }}>
+          {d.firmas?.cliente && (
+            <img
+              src={d.firmas.cliente}
+              alt="Firma cliente"
+              style={{ maxHeight: 34, width: "auto", maxWidth: 160, objectFit: "contain", margin: "0 auto", display: "block" }}
+            />
+          )}
+          <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700 }}>
+            {d.cliente || "—"}
+          </div>
+          <div style={{ marginTop: 1, fontSize: 9 }}>
+            Cédula: {d.firmas?.clienteCedula || "—"}
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
