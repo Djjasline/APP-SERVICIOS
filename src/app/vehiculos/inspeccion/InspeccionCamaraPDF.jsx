@@ -202,14 +202,14 @@ export default function InspeccionCamaraPDF() {
             <thead><tr><th style={S.th}>FIRMA TÉCNICO ASTAP</th><th style={S.th}>FIRMA CLIENTE</th></tr></thead>
             <tbody>
               <tr>
-                <td style={{ ...S.cell, height:160, textAlign:"center", verticalAlign:"top", paddingTop:12 }}>
-                  {d.firmas?.tecnico && <img src={d.firmas.tecnico} alt="Firma técnico" style={{ width:"100%", maxWidth:240, height:"auto", objectFit:"contain", margin:"0 auto", display:"block" }} />}
-                  <div style={{ marginTop:10, fontSize:12, fontWeight:700 }}>{d.tecnicoNombre||"—"}</div>
+                <td style={{ ...S.cell, height:85 textAlign:"center", verticalAlign:"top", padding: "4px 6px" }}>
+                  {d.firmas?.tecnico && <img src={d.firmas.tecnico} alt="Firma técnico" style={{ width:"100%", maxWidth:34, height:"auto", objectFit:"contain", margin:"0 auto", display:"block" }} />}
+                  <div style={{ marginTop:10, fontSize:10, fontWeight:700 }}>{d.tecnicoNombre||"—"}</div>
                 </td>
-                <td style={{ ...S.cell, height:160, textAlign:"center", verticalAlign:"top", paddingTop:12 }}>
-                  {d.firmas?.cliente && <img src={d.firmas.cliente} alt="Firma cliente" style={{ width:"100%", maxWidth:240, height:"auto", objectFit:"contain", margin:"0 auto", display:"block" }} />}
-                  <div style={{ marginTop:10, fontSize:12, fontWeight:700 }}>{d.cliente||"—"}</div>
-                  <div style={{ marginTop:4, fontSize:11 }}>Cédula: {d.firmas?.clienteCedula||"—"}</div>
+                <td style={{ ...S.cell, height:85 textAlign:"center", verticalAlign:"top", padding: "4px 6px" }}>
+                  {d.firmas?.cliente && <img src={d.firmas.cliente} alt="Firma cliente" style={{ width:"100%", maxWidth:34, height:"auto", objectFit:"contain", margin:"0 auto", display:"block" }} />}
+                  <div style={{ marginTop:10, fontSize:10, fontWeight:700 }}>{d.cliente||"—"}</div>
+                  <div style={{ marginTop:4, fontSize:9 }}>Cédula: {d.firmas?.clienteCedula||"—"}</div>
                 </td>
               </tr>
             </tbody>
