@@ -156,7 +156,12 @@ const emptyForm = {
 export default function HojaInspeccionBarredora() {
 const { id } = useParams();
 const navigate = useNavigate();
-const { user } = useAuth();
+const { user, isSuperAdmin } = useAuth();
+
+const superAdminActivo =
+  typeof isSuperAdmin === "function"
+    ? isSuperAdmin()
+    : !!isSuperAdmin;
 const isEditing = !!id;
   const {
     technicians,
@@ -280,6 +285,7 @@ useEffect(() => {
    /* ── AUTO-RELLENAR TÉCNICO LOGUEADO ── */
 useEffect(() => {
   if (!user?.email || isEditing || loadingTechnicians) return;
+  if (superAdminActivo) return;
 
   const loggedTech = (technicians || []).find((t) => {
     const email = t.email || t.correo || "";
@@ -315,6 +321,7 @@ useEffect(() => {
   isEditing,
   loadingTechnicians,
   technicians,
+  superAdminActivo,
 ]);
 
 /* ── LIMPIAR SCROLL LOCK ── */
@@ -755,7 +762,7 @@ setTimeout(() => {
                  <select
   className="pdf-input w-full"
   value={data.tecnicoNombre || ""}
-  disabled={loadingTechnicians}
+  disabled={loadingTechnicians || !superAdminActivo}
   onChange={(e) => {
     const t = (technicians || []).find((x) => {
       const nombre = x.name || x.nombre || "";
