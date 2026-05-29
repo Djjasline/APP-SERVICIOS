@@ -153,7 +153,7 @@ export default function InspeccionCamaraPDF() {
             {[["CLIENTE",d.cliente],["DIRECCIÓN",d.direccion],["CONTACTO",d.contacto],["TELÉFONO",d.telefono],["CORREO",d.correo],["TÉCNICO RESPONSABLE",d.tecnicoNombre],["TELÉFONO TÉCNICO",d.tecnicoTelefono],["CORREO TÉCNICO",d.tecnicoCorreo],["FECHA DE SERVICIO",d.fechaServicio]].map(([l,v],i)=>(<tr key={i}><td style={S.label}>{l}</td><td style={S.cell}>{v||"—"}</td></tr>))}
           </tbody></table>
         </div>
-
+<div className="no-break">
 <p style={S.sectionTitle}>DESCRIPCIÓN DEL EQUIPO</p>
 <table style={S.tbl}>
   <tbody>
