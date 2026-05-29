@@ -214,7 +214,7 @@ export default function InspeccionCamaraPDF() {
           }}
         >
           <img
-            src="/estado-equipo-camara.png"
+            src="/estado-equipo-cámara.png"
             alt="Vista general cámara V-CAM6"
             style={{
               width: "100%",
