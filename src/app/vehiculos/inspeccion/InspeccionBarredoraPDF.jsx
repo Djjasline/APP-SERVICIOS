@@ -123,39 +123,64 @@ const pruebasPrevias = [
 
 const secciones = [
   {
-    titulo: "A) CARRETE Y ESTRUCTURA",
+    titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
     items: [
-      ["A.1", "Estructura del carrete sin deformaciones ni soldaduras rotas"],
-      ["A.2", "Pintura y acabado sin corrosión ni desprendimientos"],
-      ["A.3", "Mango, manivela o freno en buen estado y funcionamiento suave"],
-      ["A.4", "Base estable, sin vibraciones al girar el tambor"],
-      ["A.5", "Ruedas (si aplica) sin desgaste"],
+      ["A.1", "Fugas de aceite hidráulico (mangueras, acoples, bancos, cilindros y solenoides)"],
+      ["A.2", "Nivel de aceite del tanque AW68, ¿se visualiza la mirilla?"],
+      ["A.3", "Fugas de aceite en motores de cepillos"],
+      ["A.4", "Fugas de aceite en motor de banda"],
+      ["A.5", "Fugas de bombas hidráulicas"],
+      ["A.6", "Fugas en motor John Deere"],
     ],
   },
   {
-    titulo: "B) CABLE Y SISTEMA DE TRANSMISIÓN",
+    titulo: "B) SISTEMA DE CONTROL DE POLVO (AGUA)",
     items: [
-      ["B.1", "Cable limpio, libre de cortes, dobleces o secciones planas"],
-      ["B.2", "Recubrimiento sin grietas ni desgaste visible"],
-      ["B.3", "Longitud total verificada (según especificación)"],
-      ["B.4", "Marcadores de longitud visibles y legibles"],
-      ["B.5", "Giro libre del cable en ambos sentidos al enrollar / desenrollar"],
-      ["B.6", "Cable y carrete completamente limpios"],
-      ["B.7", "Lubricación ligera de ejes y rodamientos"],
-      ["B.8", "Tapones y protecciones instalados para transporte"],
-      ["B.9", "Empaque o caja en buen estado"],
+      ["B.1", "Inspección de fugas de agua (mangueras, acoples)"],
+      ["B.2", "Estado del filtro para agua"],
+      ["B.3", "Estado de válvulas check"],
+      ["B.4", "Estado de solenoides de apertura de agua"],
+      ["B.5", "Estado de la bomba eléctrica de agua"],
+      ["B.6", "Estado de los aspersores de cepillos"],
+      ["B.7", "Estado de la manguera de carga de agua hidrante"],
+      ["B.8", "Inspección del medidor de nivel del tanque"],
+      ["B.9", "Inspección del sistema de llenado de agua"],
     ],
   },
   {
-    titulo: "C) CABEZAL Y SISTEMA ÓPTICO",
+    titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
     items: [
-      ["C.1", "Lente limpio y sin rayaduras"],
-      ["C.2", "Iluminación LED funcional (probar con fuente)"],
-      ["C.3", "Alineación y estanqueidad verificada (sin fugas)"],
-      ["C.4", "Protección frontal y resorte de entrada intactos"],
-      ["C.5", "Imagen estable y centrada"],
-      ["C.6", "LEDs responden a control de intensidad"],
-      ["C.7", "Sin interferencias ni pérdida de señal al enrollar cable"],
+      ["C.1", "Inspección visual de conectores de bancos de control"],
+      ["C.2", "Evaluar funcionamiento al encender el equipo"],
+      ["C.3", "Estado del tablero de control de cabina"],
+      ["C.4", "Inspección de batería"],
+      ["C.5", "Inspección de luces externas"],
+      ["C.6", "Diagnóstico con service tool (opcional)"],
+      ["C.7", "Estado del limpia parabrisas"],
+      ["C.8", "Conexiones externas (GPS / radio)"],
+    ],
+  },
+  {
+    titulo: "D) SISTEMA DE RECOLECCIÓN",
+    items: [
+      ["D.1", "Estado de la banda"],
+      ["D.2", "Estado de las cerdas de los cepillos"],
+      ["D.3", "Estado de la tolva"],
+      ["D.4", "Funcionamiento de la tolva"],
+      ["D.5", "Funcionamiento de la banda"],
+      ["D.6", "Estado de zapatas de arrastre"],
+    ],
+  },
+  {
+    titulo: "E) MOTOR JOHN DEERE",
+    items: [
+      ["E.1", "Estado de filtros de aire 1° y 2°"],
+      ["E.2", "Filtro combustible trampa de agua"],
+      ["E.3", "Filtro de combustible"],
+      ["E.4", "Filtro de aceite"],
+      ["E.5", "Nivel de aceite de motor"],
+      ["E.6", "Estado y nivel del refrigerante"],
+      ["E.7", "Filtro A/C cabina"],
     ],
   },
 ];
@@ -209,12 +234,13 @@ export default function InspeccionBarredoraPDF() {
     const cliente = (d.cliente    || "cliente").replace(/\s+/g, "-");
     const pedido  = (d.pedidoDemanda || "pedido").replace(/\s+/g, "");
     const codigo  = (d.codInf     || "000").replace(/\s+/g, "");
-   printPdf(
+  printPdf(
   "pdf-content",
   `Inspeccion_Barredora_${cliente}_${pedido}_${codigo}_ASTAP`
 );
+};
 
-  const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
+const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
   const puntosBase           = d?.estadoEquipo?.puntosBase || [];
 
   return (
@@ -360,7 +386,7 @@ export default function InspeccionBarredoraPDF() {
                   }}
                 >
                   <img
-                    src="/estado-equipo-camara.png"
+                    src="/barredora-base.png"
                     alt="Vista general cámara"
                     style={{ width: "100%", maxHeight: 240, objectFit: "contain", display: "block" }}
                   />
