@@ -37,9 +37,13 @@ const superAdminActivo = isSuperAdmin?.();
   const sigCliente = useRef(null);
 
   const [uploadingCount, setUploadingCount] = useState(0);
-  const [successMsg, setSuccessMsg] = useState("");
-  const isEditing = !!id;
+const [successMsg, setSuccessMsg] = useState("");
 
+const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
+const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
+
+const isEditing = !!id;
+   
   /* ─── ESTADO BASE ─── */
   const emptyReport = {
     // Encabezado
@@ -313,48 +317,55 @@ useEffect(() => {
     });
   };
 
-const firmaTecnico =
-  firmaTecnicoEditada &&
-  sigTecnico.current?.isEmpty?.() === false
-    ? sigTecnico.current.toDataURL()
-    : data.firmas.tecnico || "";
+   /* ─── GUARDAR ─── */
+const save = async () => {
+  if (!data.cliente) { alert("Cliente requerido"); return; }
+  if (!data.tecnicoNombre) { alert("Técnico requerido"); return; }
+  if (!data.fechaServicio) { alert("Fecha requerida"); return; }
+  if (uploadingCount > 0) { alert("Espera que terminen las imágenes"); return; }
 
-const firmaCliente =
-  firmaClienteEditada &&
-  sigCliente.current?.isEmpty?.() === false
-    ? sigCliente.current.toDataURL()
-    : data.firmas.cliente || "";
-      // 🔥 IDENTIFICADOR DEL MÓDULO
-  area: "agua",
-  modulo: "agua", 
-      firmas: {
-        ...data.firmas,
-        tecnico: firmaTecnico,
-        cliente: firmaCliente,
-      },
-    };
+  const firmaTecnico =
+    firmaTecnicoEditada &&
+    sigTecnico.current?.isEmpty?.() === false
+      ? sigTecnico.current.toDataURL()
+      : data.firmas.tecnico || "";
 
-    const estadoFinal = firmaTecnico ? "completado" : "borrador";
-   
-    try {
-      await saveOrUpdateReport({
-        id: isEditing ? id : null,
-        area: "agua",
-        tipo: "informe",
-        subtipo: data.tipoInforme === "bomba" 
-        ? "bomba" 
-        : "valvula",
-        data: finalData,
-        estado: estadoFinal,
-      });
+  const firmaCliente =
+    firmaClienteEditada &&
+    sigCliente.current?.isEmpty?.() === false
+      ? sigCliente.current.toDataURL()
+      : data.firmas.cliente || "";
 
-      setSuccessMsg(isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
-      setTimeout(() => navigate("/agua/informe"), 1200);
-    } catch (err) {
-      console.error(err);
-      setSuccessMsg("Error al guardar ❌");
-    }
+  const finalData = {
+    ...data,
+    area: "agua",
+    modulo: "agua",
+    firmas: {
+      ...data.firmas,
+      tecnico: firmaTecnico,
+      cliente: firmaCliente,
+    },
   };
+
+  const estadoFinal = firmaTecnico ? "completado" : "borrador";
+
+  try {
+    await saveOrUpdateReport({
+      id: isEditing ? id : null,
+      area: "agua",
+      tipo: "informe",
+      subtipo: data.tipoInforme === "bomba" ? "bomba" : "valvula",
+      data: finalData,
+      estado: estadoFinal,
+    });
+
+    setSuccessMsg(isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
+    setTimeout(() => navigate("/agua/informe"), 1200);
+  } catch (err) {
+    console.error(err);
+    setSuccessMsg("Error al guardar ❌");
+  }
+};
 
   const uploading = uploadingCount > 0;
   const isBomba   = data.tipoInforme === "bomba";
