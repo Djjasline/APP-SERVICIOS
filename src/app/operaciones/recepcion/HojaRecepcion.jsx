@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { saveOrUpdateReport } from "@/services/reportService";
+import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
 import { generarPDFRecepcion } from "./generarPDFRecepcion";
 import {
@@ -123,32 +124,50 @@ const FuelGauge = ({ value, onChange, readOnly = false }) => {
   );
 };
 
-const DamageArea = ({ imagenes = [], onChange, readOnly = false }) => {
-  const addImages = (files) => {
-    if (readOnly) return;
+const DamageArea = ({
+  imagenes = [],
+  onChange,
+  readOnly = false,
+  registroId = "temp-recepcion",
+}) => {
+const addImages = async (files) => {
+  if (readOnly) return;
 
-    const arr = Array.from(files || []).filter((file) =>
-      file.type.startsWith("image/")
+  const arr = Array.from(files || []).filter((file) =>
+    file.type.startsWith("image/")
+  );
+
+  if (!arr.length) return;
+
+  const disponibles = Math.max(0, 6 - imagenes.length);
+
+  if (disponibles <= 0) {
+    alert("Máximo 6 fotografías");
+    return;
+  }
+
+  const nuevas = [];
+
+  for (const file of arr.slice(0, disponibles)) {
+    const url = await uploadRegistroImage(
+      file,
+      registroId || "temp-recepcion",
+      "danos-carroceria"
     );
 
-    if (!arr.length) return;
+    if (!url) continue;
 
-    const disponibles = Math.max(0, 6 - imagenes.length);
-
-    if (disponibles <= 0) {
-      alert("Máximo 6 fotografías");
-      return;
-    }
-
-    const nuevas = arr.slice(0, disponibles).map((file) => ({
+    nuevas.push({
       id: `danio-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      url: URL.createObjectURL(file),
+      url,
       puntos: [],
-    }));
+    });
+  }
 
+  if (nuevas.length) {
     onChange([...imagenes, ...nuevas]);
-  };
-
+  }
+};
   const removeImage = (imgId) => {
     if (readOnly) return;
     onChange(imagenes.filter((img) => img.id !== imgId));
@@ -877,6 +896,7 @@ export function ControlVehicularSheet({
                 <DamageArea
   imagenes={data.danos.imagenes || []}
   readOnly={readOnly}
+  registroId={data.id || "temp-recepcion"}
   onChange={(imagenes) => setNested(["danos", "imagenes"], imagenes)}
 />
               </td>
