@@ -26,7 +26,10 @@ export default function NuevoInformeBombaValvula() {
   const { id } = useParams();
   const navigate = useNavigate();
    const { user, isSuperAdmin } = useAuth();
-const superAdminActivo = isSuperAdmin?.();
+const superAdminActivo =
+  typeof isSuperAdmin === "function"
+    ? isSuperAdmin()
+    : !!isSuperAdmin;
 
   const {
     technicians,
@@ -1215,8 +1218,12 @@ const save = async () => {
                 <td className="border p-2 align-top" style={{ height: 200 }}>
                   <div className="border rounded bg-white h-36">
                     <SignatureCanvas ref={sigTecnico} penColor="black" minWidth={0.5} maxWidth={1.5}
-                      onBegin={() => { document.activeElement?.blur(); document.body.style.overflow = "hidden"; }}
-                      onEnd={() => { document.body.style.overflow = ""; }}
+                      onBegin={() => {
+  setFirmaTecnicoEditada(true);
+  document.activeElement?.blur();
+  document.body.style.overflow = "hidden";
+}}
+                       onEnd={() => { document.body.style.overflow = ""; }}
                       canvasProps={{ className: "w-full h-full touch-none" }}
                     />
                   </div>
@@ -1229,7 +1236,11 @@ const save = async () => {
                 <td className="border p-2 align-top" style={{ height: 200 }}>
                   <div className="border rounded bg-white h-36">
                     <SignatureCanvas ref={sigCliente} penColor="black" minWidth={0.5} maxWidth={1.5}
-                      onBegin={() => { document.activeElement?.blur(); document.body.style.overflow = "hidden"; }}
+                      onBegin={() => {
+  setFirmaClienteEditada(true);
+  document.activeElement?.blur();
+  document.body.style.overflow = "hidden";
+}}
                       onEnd={() => { document.body.style.overflow = ""; }}
                       canvasProps={{ className: "w-full h-full touch-none" }}
                     />
