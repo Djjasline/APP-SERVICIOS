@@ -90,7 +90,7 @@ export const recepcionSchema = {
   combustibleSalida: 1,
 
   danos: {
-    puntos: [],
+    imagenes: [],
   },
 
   observacionesEntrega: "",
