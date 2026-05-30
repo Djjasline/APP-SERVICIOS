@@ -470,25 +470,117 @@ const SheetStyles = () => (
       height: 12px;
     }
 
-    .damage-area {
-      height: 224px;
-      position: relative;
-      cursor: crosshair;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #fff;
-    }
+    .damage-area-photo {
+  min-height: 224px;
+  padding: 6px;
+  background: #fff;
+}
 
-    .truck-svg {
-      width: 94%;
-      height: 92%;
-    }
+.damage-upload-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
 
-    .damage-point {
-      cursor: pointer;
-    }
+.damage-upload-btn {
+  background: #4b5563;
+  color: #fff;
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
+.damage-upload-camera {
+  background: #2563eb;
+}
+
+.damage-empty {
+  height: 180px;
+  border: 1px dashed #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.damage-photo-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.damage-photo-card {
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f9fafb;
+}
+
+.damage-photo-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.damage-remove-btn {
+  color: #dc2626;
+  font-size: 10px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.damage-photo-wrap {
+  position: relative;
+  background: #fff;
+  cursor: crosshair;
+}
+
+.damage-photo-img {
+  width: 100%;
+  max-height: 210px;
+  object-fit: contain;
+  display: block;
+}
+
+.damage-dot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #dc2626;
+  border: 2px solid #fff;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.damage-point-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 6px;
+  font-size: 10px;
+}
+
+.damage-point-input {
+  flex: 1;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-size: 10px;
+}
     .signature-canvas {
       width: 100%;
       height: 88px;
