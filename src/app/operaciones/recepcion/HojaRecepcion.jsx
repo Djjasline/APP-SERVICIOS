@@ -123,75 +123,198 @@ const FuelGauge = ({ value, onChange, readOnly = false }) => {
   );
 };
 
-const DamageArea = ({ puntos = [], onChange, readOnly = false }) => {
-  const addPoint = (event) => {
+const DamageArea = ({ imagenes = [], onChange, readOnly = false }) => {
+  const addImages = (files) => {
     if (readOnly) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * 100;
-    const y = ((event.clientY - rect.top) / rect.height) * 100;
 
-    onChange([
-      ...puntos,
-      {
-        id: Date.now(),
-        x,
-        y,
-      },
-    ]);
+    const arr = Array.from(files || []).filter((file) =>
+      file.type.startsWith("image/")
+    );
+
+    if (!arr.length) return;
+
+    const disponibles = Math.max(0, 6 - imagenes.length);
+
+    if (disponibles <= 0) {
+      alert("Máximo 6 fotografías");
+      return;
+    }
+
+    const nuevas = arr.slice(0, disponibles).map((file) => ({
+      id: `danio-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      url: URL.createObjectURL(file),
+      puntos: [],
+    }));
+
+    onChange([...imagenes, ...nuevas]);
   };
 
-  const removePoint = (id, event) => {
-    event.stopPropagation();
+  const removeImage = (imgId) => {
     if (readOnly) return;
-    onChange(puntos.filter((p) => p.id !== id));
+    onChange(imagenes.filter((img) => img.id !== imgId));
+  };
+
+  const addPoint = (event, imgId) => {
+    if (readOnly) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = Number(((event.clientX - rect.left) / rect.width).toFixed(4));
+    const y = Number(((event.clientY - rect.top) / rect.height).toFixed(4));
+
+    onChange(
+      imagenes.map((img) =>
+        img.id === imgId
+          ? {
+              ...img,
+              puntos: [
+                ...(img.puntos || []),
+                {
+                  id: `p-${Date.now()}`,
+                  x,
+                  y,
+                  observacion: "",
+                },
+              ],
+            }
+          : img
+      )
+    );
+  };
+
+  const removePoint = (imgId, pointId) => {
+    if (readOnly) return;
+
+    onChange(
+      imagenes.map((img) =>
+        img.id === imgId
+          ? {
+              ...img,
+              puntos: (img.puntos || []).filter((p) => p.id !== pointId),
+            }
+          : img
+      )
+    );
+  };
+
+  const updatePointObs = (imgId, pointId, value) => {
+    onChange(
+      imagenes.map((img) =>
+        img.id === imgId
+          ? {
+              ...img,
+              puntos: (img.puntos || []).map((p) =>
+                p.id === pointId ? { ...p, observacion: value } : p
+              ),
+            }
+          : img
+      )
+    );
   };
 
   return (
-    <div className="damage-area" onClick={addPoint}>
-      <svg viewBox="0 0 720 230" className="truck-svg" aria-hidden="true">
-        <g fill="none" stroke="#68707a" strokeWidth="2">
-          <rect x="70" y="34" width="120" height="56" rx="10" />
-          <path d="M72 44 L50 59 L50 88 L72 88" />
-          <path d="M190 44 L214 62 L214 88 L190 88" />
-          <line x1="92" y1="34" x2="92" y2="90" />
-          <line x1="168" y1="34" x2="168" y2="90" />
-          <circle cx="72" cy="101" r="15" />
-          <circle cx="192" cy="101" r="15" />
+    <div className="damage-area-photo">
+      {!readOnly && (
+        <div className="no-print damage-upload-row">
+          <label className="damage-upload-btn">
+            📁 Galería
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              onChange={(e) => {
+                addImages(e.target.files);
+                e.target.value = null;
+              }}
+            />
+          </label>
 
-          <path d="M275 65 L340 35 L445 35 L486 64 L666 64 L678 82 L670 111 L280 111 L268 88 Z" />
-          <path d="M350 36 L334 64 L413 64 L407 36" />
-          <path d="M419 36 L427 64 L485 64" />
-          <line x1="500" y1="64" x2="665" y2="64" />
-          <circle cx="345" cy="115" r="25" />
-          <circle cx="600" cy="115" r="25" />
+          <label className="damage-upload-btn damage-upload-camera">
+            📷 Cámara
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              multiple
+              hidden
+              onChange={(e) => {
+                addImages(e.target.files);
+                e.target.value = null;
+              }}
+            />
+          </label>
+        </div>
+      )}
 
-          <rect x="62" y="145" width="142" height="58" rx="10" />
-          <path d="M62 165 H204" />
-          <path d="M78 145 V203 M188 145 V203" />
-          <circle cx="80" cy="207" r="14" />
-          <circle cx="188" cy="207" r="14" />
+      {imagenes.length === 0 ? (
+        <div className="damage-empty">
+          Sin fotografías de daños registradas
+        </div>
+      ) : (
+        <div className="damage-photo-list">
+          {imagenes.map((img, index) => (
+            <div key={img.id || index} className="damage-photo-card">
+              <div className="damage-photo-title">
+                <span>Fotografía {index + 1}</span>
 
-          <path d="M288 171 L352 145 L456 145 L498 172 L650 172 L666 190 L658 218 L292 218 L276 196 Z" />
-          <path d="M362 146 L346 174 L424 174 L417 146" />
-          <path d="M430 146 L438 174 L498 174" />
-          <circle cx="355" cy="218" r="22" />
-          <circle cx="590" cy="218" r="22" />
-        </g>
+                {!readOnly && (
+                  <button
+                    type="button"
+                    className="damage-remove-btn no-print"
+                    onClick={() => removeImage(img.id)}
+                  >
+                    Eliminar
+                  </button>
+                )}
+              </div>
 
-        {puntos.map((p) => (
-          <circle
-            key={p.id}
-            cx={(p.x / 100) * 720}
-            cy={(p.y / 100) * 230}
-            r="8"
-            fill="#d21f2b"
-            stroke="#fff"
-            strokeWidth="2"
-            className={readOnly ? "" : "damage-point"}
-            onClick={(event) => removePoint(p.id, event)}
-          />
-        ))}
-      </svg>
+              <div
+                className="damage-photo-wrap"
+                onClick={(e) => addPoint(e, img.id)}
+              >
+                <img
+                  src={img.url}
+                  alt={`Daño ${index + 1}`}
+                  className="damage-photo-img"
+                />
+
+                {(img.puntos || []).map((p, pi) => (
+                  <button
+                    key={p.id || pi}
+                    type="button"
+                    className="damage-dot"
+                    style={{
+                      left: `${p.x * 100}%`,
+                      top: `${p.y * 100}%`,
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removePoint(img.id, p.id);
+                    }}
+                  >
+                    {pi + 1}
+                  </button>
+                ))}
+              </div>
+
+              {(img.puntos || []).map((p, pi) => (
+                <div key={p.id || pi} className="damage-point-row">
+                  <span>{pi + 1})</span>
+                  <input
+                    value={p.observacion || ""}
+                    readOnly={readOnly}
+                    onChange={(e) =>
+                      updatePointObs(img.id, p.id, e.target.value)
+                    }
+                    placeholder={`Observación punto ${pi + 1}`}
+                    className="damage-point-input"
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -660,10 +783,10 @@ export function ControlVehicularSheet({
             <tr>
               <td colSpan={13}>
                 <DamageArea
-                  puntos={data.danos.puntos}
-                  readOnly={readOnly}
-                  onChange={(puntos) => setNested(["danos", "puntos"], puntos)}
-                />
+  imagenes={data.danos.imagenes || []}
+  readOnly={readOnly}
+  onChange={(imagenes) => setNested(["danos", "imagenes"], imagenes)}
+/>
               </td>
             </tr>
 
