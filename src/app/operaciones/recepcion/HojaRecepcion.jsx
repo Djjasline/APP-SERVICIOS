@@ -1134,7 +1134,7 @@ export default function HojaRecepcion() {
         <button
           type="button"
           onClick={() => navigate("/recepcion")}
-          className="border px-4 py-2 rounded text-sm hover:bg-gray-50"
+          className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10 disabled:opacity-50"
         >
           Volver
         </button>
@@ -1143,7 +1143,7 @@ export default function HojaRecepcion() {
           <button
             type="button"
             onClick={handlePDF}
-            className="border px-4 py-2 rounded text-sm hover:bg-gray-50"
+            className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10 disabled:opacity-50"
           >
             Descargar PDF
           </button>
@@ -1153,7 +1153,7 @@ export default function HojaRecepcion() {
               <button
                 type="button"
                 onClick={() => limpiarFirma(firmaResponsableRef, "responsable")}
-                className="border px-4 py-2 rounded text-sm hover:bg-gray-50"
+                className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10 disabled:opacity-50"
               >
                 Limpiar firma conductor
               </button>
@@ -1161,7 +1161,7 @@ export default function HojaRecepcion() {
               <button
                 type="button"
                 onClick={() => limpiarFirma(firmaRecepcionRef, "recepcionFinal")}
-                className="border px-4 py-2 rounded text-sm hover:bg-gray-50"
+                className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10 disabled:opacity-50"
               >
                 Limpiar firma recepción
               </button>
