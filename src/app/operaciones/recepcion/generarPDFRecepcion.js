@@ -19,31 +19,31 @@ const colW = (col, span = 1) => {
 
 const textValue = (value) => (value === null || value === undefined ? "" : String(value));
 
-const imageToDataUrl = async (url) =>
-  new Promise((resolve) => {
-    if (!url) {
-      resolve(null);
-      return;
-    }
+const imageToDataUrl = async (url) => {
+  try {
+    if (!url) return null;
 
-    const img = new Image();
-    img.crossOrigin = "anonymous";
+    const response = await fetch(url);
+    const blob = await response.blob();
 
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
+    return await new Promise((resolve) => {
+      const reader = new FileReader();
 
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
+      reader.onloadend = () => {
+        resolve(reader.result);
+      };
 
-      resolve(canvas.toDataURL("image/jpeg", 0.85));
-    };
+      reader.onerror = () => {
+        resolve(null);
+      };
 
-    img.onerror = () => resolve(null);
-    img.src = url;
-  });
-
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error("No se pudo cargar imagen para PDF:", error);
+    return null;
+  }
+};
 const addText = (doc, text, x, y, w, h, opts = {}) => {
   const fontSize = opts.fontSize || 7.5;
   const lineHeight = fontSize * 0.36;
@@ -296,21 +296,19 @@ export const generarPDFRecepcion = async (data) => {
   });
   y += 6;
 
-  const danosImagenes = data.danos?.imagenes || [];
+const danosImagenes = data.danos?.imagenes || [];
+const boxX = colX(0);
+const boxW = colW(0, 13);
+const boxH = 55;
+
+cell(doc, 0, 13, y, boxH);
 
 if (danosImagenes.length === 0) {
-  cell(doc, 0, 13, y, 55, "Sin fotografías de daños registradas", {
+  addText(doc, "Sin fotografías de daños registradas", boxX, y, boxW, boxH, {
     align: "center",
     fontSize: 8,
   });
-  y += 55;
 } else {
-  const boxX = colX(0);
-  const boxW = colW(0, 13);
-  const boxH = 55;
-
-  cell(doc, 0, 13, y, boxH);
-
   const gap = 2;
   const maxFotos = Math.min(5, danosImagenes.length);
   const fotoW = (boxW - gap * (maxFotos + 1)) / maxFotos;
@@ -320,13 +318,13 @@ if (danosImagenes.length === 0) {
   for (let i = 0; i < maxFotos; i += 1) {
     const item = danosImagenes[i];
     const fotoX = boxX + gap + i * (fotoW + gap);
-
     const imgData = await imageToDataUrl(item.url);
+
+    doc.rect(fotoX, fotoY, fotoW, fotoH);
 
     if (imgData) {
       doc.addImage(imgData, "JPEG", fotoX, fotoY, fotoW, fotoH);
     } else {
-      doc.rect(fotoX, fotoY, fotoW, fotoH);
       addText(doc, "Imagen no disponible", fotoX, fotoY, fotoW, fotoH, {
         align: "center",
         fontSize: 6,
@@ -365,9 +363,9 @@ if (danosImagenes.length === 0) {
       obsY += lines.length * 2.4;
     });
   }
-
-  y += boxH;
 }
+
+y += boxH;
   cell(doc, 0, 13, y, 5.5, "OBSERVACIONES ENTREGA:", { fontSize: 7.5 });
   y += 5.5;
   cell(doc, 0, 13, y, 17, data.observacionesEntrega, { fontSize: 7 });
