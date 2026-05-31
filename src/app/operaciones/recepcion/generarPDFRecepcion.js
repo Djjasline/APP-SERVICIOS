@@ -19,6 +19,31 @@ const colW = (col, span = 1) => {
 
 const textValue = (value) => (value === null || value === undefined ? "" : String(value));
 
+const imageToDataUrl = async (url) =>
+  new Promise((resolve) => {
+    if (!url) {
+      resolve(null);
+      return;
+    }
+
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+
+      resolve(canvas.toDataURL("image/jpeg", 0.85));
+    };
+
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+
 const addText = (doc, text, x, y, w, h, opts = {}) => {
   const fontSize = opts.fontSize || 7.5;
   const lineHeight = fontSize * 0.36;
@@ -134,7 +159,7 @@ const drawVehicleDiagram = (doc, x, y, w, h, puntos = []) => {
   doc.setDrawColor(0, 0, 0);
 };
 
-export const generarPDFRecepcion = (data) => {
+export const generarPDFRecepcion = async (data) => {
   const doc = new jsPDF("p", "mm", "a4");
   doc.setLineWidth(0.25);
 
