@@ -271,10 +271,78 @@ export const generarPDFRecepcion = (data) => {
   });
   y += 6;
 
-  cell(doc, 0, 13, y, 55);
-  drawVehicleDiagram(doc, colX(0) + 8, y + 3, colW(0, 13) - 16, 49, data.danos?.puntos || []);
-  y += 55;
+  const danosImagenes = data.danos?.imagenes || [];
 
+if (danosImagenes.length === 0) {
+  cell(doc, 0, 13, y, 55, "Sin fotografías de daños registradas", {
+    align: "center",
+    fontSize: 8,
+  });
+  y += 55;
+} else {
+  const boxX = colX(0);
+  const boxW = colW(0, 13);
+  const boxH = 55;
+
+  cell(doc, 0, 13, y, boxH);
+
+  const gap = 2;
+  const maxFotos = Math.min(5, danosImagenes.length);
+  const fotoW = (boxW - gap * (maxFotos + 1)) / maxFotos;
+  const fotoH = 22;
+  const fotoY = y + 3;
+
+  for (let i = 0; i < maxFotos; i += 1) {
+    const item = danosImagenes[i];
+    const fotoX = boxX + gap + i * (fotoW + gap);
+
+    const imgData = await imageToDataUrl(item.url);
+
+    if (imgData) {
+      doc.addImage(imgData, "JPEG", fotoX, fotoY, fotoW, fotoH);
+    } else {
+      doc.rect(fotoX, fotoY, fotoW, fotoH);
+      addText(doc, "Imagen no disponible", fotoX, fotoY, fotoW, fotoH, {
+        align: "center",
+        fontSize: 6,
+      });
+    }
+
+    (item.puntos || []).forEach((p, pi) => {
+      const px = fotoX + Number(p.x || 0) * fotoW;
+      const py = fotoY + Number(p.y || 0) * fotoH;
+
+      doc.setFillColor(220, 38, 38);
+      doc.setDrawColor(255, 255, 255);
+      doc.circle(px, py, 2.2, "FD");
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(6);
+      doc.text(String(pi + 1), px, py + 0.2, {
+        align: "center",
+        baseline: "middle",
+      });
+
+      doc.setTextColor(0, 0, 0);
+    });
+
+    let obsY = fotoY + fotoH + 4;
+
+    (item.puntos || []).forEach((p, pi) => {
+      const texto = `${pi + 1}) ${p.observacion || "—"}`;
+      const lines = doc.splitTextToSize(texto, fotoW - 1);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(5.5);
+      doc.text(lines, fotoX, obsY);
+
+      obsY += lines.length * 2.4;
+    });
+  }
+
+  y += boxH;
+}
   cell(doc, 0, 13, y, 5.5, "OBSERVACIONES ENTREGA:", { fontSize: 7.5 });
   y += 5.5;
   cell(doc, 0, 13, y, 17, data.observacionesEntrega, { fontSize: 7 });
