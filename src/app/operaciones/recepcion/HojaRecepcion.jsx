@@ -895,7 +895,7 @@ export function ControlVehicularSheet({
                 <DamageArea
   imagenes={data.danos.imagenes || []}
   readOnly={readOnly}
-  registroId={data.id || "temp-recepcion"}
+  registroId={registroId || "temp-recepcion"}
   onChange={(imagenes) => setNested(["danos", "imagenes"], imagenes)}
 />
               </td>
