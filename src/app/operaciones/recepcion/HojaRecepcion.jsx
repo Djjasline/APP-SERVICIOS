@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
+import imageCompression from "browser-image-compression";
 import { supabase } from "@/lib/supabase";
 import { generarPDFRecepcion } from "./generarPDFRecepcion";
 import {
@@ -130,6 +131,17 @@ const DamageArea = ({
   readOnly = false,
   registroId = "temp-recepcion",
 }) => {
+
+  const compressImage = async (file) =>
+  imageCompression(file, {
+    maxSizeMB: 0.18,
+    useWebWorker: true,
+    alwaysKeepResolution: true,
+    initialQuality: 0.7,
+    maxWidthOrHeight: undefined,
+    fileType: file.type || "image/jpeg",
+  });
+  
 const addImages = async (files) => {
   if (readOnly) return;
 
@@ -149,12 +161,13 @@ const addImages = async (files) => {
   const nuevas = [];
 
   for (const file of arr.slice(0, disponibles)) {
-    const url = await uploadRegistroImage(
-      file,
-      registroId || "temp-recepcion",
-      "danos-carroceria"
-    );
+    const compressedFile = await compressImage(file);
 
+const url = await uploadRegistroImage(
+  compressedFile,
+  registroId || "temp-recepcion",
+  "danos-carroceria"
+);
     if (!url) continue;
 
     nuevas.push({
@@ -643,7 +656,9 @@ export function ControlVehicularSheet({
   setData,
   readOnly = false,
   signatureRefs = {},
+  registroId = "temp-recepcion",
 }) {
+  
   const setField = (key, value) => updateAtPath(setData, [key], value);
   const setNested = (path, value) => updateAtPath(setData, path, value);
 
@@ -1096,12 +1111,13 @@ export default function HojaRecepcion() {
       const completado = Boolean(payload.firmas.responsable && payload.firmas.recepcionFinal);
 
       const result = await saveOrUpdateReport({
-        id: registroId,
-        tipo: "recepcion",
-        subtipo: "control_vehicular",
-        data: payload,
-        estado: completado ? "completado" : "borrador",
-      });
+  id: registroId,
+  area: "operaciones",
+  tipo: "recepcion",
+  subtipo: "control_vehicular",
+  data: payload,
+  estado: completado ? "completado" : "borrador",
+});
 
       if (result?.id) setRegistroId(result.id);
       alert("Guardado correctamente");
@@ -1187,14 +1203,16 @@ export default function HojaRecepcion() {
 
       <div className="overflow-x-auto bg-white shadow border p-2">
         <ControlVehicularSheet
-          data={data}
-          setData={setData}
-          readOnly={isLocked}
-          signatureRefs={{
-            responsable: firmaResponsableRef,
-            recepcionFinal: firmaRecepcionRef,
-          }}
-        />
+  data={data}
+  setData={setData}
+  readOnly={isLocked}
+  registroId={registroId || "temp-recepcion"}
+  signatureRefs={{
+    responsable: firmaResponsableRef,
+    recepcionFinal: firmaRecepcionRef,
+  }}
+/>
+        
       </div>
     </div>
   );
