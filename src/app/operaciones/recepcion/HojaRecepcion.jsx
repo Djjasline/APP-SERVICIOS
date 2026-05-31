@@ -526,10 +526,9 @@ const SheetStyles = () => (
 
 .damage-photo-list {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
 }
-
 .damage-photo-card {
   border: 1px solid #d1d5db;
   border-radius: 4px;
@@ -563,11 +562,10 @@ const SheetStyles = () => (
 
 .damage-photo-img {
   width: 100%;
-  max-height: 210px;
-  object-fit: contain;
+  height: 82px;
+  object-fit: cover;
   display: block;
 }
-
 .damage-dot {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -587,20 +585,21 @@ const SheetStyles = () => (
 
 .damage-point-row {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   align-items: center;
-  padding: 4px 6px;
-  font-size: 10px;
+  padding: 2px 4px;
+  font-size: 9px;
 }
 
 .damage-point-input {
   flex: 1;
-  border: 1px solid #d1d5db;
-  border-radius: 3px;
-  padding: 2px 4px;
-  font-size: 10px;
+  border: 0;
+  background: transparent;
+  padding: 1px 2px;
+  font-size: 9px;
 }
-    .signature-canvas {
+
+.signature-canvas {
       width: 100%;
       height: 88px;
       display: block;
