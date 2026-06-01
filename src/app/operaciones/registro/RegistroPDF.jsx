@@ -50,6 +50,50 @@ export default function RegistroPDF() {
     ? data.herramientas
     : [];
 
+  const primerItem = items[0] || {};
+
+const pedido =
+  data.pedidoDemanda ||
+  data.pedido ||
+  primerItem.pedido ||
+  primerItem.pedidoDemanda ||
+  "";
+
+const tecnicoSalida =
+  data.tecnicoSalida ||
+  data.tecnicoNombre ||
+  primerItem.tecnicoSalida ||
+  primerItem.responsableSalida ||
+  "";
+
+const fechaSalida =
+  data.fechaSalida ||
+  primerItem.fechaSalida ||
+  "";
+
+const tecnicoIngreso =
+  data.tecnicoIngreso ||
+  primerItem.tecnicoIngreso ||
+  primerItem.responsableIngreso ||
+  "";
+
+const fechaIngreso =
+  data.fechaIngreso ||
+  primerItem.fechaIngreso ||
+  "";
+
+const observacionesSalida =
+  data.observacionesSalida ||
+  primerItem.observacionesSalida ||
+  primerItem.observacionSalida ||
+  "";
+
+const observacionesIngreso =
+  data.observacionesIngreso ||
+  primerItem.observacionesIngreso ||
+  primerItem.observacionIngreso ||
+  "";
+  
   const firmas = data.firmas || {};
 
   const imagenSalida =
@@ -121,14 +165,14 @@ const imagenIngreso =
         <table className="w-full border-collapse border mb-4 text-xs">
           <tbody>
             {[
-              ["Pedido / Demanda", data.pedidoDemanda],
-              ["Técnico salida", data.tecnicoSalida || data.tecnicoNombre],
-              ["Fecha salida", data.fechaSalida],
-              ["Técnico ingreso", data.tecnicoIngreso],
-              ["Fecha ingreso", data.fechaIngreso],
-              ["Observaciones salida", data.observacionesSalida],
-              ["Observaciones ingreso", data.observacionesIngreso],
-            ].map(([label, value], i) => (
+  ["Pedido / Demanda", pedido],
+  ["Técnico salida", tecnicoSalida],
+  ["Fecha salida", fechaSalida],
+  ["Técnico ingreso", tecnicoIngreso],
+  ["Fecha ingreso", fechaIngreso],
+  ["Observaciones salida", observacionesSalida],
+  ["Observaciones ingreso", observacionesIngreso],
+].map(([label, value], i) => (
               <tr key={i}>
                 <td className="border p-2 font-semibold bg-gray-50 w-48">
                   {label}
@@ -169,13 +213,15 @@ const imagenIngreso =
                   <td className="border p-2 text-center">{index + 1}</td>
                   <td className="border p-2">
                     {item.descripcion ||
-                      item.nombre ||
-                      item.herramienta ||
-                      item.equipo ||
-                      "—"}
+  item.nombre ||
+  item.herramienta ||
+  item.equipo ||
+  item.item ||
+  item.detalle ||
+  "—"}
                   </td>
                   <td className="border p-2 text-center">
-                    {item.cantidad || "—"}
+                    {item.cantidad || item.qty || item.unidades || "—"}
                   </td>
                   <td className="border p-2 text-center">
                     {item.estadoSalida || item.estado || "—"}
