@@ -1,5 +1,5 @@
 export const documentosVehiculo = [
-  { key: "soat", label: "SOAT:" },
+  { key: "soat", label: "SOGA:" },
   { key: "manualSeguradora", label: "MANUAL SEGURADORA" },
   { key: "matricula", label: "MATRICULA" },
 ];
@@ -40,12 +40,11 @@ export const recepcionSchema = {
   lugarDestino: "",
   ciudad: "",
 
-  modelo: "LUV D-MAX",
+  modelo: "",
   seleccionado: false,
-  combustible: "DIESEL",
   totalCombustible: "",
   placa: "",
-  color: "BLANCO",
+  color: "",
   picoPlaca: "",
   pedidoDemanda: "",
   kilometrosSalida: "",
