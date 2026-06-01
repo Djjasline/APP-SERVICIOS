@@ -2,10 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { TECHNICIANS } from "@/data/technicians";
-import {
-  getRegistroById,
-  updateRegistro,
-} from "@/utils/registroStorage";
+import { getRegistroById, updateRegistro, } from "@/utils/registroStorage";
 import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";
 
@@ -59,17 +56,22 @@ export default function HojaRegistroHerramientas() {
       ...prev,
       items: [
         ...prev.items,
-        {
-          id: Date.now(),
-          detalle: "",
-          pedido: "",
-          tecnicoSalida: "",
-          fechaSalida: new Date().toISOString().split("T")[0],
-          imagenSalidaUrl: "",
-          fechaIngreso: "",
-          tecnicoIngreso: "",
-          imagenIngresoUrl: "",
-        },
+       {
+  id: Date.now(),
+  detalle: "",
+  pedido: "",
+  cantidad: "",
+  estadoSalida: "",
+  observacionesSalida: "",
+  tecnicoSalida: "",
+  fechaSalida: new Date().toISOString().split("T")[0],
+  imagenSalidaUrl: "",
+  estadoIngreso: "",
+  observacionesIngreso: "",
+  fechaIngreso: "",
+  tecnicoIngreso: "",
+  imagenIngresoUrl: "",
+},
       ],
     }));
   };
@@ -253,11 +255,14 @@ export default function HojaRegistroHerramientas() {
               <th className="px-3 py-2 text-center">Estado</th>
               <th className="px-3 py-2 text-left">Herramienta / Detalle</th>
               <th className="px-3 py-2 text-left">N° Pedido</th>
+              <th className="px-3 py-2 text-left">Cantidad</th>
+              <th className="px-3 py-2 text-left">Estado Salida</th>
               <th className="px-3 py-2 text-left">Técnico Salida</th>
               <th className="px-3 py-2 text-left">Fecha Salida</th>
               <th className="px-3 py-2 text-center">Foto Antes 📷</th>
               <th className="px-3 py-2 text-left">Técnico Ingreso</th>
               <th className="px-3 py-2 text-left">Fecha Ingreso</th>
+              <th className="px-3 py-2 text-left">Estado Ingreso</th>
               <th className="px-3 py-2 text-center">Foto Después 📷</th>
               {!isLocked && <th className="px-3 py-2"></th>}
             </tr>
@@ -311,6 +316,32 @@ export default function HojaRegistroHerramientas() {
                       className="border rounded px-2 py-1 w-full min-w-[90px] disabled:bg-gray-50"
                     />
                   </td>
+
+                  {/* CANTIDAD */}
+<td className="px-2 py-2">
+  <input
+    value={item.cantidad || ""}
+    onChange={(e) =>
+      updateItem(item.id, "cantidad", e.target.value)
+    }
+    disabled={isLocked}
+    placeholder="Cantidad"
+    className="border rounded px-2 py-1 w-full min-w-[70px] disabled:bg-gray-50"
+  />
+</td>
+
+{/* ESTADO SALIDA */}
+<td className="px-2 py-2">
+  <input
+    value={item.estadoSalida || ""}
+    onChange={(e) =>
+      updateItem(item.id, "estadoSalida", e.target.value)
+    }
+    disabled={isLocked}
+    placeholder="Estado salida"
+    className="border rounded px-2 py-1 w-full min-w-[110px] disabled:bg-gray-50"
+  />
+</td>
 
                   {/* TÉCNICO SALIDA */}
                   <td className="px-2 py-2">
@@ -384,6 +415,19 @@ export default function HojaRegistroHerramientas() {
                       className="border rounded px-2 py-1 disabled:bg-gray-50"
                     />
                   </td>
+
+                  {/* ESTADO INGRESO */}
+<td className="px-2 py-2">
+  <input
+    value={item.estadoIngreso || ""}
+    onChange={(e) =>
+      updateItem(item.id, "estadoIngreso", e.target.value)
+    }
+    disabled={isLocked}
+    placeholder="Estado ingreso"
+    className="border rounded px-2 py-1 w-full min-w-[110px] disabled:bg-gray-50"
+  />
+</td>
 
                   {/* FOTO DESPUÉS */}
                   <td className="px-2 py-2 text-center">
