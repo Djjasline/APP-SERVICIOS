@@ -15,7 +15,7 @@ export default function IndexInforme() {
       .from("registros")
       .select("*")
       .eq("tipo", "informe")
-      .eq("subtipo", "general")
+      .in("subtipo", ["bomba", "valvula"])
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -71,7 +71,7 @@ export default function IndexInforme() {
      NUEVO INFORME
   =========================== */
   const nuevoInforme = () => {
-    navigate("/informe/nuevo");
+   navigate("/agua/informe/nuevo");
   };
 
   /* ===========================
@@ -102,7 +102,7 @@ export default function IndexInforme() {
         {/* HEADER */}
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-semibold">
-            Informe general vehículos
+            Informe general agua 
           </h1>
 
           <button
@@ -178,7 +178,7 @@ export default function IndexInforme() {
                   <button
                     className="border px-2 py-1 text-xs rounded"
                     onClick={() =>
-                      navigate(`/informe/${inf.id}`)
+                      navigate(`/agua/informe/${inf.id}`)
                     }
                   >
                     Abrir
@@ -188,7 +188,7 @@ export default function IndexInforme() {
                     <button
                       className="bg-green-600 text-white px-2 py-1 text-xs rounded"
                       onClick={() =>
-                        navigate(`/informe/pdf/${inf.id}`)
+                        navigate(`/agua/informe/pdf/${inf.id}`)
                       }
                     >
                       PDF
