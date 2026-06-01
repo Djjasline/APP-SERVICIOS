@@ -51,8 +51,8 @@ export default function InformePDF() {
       <div className="p-6 text-center">
         <p>No se encontró el informe.</p>
         <button
-          onClick={() => navigate("/agua/informe")}
-className="border px-4 py-2 rounded mt-4"
+         onClick={() => navigate("/agua/informe")}
+         className="border px-4 py-2 rounded mt-4"
         >
           Volver
         </button>
