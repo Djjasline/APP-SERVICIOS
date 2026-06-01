@@ -226,6 +226,21 @@ const imagenIngreso =
     {item.estadoIngreso || "—"}
   </td>
 </tr>
+
+<tr>
+  <td colSpan={5} className="border p-2 bg-gray-50">
+    <strong>Observaciones salida:</strong>
+    <br />
+    {item.observacionesSalida || "—"}
+
+    <br />
+    <br />
+
+    <strong>Observaciones ingreso:</strong>
+    <br />
+    {item.observacionesIngreso || "—"}
+  </td>
+</tr>
      </>
     ))
   )}
@@ -269,46 +284,61 @@ const imagenIngreso =
           </div>
         </div>
 
-        {/* FIRMAS */}
-        <h3 className="font-bold text-sm bg-gray-100 border px-2 py-1">
-          FIRMAS
-        </h3>
+       {/* FIRMAS */}
+<h3 className="font-bold text-sm bg-gray-100 border px-2 py-1">
+  FIRMAS
+</h3>
 
-        <table className="w-full border-collapse border text-xs">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-2">Responsable</th>
-              <th className="border p-2">Aprobador / Recepción</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="border p-2 h-36 text-center align-middle">
-                {firmas.responsable ? (
-                  <img
-                    src={firmas.responsable}
-                    alt="Firma responsable"
-                    className="max-h-28 mx-auto object-contain"
-                  />
-                ) : (
-                  "—"
-                )}
-              </td>
+<table className="w-full border-collapse border text-xs">
+  <thead>
+    <tr className="bg-gray-100">
+      <th className="border p-2">Responsable</th>
+      <th className="border p-2">Aprobador / Recepción</th>
+    </tr>
+  </thead>
 
-              <td className="border p-2 h-36 text-center align-middle">
-                {firmas.aprobador ? (
-                  <img
-                    src={firmas.aprobador}
-                    alt="Firma aprobador"
-                    className="max-h-28 mx-auto object-contain"
-                  />
-                ) : (
-                  "—"
-                )}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+  <tbody>
+    <tr>
+      {/* RESPONSABLE */}
+      <td className="border p-2 h-36 text-center align-middle">
+        {firmas.responsable ? (
+          <img
+            src={firmas.responsable}
+            alt="Firma responsable"
+            className="max-h-28 mx-auto object-contain"
+          />
+        ) : (
+          <div className="h-28 flex items-center justify-center">
+            —
+          </div>
+        )}
+
+        <div className="mt-2 border-t pt-2 text-xs font-semibold">
+          Firma Responsable
+        </div>
+      </td>
+
+      {/* APROBADOR */}
+      <td className="border p-2 h-36 text-center align-middle">
+        {firmas.aprobador ? (
+          <img
+            src={firmas.aprobador}
+            alt="Firma aprobador"
+            className="max-h-28 mx-auto object-contain"
+          />
+        ) : (
+          <div className="h-28 flex items-center justify-center">
+            —
+          </div>
+        )}
+
+        <div className="mt-2 border-t pt-2 text-xs font-semibold">
+          Firma Aprobador / Recepción
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
         {/* BOTONES */}
         <div className="no-print flex justify-between mt-6">
