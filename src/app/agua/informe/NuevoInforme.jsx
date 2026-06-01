@@ -129,6 +129,11 @@ const isEditing = !!id;
       registroFotoDimensional: [], // URLs Supabase
     },
 
+    // Estado del equipo
+estadoEquipo: {
+  imagenes: [],
+}, 
+     
     // Actividades
     actividades: [{ titulo: "", detalle: "", imagenes: [] }],
 
@@ -166,6 +171,11 @@ useEffect(() => {
       ...d,
       bomba: { ...emptyReport.bomba, ...(d.bomba || {}) },
       valvula: { ...emptyReport.valvula, ...(d.valvula || {}) },
+       estadoEquipo: {
+  imagenes: Array.isArray(d.estadoEquipo?.imagenes)
+    ? d.estadoEquipo.imagenes
+    : [],
+},
       actividades: Array.isArray(d.actividades)
         ? d.actividades
         : emptyReport.actividades,
@@ -319,6 +329,139 @@ useEffect(() => {
       return { ...p, actividades: acts };
     });
   };
+
+ /* ─── ESTADO DEL EQUIPO - FOTOS Y PUNTOS ─── */
+const handleEstadoEquipoImagesUpload = async (e) => {
+  const files = Array.from(e.target.files || []).filter((file) =>
+    file.type.startsWith("image/")
+  );
+
+  e.target.value = null;
+
+  if (!files.length) return;
+
+  const actuales = data.estadoEquipo?.imagenes?.length || 0;
+  const disponibles = 12 - actuales;
+
+  if (disponibles <= 0) {
+    alert("Máximo 12 fotografías");
+    return;
+  }
+
+  if (files.length > disponibles) {
+    alert("Máximo 12 fotografías");
+  }
+
+  for (const file of files.slice(0, disponibles)) {
+    const url = await uploadSingle(file, "estado-equipo");
+
+    if (url) {
+      setData((prev) => {
+        const actuales = prev.estadoEquipo?.imagenes || [];
+
+        const nuevaImagen = {
+          id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          url,
+          puntos: [],
+        };
+
+        return {
+          ...prev,
+          estadoEquipo: {
+            ...prev.estadoEquipo,
+            imagenes: [...actuales, nuevaImagen],
+          },
+        };
+      });
+    }
+  }
+};
+
+const removeEstadoEquipoImage = (imageId) => {
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).filter(
+        (img) => img.id !== imageId
+      ),
+    },
+  }));
+};
+
+const clearEstadoEquipoImagePoints = (imageId) => {
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+        img.id === imageId ? { ...img, puntos: [] } : img
+      ),
+    },
+  }));
+};
+
+const handleEstadoEquipoImageClick = (e, imageId) => {
+  const rect = e.currentTarget.getBoundingClientRect();
+
+  const x = (e.clientX - rect.left) / rect.width;
+  const y = (e.clientY - rect.top) / rect.height;
+
+  const nuevoPunto = {
+    id: `p-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    x: Number(x.toFixed(4)),
+    y: Number(y.toFixed(4)),
+    observacion: "",
+  };
+
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+        img.id === imageId
+          ? { ...img, puntos: [...(img.puntos || []), nuevoPunto] }
+          : img
+      ),
+    },
+  }));
+};
+
+const removeEstadoEquipoPoint = (imageId, pointId) => {
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+        img.id === imageId
+          ? {
+              ...img,
+              puntos: (img.puntos || []).filter((p) => p.id !== pointId),
+            }
+          : img
+      ),
+    },
+  }));
+};
+
+const updateEstadoEquipoPointObservation = (imageId, pointId, value) => {
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: (prev.estadoEquipo?.imagenes || []).map((img) =>
+        img.id === imageId
+          ? {
+              ...img,
+              puntos: (img.puntos || []).map((p) =>
+                p.id === pointId ? { ...p, observacion: value } : p
+              ),
+            }
+          : img
+      ),
+    },
+  }));
+};  
 
    /* ─── GUARDAR ─── */
 const save = async () => {
@@ -1073,6 +1216,107 @@ const save = async () => {
             </section>
           )}
 
+<SectionTitle>ESTADO DEL EQUIPO</SectionTitle>
+
+<div className="border rounded-xl p-4 bg-white space-y-4">
+  <div>
+    <label className="block text-sm font-semibold text-gray-700 mb-2">
+      Fotografías del estado del equipo
+    </label>
+
+    <input
+      type="file"
+      accept="image/*"
+      multiple
+      onChange={handleEstadoEquipoImagesUpload}
+      className="block w-full text-sm"
+    />
+  </div>
+
+  {(data.estadoEquipo?.imagenes || []).length > 0 && (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {(data.estadoEquipo?.imagenes || []).map((img, imgIndex) => (
+        <div key={img.id} className="border rounded-lg p-3 space-y-3">
+          <div
+            className="relative w-full border rounded overflow-hidden bg-gray-100 cursor-crosshair"
+            onClick={(e) => handleEstadoEquipoImageClick(e, img.id)}
+          >
+            <img
+              src={img.url}
+              alt={`Estado del equipo ${imgIndex + 1}`}
+              className="w-full max-h-[320px] object-contain"
+            />
+
+            {(img.puntos || []).map((punto, puntoIndex) => (
+              <span
+                key={punto.id}
+                className="absolute w-5 h-5 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center -translate-x-1/2 -translate-y-1/2 shadow"
+                style={{
+                  left: `${punto.x * 100}%`,
+                  top: `${punto.y * 100}%`,
+                }}
+              >
+                {puntoIndex + 1}
+              </span>
+            ))}
+          </div>
+
+          <div className="flex gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => removeEstadoEquipoImage(img.id)}
+              className="px-3 py-1 text-xs rounded bg-red-600 text-white"
+            >
+              Eliminar foto
+            </button>
+
+            <button
+              type="button"
+              onClick={() => clearEstadoEquipoImagePoints(img.id)}
+              className="px-3 py-1 text-xs rounded bg-gray-700 text-white"
+            >
+              Limpiar puntos
+            </button>
+          </div>
+
+          {(img.puntos || []).length > 0 && (
+            <div className="space-y-2">
+              {(img.puntos || []).map((punto, puntoIndex) => (
+                <div key={punto.id} className="flex gap-2 items-start">
+                  <span className="mt-2 w-6 h-6 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center">
+                    {puntoIndex + 1}
+                  </span>
+
+                  <textarea
+                    value={punto.observacion || ""}
+                    onChange={(e) =>
+                      updateEstadoEquipoPointObservation(
+                        img.id,
+                        punto.id,
+                        e.target.value
+                      )
+                    }
+                    placeholder="Observación del punto marcado"
+                    className="flex-1 border rounded px-2 py-1 text-sm min-h-[44px]"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => removeEstadoEquipoPoint(img.id, punto.id)}
+                    className="mt-1 px-2 py-1 text-xs rounded bg-red-100 text-red-700"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+           
           {/* ── ACTIVIDADES REALIZADAS ── */}
           <h3 className="font-bold text-sm border-b pb-1">ACTIVIDADES REALIZADAS</h3>
           <table className="w-full text-sm border-collapse border">
