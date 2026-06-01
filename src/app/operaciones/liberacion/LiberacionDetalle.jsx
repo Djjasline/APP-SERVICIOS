@@ -97,19 +97,19 @@ export default function LiberacionDetalle() {
 
         {/* BOTONES */}
         <div className="flex justify-between mt-6">
-          <button
-            onClick={() => navigate("/liberacion")}
-            className="px-4 py-2 border rounded"
-          >
-            Volver
-          </button>
+         <button
+  onClick={() => navigate("/operaciones/liberacion")}
+  className="px-4 py-2 border rounded"
+>
+  Volver
+</button>
 
-          <button
-            onClick={() => alert("PDF próximamente")}
-            className="px-4 py-2 bg-blue-600 text-white rounded"
-          >
-            Descargar PDF
-          </button>
+         <button
+  onClick={() => navigate(`/operaciones/liberacion/pdf/${id}`)}
+  className="px-4 py-2 bg-blue-600 text-white rounded"
+>
+  Descargar PDF
+</button>
         </div>
 
       </div>
