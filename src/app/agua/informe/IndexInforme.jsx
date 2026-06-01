@@ -163,6 +163,10 @@ export default function IndexInforme() {
                     Código: {inf.data?.codInf || inf.data?.referenciaContrato || "—"}
                   </p>
 
+                  <p className="text-xs text-gray-600">
+  Usuario: {inf.data?.tecnicoNombre || "Sin técnico"}
+</p>
+                  
                   <span
                     className={`text-xs font-semibold ${
                       inf.estado?.toLowerCase().trim() === "completado"
