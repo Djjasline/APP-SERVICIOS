@@ -51,7 +51,7 @@ export default function RegistroHome() {
   const crearNuevoRegistro = async () => {
     const result = await createRegistro({ data: { items: [] } });
     if (!result?.id) return;
-    navigate(`/registro/${result.id}`);
+   navigate(`/operaciones/registro/${result.id}`);
   };
 
   const handleEliminar = async (id) => {
