@@ -7,8 +7,7 @@ import imageCompression from "browser-image-compression";
 import { supabase } from "@/lib/supabase";
 import { generarPDFRecepcion } from "./generarPDFRecepcion";
 import {
-  checklistVehiculo,
-  cloneRecepcionSchema,
+  checklistVehiculo,navigate("/recepcion")
   documentosVehiculo,
 } from "./recepcionSchema";
 
@@ -1118,7 +1117,7 @@ export default function HojaRecepcion() {
 
       if (result?.id) setRegistroId(result.id);
       alert("Guardado correctamente");
-      navigate("/recepcion");
+      navigate("/operaciones/recepcion");
     } catch (error) {
       console.error("Error guardando hoja de control vehicular:", error);
       alert("Error al guardar. Intenta de nuevo.");
