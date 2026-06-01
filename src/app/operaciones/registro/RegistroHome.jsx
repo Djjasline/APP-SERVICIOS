@@ -170,7 +170,7 @@ export default function RegistroHome() {
                     <StatusBadge estado={item.estado} />
 
                     <button
-                      onClick={() => /operaciones/registro/${item.id}`)}
+                      onClick={() => navigate(`/operaciones/registro/${item.id}`)}
                       className="text-blue-600 text-xs hover:underline"
                     >
                       Abrir
