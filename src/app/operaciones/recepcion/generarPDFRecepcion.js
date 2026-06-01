@@ -88,7 +88,7 @@ const drawGauge = (doc, x, y, w, h, value = 0) => {
   const py = cy + r * 0.85 * Math.sin(angle);
 
   doc.setLineWidth(0.35);
-  doc.arc(cx, cy, r, 180, 360);
+  doc.ellipse(cx, cy, r, r, "S");
   doc.setFont("helvetica", "normal");
   doc.setFontSize(6.5);
   doc.text("E", cx - r - 3, cy + 1);
