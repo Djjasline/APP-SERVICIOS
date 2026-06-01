@@ -719,10 +719,10 @@ export function ControlVehicularSheet({
 
             <tr style={{ height: 58 }}>
               <td rowSpan={2} className="cell-label-center">VEHICULO:</td>
-              <td className="cell-label">MODELO:</td>
-              <td className="small-center bold">SELECCIÓN</td>
+              <td className="cell-label">MODELO / MARCA:</td>
+              <td className="small-center bold"></td>
               <td colSpan={2} className="cell-label-center">COMBUSTIBLE:</td>
-              <td colSpan={2} className="small-center">TOTAL<br />COMBUSTIBLE</td>
+              <td colSpan={2}></td>
               <td className="cell-label-center">PLACA:</td>
               <td colSpan={3} className="cell-label-center">COLOR:</td>
               <td colSpan={2} className="cell-label-center">PICO Y PLACA:</td>
@@ -732,12 +732,8 @@ export function ControlVehicularSheet({
               <td>
                 <TextCell value={data.modelo} readOnly={readOnly} onChange={(v) => setField("modelo", v)} />
               </td>
-              <td>
-                <BooleanChoiceCell value={data.seleccionado} readOnly={readOnly} onChange={(v) => setField("seleccionado", v)} />
-              </td>
-              <td colSpan={2}>
-                <TextCell value={data.combustible} readOnly={readOnly} onChange={(v) => setField("combustible", v)} />
-              </td>
+             <td />
+             <td colSpan={2}></td>
               <td colSpan={2}>
                 <TextCell value={data.totalCombustible} readOnly={readOnly} onChange={(v) => setField("totalCombustible", v)} />
               </td>
