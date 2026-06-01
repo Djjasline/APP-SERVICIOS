@@ -43,7 +43,6 @@ export default function RegistroPDF() {
   }
 
   const data = registro.data || {};
-  console.log("REGISTRO PDF DATA", data);
   const items = Array.isArray(data.items)
     ? data.items
     : Array.isArray(data.herramientas)
