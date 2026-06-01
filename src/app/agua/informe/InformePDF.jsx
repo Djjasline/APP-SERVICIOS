@@ -238,6 +238,82 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
   )}
 </div>
 
+{/* ================= REGISTRO FOTOGRÁFICO DEL EQUIPO ================= */}
+<div className="no-break">
+  <h3 className="pdf-title mt-4">REGISTRO FOTOGRÁFICO DEL EQUIPO</h3>
+
+  {data.tipoInforme === "valvula" ? (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+        gap: 10,
+      }}
+    >
+      {[
+        ["Foto placa válvula", data.valvula?.fotoPlacaValvula],
+        ["Foto placa actuador 1", data.valvula?.fotoPlacaActuador1],
+        ["Foto placa actuador 2", data.valvula?.fotoPlacaActuador2],
+        ...(data.valvula?.registroFotoDimensional || []).map((url, i) => [
+          `Registro dimensional ${i + 1}`,
+          url,
+        ]),
+      ]
+        .filter(([, url]) => url)
+        .map(([label, url], i) => (
+          <div key={i} className="border rounded p-2">
+            <div className="text-xs font-semibold mb-1">{label}</div>
+            <img
+              src={url}
+              alt={label}
+              style={{
+                width: "100%",
+                maxHeight: 260,
+                objectFit: "contain",
+                border: "1px solid #ccc",
+                borderRadius: 6,
+                display: "block",
+              }}
+            />
+          </div>
+        ))}
+    </div>
+  ) : (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+        gap: 10,
+      }}
+    >
+      {[
+        ["Foto placa bomba", data.bomba?.fotoPlacaBomba],
+        ["Foto placa motor", data.bomba?.fotoPlacaMotor],
+        ["Foto placa base metálica", data.bomba?.fotoPlacaBaseMetalica],
+        ["Foto base de concreto", data.bomba?.fotoBaseConcrete],
+      ]
+        .filter(([, url]) => url)
+        .map(([label, url], i) => (
+          <div key={i} className="border rounded p-2">
+            <div className="text-xs font-semibold mb-1">{label}</div>
+            <img
+              src={url}
+              alt={label}
+              style={{
+                width: "100%",
+                maxHeight: 260,
+                objectFit: "contain",
+                border: "1px solid #ccc",
+                borderRadius: 6,
+                display: "block",
+              }}
+            />
+          </div>
+        ))}
+    </div>
+  )}
+</div>
+       
         {/* ================= ESTADO DEL EQUIPO ================= */}
         <div className="no-break">
           <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
