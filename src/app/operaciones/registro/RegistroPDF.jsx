@@ -51,6 +51,22 @@ export default function RegistroPDF() {
 
   const firmas = data.firmas || {};
 
+  const imagenSalida =
+  data.imagenSalidaUrl ||
+  data.fotoSalida ||
+  data.imagenSalida ||
+  data.salida?.imagen ||
+  data.salida?.foto ||
+  "";
+
+const imagenIngreso =
+  data.imagenIngresoUrl ||
+  data.fotoIngreso ||
+  data.imagenIngreso ||
+  data.ingreso?.imagen ||
+  data.ingreso?.foto ||
+  "";
+
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <style>{`
@@ -178,9 +194,9 @@ export default function RegistroPDF() {
         <div className="grid grid-cols-2 gap-4 border p-3 mb-4">
           <div>
             <div className="font-semibold text-xs mb-2">Imagen salida</div>
-            {data.imagenSalidaUrl ? (
-              <img
-                src={data.imagenSalidaUrl}
+            {imagenSalida ? (
+  <img
+    src={imagenSalida}
                 alt="Imagen salida"
                 className="w-full max-h-72 object-contain border"
               />
@@ -193,9 +209,9 @@ export default function RegistroPDF() {
 
           <div>
             <div className="font-semibold text-xs mb-2">Imagen ingreso</div>
-            {data.imagenIngresoUrl ? (
-              <img
-                src={data.imagenIngresoUrl}
+            {imagenIngreso ? (
+  <img
+    src={imagenIngreso}
                 alt="Imagen ingreso"
                 className="w-full max-h-72 object-contain border"
               />
