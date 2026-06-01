@@ -458,6 +458,45 @@ export default function HojaRegistroHerramientas() {
         </table>
       </div>
 
+      {/* ================= OBSERVACIONES POR HERRAMIENTA ================= */}
+{formData.items.length > 0 && (
+  <div className="grid md:grid-cols-2 gap-4">
+    {formData.items.map((item, index) => (
+      <div key={item.id} className="border rounded p-3 bg-gray-50">
+        <p className="font-semibold text-sm mb-2">
+          Observaciones herramienta {index + 1}
+        </p>
+
+        <label className="text-xs font-semibold">
+          Observaciones salida
+        </label>
+        <textarea
+          value={item.observacionesSalida || ""}
+          onChange={(e) =>
+            updateItem(item.id, "observacionesSalida", e.target.value)
+          }
+          disabled={isLocked}
+          placeholder="Observaciones al momento de salida"
+          className="w-full border rounded p-2 text-xs min-h-[70px] mb-2 disabled:bg-gray-100"
+        />
+
+        <label className="text-xs font-semibold">
+          Observaciones ingreso
+        </label>
+        <textarea
+          value={item.observacionesIngreso || ""}
+          onChange={(e) =>
+            updateItem(item.id, "observacionesIngreso", e.target.value)
+          }
+          disabled={isLocked}
+          placeholder="Observaciones al momento de ingreso"
+          className="w-full border rounded p-2 text-xs min-h-[70px] disabled:bg-gray-100"
+        />
+      </div>
+    ))}
+  </div>
+)}
+
       {/* ================= FIRMAS ================= */}
       <div className="grid md:grid-cols-2 gap-6">
         <div>
