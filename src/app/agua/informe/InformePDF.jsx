@@ -51,7 +51,7 @@ export default function InformePDF() {
       <div className="p-6 text-center">
         <p>No se encontró el informe.</p>
         <button
-          onClick={() => navigate("/informe")}
+          onClick={() => navigate("/agua/informe")
           className="border px-4 py-2 rounded mt-4"
         >
           Volver
@@ -80,8 +80,16 @@ export default function InformePDF() {
   }
 
   const { data } = report;
- const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
-  ? data.estadoEquipo.imagenes
+const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
+  ? data.estadoEquipo.imagenes.map((img) =>
+      typeof img === "string"
+        ? { url: img, puntos: [] }
+        : {
+            id: img.id || "",
+            url: img.url || img.imagen || "",
+            puntos: Array.isArray(img.puntos) ? img.puntos : [],
+          }
+    ).filter((img) => img.url)
   : [];
   
   return (
@@ -460,7 +468,7 @@ export default function InformePDF() {
         {/* ================= BOTONES ================= */}
         <div className="no-print flex justify-between mt-6">
           <button
-            onClick={() => navigate("/informe")}
+            onClick={() => navigate("/agua/informe")}
             className="border px-6 py-2 rounded"
           >
             Volver
