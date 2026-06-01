@@ -260,7 +260,7 @@ let query = supabase
 
                {superAdminActivo && (
   <span className="text-[11px] text-gray-500">
-    Usuario: {r.user_id || "—"}
+   Usuario: {r.data?.tecnicoNombre || "Sin técnico"}
   </span>
 )}
 
