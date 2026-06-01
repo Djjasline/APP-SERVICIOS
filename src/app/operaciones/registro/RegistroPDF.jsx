@@ -192,47 +192,87 @@ const imagenIngreso =
 
         <table className="w-full border-collapse border mb-4 text-xs">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-2 w-10">#</th>
-              <th className="border p-2">Descripción</th>
-              <th className="border p-2 w-20">Cantidad</th>
-              <th className="border p-2 w-28">Estado salida</th>
-              <th className="border p-2 w-28">Estado ingreso</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="border p-4 text-center text-gray-500">
-                  Sin herramientas o equipos registrados
-                </td>
-              </tr>
-            ) : (
-              items.map((item, index) => (
-                <tr key={index}>
-                  <td className="border p-2 text-center">{index + 1}</td>
-                  <td className="border p-2">
-                    {item.descripcion ||
-  item.nombre ||
-  item.herramienta ||
-  item.equipo ||
-  item.item ||
-  item.detalle ||
-  "—"}
-                  </td>
-                  <td className="border p-2 text-center">
-                    {item.cantidad || item.qty || item.unidades || "—"}
-                  </td>
-                  <td className="border p-2 text-center">
-                    {item.estadoSalida || item.estado || "—"}
-                  </td>
-                  <td className="border p-2 text-center">
-                    {item.estadoIngreso || "—"}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
+  <tr className="bg-gray-100">
+    <th className="border p-2">#</th>
+    <th className="border p-2">Herramienta / Detalle</th>
+    <th className="border p-2">N° Pedido</th>
+    <th className="border p-2">Cantidad</th>
+    <th className="border p-2">Estado Salida</th>
+    <th className="border p-2">Técnico Salida</th>
+    <th className="border p-2">Fecha Salida</th>
+    <th className="border p-2">Estado Ingreso</th>
+    <th className="border p-2">Técnico Ingreso</th>
+    <th className="border p-2">Fecha Ingreso</th>
+  </tr>
+</thead>
+         <tbody>
+  {items.length === 0 ? (
+    <tr>
+      <td colSpan={10} className="border p-4 text-center text-gray-500">
+        Sin herramientas o equipos registrados
+      </td>
+    </tr>
+  ) : (
+    items.map((item, index) => (
+      <React.Fragment key={item.id || index}>
+        <tr>
+          <td className="border p-2 text-center">{index + 1}</td>
+
+          <td className="border p-2">
+            {item.detalle || "—"}
+          </td>
+
+          <td className="border p-2">
+            {item.pedido || "—"}
+          </td>
+
+          <td className="border p-2 text-center">
+            {item.cantidad || "—"}
+          </td>
+
+          <td className="border p-2">
+            {item.estadoSalida || "—"}
+          </td>
+
+          <td className="border p-2">
+            {item.tecnicoSalida || "—"}
+          </td>
+
+          <td className="border p-2">
+            {item.fechaSalida || "—"}
+          </td>
+
+          <td className="border p-2">
+            {item.estadoIngreso || "—"}
+          </td>
+
+          <td className="border p-2">
+            {item.tecnicoIngreso || "—"}
+          </td>
+
+          <td className="border p-2">
+            {item.fechaIngreso || "—"}
+          </td>
+        </tr>
+
+        <tr>
+          <td colSpan={10} className="border p-2 bg-gray-50">
+            <strong>Observaciones salida:</strong>
+            <br />
+            {item.observacionesSalida || "—"}
+
+            <br />
+            <br />
+
+            <strong>Observaciones ingreso:</strong>
+            <br />
+            {item.observacionesIngreso || "—"}
+          </td>
+        </tr>
+      </React.Fragment>
+    ))
+  )}
+</tbody>
         </table>
 
         {/* IMÁGENES */}
