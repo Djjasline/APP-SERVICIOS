@@ -88,7 +88,17 @@ const drawGauge = (doc, x, y, w, h, value = 0) => {
   const py = cy + r * 0.85 * Math.sin(angle);
 
   doc.setLineWidth(0.35);
-  doc.ellipse(cx, cy, r, r, "S");
+for (let a = 180; a <= 360; a += 8) {
+  const rad1 = ((a - 8) * Math.PI) / 180;
+  const rad2 = (a * Math.PI) / 180;
+
+  doc.line(
+    cx + r * Math.cos(rad1),
+    cy + r * Math.sin(rad1),
+    cx + r * Math.cos(rad2),
+    cy + r * Math.sin(rad2)
+  );
+}
   doc.setFont("helvetica", "normal");
   doc.setFontSize(6.5);
   doc.text("E", cx - r - 3, cy + 1);
@@ -322,9 +332,24 @@ if (danosImagenes.length === 0) {
 
     doc.rect(fotoX, fotoY, fotoW, fotoH);
 
-    if (imgData) {
-      doc.addImage(imgData, "JPEG", fotoX, fotoY, fotoW, fotoH);
-    } else {
+   if (imgData) {
+  const props = doc.getImageProperties(imgData);
+  const ratio = props.width / props.height;
+
+  let drawW = fotoW;
+  let drawH = fotoW / ratio;
+
+  if (drawH > fotoH) {
+    drawH = fotoH;
+    drawW = fotoH * ratio;
+  }
+
+  const drawX = fotoX + (fotoW - drawW) / 2;
+  const drawY = fotoY + (fotoH - drawH) / 2;
+
+  doc.addImage(imgData, "JPEG", drawX, drawY, drawW, drawH);
+}
+    else {
       addText(doc, "Imagen no disponible", fotoX, fotoY, fotoW, fotoH, {
         align: "center",
         fontSize: 6,
