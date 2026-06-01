@@ -5,28 +5,28 @@ export default function AreaOperaciones() {
 
   const modulos = [
     {
-      titulo: "Bitácora",
-      descripcion: "Control de salida y entrega de vehículos.",
-      icono: <Settings size={20} />,
-      color: "bg-indigo-600",
-      ruta: "/liberacion",
-    },
+  titulo: "Bitácora Vehicular",
+  descripcion: "Control de salida y entrega de vehículos.",
+  icono: <Settings size={20} />,
+  color: "bg-indigo-600",
+  ruta: "/recepcion",
+},
     {
-      titulo: "Herramientas y equipos",
-      descripcion:
-        "Gestión y registro de salida e ingreso de herramientas y equipos técnicos.",
-      icono: <Wrench size={20} />,
-      color: "bg-blue-600",
-      ruta: "/registro",
-    },
+  titulo: "Registro",
+  descripcion:
+    "Registro de herramientas, equipos y activos operativos.",
+  icono: <Wrench size={20} />,
+  color: "bg-blue-600",
+  ruta: "/registro",
+},
     {
-      titulo: "Recepción de equipos, vehículos y maquinaria",
-      descripcion:
-        "Ingreso de equipos y validación inicial para mantenimientos y servicios.",
-      icono: <Inbox size={20} />,
-      color: "bg-green-600",
-      ruta: "/recepcion",
-    },
+  titulo: "Liberación",
+  descripcion:
+    "Liberación y cierre de equipos, vehículos y maquinaria.",
+  icono: <Inbox size={20} />,
+  color: "bg-green-600",
+  ruta: "/liberacion",
+},
   ];
 
   return (
