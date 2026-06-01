@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 
@@ -214,7 +214,7 @@ const imagenIngreso =
     </tr>
   ) : (
     items.map((item, index) => (
-      <React.Fragment key={item.id || index}>
+     <>
         <tr>
           <td className="border p-2 text-center">{index + 1}</td>
 
@@ -269,7 +269,7 @@ const imagenIngreso =
             {item.observacionesIngreso || "—"}
           </td>
         </tr>
-      </React.Fragment>
+     </>
     ))
   )}
 </tbody>
