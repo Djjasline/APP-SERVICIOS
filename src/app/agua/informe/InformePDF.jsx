@@ -154,32 +154,77 @@ export default function InformePDF() {
           </table>
         </div>
 
-        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-        <div className="no-break">
-          <h3 className="pdf-title mt-4">DESCRIPCIÓN DEL EQUIPO</h3>
+       {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+<div className="no-break">
+  <h3 className="pdf-title mt-4">
+    DESCRIPCIÓN DEL EQUIPO - {data.tipoInforme === "valvula" ? "VÁLVULA" : "BOMBA"}
+  </h3>
 
-          <table className="pdf-table w-full">
-            <tbody>
-              {[
-                ["NOTA", data.equipo?.nota],
-                ["MARCA", data.equipo?.marca],
-                ["MODELO", data.equipo?.modelo],
-                ["N° SERIE", data.equipo?.serie],
-                ["AÑO MODELO", data.equipo?.anio],
-                ["VIN / CHASIS", data.equipo?.vin],
-                ["PLACA", data.equipo?.placa],
-                ["HORAS MÓDULO", data.equipo?.horasModulo],
-                ["HORAS CHASIS", data.equipo?.horasChasis],
-                ["KILOMETRAJE", data.equipo?.kilometraje],
-              ].map(([label, value], i) => (
-                <tr key={i}>
-                  <td className="pdf-label">{label}</td>
-                  <td>{value || "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+  {data.tipoInforme === "valvula" ? (
+    <table className="pdf-table w-full">
+      <tbody>
+        {[
+          ["FLUIDO", data.valvula?.fluido],
+          ["MARCA", data.valvula?.marca],
+          ["MODELO / TIPO", data.valvula?.modeloTipo],
+          ["N° SERIE", data.valvula?.serie],
+          ["LUGAR DE PROCEDENCIA", data.valvula?.lugarProcedencia],
+          ["DIÁMETRO", data.valvula?.diametro],
+          ["PRESIÓN", data.valvula?.presion],
+          ["CONEXIÓN", data.valvula?.conexion],
+          ["NORMA DE BRIDADO", data.valvula?.normaBridado],
+          ["OPERACIÓN", data.valvula?.operacion],
+          ["OPERACIÓN ACTUADOR", data.valvula?.operacionActuador],
+          ["TIPO DE ACTUADOR", data.valvula?.tipoActuador],
+          ["VOLTAJE / FASE / FRECUENCIA", data.valvula?.voltajeFaseFrecuencia],
+          ["PROTOCOLO COMUNICACIÓN", data.valvula?.protocoloComunicacion],
+          ["DIST. ENTRE CARAS (F2F)", data.valvula?.distanciaEntreCaras],
+          ["LONGITUD CUERPO VÁLVULA", data.valvula?.longitudCuerpo],
+          ["ESPESOR CONTRA BRIDAS", data.valvula?.espesorContraBridas],
+          ["N° PERFORACIONES EN BRIDA", data.valvula?.numPerforaciones],
+          ["DIÁMETRO AGUJERO EN BRIDA", data.valvula?.diametroAgujero],
+          ["MATERIAL TORNILLERÍA", data.valvula?.materialTornilleria],
+        ].map(([label, value], i) => (
+          <tr key={i}>
+            <td className="pdf-label">{label}</td>
+            <td>{value || "—"}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : (
+    <table className="pdf-table w-full">
+      <tbody>
+        {[
+          ["FLUIDO", data.bomba?.fluido],
+          ["MARCA", data.bomba?.marca],
+          ["MODELO / TIPO", data.bomba?.modeloTipo],
+          ["N° SERIE", data.bomba?.serie],
+          ["LUGAR DE PROCEDENCIA", data.bomba?.lugarProcedencia],
+          ["Q (CAUDAL)", data.bomba?.caudal],
+          ["TDH (CABEZA)", data.bomba?.tdh],
+          ["VELOCIDAD DE GIRO", data.bomba?.velocidadGiro],
+          ["ORIENTACIÓN", data.bomba?.orientacion],
+          ["MARCA MOTOR", data.bomba?.marcaMotor],
+          ["MODELO / TIPO MOTOR", data.bomba?.modeloTipoMotor],
+          ["VOLTAJE / FASE / FRECUENCIA", data.bomba?.voltajeFaseFrecuencia],
+          ["S.F FACTOR DE SERVICIO", data.bomba?.factorServicio],
+          ["GRADO DE PROTECCIÓN", data.bomba?.gradoProteccion],
+          ["TIPO DE CONSTRUCCIÓN", data.bomba?.tipoConstruccionMotor],
+          ["ACCESORIO", data.bomba?.accesorio],
+          ["DIMENSIONES ACCESORIO (L/A/H)", data.bomba?.dimensionesAccesorio],
+          ["OBRA CIVIL", data.bomba?.obraCivil],
+          ["DIMENSIONES OBRA CIVIL (L/A/H)", data.bomba?.dimensionesObraCivil],
+        ].map(([label, value], i) => (
+          <tr key={i}>
+            <td className="pdf-label">{label}</td>
+            <td>{value || "—"}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</div>
 
         {/* ================= ESTADO DEL EQUIPO ================= */}
         <div className="no-break">
