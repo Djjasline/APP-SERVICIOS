@@ -20,7 +20,7 @@ export default function InformeRoutes() {
       <Route path=":id" element={<NuevoInforme />} />
 
       {/* FALLBACK */}
-      <Route path="*" element={<Navigate to="/informe" replace />} />
+      <Route path="*" element={<Navigate to="/agua/informe" replace />} />
     </Routes>
   );
 }
