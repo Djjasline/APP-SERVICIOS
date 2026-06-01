@@ -1073,7 +1073,6 @@ export default function HojaRecepcion() {
         if (loaded.firmas?.responsable) {
           firmaResponsableRef.current?.fromDataURL(loaded.firmas.responsable);
         }
-
         if (loaded.firmas?.recepcionFinal) {
           firmaRecepcionRef.current?.fromDataURL(loaded.firmas.recepcionFinal);
         }
@@ -1108,16 +1107,18 @@ export default function HojaRecepcion() {
 
     try {
       const payload = buildPayload();
-      const completado = Boolean(payload.firmas.responsable && payload.firmas.recepcionFinal);
+      const completado = Boolean(
+        payload.firmas.responsable && payload.firmas.recepcionFinal
+      );
 
       const result = await saveOrUpdateReport({
-  id: registroId,
-  area: "operaciones",
-  tipo: "recepcion",
-  subtipo: "control_vehicular",
-  data: payload,
-  estado: completado ? "completado" : "borrador",
-});
+        id: registroId,
+        area: "operaciones",
+        tipo: "recepcion",
+        subtipo: "control_vehicular",
+        data: payload,
+        estado: completado ? "completado" : "borrador",
+      });
 
       if (result?.id) setRegistroId(result.id);
       alert("Guardado correctamente");
@@ -1139,6 +1140,25 @@ export default function HojaRecepcion() {
     }
   };
 
+  const handleDesbloquear = () => {
+    if (
+      confirm(
+        "¿Deseas desbloquear este registro para editarlo? Se guardará como borrador al guardar."
+      )
+    ) {
+      setIsLocked(false);
+      // Recargar firmas en los canvas ahora que están visibles
+      setTimeout(() => {
+        if (data.firmas?.responsable) {
+          firmaResponsableRef.current?.fromDataURL(data.firmas.responsable);
+        }
+        if (data.firmas?.recepcionFinal) {
+          firmaRecepcionRef.current?.fromDataURL(data.firmas.recepcionFinal);
+        }
+      }, 150);
+    }
+  };
+
   const limpiarFirma = (ref, key) => {
     ref.current?.clear();
     updateAtPath(setData, ["firmas", key], "");
@@ -1150,7 +1170,7 @@ export default function HojaRecepcion() {
         <button
           type="button"
           onClick={() => navigate("/recepcion")}
-          className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10 disabled:opacity-50"
+          className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10"
         >
           Volver
         </button>
@@ -1159,25 +1179,40 @@ export default function HojaRecepcion() {
           <button
             type="button"
             onClick={handlePDF}
-            className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10 disabled:opacity-50"
+            className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10"
           >
             Descargar PDF
           </button>
 
-          {!isLocked && (
+          {isLocked ? (
+            <>
+              <span className="bg-green-100 text-green-700 text-sm px-3 py-2 rounded">
+                Completado
+              </span>
+              <button
+                type="button"
+                onClick={handleDesbloquear}
+                className="border border-yellow-400 text-yellow-300 px-4 py-2 rounded text-sm hover:bg-yellow-400/10"
+              >
+                ✏️ Editar
+              </button>
+            </>
+          ) : (
             <>
               <button
                 type="button"
                 onClick={() => limpiarFirma(firmaResponsableRef, "responsable")}
-                className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10 disabled:opacity-50"
+                className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10"
               >
                 Limpiar firma conductor
               </button>
 
               <button
                 type="button"
-                onClick={() => limpiarFirma(firmaRecepcionRef, "recepcionFinal")}
-                className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10 disabled:opacity-50"
+                onClick={() =>
+                  limpiarFirma(firmaRecepcionRef, "recepcionFinal")
+                }
+                className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10"
               >
                 Limpiar firma recepción
               </button>
@@ -1192,29 +1227,21 @@ export default function HojaRecepcion() {
               </button>
             </>
           )}
-
-          {isLocked && (
-            <span className="bg-green-100 text-green-700 text-sm px-3 py-2 rounded">
-              Completado
-            </span>
-          )}
         </div>
       </div>
 
       <div className="overflow-x-auto bg-white shadow border p-2">
         <ControlVehicularSheet
-  data={data}
-  setData={setData}
-  readOnly={isLocked}
-  registroId={registroId || "temp-recepcion"}
-  signatureRefs={{
-    responsable: firmaResponsableRef,
-    recepcionFinal: firmaRecepcionRef,
-  }}
-/>
-        
+          data={data}
+          setData={setData}
+          readOnly={isLocked}
+          registroId={registroId || "temp-recepcion"}
+          signatureRefs={{
+            responsable: firmaResponsableRef,
+            recepcionFinal: firmaRecepcionRef,
+          }}
+        />
       </div>
     </div>
   );
 }
-
