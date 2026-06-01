@@ -354,7 +354,7 @@ const handleEstadoEquipoImagesUpload = async (e) => {
 
   for (const file of files.slice(0, disponibles)) {
     const url = await uploadSingle(file, "estado-equipo");
-console.log("URL ESTADO EQUIPO SUBIDA:", url);
+
     if (url) {
       setData((prev) => {
         const actuales = prev.estadoEquipo?.imagenes || [];
