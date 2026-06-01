@@ -177,6 +177,14 @@ export default function RegistroHome() {
                     </button>
 
                     <button
+  onClick={() => navigate(`/operaciones/registro/pdf/${item.id}`)}
+  className="text-green-600 text-xs hover:underline"
+>
+  PDF
+</button>
+
+                    
+                    <button
                       onClick={() => handleEliminar(item.id)}
                       className="text-red-600 text-xs hover:underline"
                     >
