@@ -325,7 +325,7 @@ if (!superAdminActivo) {
 
                 {isSuperAdmin && (
                   <p className="text-[10px] text-gray-400">
-                    Usuario: {item.user_id || "—"}
+                    Usuario: {item.data?.tecnicoNombre || item.data?.tecnicoResponsable || "Sin técnico"}
                   </p>
                 )}
 
