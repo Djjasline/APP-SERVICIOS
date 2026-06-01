@@ -1164,7 +1164,7 @@ export default function HojaRecepcion() {
       <div className="no-print flex flex-wrap justify-between gap-2">
         <button
           type="button"
-          onClick={() => navigate("/recepcion")}
+         onClick={() => navigate("/operaciones/recepcion")}
           className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10"
         >
           Volver
