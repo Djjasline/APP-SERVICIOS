@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 
 import HojaRecepcion from "./HojaRecepcion";
-import HojaRecepcionPDF from "./HojaRecepcionPDF";
 import RecepcionHome from "./RecepcionHome";
+import RecepcionPDF from "./RecepcionPDF";
 
 export default function RecepcionRoutes() {
   return (
@@ -10,7 +10,7 @@ export default function RecepcionRoutes() {
       <Route index element={<RecepcionHome />} />
       <Route path="new" element={<HojaRecepcion />} />
       <Route path=":id" element={<HojaRecepcion />} />
-      <Route path=":id/pdf" element={<HojaRecepcionPDF />} />
+      <Route path=":id/pdf" element={<RecepcionPDF />} />
     </Routes>
   );
 }
