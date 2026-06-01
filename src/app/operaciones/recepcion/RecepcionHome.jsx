@@ -83,7 +83,7 @@ export default function RecepcionHome() {
         </h1>
 
         <button
-          onClick={() => navigate("/operaciones/recepcion/new")
+          onClick={() => navigate("/operaciones/recepcion/new")}
           className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
         >
           + Nuevo control
