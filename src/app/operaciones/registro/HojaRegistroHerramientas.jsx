@@ -272,7 +272,7 @@ export default function HojaRegistroHerramientas() {
             {formData.items.length === 0 && (
               <tr>
                 <td
-                  colSpan={isLocked ? 9 : 10}
+                  colSpan={isLocked ? 12 : 13}
                   className="text-center py-8 text-gray-400"
                 >
                   Sin herramientas. Haz clic en "+ Agregar herramienta".
