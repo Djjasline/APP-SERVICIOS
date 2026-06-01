@@ -222,9 +222,9 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               </button>
               <button onClick={() => go("/operaciones/registro")} className={subItemClass("/operaciones/registro")}>
                 Registro
-             <button
-  onClick={() => go("/operaciones/Bitácora Vehicular")}
-  className={subItemClass("/operaciones/Bitácora Vehicular")}
+            <button
+  onClick={() => go("/operaciones/recepcion")}
+  className={subItemClass("/operaciones/recepcion")}
 >
   Bitácora Vehicular
 </button>
