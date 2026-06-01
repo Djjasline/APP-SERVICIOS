@@ -203,7 +203,11 @@ export const generarPDFRecepcion = async (data) => {
 
   cell(doc, 0, 1, y, 11, "VEHICULO:", { align: "center", fontSize: 8 });
   cell(doc, 1, 1, y, 11, "MODELO:", { align: "center", fontSize: 8 });
-  cell(doc, 2, 1, y, 11, "SELECCIÓN", { align: "center", bold: true, fontSize: 5.5 });
+  cell(doc, 2, 1, y, 11, "SEL.", {
+  align: "center",
+  bold: true,
+  fontSize: 5.5,
+});
   cell(doc, 3, 2, y, 11, "COMBUSTIBLE:", { align: "center", fontSize: 8 });
   cell(doc, 5, 2, y, 11, "TOTAL\nCOMBUSTIBLE", { align: "center", fontSize: 5.5 });
   cell(doc, 7, 1, y, 11, "PLACA:", { align: "center", fontSize: 8 });
