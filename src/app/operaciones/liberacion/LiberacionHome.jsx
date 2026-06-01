@@ -18,9 +18,12 @@ export default function LiberacionHome() {
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase
-        .from("liberaciones")
-        .select("*")
-        .order("created_at", { ascending: false });
+  .from("registros")
+  .select("*")
+  .eq("area", "operaciones")
+  .eq("tipo", "liberacion")
+  .eq("subtipo", "general")
+  .order("created_at", { ascending: false });
 
       setRegistros(data || []);
     };
@@ -44,15 +47,15 @@ export default function LiberacionHome() {
     );
   });
 
-  const open = (r) => navigate(`/liberacion/${r.id}`);
+  const open = (r) => navigate(`/operaciones/liberacion/${r.id}`);
 
   const remove = async (id) => {
     if (!confirm("¿Eliminar liberación?")) return;
 
-    await supabase
-      .from("liberaciones")
-      .delete()
-      .eq("id", id);
+   await supabase
+  .from("registros")
+  .delete()
+  .eq("id", id);
 
     setRegistros((prev) => prev.filter((r) => r.id !== id));
   };
@@ -67,7 +70,7 @@ export default function LiberacionHome() {
         </h1>
 
         <button
-          onClick={() => navigate("/liberacion/nuevo")}
+          onClick={() => navigate("/operaciones/liberacion/nuevo")}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
         >
           + Nueva liberación
