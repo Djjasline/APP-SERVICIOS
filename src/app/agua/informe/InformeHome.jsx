@@ -249,11 +249,11 @@ export default function InformeHome() {
                   {new Date(r.updated_at || r.created_at).toLocaleString()}
                 </span>
 
-                {isSuperAdmin && (
-                  <span className="text-[11px] text-gray-500">
-                    Usuario: {r.user_id || "—"}
-                  </span>
-                )}
+               {isSuperAdmin && (
+  <span className="text-[11px] text-gray-500">
+    Usuario: {r.data?.tecnicoNombre || "Sin técnico"}
+  </span>
+)}
 
                 <span
                   className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
