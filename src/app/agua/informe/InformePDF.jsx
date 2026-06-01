@@ -80,8 +80,7 @@ className="border px-4 py-2 rounded mt-4"
   }
 
   const { data } = report;
-  console.log("PDF DATA", data);
-console.log("ESTADO EQUIPO", data.estadoEquipo);
+  
 const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
   ? data.estadoEquipo.imagenes.map((img) =>
       typeof img === "string"
