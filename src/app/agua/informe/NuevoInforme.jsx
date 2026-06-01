@@ -1216,7 +1216,7 @@ const save = async () => {
             </section>
           )}
 
-<SectionTitle>ESTADO DEL EQUIPO</SectionTitle>
+<h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
 
 <div className="border rounded-xl p-4 bg-white space-y-4">
   <div>
