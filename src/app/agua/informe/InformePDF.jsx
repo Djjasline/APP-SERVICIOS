@@ -19,7 +19,6 @@ export default function InformePDF() {
           .select("*")
           .eq("id", id)
           .eq("tipo", "informe")
-          .eq("subtipo", "general")
           .single();
 
         if (error || !data) {
