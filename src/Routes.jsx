@@ -69,6 +69,7 @@ import HojaRecepcionPDF from "./app/operaciones/recepcion/HojaRecepcionPDF";
 
 import RegistroHome from "./app/operaciones/registro/RegistroHome";
 import HojaRegistroHerramientas from "./app/operaciones/registro/HojaRegistroHerramientas";
+import RegistroPDF from "./app/operaciones/registro/RegistroPDF";
 
 const TechRoute = ({ children }) => (
   <RoleRoute allowedRoles={["super_admin", "admin", "tecnico"]}>
@@ -180,9 +181,10 @@ export default function RoutesApp() {
             <Route path="/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
             <Route path="/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
 
-            <Route path="/operaciones/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
-            <Route path="/operaciones/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
-            <Route path="/operaciones/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
+           <Route path="/operaciones/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
+<Route path="/operaciones/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
+<Route path="/operaciones/registro/pdf/:id" element={<TechRoute><RegistroPDF /></TechRoute>} />
+<Route path="/operaciones/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
 
             {/* ================= REPOSITORIOS ================= */}
             <Route path="/repositorios/documentos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
