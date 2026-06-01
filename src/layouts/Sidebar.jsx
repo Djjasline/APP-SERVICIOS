@@ -204,36 +204,49 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
           )}
         </div>
 
-        {/* OPERACIONES */}
-        <div>
-          <div
-            onClick={() => setOpenOperaciones(!openOperaciones)}
-            className={itemClass(isActive("/operaciones"))}
-          >
-            <Settings size={20} className={iconClass} />
-            {openSidebar && "Operaciones"}
-            {openSidebar && (openOperaciones ? <ChevronDown /> : <ChevronRight />)}
-          </div>
+     {/* OPERACIONES */}
+<div>
+  <div
+    onClick={() => setOpenOperaciones(!openOperaciones)}
+    className={itemClass(isActive("/operaciones"))}
+  >
+    <Settings size={20} className={iconClass} />
+    {openSidebar && "Operaciones"}
+    {openSidebar && (openOperaciones ? <ChevronDown /> : <ChevronRight />)}
+  </div>
 
-          {openSidebar && openOperaciones && (
-            <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-              <button onClick={() => go("/operaciones")} className={subItemClass("/operaciones")}>
-                Panel
-              </button>
-              <button onClick={() => go("/operaciones/registro")} className={subItemClass("/operaciones/registro")}>
-                Registro
-            <button
-  onClick={() => go("/operaciones/recepcion")}
-  className={subItemClass("/operaciones/recepcion")}
->
-  Bitácora Vehicular
-</button>
-              <button onClick={() => go("/operaciones/liberacion")} className={subItemClass("/operaciones/liberacion")}>
-                Liberación
-              </button>
-            </div>
-          )}
-        </div>
+  {openSidebar && openOperaciones && (
+    <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
+      <button
+        onClick={() => go("/operaciones")}
+        className={subItemClass("/operaciones")}
+      >
+        Panel
+      </button>
+
+      <button
+        onClick={() => go("/operaciones/registro")}
+        className={subItemClass("/operaciones/registro")}
+      >
+        Registro
+      </button>
+
+      <button
+        onClick={() => go("/operaciones/recepcion")}
+        className={subItemClass("/operaciones/recepcion")}
+      >
+        Bitácora Vehicular
+      </button>
+
+      <button
+        onClick={() => go("/operaciones/liberacion")}
+        className={subItemClass("/operaciones/liberacion")}
+      >
+        Liberación
+      </button>
+    </div>
+  )}
+</div>
 
         {/* REPOSITORIOS */}
         <div>
