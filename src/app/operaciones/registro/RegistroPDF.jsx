@@ -56,16 +56,18 @@ export default function RegistroPDF() {
   data.imagenSalidaUrl ||
   data.fotoSalida ||
   data.imagenSalida ||
-  data.salida?.imagen ||
-  data.salida?.foto ||
+  data.items?.find((i) => i.imagenSalidaUrl)?.imagenSalidaUrl ||
+  data.items?.find((i) => i.imagenSalida)?.imagenSalida ||
+  data.items?.find((i) => i.fotoSalida)?.fotoSalida ||
   "";
 
 const imagenIngreso =
   data.imagenIngresoUrl ||
   data.fotoIngreso ||
   data.imagenIngreso ||
-  data.ingreso?.imagen ||
-  data.ingreso?.foto ||
+  data.items?.find((i) => i.imagenIngresoUrl)?.imagenIngresoUrl ||
+  data.items?.find((i) => i.imagenIngreso)?.imagenIngreso ||
+  data.items?.find((i) => i.fotoIngreso)?.fotoIngreso ||
   "";
 
   return (
