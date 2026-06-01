@@ -7,7 +7,8 @@ import imageCompression from "browser-image-compression";
 import { supabase } from "@/lib/supabase";
 import { generarPDFRecepcion } from "./generarPDFRecepcion";
 import {
-  checklistVehiculo,navigate("/recepcion")
+  checklistVehiculo,
+  cloneRecepcionSchema,
   documentosVehiculo,
 } from "./recepcionSchema";
 
