@@ -3,32 +3,29 @@ import { Settings, Wrench, Inbox } from "lucide-react";
 
 export default function AreaOperaciones() {
 
-  const modulos = [
-    {
-  titulo: "Bitácora Vehicular",
-  descripcion: "Control de salida y entrega de vehículos.",
-  icono: <Settings size={20} />,
-  color: "bg-indigo-600",
-  ruta: "/recepcion",
-},
-    {
-  titulo: "Registro",
-  descripcion:
-    "Registro de herramientas, equipos y activos operativos.",
-  icono: <Wrench size={20} />,
-  color: "bg-blue-600",
-  ruta: "/registro",
-},
-    {
-  titulo: "Liberación",
-  descripcion:
-    "Liberación y cierre de equipos, vehículos y maquinaria.",
-  icono: <Inbox size={20} />,
-  color: "bg-green-600",
-  ruta: "/liberacion",
-},
-  ];
-
+ const modulos = [
+  {
+    titulo: "Bitácora Vehicular",
+    descripcion: "Control de salida y entrega de vehículos.",
+    icono: <Settings size={20} />,
+    color: "bg-indigo-600",
+    ruta: "/operaciones/recepcion",
+  },
+  {
+    titulo: "Registro",
+    descripcion: "Registro de herramientas, equipos y activos operativos.",
+    icono: <Wrench size={20} />,
+    color: "bg-blue-600",
+    ruta: "/operaciones/registro",
+  },
+  {
+    titulo: "Liberación",
+    descripcion: "Liberación y cierre de equipos, vehículos y maquinaria.",
+    icono: <Inbox size={20} />,
+    color: "bg-green-600",
+    ruta: "/operaciones/liberacion",
+  },
+];
   return (
     <div className="p-6 space-y-6">
 
