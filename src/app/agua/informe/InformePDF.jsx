@@ -80,8 +80,10 @@ export default function InformePDF() {
   }
 
   const { data } = report;
-  const estadoEquipoImagenes = data?.estadoEquipo?.imagenes || [];
-
+ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
+  ? data.estadoEquipo.imagenes
+  : [];
+  
   return (
     <div className="p-4 md:p-6 bg-gray-100 min-h-screen">
      <div className="pdf-container print-area max-w-6xl mx-auto bg-white p-4 md:p-6">
@@ -103,7 +105,7 @@ export default function InformePDF() {
                 </td>
 
                 <td colSpan={2} className="pdf-title">
-                  INFORME GENERAL DE SERVICIOS
+                  INFORME GENERAL DE CAMPO
                 </td>
 
                 <td style={{ width: 180, fontSize: 12 }}>
