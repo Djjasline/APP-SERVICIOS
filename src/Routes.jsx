@@ -72,7 +72,14 @@ import HojaRegistroHerramientas from "./app/operaciones/registro/HojaRegistroHer
 import RegistroPDF from "./app/operaciones/registro/RegistroPDF";
 
 const TechRoute = ({ children }) => (
-  <RoleRoute allowedRoles={["super_admin", "admin", "tecnico"]}>
+  <RoleRoute
+    allowedRoles={[
+      "super_admin",
+      "admin",
+      "tecnico",
+      "supervisor_operaciones",
+    ]}
+  >
     {children}
   </RoleRoute>
 );
