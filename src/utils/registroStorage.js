@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { saveOrUpdateReport } from "../services/reportService";
 
 const SUPER_ADMIN_EMAIL = "smaviles@astap.com";
+const SUPERVISOR_OPERACIONES_EMAIL = "kamhez@astap.com";
 
 /* ================= CREAR REGISTRO ================= */
 /**
@@ -41,9 +42,14 @@ export async function deleteRegistro(id) {
     .eq("tipo", "registro")
     .eq("subtipo", "herramienta");
 
-  if (user.email !== SUPER_ADMIN_EMAIL) {
-    query = query.eq("user_id", user.id);
-  }
+ const userEmail = user.email?.toLowerCase();
+
+if (
+  userEmail !== SUPER_ADMIN_EMAIL &&
+  userEmail !== SUPERVISOR_OPERACIONES_EMAIL
+) {
+  query = query.eq("user_id", user.id);
+}
 
   const { error } = await query;
 
@@ -71,9 +77,14 @@ export async function getAllRegistros() {
     .eq("subtipo", "herramienta")
     .order("created_at", { ascending: false });
 
-  if (user.email !== SUPER_ADMIN_EMAIL) {
-    query = query.eq("user_id", user.id);
-  }
+  const userEmail = user.email?.toLowerCase();
+
+if (
+  userEmail !== SUPER_ADMIN_EMAIL &&
+  userEmail !== SUPERVISOR_OPERACIONES_EMAIL
+) {
+  query = query.eq("user_id", user.id);
+}
 
   const { data, error } = await query;
 
