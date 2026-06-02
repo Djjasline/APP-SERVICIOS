@@ -210,11 +210,11 @@ export default function RecepcionHome() {
                       </button>
 
                       <button
-                        onClick={() => generarPDFRecepcion(d)}
-                        className="text-green-600 hover:underline"
-                      >
-                        PDF
-                      </button>
+  onClick={() => navigate(`/operaciones/recepcion/${r.id}/pdf`)}
+  className="text-green-600 hover:underline"
+>
+  PDF
+</button>
 
                       <button
                         onClick={() => remove(r.id)}
