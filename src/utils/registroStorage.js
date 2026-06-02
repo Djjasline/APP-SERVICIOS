@@ -4,10 +4,15 @@ import { saveOrUpdateReport } from "../services/reportService";
 const SUPER_ADMIN_EMAIL = "smaviles@astap.com";
 const SUPERVISOR_OPERACIONES_EMAIL = "kamhez@astap.com";
 
+const canViewAll = (email = "") => {
+  const userEmail = email.toLowerCase();
+  return (
+    userEmail === SUPER_ADMIN_EMAIL ||
+    userEmail === SUPERVISOR_OPERACIONES_EMAIL
+  );
+};
+
 /* ================= CREAR REGISTRO ================= */
-/**
- * Crear o actualizar registro SIN duplicados
- */
 export async function createRegistro({ id = null, data }) {
   try {
     const result = await saveOrUpdateReport({
@@ -42,14 +47,10 @@ export async function deleteRegistro(id) {
     .eq("tipo", "registro")
     .eq("subtipo", "herramienta");
 
- const userEmail = user.email?.toLowerCase();
-
-if (
-  userEmail !== SUPER_ADMIN_EMAIL &&
-  userEmail !== SUPERVISOR_OPERACIONES_EMAIL
-) {
-  query = query.eq("user_id", user.id);
-}
+  // Karim NO elimina registros de otros. Solo Santiago puede.
+  if (user.email?.toLowerCase() !== SUPER_ADMIN_EMAIL) {
+    query = query.eq("user_id", user.id);
+  }
 
   const { error } = await query;
 
@@ -77,14 +78,9 @@ export async function getAllRegistros() {
     .eq("subtipo", "herramienta")
     .order("created_at", { ascending: false });
 
-  const userEmail = user.email?.toLowerCase();
-
-if (
-  userEmail !== SUPER_ADMIN_EMAIL &&
-  userEmail !== SUPERVISOR_OPERACIONES_EMAIL
-) {
-  query = query.eq("user_id", user.id);
-}
+  if (!canViewAll(user.email)) {
+    query = query.eq("user_id", user.id);
+  }
 
   const { data, error } = await query;
 
@@ -104,8 +100,6 @@ export async function getRegistroById(id) {
 
   if (!user) return null;
 
-  const userEmail = user.email?.toLowerCase();
-
   let query = supabase
     .from("registros")
     .select("*")
@@ -115,38 +109,7 @@ export async function getRegistroById(id) {
     .eq("subtipo", "herramienta")
     .single();
 
-  if (
-    userEmail !== SUPER_ADMIN_EMAIL &&
-    userEmail !== SUPERVISOR_OPERACIONES_EMAIL
-  ) {
-    query = query.eq("user_id", user.id);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error("Error obteniendo registro:", error);
-    return null;
-  }
-
-  return data;
-}
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
-  let query = supabase
-    .from("registros")
-    .select("*")
-    .eq("id", id)
-    .eq("area", "operaciones")
-    .eq("tipo", "registro")
-    .eq("subtipo", "herramienta")
-    .single();
-
-  if (user.email !== SUPER_ADMIN_EMAIL) {
+  if (!canViewAll(user.email)) {
     query = query.eq("user_id", user.id);
   }
 
@@ -161,9 +124,6 @@ export async function getRegistroById(id) {
 }
 
 /* ================= ACTUALIZAR ================= */
-/**
- * Actualiza registro usando el service (UNIFICADO)
- */
 export async function updateRegistro(id, payload, estado = "borrador") {
   try {
     const result = await saveOrUpdateReport({
