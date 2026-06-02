@@ -31,6 +31,7 @@ import InformePDF from "./app/vehiculos/informe/InformePDF";
 import AguaInformeHome from "./app/agua/informe/InformeHome";
 import AguaNuevoInforme from "./app/agua/informe/NuevoInforme";
 import AguaInformePDF from "./app/agua/informe/InformePDF";
+import InformeAguaRoutes from "@/modules/agua/informes/InformeAguaRoutes";
 
 // ================= INFORMES PETRÓLEO =================
 import PetroleoInformeHome from "./app/petroleo/informe/InformeHome";
@@ -132,6 +133,7 @@ export default function RoutesApp() {
             <Route path="/agua/informe" element={<TechRoute><AguaInformeHome /></TechRoute>} />
             <Route path="/agua/informe/nuevo" element={<TechRoute><AguaNuevoInforme /></TechRoute>} />
             <Route path="/agua/informe/:id" element={<TechRoute><AguaNuevoInforme /></TechRoute>} />
+            <Route path="/agua/informes/*" element={<InformeAguaRoutes />} />
 
             {/* ================= PETRÓLEO / INFORMES ================= */}
             <Route path="/petroleo/informe" element={<TechRoute><PetroleoInformeHome /></TechRoute>} />
