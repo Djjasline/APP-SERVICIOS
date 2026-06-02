@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 const AuthContext = createContext();
 
 const SUPER_ADMIN_EMAIL = "smaviles@astap.com";
+const SUPERVISOR_OPERACIONES_EMAIL = "kamhez@astap.com";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -48,24 +49,28 @@ export function AuthProvider({ children }) {
   const email = user?.email?.toLowerCase() || "";
 
   const role =
-    email === SUPER_ADMIN_EMAIL
-      ? "super_admin"
-      : user?.user_metadata?.role || "tecnico";
+  email === SUPER_ADMIN_EMAIL
+    ? "super_admin"
+    : email === SUPERVISOR_OPERACIONES_EMAIL
+    ? "supervisor_operaciones"
+    : user?.user_metadata?.role || "tecnico";
 
   const isSuperAdmin = role === "super_admin";
-
+const isSupervisorOperaciones =
+  role === "supervisor_operaciones";
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        email,
-        role,
-        isSuperAdmin,
-        login,
-        logout,
-        loading,
-      }}
-    >
+  value={{
+    user,
+    email,
+    role,
+    isSuperAdmin,
+    isSupervisorOperaciones,
+    login,
+    logout,
+    loading,
+  }}
+>
       {children}
     </AuthContext.Provider>
   );
