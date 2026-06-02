@@ -1,0 +1,245 @@
+// ──────────────────────────────────────────────────────
+//  InformeAguaHome.jsx
+//  Listado / historial de Informes de Avance EPMAPS
+// ──────────────────────────────────────────────────────
+import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { generarPDFInformeAgua } from "./generarPDFInformeAgua";
+
+export default function InformeAguaHome() {
+  const navigate = useNavigate();
+  const [registros, setRegistros] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("todos");
+  const [busqueda, setBusqueda] = useState("");
+
+  const loadRegistros = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("registros")
+      .select("*")
+      .eq("tipo", "informe")
+      .eq("subtipo", "avance_epmaps")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error cargando informes:", error);
+      setRegistros([]);
+    } else {
+      setRegistros(data || []);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadRegistros();
+  }, []);
+
+  const filtered = registros.filter((r) => {
+    const d = r.data || {};
+    const texto = `${d.periodo || ""} ${d.contrato || ""} ${d.pedido || ""}`.toLowerCase();
+    const matchBusqueda = texto.includes(busqueda.toLowerCase());
+    const matchFilter =
+      filter === "todos" ||
+      (filter === "borrador" && r.estado !== "completado") ||
+      (filter === "completado" && r.estado === "completado");
+    return matchBusqueda && matchFilter;
+  });
+
+  const remove = async (id) => {
+    if (!confirm("¿Eliminar este informe?")) return;
+    const { error } = await supabase
+      .from("registros")
+      .delete()
+      .eq("id", id)
+      .eq("tipo", "informe")
+      .eq("subtipo", "avance_epmaps");
+
+    if (error) {
+      console.error("Error eliminando informe:", error);
+      alert("No se pudo eliminar el informe.");
+      return;
+    }
+    setRegistros((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  return (
+    <div className="bg-white rounded-2xl p-6 shadow space-y-6">
+      {/* Header */}
+      <div className="flex flex-wrap justify-between items-center gap-3">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900">
+            Informes de Avance – Cloro Gas EPMAPS
+          </h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Reportes semanales de mantenimiento preventivo/correctivo
+          </p>
+        </div>
+        <button
+          onClick={() => navigate("/agua/informes/new")}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+        >
+          + Nuevo informe
+        </button>
+      </div>
+
+      {/* Filtros */}
+      <div className="flex flex-wrap gap-3 items-center">
+        <div className="flex gap-1">
+          {["todos", "borrador", "completado"].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium capitalize border transition-colors ${
+                filter === f
+                  ? "bg-gray-900 text-white border-gray-900"
+                  : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+              }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+
+        <input
+          type="text"
+          placeholder="Buscar por período, contrato..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[200px] max-w-xs"
+        />
+      </div>
+
+      {/* Tabla */}
+      <div className="overflow-x-auto border border-gray-100 rounded-xl">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 text-gray-600">
+            <tr>
+              <th className="text-left px-4 py-3 font-semibold">Período</th>
+              <th className="text-left px-4 py-3 font-semibold">Contrato</th>
+              <th className="text-left px-4 py-3 font-semibold">Pedido N°</th>
+              <th className="text-left px-4 py-3 font-semibold">Actividades</th>
+              <th className="text-left px-4 py-3 font-semibold">Estado</th>
+              <th className="text-left px-4 py-3 font-semibold">Fecha</th>
+              <th className="text-right px-4 py-3 font-semibold">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {loading && (
+              <tr>
+                <td colSpan={7} className="text-center py-8 text-gray-400">
+                  Cargando informes...
+                </td>
+              </tr>
+            )}
+
+            {!loading && filtered.length === 0 && (
+              <tr>
+                <td colSpan={7} className="text-center py-8 text-gray-400">
+                  No hay informes registrados
+                </td>
+              </tr>
+            )}
+
+            {!loading &&
+              filtered.map((r) => {
+                const d = r.data || {};
+                const fecha = r.updated_at || r.created_at;
+                const numActividades = Array.isArray(d.actividades)
+                  ? d.actividades.length
+                  : 0;
+
+                return (
+                  <tr
+                    key={r.id}
+                    className="border-t border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-3 font-medium text-gray-900 max-w-[220px]">
+                      <span className="line-clamp-2">{d.periodo || "—"}</span>
+                    </td>
+
+                    <td className="px-4 py-3 text-gray-600">
+                      {d.contrato || "—"}
+                    </td>
+
+                    <td className="px-4 py-3 text-gray-600">
+                      {d.pedido || "—"}
+                    </td>
+
+                    <td className="px-4 py-3 text-gray-500">
+                      <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                        {numActividades} OT{numActividades !== 1 ? "s" : ""}
+                      </span>
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full font-medium ${
+                          r.estado === "completado"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-50 text-yellow-700"
+                        }`}
+                      >
+                        {r.estado === "completado" ? "Completado" : "Borrador"}
+                      </span>
+                    </td>
+
+                    <td className="px-4 py-3 text-gray-400 text-xs">
+                      {fecha ? new Date(fecha).toLocaleDateString("es-EC") : "—"}
+                    </td>
+
+                    <td className="px-4 py-3 text-right space-x-3 whitespace-nowrap">
+                      <button
+                        onClick={() => navigate(`/agua/informes/${r.id}`)}
+                        className="text-blue-600 hover:underline text-xs font-medium"
+                      >
+                        Abrir
+                      </button>
+
+                      <button
+                        onClick={() => generarPDFInformeAgua(d)}
+                        className="text-green-600 hover:underline text-xs font-medium"
+                      >
+                        PDF
+                      </button>
+
+                      <button
+                        onClick={() => remove(r.id)}
+                        className="text-red-500 hover:underline text-xs font-medium"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Footer stats */}
+      {!loading && registros.length > 0 && (
+        <div className="flex gap-6 text-xs text-gray-500 pt-2 border-t border-gray-100">
+          <span>
+            Total:{" "}
+            <strong className="text-gray-700">{registros.length}</strong>
+          </span>
+          <span>
+            Completados:{" "}
+            <strong className="text-green-700">
+              {registros.filter((r) => r.estado === "completado").length}
+            </strong>
+          </span>
+          <span>
+            Borradores:{" "}
+            <strong className="text-yellow-700">
+              {registros.filter((r) => r.estado !== "completado").length}
+            </strong>
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
