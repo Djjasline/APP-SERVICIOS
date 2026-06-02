@@ -104,6 +104,39 @@ export async function getRegistroById(id) {
 
   if (!user) return null;
 
+  const userEmail = user.email?.toLowerCase();
+
+  let query = supabase
+    .from("registros")
+    .select("*")
+    .eq("id", id)
+    .eq("area", "operaciones")
+    .eq("tipo", "registro")
+    .eq("subtipo", "herramienta")
+    .single();
+
+  if (
+    userEmail !== SUPER_ADMIN_EMAIL &&
+    userEmail !== SUPERVISOR_OPERACIONES_EMAIL
+  ) {
+    query = query.eq("user_id", user.id);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error obteniendo registro:", error);
+    return null;
+  }
+
+  return data;
+}
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
   let query = supabase
     .from("registros")
     .select("*")
