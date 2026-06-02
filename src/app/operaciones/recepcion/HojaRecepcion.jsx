@@ -6,6 +6,7 @@ import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";
 import { supabase } from "@/lib/supabase";
 import { generarPDFRecepcion } from "./generarPDFRecepcion";
+import { useAuth } from "@/context/AuthContext";
 import {
   checklistVehiculo,
   cloneRecepcionSchema,
@@ -655,6 +656,8 @@ export function ControlVehicularSheet({
   data,
   setData,
   readOnly = false,
+  canEditConductor = false,
+  puedeFirmarRecepcion = false,
   signatureRefs = {},
   registroId = "temp-recepcion",
 }) {
@@ -981,11 +984,11 @@ export function ControlVehicularSheet({
                 RECEPCION FINAL SERVICIO:
               </td>
               <td colSpan={5}>
-                <SignatureBox
-                  dataUrl={data.firmas.recepcionFinal}
-                  canvasRef={signatureRefs.recepcionFinal}
-                  readOnly={readOnly}
-                />
+               <SignatureBox
+  dataUrl={data.firmas.recepcionFinal}
+  canvasRef={signatureRefs.recepcionFinal}
+  readOnly={readOnly || !puedeFirmarRecepcion}
+/>
               </td>
             </tr>
 
@@ -1044,6 +1047,11 @@ export function ControlVehicularSheet({
 export default function HojaRecepcion() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const { isSuperAdmin, isSupervisorOperaciones } = useAuth();
+
+  const puedeFirmarRecepcion =
+    isSuperAdmin || isSupervisorOperaciones;
   const firmaResponsableRef = useRef(null);
   const firmaRecepcionRef = useRef(null);
 
@@ -1207,15 +1215,17 @@ export default function HojaRecepcion() {
                 Limpiar firma conductor
               </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  limpiarFirma(firmaRecepcionRef, "recepcionFinal")
-                }
-                className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10"
-              >
-                Limpiar firma recepción
-              </button>
+             {puedeFirmarRecepcion && (
+  <button
+    type="button"
+    onClick={() =>
+      limpiarFirma(firmaRecepcionRef, "recepcionFinal")
+    }
+    className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10"
+  >
+    Limpiar firma recepción
+  </button>
+)}
 
               <button
                 type="button"
@@ -1232,9 +1242,11 @@ export default function HojaRecepcion() {
 
       <div className="overflow-x-auto bg-white shadow border p-2">
         <ControlVehicularSheet
-          data={data}
-          setData={setData}
-          readOnly={isLocked}
+  data={data}
+  setData={setData}
+  readOnly={isLocked}
+  canEditConductor={isSuperAdmin}        
+  puedeFirmarRecepcion={puedeFirmarRecepcion}
           registroId={registroId || "temp-recepcion"}
           signatureRefs={{
             responsable: firmaResponsableRef,
