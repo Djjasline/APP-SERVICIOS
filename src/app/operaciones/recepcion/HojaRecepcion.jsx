@@ -698,7 +698,11 @@ export function ControlVehicularSheet({
             <tr style={{ height: 28 }}>
               <td className="cell-label">CONDUCTOR:</td>
               <td colSpan={7}>
-                <TextCell value={data.conductor} readOnly={readOnly} onChange={(v) => setField("conductor", v)} />
+                <TextCell
+  value={data.conductor}
+  readOnly={readOnly || !canEditConductor}
+  onChange={(v) => setField("conductor", v)}
+/>
               </td>
               <td colSpan={3} className="cell-label">FECHA:</td>
               <td colSpan={2}>
