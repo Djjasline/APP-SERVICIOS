@@ -15,11 +15,12 @@ export default function InformePDF() {
     const loadReport = async () => {
       try {
         const { data, error } = await supabase
-          .from("registros")
-          .select("*")
-          .eq("id", id)
-          .eq("tipo", "informe")
-          .single();
+  .from("registros")
+  .select("*")
+  .eq("id", id)
+  .eq("area", "petroleo")
+  .eq("tipo", "informe")
+  .single();
 
         if (error || !data) {
           console.error("Error cargando informe:", error);
@@ -51,7 +52,7 @@ export default function InformePDF() {
       <div className="p-6 text-center">
         <p>No se encontró el informe.</p>
         <button
-         onClick={() => navigate("/agua/informe")}
+         onClick={() => navigate("/petroleo/informe")}
          className="border px-4 py-2 rounded mt-4"
         >
           Volver
@@ -70,7 +71,7 @@ export default function InformePDF() {
       <div className="p-6 text-center">
         <p>Este informe no está completado.</p>
         <button
-          onClick={() => navigate("/agua/informe")}
+          onClick={() => navigate("/petroleo/informe")}
           className="border px-4 py-2 rounded mt-4"
         >
           Volver
@@ -545,15 +546,14 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
         {/* ================= BOTONES ================= */}
         <div className="no-print flex justify-between mt-6">
           <button
-            onClick={() => navigate("/agua/informe")}
-            className="border px-6 py-2 rounded"
-          >
-            Volver
-          </button>
-
+  onClick={() => navigate("/petroleo/informe")}
+  className="border px-6 py-2 rounded"
+>
+  Volver
+</button>
          <button
   onClick={() => {
-  const nombre = `ASTAP_${(data.codInf || "").replace(/\s/g, "")}_${(data.cliente || "").replace(/\s/g, "_")}`;
+  const nombre = `ASTAP_INSPECCION_${(data.codInf || "").replace(/\s/g, "")}_${(data.cliente || "").replace(/\s/g, "_")}`;
   document.title = nombre;
   window.print();
 }}
