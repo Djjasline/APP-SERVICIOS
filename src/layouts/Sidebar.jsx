@@ -190,18 +190,19 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
           </div>
 
           {openSidebar && openPetroleo && (
-            <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-              <button onClick={() => go("/area/petroleo")} className={subItemClass("/area/petroleo")}>
-                Panel
-              </button>
-              <button onClick={() => go("/petroleo/informe")} className={subItemClass("/petroleo/informe")}>
-                Informes
-              </button>
-              <button onClick={() => go("/petroleo/inspeccion")} className={subItemClass("/petroleo/inspeccion")}>
-                Inspección
-              </button>
-            </div>
-          )}
+  <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
+    <button onClick={() => go("/area/petroleo")} className={subItemClass("/area/petroleo")}>
+      Panel
+    </button>
+
+    <button
+      onClick={() => go("/petroleo/informe")}
+      className={subItemClass("/petroleo/informe")}
+    >
+      INFORMES DE INSPECCIÓN
+    </button>
+  </div>
+)}
         </div>
 
      {/* OPERACIONES */}
