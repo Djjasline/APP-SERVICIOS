@@ -142,7 +142,7 @@ export default function RoutesApp() {
             {/* ================= INSPECCIÓN ================= */}
             <Route path="/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
             <Route path="/vehiculos/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
-            <Route path="/petroleo/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
+            <Route path="/petroleo/inspeccion" element={<Navigate to="/petroleo/informe" replace />} />
 
             <Route path="/inspeccion/hidro/new" element={<TechRoute><HojaInspeccionHidro /></TechRoute>} />
             <Route path="/inspeccion/hidro/:id" element={<TechRoute><HojaInspeccionHidro /></TechRoute>} />
@@ -156,7 +156,7 @@ export default function RoutesApp() {
             {/* ================= MANTENIMIENTO ================= */}
             <Route path="/mantenimiento" element={<TechRoute><IndexMantenimiento /></TechRoute>} />
             <Route path="/vehiculos/mantenimiento" element={<TechRoute><IndexMantenimiento /></TechRoute>} />
-            <Route path="/petroleo/mantenimiento" element={<TechRoute><IndexMantenimiento /></TechRoute>} />
+           <Route path="/petroleo/mantenimiento" element={<Navigate to="/petroleo/informe" replace />} />
 
             <Route path="/mantenimiento/hidro/new" element={<TechRoute><HojaMantenimientoHidro /></TechRoute>} />
             <Route path="/mantenimiento/hidro/:id" element={<TechRoute><HojaMantenimientoHidro /></TechRoute>} />
