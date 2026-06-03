@@ -18,29 +18,12 @@ export default function AreaPetroleo() {
       <div className="grid md:grid-cols-2 gap-6">
 
         <CardModulo
-          titulo="Informes"
-          descripcion="Registro técnico de trabajos realizados en equipos del sector energético."
-          ruta="/informe"
-          color="bg-blue-600"
-          icono={<FileText size={20} />}
-        />
-
-        <CardModulo
-          titulo="Inspección"
-          descripcion="Evaluación del estado operativo de equipos en ambientes industriales."
-          ruta="/inspeccion"
-          color="bg-yellow-600"
-          icono={<ClipboardCheck size={20} />}
-        />
-
-        <CardModulo
-          titulo="Mantenimiento"
-          descripcion="Gestión de mantenimiento preventivo y correctivo."
-          ruta="/mantenimiento"
-          color="bg-green-600"
-          icono={<Wrench size={20} />}
-        />
-
+  titulo="INFORMES DE INSPECCIÓN"
+  descripcion="Registro técnico de inspección y valoración de equipos del sector energético."
+  ruta="/petroleo/informe"
+  color="bg-blue-600"
+  icono={<FileText size={20} />}
+/>
       </div>
     </div>
   );
