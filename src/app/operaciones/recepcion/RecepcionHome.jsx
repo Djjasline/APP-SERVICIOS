@@ -78,17 +78,28 @@ export default function RecepcionHome() {
   return (
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
       <div className="flex flex-wrap justify-between items-center gap-3">
-        <h1 className="text-lg font-semibold text-gray-900">
-          Control vehicular
-        </h1>
+  <h1 className="text-lg font-semibold text-gray-900">
+    Control vehicular
+  </h1>
 
-        <button
-          onClick={() => navigate("/operaciones/recepcion/new")}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
-        >
-          + Nuevo control
-        </button>
-      </div>
+  <div className="flex gap-2">
+    <button
+      type="button"
+      onClick={() => navigate("/operaciones")}
+      className="border border-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-100 transition"
+    >
+      Volver
+    </button>
+
+    <button
+      type="button"
+      onClick={() => navigate("/operaciones/recepcion/new")}
+      className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
+    >
+      + Nuevo control
+    </button>
+  </div>
+</div>
 
       <div className="flex flex-wrap gap-2">
         {["todos", "borrador", "completado"].map((f) => (
