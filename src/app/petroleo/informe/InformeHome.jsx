@@ -138,7 +138,7 @@ export default function InformeHome() {
         onClick={() =>navigate("/petroleo/informe/nuevo")}
         className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg transition"
       >
-        Nuevo informe
+        Nuevo informe de inspección
       </button>
 
       <div className="flex gap-2">
