@@ -1,5 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 // 🔐 AUTH
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -90,6 +89,21 @@ const AdminRoute = ({ children }) => (
   </RoleRoute>
 );
 
+function LiberacionRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/operaciones/liberacion/${id}`} replace />;
+}
+
+function RecepcionRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/operaciones/recepcion/${id}`} replace />;
+}
+
+function RegistroRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/operaciones/registro/${id}`} replace />;
+}
+
 export default function RoutesApp() {
   return (
     <AuthProvider>
@@ -168,28 +182,31 @@ export default function RoutesApp() {
             <Route path="/mantenimiento/vcam/new" element={<TechRoute><HojaMantenimientoVCam /></TechRoute>} />
             <Route path="/mantenimiento/vcam/:id"  element={<TechRoute><HojaMantenimientoVCam /></TechRoute>} />
 
-            {/* ================= OPERACIONES ================= */}
-            <Route path="/liberacion" element={<TechRoute><LiberacionHome /></TechRoute>} />
-            <Route path="/liberacion/nuevo" element={<TechRoute><LiberacionForm /></TechRoute>} />
-            <Route path="/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
+           {/* ================= OPERACIONES ================= */}
 
-            <Route path="/operaciones/liberacion" element={<TechRoute><LiberacionHome /></TechRoute>} />
-            <Route path="/operaciones/liberacion/nuevo" element={<TechRoute><LiberacionForm /></TechRoute>} />
-            <Route path="/operaciones/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
+{/* Rutas antiguas de compatibilidad */}
+<Route path="/liberacion" element={<Navigate to="/operaciones/liberacion" replace />} />
+<Route path="/liberacion/nuevo" element={<Navigate to="/operaciones/liberacion/nuevo" replace />} />
+<Route path="/liberacion/:id" element={<LiberacionRedirect />} />
 
-            <Route path="/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
-            <Route path="/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
-            <Route path="/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
+<Route path="/recepcion" element={<Navigate to="/operaciones/recepcion" replace />} />
+<Route path="/recepcion/new" element={<Navigate to="/operaciones/recepcion/new" replace />} />
+<Route path="/recepcion/:id" element={<RecepcionRedirect />} />
 
-            <Route path="/operaciones/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
-            <Route path="/operaciones/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
-            <Route path="/operaciones/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
-            
-            <Route path="/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
-            <Route path="/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
-            <Route path="/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
+<Route path="/registro" element={<Navigate to="/operaciones/registro" replace />} />
+<Route path="/registro/new" element={<Navigate to="/operaciones/registro/new" replace />} />
+<Route path="/registro/:id" element={<RegistroRedirect />} />
 
-           <Route path="/operaciones/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
+{/* Rutas oficiales Operaciones */}
+<Route path="/operaciones/liberacion" element={<TechRoute><LiberacionHome /></TechRoute>} />
+<Route path="/operaciones/liberacion/nuevo" element={<TechRoute><LiberacionForm /></TechRoute>} />
+<Route path="/operaciones/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
+
+<Route path="/operaciones/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
+<Route path="/operaciones/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
+<Route path="/operaciones/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
+
+<Route path="/operaciones/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
 <Route path="/operaciones/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
 <Route path="/operaciones/registro/pdf/:id" element={<TechRoute><RegistroPDF /></TechRoute>} />
 <Route path="/operaciones/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
