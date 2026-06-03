@@ -17,11 +17,11 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [openVehiculos, setOpenVehiculos] = useState(true);
-  const [openOperaciones, setOpenOperaciones] = useState(true);
-  const [openAgua, setOpenAgua] = useState(false);
-  const [openPetroleo, setOpenPetroleo] = useState(false);
-  const [openRepositorios, setOpenRepositorios] = useState(false);
+ const [openVehiculos, setOpenVehiculos] = useState(false);
+const [openOperaciones, setOpenOperaciones] = useState(false);
+const [openAgua, setOpenAgua] = useState(false);
+const [openPetroleo, setOpenPetroleo] = useState(false);
+const [openRepositorios, setOpenRepositorios] = useState(false);
 
   const isActive = (path) => {
     if (path === "/") return location.pathname === "/";
@@ -29,32 +29,39 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   };
 
   useEffect(() => {
-    if (
-      location.pathname.includes("/vehiculos") ||
-      location.pathname.includes("/informe") ||
-      location.pathname.includes("/inspeccion") ||
-      location.pathname.includes("/mantenimiento")
-    ) {
-      setOpenVehiculos(true);
-    }
+  const path = location.pathname;
 
-    if (location.pathname.includes("/agua")) setOpenAgua(true);
-    if (location.pathname.includes("/petroleo")) setOpenPetroleo(true);
+  const isVehiculosPath =
+    path.startsWith("/area/vehiculos") ||
+    path.startsWith("/vehiculos") ||
+    path.startsWith("/informe") ||
+    path.startsWith("/inspeccion") ||
+    path.startsWith("/mantenimiento");
 
-    if (
-      location.pathname.includes("/operaciones") ||
-      location.pathname.includes("/registro") ||
-      location.pathname.includes("/recepcion") ||
-      location.pathname.includes("/liberacion")
-    ) {
-      setOpenOperaciones(true);
-    }
+  const isAguaPath =
+    path.startsWith("/area/agua") ||
+    path.startsWith("/agua");
 
-    if (location.pathname.includes("/repositorios")) {
-      setOpenRepositorios(true);
-    }
-  }, [location.pathname]);
+  const isPetroleoPath =
+    path.startsWith("/area/petroleo") ||
+    path.startsWith("/petroleo");
 
+  const isOperacionesPath =
+    path.startsWith("/operaciones") ||
+    path.startsWith("/registro") ||
+    path.startsWith("/recepcion") ||
+    path.startsWith("/liberacion");
+
+  const isRepositoriosPath =
+    path.startsWith("/repositorios");
+
+  setOpenVehiculos(isVehiculosPath);
+  setOpenAgua(isAguaPath);
+  setOpenPetroleo(isPetroleoPath);
+  setOpenOperaciones(isOperacionesPath);
+  setOpenRepositorios(isRepositoriosPath);
+}, [location.pathname]);
+  
   const itemBase = `
     group relative flex items-center w-full py-2 rounded-xl
     transition-all duration-300 ease-smooth
@@ -126,7 +133,13 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
         {/* VEHÍCULOS */}
         <div>
           <div
-            onClick={() => setOpenVehiculos(!openVehiculos)}
+            onClick={() => {
+  setOpenVehiculos(!openVehiculos);
+  setOpenAgua(false);
+  setOpenPetroleo(false);
+  setOpenOperaciones(false);
+  setOpenRepositorios(false);
+}}
             className={itemClass(isActive("/vehiculos"))}
           >
             <Truck size={20} className={iconClass} />
@@ -155,7 +168,13 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
         {/* AGUA */}
         <div>
           <div
-            onClick={() => setOpenAgua(!openAgua)}
+            onClick={() => {
+  setOpenAgua(!openAgua);
+  setOpenVehiculos(false);
+  setOpenPetroleo(false);
+  setOpenOperaciones(false);
+  setOpenRepositorios(false);
+}}
             className={itemClass(location.pathname.includes("/agua"))}
           >
             <Droplet size={20} className={iconClass} />
@@ -181,7 +200,13 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
         {/* PETRÓLEO */}
         <div>
           <div
-            onClick={() => setOpenPetroleo(!openPetroleo)}
+            onClick={() => {
+  setOpenPetroleo(!openPetroleo);
+  setOpenVehiculos(false);
+  setOpenAgua(false);
+  setOpenOperaciones(false);
+  setOpenRepositorios(false);
+}}
             className={itemClass(location.pathname.includes("/petroleo"))}
           >
             <Fuel size={20} className={iconClass} />
@@ -208,7 +233,13 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
      {/* OPERACIONES */}
 <div>
   <div
-    onClick={() => setOpenOperaciones(!openOperaciones)}
+    onClick={() => {
+  setOpenOperaciones(!openOperaciones);
+  setOpenVehiculos(false);
+  setOpenAgua(false);
+  setOpenPetroleo(false);
+  setOpenRepositorios(false);
+}}
     className={itemClass(isActive("/operaciones"))}
   >
     <Settings size={20} className={iconClass} />
@@ -252,7 +283,13 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
         {/* REPOSITORIOS */}
         <div>
           <div
-            onClick={() => setOpenRepositorios(!openRepositorios)}
+            onClick={() => {
+  setOpenRepositorios(!openRepositorios);
+  setOpenVehiculos(false);
+  setOpenAgua(false);
+  setOpenPetroleo(false);
+  setOpenOperaciones(false);
+}}
             className={itemClass(isActive("/repositorios"))}
           >
             <FolderOpen size={20} className={iconClass} />
