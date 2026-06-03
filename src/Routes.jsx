@@ -138,7 +138,7 @@ export default function RoutesApp() {
             <Route path="/petroleo/informe" element={<TechRoute><PetroleoInformeHome /></TechRoute>} />
             <Route path="/petroleo/informe/nuevo" element={<TechRoute><PetroleoNuevoInforme /></TechRoute>} />
             <Route path="/petroleo/informe/:id" element={<TechRoute><PetroleoNuevoInforme /></TechRoute>} />
-            <Route path="/petroleo/informe/pdf/:id" element={<TechRoute><PetroleoInformePDF /></TechRoute>} />
+        
 
             {/* ================= INSPECCIÓN ================= */}
             <Route path="/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
