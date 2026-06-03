@@ -677,99 +677,122 @@ const result = await saveOrUpdateReport({
             </tbody>
           </table>
 
-          {/* ══ 4. ESTADO DEL EQUIPO ══ */}
-          <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
-          <div className="border rounded bg-white p-3 space-y-4 print:block">
-            <div className="flex gap-2">
-              <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-gray-700">
-                📁 Subir fotografías
-               <input
-  type="file"
-  accept="image/png,image/jpeg,image/jpg,image/webp,image/heic,image/heif"
-  multiple
-  style={{ display: "none" }}
-  onChange={(e) => {
-    handleEstadoUpload(e.target.files);
-    e.target.value = "";
-  }}
-/>
-                  onChange={(e) => { handleEstadoUpload(e.target.files); e.target.value = null; }} />
-              </label>
-              <label className="bg-blue-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-blue-700">
-                📷 Tomar fotos
-                <input
-  type="file"
-  accept="image/png,image/jpeg,image/jpg,image/webp,image/heic,image/heif"
-  capture="environment"
-  multiple
-  style={{ display: "none" }}
-  onChange={(e) => {
-    handleEstadoUpload(e.target.files);
-    e.target.value = "";
-  }}
-/>
-                  onChange={(e) => { handleEstadoUpload(e.target.files); e.target.value = null; }} />
-              </label>
-              {uploading && (
-                <span className="text-xs text-gray-500 self-center">
-                  Subiendo {uploadingCount} imagen(es)…
-                </span>
-              )}
-            </div>
+{/* ══ 4. ESTADO DEL EQUIPO ══ */}
+<h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
 
-            {(data.estadoEquipo?.imagenes || []).length === 0 ? (
-              <div className="border rounded bg-gray-50 h-[120px] flex items-center justify-center text-sm text-gray-400">
-                Sin fotografías cargadas
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-3 print:block">
-                {(data.estadoEquipo?.imagenes || []).map((img, idx) => (
-                  <div key={img.id} className="border rounded p-2 bg-gray-50 space-y-2 mb-3 print:mb-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-medium text-gray-600">Imagen {idx + 1}</span>
-                      <button type="button" onClick={() => removeEstadoImg(img.id)}
-                        className="text-[11px] text-red-600 border border-red-200 px-2 py-1 rounded hover:bg-red-50">
-                        Eliminar foto
-                      </button>
-                    </div>
-                    <div className="relative border rounded overflow-hidden bg-white flex items-center justify-center">
-                      <img src={img.url} alt={`estado-${idx + 1}`}
-                        className="w-auto max-w-full max-h-[320px] object-contain cursor-crosshair mx-auto"
-                        onClick={(e) => handleEstadoClick(e, img.id)} />
-                      {(img.puntos || []).map((p, pi) => (
-                        <button
-                          key={p.id}
-                          type="button"
-                          onClick={() => removePoint(img.id, p.id)}
-                          className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow text-[10px] text-white font-bold flex items-center justify-center"
-                          style={{
-                            left: `${p.x * 100}%`,
-                            top: `${p.y * 100}%`,
-                            transform: "translate(-50%,-50%)",
-                          }}
-                        >
-                          {pi + 1}
-                        </button>
-                      ))}
-                    </div>
-                    <p className="text-[11px] text-gray-500">
-                      Toque la fotografía para marcar puntos. Toque el número para eliminar.
-                    </p>
-                    {(img.puntos || []).map((p, pi) => (
-                      <div key={p.id} className="flex items-start gap-2">
-                        <span className="text-sm text-gray-700 pt-2 min-w-[24px]">{pi + 1})</span>
-                        <input className="pdf-input w-full"
-                          placeholder={`Observación punto ${pi + 1}`}
-                          value={p.observacion}
-                          onChange={(e) => updatePointObs(img.id, p.id, e.target.value)} />
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            )}
+<div className="border rounded bg-white p-3 space-y-4 print:block">
+  <div className="flex gap-2">
+    <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-gray-700">
+      📁 Subir fotografías
+      <input
+        type="file"
+        accept="image/png,image/jpeg,image/jpg,image/webp,image/heic,image/heif"
+        multiple
+        className="hidden"
+        onChange={(e) => {
+          handleEstadoUpload(e.target.files);
+          e.target.value = "";
+        }}
+      />
+    </label>
+
+    <label className="bg-blue-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-blue-700">
+      📷 Tomar fotos
+      <input
+        type="file"
+        accept="image/png,image/jpeg,image/jpg,image/webp,image/heic,image/heif"
+        capture="environment"
+        multiple
+        className="hidden"
+        onChange={(e) => {
+          handleEstadoUpload(e.target.files);
+          e.target.value = "";
+        }}
+      />
+    </label>
+
+    {uploading && (
+      <span className="text-xs text-gray-500 self-center">
+        Subiendo {uploadingCount} imagen(es)…
+      </span>
+    )}
+  </div>
+
+  {(data.estadoEquipo?.imagenes || []).length === 0 ? (
+    <div className="border rounded bg-gray-50 h-[120px] flex items-center justify-center text-sm text-gray-400">
+      Sin fotografías cargadas
+    </div>
+  ) : (
+    <div className="grid grid-cols-1 gap-3 print:block">
+      {(data.estadoEquipo?.imagenes || []).map((img, idx) => (
+        <div
+          key={img.id}
+          className="border rounded p-2 bg-gray-50 space-y-2 mb-3 print:mb-2"
+        >
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-medium text-gray-600">
+              Imagen {idx + 1}
+            </span>
+
+            <button
+              type="button"
+              onClick={() => removeEstadoImg(img.id)}
+              className="text-[11px] text-red-600 border border-red-200 px-2 py-1 rounded hover:bg-red-50"
+            >
+              Eliminar foto
+            </button>
           </div>
 
+          <div className="relative border rounded overflow-hidden bg-white flex items-center justify-center">
+            <img
+              src={img.url}
+              alt={`estado-${idx + 1}`}
+              className="w-auto max-w-full max-h-[320px] object-contain cursor-crosshair mx-auto"
+              onClick={(e) => handleEstadoClick(e, img.id)}
+            />
+
+            {(img.puntos || []).map((p, pi) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => removePoint(img.id, p.id)}
+                className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow text-[10px] text-white font-bold flex items-center justify-center"
+                style={{
+                  left: `${p.x * 100}%`,
+                  top: `${p.y * 100}%`,
+                  transform: "translate(-50%,-50%)",
+                }}
+              >
+                {pi + 1}
+              </button>
+            ))}
+          </div>
+
+          <p className="text-[11px] text-gray-500">
+            Toque la fotografía para marcar puntos. Toque el número para eliminar.
+          </p>
+
+          {(img.puntos || []).map((p, pi) => (
+            <div key={p.id} className="flex items-start gap-2">
+              <span className="text-sm text-gray-700 pt-2 min-w-[24px]">
+                {pi + 1})
+              </span>
+
+              <input
+                className="pdf-input w-full"
+                placeholder={`Observación punto ${pi + 1}`}
+                value={p.observacion}
+                onChange={(e) =>
+                  updatePointObs(img.id, p.id, e.target.value)
+                }
+              />
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  )}
+</div>
           {/* ══ 5. SECCIONES DE MANTENIMIENTO ══ */}
           {secciones.map((sec) => (
             <section key={sec.id}>
