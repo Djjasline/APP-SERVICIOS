@@ -94,7 +94,25 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
     ).filter((img) => img.url)
   : [];
   
-  return (
+return (
+  <>
+    <style>
+      {`
+        @media print {
+          .no-print,
+          .no-print * {
+            display: none !important;
+            visibility: hidden !important;
+          }
+
+          button {
+            display: none !important;
+            visibility: hidden !important;
+          }
+        }
+      `}
+    </style>
+
     <div className="p-4 md:p-6 bg-gray-100 min-h-screen">
      <div className="pdf-container print-area max-w-6xl mx-auto bg-white p-4 md:p-6">
 
@@ -543,25 +561,40 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
           </table>
         </div>
 
-        {/* ================= BOTONES ================= */}
-        <div className="no-print flex justify-between mt-6">
-          <button
-  onClick={() => navigate("/petroleo/informe")}
-  className="border px-6 py-2 rounded"
+{/* ================= BOTONES ================= */}
+<div
+  className="no-print flex justify-between mt-6"
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    marginTop: 24,
+  }}
 >
-  Volver
-</button>
-         <button
-  onClick={() => {
-  const nombre = `ASTAP_INSPECCION_${(data.codInf || "").replace(/\s/g, "")}_${(data.cliente || "").replace(/\s/g, "_")}`;
-  document.title = nombre;
-  window.print();
-}}
-  className="bg-green-600 text-white px-6 py-2 rounded"
->
-  Descargar PDF
-</button>
-        </div>
+  <button
+    type="button"
+    onClick={() => navigate("/petroleo/informe")}
+    className="border px-6 py-2 rounded"
+  >
+    Volver
+  </button>
+
+  <button
+    type="button"
+    onClick={() => {
+      const nombre = `ASTAP_INSPECCION_${(data.codInf || "")
+        .replace(/\s/g, "")}_${(data.cliente || "").replace(/\s/g, "_")}`;
+
+      document.title = nombre;
+
+      setTimeout(() => {
+        window.print();
+      }, 100);
+    }}
+    className="bg-green-600 text-white px-6 py-2 rounded"
+  >
+    Descargar PDF
+  </button>
+</div>
 
       </div>
     </div>
