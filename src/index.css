@@ -269,42 +269,39 @@ button {
     background: white !important;
   }
 
-  /* ── Ocultar TODO con display (no visibility) ── */
-  body > * {
-    display: none !important;
-  }
-
-  /* ── Mostrar solo nuestro root ── */
-  body > #pdf-root {
-    display: block !important;
-  }
-
   /* ── Ocultar botones y elementos no imprimibles ── */
-  .no-print {
-    display: none !important;
-  }
+.no-print,
+.no-print * {
+  display: none !important;
+  visibility: hidden !important;
+}
 
+/* ── Mostrar correctamente el contenido imprimible ── */
+.print-area,
+.print-area * {
+  visibility: visible !important;
+}
   /* ── Área de impresión: ocupa toda la página ── */
   .print-area {
-    display: block !important;
-    position: static !important;   /* ← NO absolute, para que las páginas fluyan */
-    width: 210mm !important;
-    max-width: 210mm !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    background: white !important;
-    box-shadow: none !important;
-  }
+  display: block !important;
+  position: static !important;
+  width: 190mm !important;
+  max-width: 190mm !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  background: white !important;
+  box-shadow: none !important;
+}
 
   /* ── Contenedor PDF limpio ── */
-  .pdf-container {
-    width: 210mm !important;
-    max-width: 210mm !important;
-    padding: 10mm !important;
-    margin: 0 auto !important;
-    background: white !important;
-    box-shadow: none !important;
-  }
+ .pdf-container {
+  width: 190mm !important;
+  max-width: 190mm !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+  background: white !important;
+  box-shadow: none !important;
+}
 
   /* ── Control de cortes ── */
   .no-break {
