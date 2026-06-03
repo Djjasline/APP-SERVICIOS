@@ -25,13 +25,13 @@ export default function AreaAgua() {
           icono={<FileText size={20} />}
         />
 
-        <CardModulo
-          titulo="Inspección"
-          descripcion="Evaluación de redes y equipos hidráulicos."
-          ruta="/agua/inspeccion"
-          color="bg-yellow-600"
-          icono={<ClipboardCheck size={20} />}
-        />
+       <CardModulo
+  titulo="Recorrido"
+  descripcion="Registro de recorrido e inspección de sistemas hidráulicos."
+  ruta="/agua/recorrido/informe"
+  color="bg-yellow-600"
+  icono={<ClipboardCheck size={20} />}
+/>
 
       </div>
     </div>
