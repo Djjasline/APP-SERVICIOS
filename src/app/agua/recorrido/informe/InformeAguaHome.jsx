@@ -77,7 +77,7 @@ export default function InformeAguaHome() {
           </p>
         </div>
         <button
-          onClick={() => navigate("/agua/informes/new")}
+          onClick={() => navigate("/agua/recorrido/informe/new")}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
         >
           + Nuevo informe
@@ -192,7 +192,7 @@ export default function InformeAguaHome() {
 
                     <td className="px-4 py-3 text-right space-x-3 whitespace-nowrap">
                       <button
-                        onClick={() => navigate(`/agua/informes/${r.id}`)}
+                        onClick={() => navigate(`/agua/recorrido/informe/${r.id}`)}
                         className="text-blue-600 hover:underline text-xs font-medium"
                       >
                         Abrir
