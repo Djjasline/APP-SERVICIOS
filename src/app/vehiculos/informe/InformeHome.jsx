@@ -34,7 +34,6 @@ const superAdminActivo =
 let query = supabase
   .from("registros")
   .select("*")
-  .eq("area", "vehiculos")
   .eq("tipo", "informe")
   .order("created_at", { ascending: false });
 
@@ -52,7 +51,18 @@ let query = supabase
           return;
         }
 
-        setReports(data || []);
+        const soloVehiculos = (data || []).filter((r) => {
+  const area = r.area || r.data?.area || "";
+
+  return (
+    area === "vehiculos" ||
+    area === "" ||
+    area === null ||
+    area === undefined
+  );
+});
+
+setReports(soloVehiculos);
       } catch (err) {
         console.error("Error cargando:", err);
         setReports([]);
