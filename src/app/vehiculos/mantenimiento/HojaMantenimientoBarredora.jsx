@@ -232,33 +232,61 @@ setFirmaClienteEditada(false);
 const compressAndUpload = async (file, folder = "estado-equipo") => {
   if (!file) return null;
 
-  const isImage =
-    file.type?.startsWith("image/") ||
-    /\.(jpg|jpeg|png|webp|heic|heif)$/i.test(file.name || "");
+  const fileName = file.name || "";
+  const fileType = file.type || "";
 
-  if (!isImage) {
-    console.warn("Archivo ignorado porque no es imagen:", file);
-    alert("Solo se permiten imágenes.");
+  const isSupportedImage =
+    fileType.startsWith("image/") ||
+    /\.(jpg|jpeg|png|webp)$/i.test(fileName);
+
+  const isHeic =
+    /\.(heic|heif)$/i.test(fileName) ||
+    fileType === "image/heic" ||
+    fileType === "image/heif";
+
+  if (!isSupportedImage && !isHeic) {
+    console.warn("Archivo ignorado porque no es imagen:", {
+      name: fileName,
+      type: fileType,
+      size: file.size,
+    });
+    alert("Solo se permiten imágenes JPG, PNG o WEBP.");
     return null;
   }
 
   try {
-    const compressed = await imageCompression(file, {
-      maxSizeMB: 0.18,
-      maxWidthOrHeight: 1280,
-      useWebWorker: true,
-      initialQuality: 0.7,
-    });
+    let fileToUpload = file;
+
+    // HEIC/HEIF no siempre puede comprimirse en navegador.
+    // Lo subimos directo si el navegador no lo procesa.
+    if (!isHeic) {
+      fileToUpload = await imageCompression(file, {
+        maxSizeMB: 0.25,
+        maxWidthOrHeight: 1280,
+        useWebWorker: true,
+        initialQuality: 0.75,
+      });
+    }
 
     return await uploadRegistroImage(
-      compressed,
+      fileToUpload,
       id || "temp-mant-barredora",
       folder
     );
   } catch (error) {
     console.error("Error comprimiendo/subiendo imagen:", error);
-    alert("No se pudo procesar la imagen seleccionada.");
-    return null;
+
+    try {
+      return await uploadRegistroImage(
+        file,
+        id || "temp-mant-barredora",
+        folder
+      );
+    } catch (uploadError) {
+      console.error("Error subiendo imagen original:", uploadError);
+      alert("No se pudo procesar la imagen seleccionada.");
+      return null;
+    }
   }
 };
 
