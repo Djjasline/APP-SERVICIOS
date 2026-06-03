@@ -67,22 +67,34 @@ export default function InformeAguaHome() {
   return (
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap justify-between items-center gap-3">
-        <div>
-          <h1 className="text-lg font-semibold text-gray-900">
-            Informes de Avance – Cloro Gas EPMAPS
-          </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Reportes semanales de mantenimiento preventivo/correctivo
-          </p>
-        </div>
-        <button
-          onClick={() => navigate("/agua/recorrido/informe/new")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
-        >
-          + Nuevo informe
-        </button>
-      </div>
+<div className="flex flex-wrap justify-between items-center gap-3">
+  <div>
+    <h1 className="text-lg font-semibold text-gray-900">
+      Informes de Avance – Cloro Gas EPMAPS
+    </h1>
+    <p className="text-sm text-gray-500 mt-0.5">
+      Reportes semanales de mantenimiento preventivo/correctivo
+    </p>
+  </div>
+
+  <div className="flex gap-2">
+    <button
+      type="button"
+      onClick={() => navigate("/area/agua")}
+      className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition"
+    >
+      Volver
+    </button>
+
+    <button
+      type="button"
+      onClick={() => navigate("/agua/recorrido/informe/new")}
+      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+    >
+      + Nuevo informe
+    </button>
+  </div>
+</div>
 
       {/* Filtros */}
       <div className="flex flex-wrap gap-3 items-center">
