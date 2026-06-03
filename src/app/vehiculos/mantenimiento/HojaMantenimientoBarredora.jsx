@@ -229,22 +229,52 @@ setFirmaClienteEditada(false);
   }, []);
 
   /* ── COMPRIMIR Y SUBIR ── */
-  const compressAndUpload = async (file, folder = "estado-equipo") => {
-const compressed = await imageCompression(file, {
-  maxSizeMB: 0.18,
-  maxWidthOrHeight: 1024,
-  useWebWorker: true,
-  fileType: "image/jpeg",
-  initialQuality: 0.7,
-  exifOrientation: 1,
-});
-    return await uploadRegistroImage(compressed, id || "temp-mant-barredora", folder);
-  };
+const compressAndUpload = async (file, folder = "estado-equipo") => {
+  if (!file) return null;
+
+  const isImage =
+    file.type?.startsWith("image/") ||
+    /\.(jpg|jpeg|png|webp|heic|heif)$/i.test(file.name || "");
+
+  if (!isImage) {
+    console.warn("Archivo ignorado porque no es imagen:", file);
+    alert("Solo se permiten imágenes.");
+    return null;
+  }
+
+  try {
+    const compressed = await imageCompression(file, {
+      maxSizeMB: 0.18,
+      maxWidthOrHeight: 1280,
+      useWebWorker: true,
+      initialQuality: 0.7,
+    });
+
+    return await uploadRegistroImage(
+      compressed,
+      id || "temp-mant-barredora",
+      folder
+    );
+  } catch (error) {
+    console.error("Error comprimiendo/subiendo imagen:", error);
+    alert("No se pudo procesar la imagen seleccionada.");
+    return null;
+  }
+};
 
  /* ── ESTADO EQUIPO — IMÁGENES ── */
 const handleEstadoUpload = async (files) => {
-  const arr = Array.from(files || []);
-  if (!arr.length) return;
+  const arr = Array.from(files || []).filter((file) => {
+    return (
+      file.type?.startsWith("image/") ||
+      /\.(jpg|jpeg|png|webp|heic|heif)$/i.test(file.name || "")
+    );
+  });
+
+  if (!arr.length) {
+    alert("Selecciona solo imágenes válidas.");
+    return;
+  }
 
   const actualesCount = data.estadoEquipo?.imagenes?.length || 0;
   const disponibles = Math.max(0, 12 - actualesCount);
@@ -653,12 +683,31 @@ const result = await saveOrUpdateReport({
             <div className="flex gap-2">
               <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-gray-700">
                 📁 Subir fotografías
-                <input type="file" accept="image/*" multiple style={{ display: "none" }}
+               <input
+  type="file"
+  accept="image/png,image/jpeg,image/jpg,image/webp,image/heic,image/heif"
+  multiple
+  style={{ display: "none" }}
+  onChange={(e) => {
+    handleEstadoUpload(e.target.files);
+    e.target.value = "";
+  }}
+/>
                   onChange={(e) => { handleEstadoUpload(e.target.files); e.target.value = null; }} />
               </label>
               <label className="bg-blue-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-blue-700">
                 📷 Tomar fotos
-                <input type="file" accept="image/*" capture="environment" multiple style={{ display: "none" }}
+                <input
+  type="file"
+  accept="image/png,image/jpeg,image/jpg,image/webp,image/heic,image/heif"
+  capture="environment"
+  multiple
+  style={{ display: "none" }}
+  onChange={(e) => {
+    handleEstadoUpload(e.target.files);
+    e.target.value = "";
+  }}
+/>
                   onChange={(e) => { handleEstadoUpload(e.target.files); e.target.value = null; }} />
               </label>
               {uploading && (
