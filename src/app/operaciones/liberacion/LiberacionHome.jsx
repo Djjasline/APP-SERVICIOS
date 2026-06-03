@@ -64,19 +64,30 @@ export default function LiberacionHome() {
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
 
       {/* HEADER */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-lg font-semibold text-gray-900">
-          Historial de liberaciones
-        </h1>
+      {/* HEADER */}
+<div className="flex flex-wrap justify-between items-center gap-3">
+  <h1 className="text-lg font-semibold text-gray-900">
+    Historial de liberaciones
+  </h1>
 
-        <button
-          onClick={() => navigate("/operaciones/liberacion/nuevo")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
-        >
-          + Nueva liberación
-        </button>
-      </div>
+  <div className="flex gap-2">
+    <button
+      type="button"
+      onClick={() => navigate("/operaciones")}
+      className="border border-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-100 transition"
+    >
+      Volver
+    </button>
 
+    <button
+      type="button"
+      onClick={() => navigate("/operaciones/liberacion/nuevo")}
+      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
+    >
+      + Nueva liberación
+    </button>
+  </div>
+</div>
       {/* FILTROS */}
       <div className="flex gap-2">
         {["todos", "borrador", "completado"].map((f) => (
