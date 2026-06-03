@@ -76,8 +76,8 @@ export default function InformeHome() {
   });
 
   const openReport = (report) => {
-    navigate(`/petroleo/informe/${r.id}`);
-  };
+  navigate(`/petroleo/informe/${report.id}`);
+};
 
   const deleteReport = async (id) => {
     if (!user?.id) {
@@ -91,7 +91,7 @@ export default function InformeHome() {
       .from("registros")
       .delete()
       .eq("id", id)
-      .eq("area", "agua")
+      .eq("area", "petroleo")
       .eq("tipo", "informe");
 
     if (!isSuperAdmin) {
@@ -120,7 +120,7 @@ export default function InformeHome() {
           <SyncStatus />
 
           <button
-            onClick={() => navigate("/area/agua")}
+           onClick={() => navigate("/area/petroleo")}
             className="border border-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-100 transition"
           >
             Volver
@@ -130,7 +130,7 @@ export default function InformeHome() {
 
       {isSuperAdmin && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg text-sm">
-          Modo super administrador: estás viendo todos los informes de Agua.
+          Modo super administrador: estás viendo todos los informes de Petróleo.
         </div>
       )}
 
