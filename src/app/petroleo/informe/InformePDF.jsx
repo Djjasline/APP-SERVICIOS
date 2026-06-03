@@ -561,42 +561,44 @@ return (
           </table>
         </div>
 
-{/* ================= BOTONES ================= */}
-<div
-  className="no-print flex justify-between mt-6"
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    marginTop: 24,
-  }}
->
-  <button
-    type="button"
-    onClick={() => navigate("/petroleo/informe")}
-    className="border px-6 py-2 rounded"
-  >
-    Volver
-  </button>
+      </div>
 
-  <button
-    type="button"
-    onClick={() => {
-      const nombre = `ASTAP_INSPECCION_${(data.codInf || "")
-        .replace(/\s/g, "")}_${(data.cliente || "").replace(/\s/g, "_")}`;
+      {/* ================= BOTONES ================= */}
+      <div
+        className="no-print flex justify-between mt-6"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          maxWidth: 794,
+          margin: "24px auto 0",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => navigate("/petroleo/informe")}
+          className="border px-6 py-2 rounded"
+        >
+          Volver
+        </button>
 
-      document.title = nombre;
+        <button
+          type="button"
+          onClick={() => {
+            const nombre = `ASTAP_INSPECCION_${(data.codInf || "")
+              .replace(/\s/g, "")}_${(data.cliente || "").replace(/\s/g, "_")}`;
 
-      setTimeout(() => {
-        window.print();
-      }, 100);
-    }}
-    className="bg-green-600 text-white px-6 py-2 rounded"
-  >
-    Descargar PDF
-  </button>
-</div>
+            document.title = nombre;
 
+            setTimeout(() => {
+              window.print();
+            }, 100);
+          }}
+          className="bg-green-600 text-white px-6 py-2 rounded"
+        >
+          Descargar PDF
+        </button>
       </div>
     </div>
-  );
+  </>
+);
 }
