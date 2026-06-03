@@ -171,9 +171,9 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               <button onClick={() => go("/agua/informe")} className={subItemClass("/agua/informe")}>
                 Informes
               </button>
-              <button onClick={() => go("/agua/inspeccion")} className={subItemClass("/agua/inspeccion")}>
-                Inspección
-              </button>
+              <button onClick={() => go("/agua/recorrido/informe")} className={subItemClass("/agua/recorrido/informe")}>
+  Recorrido
+</button>
             </div>
           )}
         </div>
