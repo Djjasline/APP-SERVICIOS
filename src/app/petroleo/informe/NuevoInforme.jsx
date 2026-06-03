@@ -156,12 +156,13 @@ useEffect(() => {
   const load = async () => {
     if (!id) return;
 
-    const { data: report, error } = await supabase
-      .from("registros")
-      .select("*")
-      .eq("id", id)
-      .single();
-
+   const { data: report, error } = await supabase
+  .from("registros")
+  .select("*")
+  .eq("id", id)
+  .eq("area", "petroleo")
+  .eq("tipo", "informe")
+  .single();
     if (error || !report) return;
 
     const d = report.data || {};
@@ -493,7 +494,7 @@ const save = async () => {
   },
 };
 
-  const estadoFinal = firmaTecnico ? "completado" : "borrador";
+  const estadoFinal = firmaTecnico && firmaCliente ? "completado" : "borrador";
 
   try {
     await saveOrUpdateReport({
