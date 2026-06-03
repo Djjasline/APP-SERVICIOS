@@ -838,7 +838,7 @@ export default function InformeAgua() {
 
       if (result?.id) setRegistroId(result.id);
       alert("Guardado correctamente");
-      navigate("/agua/informes");
+      navigate("/agua/recorrido/informe/new");
     } catch (err) {
       console.error("Error guardando informe:", err);
       alert("Error al guardar. Intenta de nuevo.");
@@ -888,7 +888,7 @@ export default function InformeAgua() {
         <div className="ia-toolbar-actions">
           <button
             type="button"
-            onClick={() => navigate("/agua/informes")}
+            onClick={() => navigate("/agua/recorrido/informe")}
             className="ia-btn ia-btn--ghost"
           >
             ← Volver
