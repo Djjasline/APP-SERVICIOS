@@ -26,7 +26,7 @@ export default function InformeHome() {
         let query = supabase
           .from("registros")
           .select("*")
-          .eq("area", "agua")
+          .eq("area", "petroleo")
           .eq("tipo", "informe")
           .order("created_at", { ascending: false });
 
@@ -76,7 +76,7 @@ export default function InformeHome() {
   });
 
   const openReport = (report) => {
-    navigate(`/agua/informe/${report.id}`);
+    navigate(`/petroleo/informe/${r.id}`);
   };
 
   const deleteReport = async (id) => {
@@ -113,7 +113,7 @@ export default function InformeHome() {
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-lg font-semibold text-gray-900">
-          Informe general - Agua
+          INFORMES DE INSPECCIÓN
         </h1>
 
         <div className="flex items-center gap-3">
@@ -135,7 +135,7 @@ export default function InformeHome() {
       )}
 
       <button
-        onClick={() => navigate("/agua/informe/nuevo")}
+        onClick={() =>navigate("/petroleo/informe/nuevo")}
         className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg transition"
       >
         Nuevo informe
@@ -277,7 +277,7 @@ export default function InformeHome() {
 
               {r.estado === "completado" && (
                 <button
-                  onClick={() => navigate(`/agua/informe/pdf/${r.id}`)}
+                  onClick={() => navigate(`/petroleo/informe/pdf/${r.id}`)}
                   className="text-green-600 hover:underline font-semibold"
                 >
                   PDF
