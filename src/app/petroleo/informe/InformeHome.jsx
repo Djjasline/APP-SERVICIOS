@@ -75,7 +75,7 @@ export default function InformeHome() {
     );
   });
 
-  const openReport = (report) => {
+ const openReport = (report) => {
   navigate(`/petroleo/informe/${report.id}`);
 };
 
