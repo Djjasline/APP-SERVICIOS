@@ -67,19 +67,30 @@ export default function RegistroHome() {
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
 
-        {/* HEADER */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-semibold">
-            Control de salida e ingreso de herramientas
-          </h1>
+       {/* HEADER */}
+<div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+  <h1 className="text-2xl font-semibold">
+    Control de salida e ingreso de herramientas
+  </h1>
 
-          <button
-            onClick={crearNuevoRegistro}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded"
-          >
-            + Nuevo registro
-          </button>
-        </div>
+  <div className="flex gap-2">
+    <button
+      type="button"
+      onClick={() => navigate("/operaciones")}
+      className="border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-100 transition"
+    >
+      Volver
+    </button>
+
+    <button
+      type="button"
+      onClick={crearNuevoRegistro}
+      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded"
+    >
+      + Nuevo registro
+    </button>
+  </div>
+</div>
 
         {/* FILTROS */}
         <div className="flex gap-2 text-xs">
