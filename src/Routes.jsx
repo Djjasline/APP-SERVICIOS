@@ -142,7 +142,6 @@ export default function RoutesApp() {
             {/* ================= INSPECCIÓN ================= */}
             <Route path="/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
             <Route path="/vehiculos/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
-            <Route path="/agua/recorrido/informe/*" element={<TechRoute><InformeAguaRoutes /></TechRoute>} />
             <Route path="/petroleo/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
 
             <Route path="/inspeccion/hidro/new" element={<TechRoute><HojaInspeccionHidro /></TechRoute>} />
