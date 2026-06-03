@@ -483,30 +483,30 @@ const save = async () => {
       : data.firmas.cliente || "";
 
   const finalData = {
-    ...data,
-    area: "agua",
-    modulo: "agua",
-    firmas: {
-      ...data.firmas,
-      tecnico: firmaTecnico,
-      cliente: firmaCliente,
-    },
-  };
+  ...data,
+  area: "petroleo",
+  modulo: "petroleo",
+  firmas: {
+    ...data.firmas,
+    tecnico: firmaTecnico,
+    cliente: firmaCliente,
+  },
+};
 
   const estadoFinal = firmaTecnico ? "completado" : "borrador";
 
   try {
     await saveOrUpdateReport({
-      id: isEditing ? id : null,
-      area: "agua",
-      tipo: "informe",
-      subtipo: data.tipoInforme === "bomba" ? "bomba" : "valvula",
-      data: finalData,
-      estado: estadoFinal,
-    });
+  id: isEditing ? id : null,
+  area: "petroleo",
+  tipo: "informe",
+  subtipo: data.tipoInforme === "bomba" ? "bomba" : "valvula",
+  data: finalData,
+  estado: estadoFinal,
+});
 
     setSuccessMsg(isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
-    setTimeout(() => navigate("/agua/informe"), 1200);
+    setTimeout(() => navigate("/petroleo/informe"), 1200);
   } catch (err) {
     console.error(err);
     setSuccessMsg("Error al guardar ❌");
@@ -1506,7 +1506,7 @@ const save = async () => {
 
           {/* ── BOTONES ── */}
           <div className="flex justify-between gap-3 pt-4">
-            <button type="button" onClick={() => navigate("/agua/informe")}
+            <button type="button" onClick={() => navigate("/petroleo/informe")}
               className="border px-6 py-2 rounded hover:bg-gray-50 transition">
               Volver
             </button>
