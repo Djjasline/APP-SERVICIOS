@@ -34,6 +34,7 @@ const superAdminActivo =
 let query = supabase
   .from("registros")
   .select("*")
+  .eq("area", "vehiculos")
   .eq("tipo", "informe")
   .order("created_at", { ascending: false });
 
@@ -90,8 +91,8 @@ let query = supabase
      ABRIR
   =========================== */
   const openReport = (report) => {
-    navigate(`/informe/${report.id}`);
-  };
+  navigate(`/vehiculos/informe/${report.id}`);
+};
 
   /* ===========================
      ELIMINAR
@@ -133,7 +134,7 @@ let query = supabase
           <SyncStatus />
 
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/area/vehiculos")}
             className="border border-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-100 transition"
           >
             Volver
@@ -150,7 +151,7 @@ let query = supabase
 
       {/* NUEVO */}
       <button
-        onClick={() => navigate("/informe/nuevo")}
+       onClick={() => navigate("/vehiculos/informe/nuevo")}
         className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg transition"
       >
         Nuevo informe
@@ -286,7 +287,7 @@ let query = supabase
 
               {r.estado === "completado" && (
                 <button
-                  onClick={() => navigate(`/informe/pdf/${r.id}`)}
+                  onClick={() => navigate(`/vehiculos/informe/pdf/${r.id}`)}
                   className="text-green-600 hover:underline font-semibold"
                 >
                   PDF
