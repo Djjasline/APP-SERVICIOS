@@ -122,7 +122,7 @@ return (
             <tbody>
               <tr>
                 <td
-                  rowSpan={4}
+                  rowSpan={5}
                   style={{ width: 140, textAlign: "center", verticalAlign: "middle" }}
                 >
                   <img
@@ -142,20 +142,25 @@ return (
                 </td>
               </tr>
 
-              <tr>
-                <td className="pdf-label">REFERENCIA CONTRATO</td>
-                <td colSpan={2}>{data.referenciaContrato || "—"}</td>
-              </tr>
+             <tr>
+  <td className="pdf-label">REFERENCIA CONTRATO</td>
+  <td colSpan={2}>{data.referenciaContrato || "—"}</td>
+</tr>
 
-              <tr>
-                <td className="pdf-label">DESCRIPCIÓN</td>
-                <td colSpan={2}>{data.descripcion || "—"}</td>
-              </tr>
+<tr>
+  <td className="pdf-label">PEDIDO / DEMANDA</td>
+  <td colSpan={2}>{data.pedidoDemanda || "—"}</td>
+</tr>
 
-              <tr>
-                <td className="pdf-label">COD. INF.</td>
-                <td colSpan={2}>{data.codInf || "—"}</td>
-              </tr>
+<tr>
+  <td className="pdf-label">DESCRIPCIÓN</td>
+  <td colSpan={2}>{data.descripcion || "—"}</td>
+</tr>
+
+<tr>
+  <td className="pdf-label">COD. INF.</td>
+  <td colSpan={2}>{data.codInf || "—"}</td>
+</tr>
             </tbody>
           </table>
         </div>
