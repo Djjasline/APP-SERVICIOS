@@ -119,7 +119,7 @@ const { data, error } = await query;
       </div>
 
       <button
-        onClick={() => navigate(`/mantenimiento/${type}/new`)}
+        onClick={() => navigate(`/vehiculos/mantenimiento/${type}/new`)}
         className={`w-full px-4 py-2 text-white rounded text-sm transition ${btn}`}
       >
         + Nuevo mantenimiento
@@ -255,7 +255,7 @@ const { data, error } = await query;
                   <div className="flex gap-3 text-sm">
                     <button
                       onClick={() =>
-                        navigate(`/mantenimiento/${item.subtipo}/${item.id}`)
+                        navigate(`/vehiculos/mantenimiento/${item.subtipo}/${item.id}`)
                       }
                       className="text-blue-600 hover:underline"
                     >
@@ -265,7 +265,7 @@ const { data, error } = await query;
                     {item.estado === "completado" && (
                       <button
                         onClick={() =>
-                          navigate(`/mantenimiento/${item.subtipo}/${item.id}/pdf`)
+                          navigate(`/vehiculos/mantenimiento/${item.subtipo}/${item.id}/pdf`)
                         }
                         className="text-green-600 hover:underline font-semibold"
                       >
