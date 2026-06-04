@@ -109,12 +109,12 @@ if (!superAdminActivo) {
      ACCIONES
   ============================== */
   const handleOpen = (item) => {
-    navigate(`/inspeccion/${item.subtipo}/${item.id}`);
-  };
+  navigate(`/vehiculos/inspeccion/${item.subtipo}/${item.id}`);
+};
 
   const handleGeneratePdf = (item) => {
-    navigate(`/inspeccion/${item.subtipo}/${item.id}/pdf`);
-  };
+  navigate(`/vehiculos/inspeccion/${item.subtipo}/${item.id}/pdf`);
+};
 
   const handleDelete = async (item) => {
     if (!user?.id) {
@@ -162,7 +162,7 @@ if (!superAdminActivo) {
       </div>
 
       <button
-        onClick={() => navigate(`/inspeccion/${type}/new`)}
+        onClick={() => navigate(`/vehiculos/inspeccion/${type}/new`)}
         className={`${colorBtn} text-white py-2 rounded-lg text-sm transition`}
       >
         + Nueva inspección
