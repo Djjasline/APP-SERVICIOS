@@ -115,10 +115,10 @@ export default function InspeccionCamaraPDF() {
   .from("registros")
   .select("*")
   .eq("id", id)
-  .eq("area", "vehiculos")
   .eq("tipo", "inspeccion")
-  .eq("subtipo", "camara")
+  .or("area.eq.vehiculos,area.is.null")
   .single();
+      
       if (error || !data) { console.error(error); return; }
       setReport({ estado: data.estado, data: data.data });
     };
