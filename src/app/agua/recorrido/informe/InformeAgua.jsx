@@ -837,8 +837,8 @@ export default function InformeAgua() {
       });
 
       if (result?.id) setRegistroId(result.id);
-      alert("Guardado correctamente");
-      navigate("/agua/recorrido/informe/new");
+     alert("Guardado correctamente");
+navigate("/agua/recorrido/informe");
     } catch (err) {
       console.error("Error guardando informe:", err);
       alert("Error al guardar. Intenta de nuevo.");
@@ -895,12 +895,12 @@ export default function InformeAgua() {
           </button>
 
           <button
-            type="button"
-            onClick={handlePDF}
-            className="ia-btn ia-btn--secondary"
-          >
-            Descargar PDF
-          </button>
+  type="button"
+  onClick={handlePDF}
+  className="ia-btn ia-btn--green"
+>
+  Ver / Descargar PDF
+</button>
 
           {isLocked ? (
             <>
