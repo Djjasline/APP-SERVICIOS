@@ -1504,50 +1504,40 @@ const save = async () => {
             </tbody>
           </table>
 
-          {/* ── BOTONES ── */}
-          <div className="flex justify-between gap-3 pt-4">
-            <button type="button" onClick={() => navigate("/agua/informe")}
-              className="border px-6 py-2 rounded hover:bg-gray-50 transition">
-              Volver
-            </button>
-            <button type="button" onClick={save} disabled={uploading}
-              className={`px-6 py-2 rounded text-white transition ${uploading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"}`}>
-              {uploading
-                ? `Subiendo imágenes (${uploadingCount})...`
-                : isEditing ? "Actualizar informe" : "Guardar informe"}
-            </button>
-          </div>
+        {/* ── BOTONES ── */}
+<div className="border-t pt-4 mt-6 flex flex-col md:flex-row justify-between gap-3">
+  <button
+    type="button"
+    onClick={() => navigate("/agua/informe")}
+    className="border px-6 py-2 rounded hover:bg-gray-50 transition"
+  >
+    ← Volver
+  </button>
 
-        </div>
-      </div>
-    </>
-  );
-}
+  <div className="flex flex-col sm:flex-row gap-3 md:justify-end">
+    {isEditing && (
+      <button
+        type="button"
+        onClick={() => navigate(`/agua/informe/pdf/${id}`)}
+        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded transition"
+      >
+        Ver PDF
+      </button>
+    )}
 
-/* ─── Componente reutilizable para imagen única ─── */
-function ImageUploadField({ url, onUpload, onRemove, label }) {
-  return (
-    <div>
-      {url ? (
-        <div className="relative inline-block">
-          <img src={url} alt={label} className="max-h-48 rounded border object-contain" />
-          <button type="button" onClick={onRemove}
-            className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow">
-            ✕
-          </button>
-        </div>
-      ) : (
-        <div className="flex gap-2">
-          <label className="bg-gray-600 text-white text-xs px-3 py-1.5 rounded cursor-pointer hover:bg-gray-700">
-            📁 Galería
-            <input type="file" accept="image/*" className="hidden" onChange={onUpload} />
-          </label>
-          <label className="bg-blue-600 text-white text-xs px-3 py-1.5 rounded cursor-pointer hover:bg-blue-700">
-            📷 Cámara
-            <input type="file" accept="image/*" capture="environment" className="hidden" onChange={onUpload} />
-          </label>
-        </div>
-      )}
-    </div>
-  );
-}
+    <button
+      type="button"
+      onClick={save}
+      disabled={uploading}
+      className={`px-6 py-2 rounded text-white transition ${
+        uploading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+      }`}
+    >
+      {uploading
+        ? `Subiendo imágenes (${uploadingCount})...`
+        : isEditing
+        ? "Actualizar informe"
+        : "Guardar informe"}
+    </button>
+  </div>
+</div>
