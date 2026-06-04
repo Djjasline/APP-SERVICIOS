@@ -1272,7 +1272,7 @@ onEnd={() => {
   </tbody>
 </table>
 
-       {/* ── BOTONES ── */}
+      {/* ── BOTONES ── */}
 <div className="border-t pt-4 mt-6 flex flex-col md:flex-row justify-between gap-3">
   <button
     type="button"
