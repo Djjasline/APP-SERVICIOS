@@ -464,8 +464,8 @@ const firmaCliente =
         estadoFinal === "completado" ? "Inspección completada ✅" : "Borrador guardado ✅"
       );
       setTimeout(() => {
-        if (!isEditing && result?.id) navigate(`/inspeccion/camara/${result.id}`);
-        else navigate("/inspeccion");
+        if (!isEditing && result?.id) navigate(`/vehiculos/inspeccion/camara/${result.id}`);
+        else navigate("/vehiculos/inspeccion");
       }, 1200);
     } catch (err) {
       console.error(err);
@@ -1158,7 +1158,7 @@ const firmaCliente =
           <div className="flex flex-col md:flex-row justify-between gap-3 pt-4">
             <button
               type="button"
-              onClick={() => navigate("/inspeccion")}
+              onClick={() => navigate("/vehiculos/inspeccion")}
               className="border px-6 py-2 rounded hover:bg-gray-50 transition"
             >
               ← Volver
@@ -1167,7 +1167,7 @@ const firmaCliente =
               {isEditing && inspeccionLista && (
                 <button
                   type="button"
-                  onClick={() => navigate(`/inspeccion/camara/${id}/pdf`)}
+                  onClick={() => navigate(`/vehiculos/inspeccion/camara/${id}/pdf`)}
                   className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition"
                 >
                   Ver PDF
