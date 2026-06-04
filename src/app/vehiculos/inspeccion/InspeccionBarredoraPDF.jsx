@@ -194,10 +194,37 @@ export default function InspeccionBarredoraPDF() {
   const [report, setReport] = useState(null);
 
   useEffect(() => {
-    const load = async () => {
-      const { data, error } = await supabase    };
-    load();
-  }, [id]);
+  const load = async () => {
+    const { data, error } = await supabase
+      .from("registros")
+      .select("*")
+      .eq("id", id)
+      .eq("tipo", "inspeccion")
+      .or("area.eq.vehiculos,area.is.null")
+      .single();
+
+    if (error || !data) {
+      console.error(error);
+      return;
+    }
+
+    const subtipo = String(data?.subtipo || "").toLowerCase();
+
+    if (subtipo && subtipo !== "barredora") {
+      console.error("El registro no corresponde a barredora:", data?.subtipo);
+      return;
+    }
+
+    setReport({
+      id: data.id,
+      estado: data.estado,
+      data: data.data,
+      createdAt: data.created_at,
+    });
+  };
+
+  load();
+}, [id]);
 
   if (!report) return (
     <div className="p-6 text-center">
