@@ -195,25 +195,14 @@ export default function InspeccionBarredoraPDF() {
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase
-  .from("registros")
-  .select("*")
-  .eq("id", id)
-  .eq("area", "vehiculos")
-  .eq("tipo", "inspeccion")
-  .eq("subtipo", "barredora")
-  .single();
-
-      if (error || !data) { console.error(error); return; }
-      setReport({ id: data.id, estado: data.estado, data: data.data, createdAt: data.created_at });
-    };
+      const { data, error } = await supabase    };
     load();
   }, [id]);
 
   if (!report) return (
     <div className="p-6 text-center">
       <p>No se encontró la inspección.</p>
-      <button onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded mt-4">
+      <button onClick={() => navigate("/vehiculos/inspeccion")} className="border px-4 py-2 rounded mt-4">
         Volver
       </button>
     </div>
@@ -222,7 +211,7 @@ export default function InspeccionBarredoraPDF() {
   if (report.estado !== "completado") return (
     <div className="p-6 text-center">
       <p>Esta inspección no está completada.</p>
-      <button onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded mt-4">
+      <button onClick={() => navigate("/vehiculos/inspeccion")} className="border px-4 py-2 rounded mt-4">
         Volver
       </button>
     </div>
@@ -713,7 +702,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
         }}
       >
         <button
-          onClick={() => navigate("/inspeccion")}
+          onClick={() => navigate("/vehiculos/inspeccion")}
           className="border px-6 py-2 rounded"
         >
           Volver
