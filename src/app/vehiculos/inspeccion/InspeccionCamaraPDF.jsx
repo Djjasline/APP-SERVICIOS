@@ -111,22 +111,33 @@ export default function InspeccionCamaraPDF() {
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase
+     const { data, error } = await supabase
   .from("registros")
   .select("*")
   .eq("id", id)
   .eq("tipo", "inspeccion")
   .or("area.eq.vehiculos,area.is.null")
   .single();
-      
-      if (error || !data) { console.error(error); return; }
-      setReport({ estado: data.estado, data: data.data });
+
+if (error || !data) {
+  console.error(error);
+  return;
+}
+
+const subtipo = String(data?.subtipo || "").toLowerCase();
+
+if (subtipo && !["camara", "cam"].includes(subtipo)) {
+  console.error("El registro no corresponde a cámara:", data?.subtipo);
+  return;
+}
+
+setReport({ estado: data.estado, data: data.data });
     };
     load();
   }, [id]);
 
-  if (!report) return (<div className="p-6 text-center"><p>No se encontró la inspección.</p><button onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded mt-4">Volver</button></div>);
-  if (report.estado !== "completado") return (<div className="p-6 text-center"><p>Esta inspección no está completada.</p><button onClick={() => navigate("/inspeccion")} className="border px-4 py-2 rounded mt-4">Volver</button></div>);
+  if (!report) return (<div className="p-6 text-center"><p>No se encontró la inspección.</p><button onClick={() => navigate("/vehiculos/inspeccion")} className="border px-4 py-2 rounded mt-4">Volver</button></div>);
+  if (report.estado !== "completado") return (<div className="p-6 text-center"><p>Esta inspección no está completada.</p><button onClick={() => navigate("/vehiculos/inspeccion")} className="border px-4 py-2 rounded mt-4">Volver</button></div>);
 
   const { data: d } = report;
   const handlePrint = () => { const cliente = (d.cliente||"cliente").replace(/\s+/g,"-"); const pedido = (d.pedidoDemanda||"pedido").replace(/\s+/g,""); const codigo = (d.codInf||"000").replace(/\s+/g,""); printPdf("pdf-content", `Inspeccion_Camara_${cliente}_${pedido}_${codigo}_ASTAP`); };
@@ -461,7 +472,7 @@ export default function InspeccionCamaraPDF() {
         }}
       >
         <button
-          onClick={() => navigate("/inspeccion")}
+          onClick={() => navigate("/vehiculos/inspeccion")}
           className="border px-6 py-2 rounded"
         >
           Volver
