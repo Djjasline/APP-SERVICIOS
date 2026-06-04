@@ -484,8 +484,8 @@ const result = await saveOrUpdateReport({
         estadoFinal === "completado" ? "Mantenimiento completado ✅" : "Borrador guardado ✅"
       );
       setTimeout(() => {
-        if (!isEditing && result?.id) navigate(`/mantenimiento/barredora/${result.id}`);
-        else navigate("/mantenimiento");
+        if (!isEditing && result?.id) navigate(`/vehiculos/mantenimiento/barredora/${result.id}`);
+        else navigate("/vehiculos/mantenimiento");
       }, 1200);
     } catch (err) {
       console.error(err);
@@ -1015,14 +1015,14 @@ const result = await saveOrUpdateReport({
 
           {/* ══ 8. BOTONES ══ */}
           <div className="flex flex-col md:flex-row justify-between gap-3 pt-4">
-            <button type="button" onClick={() => navigate("/mantenimiento")}
+            <button type="button" onClick={() => navigate("/vehiculos/mantenimiento")}
               className="border px-6 py-2 rounded hover:bg-gray-50 transition">
               ← Volver
             </button>
             <div className="flex gap-3">
               {isEditing && mantenimientoListo && (
                 <button type="button"
-                  onClick={() => navigate(`/mantenimiento/barredora/${id}/pdf`)}
+                  onClick={() => navigate(`/vehiculos/mantenimiento/barredora/${id}/pdf`)}
                   className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
                   Ver PDF
                 </button>
