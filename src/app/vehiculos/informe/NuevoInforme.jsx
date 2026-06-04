@@ -1272,32 +1272,40 @@ onEnd={() => {
   </tbody>
 </table>
 
-        {/* ── BOTONES ── */}
-        <div className="flex flex-col md:flex-row justify-between gap-3 pt-6">
-          <button
-            type="button"
-            onClick={() => navigate("/vehiculos/informe")}
-            className="border px-6 py-2 rounded hover:bg-gray-50 transition"
-          >
-            Volver
-          </button>
+       {/* ── BOTONES ── */}
+<div className="border-t pt-4 mt-6 flex flex-col md:flex-row justify-between gap-3">
+  <button
+    type="button"
+    onClick={() => navigate("/vehiculos/informe")}
+    className="border px-6 py-2 rounded hover:bg-gray-50 transition"
+  >
+    ← Volver
+  </button>
 
-          <button
-            type="button"
-            onClick={saveReport}
-            disabled={uploading}
-            className={`px-6 py-2 rounded text-white transition ${
-              uploading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-            }`}
-          >
-            {uploading
-              ? `Subiendo imágenes (${uploadingCount})...`
-              : isEditing
-              ? "Actualizar informe"
-              : "Guardar informe"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+  <div className="flex flex-col sm:flex-row gap-3 md:justify-end">
+    {isEditing && (
+      <button
+        type="button"
+        onClick={() => navigate(`/vehiculos/informe/pdf/${id}`)}
+        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded transition"
+      >
+        Ver PDF
+      </button>
+    )}
+
+    <button
+      type="button"
+      onClick={saveReport}
+      disabled={uploading}
+      className={`px-6 py-2 rounded text-white transition ${
+        uploading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+      }`}
+    >
+      {uploading
+        ? `Subiendo imágenes (${uploadingCount})...`
+        : isEditing
+        ? "Actualizar informe"
+        : "Guardar informe"}
+    </button>
+  </div>
+</div>
