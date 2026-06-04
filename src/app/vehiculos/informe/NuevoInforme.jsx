@@ -564,7 +564,7 @@ const firmaCliente =
           : "Informe guardado correctamente ✅"
       );
 
-      navigate("/informe");
+      navigate("/vehiculos/informe");
     } catch (error) {
       console.error("❌ Error real al guardar:", error);
       alert(`Error guardando informe ❌\n${error.message || "Revisa la consola"}`);
@@ -1274,7 +1274,7 @@ onEnd={() => {
         <div className="flex flex-col md:flex-row justify-between gap-3 pt-6">
           <button
             type="button"
-            onClick={() => navigate("/informe")}
+            onClick={() => navigate("/vehiculos/informe")}
             className="border px-6 py-2 rounded hover:bg-gray-50 transition"
           >
             Volver
