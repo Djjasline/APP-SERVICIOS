@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+
 // 🔐 AUTH
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -31,6 +32,7 @@ import AguaInformeHome from "./app/agua/informe/InformeHome";
 import AguaNuevoInforme from "./app/agua/informe/NuevoInforme";
 import AguaInformePDF from "./app/agua/informe/InformePDF";
 import InformeAguaRoutes from "@/app/agua/recorrido/informe/InformeAguaRoutes";
+
 // ================= INFORMES PETRÓLEO =================
 import PetroleoInformeHome from "./app/petroleo/informe/InformeHome";
 import PetroleoNuevoInforme from "./app/petroleo/informe/NuevoInforme";
@@ -134,10 +136,12 @@ export default function RoutesApp() {
             <Route path="/repositorios" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
 
             {/* ================= VEHÍCULOS / INFORMES ================= */}
+            {/* Rutas antiguas de compatibilidad */}
             <Route path="/informe" element={<TechRoute><InformeHome /></TechRoute>} />
             <Route path="/informe/nuevo" element={<TechRoute><NuevoInforme /></TechRoute>} />
             <Route path="/informe/:id" element={<TechRoute><NuevoInforme /></TechRoute>} />
 
+            {/* Rutas oficiales */}
             <Route path="/vehiculos/informe" element={<TechRoute><InformeHome /></TechRoute>} />
             <Route path="/vehiculos/informe/nuevo" element={<TechRoute><NuevoInforme /></TechRoute>} />
             <Route path="/vehiculos/informe/:id" element={<TechRoute><NuevoInforme /></TechRoute>} />
@@ -152,13 +156,16 @@ export default function RoutesApp() {
             <Route path="/petroleo/informe" element={<TechRoute><PetroleoInformeHome /></TechRoute>} />
             <Route path="/petroleo/informe/nuevo" element={<TechRoute><PetroleoNuevoInforme /></TechRoute>} />
             <Route path="/petroleo/informe/:id" element={<TechRoute><PetroleoNuevoInforme /></TechRoute>} />
-        
 
-            {/* ================= INSPECCIÓN ================= */}
+            {/* ================= VEHÍCULOS / INSPECCIÓN ================= */}
+            {/* Historial */}
             <Route path="/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
             <Route path="/vehiculos/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
+
+            {/* Petróleo antiguo redirigido */}
             <Route path="/petroleo/inspeccion" element={<Navigate to="/petroleo/informe" replace />} />
 
+            {/* Rutas antiguas de compatibilidad */}
             <Route path="/inspeccion/hidro/new" element={<TechRoute><HojaInspeccionHidro /></TechRoute>} />
             <Route path="/inspeccion/hidro/:id" element={<TechRoute><HojaInspeccionHidro /></TechRoute>} />
 
@@ -168,11 +175,24 @@ export default function RoutesApp() {
             <Route path="/inspeccion/camara/new" element={<TechRoute><HojaInspeccionCamara /></TechRoute>} />
             <Route path="/inspeccion/camara/:id" element={<TechRoute><HojaInspeccionCamara /></TechRoute>} />
 
-            {/* ================= MANTENIMIENTO ================= */}
+            {/* Rutas oficiales Vehículos / Inspección */}
+            <Route path="/vehiculos/inspeccion/hidro/new" element={<TechRoute><HojaInspeccionHidro /></TechRoute>} />
+            <Route path="/vehiculos/inspeccion/hidro/:id" element={<TechRoute><HojaInspeccionHidro /></TechRoute>} />
+
+            <Route path="/vehiculos/inspeccion/barredora/new" element={<TechRoute><HojaInspeccionBarredora /></TechRoute>} />
+            <Route path="/vehiculos/inspeccion/barredora/:id" element={<TechRoute><HojaInspeccionBarredora /></TechRoute>} />
+
+            <Route path="/vehiculos/inspeccion/camara/new" element={<TechRoute><HojaInspeccionCamara /></TechRoute>} />
+            <Route path="/vehiculos/inspeccion/camara/:id" element={<TechRoute><HojaInspeccionCamara /></TechRoute>} />
+
+            {/* ================= VEHÍCULOS / MANTENIMIENTO ================= */}
             <Route path="/mantenimiento" element={<TechRoute><IndexMantenimiento /></TechRoute>} />
             <Route path="/vehiculos/mantenimiento" element={<TechRoute><IndexMantenimiento /></TechRoute>} />
-           <Route path="/petroleo/mantenimiento" element={<Navigate to="/petroleo/informe" replace />} />
 
+            {/* Petróleo antiguo redirigido */}
+            <Route path="/petroleo/mantenimiento" element={<Navigate to="/petroleo/informe" replace />} />
+
+            {/* Rutas antiguas de compatibilidad */}
             <Route path="/mantenimiento/hidro/new" element={<TechRoute><HojaMantenimientoHidro /></TechRoute>} />
             <Route path="/mantenimiento/hidro/:id" element={<TechRoute><HojaMantenimientoHidro /></TechRoute>} />
 
@@ -180,75 +200,92 @@ export default function RoutesApp() {
             <Route path="/mantenimiento/barredora/:id" element={<TechRoute><HojaMantenimientoBarredora /></TechRoute>} />
 
             <Route path="/mantenimiento/vcam/new" element={<TechRoute><HojaMantenimientoVCam /></TechRoute>} />
-            <Route path="/mantenimiento/vcam/:id"  element={<TechRoute><HojaMantenimientoVCam /></TechRoute>} />
+            <Route path="/mantenimiento/vcam/:id" element={<TechRoute><HojaMantenimientoVCam /></TechRoute>} />
 
-           {/* ================= OPERACIONES ================= */}
+            {/* Rutas oficiales Vehículos / Mantenimiento */}
+            <Route path="/vehiculos/mantenimiento/hidro/new" element={<TechRoute><HojaMantenimientoHidro /></TechRoute>} />
+            <Route path="/vehiculos/mantenimiento/hidro/:id" element={<TechRoute><HojaMantenimientoHidro /></TechRoute>} />
 
-{/* Rutas antiguas de compatibilidad */}
-<Route path="/liberacion" element={<Navigate to="/operaciones/liberacion" replace />} />
-<Route path="/liberacion/nuevo" element={<Navigate to="/operaciones/liberacion/nuevo" replace />} />
-<Route path="/liberacion/:id" element={<LiberacionRedirect />} />
+            <Route path="/vehiculos/mantenimiento/barredora/new" element={<TechRoute><HojaMantenimientoBarredora /></TechRoute>} />
+            <Route path="/vehiculos/mantenimiento/barredora/:id" element={<TechRoute><HojaMantenimientoBarredora /></TechRoute>} />
 
-<Route path="/recepcion" element={<Navigate to="/operaciones/recepcion" replace />} />
-<Route path="/recepcion/new" element={<Navigate to="/operaciones/recepcion/new" replace />} />
-<Route path="/recepcion/:id" element={<RecepcionRedirect />} />
+            <Route path="/vehiculos/mantenimiento/vcam/new" element={<TechRoute><HojaMantenimientoVCam /></TechRoute>} />
+            <Route path="/vehiculos/mantenimiento/vcam/:id" element={<TechRoute><HojaMantenimientoVCam /></TechRoute>} />
 
-<Route path="/registro" element={<Navigate to="/operaciones/registro" replace />} />
-<Route path="/registro/new" element={<Navigate to="/operaciones/registro/new" replace />} />
-<Route path="/registro/:id" element={<RegistroRedirect />} />
+            {/* ================= OPERACIONES ================= */}
+            {/* Rutas antiguas de compatibilidad */}
+            <Route path="/liberacion" element={<Navigate to="/operaciones/liberacion" replace />} />
+            <Route path="/liberacion/nuevo" element={<Navigate to="/operaciones/liberacion/nuevo" replace />} />
+            <Route path="/liberacion/:id" element={<LiberacionRedirect />} />
 
-{/* Rutas oficiales Operaciones */}
-<Route path="/operaciones/liberacion" element={<TechRoute><LiberacionHome /></TechRoute>} />
-<Route path="/operaciones/liberacion/nuevo" element={<TechRoute><LiberacionForm /></TechRoute>} />
-<Route path="/operaciones/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
+            <Route path="/recepcion" element={<Navigate to="/operaciones/recepcion" replace />} />
+            <Route path="/recepcion/new" element={<Navigate to="/operaciones/recepcion/new" replace />} />
+            <Route path="/recepcion/:id" element={<RecepcionRedirect />} />
 
-<Route path="/operaciones/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
-<Route path="/operaciones/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
-<Route path="/operaciones/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
+            <Route path="/registro" element={<Navigate to="/operaciones/registro" replace />} />
+            <Route path="/registro/new" element={<Navigate to="/operaciones/registro/new" replace />} />
+            <Route path="/registro/:id" element={<RegistroRedirect />} />
 
-<Route path="/operaciones/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
-<Route path="/operaciones/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
-<Route path="/operaciones/registro/pdf/:id" element={<TechRoute><RegistroPDF /></TechRoute>} />
-<Route path="/operaciones/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
+            {/* Rutas oficiales Operaciones */}
+            <Route path="/operaciones/liberacion" element={<TechRoute><LiberacionHome /></TechRoute>} />
+            <Route path="/operaciones/liberacion/nuevo" element={<TechRoute><LiberacionForm /></TechRoute>} />
+            <Route path="/operaciones/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
+
+            <Route path="/operaciones/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
+            <Route path="/operaciones/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
+            <Route path="/operaciones/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
+
+            <Route path="/operaciones/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
+            <Route path="/operaciones/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
+            <Route path="/operaciones/registro/pdf/:id" element={<TechRoute><RegistroPDF /></TechRoute>} />
+            <Route path="/operaciones/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
 
             {/* ================= REPOSITORIOS ================= */}
             <Route path="/repositorios/documentos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
             <Route path="/repositorios/pdf" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
             <Route path="/repositorios/archivos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
             <Route path="/repositorios/manuales-tecnicos" element={<AdminRoute><ManualesTecnicos /></AdminRoute>} />
-
           </Route>
 
           {/* ================= PDF FUERA DEL LAYOUT ================= */}
 
-          {/* Informes */}
+          {/* Informes PDF */}
           <Route path="/informe/pdf/:id" element={<ProtectedRoute><TechRoute><InformePDF /></TechRoute></ProtectedRoute>} />
           <Route path="/vehiculos/informe/pdf/:id" element={<ProtectedRoute><TechRoute><InformePDF /></TechRoute></ProtectedRoute>} />
           <Route path="/agua/informe/pdf/:id" element={<ProtectedRoute><TechRoute><AguaInformePDF /></TechRoute></ProtectedRoute>} />
           <Route path="/petroleo/informe/pdf/:id" element={<ProtectedRoute><TechRoute><PetroleoInformePDF /></TechRoute></ProtectedRoute>} />
 
-          {/* Inspecciones PDF */}
+          {/* Inspecciones PDF antiguas de compatibilidad */}
           <Route path="/inspeccion/hidro/:id/pdf" element={<ProtectedRoute><TechRoute><InspeccionHidroPDF /></TechRoute></ProtectedRoute>} />
           <Route path="/inspeccion/barredora/:id/pdf" element={<ProtectedRoute><TechRoute><InspeccionBarredoraPDF /></TechRoute></ProtectedRoute>} />
           <Route path="/inspeccion/camara/:id/pdf" element={<ProtectedRoute><TechRoute><InspeccionCamaraPDF /></TechRoute></ProtectedRoute>} />
 
-{/* Recepción PDF */}
-<Route
-  path="/operaciones/recepcion/:id/pdf"
-  element={
-    <ProtectedRoute>
-      <TechRoute>
-        <HojaRecepcionPDF />
-      </TechRoute>
-    </ProtectedRoute>
-  }
-/>
-          
-          {/* Mantenimiento PDF */}
+          {/* Inspecciones PDF oficiales Vehículos */}
+          <Route path="/vehiculos/inspeccion/hidro/:id/pdf" element={<ProtectedRoute><TechRoute><InspeccionHidroPDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/inspeccion/barredora/:id/pdf" element={<ProtectedRoute><TechRoute><InspeccionBarredoraPDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/inspeccion/camara/:id/pdf" element={<ProtectedRoute><TechRoute><InspeccionCamaraPDF /></TechRoute></ProtectedRoute>} />
+
+          {/* Recepción PDF */}
+          <Route
+            path="/operaciones/recepcion/:id/pdf"
+            element={
+              <ProtectedRoute>
+                <TechRoute>
+                  <HojaRecepcionPDF />
+                </TechRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Mantenimiento PDF antiguas de compatibilidad */}
           <Route path="/mantenimiento/hidro/:id/pdf" element={<ProtectedRoute><TechRoute><MantenimientoHidroPDF /></TechRoute></ProtectedRoute>} />
           <Route path="/mantenimiento/barredora/:id/pdf" element={<ProtectedRoute><TechRoute><MantenimientoBarredoraPDF /></TechRoute></ProtectedRoute>} />
           <Route path="/mantenimiento/vcam/:id/pdf" element={<ProtectedRoute><TechRoute><MantenimientoVCamPDF /></TechRoute></ProtectedRoute>} />
 
+          {/* Mantenimiento PDF oficiales Vehículos */}
+          <Route path="/vehiculos/mantenimiento/hidro/:id/pdf" element={<ProtectedRoute><TechRoute><MantenimientoHidroPDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/mantenimiento/barredora/:id/pdf" element={<ProtectedRoute><TechRoute><MantenimientoBarredoraPDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/mantenimiento/vcam/:id/pdf" element={<ProtectedRoute><TechRoute><MantenimientoVCamPDF /></TechRoute></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
