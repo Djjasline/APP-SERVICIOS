@@ -152,15 +152,26 @@ const [openRepositorios, setOpenRepositorios] = useState(false);
               <button onClick={() => go("/area/vehiculos")} className={subItemClass("/area/vehiculos")}>
                 Panel
               </button>
-              <button onClick={() => go("/informe")} className={subItemClass("/informe")}>
-                Informes
-              </button>
-              <button onClick={() => go("/inspeccion")} className={subItemClass("/inspeccion")}>
-                Inspección
-              </button>
-              <button onClick={() => go("/mantenimiento")} className={subItemClass("/mantenimiento")}>
-                Mantenimiento
-              </button>
+              <button
+  onClick={() => go("/vehiculos/informe")}
+  className={subItemClass("/vehiculos/informe")}
+>
+  Informes
+</button>
+
+<button
+  onClick={() => go("/vehiculos/inspeccion")}
+  className={subItemClass("/vehiculos/inspeccion")}
+>
+  Inspección
+</button>
+
+<button
+  onClick={() => go("/vehiculos/mantenimiento")}
+  className={subItemClass("/vehiculos/mantenimiento")}
+>
+  Mantenimiento
+</button>
             </div>
           )}
         </div>
