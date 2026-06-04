@@ -177,10 +177,12 @@ useEffect(() => {
       }
 
       const { data: report, error } = await supabase
-        .from("registros")
-        .select("*")
-        .eq("id", id)
-        .single();
+  .from("registros")
+  .select("*")
+  .eq("id", id)
+  .eq("tipo", "informe")
+  .or("area.eq.vehiculos,area.is.null")
+  .single();
 
       if (error || !report) {
         console.error("Error cargando informe:", error);
