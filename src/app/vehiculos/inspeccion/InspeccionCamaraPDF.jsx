@@ -225,7 +225,7 @@ setReport({ estado: data.estado, data: data.data });
           }}
         >
           <img
-            src="/estado-equipo-cámara.png"
+            src="/estado-equipo-camara.png"
             alt="Vista general cámara V-CAM6"
             style={{
               width: "100%",
