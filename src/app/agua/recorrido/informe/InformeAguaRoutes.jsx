@@ -5,6 +5,7 @@
 import { Route, Routes } from "react-router-dom";
 import InformeAgua from "./InformeAgua";
 import InformeAguaHome from "./InformeAguaHome";
+import InformeAguaPDF from "./InformeAguaPDF";
 
 export default function InformeAguaRoutes() {
   return (
@@ -12,6 +13,7 @@ export default function InformeAguaRoutes() {
       <Route index element={<InformeAguaHome />} />
       <Route path="new" element={<InformeAgua />} />
       <Route path=":id" element={<InformeAgua />} />
+      <Route path="pdf/:id" element={<InformeAguaPDF />} />
     </Routes>
   );
 }
