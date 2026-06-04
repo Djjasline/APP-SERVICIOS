@@ -5,7 +5,7 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { generarPDFInformeAgua } from "./generarPDFInformeAgua";
+
 
 export default function InformeAguaHome() {
   const navigate = useNavigate();
@@ -211,11 +211,11 @@ export default function InformeAguaHome() {
                       </button>
 
                       <button
-                        onClick={() => generarPDFInformeAgua(d)}
-                        className="text-green-600 hover:underline text-xs font-medium"
-                      >
-                        PDF
-                      </button>
+  onClick={() => navigate(`/agua/recorrido/informe/pdf/${r.id}`)}
+  className="text-green-600 hover:underline text-xs font-medium"
+>
+  PDF
+</button>
 
                       <button
                         onClick={() => remove(r.id)}
