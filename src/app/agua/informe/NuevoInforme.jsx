@@ -1504,7 +1504,7 @@ const save = async () => {
             </tbody>
           </table>
 
-          {/* ── BOTONES ── */}
+                   {/* ── BOTONES ── */}
           <div className="border-t pt-4 mt-6 flex flex-col md:flex-row justify-between gap-3">
             <button
               type="button"
@@ -1541,10 +1541,13 @@ const save = async () => {
               </button>
             </div>
           </div>
-
         </div>
       </div>
-       /* ─── Componente reutilizable para imagen única ─── */
+    </>
+  );
+}
+
+/* ─── Componente reutilizable para imagen única ─── */
 function ImageUploadField({ url, onUpload, onRemove, label }) {
   return (
     <div>
@@ -1589,8 +1592,5 @@ function ImageUploadField({ url, onUpload, onRemove, label }) {
         </div>
       )}
     </div>
-  );
-}
-    </>
   );
 }
