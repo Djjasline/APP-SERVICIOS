@@ -19,28 +19,28 @@ export default function AreaVehiculos() {
       <div className="grid md:grid-cols-2 gap-6">
 
         <CardModulo
-          titulo="Informe General"
-          descripcion="Registro técnico de trabajos realizados."
-          ruta="/informe"
-          color="bg-blue-600"
-          icono={<FileText size={20} />}
-        />
+  titulo="Informe General"
+  descripcion="Registro técnico de trabajos realizados."
+  ruta="/vehiculos/informe"
+  color="bg-blue-600"
+  icono={<FileText size={20} />}
+/>
 
-        <CardModulo
-          titulo="Inspección"
-          descripcion="Evaluación del estado de equipos como Barredoras, Hidrosuccionadores y Cámaras de inspección."
-          ruta="/inspeccion"
-          color="bg-yellow-600"
-          icono={<ClipboardCheck size={20} />}
-        />
+<CardModulo
+  titulo="Inspección"
+  descripcion="Evaluación del estado de equipos como Barredoras, Hidrosuccionadores y Cámaras de inspección."
+  ruta="/vehiculos/inspeccion"
+  color="bg-yellow-600"
+  icono={<ClipboardCheck size={20} />}
+/>
 
-        <CardModulo
-          titulo="Mantenimiento"
-          descripcion="Control de mantenimiento preventivo de equipos."
-          ruta="/mantenimiento"
-          color="bg-green-600"
-          icono={<Wrench size={20} />}
-        />
+<CardModulo
+  titulo="Mantenimiento"
+  descripcion="Control de mantenimiento preventivo de equipos."
+  ruta="/vehiculos/mantenimiento"
+  color="bg-green-600"
+  icono={<Wrench size={20} />}
+/>
 
       </div>
 
