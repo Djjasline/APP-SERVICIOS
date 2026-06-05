@@ -401,8 +401,9 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               </button>
 
               <button
-  onClick={() => go("/repositorios")}
-  className={subItemClass("/repositorios")}
+  type="button"
+  onClick={() => go("/repositorios/base-datos")}
+  className={subItemClass("/repositorios/base-datos")}
 >
   <span className="inline-flex items-center gap-2">
     <Database size={14} />
