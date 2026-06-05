@@ -242,11 +242,11 @@ export default function RoutesApp() {
             <Route path="/operaciones/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
 
             {/* ================= REPOSITORIOS ================= */}
-            <Route path="/repositorios/documentos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
-            <Route path="/repositorios/pdf" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
-            <Route path="/repositorios/archivos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
-            <Route path="/repositorios/manuales-tecnicos" element={<AdminRoute><ManualesTecnicos /></AdminRoute>} />
-            <Route path="/repositorios/base-datos" element={<AdminRoute><BaseDatos /></AdminRoute>} />
+<Route path="/repositorios/documentos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
+<Route path="/repositorios/pdf" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
+<Route path="/repositorios/archivos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
+<Route path="/repositorios/manuales-tecnicos" element={<AdminRoute><ManualesTecnicos /></AdminRoute>} />
+<Route path="/repositorios/base-datos" element={<AdminRoute><BaseDatos /></AdminRoute>} />
 
           {/* ================= PDF FUERA DEL LAYOUT ================= */}
 
