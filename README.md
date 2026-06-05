@@ -21,12 +21,11 @@ A modern React-based project utilizing the latest frontend technologies and tool
 
 ## 🛠️ Installation
 
-1. Install dependencies:
+1. Copia el ejemplo de variables y rellénalas:
    ```bash
-   npm install
-   # or
-   yarn install
-   ```
+   cp .env.example .env
+   # (en Windows PowerShell)
+   # Copy-Item .env.example .env
    
 2. Start the development server:
    ```bash
