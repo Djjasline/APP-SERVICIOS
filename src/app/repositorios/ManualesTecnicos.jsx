@@ -1,11 +1,28 @@
-import { Folder } from "lucide-react";
+import { useState } from "react";
+import { Folder, X } from "lucide-react";
 import { MANUALES_TECNICOS } from "@/data/manualesTecnicos";
 
 export default function ManualesTecnicos() {
+  const [modalUrl, setModalUrl] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const openManual = (url) => {
     if (!url) return;
+    // Abrir en modal dentro de la app
+    setLoading(true);
+    setModalUrl(url);
+    // body overflow lock to avoid background scroll
+    document.body.style.overflow = "hidden";
+  };
 
-    window.open(url, "_blank", "noopener,noreferrer");
+  const closeModal = () => {
+    setModalUrl(null);
+    setLoading(true);
+    document.body.style.overflow = ""; // restore
+  };
+
+  const onIframeLoad = () => {
+    setLoading(false);
   };
 
   return (
@@ -71,6 +88,69 @@ export default function ManualesTecnicos() {
           ))}
         </div>
       </div>
+
+      {/* MODAL IFRAME */}
+      {modalUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          aria-modal="true"
+          role="dialog"
+        >
+          {/* overlay */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={closeModal}
+          />
+
+          {/* modal box */}
+          <div className="relative w-[95%] md:w-4/5 lg:w-3/4 h-[85%] bg-white rounded-2xl shadow-lg overflow-hidden z-10">
+            {/* header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <div className="text-sm font-semibold">Visor - Documentación</div>
+
+              <div className="flex items-center gap-2">
+                {/* abrir en nueva pestaña */}
+                <button
+                  onClick={() => window.open(modalUrl, "_blank", "noopener,noreferrer")}
+                  className="text-xs px-3 py-1 bg-blue-600 text-white rounded"
+                >
+                  Abrir en nueva pestaña
+                </button>
+
+                {/* cerrar */}
+                <button
+                  onClick={closeModal}
+                  aria-label="Cerrar"
+                  className="p-2 rounded hover:bg-gray-100"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* contenido: spinner mientras carga + iframe */}
+            <div className="w-full h-full bg-gray-50 relative">
+              {loading && (
+                <div className="absolute inset-0 flex items-center justify-center z-20 bg-white/50">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600" />
+                    <div className="text-sm text-gray-600">Cargando documento...</div>
+                  </div>
+                </div>
+              )}
+
+              <iframe
+                title="Manual técnico"
+                src={modalUrl}
+                onLoad={onIframeLoad}
+                className="w-full h-full border-0"
+                sandbox="" /* no sandbox to allow normal behavior; set if you need stricter rules */
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
