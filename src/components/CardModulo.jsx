@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { ExternalLink } from "lucide-react";
 
 export default function CardModulo({
   titulo,
@@ -9,6 +10,16 @@ export default function CardModulo({
   badge = null,
 }) {
   const navigate = useNavigate();
+
+  const esExterno = ruta?.startsWith("http");
+
+  const handleClick = () => {
+    if (esExterno) {
+      window.open(ruta, "_blank", "noopener,noreferrer");
+    } else {
+      navigate(ruta);
+    }
+  };
 
   return (
     <div className="bg-white p-5 rounded-xl shadow flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition duration-300">
@@ -32,8 +43,9 @@ export default function CardModulo({
         </div>
 
         {/* TITULO */}
-        <h2 className="font-semibold text-gray-900">
+        <h2 className="font-semibold text-gray-900 flex items-center gap-1">
           {titulo}
+          {esExterno && <ExternalLink size={13} className="text-gray-400" />}
         </h2>
 
         {/* DESCRIPCIÓN */}
@@ -44,10 +56,10 @@ export default function CardModulo({
 
       {/* BOTÓN */}
       <button
-        onClick={() => navigate(ruta)}
+        onClick={handleClick}
         className={`mt-4 ${color} text-white py-3 rounded-lg text-sm font-medium hover:opacity-90 transition`}
       >
-        Ir
+        {esExterno ? "Abrir" : "Ir"}
       </button>
     </div>
   );
