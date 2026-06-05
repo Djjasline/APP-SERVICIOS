@@ -58,6 +58,7 @@ import MantenimientoVCamPDF from "./app/vehiculos/mantenimiento/MantenimientoVCa
 
 // ================= REPOSITORIOS =================
 import ManualesTecnicos from "./app/repositorios/ManualesTecnicos";
+import BaseDatos from "./app/repositorios/BaseDatos";
 
 // ================= OPERACIONES =================
 import LiberacionHome from "./app/operaciones/liberacion/LiberacionHome";
@@ -245,7 +246,7 @@ export default function RoutesApp() {
             <Route path="/repositorios/pdf" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
             <Route path="/repositorios/archivos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
             <Route path="/repositorios/manuales-tecnicos" element={<AdminRoute><ManualesTecnicos /></AdminRoute>} />
-          </Route>
+            <Route path="/repositorios/base-datos" element={<AdminRoute><BaseDatos /></AdminRoute>} />
 
           {/* ================= PDF FUERA DEL LAYOUT ================= */}
 
