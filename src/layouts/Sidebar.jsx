@@ -17,51 +17,65 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const navigate = useNavigate();
   const location = useLocation();
 
- const [openVehiculos, setOpenVehiculos] = useState(false);
-const [openOperaciones, setOpenOperaciones] = useState(false);
-const [openAgua, setOpenAgua] = useState(false);
-const [openPetroleo, setOpenPetroleo] = useState(false);
-const [openRepositorios, setOpenRepositorios] = useState(false);
+  const [openVehiculos, setOpenVehiculos] = useState(false);
+  const [openOperaciones, setOpenOperaciones] = useState(false);
+  const [openAgua, setOpenAgua] = useState(false);
+  const [openPetroleo, setOpenPetroleo] = useState(false);
+  const [openRepositorios, setOpenRepositorios] = useState(false);
 
-  const isActive = (path) => {
-    if (path === "/") return location.pathname === "/";
-    return location.pathname.startsWith(path);
+  // Helper que acepta string o array de prefijos y considera también /area{path}
+  const isActive = (paths) => {
+    const pathname = location.pathname;
+    const arr = Array.isArray(paths) ? paths : [paths];
+    return arr.some((p) => {
+      if (p === "/") return pathname === "/";
+      return (
+        pathname === p ||
+        pathname.startsWith(p) ||
+        (p !== "/" && pathname.startsWith(`/area${p}`))
+      );
+    });
   };
 
   useEffect(() => {
-  const path = location.pathname;
+    const path = location.pathname;
 
-  const isVehiculosPath =
-    path.startsWith("/area/vehiculos") ||
-    path.startsWith("/vehiculos") ||
-    path.startsWith("/informe") ||
-    path.startsWith("/inspeccion") ||
-    path.startsWith("/mantenimiento");
+    const isVehiculosPath =
+      path.startsWith("/area/vehiculos") ||
+      path.startsWith("/vehiculos") ||
+      path.startsWith("/informe") ||
+      path.startsWith("/inspeccion") ||
+      path.startsWith("/mantenimiento");
 
-  const isAguaPath =
-    path.startsWith("/area/agua") ||
-    path.startsWith("/agua");
+    const isAguaPath = path.startsWith("/area/agua") || path.startsWith("/agua");
 
-  const isPetroleoPath =
-    path.startsWith("/area/petroleo") ||
-    path.startsWith("/petroleo");
+    const isPetroleoPath =
+      path.startsWith("/area/petroleo") || path.startsWith("/petroleo");
 
-  const isOperacionesPath =
-    path.startsWith("/operaciones") ||
-    path.startsWith("/registro") ||
-    path.startsWith("/recepcion") ||
-    path.startsWith("/liberacion");
+    const isOperacionesPath =
+      path.startsWith("/operaciones") ||
+      path.startsWith("/registro") ||
+      path.startsWith("/recepcion") ||
+      path.startsWith("/liberacion");
 
-  const isRepositoriosPath =
-    path.startsWith("/repositorios");
+    const isRepositoriosPath = path.startsWith("/repositorios");
 
-  setOpenVehiculos(isVehiculosPath);
-  setOpenAgua(isAguaPath);
-  setOpenPetroleo(isPetroleoPath);
-  setOpenOperaciones(isOperacionesPath);
-  setOpenRepositorios(isRepositoriosPath);
-}, [location.pathname]);
-  
+    setOpenVehiculos(isVehiculosPath);
+    setOpenAgua(isAguaPath);
+    setOpenPetroleo(isPetroleoPath);
+    setOpenOperaciones(isOperacionesPath);
+    setOpenRepositorios(isRepositoriosPath);
+  }, [location.pathname]);
+
+  // Cierra las demás secciones y abre la solicitada (si name es null => cierra todas)
+  const openOnly = (name) => {
+    setOpenVehiculos(name === "vehiculos");
+    setOpenAgua(name === "agua");
+    setOpenPetroleo(name === "petroleo");
+    setOpenOperaciones(name === "operaciones");
+    setOpenRepositorios(name === "repositorios");
+  };
+
   const itemBase = `
     group relative flex items-center w-full py-2 rounded-xl
     transition-all duration-300 ease-smooth
@@ -84,7 +98,11 @@ const [openRepositorios, setOpenRepositorios] = useState(false);
 
   const tooltip = (label) =>
     !openSidebar && (
-      <span className="absolute left-16 bg-black text-white text-xs px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition">
+      <span
+        role="tooltip"
+        aria-hidden="true"
+        className="absolute left-16 bg-black text-white text-xs px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition pointer-events-none"
+      >
         {label}
       </span>
     );
@@ -113,204 +131,258 @@ const [openRepositorios, setOpenRepositorios] = useState(false);
       `}
     >
       {/* LOGO */}
-      <div
-        onClick={() => setOpenSidebar(!openSidebar)}
-        className="p-4 flex items-center gap-3 border-b border-white/10 cursor-pointer hover:bg-white/10"
-      >
-        <img src="/astap-logo.jpg" className="w-10 h-10 object-contain" />
-        {openSidebar && <span className="text-white font-bold">ASTAP</span>}
+      <div className="p-4 flex items-center gap-3 border-b border-white/10 cursor-pointer hover:bg-white/10">
+        <button
+          type="button"
+          onClick={() => setOpenSidebar(!openSidebar)}
+          className="flex items-center gap-3"
+          aria-label={openSidebar ? "Cerrar barra lateral" : "Abrir barra lateral"}
+        >
+          <img
+            src="/astap-logo.jpg"
+            alt="ASTAP logo"
+            className="w-10 h-10 object-contain"
+          />
+          {openSidebar && <span className="text-white font-bold">ASTAP</span>}
+        </button>
       </div>
 
       {/* CONTENIDO */}
       <div className="flex-1 p-3 space-y-2 text-sm overflow-y-auto">
         {/* DASHBOARD */}
-        <div onClick={() => go("/")} className={itemClass(isActive("/"))}>
+        <button
+          type="button"
+          onClick={() => go("/")}
+          className={itemClass(isActive("/"))}
+          aria-current={isActive("/") ? "page" : undefined}
+        >
           <LayoutDashboard size={20} className={iconClass} />
           {openSidebar && "Menú Principal"}
           {tooltip("Menú Principal")}
-        </div>
+        </button>
 
         {/* VEHÍCULOS */}
         <div>
-          <div
+          <button
+            type="button"
             onClick={() => {
-  setOpenVehiculos(!openVehiculos);
-  setOpenAgua(false);
-  setOpenPetroleo(false);
-  setOpenOperaciones(false);
-  setOpenRepositorios(false);
-}}
+              openOnly(openVehiculos ? null : "vehiculos");
+            }}
             className={itemClass(isActive("/vehiculos"))}
+            aria-expanded={openVehiculos}
+            aria-controls="panel-vehiculos"
           >
             <Truck size={20} className={iconClass} />
             {openSidebar && "Vehículos"}
             {openSidebar && (openVehiculos ? <ChevronDown /> : <ChevronRight />)}
-          </div>
+          </button>
 
           {openSidebar && openVehiculos && (
-            <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-              <button onClick={() => go("/area/vehiculos")} className={subItemClass("/area/vehiculos")}>
+            <div
+              id="panel-vehiculos"
+              className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
+            >
+              <button
+                type="button"
+                onClick={() => go("/area/vehiculos")}
+                className={subItemClass("/area/vehiculos")}
+              >
                 Panel
               </button>
               <button
-  onClick={() => go("/vehiculos/informe")}
-  className={subItemClass("/vehiculos/informe")}
->
-  Informes
-</button>
+                type="button"
+                onClick={() => go("/vehiculos/informe")}
+                className={subItemClass("/vehiculos/informe")}
+              >
+                Informes
+              </button>
 
-<button
-  onClick={() => go("/vehiculos/inspeccion")}
-  className={subItemClass("/vehiculos/inspeccion")}
->
-  Inspección
-</button>
+              <button
+                type="button"
+                onClick={() => go("/vehiculos/inspeccion")}
+                className={subItemClass("/vehiculos/inspeccion")}
+              >
+                Inspección
+              </button>
 
-<button
-  onClick={() => go("/vehiculos/mantenimiento")}
-  className={subItemClass("/vehiculos/mantenimiento")}
->
-  Mantenimiento
-</button>
+              <button
+                type="button"
+                onClick={() => go("/vehiculos/mantenimiento")}
+                className={subItemClass("/vehiculos/mantenimiento")}
+              >
+                Mantenimiento
+              </button>
             </div>
           )}
         </div>
 
         {/* AGUA */}
         <div>
-          <div
+          <button
+            type="button"
             onClick={() => {
-  setOpenAgua(!openAgua);
-  setOpenVehiculos(false);
-  setOpenPetroleo(false);
-  setOpenOperaciones(false);
-  setOpenRepositorios(false);
-}}
-            className={itemClass(location.pathname.includes("/agua"))}
+              openOnly(openAgua ? null : "agua");
+            }}
+            className={itemClass(isActive("/agua"))}
+            aria-expanded={openAgua}
+            aria-controls="panel-agua"
           >
             <Droplet size={20} className={iconClass} />
             {openSidebar && "Agua"}
             {openSidebar && (openAgua ? <ChevronDown /> : <ChevronRight />)}
-          </div>
+          </button>
 
           {openSidebar && openAgua && (
-            <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-              <button onClick={() => go("/area/agua")} className={subItemClass("/area/agua")}>
+            <div
+              id="panel-agua"
+              className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
+            >
+              <button
+                type="button"
+                onClick={() => go("/area/agua")}
+                className={subItemClass("/area/agua")}
+              >
                 Panel
               </button>
-              <button onClick={() => go("/agua/informe")} className={subItemClass("/agua/informe")}>
+              <button
+                type="button"
+                onClick={() => go("/agua/informe")}
+                className={subItemClass("/agua/informe")}
+              >
                 Informes
               </button>
-              <button onClick={() => go("/agua/recorrido/informe")} className={subItemClass("/agua/recorrido/informe")}>
-  Recorrido
-</button>
+              <button
+                type="button"
+                onClick={() => go("/agua/recorrido/informe")}
+                className={subItemClass("/agua/recorrido/informe")}
+              >
+                Recorrido
+              </button>
             </div>
           )}
         </div>
 
         {/* PETRÓLEO */}
         <div>
-          <div
+          <button
+            type="button"
             onClick={() => {
-  setOpenPetroleo(!openPetroleo);
-  setOpenVehiculos(false);
-  setOpenAgua(false);
-  setOpenOperaciones(false);
-  setOpenRepositorios(false);
-}}
-            className={itemClass(location.pathname.includes("/petroleo"))}
+              openOnly(openPetroleo ? null : "petroleo");
+            }}
+            className={itemClass(isActive("/petroleo"))}
+            aria-expanded={openPetroleo}
+            aria-controls="panel-petroleo"
           >
             <Fuel size={20} className={iconClass} />
             {openSidebar && "Petróleo"}
             {openSidebar && (openPetroleo ? <ChevronDown /> : <ChevronRight />)}
-          </div>
+          </button>
 
           {openSidebar && openPetroleo && (
-  <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-    <button onClick={() => go("/area/petroleo")} className={subItemClass("/area/petroleo")}>
-      Panel
-    </button>
+            <div
+              id="panel-petroleo"
+              className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
+            >
+              <button
+                type="button"
+                onClick={() => go("/area/petroleo")}
+                className={subItemClass("/area/petroleo")}
+              >
+                Panel
+              </button>
 
-    <button
-      onClick={() => go("/petroleo/informe")}
-      className={subItemClass("/petroleo/informe")}
-    >
-      INFORMES DE INSPECCIÓN
-    </button>
-  </div>
-)}
+              <button
+                type="button"
+                onClick={() => go("/petroleo/informe")}
+                className={subItemClass("/petroleo/informe")}
+              >
+                INFORMES DE INSPECCIÓN
+              </button>
+            </div>
+          )}
         </div>
 
-     {/* OPERACIONES */}
-<div>
-  <div
-    onClick={() => {
-  setOpenOperaciones(!openOperaciones);
-  setOpenVehiculos(false);
-  setOpenAgua(false);
-  setOpenPetroleo(false);
-  setOpenRepositorios(false);
-}}
-    className={itemClass(isActive("/operaciones"))}
-  >
-    <Settings size={20} className={iconClass} />
-    {openSidebar && "Operaciones"}
-    {openSidebar && (openOperaciones ? <ChevronDown /> : <ChevronRight />)}
-  </div>
+        {/* OPERACIONES */}
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              openOnly(openOperaciones ? null : "operaciones");
+            }}
+            className={itemClass(isActive("/operaciones"))}
+            aria-expanded={openOperaciones}
+            aria-controls="panel-operaciones"
+          >
+            <Settings size={20} className={iconClass} />
+            {openSidebar && "Operaciones"}
+            {openSidebar &&
+              (openOperaciones ? <ChevronDown /> : <ChevronRight />)}
+          </button>
 
-  {openSidebar && openOperaciones && (
-    <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-      <button
-        onClick={() => go("/operaciones")}
-        className={subItemClass("/operaciones")}
-      >
-        Panel
-      </button>
+          {openSidebar && openOperaciones && (
+            <div
+              id="panel-operaciones"
+              className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
+            >
+              <button
+                type="button"
+                onClick={() => go("/operaciones")}
+                className={subItemClass("/operaciones")}
+              >
+                Panel
+              </button>
 
-      <button
-        onClick={() => go("/operaciones/registro")}
-        className={subItemClass("/operaciones/registro")}
-      >
-        Registro
-      </button>
+              <button
+                type="button"
+                onClick={() => go("/operaciones/registro")}
+                className={subItemClass("/operaciones/registro")}
+              >
+                Registro
+              </button>
 
-      <button
-        onClick={() => go("/operaciones/recepcion")}
-        className={subItemClass("/operaciones/recepcion")}
-      >
-        Bitácora Vehicular
-      </button>
+              <button
+                type="button"
+                onClick={() => go("/operaciones/recepcion")}
+                className={subItemClass("/operaciones/recepcion")}
+              >
+                Bitácora Vehicular
+              </button>
 
-      <button
-        onClick={() => go("/operaciones/liberacion")}
-        className={subItemClass("/operaciones/liberacion")}
-      >
-        Liberación
-      </button>
-    </div>
-  )}
-</div>
+              <button
+                type="button"
+                onClick={() => go("/operaciones/liberacion")}
+                className={subItemClass("/operaciones/liberacion")}
+              >
+                Liberación
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* REPOSITORIOS */}
         <div>
-          <div
+          <button
+            type="button"
             onClick={() => {
-  setOpenRepositorios(!openRepositorios);
-  setOpenVehiculos(false);
-  setOpenAgua(false);
-  setOpenPetroleo(false);
-  setOpenOperaciones(false);
-}}
+              openOnly(openRepositorios ? null : "repositorios");
+            }}
             className={itemClass(isActive("/repositorios"))}
+            aria-expanded={openRepositorios}
+            aria-controls="panel-repos"
           >
             <FolderOpen size={20} className={iconClass} />
             {openSidebar && "Repositorios"}
-            {openSidebar && (openRepositorios ? <ChevronDown /> : <ChevronRight />)}
-          </div>
+            {openSidebar &&
+              (openRepositorios ? <ChevronDown /> : <ChevronRight />)}
+          </button>
 
           {openSidebar && openRepositorios && (
-            <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
+            <div
+              id="panel-repos"
+              className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
+            >
               <button
+                type="button"
                 onClick={() => go("/repositorios")}
                 className={subItemClass("/repositorios")}
               >
@@ -318,6 +390,7 @@ const [openRepositorios, setOpenRepositorios] = useState(false);
               </button>
 
               <button
+                type="button"
                 onClick={() => go("/repositorios/manuales-tecnicos")}
                 className={subItemClass("/repositorios/manuales-tecnicos")}
               >
@@ -328,6 +401,7 @@ const [openRepositorios, setOpenRepositorios] = useState(false);
               </button>
 
               <button
+                type="button"
                 onClick={() => go("/repositorios/base-datos")}
                 className={subItemClass("/repositorios/base-datos")}
               >
