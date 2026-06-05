@@ -1,41 +1,51 @@
 import { useState } from "react";
-import { Folder, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Folder, X, ExternalLink, ArrowLeft } from "lucide-react";
 import { MANUALES_TECNICOS } from "@/data/manualesTecnicos";
 
 export default function ManualesTecnicos() {
-  const [modalUrl, setModalUrl] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  const openManual = (url) => {
-    if (!url) return;
-    // Abrir en modal dentro de la app
-    setLoading(true);
-    setModalUrl(url);
-    // body overflow lock to avoid background scroll
+  const [selectedManual, setSelectedManual] = useState(null);
+
+  const openManual = (item) => {
+    if (!item?.url) return;
+    setSelectedManual(item);
     document.body.style.overflow = "hidden";
   };
 
   const closeModal = () => {
-    setModalUrl(null);
-    setLoading(true);
-    document.body.style.overflow = ""; // restore
+    setSelectedManual(null);
+    document.body.style.overflow = "";
   };
 
-  const onIframeLoad = () => {
-    setLoading(false);
+  const openExternal = () => {
+    if (!selectedManual?.url) return;
+    window.open(selectedManual.url, "_blank", "noopener,noreferrer");
   };
 
   return (
     <div className="p-6 space-y-6">
       {/* HEADER */}
-      <div>
-        <h2 className="text-xl font-semibold text-white">
-          Manuales técnicos de vehículos especiales
-        </h2>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-semibold text-white">
+            Manuales técnicos de vehículos especiales
+          </h2>
 
-        <p className="text-sm text-gray-300 mt-1">
-          Explorador técnico de manuales, catálogos y documentación especializada.
-        </p>
+          <p className="text-sm text-gray-300 mt-1">
+            Explorador técnico de manuales, catálogos y documentación especializada.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigate("/repositorios")}
+          className="bg-white text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition inline-flex items-center gap-2 w-fit"
+        >
+          <ArrowLeft size={16} />
+          Volver
+        </button>
       </div>
 
       {/* EXPLORADOR */}
@@ -44,7 +54,8 @@ export default function ManualesTecnicos() {
           {MANUALES_TECNICOS.map((item, index) => (
             <button
               key={index}
-              onClick={() => openManual(item.url)}
+              type="button"
+              onClick={() => openManual(item)}
               className="
                 w-full
                 flex
@@ -84,13 +95,15 @@ export default function ManualesTecnicos() {
                   Abrir documentación técnica
                 </p>
               </div>
+
+              <ExternalLink size={18} className="text-gray-400" />
             </button>
           ))}
         </div>
       </div>
 
-      {/* MODAL IFRAME */}
-      {modalUrl && (
+      {/* MODAL SIN IFRAME */}
+      {selectedManual && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
           aria-modal="true"
@@ -98,55 +111,57 @@ export default function ManualesTecnicos() {
         >
           {/* overlay */}
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/60"
             onClick={closeModal}
           />
 
           {/* modal box */}
-          <div className="relative w-[95%] md:w-4/5 lg:w-3/4 h-[85%] bg-white rounded-2xl shadow-lg overflow-hidden z-10">
+          <div className="relative w-[92%] max-w-xl bg-white rounded-2xl shadow-lg overflow-hidden z-10">
             {/* header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b">
-              <div className="text-sm font-semibold">Visor - Documentación</div>
-
-              <div className="flex items-center gap-2">
-                {/* abrir en nueva pestaña */}
-                <button
-                  onClick={() => window.open(modalUrl, "_blank", "noopener,noreferrer")}
-                  className="text-xs px-3 py-1 bg-blue-600 text-white rounded"
-                >
-                  Abrir en nueva pestaña
-                </button>
-
-                {/* cerrar */}
-                <button
-                  onClick={closeModal}
-                  aria-label="Cerrar"
-                  className="p-2 rounded hover:bg-gray-100"
-                >
-                  <X size={18} />
-                </button>
+            <div className="flex items-center justify-between px-5 py-4 border-b">
+              <div>
+                <h3 className="text-base font-semibold text-gray-900">
+                  {selectedManual.nombre}
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  SharePoint no permite vista previa interna. Ábrelo desde el botón inferior.
+                </p>
               </div>
+
+              <button
+                type="button"
+                onClick={closeModal}
+                aria-label="Cerrar"
+                className="p-2 rounded hover:bg-gray-100"
+              >
+                <X size={18} />
+              </button>
             </div>
 
-            {/* contenido: spinner mientras carga + iframe */}
-            <div className="w-full h-full bg-gray-50 relative">
-              {loading && (
-                <div className="absolute inset-0 flex items-center justify-center z-20 bg-white/50">
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600" />
-                    <div className="text-sm text-gray-600">Cargando documento...</div>
-                  </div>
-                </div>
-              )}
+            {/* contenido */}
+            <div className="p-6 space-y-4">
+              <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800">
+                Este documento se abrirá en una pestaña segura de SharePoint.
+              </div>
 
-              <iframe
-                title="Manual técnico"
-                src={modalUrl}
-                onLoad={onIframeLoad}
-                className="w-full h-full border-0"
-                sandbox="" /* no sandbox to allow normal behavior; set if you need stricter rules */
-                allowFullScreen
-              />
+              <div className="flex flex-col sm:flex-row gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-50 transition"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={openExternal}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center justify-center gap-2"
+                >
+                  Abrir documento
+                  <ExternalLink size={16} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
