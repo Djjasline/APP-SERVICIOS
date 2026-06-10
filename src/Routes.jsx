@@ -58,7 +58,6 @@ import MantenimientoVCamPDF from "./app/vehiculos/mantenimiento/MantenimientoVCa
 
 // ================= REPOSITORIOS =================
 import ManualesTecnicos from "./app/repositorios/ManualesTecnicos";
-import BaseDatos from "./app/repositorios/BaseDatos";
 
 // ================= OPERACIONES =================
 import LiberacionHome from "./app/operaciones/liberacion/LiberacionHome";
@@ -134,7 +133,7 @@ export default function RoutesApp() {
             <Route path="/area/agua" element={<TechRoute><AreaAgua /></TechRoute>} />
             <Route path="/area/petroleo" element={<TechRoute><AreaPetroleo /></TechRoute>} />
             <Route path="/operaciones" element={<TechRoute><AreaOperaciones /></TechRoute>} />
-            <Route path="/repositorios" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
+            <Route path="/repositorios" element={<TechRoute><AreaRepositorios /></TechRoute>} />
 
             {/* ================= VEHÍCULOS / INFORMES ================= */}
             {/* Rutas antiguas de compatibilidad */}
@@ -241,12 +240,11 @@ export default function RoutesApp() {
             <Route path="/operaciones/registro/pdf/:id" element={<TechRoute><RegistroPDF /></TechRoute>} />
             <Route path="/operaciones/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
 
-          {/* ================= REPOSITORIOS ================= */}
-            <Route path="/repositorios/documentos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
-            <Route path="/repositorios/pdf" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
-            <Route path="/repositorios/archivos" element={<AdminRoute><AreaRepositorios /></AdminRoute>} />
+            {/* ================= REPOSITORIOS ================= */}
+            <Route path="/repositorios/documentos" element={<TechRoute><AreaRepositorios /></TechRoute>} />
+            <Route path="/repositorios/pdf" element={<TechRoute><AreaRepositorios /></TechRoute>} />
+            <Route path="/repositorios/archivos" element={<TechRoute><AreaRepositorios /></TechRoute>} />
             <Route path="/repositorios/manuales-tecnicos" element={<AdminRoute><ManualesTecnicos /></AdminRoute>} />
-            <Route path="/repositorios/base-datos" element={<AdminRoute><BaseDatos /></AdminRoute>} />
           </Route>
 
           {/* ================= PDF FUERA DEL LAYOUT ================= */}
