@@ -244,7 +244,7 @@ export default function RoutesApp() {
             <Route path="/repositorios/documentos" element={<TechRoute><AreaRepositorios /></TechRoute>} />
             <Route path="/repositorios/pdf" element={<TechRoute><AreaRepositorios /></TechRoute>} />
             <Route path="/repositorios/archivos" element={<TechRoute><AreaRepositorios /></TechRoute>} />
-            <Route path="/repositorios/manuales-tecnicos" element={<AdminRoute><ManualesTecnicos /></AdminRoute>} />
+            <Route path="/repositorios/manuales-tecnicos" element={<TechRoute><ManualesTecnicos /></TechRoute>} />
           </Route>
 
           {/* ================= PDF FUERA DEL LAYOUT ================= */}
@@ -290,4 +290,4 @@ export default function RoutesApp() {
       </BrowserRouter>
     </AuthProvider>
   );
-}
+          }
