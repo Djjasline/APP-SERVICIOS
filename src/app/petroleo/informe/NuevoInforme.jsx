@@ -512,9 +512,11 @@ const save = async () => {
   estado: estadoFinal,
 });
 
-    setSuccessMsg(
+    limpiarBorrador(claveAutoguardado);
 
-      limpiarBorrador(claveAutoguardado);isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
+    setSuccessMsg(
+      isEditing ? "Informe actualizado ✅" : "Informe guardado ✅"
+    );
     setTimeout(() => navigate("/petroleo/informe"), 1200);
   } catch (err) {
     console.error(err);
