@@ -486,9 +486,8 @@ const firmaCliente =
   estado: estadoFinal,
 });
 
-      setSuccessMsg(
-
-      limpiarBorrador(claveAutoguardado);estadoFinal === "completado" ? "Inspección completada ✅" : "Borrador guardado ✅");
+      limpiarBorrador(claveAutoguardado);
+      setSuccessMsg(estadoFinal === "completado" ? "Inspección completada ✅" : "Borrador guardado ✅");
       setTimeout(() => {
         if (!isEditing && result?.id) navigate(`/vehiculos/inspeccion/hidro/${result.id}`);
         else navigate("/vehiculos/inspeccion");
