@@ -1,4 +1,6 @@
 import { useTechnicians } from "@/hooks/useTechnicians";
+import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useAuth } from "@/context/AuthContext";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
@@ -46,6 +48,7 @@ const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
 const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
 
 const isEditing = !!id;
+  const claveAutoguardado = `informe_petroleo_${id ?? "new"}`;
    
   /* ─── ESTADO BASE ─── */
   const emptyReport = {
@@ -150,6 +153,9 @@ estadoEquipo: {
   };
 
   const [data, setData] = useState(emptyReport);
+
+  // Autoguardado automático cada 15 segundos
+  useAutoguardado(claveAutoguardado, data, !isEditing);
 
  /* ─── CARGAR EXISTENTE ─── */
 useEffect(() => {
@@ -506,7 +512,9 @@ const save = async () => {
   estado: estadoFinal,
 });
 
-    setSuccessMsg(isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
+    setSuccessMsg(
+
+      limpiarBorrador(claveAutoguardado);isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
     setTimeout(() => navigate("/petroleo/informe"), 1200);
   } catch (err) {
     console.error(err);
@@ -1217,7 +1225,13 @@ const save = async () => {
             </section>
           )}
 
-<h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
+<BannerAutoguardado
+          clave={claveAutoguardado}
+          onRestaurar={(datosGuardados) => setData(datosGuardados)}
+          isEditing={isEditing}
+        />
+
+        <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
 
 <div className="border rounded-xl p-4 bg-white space-y-4">
   <div>
