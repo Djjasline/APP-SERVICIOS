@@ -669,14 +669,13 @@ const result = await saveOrUpdateReport({
   estado: estadoFinal,
 });
 
-setSuccessMsg(
+limpiarBorrador(claveAutoguardado);
 
-      limpiarBorrador(claveAutoguardado);
+setSuccessMsg(
   estadoFinal === "completado"
     ? "Inspección completada ✅"
     : "Borrador guardado ✅"
 );
-
 setTimeout(() => {
 
   // 🔥 NUEVO REGISTRO
