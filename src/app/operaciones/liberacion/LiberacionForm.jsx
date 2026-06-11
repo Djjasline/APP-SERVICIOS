@@ -1,5 +1,7 @@
 import { saveOrUpdateReport } from "@/services/reportService"
 import { useState, useRef, useEffect } from "react";
+import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 
@@ -63,6 +65,8 @@ const AutoTextarea = ({ name, onChange }) => (
 
 export default function LiberacionForm() {
   const navigate = useNavigate();
+  const isEditing = false;
+  const claveAutoguardado = `liberacion_new`;
   const sigRef = useRef();
 
   const [licencia, setLicencia] = useState("");
@@ -77,6 +81,9 @@ export default function LiberacionForm() {
     inspector: "",
     checklist: {},
   });
+
+  // Autoguardado automático cada 15 segundos
+  useAutoguardado(claveAutoguardado, form, true);
 
   useEffect(() => {
 const sync = async () => {
@@ -140,6 +147,8 @@ await saveOrUpdateReport({
   estado: estadoFinal,
 });
     alert("Guardado correctamente");
+
+      limpiarBorrador(claveAutoguardado);
     navigate("/operaciones/liberacion");
 
   } catch (error) {
@@ -163,7 +172,13 @@ pendientes.push({
   }
 };
   return (
-    <div className="p-6 bg-slate-100 min-h-screen">
+    <BannerAutoguardado
+          clave={claveAutoguardado}
+          onRestaurar={(datosGuardados) => setForm(datosGuardados)}
+          isEditing={{false}}
+        />
+
+        <div className="p-6 bg-slate-100 min-h-screen">
       <div className="max-w-[794px] mx-auto bg-white p-6 shadow border">
 
         {/* HEADER */}
