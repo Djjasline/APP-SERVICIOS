@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { saveOrUpdateReport } from "@/services/reportService";
@@ -245,7 +247,13 @@ const url = await uploadRegistroImage(
   };
 
   return (
-    <div className="damage-area-photo">
+    <BannerAutoguardado
+          clave={claveAutoguardado}
+          onRestaurar={(datosGuardados) => setData(datosGuardados)}
+          isEditing={isEditing}
+        />
+
+        <div className="damage-area-photo">
       {!readOnly && (
         <div className="no-print damage-upload-row">
           <label className="damage-upload-btn">
@@ -1046,6 +1054,8 @@ export function ControlVehicularSheet({
 
 export default function HojaRecepcion() {
   const { id } = useParams();
+  const isEditing = !!id;
+  const claveAutoguardado = `recepcion_${id ?? "new"}`;
   const navigate = useNavigate();
 
   const { isSuperAdmin, isSupervisorOperaciones } = useAuth();
@@ -1057,6 +1067,9 @@ export default function HojaRecepcion() {
 
   const [registroId, setRegistroId] = useState(id || null);
   const [data, setData] = useState(cloneRecepcionSchema());
+
+  // Autoguardado automático cada 15 segundos
+  useAutoguardado(claveAutoguardado, data, !isLocked);
   const [guardando, setGuardando] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
 
@@ -1130,6 +1143,8 @@ export default function HojaRecepcion() {
 
       if (result?.id) setRegistroId(result.id);
       alert("Guardado correctamente");
+
+      limpiarBorrador(claveAutoguardado);
       navigate("/operaciones/recepcion");
     } catch (error) {
       console.error("Error guardando hoja de control vehicular:", error);
