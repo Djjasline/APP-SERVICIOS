@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { TECHNICIANS } from "@/data/technicians";
@@ -8,6 +10,8 @@ import imageCompression from "browser-image-compression";
 
 export default function HojaRegistroHerramientas() {
   const { id } = useParams();
+  const isEditing = !!id;
+  const claveAutoguardado = `registro_herramientas_${id ?? "new"}`;
   const navigate = useNavigate();
 
   const firmaResponsableRef = useRef(null);
@@ -23,6 +27,9 @@ export default function HojaRegistroHerramientas() {
   };
 
   const [formData, setFormData] = useState(baseState);
+
+  // Autoguardado automático cada 15 segundos
+  useAutoguardado(claveAutoguardado, formData, !isLocked);
   const [estado, setEstado] = useState("salida");
 
   /* ================= CARGAR REGISTRO ================= */
@@ -150,6 +157,8 @@ export default function HojaRegistroHerramientas() {
       setEstado(nuevoEstado);
 
       alert("Guardado correctamente");
+
+      limpiarBorrador(claveAutoguardado);
       navigate("/registro"); // ✅ ruta correcta
     } catch (error) {
       console.error("Error guardando:", error);
@@ -249,6 +258,12 @@ export default function HojaRegistroHerramientas() {
 
       {/* ================= TABLA — una fila por herramienta ================= */}
       <div className="overflow-x-auto border rounded-xl">
+        <BannerAutoguardado
+          clave={claveAutoguardado}
+          onRestaurar={(datosGuardados) => setFormData(datosGuardados)}
+          isEditing={isEditing}
+        />
+
         <table className="w-full text-xs border-collapse">
           <thead className="bg-gray-100 text-gray-700">
             <tr>
