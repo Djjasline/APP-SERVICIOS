@@ -455,10 +455,12 @@ const result = await saveOrUpdateReport({
   estado: estadoFinal,
 });
 
-      setSuccessMsg(
-
       limpiarBorrador(claveAutoguardado);
-        estadoFinal === "completado" ? "Mantenimiento completado ✅" : "Borrador guardado ✅"
+
+      setSuccessMsg(
+        estadoFinal === "completado"
+          ? "Mantenimiento completado ✅"
+          : "Borrador guardado ✅"
       );
       setTimeout(() => {
         if (!isEditing && result?.id) navigate(`/vehiculos/mantenimiento/hidro/${result.id}`);
