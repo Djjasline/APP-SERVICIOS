@@ -47,18 +47,11 @@ const updateAtPath = (setter, path, val) => {
 
 // ── sub-componentes de celda ────────────────────────────
 const Field = ({ label, children, className = "" }) => (
-  <BannerAutoguardado
-          clave={claveAutoguardado}
-          onRestaurar={(datosGuardados) => setData(datosGuardados)}
-          isEditing={isEditing}
-        />
-
-        <div className={`ia-field ${className}`}>
+  <div className={`ia-field ${className}`}>
     {label && <span className="ia-field-label">{label}</span>}
     {children}
   </div>
 );
-
 const Input = ({ value, onChange, type = "text", readOnly = false, placeholder = "" }) => (
   <input
     type={type}
@@ -750,12 +743,12 @@ export default function InformeAgua() {
   const firmaSupervisorRef = useRef(null);
 
   const [registroId, setRegistroId] = useState(id || null);
-  const [data, setData] = useState(cloneInformeAguaSchema());
+const [data, setData] = useState(cloneInformeAguaSchema());
+const [guardando, setGuardando] = useState(false);
+const [isLocked, setIsLocked] = useState(false);
 
-  // Autoguardado automático cada 15 segundos
-  useAutoguardado(claveAutoguardado, data, !isLocked);
-  const [guardando, setGuardando] = useState(false);
-  const [isLocked, setIsLocked] = useState(false);
+// Autoguardado automático cada 15 segundos
+useAutoguardado(claveAutoguardado, data, !isLocked);
 
   // ── carga desde Supabase ──────────────────────────────
   useEffect(() => {
@@ -942,7 +935,11 @@ navigate("/agua/recorrido/informe");
       </div>
 
       <div className="ia-container">
-
+  <BannerAutoguardado
+  clave={claveAutoguardado}
+  onRestaurar={(datosGuardados) => setData(datosGuardados)}
+  isEditing={isEditing}
+/>
         {/* ── 1. Encabezado del informe ── */}
         <div className="ia-section">
           <div className="ia-section-header">Encabezado del Informe</div>
