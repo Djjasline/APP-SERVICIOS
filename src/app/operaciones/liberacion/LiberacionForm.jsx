@@ -172,13 +172,14 @@ pendientes.push({
   }
 };
   return (
+  <>
     <BannerAutoguardado
-          clave={claveAutoguardado}
-          onRestaurar={(datosGuardados) => setForm(datosGuardados)}
-          isEditing={{false}}
-        />
+      clave={claveAutoguardado}
+      onRestaurar={(datosGuardados) => setForm(datosGuardados)}
+      isEditing={isEditing}
+    />
 
-        <div className="p-6 bg-slate-100 min-h-screen">
+    <div className="p-6 bg-slate-100 min-h-screen">
       <div className="max-w-[794px] mx-auto bg-white p-6 shadow border">
 
         {/* HEADER */}
@@ -329,5 +330,6 @@ pendientes.push({
 
       </div>
     </div>
-  );
+  </>
+);
 }
