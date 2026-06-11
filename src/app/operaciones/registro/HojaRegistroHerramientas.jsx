@@ -55,8 +55,6 @@ export default function HojaRegistroHerramientas() {
     load();
   }, [id]);
 
-  const isLocked = estado === "completado";
-
   /* ================= AGREGAR ITEM ================= */
   const addItem = () => {
     setFormData((prev) => ({
