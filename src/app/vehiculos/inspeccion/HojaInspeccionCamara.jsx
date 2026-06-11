@@ -446,7 +446,7 @@ const firmaCliente =
 
       const estadoFinal = firmaTecnico && firmaCliente ? "completado" : "borrador";
 
-      const result = await saveOrUpdateReport({
+const result = await saveOrUpdateReport({
   id: isEditing ? id : null,
 
   area: "vehiculos",
@@ -466,12 +466,14 @@ const firmaCliente =
   estado: estadoFinal,
 });
 
-      setSuccessMsg(
-
       limpiarBorrador(claveAutoguardado);
-        estadoFinal === "completado" ? "Inspección completada ✅" : "Borrador guardado ✅"
+
+      setSuccessMsg(
+        estadoFinal === "completado"
+          ? "Inspección completada ✅"
+          : "Borrador guardado ✅"
       );
-      setTimeout(() => {
+       setTimeout(() => {
         if (!isEditing && result?.id) navigate(`/vehiculos/inspeccion/camara/${result.id}`);
         else navigate("/vehiculos/inspeccion");
       }, 1200);
