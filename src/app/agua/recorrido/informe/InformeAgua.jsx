@@ -4,6 +4,8 @@
 //  Filosofía: igual que HojaInspeccionHidro / HojaRecepcion
 // ──────────────────────────────────────────────────────
 import React, { useEffect, useRef, useState } from "react";
+import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { supabase } from "@/lib/supabase";
@@ -45,7 +47,13 @@ const updateAtPath = (setter, path, val) => {
 
 // ── sub-componentes de celda ────────────────────────────
 const Field = ({ label, children, className = "" }) => (
-  <div className={`ia-field ${className}`}>
+  <BannerAutoguardado
+          clave={claveAutoguardado}
+          onRestaurar={(datosGuardados) => setData(datosGuardados)}
+          isEditing={isEditing}
+        />
+
+        <div className={`ia-field ${className}`}>
     {label && <span className="ia-field-label">{label}</span>}
     {children}
   </div>
@@ -733,6 +741,8 @@ const Styles = () => (
 // ── Componente principal ────────────────────────────────
 export default function InformeAgua() {
   const { id } = useParams();
+  const isEditing = !!id;
+  const claveAutoguardado = `informe_recorrido_${id ?? "new"}`;
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -741,6 +751,9 @@ export default function InformeAgua() {
 
   const [registroId, setRegistroId] = useState(id || null);
   const [data, setData] = useState(cloneInformeAguaSchema());
+
+  // Autoguardado automático cada 15 segundos
+  useAutoguardado(claveAutoguardado, data, !isLocked);
   const [guardando, setGuardando] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
 
@@ -838,6 +851,8 @@ export default function InformeAgua() {
 
       if (result?.id) setRegistroId(result.id);
      alert("Guardado correctamente");
+
+      limpiarBorrador(claveAutoguardado);
 navigate("/agua/recorrido/informe");
     } catch (err) {
       console.error("Error guardando informe:", err);
