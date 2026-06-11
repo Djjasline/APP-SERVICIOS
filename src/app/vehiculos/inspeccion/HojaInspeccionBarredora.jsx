@@ -1,4 +1,6 @@
 import { useTechnicians } from "@/hooks/useTechnicians";
+import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
@@ -163,6 +165,7 @@ const superAdminActivo =
     ? isSuperAdmin()
     : !!isSuperAdmin;
 const isEditing = !!id;
+  const claveAutoguardado = `inspeccion_barredora_${id ?? "new"}`;
   const {
     technicians,
     loading: loadingTechnicians,
@@ -177,6 +180,9 @@ const [successMsg, setSuccessMsg]         = useState("");
    const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
 const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
 const [data, setData] = useState(emptyForm);
+
+  // Autoguardado automático cada 15 segundos
+  useAutoguardado(claveAutoguardado, data, !isEditing);
 
 /* ── PROGRESO ── */
 const itemsMarcados = todosLosItems.filter(
@@ -664,6 +670,8 @@ const result = await saveOrUpdateReport({
 });
 
 setSuccessMsg(
+
+      limpiarBorrador(claveAutoguardado);
   estadoFinal === "completado"
     ? "Inspección completada ✅"
     : "Borrador guardado ✅"
@@ -783,7 +791,13 @@ setTimeout(() => {
           </table>
 
           {/* ══ 2. DATOS CLIENTE / TÉCNICO ══ */}
-          <h3 className="font-bold text-sm border-b pb-1">DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE</h3>
+          <BannerAutoguardado
+          clave={claveAutoguardado}
+          onRestaurar={(datosGuardados) => setData(datosGuardados)}
+          isEditing={isEditing}
+        />
+
+        <h3 className="font-bold text-sm border-b pb-1">DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE</h3>
           <table className="pdf-table w-full">
             <tbody>
               <tr>
