@@ -1,4 +1,6 @@
 import { useTechnicians } from "@/hooks/useTechnicians";
+import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useAuth } from "@/context/AuthContext";
 import { getLoggedTechnician } from "@/utils/getLoggedTechnician";
 import { saveOrUpdateReport } from "@/services/reportService";
@@ -26,6 +28,7 @@ export default function NuevoInforme() {
 
   const { id } = useParams();
   const isEditing = !!id;
+  const claveAutoguardado = `informe_vehiculos_${id ?? "new"}`;
 
   /* ===========================
      ESTADO BASE
@@ -85,6 +88,9 @@ export default function NuevoInforme() {
   };
 
  const [data, setData] = useState(emptyReport);
+
+  // Autoguardado automático cada 15 segundos
+  useAutoguardado(claveAutoguardado, data, !isEditing);
 const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
 const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
 
@@ -560,6 +566,8 @@ const firmaCliente =
         estado: estadoFinal,
       });
 
+      limpiarBorrador(claveAutoguardado);
+
       alert(
         isEditing
           ? "Informe actualizado correctamente ✅"
@@ -579,6 +587,12 @@ const firmaCliente =
   return (
     <div className="p-3 md:p-6 bg-gray-100 min-h-screen">
       <div className="bg-white p-4 md:p-6 rounded shadow w-full max-w-screen-xl mx-auto space-y-6">
+        <BannerAutoguardado
+          clave={claveAutoguardado}
+          onRestaurar={(datosGuardados) => setData(datosGuardados)}
+          isEditing={isEditing}
+        />
+
         <ReportHeader data={data} onChange={update} />
 
         {/* ── DATOS DEL CLIENTE Y TÉCNICO ── */}
