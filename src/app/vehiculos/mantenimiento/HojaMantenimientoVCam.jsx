@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import imageCompression from "browser-image-compression";
@@ -174,6 +176,7 @@ export default function HojaMantenimientoVCam() {
   const { id }    = useParams();
   const navigate  = useNavigate();
   const isEditing = !!id;
+  const claveAutoguardado = `mantenimiento_vcam_${id ?? "new"}`;
 
  const { user, isSuperAdmin } = useAuth();
 
@@ -187,6 +190,9 @@ const superAdminActivo =
   const sigCliente = useRef(null);
 
   const [data, setData]                     = useState(emptyForm);
+
+  // Autoguardado automático cada 15 segundos
+  useAutoguardado(claveAutoguardado, data, !isEditing);
   const [guardando, setGuardando]           = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [successMsg, setSuccessMsg]         = useState("");
@@ -504,7 +510,9 @@ const result = await saveOrUpdateReport({
   estado: estadoFinal,
 });
 
-      setSuccessMsg(estadoFinal === "completado" ? "Mantenimiento completado ✅" : "Borrador guardado ✅");
+      setSuccessMsg(
+
+      limpiarBorrador(claveAutoguardado);estadoFinal === "completado" ? "Mantenimiento completado ✅" : "Borrador guardado ✅");
       setTimeout(() => {
         if (!isEditing && result?.id) navigate(`/vehiculos/mantenimiento/vcam/${result.id}`);
         else navigate("/vehiculos/mantenimiento");
@@ -574,7 +582,13 @@ const result = await saveOrUpdateReport({
           </table>
 
           {/* ══ 2. DATOS CLIENTE / TÉCNICO ══ */}
-          <h3 className="font-bold text-sm border-b pb-1">DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE</h3>
+          <BannerAutoguardado
+          clave={claveAutoguardado}
+          onRestaurar={(datosGuardados) => setData(datosGuardados)}
+          isEditing={isEditing}
+        />
+
+        <h3 className="font-bold text-sm border-b pb-1">DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE</h3>
           <table className="pdf-table w-full">
             <tbody>
               <tr>
