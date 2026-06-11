@@ -1,4 +1,6 @@
 import { useTechnicians } from "@/hooks/useTechnicians";
+import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
@@ -129,6 +131,7 @@ const superAdminActivo =
     ? isSuperAdmin()
     : !!isSuperAdmin;
   const isEditing  = !!id;
+  const claveAutoguardado = `inspeccion_hidro_${id ?? "new"}`;
 
   const { technicians, loading: loadingTecnicos } = useTechnicians();
 
@@ -136,6 +139,9 @@ const superAdminActivo =
   const sigCliente = useRef(null);
 
   const [data, setData]                     = useState(emptyForm);
+
+  // Autoguardado automático cada 15 segundos
+  useAutoguardado(claveAutoguardado, data, !isEditing);
   const [guardando, setGuardando]           = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [successMsg, setSuccessMsg]         = useState("");
@@ -480,7 +486,9 @@ const firmaCliente =
   estado: estadoFinal,
 });
 
-      setSuccessMsg(estadoFinal === "completado" ? "Inspección completada ✅" : "Borrador guardado ✅");
+      setSuccessMsg(
+
+      limpiarBorrador(claveAutoguardado);estadoFinal === "completado" ? "Inspección completada ✅" : "Borrador guardado ✅");
       setTimeout(() => {
         if (!isEditing && result?.id) navigate(`/vehiculos/inspeccion/hidro/${result.id}`);
         else navigate("/vehiculos/inspeccion");
@@ -575,7 +583,13 @@ const firmaCliente =
           </table>
 
           {/* ══ 2. DATOS CLIENTE / TÉCNICO ══ */}
-          <h3 className="font-bold text-sm border-b pb-1">DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE</h3>
+          <BannerAutoguardado
+          clave={claveAutoguardado}
+          onRestaurar={(datosGuardados) => setData(datosGuardados)}
+          isEditing={isEditing}
+        />
+
+        <h3 className="font-bold text-sm border-b pb-1">DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE</h3>
           <table className="pdf-table w-full">
             <tbody>
               <tr>
