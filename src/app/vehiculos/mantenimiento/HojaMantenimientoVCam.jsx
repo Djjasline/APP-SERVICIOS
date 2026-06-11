@@ -510,10 +510,14 @@ const result = await saveOrUpdateReport({
   estado: estadoFinal,
 });
 
-      setSuccessMsg(
+      limpiarBorrador(claveAutoguardado);
 
-      limpiarBorrador(claveAutoguardado);estadoFinal === "completado" ? "Mantenimiento completado ✅" : "Borrador guardado ✅");
-      setTimeout(() => {
+      setSuccessMsg(
+        estadoFinal === "completado"
+          ? "Mantenimiento completado ✅"
+          : "Borrador guardado ✅"
+      );
+       setTimeout(() => {
         if (!isEditing && result?.id) navigate(`/vehiculos/mantenimiento/vcam/${result.id}`);
         else navigate("/vehiculos/mantenimiento");
       }, 1200);
