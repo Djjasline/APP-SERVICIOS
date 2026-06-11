@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { useTechnicians } from "@/hooks/useTechnicians";
@@ -113,6 +115,7 @@ export default function HojaMantenimientoHidro() {
     user?.email?.toLowerCase() === "smaviles@astap.com";
 
   const isEditing = !!id;
+  const claveAutoguardado = `mantenimiento_hidro_${id ?? "new"}`;
 
   const { technicians, loading: loadingTecnicos } = useTechnicians();
 
@@ -120,6 +123,9 @@ export default function HojaMantenimientoHidro() {
   const sigCliente = useRef(null);
 
   const [data, setData] = useState(emptyForm);
+
+  // Autoguardado automático cada 15 segundos
+  useAutoguardado(claveAutoguardado, data, !isEditing);
   const [guardando, setGuardando] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [successMsg, setSuccessMsg] = useState("");
@@ -450,6 +456,8 @@ const result = await saveOrUpdateReport({
 });
 
       setSuccessMsg(
+
+      limpiarBorrador(claveAutoguardado);
         estadoFinal === "completado" ? "Mantenimiento completado ✅" : "Borrador guardado ✅"
       );
       setTimeout(() => {
@@ -549,7 +557,13 @@ const result = await saveOrUpdateReport({
           </table>
 
           {/* ══ 2. DATOS CLIENTE / TÉCNICO ══ */}
-          <h3 className="font-bold text-sm border-b pb-1">
+          <BannerAutoguardado
+          clave={claveAutoguardado}
+          onRestaurar={(datosGuardados) => setData(datosGuardados)}
+          isEditing={isEditing}
+        />
+
+        <h3 className="font-bold text-sm border-b pb-1">
             DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE
           </h3>
           <table className="pdf-table w-full">
