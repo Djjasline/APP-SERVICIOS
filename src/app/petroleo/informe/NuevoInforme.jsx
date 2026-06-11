@@ -512,10 +512,10 @@ const save = async () => {
   estado: estadoFinal,
 });
 
-setSuccessMsg(isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
-limpiarBorrador(claveAutoguardado);
-setTimeout(() => navigate("/petroleo/informe"), 1200);    
+    setSuccessMsg(
 
+      limpiarBorrador(claveAutoguardado);isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
+    setTimeout(() => navigate("/petroleo/informe"), 1200);
   } catch (err) {
     console.error(err);
     setSuccessMsg("Error al guardar ❌");
@@ -536,6 +536,12 @@ setTimeout(() => navigate("/petroleo/informe"), 1200);
 
       <div className="p-3 md:p-6 bg-gray-100 min-h-screen">
         <div className="bg-white p-4 md:p-6 rounded shadow w-full max-w-screen-xl mx-auto space-y-6">
+
+          <BannerAutoguardado
+            clave={claveAutoguardado}
+            onRestaurar={(datosGuardados) => setData(datosGuardados)}
+            isEditing={isEditing}
+          />
 
           {/* ── SELECTOR TIPO ── */}
           <div className="flex gap-3 items-center">
@@ -1225,13 +1231,7 @@ setTimeout(() => navigate("/petroleo/informe"), 1200);
             </section>
           )}
 
-<BannerAutoguardado
-          clave={claveAutoguardado}
-          onRestaurar={(datosGuardados) => setData(datosGuardados)}
-          isEditing={isEditing}
-        />
-
-        <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
+<h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
 
 <div className="border rounded-xl p-4 bg-white space-y-4">
   <div>
