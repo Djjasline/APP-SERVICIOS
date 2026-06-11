@@ -247,13 +247,7 @@ const url = await uploadRegistroImage(
   };
 
   return (
-    <BannerAutoguardado
-          clave={claveAutoguardado}
-          onRestaurar={(datosGuardados) => setData(datosGuardados)}
-          isEditing={isEditing}
-        />
-
-        <div className="damage-area-photo">
+    <div className="damage-area-photo">
       {!readOnly && (
         <div className="no-print damage-upload-row">
           <label className="damage-upload-btn">
@@ -1066,13 +1060,12 @@ export default function HojaRecepcion() {
   const firmaRecepcionRef = useRef(null);
 
   const [registroId, setRegistroId] = useState(id || null);
-  const [data, setData] = useState(cloneRecepcionSchema());
+const [data, setData] = useState(cloneRecepcionSchema());
+const [guardando, setGuardando] = useState(false);
+const [isLocked, setIsLocked] = useState(false);
 
-  // Autoguardado automático cada 15 segundos
-  useAutoguardado(claveAutoguardado, data, !isLocked);
-  const [guardando, setGuardando] = useState(false);
-  const [isLocked, setIsLocked] = useState(false);
-
+// Autoguardado automático cada 15 segundos
+useAutoguardado(claveAutoguardado, data, !isLocked);
   useEffect(() => {
     if (!id) return;
 
@@ -1189,6 +1182,11 @@ export default function HojaRecepcion() {
 
   return (
     <div className="p-4 max-w-[1080px] mx-auto space-y-3">
+      <BannerAutoguardado
+      clave={claveAutoguardado}
+      onRestaurar={(datosGuardados) => setData(datosGuardados)}
+      isEditing={isEditing}
+    />
       <div className="no-print flex flex-wrap justify-between gap-2">
         <button
           type="button"
