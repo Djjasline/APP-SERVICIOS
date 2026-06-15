@@ -26,12 +26,9 @@ export default function HojaRegistroHerramientas() {
     firmaAprobador: "",
   };
 
-  const [formData, setFormData] = useState(baseState);
+const [formData, setFormData] = useState(baseState); const [estado, setEstado] = useState("salida"); const isLocked = estado === "completado";
 
-  // Autoguardado automático cada 15 segundos
-  useAutoguardado(claveAutoguardado, formData, !isLocked);
-  const [estado, setEstado] = useState("salida");
-
+// Autoguardado automático cada 15 segundos (deshabilita cuando está bloqueado) useAutoguardado(claveAutoguardado, formData, !isLocked);
   /* ================= CARGAR REGISTRO ================= */
   useEffect(() => {
     if (!id) return;
