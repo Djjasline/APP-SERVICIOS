@@ -543,9 +543,11 @@ const firmaCliente =
     ? sigCliente.current.toDataURL()
     : data.firmas?.cliente || "";
 
-      const firmaTecnicoFinal = firmaTecnico || data.firmas?.tecnico || "";
-      const firmaClienteFinal = firmaCliente || data.firmas?.cliente || "";
-      const estadoFinal = firmaTecnicoFinal ? "completado" : "borrador";
+     const firmaTecnicoFinal = firmaTecnico || data.firmas?.tecnico || "";
+const firmaClienteFinal = firmaCliente || data.firmas?.cliente || "";
+
+const estadoFinal =
+  firmaTecnicoFinal && firmaClienteFinal ? "completado" : "borrador";
 
       const finalData = {
         ...data,
