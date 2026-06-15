@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase";
+import { createNotification } from "./notificationService";
 
 export const saveOrUpdateReport = async ({
   id = null,
@@ -19,35 +20,22 @@ export const saveOrUpdateReport = async ({
       throw new Error("Usuario no autenticado");
     }
 
-   const payload = {
-  area, // vehiculos | agua | petroleo | operaciones
-  tipo, // informe | inspeccion | mantenimiento | liberacion | recepcion | registro
-  subtipo, // general | hidro | barredora | camara | bomba | valvula
-  data,
-  estado,
-  updated_at: new Date().toISOString(),
-};
+    const payload = {
+      area, // vehiculos | agua | petroleo | operaciones
+      tipo, // informe | inspeccion | mantenimiento | liberacion | recepcion | registro
+      subtipo,
+      data,
+      estado,
+      updated_at: new Date().toISOString(),
+    };
 
-
-if (!id) {
-  payload.user_id = user.id;
-}
+    if (!id) payload.user_id = user.id;
 
     let query;
-
     if (id) {
-      query = supabase
-  .from("registros")
-  .update(payload)
-  .eq("id", id)
-  .select()
-  .maybeSingle();
+      query = supabase.from("registros").update(payload).eq("id", id).select().maybeSingle();
     } else {
-      query = supabase
-        .from("registros")
-        .insert(payload)
-        .select()
-.maybeSingle();
+      query = supabase.from("registros").insert(payload).select().maybeSingle();
     }
 
     const { data: result, error } = await query;
@@ -60,6 +48,23 @@ if (!id) {
         code: error.code,
       });
       throw error;
+    }
+
+    // Notificar (mínimo) para registros de operaciones en estado 'salida'
+    try {
+      if (result && result.area === "operaciones" && result.tipo === "registro") {
+        if (result.estado === "salida") {
+          await createNotification({
+            recipient_email: "kamhez@astap.com",
+            title: "Nuevo registro en Operaciones",
+            message: `Registro ${result.id} requiere revisión (estado: ${result.estado})`,
+            record_type: "registro",
+            record_id: result.id,
+          }).catch((e) => console.error("Notification error:", e));
+        }
+      }
+    } catch (notifyErr) {
+      console.error("Error al intentar notificar:", notifyErr);
     }
 
     return result;
