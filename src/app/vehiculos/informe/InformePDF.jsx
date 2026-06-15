@@ -439,61 +439,61 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             />
           )}
 
-          <div
-            style={{
-              marginTop: 10,
-              fontSize: 12,
-              fontWeight: 700,
-            }}
-          >
-            {data.tecnicoNombre || "—"}
-          </div>
+         <div
+  style={{
+    marginTop: 10,
+    fontSize: 12,
+    fontWeight: 700,
+  }}
+>
+  {data.contacto || "—"}
+</div>
         </td>
 
-        {/* ================= CLIENTE ================= */}
-        <td
-          style={{
-            ...S.cell,
-            height: 120,
-            textAlign: "center",
-            verticalAlign: "top",
-            paddingTop: 6,
-          }}
-        >
-          {data.firmas?.cliente && (
-            <img
-              src={data.firmas.cliente}
-              alt="Firma cliente"
-              style={{
-                width: "100%",
-                maxWidth: 180,
-                height: "auto",
-                objectFit: "contain",
-                display: "block",
-                margin: "0 auto",
-              }}
-            />
-          )}
+       {/* ================= CLIENTE ================= */}
+<td
+  style={{
+    ...S.cell,
+    height: 120,
+    textAlign: "center",
+    verticalAlign: "top",
+    paddingTop: 6,
+  }}
+>
+  {data.firmas?.cliente && (
+    <img
+      src={data.firmas.cliente}
+      alt="Firma cliente"
+      style={{
+        width: "100%",
+        maxWidth: 180,
+        height: "auto",
+        objectFit: "contain",
+        display: "block",
+        margin: "0 auto",
+      }}
+    />
+  )}
 
-          <div
-            style={{
-              marginTop: 10,
-              fontSize: 12,
-              fontWeight: 700,
-            }}
-          >
-            {data.cliente || "—"}
-          </div>
+  <div
+    style={{
+      marginTop: 10,
+      fontSize: 12,
+      fontWeight: 700,
+    }}
+  >
+    {data.contacto || "—"}
+  </div>
 
-          <div
-            style={{
-              marginTop: 4,
-              fontSize: 11,
-            }}
-          >
-            Cédula: {data.firmas?.clienteCedula || "—"}
-          </div>
-        </td>
+  <div
+    style={{
+      marginTop: 4,
+      fontSize: 11,
+    }}
+  >
+    Cédula: {data.firmas?.clienteCedula || "—"}
+  </div>
+</td>
       </tr>
     </tbody>
   </table>
