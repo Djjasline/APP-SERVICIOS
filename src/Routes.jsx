@@ -91,6 +91,21 @@ const AdminRoute = ({ children }) => (
   </RoleRoute>
 );
 
+const VehiculosRoute = ({ children }) => (
+  <RoleRoute
+    allowedRoles={[
+      "super_admin",
+      "admin",
+      "tecnico",
+      "supervisor_operaciones",
+      "supervisor_proyecto",
+      "proveedor_vehiculos",
+    ]}
+  >
+    {children}
+  </RoleRoute>
+);
+
 function LiberacionRedirect() {
   const { id } = useParams();
   return <Navigate to={`/operaciones/liberacion/${id}`} replace />;
@@ -129,7 +144,7 @@ export default function RoutesApp() {
             <Route path="/perfil" element={<Perfil />} />
 
             {/* ================= ÁREAS ================= */}
-            <Route path="/area/vehiculos" element={<TechRoute><AreaVehiculos /></TechRoute>} />
+            <Route path="/area/vehiculos" element={<VehiculosRoute><AreaVehiculos /></VehiculosRoute>} />
             <Route path="/area/agua" element={<TechRoute><AreaAgua /></TechRoute>} />
             <Route path="/area/petroleo" element={<TechRoute><AreaPetroleo /></TechRoute>} />
             <Route path="/operaciones" element={<TechRoute><AreaOperaciones /></TechRoute>} />
@@ -137,14 +152,14 @@ export default function RoutesApp() {
 
             {/* ================= VEHÍCULOS / INFORMES ================= */}
             {/* Rutas antiguas de compatibilidad */}
-            <Route path="/informe" element={<TechRoute><InformeHome /></TechRoute>} />
-            <Route path="/informe/nuevo" element={<TechRoute><NuevoInforme /></TechRoute>} />
-            <Route path="/informe/:id" element={<TechRoute><NuevoInforme /></TechRoute>} />
+            <Route path="/informe" element={<VehiculosRoute><InformeHome /></VehiculosRoute>} />
+            <Route path="/informe/nuevo" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
+            <Route path="/informe/:id" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
 
             {/* Rutas oficiales */}
-            <Route path="/vehiculos/informe" element={<TechRoute><InformeHome /></TechRoute>} />
-            <Route path="/vehiculos/informe/nuevo" element={<TechRoute><NuevoInforme /></TechRoute>} />
-            <Route path="/vehiculos/informe/:id" element={<TechRoute><NuevoInforme /></TechRoute>} />
+           <Route path="/vehiculos/informe" element={<VehiculosRoute><InformeHome /></VehiculosRoute>} />
+           <Route path="/vehiculos/informe/nuevo" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
+           <Route path="/vehiculos/informe/:id" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
 
             {/* ================= AGUA / INFORMES ================= */}
             <Route path="/agua/informe" element={<TechRoute><AguaInformeHome /></TechRoute>} />
@@ -159,8 +174,8 @@ export default function RoutesApp() {
 
             {/* ================= VEHÍCULOS / INSPECCIÓN ================= */}
             {/* Historial */}
-            <Route path="/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
-            <Route path="/vehiculos/inspeccion" element={<TechRoute><HistorialInspecciones /></TechRoute>} />
+            <Route path="/inspeccion" element={<VehiculosRoute><HistorialInspecciones /></VehiculosRoute>} />
+            <Route path="/vehiculos/inspeccion" element={<VehiculosRoute><HistorialInspecciones /></VehiculosRoute>} />
 
             {/* Petróleo antiguo redirigido */}
             <Route path="/petroleo/inspeccion" element={<Navigate to="/petroleo/informe" replace />} />
