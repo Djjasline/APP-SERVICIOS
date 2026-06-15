@@ -97,18 +97,26 @@ export default function NotificationsPage() {
                   </button>
                 )}
 
-                {n.record_type === "registro" && n.record_id && (
-                  <button
-                    onClick={() =>
-                      navigate(
-                        `/operaciones/registro/${n.record_id}`
-                      )
-                    }
-                    className="text-xs text-blue-300 hover:underline"
-                  >
-                    Ir al registro
-                  </button>
-                )}
+                {n.record_id && (
+  <button
+    onClick={() => {
+      if (n.record_type === "registro") {
+        navigate(`/operaciones/registro/${n.record_id}`);
+      }
+
+      if (n.record_type === "recepcion") {
+        navigate(`/operaciones/recepcion/${n.record_id}`);
+      }
+
+      if (n.record_type === "liberacion") {
+        navigate(`/operaciones/liberacion/${n.record_id}`);
+      }
+    }}
+    className="text-xs text-blue-300 hover:underline"
+  >
+    Ir al formulario
+  </button>
+)}
               </div>
             </li>
           ))}
