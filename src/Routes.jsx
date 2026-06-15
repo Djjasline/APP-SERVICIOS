@@ -72,6 +72,9 @@ import RegistroHome from "./app/operaciones/registro/RegistroHome";
 import HojaRegistroHerramientas from "./app/operaciones/registro/HojaRegistroHerramientas";
 import RegistroPDF from "./app/operaciones/registro/RegistroPDF";
 
+// ================= NOTIFICACIONES =================
+import NotificationsPage from "./pages/Notifications";
+
 const TechRoute = ({ children }) => (
   <RoleRoute
     allowedRoles={[
@@ -126,10 +129,8 @@ export default function RoutesApp() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* 🔐 LOGIN */}
           <Route path="/login" element={<Login />} />
 
-          {/* 🔒 PROTEGIDO + LAYOUT */}
           <Route
             element={
               <ProtectedRoute>
@@ -137,20 +138,17 @@ export default function RoutesApp() {
               </ProtectedRoute>
             }
           >
-            {/* ================= PANEL ================= */}
             <Route path="/" element={<PanelServicios />} />
-
-            {/* ================= PERFIL ================= */}
             <Route path="/perfil" element={<Perfil />} />
 
-            {/* ================= ÁREAS ================= */}
             <Route path="/area/vehiculos" element={<VehiculosRoute><AreaVehiculos /></VehiculosRoute>} />
             <Route path="/area/agua" element={<TechRoute><AreaAgua /></TechRoute>} />
             <Route path="/area/petroleo" element={<TechRoute><AreaPetroleo /></TechRoute>} />
             <Route path="/operaciones" element={<TechRoute><AreaOperaciones /></TechRoute>} />
             <Route path="/repositorios" element={<TechRoute><AreaRepositorios /></TechRoute>} />
 
-            {/* ================= VEHÍCULOS / INFORMES ================= */}
+            <Route path="/notifications" element={<TechRoute><NotificationsPage /></TechRoute>} />
+
             <Route path="/informe" element={<VehiculosRoute><InformeHome /></VehiculosRoute>} />
             <Route path="/informe/nuevo" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
             <Route path="/informe/:id" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
@@ -159,18 +157,15 @@ export default function RoutesApp() {
             <Route path="/vehiculos/informe/nuevo" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
             <Route path="/vehiculos/informe/:id" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
 
-            {/* ================= AGUA / INFORMES ================= */}
             <Route path="/agua/informe" element={<TechRoute><AguaInformeHome /></TechRoute>} />
             <Route path="/agua/informe/nuevo" element={<TechRoute><AguaNuevoInforme /></TechRoute>} />
             <Route path="/agua/informe/:id" element={<TechRoute><AguaNuevoInforme /></TechRoute>} />
             <Route path="/agua/recorrido/informe/*" element={<TechRoute><InformeAguaRoutes /></TechRoute>} />
 
-            {/* ================= PETRÓLEO / INFORMES ================= */}
             <Route path="/petroleo/informe" element={<TechRoute><PetroleoInformeHome /></TechRoute>} />
             <Route path="/petroleo/informe/nuevo" element={<TechRoute><PetroleoNuevoInforme /></TechRoute>} />
             <Route path="/petroleo/informe/:id" element={<TechRoute><PetroleoNuevoInforme /></TechRoute>} />
 
-            {/* ================= VEHÍCULOS / INSPECCIÓN ================= */}
             <Route path="/inspeccion" element={<VehiculosRoute><HistorialInspecciones /></VehiculosRoute>} />
             <Route path="/vehiculos/inspeccion" element={<VehiculosRoute><HistorialInspecciones /></VehiculosRoute>} />
 
@@ -194,7 +189,6 @@ export default function RoutesApp() {
             <Route path="/vehiculos/inspeccion/camara/new" element={<VehiculosRoute><HojaInspeccionCamara /></VehiculosRoute>} />
             <Route path="/vehiculos/inspeccion/camara/:id" element={<VehiculosRoute><HojaInspeccionCamara /></VehiculosRoute>} />
 
-            {/* ================= VEHÍCULOS / MANTENIMIENTO ================= */}
             <Route path="/mantenimiento" element={<VehiculosRoute><IndexMantenimiento /></VehiculosRoute>} />
             <Route path="/vehiculos/mantenimiento" element={<VehiculosRoute><IndexMantenimiento /></VehiculosRoute>} />
 
@@ -218,7 +212,6 @@ export default function RoutesApp() {
             <Route path="/vehiculos/mantenimiento/vcam/new" element={<VehiculosRoute><HojaMantenimientoVCam /></VehiculosRoute>} />
             <Route path="/vehiculos/mantenimiento/vcam/:id" element={<VehiculosRoute><HojaMantenimientoVCam /></VehiculosRoute>} />
 
-            {/* ================= OPERACIONES ================= */}
             <Route path="/liberacion" element={<Navigate to="/operaciones/liberacion" replace />} />
             <Route path="/liberacion/nuevo" element={<Navigate to="/operaciones/liberacion/nuevo" replace />} />
             <Route path="/liberacion/:id" element={<LiberacionRedirect />} />
@@ -244,22 +237,17 @@ export default function RoutesApp() {
             <Route path="/operaciones/registro/pdf/:id" element={<TechRoute><RegistroPDF /></TechRoute>} />
             <Route path="/operaciones/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
 
-            {/* ================= REPOSITORIOS ================= */}
             <Route path="/repositorios/documentos" element={<TechRoute><AreaRepositorios /></TechRoute>} />
             <Route path="/repositorios/pdf" element={<TechRoute><AreaRepositorios /></TechRoute>} />
             <Route path="/repositorios/archivos" element={<TechRoute><AreaRepositorios /></TechRoute>} />
             <Route path="/repositorios/manuales-tecnicos" element={<TechRoute><ManualesTecnicos /></TechRoute>} />
           </Route>
 
-          {/* ================= PDF FUERA DEL LAYOUT ================= */}
-
-          {/* Informes PDF */}
           <Route path="/informe/pdf/:id" element={<ProtectedRoute><VehiculosRoute><InformePDF /></VehiculosRoute></ProtectedRoute>} />
           <Route path="/vehiculos/informe/pdf/:id" element={<ProtectedRoute><VehiculosRoute><InformePDF /></VehiculosRoute></ProtectedRoute>} />
           <Route path="/agua/informe/pdf/:id" element={<ProtectedRoute><TechRoute><AguaInformePDF /></TechRoute></ProtectedRoute>} />
           <Route path="/petroleo/informe/pdf/:id" element={<ProtectedRoute><TechRoute><PetroleoInformePDF /></TechRoute></ProtectedRoute>} />
 
-          {/* Inspecciones PDF */}
           <Route path="/inspeccion/hidro/:id/pdf" element={<ProtectedRoute><VehiculosRoute><InspeccionHidroPDF /></VehiculosRoute></ProtectedRoute>} />
           <Route path="/inspeccion/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><InspeccionBarredoraPDF /></VehiculosRoute></ProtectedRoute>} />
           <Route path="/inspeccion/camara/:id/pdf" element={<ProtectedRoute><VehiculosRoute><InspeccionCamaraPDF /></VehiculosRoute></ProtectedRoute>} />
@@ -268,19 +256,8 @@ export default function RoutesApp() {
           <Route path="/vehiculos/inspeccion/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><InspeccionBarredoraPDF /></VehiculosRoute></ProtectedRoute>} />
           <Route path="/vehiculos/inspeccion/camara/:id/pdf" element={<ProtectedRoute><VehiculosRoute><InspeccionCamaraPDF /></VehiculosRoute></ProtectedRoute>} />
 
-          {/* Recepción PDF */}
-          <Route
-            path="/operaciones/recepcion/:id/pdf"
-            element={
-              <ProtectedRoute>
-                <TechRoute>
-                  <HojaRecepcionPDF />
-                </TechRoute>
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/operaciones/recepcion/:id/pdf" element={<ProtectedRoute><TechRoute><HojaRecepcionPDF /></TechRoute></ProtectedRoute>} />
 
-          {/* Mantenimiento PDF */}
           <Route path="/mantenimiento/hidro/:id/pdf" element={<ProtectedRoute><VehiculosRoute><MantenimientoHidroPDF /></VehiculosRoute></ProtectedRoute>} />
           <Route path="/mantenimiento/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><MantenimientoBarredoraPDF /></VehiculosRoute></ProtectedRoute>} />
           <Route path="/mantenimiento/vcam/:id/pdf" element={<ProtectedRoute><VehiculosRoute><MantenimientoVCamPDF /></VehiculosRoute></ProtectedRoute>} />
