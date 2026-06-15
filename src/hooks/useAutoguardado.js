@@ -9,9 +9,12 @@ import { useEffect, useRef, useCallback } from "react";
  * @param {any}      datos       - El objeto de estado del formulario
  * @param {boolean}  activo      - false cuando el registro ya está completado/bloqueado
  * @param {number}   intervalo   - Milisegundos entre guardados (default 15000)
+ *
+ * Retorna: { forzarGuardar, limpiar } - funciones para forzar guardado y limpiar borrador local
  */
 export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) {
   const datosRef = useRef(datos);
+  const debounceRef = useRef(null);
 
   // Mantener ref actualizada sin re-disparar efectos
   useEffect(() => {
@@ -26,6 +29,12 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
         guardadoEn: new Date().toISOString(),
       };
       localStorage.setItem(`autoguardado_${clave}`, JSON.stringify(payload));
+
+      // Dev-only log para verificar que el autoguardado se ejecuta
+      if (process.env.NODE_ENV !== "production") {
+        // eslint-disable-next-line no-console
+        console.debug(`[autoguardado] guardado ${clave} @ ${payload.guardadoEn}`);
+      }
     } catch (e) {
       console.warn("[autoguardado] Error al guardar:", e);
     }
@@ -44,6 +53,38 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
     window.addEventListener("beforeunload", guardar);
     return () => window.removeEventListener("beforeunload", guardar);
   }, [guardar, activo, clave]);
+
+  // Guardado debounced al cambiar los datos (guardado inmediato tras 1s de inactividad)
+  useEffect(() => {
+    if (!activo || !clave) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      try {
+        guardar();
+      } catch (e) {
+        /* silencioso */
+      }
+    }, 1000);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
+    };
+  }, [datos, guardar, activo, clave]);
+
+  // Exponer utilidades sencillas para que el componente pueda forzar guardado / limpiar
+  const forzarGuardar = useCallback(() => guardar(), [guardar]);
+  const limpiar = useCallback(() => {
+    try {
+      localStorage.removeItem(`autoguardado_${clave}`);
+    } catch (e) {
+      /* silencioso */
+    }
+  }, [clave]);
+
+  return { forzarGuardar, limpiar };
 }
 
 /**
