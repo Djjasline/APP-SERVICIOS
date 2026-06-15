@@ -5,7 +5,31 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function IndexInspeccion() {
   const navigate = useNavigate();
-  const { user, isSuperAdmin } = useAuth();
+
+  const {
+    user,
+    isSuperAdmin,
+    isSupervisorProyecto,
+    isProveedorVehiculos,
+  } = useAuth();
+
+  const superAdminActivo =
+    typeof isSuperAdmin === "function"
+      ? isSuperAdmin()
+      : !!isSuperAdmin;
+
+  const supervisorProyectoActivo =
+    typeof isSupervisorProyecto === "function"
+      ? isSupervisorProyecto()
+      : !!isSupervisorProyecto;
+
+  const proveedorVehiculosActivo =
+    typeof isProveedorVehiculos === "function"
+      ? isProveedorVehiculos()
+      : !!isProveedorVehiculos;
+
+  const puedeVerTodoVehiculos =
+    superAdminActivo || supervisorProyectoActivo;
 
   const [inspections, setInspections] = useState([]);
 
@@ -26,22 +50,23 @@ export default function IndexInspeccion() {
     if (!user?.id) return;
 
     const loadInspections = async () => {
-const superAdminActivo =
-  typeof isSuperAdmin === "function"
-    ? isSuperAdmin()
-    : !!isSuperAdmin;
+      let query = supabase
+        .from("registros")
+        .select("*")
+        .eq("tipo", "inspeccion")
+        .or("area.eq.vehiculos,area.is.null")
+        .order("created_at", { ascending: false });
 
-let query = supabase
-  .from("registros")
-  .select("*")
-  .eq("tipo", "inspeccion")
-  .or("area.eq.vehiculos,area.is.null")
-  .order("created_at", { ascending: false });
-
-if (!superAdminActivo) {
-  query = query.eq("user_id", user.id);
-}
-    
+      /*
+        REGLA:
+        - Super admin ve todo.
+        - Supervisor de proyecto ve todas las inspecciones de vehículos.
+        - Proveedor vehículos ve solo lo suyo.
+        - Técnico normal ve solo lo suyo.
+      */
+      if (!puedeVerTodoVehiculos) {
+        query = query.eq("user_id", user.id);
+      }
 
       const { data, error } = await query;
 
@@ -55,7 +80,7 @@ if (!superAdminActivo) {
     };
 
     loadInspections();
-  }, [user?.id, isSuperAdmin]);
+  }, [user?.id, puedeVerTodoVehiculos]);
 
   const normalize = (txt) => String(txt || "").toLowerCase();
 
@@ -109,12 +134,12 @@ if (!superAdminActivo) {
      ACCIONES
   ============================== */
   const handleOpen = (item) => {
-  navigate(`/vehiculos/inspeccion/${item.subtipo}/${item.id}`);
-};
+    navigate(`/vehiculos/inspeccion/${item.subtipo}/${item.id}`);
+  };
 
   const handleGeneratePdf = (item) => {
-  navigate(`/vehiculos/inspeccion/${item.subtipo}/${item.id}/pdf`);
-};
+    navigate(`/vehiculos/inspeccion/${item.subtipo}/${item.id}/pdf`);
+  };
 
   const handleDelete = async (item) => {
     if (!user?.id) {
@@ -124,14 +149,17 @@ if (!superAdminActivo) {
 
     if (!confirm("¿Eliminar inspección?")) return;
 
- let query = supabase
-  .from("registros")
-  .delete()
-  .eq("id", item.id)
-  .eq("area", "vehiculos")
-  .eq("tipo", "inspeccion");
+    let query = supabase
+      .from("registros")
+      .delete()
+      .eq("id", item.id)
+      .eq("tipo", "inspeccion");
 
-    if (!isSuperAdmin) {
+    /*
+      Solo super admin y supervisor de proyecto pueden eliminar cualquier inspección de vehículos.
+      Técnicos/proveedores solo eliminan lo suyo.
+    */
+    if (!puedeVerTodoVehiculos) {
       query = query.eq("user_id", user.id);
     }
 
@@ -150,12 +178,12 @@ if (!superAdminActivo) {
      CARD SIMPLE
   ============================== */
   const renderCard = (
-  title,
-  desc,
-  type,
-  colorBtn = "bg-blue-600 hover:bg-blue-700"
-) => (
-  <div className="bg-white p-5 rounded-xl shadow flex flex-col gap-4 hover:shadow-lg hover:-translate-y-1 transition">
+    title,
+    desc,
+    type,
+    colorBtn = "bg-blue-600 hover:bg-blue-700"
+  ) => (
+    <div className="bg-white p-5 rounded-xl shadow flex flex-col gap-4 hover:shadow-lg hover:-translate-y-1 transition">
       <div>
         <h2 className="font-semibold text-gray-900">{title}</h2>
         <p className="text-sm text-gray-500">{desc}</p>
@@ -189,34 +217,47 @@ if (!superAdminActivo) {
         </button>
       </div>
 
-      {isSuperAdmin && (
+      {superAdminActivo && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg text-sm">
-          Modo super administrador: estás viendo todas las inspecciones.
+          Modo super administrador: estás viendo todas las inspecciones de vehículos.
+        </div>
+      )}
+
+      {!superAdminActivo && supervisorProyectoActivo && (
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded-lg text-sm">
+          Modo supervisor de proyecto: estás viendo todas las inspecciones de vehículos.
+        </div>
+      )}
+
+      {proveedorVehiculosActivo && (
+        <div className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">
+          Acceso proveedor: solo puedes ver las inspecciones asociadas a tu usuario.
         </div>
       )}
 
       {/* CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-       {renderCard(
-  "Hidrosuccionador",
-  "Inspección general del equipo",
-  "hidro",
-  "bg-blue-600 hover:bg-blue-700"
-)}
+        {renderCard(
+          "Hidrosuccionador",
+          "Inspección general del equipo",
+          "hidro",
+          "bg-blue-600 hover:bg-blue-700"
+        )}
 
-{renderCard(
-  "Barredora",
-  "Inspección de barredoras",
-  "barredora",
-  "bg-green-600 hover:bg-green-700"
-)}
+        {renderCard(
+          "Barredora",
+          "Inspección de barredoras",
+          "barredora",
+          "bg-green-600 hover:bg-green-700"
+        )}
 
-{renderCard(
-  "Cámara",
-  "Inspección con cámara",
-  "camara",
-  "bg-yellow-500 hover:bg-yellow-600"
-)}      </div>
+        {renderCard(
+          "Cámara",
+          "Inspección con cámara",
+          "camara",
+          "bg-yellow-500 hover:bg-yellow-600"
+        )}
+      </div>
 
       {/* FILTROS */}
       <div className="bg-white p-4 rounded-xl shadow space-y-4">
@@ -323,9 +364,15 @@ if (!superAdminActivo) {
                   {new Date(item.updated_at || item.created_at).toLocaleString()}
                 </p>
 
-                {isSuperAdmin && (
+                {puedeVerTodoVehiculos && (
                   <p className="text-[10px] text-gray-400">
-                    Usuario: {item.data?.tecnicoNombre || item.data?.tecnicoResponsable || "Sin técnico"}
+                    Usuario:{" "}
+                    {item.data?.tecnicoNombre ||
+                      item.data?.tecnicoResponsable ||
+                      "Sin técnico"}{" "}
+                    {item.data?.tecnicoCorreo
+                      ? `(${item.data.tecnicoCorreo})`
+                      : ""}
                   </p>
                 )}
 
