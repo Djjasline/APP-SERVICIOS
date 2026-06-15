@@ -6,12 +6,31 @@ import { useNavigate } from "react-router-dom";
 
 export default function InformeHome() {
   const navigate = useNavigate();
-  const { user, isSuperAdmin } = useAuth();
 
-const superAdminActivo =
-  typeof isSuperAdmin === "function"
-    ? isSuperAdmin()
-    : !!isSuperAdmin;
+  const {
+    user,
+    isSuperAdmin,
+    isSupervisorProyecto,
+    isProveedorVehiculos,
+  } = useAuth();
+
+  const superAdminActivo =
+    typeof isSuperAdmin === "function"
+      ? isSuperAdmin()
+      : !!isSuperAdmin;
+
+  const supervisorProyectoActivo =
+    typeof isSupervisorProyecto === "function"
+      ? isSupervisorProyecto()
+      : !!isSupervisorProyecto;
+
+  const proveedorVehiculosActivo =
+    typeof isProveedorVehiculos === "function"
+      ? isProveedorVehiculos()
+      : !!isProveedorVehiculos;
+
+  const puedeVerTodoVehiculos =
+    superAdminActivo || supervisorProyectoActivo;
 
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState("todos");
@@ -31,17 +50,22 @@ const superAdminActivo =
 
     const loadReports = async () => {
       try {
-let query = supabase
-  .from("registros")
-  .select("*")
-  .eq("tipo", "informe")
-  .order("created_at", { ascending: false });
+        let query = supabase
+          .from("registros")
+          .select("*")
+          .eq("tipo", "informe")
+          .order("created_at", { ascending: false });
 
-        // Técnicos normales solo ven lo suyo
-        // Santiago / super_admin ve todo
-      if (!superAdminActivo) {
-  query = query.eq("data->>tecnicoCorreo", user.email);
-}
+        /*
+          REGLA:
+          - Super admin ve todo.
+          - Supervisor de proyecto ve todos los informes de vehículos.
+          - Proveedor vehículos ve solo lo creado/asignado a su correo.
+          - Técnico normal ve solo lo suyo.
+        */
+        if (!puedeVerTodoVehiculos) {
+          query = query.eq("data->>tecnicoCorreo", user.email);
+        }
 
         const { data, error } = await query;
 
@@ -52,17 +76,17 @@ let query = supabase
         }
 
         const soloVehiculos = (data || []).filter((r) => {
-  const area = r.area || r.data?.area || "";
+          const area = r.area || r.data?.area || "";
 
-  return (
-    area === "vehiculos" ||
-    area === "" ||
-    area === null ||
-    area === undefined
-  );
-});
+          return (
+            area === "vehiculos" ||
+            area === "" ||
+            area === null ||
+            area === undefined
+          );
+        });
 
-setReports(soloVehiculos);
+        setReports(soloVehiculos);
       } catch (err) {
         console.error("Error cargando:", err);
         setReports([]);
@@ -70,8 +94,8 @@ setReports(soloVehiculos);
     };
 
     loadReports();
- }, [user?.id, superAdminActivo]);
-  
+  }, [user?.id, user?.email, puedeVerTodoVehiculos]);
+
   /* ===========================
      FILTROS
   =========================== */
@@ -101,8 +125,8 @@ setReports(soloVehiculos);
      ABRIR
   =========================== */
   const openReport = (report) => {
-  navigate(`/vehiculos/informe/${report.id}`);
-};
+    navigate(`/vehiculos/informe/${report.id}`);
+  };
 
   /* ===========================
      ELIMINAR
@@ -117,9 +141,13 @@ setReports(soloVehiculos);
 
     let query = supabase.from("registros").delete().eq("id", id);
 
-   if (!superAdminActivo) {
-  query = query.eq("data->>tecnicoCorreo", user.email);
-}
+    /*
+      Solo super admin y supervisor de proyecto pueden eliminar cualquier informe de vehículos.
+      Técnicos/proveedores solo pueden eliminar lo suyo.
+    */
+    if (!puedeVerTodoVehiculos) {
+      query = query.eq("data->>tecnicoCorreo", user.email);
+    }
 
     const { error } = await query;
 
@@ -152,16 +180,28 @@ setReports(soloVehiculos);
         </div>
       </div>
 
-      {/* AVISO SUPER ADMIN */}
-     {superAdminActivo && (
+      {/* AVISO SUPER ADMIN / SUPERVISOR */}
+      {superAdminActivo && (
         <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg text-sm">
-          Modo super administrador: estás viendo todos los informes.
+          Modo super administrador: estás viendo todos los informes de vehículos.
+        </div>
+      )}
+
+      {!superAdminActivo && supervisorProyectoActivo && (
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded-lg text-sm">
+          Modo supervisor de proyecto: estás viendo todos los informes de vehículos.
+        </div>
+      )}
+
+      {proveedorVehiculosActivo && (
+        <div className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">
+          Acceso proveedor: solo puedes ver los informes asociados a tu usuario.
         </div>
       )}
 
       {/* NUEVO */}
       <button
-       onClick={() => navigate("/vehiculos/informe/nuevo")}
+        onClick={() => navigate("/vehiculos/informe/nuevo")}
         className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg transition"
       >
         Nuevo informe
@@ -269,11 +309,12 @@ setReports(soloVehiculos);
                   {new Date(r.updated_at || r.created_at).toLocaleString()}
                 </span>
 
-               {superAdminActivo && (
-  <span className="text-[11px] text-gray-500">
-   Usuario: {r.data?.tecnicoNombre || "Sin técnico"}
-  </span>
-)}
+                {puedeVerTodoVehiculos && (
+                  <span className="text-[11px] text-gray-500">
+                    Usuario: {r.data?.tecnicoNombre || "Sin técnico"}{" "}
+                    {r.data?.tecnicoCorreo ? `(${r.data.tecnicoCorreo})` : ""}
+                  </span>
+                )}
 
                 <span
                   className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
