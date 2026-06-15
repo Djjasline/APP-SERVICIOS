@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 import {
   LayoutDashboard,
   Truck,
@@ -16,6 +17,7 @@ import {
 export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isProveedorVehiculos } = useAuth();
 
   const [openVehiculos, setOpenVehiculos] = useState(false);
   const [openOperaciones, setOpenOperaciones] = useState(false);
@@ -150,16 +152,18 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       {/* CONTENIDO */}
       <div className="flex-1 p-3 space-y-2 text-sm overflow-y-auto">
         {/* DASHBOARD */}
-        <button
-          type="button"
-          onClick={() => go("/")}
-          className={itemClass(isActive("/"))}
-          aria-current={isActive("/") ? "page" : undefined}
-        >
-          <LayoutDashboard size={20} className={iconClass} />
-          {openSidebar && "Menú Principal"}
-          {tooltip("Menú Principal")}
-        </button>
+{!isProveedorVehiculos && (
+  <button
+    type="button"
+    onClick={() => go("/")}
+    className={itemClass(isActive("/"))}
+    aria-current={isActive("/") ? "page" : undefined}
+  >
+    <LayoutDashboard size={20} className={iconClass} />
+    {openSidebar && "Menú Principal"}
+    {tooltip("Menú Principal")}
+  </button>
+)}
 
         {/* VEHÍCULOS */}
         <div>
@@ -216,8 +220,9 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
           )}
         </div>
 
-        {/* AGUA */}
-        <div>
+       {/* AGUA */}
+{!isProveedorVehiculos && (
+<div>
           <button
             type="button"
             onClick={() => {
@@ -261,9 +266,11 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             </div>
           )}
         </div>
+  )}
 
-        {/* PETRÓLEO */}
-        <div>
+       {/* PETRÓLEO */}
+{!isProveedorVehiculos && (
+  <div>
           <button
             type="button"
             onClick={() => {
@@ -301,9 +308,11 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             </div>
           )}
         </div>
+  )}
 
-        {/* OPERACIONES */}
-        <div>
+       {/* OPERACIONES */}
+{!isProveedorVehiculos && (
+  <div>
           <button
             type="button"
             onClick={() => {
@@ -358,9 +367,11 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             </div>
           )}
         </div>
+  )}
 
         {/* REPOSITORIOS */}
-        <div>
+{!isProveedorVehiculos && (
+  <div>
           <button
             type="button"
             onClick={() => {
@@ -414,6 +425,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
           )}
         </div>
       </div>
+  )}
 
       {/* FOOTER */}
       <div className="p-3 border-t border-white/10 text-xs text-white/50 text-center">
