@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import {
   Truck,
   Droplet,
@@ -9,6 +11,17 @@ import {
 
 export default function PanelServicios() {
   const navigate = useNavigate();
+  const { isProveedorVehiculos } = useAuth();
+
+  useEffect(() => {
+    if (isProveedorVehiculos) {
+      navigate("/area/vehiculos", { replace: true });
+    }
+  }, [isProveedorVehiculos, navigate]);
+
+  if (isProveedorVehiculos) {
+    return null;
+  }
 
   /* ================= MENÚ CENTRAL ================= */
   const menuPrincipal = [
@@ -61,13 +74,13 @@ export default function PanelServicios() {
 
   return (
     <div className="relative">
-
       {/* ================= FONDO COLLAGE ================= */}
       <div className="absolute inset-0 grid grid-cols-4 opacity-80">
         {[...Array(8)].map((_, i) => (
           <img
             key={i}
             src="/background-astap.png"
+            alt=""
             className="w-full h-full object-cover"
             style={{
               filter: "brightness(0.6)",
@@ -82,7 +95,6 @@ export default function PanelServicios() {
 
       {/* ================= CONTENIDO ================= */}
       <div className="relative p-6 space-y-8">
-
         {/* HEADER */}
         <div className="flex flex-col items-center text-center space-y-4">
           <img
@@ -102,15 +114,10 @@ export default function PanelServicios() {
 
         {/* ================= MENÚ ================= */}
         <div className="grid md:grid-cols-3 gap-6">
-
           {menuPrincipal.map((item) => (
             <div
               key={item.id}
-              className="bg-white p-6 rounded-xl 
-              shadow-xl hover:shadow-2xl 
-              hover:-translate-y-1 
-              transition-all duration-300 
-              space-y-4"
+              className="bg-white p-6 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 space-y-4"
             >
               {/* ICONO */}
               <div
@@ -125,23 +132,19 @@ export default function PanelServicios() {
               </h2>
 
               {/* DESCRIPCIÓN */}
-              <p className="text-sm text-gray-600">
-                {item.descripcion}
-              </p>
+              <p className="text-sm text-gray-600">{item.descripcion}</p>
 
               {/* BOTÓN */}
               <button
+                type="button"
                 onClick={() => navigate(item.ruta)}
                 className={`${item.color} text-white w-full py-2 rounded-lg hover:opacity-90 transition`}
               >
                 Ingresar
               </button>
-
             </div>
           ))}
-
         </div>
-
       </div>
     </div>
   );
