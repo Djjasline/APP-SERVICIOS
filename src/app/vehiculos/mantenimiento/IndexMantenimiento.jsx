@@ -26,12 +26,31 @@ const tipos = [
 
 export default function IndexMantenimiento() {
   const navigate = useNavigate();
-  const { user, isSuperAdmin } = useAuth();
+
+  const {
+    user,
+    isSuperAdmin,
+    isSupervisorProyecto,
+    isProveedorVehiculos,
+  } = useAuth();
 
   const superAdminActivo =
     typeof isSuperAdmin === "function"
       ? isSuperAdmin()
       : !!isSuperAdmin;
+
+  const supervisorProyectoActivo =
+    typeof isSupervisorProyecto === "function"
+      ? isSupervisorProyecto()
+      : !!isSupervisorProyecto;
+
+  const proveedorVehiculosActivo =
+    typeof isProveedorVehiculos === "function"
+      ? isProveedorVehiculos()
+      : !!isProveedorVehiculos;
+
+  const puedeVerTodoVehiculos =
+    superAdminActivo || supervisorProyectoActivo;
 
   const [items, setItems] = useState([]);
   const [estado, setEstado] = useState("todos");
@@ -44,19 +63,29 @@ export default function IndexMantenimiento() {
   });
 
   useEffect(() => {
+    if (!user?.id) return;
+
     const load = async () => {
-     let query = supabase
-  .from("registros")
-  .select("*")
-  .eq("area", "vehiculos")
-  .eq("tipo", "mantenimiento")
-  .order("updated_at", { ascending: false });
+      let query = supabase
+        .from("registros")
+        .select("*")
+        .eq("area", "vehiculos")
+        .eq("tipo", "mantenimiento")
+        .order("updated_at", { ascending: false });
 
-if (!superAdminActivo) {
-  query = query.eq("data->>tecnicoCorreo", user.email);
-}
+      /*
+        REGLA:
+        - Super admin ve todo.
+        - Supervisor de proyecto ve todos los mantenimientos de vehículos.
+        - Proveedor vehículos ve solo lo suyo.
+        - Técnico normal ve solo lo suyo.
+      */
+      if (!puedeVerTodoVehiculos) {
+        query = query.eq("data->>tecnicoCorreo", user.email);
+      }
 
-const { data, error } = await query;
+      const { data, error } = await query;
+
       if (error) {
         console.error(error);
         setItems([]);
@@ -67,17 +96,32 @@ const { data, error } = await query;
     };
 
     load();
-  }, [user?.email, superAdminActivo]);
+  }, [user?.id, user?.email, puedeVerTodoVehiculos]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (item) => {
+    if (!user?.id) {
+      alert("Usuario no autenticado");
+      return;
+    }
+
     if (!confirm("¿Eliminar mantenimiento?")) return;
 
-    const { error } = await supabase
+    let query = supabase
       .from("registros")
       .delete()
-      .eq("id", id)
+      .eq("id", item.id)
       .eq("area", "vehiculos")
       .eq("tipo", "mantenimiento");
+
+    /*
+      Solo super admin y supervisor de proyecto pueden eliminar cualquier mantenimiento.
+      Técnicos/proveedores solo eliminan lo suyo.
+    */
+    if (!puedeVerTodoVehiculos) {
+      query = query.eq("data->>tecnicoCorreo", user.email);
+    }
+
+    const { error } = await query;
 
     if (error) {
       console.error(error);
@@ -85,7 +129,7 @@ const { data, error } = await query;
       return;
     }
 
-    setItems((prev) => prev.filter((i) => i.id !== id));
+    setItems((prev) => prev.filter((i) => i.id !== item.id));
   };
 
   const filtered = useMemo(() => {
@@ -103,7 +147,9 @@ const { data, error } = await query;
         cliente.includes(filters.cliente.toLowerCase()) &&
         codigo.includes(filters.codigo.toLowerCase()) &&
         tecnico.includes(filters.tecnico.toLowerCase()) &&
-        (filters.equipo === "" || item.subtipo === filters.equipo || equipoTxt.includes(filters.equipo.toLowerCase()))
+        (filters.equipo === "" ||
+          item.subtipo === filters.equipo ||
+          equipoTxt.includes(filters.equipo.toLowerCase()))
       );
     });
   }, [items, estado, filters]);
@@ -129,7 +175,6 @@ const { data, error } = await query;
 
   return (
     <div className="p-6 space-y-6">
-
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-semibold text-white">
@@ -144,6 +189,24 @@ const { data, error } = await query;
         </button>
       </div>
 
+      {superAdminActivo && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-lg text-sm">
+          Modo super administrador: estás viendo todos los mantenimientos de vehículos.
+        </div>
+      )}
+
+      {!superAdminActivo && supervisorProyectoActivo && (
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded-lg text-sm">
+          Modo supervisor de proyecto: estás viendo todos los mantenimientos de vehículos.
+        </div>
+      )}
+
+      {proveedorVehiculosActivo && (
+        <div className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">
+          Acceso proveedor: solo puedes ver los mantenimientos asociados a tu usuario.
+        </div>
+      )}
+
       {/* CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {tipos.map(renderCard)}
@@ -151,7 +214,7 @@ const { data, error } = await query;
 
       {/* FILTROS */}
       <div className="bg-white rounded-xl p-5 shadow border space-y-4">
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {["todos", "borrador", "completado"].map((e) => (
             <button
               key={e}
@@ -244,8 +307,25 @@ const { data, error } = await query;
                     </div>
 
                     <p className="text-xs text-gray-600">
-                      {tipoInfo?.title || item.subtipo} · {equipo.marca || "—"} {equipo.modelo || ""}
+                      {tipoInfo?.title || item.subtipo} · {equipo.marca || "—"}{" "}
+                      {equipo.modelo || ""}
                     </p>
+
+                    <p className="text-xs text-gray-600">
+                      Pedido: <strong>{d.pedidoDemanda || "—"}</strong> | Código:{" "}
+                      <strong>{d.codInf || d.codigo || "—"}</strong>
+                    </p>
+
+                    <p className="text-xs text-gray-500">
+                      Técnico: <strong>{d.tecnicoNombre || "—"}</strong>
+                    </p>
+
+                    {puedeVerTodoVehiculos && (
+                      <p className="text-[11px] text-gray-400">
+                        Usuario: {d.tecnicoNombre || "Sin técnico"}{" "}
+                        {d.tecnicoCorreo ? `(${d.tecnicoCorreo})` : ""}
+                      </p>
+                    )}
 
                     <p className="text-[11px] text-gray-400">
                       {new Date(item.updated_at || item.created_at).toLocaleString()}
@@ -274,7 +354,7 @@ const { data, error } = await query;
                     )}
 
                     <button
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => handleDelete(item)}
                       className="text-red-600 hover:underline"
                     >
                       Eliminar
