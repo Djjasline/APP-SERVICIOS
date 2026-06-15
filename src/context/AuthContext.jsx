@@ -8,18 +8,44 @@ const SUPERVISOR_OPERACIONES_EMAIL = "kamhez@astap.com";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    const loadProfile = async (authUser) => {
+      if (!authUser?.id) {
+        setProfile(null);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", authUser.id)
+        .single();
+
+      if (error) {
+        console.error("Error cargando perfil:", error);
+        setProfile(null);
+        return;
+      }
+
+      setProfile(data);
+    };
+
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const authUser = session?.user ?? null;
+      setUser(authUser);
+      await loadProfile(authUser);
       setLoading(false);
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const authUser = session?.user ?? null;
+      setUser(authUser);
+      await loadProfile(authUser);
       setLoading(false);
     });
 
@@ -38,39 +64,63 @@ export function AuthProvider({ children }) {
 
     setUser(data.user);
 
+    const { data: profileData, error: profileError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", data.user.id)
+      .single();
+
+    if (profileError) {
+      console.error("Error cargando perfil en login:", profileError);
+      setProfile(null);
+    } else {
+      setProfile(profileData);
+    }
+
     return { success: true, user: data.user };
   };
 
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    setProfile(null);
   };
 
   const email = user?.email?.toLowerCase() || "";
 
   const role =
-  email === SUPER_ADMIN_EMAIL
-    ? "super_admin"
-    : email === SUPERVISOR_OPERACIONES_EMAIL
-    ? "supervisor_operaciones"
-    : user?.user_metadata?.role || "tecnico";
+    email === SUPER_ADMIN_EMAIL
+      ? "super_admin"
+      : email === SUPERVISOR_OPERACIONES_EMAIL
+      ? "supervisor_operaciones"
+      : profile?.role || user?.user_metadata?.role || "tecnico";
+
+  const department = profile?.department || "";
+  const fullName = profile?.full_name || user?.user_metadata?.full_name || "";
 
   const isSuperAdmin = role === "super_admin";
-const isSupervisorOperaciones =
-  role === "supervisor_operaciones";
+  const isSupervisorOperaciones = role === "supervisor_operaciones";
+  const isProveedorVehiculos = role === "proveedor_vehiculos";
+  const isSupervisorProyecto = role === "supervisor_proyecto";
+
   return (
     <AuthContext.Provider
-  value={{
-    user,
-    email,
-    role,
-    isSuperAdmin,
-    isSupervisorOperaciones,
-    login,
-    logout,
-    loading,
-  }}
->
+      value={{
+        user,
+        profile,
+        email,
+        role,
+        department,
+        fullName,
+        isSuperAdmin,
+        isSupervisorOperaciones,
+        isProveedorVehiculos,
+        isSupervisorProyecto,
+        login,
+        logout,
+        loading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
