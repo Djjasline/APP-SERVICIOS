@@ -126,8 +126,7 @@ function RegistroRedirect() {
 
 export default function RoutesApp() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
 
@@ -266,7 +265,6 @@ export default function RoutesApp() {
           <Route path="/vehiculos/mantenimiento/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><MantenimientoBarredoraPDF /></VehiculosRoute></ProtectedRoute>} />
           <Route path="/vehiculos/mantenimiento/vcam/:id/pdf" element={<ProtectedRoute><VehiculosRoute><MantenimientoVCamPDF /></VehiculosRoute></ProtectedRoute>} />
         </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            </BrowserRouter>
   );
 }
