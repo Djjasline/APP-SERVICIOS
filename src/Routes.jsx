@@ -72,9 +72,6 @@ import RegistroHome from "./app/operaciones/registro/RegistroHome";
 import HojaRegistroHerramientas from "./app/operaciones/registro/HojaRegistroHerramientas";
 import RegistroPDF from "./app/operaciones/registro/RegistroPDF";
 
-// ================= NOTIFICACIONES (nueva página) =================
-import NotificationsPage from "./pages/Notifications";
-
 const TechRoute = ({ children }) => (
   <RoleRoute
     allowedRoles={[
@@ -153,20 +150,144 @@ export default function RoutesApp() {
             <Route path="/operaciones" element={<TechRoute><AreaOperaciones /></TechRoute>} />
             <Route path="/repositorios" element={<TechRoute><AreaRepositorios /></TechRoute>} />
 
-            {/* ================= PÁGINA DE NOTIFICACIONES (nueva) ================= */}
-            <Route path="/notifications" element={<TechRoute><NotificationsPage /></TechRoute>} />
-
             {/* ================= VEHÍCULOS / INFORMES ================= */}
             <Route path="/informe" element={<VehiculosRoute><InformeHome /></VehiculosRoute>} />
             <Route path="/informe/nuevo" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
             <Route path="/informe/:id" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
 
-            {/* ... resto del archivo igual (no cambiar) ... */}
-            {/* MANTÉN el resto tal como lo tienes actualmente para no romper otras rutas */}
+            <Route path="/vehiculos/informe" element={<VehiculosRoute><InformeHome /></VehiculosRoute>} />
+            <Route path="/vehiculos/informe/nuevo" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
+            <Route path="/vehiculos/informe/:id" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
+
+            {/* ================= AGUA / INFORMES ================= */}
+            <Route path="/agua/informe" element={<TechRoute><AguaInformeHome /></TechRoute>} />
+            <Route path="/agua/informe/nuevo" element={<TechRoute><AguaNuevoInforme /></TechRoute>} />
+            <Route path="/agua/informe/:id" element={<TechRoute><AguaNuevoInforme /></TechRoute>} />
+            <Route path="/agua/recorrido/informe/*" element={<TechRoute><InformeAguaRoutes /></TechRoute>} />
+
+            {/* ================= PETRÓLEO / INFORMES ================= */}
+            <Route path="/petroleo/informe" element={<TechRoute><PetroleoInformeHome /></TechRoute>} />
+            <Route path="/petroleo/informe/nuevo" element={<TechRoute><PetroleoNuevoInforme /></TechRoute>} />
+            <Route path="/petroleo/informe/:id" element={<TechRoute><PetroleoNuevoInforme /></TechRoute>} />
+
+            {/* ================= VEHÍCULOS / INSPECCIÓN ================= */}
+            <Route path="/inspeccion" element={<VehiculosRoute><HistorialInspecciones /></VehiculosRoute>} />
+            <Route path="/vehiculos/inspeccion" element={<VehiculosRoute><HistorialInspecciones /></VehiculosRoute>} />
+
+            <Route path="/petroleo/inspeccion" element={<Navigate to="/petroleo/informe" replace />} />
+
+            <Route path="/inspeccion/hidro/new" element={<VehiculosRoute><HojaInspeccionHidro /></VehiculosRoute>} />
+            <Route path="/inspeccion/hidro/:id" element={<VehiculosRoute><HojaInspeccionHidro /></VehiculosRoute>} />
+
+            <Route path="/inspeccion/barredora/new" element={<VehiculosRoute><HojaInspeccionBarredora /></VehiculosRoute>} />
+            <Route path="/inspeccion/barredora/:id" element={<VehiculosRoute><HojaInspeccionBarredora /></VehiculosRoute>} />
+
+            <Route path="/inspeccion/camara/new" element={<VehiculosRoute><HojaInspeccionCamara /></VehiculosRoute>} />
+            <Route path="/inspeccion/camara/:id" element={<VehiculosRoute><HojaInspeccionCamara /></VehiculosRoute>} />
+
+            <Route path="/vehiculos/inspeccion/hidro/new" element={<VehiculosRoute><HojaInspeccionHidro /></VehiculosRoute>} />
+            <Route path="/vehiculos/inspeccion/hidro/:id" element={<VehiculosRoute><HojaInspeccionHidro /></VehiculosRoute>} />
+
+            <Route path="/vehiculos/inspeccion/barredora/new" element={<VehiculosRoute><HojaInspeccionBarredora /></VehiculosRoute>} />
+            <Route path="/vehiculos/inspeccion/barredora/:id" element={<VehiculosRoute><HojaInspeccionBarredora /></VehiculosRoute>} />
+
+            <Route path="/vehiculos/inspeccion/camara/new" element={<VehiculosRoute><HojaInspeccionCamara /></VehiculosRoute>} />
+            <Route path="/vehiculos/inspeccion/camara/:id" element={<VehiculosRoute><HojaInspeccionCamara /></VehiculosRoute>} />
+
+            {/* ================= VEHÍCULOS / MANTENIMIENTO ================= */}
+            <Route path="/mantenimiento" element={<VehiculosRoute><IndexMantenimiento /></VehiculosRoute>} />
+            <Route path="/vehiculos/mantenimiento" element={<VehiculosRoute><IndexMantenimiento /></VehiculosRoute>} />
+
+            <Route path="/petroleo/mantenimiento" element={<Navigate to="/petroleo/informe" replace />} />
+
+            <Route path="/mantenimiento/hidro/new" element={<VehiculosRoute><HojaMantenimientoHidro /></VehiculosRoute>} />
+            <Route path="/mantenimiento/hidro/:id" element={<VehiculosRoute><HojaMantenimientoHidro /></VehiculosRoute>} />
+
+            <Route path="/mantenimiento/barredora/new" element={<VehiculosRoute><HojaMantenimientoBarredora /></VehiculosRoute>} />
+            <Route path="/mantenimiento/barredora/:id" element={<VehiculosRoute><HojaMantenimientoBarredora /></VehiculosRoute>} />
+
+            <Route path="/mantenimiento/vcam/new" element={<VehiculosRoute><HojaMantenimientoVCam /></VehiculosRoute>} />
+            <Route path="/mantenimiento/vcam/:id" element={<VehiculosRoute><HojaMantenimientoVCam /></VehiculosRoute>} />
+
+            <Route path="/vehiculos/mantenimiento/hidro/new" element={<VehiculosRoute><HojaMantenimientoHidro /></VehiculosRoute>} />
+            <Route path="/vehiculos/mantenimiento/hidro/:id" element={<VehiculosRoute><HojaMantenimientoHidro /></VehiculosRoute>} />
+
+            <Route path="/vehiculos/mantenimiento/barredora/new" element={<VehiculosRoute><HojaMantenimientoBarredora /></VehiculosRoute>} />
+            <Route path="/vehiculos/mantenimiento/barredora/:id" element={<VehiculosRoute><HojaMantenimientoBarredora /></VehiculosRoute>} />
+
+            <Route path="/vehiculos/mantenimiento/vcam/new" element={<VehiculosRoute><HojaMantenimientoVCam /></VehiculosRoute>} />
+            <Route path="/vehiculos/mantenimiento/vcam/:id" element={<VehiculosRoute><HojaMantenimientoVCam /></VehiculosRoute>} />
+
+            {/* ================= OPERACIONES ================= */}
+            <Route path="/liberacion" element={<Navigate to="/operaciones/liberacion" replace />} />
+            <Route path="/liberacion/nuevo" element={<Navigate to="/operaciones/liberacion/nuevo" replace />} />
+            <Route path="/liberacion/:id" element={<LiberacionRedirect />} />
+
+            <Route path="/recepcion" element={<Navigate to="/operaciones/recepcion" replace />} />
+            <Route path="/recepcion/new" element={<Navigate to="/operaciones/recepcion/new" replace />} />
+            <Route path="/recepcion/:id" element={<RecepcionRedirect />} />
+
+            <Route path="/registro" element={<Navigate to="/operaciones/registro" replace />} />
+            <Route path="/registro/new" element={<Navigate to="/operaciones/registro/new" replace />} />
+            <Route path="/registro/:id" element={<RegistroRedirect />} />
+
+            <Route path="/operaciones/liberacion" element={<TechRoute><LiberacionHome /></TechRoute>} />
+            <Route path="/operaciones/liberacion/nuevo" element={<TechRoute><LiberacionForm /></TechRoute>} />
+            <Route path="/operaciones/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
+
+            <Route path="/operaciones/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
+            <Route path="/operaciones/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
+            <Route path="/operaciones/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
+
+            <Route path="/operaciones/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
+            <Route path="/operaciones/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
+            <Route path="/operaciones/registro/pdf/:id" element={<TechRoute><RegistroPDF /></TechRoute>} />
+            <Route path="/operaciones/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
+
+            {/* ================= REPOSITORIOS ================= */}
+            <Route path="/repositorios/documentos" element={<TechRoute><AreaRepositorios /></TechRoute>} />
+            <Route path="/repositorios/pdf" element={<TechRoute><AreaRepositorios /></TechRoute>} />
+            <Route path="/repositorios/archivos" element={<TechRoute><AreaRepositorios /></TechRoute>} />
+            <Route path="/repositorios/manuales-tecnicos" element={<TechRoute><ManualesTecnicos /></TechRoute>} />
           </Route>
 
           {/* ================= PDF FUERA DEL LAYOUT ================= */}
-          {/* Mantén el resto del archivo igual (PDF routes...) */}
+
+          {/* Informes PDF */}
+          <Route path="/informe/pdf/:id" element={<ProtectedRoute><VehiculosRoute><InformePDF /></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/informe/pdf/:id" element={<ProtectedRoute><VehiculosRoute><InformePDF /></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/agua/informe/pdf/:id" element={<ProtectedRoute><TechRoute><AguaInformePDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/petroleo/informe/pdf/:id" element={<ProtectedRoute><TechRoute><PetroleoInformePDF /></TechRoute></ProtectedRoute>} />
+
+          {/* Inspecciones PDF */}
+          <Route path="/inspeccion/hidro/:id/pdf" element={<ProtectedRoute><VehiculosRoute><InspeccionHidroPDF /></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/inspeccion/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><InspeccionBarredoraPDF /></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/inspeccion/camara/:id/pdf" element={<ProtectedRoute><VehiculosRoute><InspeccionCamaraPDF /></VehiculosRoute></ProtectedRoute>} />
+
+          <Route path="/vehiculos/inspeccion/hidro/:id/pdf" element={<ProtectedRoute><VehiculosRoute><InspeccionHidroPDF /></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/inspeccion/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><InspeccionBarredoraPDF /></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/inspeccion/camara/:id/pdf" element={<ProtectedRoute><VehiculosRoute><InspeccionCamaraPDF /></VehiculosRoute></ProtectedRoute>} />
+
+          {/* Recepción PDF */}
+          <Route
+            path="/operaciones/recepcion/:id/pdf"
+            element={
+              <ProtectedRoute>
+                <TechRoute>
+                  <HojaRecepcionPDF />
+                </TechRoute>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Mantenimiento PDF */}
+          <Route path="/mantenimiento/hidro/:id/pdf" element={<ProtectedRoute><VehiculosRoute><MantenimientoHidroPDF /></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/mantenimiento/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><MantenimientoBarredoraPDF /></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/mantenimiento/vcam/:id/pdf" element={<ProtectedRoute><VehiculosRoute><MantenimientoVCamPDF /></VehiculosRoute></ProtectedRoute>} />
+
+          <Route path="/vehiculos/mantenimiento/hidro/:id/pdf" element={<ProtectedRoute><VehiculosRoute><MantenimientoHidroPDF /></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/mantenimiento/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><MantenimientoBarredoraPDF /></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/mantenimiento/vcam/:id/pdf" element={<ProtectedRoute><VehiculosRoute><MantenimientoVCamPDF /></VehiculosRoute></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
