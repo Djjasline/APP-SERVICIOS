@@ -380,12 +380,35 @@ export default function MantenimientoHidroPDF() {
                   Fotografía {i + 1}
                 </div>
                 <div style={{ padding: 10 }}>
-                  <div style={{ position: "relative", width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden" }}>
-                    <img
-                      src={img.url}
-                      alt={`estado-${i + 1}`}
-                      style={{ width: "100%", maxHeight: 230, objectFit: "contain", display: "block" }}
-                    />
+                 <div
+  style={{
+    width: "100%",
+    border: "1px solid #d1d5db",
+    borderRadius: 4,
+    overflow: "hidden",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "#fff",
+  }}
+>
+  <div
+    style={{
+      position: "relative",
+      display: "inline-block",
+      maxWidth: "100%",
+    }}
+  >
+    <img
+      src={img.url}
+      alt={`estado-${i + 1}`}
+      style={{
+        maxWidth: "100%",
+        maxHeight: 230,
+        objectFit: "contain",
+        display: "block",
+      }}
+    />
                     {(img.puntos || []).map((p, pi) => (
                       <div
                         key={p.id || pi}
