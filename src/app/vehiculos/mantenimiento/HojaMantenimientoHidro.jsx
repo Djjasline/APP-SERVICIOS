@@ -764,20 +764,7 @@ const result = await saveOrUpdateReport({
     ))}
   </div>
 </div>
-                          key={p.id}
-                          type="button"
-                          onClick={() => removePoint(img.id, p.id)}
-                          className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow text-[10px] text-white font-bold flex items-center justify-center"
-                          style={{
-                            left: `${p.x * 100}%`,
-                            top: `${p.y * 100}%`,
-                            transform: "translate(-50%,-50%)",
-                          }}
-                        >
-                          {pi + 1}
-                        </button>
-                      ))}
-                    </div>
+                          
                     <p className="text-[11px] text-gray-500">
                       Toque la fotografía para marcar puntos. Toque el número para eliminar.
                     </p>
