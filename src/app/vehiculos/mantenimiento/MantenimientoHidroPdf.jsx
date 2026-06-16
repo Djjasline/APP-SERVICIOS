@@ -427,8 +427,10 @@ export default function MantenimientoHidroPDF() {
                       >
                         {pi + 1}
                       </div>
-                    ))}
+                                        ))}
                   </div>
+                </div>
+
                   {(img.puntos || []).length > 0 && (
                     <div style={{ marginTop: 8 }}>
                       {img.puntos.map((p, pi) => (
