@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf"; // ← ajusta la ruta a tu proyecto
+import { signatureImageStyle } from "@/utils/signature";
 
 export default function InformePDF() {
   const navigate = useNavigate();
@@ -428,14 +429,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             <img
               src={data.firmas.tecnico}
               alt="Firma técnico"
-              style={{
-                width: "100%",
-                maxWidth: 180,
-                height: "auto",
-                objectFit: "contain",
-                display: "block",
-                margin: "0 auto",
-              }}
+              style={{ ...signatureImageStyle, margin: "0 auto" }}
             />
           )}
 
@@ -464,14 +458,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
     <img
       src={data.firmas.cliente}
       alt="Firma cliente"
-      style={{
-        width: "100%",
-        maxWidth: 180,
-        height: "auto",
-        objectFit: "contain",
-        display: "block",
-        margin: "0 auto",
-      }}
+      style={{ ...signatureImageStyle, margin: "0 auto" }}
     />
   )}
 

@@ -10,6 +10,7 @@ import { useTechnicians } from "@/hooks/useTechnicians";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
+import { signatureCanvasProps, signatureStrokeProps } from "@/utils/signature";
 
 /* ═══════════════════════════════════════
    HELPERS
@@ -809,8 +810,8 @@ const result = await saveOrUpdateReport({
             <tbody>
               <tr>
                 <td className="align-top" style={{ height: 190 }}>
-                  <div className="border rounded bg-white h-[120px]">
-                    <SignatureCanvas ref={sigTecnico} penColor="black" minWidth={0.5} maxWidth={1.5}
+                  <div className="border rounded bg-white signature-box">
+                    <SignatureCanvas ref={sigTecnico} {...signatureStrokeProps}
                       onBegin={() => {
   setFirmaTecnicoEditada(true);
   document.body.style.overflow = "hidden";
@@ -818,7 +819,7 @@ const result = await saveOrUpdateReport({
                       onEnd={() => {
   document.body.style.overflow = "";
 }}
-                      canvasProps={{ className: "w-full h-full touch-none" }} />
+                      canvasProps={signatureCanvasProps} />
                   </div>
                   <div className="mt-2 text-sm text-center font-medium">{data.tecnicoNombre || "—"}</div>
                   <div className="text-center">
@@ -839,8 +840,8 @@ const result = await saveOrUpdateReport({
                   </div>
                 </td>
                 <td className="align-top" style={{ height: 190 }}>
-                  <div className="border rounded bg-white h-[120px]">
-                    <SignatureCanvas ref={sigCliente} penColor="black" minWidth={0.5} maxWidth={1.5}
+                  <div className="border rounded bg-white signature-box">
+                    <SignatureCanvas ref={sigCliente} {...signatureStrokeProps}
                       onBegin={() => {
   setFirmaClienteEditada(true);
   document.body.style.overflow = "hidden";
@@ -848,7 +849,7 @@ const result = await saveOrUpdateReport({
                       onEnd={() => {
   document.body.style.overflow = "";
 }}
-                      canvasProps={{ className: "w-full h-full touch-none" }} />
+                      canvasProps={signatureCanvasProps} />
                   </div>
                   <div className="mt-2 space-y-1 text-center">
                     <input className="pdf-input w-full bg-gray-100" value={data.contacto} readOnly placeholder="Nombre del contacto" />

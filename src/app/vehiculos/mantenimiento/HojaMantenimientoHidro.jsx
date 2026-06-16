@@ -9,6 +9,7 @@ import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import imageCompression from "browser-image-compression";
+import { signatureCanvasProps, signatureStrokeProps } from "@/utils/signature";
 
 /* ═══════════════════════════════════════
    SECCIONES
@@ -966,18 +967,16 @@ const result = await saveOrUpdateReport({
               <tr>
                 {/* TÉCNICO */}
                 <td className="align-top" style={{ height: 190 }}>
-                  <div className="border rounded bg-white h-[120px]">
+                  <div className="border rounded bg-white signature-box">
                     <SignatureCanvas
                       ref={sigTecnico}
-                      penColor="black"
-                      minWidth={0.5}
-                      maxWidth={1.5}
+                      {...signatureStrokeProps}
                       onBegin={() => {
   setFirmaTecnicoEditada(true);
   document.body.style.overflow = "hidden";
 }}
                       onEnd={() => { document.body.style.overflow = ""; }}
-                      canvasProps={{ className: "w-full h-full touch-none" }}
+                      canvasProps={signatureCanvasProps}
                     />
                   </div>
                   <div className="mt-2 text-sm text-center font-medium">
@@ -1001,18 +1000,16 @@ const result = await saveOrUpdateReport({
 
                 {/* CLIENTE */}
                 <td className="align-top" style={{ height: 190 }}>
-                  <div className="border rounded bg-white h-[120px]">
+                  <div className="border rounded bg-white signature-box">
                     <SignatureCanvas
                       ref={sigCliente}
-                      penColor="black"
-                      minWidth={0.5}
-                      maxWidth={1.5}
+                      {...signatureStrokeProps}
                       onBegin={() => {
   setFirmaClienteEditada(true);
   document.body.style.overflow = "hidden";
 }}
                       onEnd={() => { document.body.style.overflow = ""; }}
-                      canvasProps={{ className: "w-full h-full touch-none" }}
+                      canvasProps={signatureCanvasProps}
                     />
                   </div>
                   <div className="mt-2 space-y-1 text-center">

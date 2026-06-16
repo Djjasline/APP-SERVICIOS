@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
+import { signatureImageStyle } from "@/utils/signature";
 
 /* ══════════════════════════════
    ESTILOS — COMPACTOS PDF
@@ -625,14 +626,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                       <img
                         src={d.firmas.tecnico}
                         alt="Firma técnico"
-                        style={{
-                          maxHeight: 34,
-                          width: "auto",
-                          maxWidth: 160,
-                          objectFit: "contain",
-                          display: "block",
-                          filter: "contrast(1.05)",
-                        }}
+                        style={signatureImageStyle}
                       />
                     ) : (
                       <span style={{ fontSize: 10, color: "#9ca3af" }}>Sin firma</span>
@@ -672,14 +666,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                       <img
                         src={d.firmas.cliente}
                         alt="Firma cliente"
-                        style={{
-                          maxHeight: 34,
-                          width: "auto",
-                          maxWidth: 160,
-                          objectFit: "contain",
-                          display: "block",
-                          filter: "contrast(1.05)",
-                        }}
+                        style={signatureImageStyle}
                       />
                     ) : (
                       <span style={{ fontSize: 10, color: "#9ca3af" }}>Sin firma</span>

@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
+import { signatureImageStyle } from "@/utils/signature";
 
 /* ══════════════════════════════
    ESTILOS — IDÉNTICOS A HYDRO
@@ -380,7 +381,7 @@ export default function MantenimientoVCamPDF() {
                   <div style={{ height: 45, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {d.firmas?.tecnico ? (
                       <img src={d.firmas.tecnico} alt="Firma técnico"
-                        style={{ maxHeight: 34, width: "auto", maxWidth: 160, objectFit: "contain", display: "block", filter: "contrast(1.05)" }} />
+                        style={signatureImageStyle} />
                     ) : (
                       <span style={{ fontSize: 10, color: "#9ca3af" }}>Sin firma</span>
                     )}
@@ -393,7 +394,7 @@ export default function MantenimientoVCamPDF() {
                   <div style={{ height: 45, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {d.firmas?.cliente ? (
                       <img src={d.firmas.cliente} alt="Firma cliente"
-                        style={{ maxHeight: 34, width: "auto", maxWidth: 160, objectFit: "contain", display: "block", filter: "contrast(1.05)" }} />
+                        style={signatureImageStyle} />
                     ) : (
                       <span style={{ fontSize: 10, color: "#9ca3af" }}>Sin firma</span>
                     )}

@@ -11,6 +11,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
+import { signatureCanvasProps, signatureStrokeProps } from "@/utils/signature";
 
 export default function NuevoInforme() {
   const navigate = useNavigate();
@@ -1181,14 +1182,11 @@ const estadoFinal =
     <tr>
       {/* ================= FIRMA TÉCNICO ================= */}
       <td className="align-top" style={{ height: 240 }}>
-        <div className="border rounded bg-white h-[150px] flex items-center justify-center">
+        <div className="border rounded bg-white signature-box flex items-center justify-center">
           <SignatureCanvas
             ref={sigTecnico}
-            penColor="black"
-            minWidth={0.5}
-            maxWidth={1.5}
+            {...signatureStrokeProps}
             throttle={0}
-            velocityFilterWeight={0.7}
             onBegin={() => {
   setFirmaTecnicoEditada(true);
   document.activeElement?.blur();
@@ -1197,9 +1195,7 @@ const estadoFinal =
 onEnd={() => {
   document.body.style.overflow = "";
 }}
-            canvasProps={{
-              className: "w-full h-full touch-none",
-            }}
+            canvasProps={signatureCanvasProps}
           />
         </div>
 
@@ -1228,14 +1224,11 @@ onEnd={() => {
 
       {/* ================= FIRMA CLIENTE ================= */}
       <td className="align-top" style={{ height: 240 }}>
-        <div className="border rounded bg-white h-[150px] flex items-center justify-center">
+        <div className="border rounded bg-white signature-box flex items-center justify-center">
           <SignatureCanvas
             ref={sigCliente}
-            penColor="black"
-            minWidth={0.5}
-            maxWidth={1.5}
+            {...signatureStrokeProps}
             throttle={0}
-            velocityFilterWeight={0.7}
           onBegin={() => {
   setFirmaClienteEditada(true);
   document.activeElement?.blur();
@@ -1244,9 +1237,7 @@ onEnd={() => {
 onEnd={() => {
               document.body.style.overflow = "";
             }}
-            canvasProps={{
-              className: "w-full h-full touch-none",
-            }}
+            canvasProps={signatureCanvasProps}
           />
         </div>
 

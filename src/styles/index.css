@@ -110,3 +110,13 @@ body {
   }
 
 }
+.signature-canvas {
+  image-rendering: auto;
+  touch-action: none;
+}
+
+.signature-box {
+  aspect-ratio: 3 / 1;
+  min-height: 120px;
+  max-height: 170px;
+}

@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
+import { signatureImageStyle } from "@/utils/signature";
 
 const S = {
   tbl: {
@@ -421,7 +422,7 @@ setReport({ estado: data.estado, data: data.data });
             <img
               src={d.firmas.tecnico}
               alt="Firma técnico"
-              style={{ maxHeight: 34, width: "auto", maxWidth: 160, objectFit: "contain", margin: "0 auto", display: "block" }}
+              style={{ ...signatureImageStyle, margin: "0 auto" }}
             />
           )}
           <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700 }}>
@@ -434,7 +435,7 @@ setReport({ estado: data.estado, data: data.data });
             <img
               src={d.firmas.cliente}
               alt="Firma cliente"
-              style={{ maxHeight: 34, width: "auto", maxWidth: 160, objectFit: "contain", margin: "0 auto", display: "block" }}
+              style={{ ...signatureImageStyle, margin: "0 auto" }}
             />
           )}
           <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700 }}>
