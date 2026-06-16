@@ -21,10 +21,12 @@ export default function HojaRegistroHerramientas() {
   const [guardando, setGuardando] = useState(false);
 
   const baseState = {
-    items: [],
-    firmaResponsable: "",
-    firmaAprobador: "",
-  };
+  items: [],
+  firmas: {
+    responsable: "",
+    aprobador: "",
+  },
+};
 
 const [formData, setFormData] = useState(baseState); const [estado, setEstado] = useState("salida"); const isLocked = estado === "completado";
 
@@ -119,49 +121,50 @@ useAutoguardado(claveAutoguardado, formData, !isLocked);
   };
 
   /* ================= GUARDAR ================= */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setGuardando(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setGuardando(true);
 
-const firmaResponsable = firmaResponsableRef.current?.isEmpty()
-  ? formData.firmas?.responsable || ""
-  : firmaResponsableRef.current.toDataURL();
+  try {
+    const firmaResponsable = firmaResponsableRef.current?.isEmpty()
+      ? formData.firmas?.responsable || ""
+      : firmaResponsableRef.current.toDataURL();
 
-const firmaAprobador = firmaAprobadorRef.current?.isEmpty()
-  ? formData.firmas?.aprobador || ""
-  : firmaAprobadorRef.current.toDataURL();
-      const payload = {
-        ...formData,
-        firmas: {
-          responsable: firmaResponsable,
-          aprobador: firmaAprobador,
-        },
-      };
+    const firmaAprobador = firmaAprobadorRef.current?.isEmpty()
+      ? formData.firmas?.aprobador || ""
+      : firmaAprobadorRef.current.toDataURL();
 
-      const allIngresosCompletos =
-        payload.items.length > 0 &&
-        payload.items.every((item) => item.imagenIngresoUrl);
+    const payload = {
+      ...formData,
+      firmas: {
+        responsable: firmaResponsable,
+        aprobador: firmaAprobador,
+      },
+    };
 
-      const nuevoEstado =
-        allIngresosCompletos && firmaResponsable && firmaAprobador
-          ? "completado"
-          : "salida";
+    const allIngresosCompletos =
+      payload.items.length > 0 &&
+      payload.items.every((item) => item.imagenIngresoUrl);
 
-      await updateRegistro(id, payload, nuevoEstado);
-      setEstado(nuevoEstado);
+    const nuevoEstado =
+      allIngresosCompletos && firmaResponsable && firmaAprobador
+        ? "completado"
+        : "salida";
 
-      alert("Guardado correctamente");
+    await updateRegistro(id, payload, nuevoEstado);
+    setEstado(nuevoEstado);
 
-      limpiarBorrador(claveAutoguardado);
-      navigate("/registro"); // ✅ ruta correcta
-    } catch (error) {
-      console.error("Error guardando:", error);
-      alert("Error al guardar. Intenta de nuevo.");
-    } finally {
-      setGuardando(false);
-    }
-  };
+    alert("Guardado correctamente");
 
+    limpiarBorrador(claveAutoguardado);
+    navigate("/operaciones/registro");
+  } catch (error) {
+    console.error("Error guardando:", error);
+    alert("Error al guardar. Intenta de nuevo.");
+  } finally {
+    setGuardando(false);
+  }
+};
   /* ================= BOTÓN DE IMAGEN ================= */
   const ImagenCell = ({ item, campo, label }) => {
     const url = item[campo];
@@ -547,7 +550,7 @@ const firmaAprobador = firmaAprobadorRef.current?.isEmpty()
       <div className="flex justify-between items-center">
         <button
           type="button"
-          onClick={() => navigate("/registro")} // ✅ ruta correcta
+          onClick={() => navigate("/operaciones/registro")} // ✅ ruta correcta
           className="border px-4 py-2 rounded hover:bg-gray-50 text-sm"
         >
           ← Volver
