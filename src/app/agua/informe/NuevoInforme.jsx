@@ -1252,28 +1252,30 @@ const save = async () => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {(data.estadoEquipo?.imagenes || []).map((img, imgIndex) => (
         <div key={img.id} className="border rounded-lg p-3 space-y-3">
-          <div
-            className="relative w-full border rounded overflow-hidden bg-gray-100 cursor-crosshair"
-            onClick={(e) => handleEstadoEquipoImageClick(e, img.id)}
-          >
-            <img
-              src={img.url}
-              alt={`Estado del equipo ${imgIndex + 1}`}
-              className="w-full max-h-[320px] object-contain"
-            />
+          <div className="border rounded overflow-hidden bg-gray-100 flex items-center justify-center">
+            <div
+              className="relative inline-block cursor-crosshair"
+              onClick={(e) => handleEstadoEquipoImageClick(e, img.id)}
+            >
+              <img
+                src={img.url}
+                alt={`Estado del equipo ${imgIndex + 1}`}
+                className="block w-auto max-w-full max-h-[320px] object-contain"
+              />
 
-            {(img.puntos || []).map((punto, puntoIndex) => (
-              <span
-                key={punto.id}
-                className="absolute w-5 h-5 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center -translate-x-1/2 -translate-y-1/2 shadow"
-                style={{
-                  left: `${punto.x * 100}%`,
-                  top: `${punto.y * 100}%`,
-                }}
-              >
-                {puntoIndex + 1}
-              </span>
-            ))}
+              {(img.puntos || []).map((punto, puntoIndex) => (
+                <span
+                  key={punto.id}
+                  className="absolute w-5 h-5 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center -translate-x-1/2 -translate-y-1/2 shadow"
+                  style={{
+                    left: `${punto.x * 100}%`,
+                    top: `${punto.y * 100}%`,
+                  }}
+                >
+                  {puntoIndex + 1}
+                </span>
+              ))}
+            </div>
           </div>
 
           <div className="flex gap-2 flex-wrap">

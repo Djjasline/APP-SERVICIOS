@@ -304,33 +304,35 @@ const url = await uploadRegistroImage(
                 )}
               </div>
 
-              <div
-                className="damage-photo-wrap"
-                onClick={(e) => addPoint(e, img.id)}
-              >
-                <img
-                  src={img.url}
-                  alt={`Daño ${index + 1}`}
-                  className="damage-photo-img"
-                />
+              <div className="damage-photo-frame">
+                <div
+                  className="damage-photo-wrap"
+                  onClick={(e) => addPoint(e, img.id)}
+                >
+                  <img
+                    src={img.url}
+                    alt={`Daño ${index + 1}`}
+                    className="damage-photo-img"
+                  />
 
-                {(img.puntos || []).map((p, pi) => (
-                  <button
-                    key={p.id || pi}
-                    type="button"
-                    className="damage-dot"
-                    style={{
-                      left: `${p.x * 100}%`,
-                      top: `${p.y * 100}%`,
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removePoint(img.id, p.id);
-                    }}
-                  >
-                    {pi + 1}
-                  </button>
-                ))}
+                  {(img.puntos || []).map((p, pi) => (
+                    <button
+                      key={p.id || pi}
+                      type="button"
+                      className="damage-dot"
+                      style={{
+                        left: `${p.x * 100}%`,
+                        top: `${p.y * 100}%`,
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removePoint(img.id, p.id);
+                      }}
+                    >
+                      {pi + 1}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {(img.puntos || []).map((p, pi) => (
@@ -570,14 +572,22 @@ const SheetStyles = () => (
 
 .damage-photo-wrap {
   position: relative;
+  display: inline-block;
+  max-width: 100%;
   background: #fff;
   cursor: crosshair;
 }
 
+.damage-photo-frame {
+  text-align: center;
+  background: #fff;
+}
+
 .damage-photo-img {
-  width: 100%;
-  height: 82px;
-  object-fit: cover;
+  width: auto;
+  max-width: 100%;
+  max-height: 120px;
+  object-fit: contain;
   display: block;
 }
 .damage-dot {

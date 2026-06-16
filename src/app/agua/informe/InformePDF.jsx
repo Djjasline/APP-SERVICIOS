@@ -337,45 +337,38 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
                   </div>
 
                   <div className="p-3">
-                    <div
-                      style={{
-                        position: "relative",
-                        width: "100%",
-                        border: "1px solid #d1d5db",
-                        borderRadius: 6,
-                        overflow: "hidden",
-                        background: "#fff",
-                      }}
-                    >
-                      <img
-                        src={img.url}
-                        alt={`estado-equipo-${imageIndex + 1}`}
-                        style={{
-                          width: "100%",
-                          maxHeight: 420,
-                          objectFit: "contain",
-                          display: "block",
-                          background: "#fff",
-                        }}
-                      />
-
-                      {(img.puntos || []).map((p, pointIndex) => (
-                        <div
-                          key={p.id || pointIndex}
+                    <div style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "#fff" }}>
+                      <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
+                        <img
+                          src={img.url}
+                          alt={`estado-equipo-${imageIndex + 1}`}
                           style={{
-                            position: "absolute",
-                            left: `${p.x * 100}%`,
-                            top: `${p.y * 100}%`,
-                            transform: "translate(-50%, -50%)",
-                            width: 18,
-                            height: 18,
-                            borderRadius: "50%",
-                            background: "#dc2626",
-                            border: "2px solid white",
-                            boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
+                            maxWidth: "100%",
+                            maxHeight: 420,
+                            objectFit: "contain",
+                            display: "block",
+                            background: "#fff",
                           }}
                         />
-                      ))}
+
+                        {(img.puntos || []).map((p, pointIndex) => (
+                          <div
+                            key={p.id || pointIndex}
+                            style={{
+                              position: "absolute",
+                              left: `${p.x * 100}%`,
+                              top: `${p.y * 100}%`,
+                              transform: "translate(-50%, -50%)",
+                              width: 18,
+                              height: 18,
+                              borderRadius: "50%",
+                              background: "#dc2626",
+                              border: "2px solid white",
+                              boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
+                            }}
+                          />
+                        ))}
+                      </div>
                     </div>
 
                     <div className="mt-3">
