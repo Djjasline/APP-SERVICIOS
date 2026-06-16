@@ -14,6 +14,7 @@ import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";
 import { generarPDFInformeAgua } from "./generarPDFInformeAgua";
+import { signatureCanvasProps, signatureStrokeProps } from "@/utils/signature";
 import {
   cloneInformeAguaSchema,
   nuevaActividad,
@@ -700,10 +701,13 @@ const Styles = () => (
       border-radius: 6px;
       overflow: hidden;
       background: #fafafa;
+      aspect-ratio: 3 / 1;
+      min-height: 120px;
     }
     .ia-firma-img {
       width: 100%;
-      height: 80px;
+      height: 100%;
+      min-height: 120px;
       object-fit: contain;
       display: block;
       background: #fafafa;
@@ -1054,8 +1058,9 @@ navigate("/agua/recorrido/informe");
                     <div className="ia-firma-canvas-wrap">
                       <SignatureCanvas
                         ref={firmaTecnicoRef}
+                        {...signatureStrokeProps}
                         penColor="#1a2942"
-                        canvasProps={{ width: 380, height: 80, className: "ia-firma-img" }}
+                        canvasProps={{ ...signatureCanvasProps, className: "ia-firma-img touch-none" }}
                       />
                     </div>
                   )}
@@ -1084,8 +1089,9 @@ navigate("/agua/recorrido/informe");
                     <div className="ia-firma-canvas-wrap">
                       <SignatureCanvas
                         ref={firmaSupervisorRef}
+                        {...signatureStrokeProps}
                         penColor="#1a2942"
-                        canvasProps={{ width: 380, height: 80, className: "ia-firma-img" }}
+                        canvasProps={{ ...signatureCanvasProps, className: "ia-firma-img touch-none" }}
                       />
                     </div>
                   )}

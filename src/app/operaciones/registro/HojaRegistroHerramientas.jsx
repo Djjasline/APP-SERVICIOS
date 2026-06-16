@@ -7,6 +7,7 @@ import { TECHNICIANS } from "@/data/technicians";
 import { getRegistroById, updateRegistro, } from "@/utils/registroStorage";
 import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";
+import { signatureCanvasProps, signatureStrokeProps } from "@/utils/signature";
 
 export default function HojaRegistroHerramientas() {
   const { id } = useParams();
@@ -515,7 +516,8 @@ const handleSubmit = async (e) => {
           <p className="font-semibold mb-1 text-sm">Firma Responsable</p>
           <SignatureCanvas
             ref={firmaResponsableRef}
-            canvasProps={{ className: "border w-full h-32 rounded" }}
+            {...signatureStrokeProps}
+            canvasProps={{ ...signatureCanvasProps, className: "border rounded w-full touch-none bg-white signature-box signature-canvas" }}
           />
           {!isLocked && (
             <button
@@ -532,7 +534,8 @@ const handleSubmit = async (e) => {
           <p className="font-semibold mb-1 text-sm">Firma Aprobador</p>
           <SignatureCanvas
             ref={firmaAprobadorRef}
-            canvasProps={{ className: "border w-full h-32 rounded" }}
+            {...signatureStrokeProps}
+            canvasProps={{ ...signatureCanvasProps, className: "border rounded w-full touch-none bg-white signature-box signature-canvas" }}
           />
           {!isLocked && (
             <button

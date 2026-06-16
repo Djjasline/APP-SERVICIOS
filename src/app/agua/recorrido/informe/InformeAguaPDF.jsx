@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { signatureImageStyle } from "@/utils/signature";
 import { generarPDFInformeAgua } from "./generarPDFInformeAgua";
 import { cloneInformeAguaSchema } from "./informeAguaSchema";
 
@@ -334,7 +335,7 @@ export default function InformeAguaPDF() {
                 <img
                   src={d.firmas.tecnico}
                   alt="Firma técnico"
-                  className="h-20 object-contain mx-auto"
+                  style={{ ...signatureImageStyle, margin: "0 auto" }}
                 />
               ) : (
                 <div className="h-20 flex items-center justify-center text-sm text-gray-400">
@@ -351,7 +352,7 @@ export default function InformeAguaPDF() {
                 <img
                   src={d.firmas.supervisor}
                   alt="Firma supervisor"
-                  className="h-20 object-contain mx-auto"
+                  style={{ ...signatureImageStyle, margin: "0 auto" }}
                 />
               ) : (
                 <div className="h-20 flex items-center justify-center text-sm text-gray-400">

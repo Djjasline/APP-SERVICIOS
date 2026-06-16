@@ -9,6 +9,7 @@ import imageCompression from "browser-image-compression";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
+import { signatureCanvasProps, signatureStrokeProps } from "@/utils/signature";
 
 /* ─────────────────────────────────────────
    HELPERS
@@ -1477,15 +1478,15 @@ const save = async () => {
             <tbody>
               <tr>
                 <td className="border p-2 align-top" style={{ height: 200 }}>
-                  <div className="border rounded bg-white h-36">
-                    <SignatureCanvas ref={sigTecnico} penColor="black" minWidth={0.5} maxWidth={1.5}
+                  <div className="border rounded bg-white signature-box">
+                    <SignatureCanvas ref={sigTecnico} {...signatureStrokeProps}
                       onBegin={() => {
   setFirmaTecnicoEditada(true);
   document.activeElement?.blur();
   document.body.style.overflow = "hidden";
 }}
                        onEnd={() => { document.body.style.overflow = ""; }}
-                      canvasProps={{ className: "w-full h-full touch-none" }}
+                      canvasProps={signatureCanvasProps}
                     />
                   </div>
                   <div className="text-center font-medium text-sm mt-2">{data.tecnicoNombre || "—"}</div>
@@ -1495,15 +1496,15 @@ const save = async () => {
                   </div>
                 </td>
                 <td className="border p-2 align-top" style={{ height: 200 }}>
-                  <div className="border rounded bg-white h-36">
-                    <SignatureCanvas ref={sigCliente} penColor="black" minWidth={0.5} maxWidth={1.5}
+                  <div className="border rounded bg-white signature-box">
+                    <SignatureCanvas ref={sigCliente} {...signatureStrokeProps}
                       onBegin={() => {
   setFirmaClienteEditada(true);
   document.activeElement?.blur();
   document.body.style.overflow = "hidden";
 }}
                       onEnd={() => { document.body.style.overflow = ""; }}
-                      canvasProps={{ className: "w-full h-full touch-none" }}
+                      canvasProps={signatureCanvasProps}
                     />
                   </div>
                   <input className="w-full border rounded mt-2 text-xs p-1 bg-gray-100" value={data.contacto} readOnly placeholder="Nombre del contacto" />

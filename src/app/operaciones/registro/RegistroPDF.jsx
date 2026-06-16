@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { signatureImageStyle } from "@/utils/signature";
 
 export default function RegistroPDF() {
   const { id } = useParams();
@@ -305,7 +306,7 @@ const imagenIngreso =
           <img
             src={firmas.responsable}
             alt="Firma responsable"
-            className="max-h-28 mx-auto object-contain"
+            style={{ ...signatureImageStyle, margin: "0 auto" }}
           />
         ) : (
           <div className="h-28 flex items-center justify-center">
@@ -324,7 +325,7 @@ const imagenIngreso =
           <img
             src={firmas.aprobador}
             alt="Firma aprobador"
-            className="max-h-28 mx-auto object-contain"
+            style={{ ...signatureImageStyle, margin: "0 auto" }}
           />
         ) : (
           <div className="h-28 flex items-center justify-center">

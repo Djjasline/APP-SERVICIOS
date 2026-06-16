@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { signatureImageStyle } from "@/utils/signature";
 
 export default function InformePDF() {
   const navigate = useNavigate();
@@ -535,7 +536,7 @@ return (
                     <img
                       src={data.firmas.tecnico}
                       alt="firma tecnico"
-                      style={{ maxHeight: 120, margin: "0 auto" }}
+                      style={{ ...signatureImageStyle, margin: "0 auto" }}
                     />
                   )}
 
@@ -549,7 +550,7 @@ return (
                     <img
                       src={data.firmas.cliente}
                       alt="firma cliente"
-                      style={{ maxHeight: 120, margin: "0 auto" }}
+                      style={{ ...signatureImageStyle, margin: "0 auto" }}
                     />
                   )}
 

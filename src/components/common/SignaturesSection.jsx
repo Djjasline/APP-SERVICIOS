@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import SignatureCanvas from "react-signature-canvas";
+import { signatureCanvasProps, signatureStrokeProps } from "@/utils/signature";
 
 export default function SignaturesSection({ data = {}, onChange }) {
   const tecnicoRef = useRef(null);
@@ -91,12 +92,10 @@ const clearCliente = () => {
 
           <SignatureCanvas
             ref={tecnicoRef}
+            {...signatureStrokeProps}
             onBegin={handleBegin}
             onEnd={handleEnd}
-            canvasProps={{
-              className:
-                "border w-full h-32 rounded-md bg-white",
-            }}
+            canvasProps={{ ...signatureCanvasProps, className: "border rounded-md w-full touch-none bg-white signature-box signature-canvas" }}
           />
 
           <button
@@ -116,12 +115,10 @@ const clearCliente = () => {
 
           <SignatureCanvas
             ref={clienteRef}
+            {...signatureStrokeProps}
             onBegin={handleBegin}
             onEnd={handleEnd}
-            canvasProps={{
-              className:
-                "border w-full h-32 rounded-md bg-white",
-            }}
+            canvasProps={{ ...signatureCanvasProps, className: "border rounded-md w-full touch-none bg-white signature-box signature-canvas" }}
           />
 
           <button

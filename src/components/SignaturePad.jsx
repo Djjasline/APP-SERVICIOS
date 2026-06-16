@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { SIGNATURE_CANVAS_HEIGHT, SIGNATURE_CANVAS_WIDTH } from "@/utils/signature";
 
 export default function SignaturePad({
   label,
@@ -25,8 +26,8 @@ export default function SignaturePad({
     const rect = canvasRef.current.getBoundingClientRect();
     const touch = e.touches ? e.touches[0] : e;
     return {
-      x: touch.clientX - rect.left,
-      y: touch.clientY - rect.top,
+      x: (touch.clientX - rect.left) * (canvasRef.current.width / rect.width),
+      y: (touch.clientY - rect.top) * (canvasRef.current.height / rect.height),
     };
   };
 
@@ -81,9 +82,9 @@ export default function SignaturePad({
 
       <canvas
         ref={canvasRef}
-        width={400}
-        height={150}
-        className="border rounded w-full touch-none bg-white"
+        width={SIGNATURE_CANVAS_WIDTH}
+        height={SIGNATURE_CANVAS_HEIGHT}
+        className="border rounded w-full touch-none bg-white signature-box signature-canvas"
         onMouseDown={startDraw}
         onMouseMove={draw}
         onMouseUp={endDraw}

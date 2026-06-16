@@ -9,6 +9,7 @@ import imageCompression from "browser-image-compression";
 import { supabase } from "@/lib/supabase";
 import { generarPDFRecepcion } from "./generarPDFRecepcion";
 import { useAuth } from "@/context/AuthContext";
+import { signatureCanvasProps, signatureStrokeProps } from "@/utils/signature";
 import {
   checklistVehiculo,
   cloneRecepcionSchema,
@@ -364,11 +365,8 @@ const SignatureBox = ({ dataUrl, canvasRef, readOnly = false }) => {
   return (
     <SignatureCanvas
       ref={canvasRef}
-      canvasProps={{
-        width: 280,
-        height: 88,
-        className: "signature-canvas",
-      }}
+      {...signatureStrokeProps}
+      canvasProps={{ ...signatureCanvasProps, className: "signature-canvas touch-none" }}
     />
   );
 };
@@ -617,14 +615,14 @@ const SheetStyles = () => (
 
 .signature-canvas {
       width: 100%;
-      height: 88px;
+      height: 120px;
       display: block;
       background: #fff;
     }
 
     .signature-img {
       width: 100%;
-      height: 88px;
+      height: 120px;
       object-fit: contain;
       display: block;
     }
