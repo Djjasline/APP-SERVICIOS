@@ -107,7 +107,7 @@ export async function getRegistroById(id) {
     .eq("area", "operaciones")
     .eq("tipo", "registro")
     .eq("subtipo", "herramienta")
-    .single();
+    .maybeSingle();
 
   if (!canViewAll(user.email)) {
     query = query.eq("user_id", user.id);
