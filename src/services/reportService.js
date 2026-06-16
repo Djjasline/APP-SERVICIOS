@@ -63,26 +63,41 @@ export const saveOrUpdateReport = async ({
       throw error;
     }
 
-    try {
-      if (result && result.area === "operaciones") {
-        const requiereFirmaKarim =
-          result.tipo === "registro" ||
-          result.tipo === "recepcion" ||
-          result.tipo === "liberacion";
-
-        if (requiereFirmaKarim) {
-          await createNotification({
-            recipient_email: KARIM_EMAIL,
-            title: "Nuevo formulario de Operaciones",
-            message: `${getNombreFormulario(result.tipo)} ${result.id} requiere revisión y firma.`,
-            record_type: result.tipo,
-            record_id: result.id,
-          });
-        }
-      }
-    } catch (notifyErr) {
-      console.error("Error al intentar notificar:", notifyErr);
+try {
+  if (result && result.area === "operaciones") {
+    if (result.tipo === "registro" && result.estado === "salida") {
+      await createNotification({
+        recipient_email: KARIM_EMAIL,
+        title: "Herramientas pendientes de ingreso",
+        message: `El registro ${result.id} tiene herramientas en campo y requiere revisión de Karim.`,
+        record_type: "registro",
+        record_id: result.id,
+      });
     }
+
+    if (result.tipo === "recepcion") {
+      await createNotification({
+        recipient_email: KARIM_EMAIL,
+        title: "Nueva recepción pendiente",
+        message: `La recepción ${result.id} requiere revisión y firma.`,
+        record_type: "recepcion",
+        record_id: result.id,
+      });
+    }
+
+    if (result.tipo === "liberacion") {
+      await createNotification({
+        recipient_email: KARIM_EMAIL,
+        title: "Nueva liberación pendiente",
+        message: `La liberación ${result.id} requiere revisión y firma.`,
+        record_type: "liberacion",
+        record_id: result.id,
+      });
+    }
+  }
+} catch (notifyErr) {
+  console.error("Error al intentar notificar:", notifyErr);
+}
 
     return result;
   } catch (error) {
