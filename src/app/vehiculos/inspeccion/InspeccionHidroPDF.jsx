@@ -254,20 +254,13 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
       </div>
 
       <div style={{ padding: 10 }}>
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-            border: "1px solid #d1d5db",
-            borderRadius: 4,
-            overflow: "hidden",
-          }}
-        >
+        <div style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "#fff" }}>
+          <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
           <img
             src="/hidro-base.png"
             alt="Vista general hidrosuccionador"
             style={{
-              width: "100%",
+              maxWidth: "100%",
               maxHeight: 240,
               objectFit: "contain",
               display: "block",
@@ -298,6 +291,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
               {pi + 1}
             </div>
           ))}
+          </div>
         </div>
 
         {puntosBase.length > 0 && (
@@ -367,20 +361,13 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
         </div>
 
         <div style={{ padding: 10 }}>
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              border: "1px solid #d1d5db",
-              borderRadius: 4,
-              overflow: "hidden",
-            }}
-          >
+          <div style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "#fff" }}>
+            <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
             <img
               src={img.url}
               alt={`estado-${i + 1}`}
               style={{
-                width: "100%",
+                maxWidth: "100%",
                 maxHeight: 240,
                 objectFit: "contain",
                 display: "block",
@@ -411,6 +398,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
                 {pi + 1}
               </div>
             ))}
+            </div>
           </div>
 
           {(img.puntos || []).length > 0 && (

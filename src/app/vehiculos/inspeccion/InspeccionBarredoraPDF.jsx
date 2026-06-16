@@ -392,19 +392,12 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                 Vista general del equipo
               </div>
               <div style={{ padding: 10 }}>
-                <div
-                  style={{
-                    position: "relative",
-                    width: "100%",
-                    border: "1px solid #d1d5db",
-                    borderRadius: 4,
-                    overflow: "hidden",
-                  }}
-                >
+                <div style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "#fff" }}>
+                  <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
                   <img
                     src="/barredora-base.png"
                     alt="Vista general barredora"
-                    style={{ width: "100%", maxHeight: 240, objectFit: "contain", display: "block" }}
+                    style={{ maxWidth: "100%", maxHeight: 240, objectFit: "contain", display: "block" }}
                   />
                   {puntosBase.map((p, pi) => (
                     <div
@@ -430,6 +423,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                       {pi + 1}
                     </div>
                   ))}
+                  </div>
                 </div>
                 {puntosBase.length > 0 && (
                   <div style={{ marginTop: 8 }}>
@@ -483,20 +477,13 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                   Fotografía {i + 1}
                 </div>
                 <div style={{ padding: 10 }}>
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      border: "1px solid #d1d5db",
-                      borderRadius: 4,
-                      overflow: "hidden",
-                    }}
-                  >
+                  <div style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "#fff" }}>
+                    <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
                     <img
                       src={img.url}
                       alt={`estado-${i + 1}`}
                       style={{
-                        width: "100%",
+                        maxWidth: "100%",
                         maxHeight: 240,
                         objectFit: "contain",
                         display: "block",
@@ -526,6 +513,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                         {pi + 1}
                       </div>
                     ))}
+                    </div>
                   </div>
                   {(img.puntos || []).length > 0 && (
                     <div style={{ marginTop: 8 }}>

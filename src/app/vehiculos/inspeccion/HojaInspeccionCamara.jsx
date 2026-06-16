@@ -786,30 +786,29 @@ const result = await saveOrUpdateReport({
           <div className="border rounded bg-gray-50 p-3 mb-4 space-y-3">
             <div className="text-xs font-semibold text-gray-600">Vista general del equipo</div>
 
-            <div
-              className="relative border rounded overflow-hidden bg-white cursor-crosshair"
-              onClick={handleBaseImageClick}
-            >
-              <img
-                src={EQUIPO_IMG_PATH}
-                alt="Vista general cámara V-CAM6"
-                className="w-full max-h-[420px] object-contain"
-              />
-              {(data.estadoEquipo?.puntosBase || []).map((p, pi) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); removeBasePoint(p.id); }}
-                  className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow text-[10px] text-white font-bold flex items-center justify-center"
-                  style={{
-                    left: `${p.x * 100}%`,
-                    top: `${p.y * 100}%`,
-                    transform: "translate(-50%,-50%)",
-                  }}
-                >
-                  {pi + 1}
-                </button>
-              ))}
+            <div className="border rounded overflow-hidden bg-white flex items-center justify-center">
+              <div className="relative inline-block cursor-crosshair" onClick={handleBaseImageClick}>
+                <img
+                  src={EQUIPO_IMG_PATH}
+                  alt="Vista general cámara V-CAM6"
+                  className="block max-w-full max-h-[420px] object-contain"
+                />
+                {(data.estadoEquipo?.puntosBase || []).map((p, pi) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); removeBasePoint(p.id); }}
+                    className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow text-[10px] text-white font-bold flex items-center justify-center"
+                    style={{
+                      left: `${p.x * 100}%`,
+                      top: `${p.y * 100}%`,
+                      transform: "translate(-50%,-50%)",
+                    }}
+                  >
+                    {pi + 1}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <p className="text-[11px] text-gray-500">
@@ -883,28 +882,29 @@ const result = await saveOrUpdateReport({
                         Eliminar foto
                       </button>
                     </div>
-                    <div className="relative border rounded overflow-hidden bg-white flex items-center justify-center">
-                      <img
-                        src={img.url}
-                        alt={`estado-${idx + 1}`}
-                        className="w-auto max-w-full max-h-[320px] object-contain cursor-crosshair mx-auto"
-                        onClick={(e) => handleEstadoClick(e, img.id)}
-                      />
-                      {(img.puntos || []).map((p, pi) => (
-                        <button
-                          key={p.id}
-                          type="button"
-                          onClick={() => removePoint(img.id, p.id)}
-                          className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow text-[10px] text-white font-bold flex items-center justify-center"
-                          style={{
-                            left: `${p.x * 100}%`,
-                            top: `${p.y * 100}%`,
-                            transform: "translate(-50%,-50%)",
-                          }}
-                        >
-                          {pi + 1}
-                        </button>
-                      ))}
+                    <div className="border rounded overflow-hidden bg-white flex items-center justify-center">
+                      <div className="relative inline-block" onClick={(e) => handleEstadoClick(e, img.id)}>
+                        <img
+                          src={img.url}
+                          alt={`estado-${idx + 1}`}
+                          className="block w-auto max-w-full max-h-[320px] object-contain cursor-crosshair"
+                        />
+                        {(img.puntos || []).map((p, pi) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); removePoint(img.id, p.id); }}
+                            className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow text-[10px] text-white font-bold flex items-center justify-center"
+                            style={{
+                              left: `${p.x * 100}%`,
+                              top: `${p.y * 100}%`,
+                              transform: "translate(-50%,-50%)",
+                            }}
+                          >
+                            {pi + 1}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                     <p className="text-[11px] text-gray-500">
                       Toque la fotografía para marcar puntos. Toque el número para eliminar.

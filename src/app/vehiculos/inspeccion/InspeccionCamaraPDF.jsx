@@ -215,50 +215,44 @@ setReport({ estado: data.estado, data: data.data });
       </div>
 
       <div style={{ padding: 10 }}>
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-            border: "1px solid #d1d5db",
-            borderRadius: 4,
-            overflow: "hidden",
-          }}
-        >
-          <img
-            src="/estado-equipo-camara.png"
-            alt="Vista general cámara V-CAM6"
-            style={{
-              width: "100%",
-              maxHeight: 240,
-              objectFit: "contain",
-              display: "block",
-            }}
-          />
-
-          {puntosBase.map((p, pi) => (
-            <div
-              key={p.id || pi}
+        <div style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "#fff" }}>
+          <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
+            <img
+              src="/estado-equipo-camara.png"
+              alt="Vista general cámara V-CAM6"
               style={{
-                position: "absolute",
-                left: `${p.x * 100}%`,
-                top: `${p.y * 100}%`,
-                transform: "translate(-50%,-50%)",
-                width: 18,
-                height: 18,
-                borderRadius: "50%",
-                background: "#dc2626",
-                border: "2px solid #fff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 9,
-                color: "#fff",
-                fontWeight: 700,
+                maxWidth: "100%",
+                maxHeight: 240,
+                objectFit: "contain",
+                display: "block",
               }}
-            >
-              {pi + 1}
-            </div>
-          ))}
+            />
+
+            {puntosBase.map((p, pi) => (
+              <div
+                key={p.id || pi}
+                style={{
+                  position: "absolute",
+                  left: `${p.x * 100}%`,
+                  top: `${p.y * 100}%`,
+                  transform: "translate(-50%,-50%)",
+                  width: 18,
+                  height: 18,
+                  borderRadius: "50%",
+                  background: "#dc2626",
+                  border: "2px solid #fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 9,
+                  color: "#fff",
+                  fontWeight: 700,
+                }}
+              >
+                {pi + 1}
+              </div>
+            ))}
+          </div>
         </div>
 
         {puntosBase.length > 0 && (
@@ -328,50 +322,44 @@ setReport({ estado: data.estado, data: data.data });
         </div>
 
         <div style={{ padding: 10 }}>
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              border: "1px solid #d1d5db",
-              borderRadius: 4,
-              overflow: "hidden",
-            }}
-          >
-            <img
-              src={img.url}
-              alt={`estado-${i + 1}`}
-              style={{
-                width: "100%",
-                maxHeight: 240,
-                objectFit: "contain",
-                display: "block",
-              }}
-            />
-
-            {(img.puntos || []).map((p, pi) => (
-              <div
-                key={p.id || pi}
+          <div style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "#fff" }}>
+            <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
+              <img
+                src={img.url}
+                alt={`estado-${i + 1}`}
                 style={{
-                  position: "absolute",
-                  left: `${p.x * 100}%`,
-                  top: `${p.y * 100}%`,
-                  transform: "translate(-50%,-50%)",
-                  width: 18,
-                  height: 18,
-                  borderRadius: "50%",
-                  background: "#dc2626",
-                  border: "2px solid #fff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 9,
-                  color: "#fff",
-                  fontWeight: 700,
+                  maxWidth: "100%",
+                  maxHeight: 240,
+                  objectFit: "contain",
+                  display: "block",
                 }}
-              >
-                {pi + 1}
-              </div>
-            ))}
+              />
+
+              {(img.puntos || []).map((p, pi) => (
+                <div
+                  key={p.id || pi}
+                  style={{
+                    position: "absolute",
+                    left: `${p.x * 100}%`,
+                    top: `${p.y * 100}%`,
+                    transform: "translate(-50%,-50%)",
+                    width: 18,
+                    height: 18,
+                    borderRadius: "50%",
+                    background: "#dc2626",
+                    border: "2px solid #fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 9,
+                    color: "#fff",
+                    fontWeight: 700,
+                  }}
+                >
+                  {pi + 1}
+                </div>
+              ))}
+            </div>
           </div>
 
           {(img.puntos || []).length > 0 && (
