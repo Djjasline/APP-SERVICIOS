@@ -138,6 +138,7 @@ export default function MantenimientoVCamPDF() {
         .from("registros")
         .select("*")
         .eq("id", id)
+        .eq("area", "vehiculos")
         .eq("tipo", "mantenimiento")
         .eq("subtipo", "vcam")
         .single();
