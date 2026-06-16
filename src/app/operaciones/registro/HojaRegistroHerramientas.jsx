@@ -123,15 +123,13 @@ useAutoguardado(claveAutoguardado, formData, !isLocked);
     e.preventDefault();
     setGuardando(true);
 
-    try {
-      const firmaResponsable = firmaResponsableRef.current?.isEmpty()
-        ? ""
-        : firmaResponsableRef.current.toDataURL();
+const firmaResponsable = firmaResponsableRef.current?.isEmpty()
+  ? formData.firmas?.responsable || ""
+  : firmaResponsableRef.current.toDataURL();
 
-      const firmaAprobador = firmaAprobadorRef.current?.isEmpty()
-        ? ""
-        : firmaAprobadorRef.current.toDataURL();
-
+const firmaAprobador = firmaAprobadorRef.current?.isEmpty()
+  ? formData.firmas?.aprobador || ""
+  : firmaAprobadorRef.current.toDataURL();
       const payload = {
         ...formData,
         firmas: {
