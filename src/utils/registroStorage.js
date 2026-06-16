@@ -21,7 +21,7 @@ export async function createRegistro({ id = null, data }) {
       tipo: "registro",
       subtipo: "herramienta",
       data,
-      estado: "borrador",
+      estado: "salida",
     });
 
     return result;
