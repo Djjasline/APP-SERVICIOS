@@ -124,9 +124,11 @@ const FotosUploader = ({ fotos = [], onChange, readOnly, registroId, actividadId
       const nuevas = [];
       for (const file of Array.from(files)) {
         const compressed = await imageCompression(file, {
-          maxSizeMB: 0.8,
-          maxWidthOrHeight: 1400,
+          maxSizeMB: 0.35,
+          maxWidthOrHeight: 1280,
           useWebWorker: true,
+          initialQuality: 0.75,
+          fileType: "image/jpeg",
         });
         const path = `registros/${registroId}/agua/${actividadId}/${Date.now()}_${file.name}`;
         const url = await uploadRegistroImage(compressed, path);

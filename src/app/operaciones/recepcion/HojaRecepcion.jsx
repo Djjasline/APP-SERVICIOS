@@ -139,11 +139,10 @@ const DamageArea = ({
   const compressImage = async (file) =>
   imageCompression(file, {
     maxSizeMB: 0.18,
+    maxWidthOrHeight: 1280,
     useWebWorker: true,
-    alwaysKeepResolution: true,
     initialQuality: 0.7,
-    maxWidthOrHeight: undefined,
-    fileType: file.type || "image/jpeg",
+    fileType: "image/jpeg",
   });
   
 const addImages = async (files) => {
