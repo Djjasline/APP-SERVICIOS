@@ -118,6 +118,13 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
 <style>{`
 @media print {
 
+  #pdf-content {
+    max-width: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
   .page-break {
     page-break-before: always;
   }
@@ -137,6 +144,17 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
   }
 
   img {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .pdf-flow,
+  .pdf-activities tr {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .pdf-keep {
     break-inside: avoid;
     page-break-inside: avoid;
   }
@@ -266,7 +284,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         {/* ════════════════════
             ESTADO DEL EQUIPO
         ════════════════════ */}
-        <div className="no-break">
+        <div className="pdf-flow">
           <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
 
           {estadoEquipoImagenes.length === 0 ? (
@@ -281,11 +299,11 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             </table>
           ) : (
             estadoEquipoImagenes.map((img, imageIndex) => (
-              <div
-                key={img.id || imageIndex}
-                className="no-break"
-                style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}
-              >
+                <div
+                  key={img.id || imageIndex}
+                  className="pdf-keep"
+                  style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}
+                >
                 <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 11, fontWeight: 700, background: "#f9fafb" }}>
                   Imagen {imageIndex + 1}
                 </div>
@@ -342,7 +360,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
 
         <p style={{ ...S.sectionTitle, marginTop: 0 }}>ACTIVIDADES REALIZADAS</p>
 
-        <table style={S.tbl}>
+        <table className="pdf-activities" style={S.tbl}>
           <thead>
             <tr>
               <th style={{ ...S.th, width: 40 }}>ÍTEM</th>
@@ -352,7 +370,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
           </thead>
           <tbody>
             {(data.actividades || []).map((a, i) => (
-              <tr key={i} className="no-break">
+              <tr key={i}>
                 <td style={{ ...S.cell, textAlign: "center", verticalAlign: "top" }}>{i + 1}</td>
                 <td style={{ ...S.cell, verticalAlign: "top" }}>
                   <strong>{a.titulo || "—"}</strong>
