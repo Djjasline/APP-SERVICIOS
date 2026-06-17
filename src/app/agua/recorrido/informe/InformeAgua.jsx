@@ -130,8 +130,11 @@ const FotosUploader = ({ fotos = [], onChange, readOnly, registroId, actividadId
           initialQuality: 0.75,
           fileType: "image/jpeg",
         });
-        const path = `registros/${registroId}/agua/${actividadId}/${Date.now()}_${file.name}`;
-        const url = await uploadRegistroImage(compressed, path);
+        const url = await uploadRegistroImage(
+          compressed,
+          registroId || "temp-informe-agua",
+          `agua-${actividadId || "actividad"}`
+        );
         if (url) nuevas.push({ url, descripcion: "" });
       }
       onChange([...fotos, ...nuevas]);
