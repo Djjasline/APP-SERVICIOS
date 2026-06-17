@@ -191,7 +191,7 @@ return (
         </div>
 
        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-<div className="no-break">
+<div className="pdf-flow">
   <h3 className="pdf-title mt-4">
     DESCRIPCIÓN DEL EQUIPO - {data.tipoInforme === "valvula" ? "VÁLVULA" : "BOMBA"}
   </h3>
@@ -263,7 +263,7 @@ return (
 </div>
 
 {/* ================= REGISTRO FOTOGRÁFICO DEL EQUIPO ================= */}
-<div className="no-break">
+<div className="pdf-flow">
   <h3 className="pdf-title mt-4">REGISTRO FOTOGRÁFICO DEL EQUIPO</h3>
 
   {data.tipoInforme === "valvula" ? (
@@ -285,7 +285,7 @@ return (
       ]
         .filter(([, url]) => url)
         .map(([label, url], i) => (
-          <div key={i} className="border rounded p-2">
+          <div key={i} className="pdf-keep border rounded p-2">
             <div className="text-xs font-semibold mb-1">{label}</div>
             <img
               src={url}
@@ -318,7 +318,7 @@ return (
       ]
         .filter(([, url]) => url)
         .map(([label, url], i) => (
-          <div key={i} className="border rounded p-2">
+          <div key={i} className="pdf-keep border rounded p-2">
             <div className="text-xs font-semibold mb-1">{label}</div>
             <img
               src={url}
@@ -339,7 +339,7 @@ return (
 </div>
        
         {/* ================= ESTADO DEL EQUIPO ================= */}
-        <div className="no-break">
+        <div className="pdf-flow">
           <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
 
           {estadoEquipoImagenes.length === 0 ? (
@@ -355,7 +355,7 @@ return (
           ) : (
             <div className="space-y-4">
               {estadoEquipoImagenes.map((img, imageIndex) => (
-                <div key={img.id || imageIndex} className="no-break border rounded overflow-hidden">
+                <div key={img.id || imageIndex} className="pdf-keep border rounded overflow-hidden">
                   <div className="px-3 py-2 border-b text-sm font-semibold bg-gray-50">
                     Imagen {imageIndex + 1}
                   </div>
@@ -430,10 +430,8 @@ return (
         </div>
 
         {/* ================= ACTIVIDADES ================= */}
-        <div className="page-break"></div>
-
         <h3 className="pdf-title mt-4">ACTIVIDADES REALIZADAS</h3>
-        <table className="pdf-table w-full">
+        <table className="pdf-table pdf-activities w-full">
           <thead>
             <tr>
               <th style={{ width: 50 }}>ÍTEM</th>
@@ -443,7 +441,7 @@ return (
           </thead>
           <tbody>
             {data.actividades?.map((a, i) => (
-              <tr key={i} className="no-break">
+              <tr key={i}>
                 <td className="text-center" style={{ verticalAlign: "top" }}>
                   {i + 1}
                 </td>
@@ -490,8 +488,8 @@ return (
         </table>
 
         {/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
-        <div className="no-break">
-          <table className="pdf-table w-full mt-4">
+        <div className="pdf-flow">
+          <table className="pdf-table pdf-activities w-full mt-4">
             <thead>
               <tr>
                 <th colSpan={2}>CONCLUSIONES</th>
@@ -514,7 +512,7 @@ return (
         </div>
 
         {/* ================= FIRMAS ================= */}
-        <div className="no-break">
+        <div className="pdf-signatures no-break">
           <table className="pdf-table w-full mt-4">
             <thead>
               <tr>

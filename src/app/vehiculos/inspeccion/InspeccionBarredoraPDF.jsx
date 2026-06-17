@@ -72,7 +72,7 @@ const estadoColor = { SI: "#dcfce7", NO: "#fee2e2", NA: "#f3f4f6" };
 /* ── TABLA CHECKLIST ── */
 function ChecklistTable({ items, data }) {
   return (
-    <table style={S.tbl}>
+    <table className="pdf-activities" style={S.tbl}>
       <thead>
         <tr>
           <th style={{ ...S.th, width: 50 }}>ÍTEM</th>
@@ -367,13 +367,13 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
         </div>
 
         {/* ── ESTADO DEL EQUIPO ── */}
-        <div>
+        <div className="pdf-flow">
           <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
 
           {/* Plantilla base con puntos */}
           {puntosBase.length > 0 && (
             <div
-              className="no-break"
+              className="pdf-keep"
               style={{
                 border: "1px solid #d1d5db",
                 borderRadius: 6,
@@ -458,7 +458,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
             estadoEquipoImagenes.map((img, i) => (
               <div
                 key={img.id || i}
-                className="no-break"
+                className="pdf-keep"
                 style={{
                   border: "1px solid #d1d5db",
                   borderRadius: 6,
@@ -536,7 +536,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
         </div>
 
         {/* ── PRUEBAS PREVIAS ── */}
-        <div className="no-break">
+        <div className="pdf-flow">
           <p style={{ ...S.sectionTitle, marginTop: 0 }}>
             1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
           </p>
@@ -545,15 +545,15 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
 
         {/* ── SECCIONES A–C ── */}
         {secciones.map((sec, i) => (
-          <div key={i} className="no-break">
+          <div key={i} className="pdf-flow">
             <p style={S.sectionTitle}>{sec.titulo}</p>
             <ChecklistTable items={sec.items} data={d} />
           </div>
         ))}
 
         {/* ── CONCLUSIONES Y RECOMENDACIONES ── */}
-        <div className="no-break">
-          <table style={{ ...S.tbl, marginTop: 10 }}>
+        <div className="pdf-flow">
+          <table className="pdf-activities" style={{ ...S.tbl, marginTop: 10 }}>
             <thead>
               <tr>
                 <th colSpan={2} style={S.th}>CONCLUSIONES</th>
@@ -562,7 +562,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
             </thead>
             <tbody>
               {(d.conclusiones || []).map((c, i) => (
-                <tr key={i} className="no-break">
+                <tr key={i}>
                   <td style={{ ...S.cell, width: 28, textAlign: "center", fontWeight: 700 }}>
                     {i + 1}
                   </td>
@@ -580,7 +580,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
         </div>
 
         {/* ── NOTA FINAL ── */}
-        <div className="no-break">
+        <div className="pdf-signatures no-break">
           <p style={S.sectionTitle}>NOTA / OBSERVACIÓN FINAL DEL TÉCNICO</p>
           <table style={S.tbl}>
             <tbody>

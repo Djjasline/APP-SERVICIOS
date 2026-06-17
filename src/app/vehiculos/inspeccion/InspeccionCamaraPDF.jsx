@@ -69,7 +69,7 @@ const estadoColor = { SI: "#dcfce7", NO: "#fee2e2", NA: "#f3f4f6" };
 
 function ChecklistTable({ items, data }) {
   return (
-    <table style={S.tbl}>
+    <table className="pdf-activities" style={S.tbl}>
       <thead>
         <tr>
           <th style={{ ...S.th, width: 50 }}>ÍTEM</th>
@@ -189,13 +189,13 @@ setReport({ estado: data.estado, data: data.data });
 </table>
         </div>
 
-       <div>
+       <div className="pdf-flow">
   <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
 
   {/* Plantilla base con puntos */}
   {puntosBase.length > 0 && (
     <div
-      className="no-break"
+      className="pdf-keep"
       style={{
         border: "1px solid #d1d5db",
         borderRadius: 6,
@@ -302,7 +302,7 @@ setReport({ estado: data.estado, data: data.data });
     estadoEquipoImagenes.map((img, i) => (
       <div
         key={img.id || i}
-        className="no-break"
+        className="pdf-keep"
         style={{
           border: "1px solid #d1d5db",
           borderRadius: 6,
@@ -389,25 +389,24 @@ setReport({ estado: data.estado, data: data.data });
   )}
 </div>
 
-        <div className="page-break" />
         <p style={{ ...S.sectionTitle, marginTop:0 }}>1. PRUEBAS PREVIAS AL SERVICIO</p>
         <ChecklistTable items={pruebasPrevias} data={d} />
 
         {secciones.map((sec, i) => (
-          <div key={i} className="no-break">
+          <div key={i} className="pdf-flow">
             <p style={S.sectionTitle}>{sec.titulo}</p>
             <ChecklistTable items={sec.items} data={d} />
           </div>
         ))}
 
-        <div className="no-break">
-          <table style={{ ...S.tbl, marginTop:10 }}>
+        <div className="pdf-flow">
+          <table className="pdf-activities" style={{ ...S.tbl, marginTop:10 }}>
             <thead><tr><th colSpan={2} style={S.th}>CONCLUSIONES</th><th colSpan={2} style={S.th}>RECOMENDACIONES</th></tr></thead>
-            <tbody>{(d.conclusiones||[]).map((c,i)=>(<tr key={i} className="no-break"><td style={{ ...S.cell, width:28, textAlign:"center", fontWeight:700 }}>{i+1}</td><td style={{ ...S.cell, whiteSpace:"pre-wrap" }}>{c||"—"}</td><td style={{ ...S.cell, width:28, textAlign:"center", fontWeight:700 }}>{i+1}</td><td style={{ ...S.cell, whiteSpace:"pre-wrap" }}>{d.recomendaciones?.[i]||"—"}</td></tr>))}</tbody>
+            <tbody>{(d.conclusiones||[]).map((c,i)=>(<tr key={i}><td style={{ ...S.cell, width:28, textAlign:"center", fontWeight:700 }}>{i+1}</td><td style={{ ...S.cell, whiteSpace:"pre-wrap" }}>{c||"—"}</td><td style={{ ...S.cell, width:28, textAlign:"center", fontWeight:700 }}>{i+1}</td><td style={{ ...S.cell, whiteSpace:"pre-wrap" }}>{d.recomendaciones?.[i]||"—"}</td></tr>))}</tbody>
           </table>
         </div>
 
-        <div className="no-break">
+        <div className="pdf-signatures no-break">
   <table style={{ ...S.tbl, marginTop: 10 }}>
     <thead>
       <tr>

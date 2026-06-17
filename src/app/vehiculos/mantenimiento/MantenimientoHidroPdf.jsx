@@ -108,7 +108,7 @@ function SeccionTable({ sec, items, extras = [] }) {
   if (esOtros && filas.length === 0) return null;
 
   return (
-    <table style={S.tbl}>
+    <table className="pdf-activities" style={S.tbl}>
       <thead>
         <tr>
           <th style={{ ...S.th, width: 50, textAlign: "left" }}>ÍTEM</th>
@@ -307,7 +307,7 @@ export default function MantenimientoHidroPDF() {
         </div>
 
         {/* ── DATOS DEL SERVICIO ── */}
-        <div className="no-break">
+        <div className="pdf-flow">
           <p style={S.sectionTitle}>DATOS DEL SERVICIO</p>
           <table style={S.tbl}>
             <tbody>
@@ -358,7 +358,7 @@ export default function MantenimientoHidroPDF() {
         </div>
 
         {/* ── ESTADO DEL EQUIPO ── */}
-        <div className="no-break">
+        <div className="pdf-flow">
           <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
           {estadoEquipoImagenes.length === 0 ? (
             <table style={S.tbl}>
@@ -374,7 +374,7 @@ export default function MantenimientoHidroPDF() {
             estadoEquipoImagenes.map((img, i) => (
               <div
                 key={img.id || i}
-                className="no-break"
+                className="pdf-keep"
                 style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}
               >
                 <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 11, fontWeight: 700, background: "#f9fafb" }}>
@@ -455,7 +455,7 @@ export default function MantenimientoHidroPDF() {
   return null;
 }
           return (
-            <div key={i}>
+            <div key={i} className="pdf-flow">
               <p style={{ ...S.sectionTitle, marginTop: i === 0 ? 0 : 10 }}>{sec.titulo}</p>
               <SeccionTable
   sec={sec}
@@ -483,7 +483,7 @@ export default function MantenimientoHidroPDF() {
         )}
 
         {/* ── FIRMAS ── */}
-        <div className="no-break">
+        <div className="pdf-signatures no-break">
           <table style={{ ...S.tbl, marginTop: 10 }}>
             <thead>
               <tr>

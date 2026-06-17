@@ -356,8 +356,6 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         {/* ════════════════════
             ACTIVIDADES — página nueva
         ════════════════════ */}
-        {/* <div className="page-break" /> */}
-
         <p style={{ ...S.sectionTitle, marginTop: 0 }}>ACTIVIDADES REALIZADAS</p>
 
         <table className="pdf-activities" style={S.tbl}>
@@ -400,8 +398,8 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         {/* ════════════════════
             CONCLUSIONES / RECOMENDACIONES
         ════════════════════ */}
-        <div className="no-break">
-          <table style={{ ...S.tbl, marginTop: 14 }}>
+        <div className="pdf-flow">
+          <table className="pdf-activities" style={{ ...S.tbl, marginTop: 14 }}>
             <thead>
               <tr>
                 <th colSpan={2} style={S.th}>CONCLUSIONES</th>
@@ -410,7 +408,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             </thead>
             <tbody>
               {(data.conclusiones || []).map((c, i) => (
-                <tr key={i} className="no-break">
+                <tr key={i}>
                   <td style={{ ...S.cell, width: 28, textAlign: "center", fontWeight: 700 }}>{i + 1}</td>
                   <td style={{ ...S.cell, whiteSpace: "pre-wrap" }}>{c || "—"}</td>
                   <td style={{ ...S.cell, width: 28, textAlign: "center", fontWeight: 700 }}>{i + 1}</td>
@@ -424,7 +422,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
        {/* ════════════════════
     FIRMAS (CORREGIDO)
 ════════════════════ */}
-<div className="no-break">
+<div className="pdf-signatures no-break">
   <table style={{ ...S.tbl, marginTop: 14 }}>
     <thead>
       <tr>
