@@ -1,5 +1,4 @@
 import SignatureCanvas from "react-signature-canvas";
-import { signatureCanvasProps, signatureImageStyle, signatureStrokeProps } from "@/utils/signature";
 
 export default function InspectionLayoutHidro({
   data,
@@ -223,14 +222,13 @@ export default function InspectionLayoutHidro({
           data.firmas?.tecnico && (
             <img
               src={data.firmas.tecnico}
-              style={{ ...signatureImageStyle, margin: "0 auto" }}
+              className="max-h-32 mx-auto"
             />
           )
         ) : (
           <SignatureCanvas
             ref={firmasRef?.tecnico}
-            {...signatureStrokeProps}
-            canvasProps={signatureCanvasProps}
+            canvasProps={{ className: "w-full h-full" }}
           />
         )}
       </td>
@@ -240,14 +238,13 @@ export default function InspectionLayoutHidro({
           data.firmas?.cliente && (
             <img
               src={data.firmas.cliente}
-              style={{ ...signatureImageStyle, margin: "0 auto" }}
+              className="max-h-32 mx-auto"
             />
           )
         ) : (
           <SignatureCanvas
             ref={firmasRef?.cliente}
-            {...signatureStrokeProps}
-            canvasProps={signatureCanvasProps}
+            canvasProps={{ className: "w-full h-full" }}
           />
         )}
       </td>

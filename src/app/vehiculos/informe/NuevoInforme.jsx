@@ -11,7 +11,6 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
-import { signatureCanvasProps, signatureStrokeProps } from "@/utils/signature";
 
 export default function NuevoInforme() {
   const navigate = useNavigate();
@@ -853,36 +852,32 @@ const estadoFinal =
                       </div>
                     </div>
 
-                    <div className="border rounded overflow-hidden bg-white flex items-center justify-center">
-                      <div
-                        className="relative inline-block cursor-crosshair"
+                    <div className="relative w-full border rounded overflow-hidden bg-white">
+                      <img
+                        src={img.url}
+                        alt={`estado-equipo-${imageIndex + 1}`}
+                        className="w-full aspect-[4/3] object-contain bg-white cursor-crosshair"
                         onClick={(e) => handleEstadoEquipoImageClick(e, img.id)}
-                      >
-                        <img
-                          src={img.url}
-                          alt={`estado-equipo-${imageIndex + 1}`}
-                          className="block w-auto max-w-full max-h-[320px] object-contain bg-white"
-                        />
+                      />
 
-                        {(img.puntos || []).map((p, pointIndex) => (
-                          <button
-                            key={p.id}
-                            type="button"
-                            title="Quitar punto"
-                            onClick={(e) => { e.stopPropagation(); removeEstadoEquipoPoint(img.id, p.id); }}
-                            className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow"
-                            style={{
-                              left: `${p.x * 100}%`,
-                              top: `${p.y * 100}%`,
-                              transform: "translate(-50%, -50%)",
-                            }}
-                          >
-                            <span className="sr-only">
-                              Punto {pointIndex + 1}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
+                      {(img.puntos || []).map((p, pointIndex) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          title="Quitar punto"
+                          onClick={() => removeEstadoEquipoPoint(img.id, p.id)}
+                          className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow"
+                          style={{
+                            left: `${p.x * 100}%`,
+                            top: `${p.y * 100}%`,
+                            transform: "translate(-50%, -50%)",
+                          }}
+                        >
+                          <span className="sr-only">
+                            Punto {pointIndex + 1}
+                          </span>
+                        </button>
+                      ))}
                     </div>
 
                     <p className="text-[11px] text-gray-500">
@@ -1186,11 +1181,14 @@ const estadoFinal =
     <tr>
       {/* ================= FIRMA TÉCNICO ================= */}
       <td className="align-top" style={{ height: 240 }}>
-        <div className="border rounded bg-white signature-box flex items-center justify-center">
+        <div className="border rounded bg-white h-[150px] flex items-center justify-center">
           <SignatureCanvas
             ref={sigTecnico}
-            {...signatureStrokeProps}
+            penColor="black"
+            minWidth={0.5}
+            maxWidth={1.5}
             throttle={0}
+            velocityFilterWeight={0.7}
             onBegin={() => {
   setFirmaTecnicoEditada(true);
   document.activeElement?.blur();
@@ -1199,7 +1197,9 @@ const estadoFinal =
 onEnd={() => {
   document.body.style.overflow = "";
 }}
-            canvasProps={signatureCanvasProps}
+            canvasProps={{
+              className: "w-full h-full touch-none",
+            }}
           />
         </div>
 
@@ -1228,11 +1228,14 @@ onEnd={() => {
 
       {/* ================= FIRMA CLIENTE ================= */}
       <td className="align-top" style={{ height: 240 }}>
-        <div className="border rounded bg-white signature-box flex items-center justify-center">
+        <div className="border rounded bg-white h-[150px] flex items-center justify-center">
           <SignatureCanvas
             ref={sigCliente}
-            {...signatureStrokeProps}
+            penColor="black"
+            minWidth={0.5}
+            maxWidth={1.5}
             throttle={0}
+            velocityFilterWeight={0.7}
           onBegin={() => {
   setFirmaClienteEditada(true);
   document.activeElement?.blur();
@@ -1241,7 +1244,9 @@ onEnd={() => {
 onEnd={() => {
               document.body.style.overflow = "";
             }}
-            canvasProps={signatureCanvasProps}
+            canvasProps={{
+              className: "w-full h-full touch-none",
+            }}
           />
         </div>
 

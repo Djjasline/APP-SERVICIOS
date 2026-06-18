@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { signatureImageStyle } from "@/utils/signature";
 
 export default function LiberacionDetalle() {
   const { id } = useParams();
@@ -91,8 +90,7 @@ export default function LiberacionDetalle() {
             <img
               src={data.firmaInspector}
               alt="firma"
-              className="border mt-2"
-              style={signatureImageStyle}
+              className="border mt-2 w-[300px]"
             />
           </div>
         )}

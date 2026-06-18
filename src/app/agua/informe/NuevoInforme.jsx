@@ -9,7 +9,6 @@ import imageCompression from "browser-image-compression";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import { signatureCanvasProps, signatureStrokeProps } from "@/utils/signature";
 
 /* ─────────────────────────────────────────
    HELPERS
@@ -254,10 +253,15 @@ useEffect(() => {
   const compress = async (file) =>
   imageCompression(file, {
     maxSizeMB: 0.18,
-    maxWidthOrHeight: 1280,
     useWebWorker: true,
+
+    alwaysKeepResolution: true,
+
     initialQuality: 0.7,
-    fileType: "image/jpeg",
+
+    maxWidthOrHeight: undefined,
+
+    fileType: file.type || "image/jpeg",
   });
 
   const uploadSingle = async (file, folder) => {
@@ -1247,30 +1251,28 @@ const save = async () => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {(data.estadoEquipo?.imagenes || []).map((img, imgIndex) => (
         <div key={img.id} className="border rounded-lg p-3 space-y-3">
-          <div className="border rounded overflow-hidden bg-gray-100 flex items-center justify-center">
-            <div
-              className="relative inline-block cursor-crosshair"
-              onClick={(e) => handleEstadoEquipoImageClick(e, img.id)}
-            >
-              <img
-                src={img.url}
-                alt={`Estado del equipo ${imgIndex + 1}`}
-                className="block w-auto max-w-full max-h-[320px] object-contain"
-              />
+          <div
+            className="relative w-full border rounded overflow-hidden bg-gray-100 cursor-crosshair"
+            onClick={(e) => handleEstadoEquipoImageClick(e, img.id)}
+          >
+            <img
+              src={img.url}
+              alt={`Estado del equipo ${imgIndex + 1}`}
+              className="w-full max-h-[320px] object-contain"
+            />
 
-              {(img.puntos || []).map((punto, puntoIndex) => (
-                <span
-                  key={punto.id}
-                  className="absolute w-5 h-5 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center -translate-x-1/2 -translate-y-1/2 shadow"
-                  style={{
-                    left: `${punto.x * 100}%`,
-                    top: `${punto.y * 100}%`,
-                  }}
-                >
-                  {puntoIndex + 1}
-                </span>
-              ))}
-            </div>
+            {(img.puntos || []).map((punto, puntoIndex) => (
+              <span
+                key={punto.id}
+                className="absolute w-5 h-5 rounded-full bg-red-600 text-white text-xs font-bold flex items-center justify-center -translate-x-1/2 -translate-y-1/2 shadow"
+                style={{
+                  left: `${punto.x * 100}%`,
+                  top: `${punto.y * 100}%`,
+                }}
+              >
+                {puntoIndex + 1}
+              </span>
+            ))}
           </div>
 
           <div className="flex gap-2 flex-wrap">
@@ -1472,15 +1474,15 @@ const save = async () => {
             <tbody>
               <tr>
                 <td className="border p-2 align-top" style={{ height: 200 }}>
-                  <div className="border rounded bg-white signature-box">
-                    <SignatureCanvas ref={sigTecnico} {...signatureStrokeProps}
+                  <div className="border rounded bg-white h-36">
+                    <SignatureCanvas ref={sigTecnico} penColor="black" minWidth={0.5} maxWidth={1.5}
                       onBegin={() => {
   setFirmaTecnicoEditada(true);
   document.activeElement?.blur();
   document.body.style.overflow = "hidden";
 }}
                        onEnd={() => { document.body.style.overflow = ""; }}
-                      canvasProps={signatureCanvasProps}
+                      canvasProps={{ className: "w-full h-full touch-none" }}
                     />
                   </div>
                   <div className="text-center font-medium text-sm mt-2">{data.tecnicoNombre || "—"}</div>
@@ -1490,15 +1492,15 @@ const save = async () => {
                   </div>
                 </td>
                 <td className="border p-2 align-top" style={{ height: 200 }}>
-                  <div className="border rounded bg-white signature-box">
-                    <SignatureCanvas ref={sigCliente} {...signatureStrokeProps}
+                  <div className="border rounded bg-white h-36">
+                    <SignatureCanvas ref={sigCliente} penColor="black" minWidth={0.5} maxWidth={1.5}
                       onBegin={() => {
   setFirmaClienteEditada(true);
   document.activeElement?.blur();
   document.body.style.overflow = "hidden";
 }}
                       onEnd={() => { document.body.style.overflow = ""; }}
-                      canvasProps={signatureCanvasProps}
+                      canvasProps={{ className: "w-full h-full touch-none" }}
                     />
                   </div>
                   <input className="w-full border rounded mt-2 text-xs p-1 bg-gray-100" value={data.contacto} readOnly placeholder="Nombre del contacto" />
