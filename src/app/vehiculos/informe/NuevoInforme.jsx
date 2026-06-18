@@ -865,17 +865,16 @@ const estadoFinal =
                           key={p.id}
                           type="button"
                           title="Quitar punto"
+                          aria-label={`Quitar punto ${pointIndex + 1}`}
                           onClick={() => removeEstadoEquipoPoint(img.id, p.id)}
-                          className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow"
+                          className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow text-[10px] text-white font-bold flex items-center justify-center"
                           style={{
                             left: `${p.x * 100}%`,
                             top: `${p.y * 100}%`,
                             transform: "translate(-50%, -50%)",
                           }}
                         >
-                          <span className="sr-only">
-                            Punto {pointIndex + 1}
-                          </span>
+                          {pointIndex + 1}
                         </button>
                       ))}
                     </div>
