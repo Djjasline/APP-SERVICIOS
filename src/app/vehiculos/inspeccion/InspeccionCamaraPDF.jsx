@@ -2,7 +2,6 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
-import { signatureImageStyle } from "@/utils/signature";
 
 const S = {
   tbl: {
@@ -69,7 +68,7 @@ const estadoColor = { SI: "#dcfce7", NO: "#fee2e2", NA: "#f3f4f6" };
 
 function ChecklistTable({ items, data }) {
   return (
-    <table className="pdf-activities" style={S.tbl}>
+    <table style={S.tbl}>
       <thead>
         <tr>
           <th style={{ ...S.th, width: 50 }}>ÍTEM</th>
@@ -189,13 +188,13 @@ setReport({ estado: data.estado, data: data.data });
 </table>
         </div>
 
-       <div className="pdf-flow">
+       <div>
   <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
 
   {/* Plantilla base con puntos */}
   {puntosBase.length > 0 && (
     <div
-      className="pdf-keep"
+      className="no-break"
       style={{
         border: "1px solid #d1d5db",
         borderRadius: 6,
@@ -216,44 +215,50 @@ setReport({ estado: data.estado, data: data.data });
       </div>
 
       <div style={{ padding: 10 }}>
-        <div style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "#fff" }}>
-          <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
-            <img
-              src="/estado-equipo-camara.png"
-              alt="Vista general cámara V-CAM6"
-              style={{
-                maxWidth: "100%",
-                maxHeight: 240,
-                objectFit: "contain",
-                display: "block",
-              }}
-            />
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            border: "1px solid #d1d5db",
+            borderRadius: 4,
+            overflow: "hidden",
+          }}
+        >
+          <img
+            src="/estado-equipo-camara.png"
+            alt="Vista general cámara V-CAM6"
+            style={{
+              width: "100%",
+              maxHeight: 240,
+              objectFit: "contain",
+              display: "block",
+            }}
+          />
 
-            {puntosBase.map((p, pi) => (
-              <div
-                key={p.id || pi}
-                style={{
-                  position: "absolute",
-                  left: `${p.x * 100}%`,
-                  top: `${p.y * 100}%`,
-                  transform: "translate(-50%,-50%)",
-                  width: 18,
-                  height: 18,
-                  borderRadius: "50%",
-                  background: "#dc2626",
-                  border: "2px solid #fff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 9,
-                  color: "#fff",
-                  fontWeight: 700,
-                }}
-              >
-                {pi + 1}
-              </div>
-            ))}
-          </div>
+          {puntosBase.map((p, pi) => (
+            <div
+              key={p.id || pi}
+              style={{
+                position: "absolute",
+                left: `${p.x * 100}%`,
+                top: `${p.y * 100}%`,
+                transform: "translate(-50%,-50%)",
+                width: 18,
+                height: 18,
+                borderRadius: "50%",
+                background: "#dc2626",
+                border: "2px solid #fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 9,
+                color: "#fff",
+                fontWeight: 700,
+              }}
+            >
+              {pi + 1}
+            </div>
+          ))}
         </div>
 
         {puntosBase.length > 0 && (
@@ -302,7 +307,7 @@ setReport({ estado: data.estado, data: data.data });
     estadoEquipoImagenes.map((img, i) => (
       <div
         key={img.id || i}
-        className="pdf-keep"
+        className="no-break"
         style={{
           border: "1px solid #d1d5db",
           borderRadius: 6,
@@ -323,44 +328,50 @@ setReport({ estado: data.estado, data: data.data });
         </div>
 
         <div style={{ padding: 10 }}>
-          <div style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "#fff" }}>
-            <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
-              <img
-                src={img.url}
-                alt={`estado-${i + 1}`}
-                style={{
-                  maxWidth: "100%",
-                  maxHeight: 240,
-                  objectFit: "contain",
-                  display: "block",
-                }}
-              />
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              border: "1px solid #d1d5db",
+              borderRadius: 4,
+              overflow: "hidden",
+            }}
+          >
+            <img
+              src={img.url}
+              alt={`estado-${i + 1}`}
+              style={{
+                width: "100%",
+                maxHeight: 240,
+                objectFit: "contain",
+                display: "block",
+              }}
+            />
 
-              {(img.puntos || []).map((p, pi) => (
-                <div
-                  key={p.id || pi}
-                  style={{
-                    position: "absolute",
-                    left: `${p.x * 100}%`,
-                    top: `${p.y * 100}%`,
-                    transform: "translate(-50%,-50%)",
-                    width: 18,
-                    height: 18,
-                    borderRadius: "50%",
-                    background: "#dc2626",
-                    border: "2px solid #fff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 9,
-                    color: "#fff",
-                    fontWeight: 700,
-                  }}
-                >
-                  {pi + 1}
-                </div>
-              ))}
-            </div>
+            {(img.puntos || []).map((p, pi) => (
+              <div
+                key={p.id || pi}
+                style={{
+                  position: "absolute",
+                  left: `${p.x * 100}%`,
+                  top: `${p.y * 100}%`,
+                  transform: "translate(-50%,-50%)",
+                  width: 18,
+                  height: 18,
+                  borderRadius: "50%",
+                  background: "#dc2626",
+                  border: "2px solid #fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 9,
+                  color: "#fff",
+                  fontWeight: 700,
+                }}
+              >
+                {pi + 1}
+              </div>
+            ))}
           </div>
 
           {(img.puntos || []).length > 0 && (
@@ -389,24 +400,25 @@ setReport({ estado: data.estado, data: data.data });
   )}
 </div>
 
+        <div className="page-break" />
         <p style={{ ...S.sectionTitle, marginTop:0 }}>1. PRUEBAS PREVIAS AL SERVICIO</p>
         <ChecklistTable items={pruebasPrevias} data={d} />
 
         {secciones.map((sec, i) => (
-          <div key={i} className="pdf-flow">
+          <div key={i} className="no-break">
             <p style={S.sectionTitle}>{sec.titulo}</p>
             <ChecklistTable items={sec.items} data={d} />
           </div>
         ))}
 
-        <div className="pdf-flow">
-          <table className="pdf-activities" style={{ ...S.tbl, marginTop:10 }}>
+        <div className="no-break">
+          <table style={{ ...S.tbl, marginTop:10 }}>
             <thead><tr><th colSpan={2} style={S.th}>CONCLUSIONES</th><th colSpan={2} style={S.th}>RECOMENDACIONES</th></tr></thead>
-            <tbody>{(d.conclusiones||[]).map((c,i)=>(<tr key={i}><td style={{ ...S.cell, width:28, textAlign:"center", fontWeight:700 }}>{i+1}</td><td style={{ ...S.cell, whiteSpace:"pre-wrap" }}>{c||"—"}</td><td style={{ ...S.cell, width:28, textAlign:"center", fontWeight:700 }}>{i+1}</td><td style={{ ...S.cell, whiteSpace:"pre-wrap" }}>{d.recomendaciones?.[i]||"—"}</td></tr>))}</tbody>
+            <tbody>{(d.conclusiones||[]).map((c,i)=>(<tr key={i} className="no-break"><td style={{ ...S.cell, width:28, textAlign:"center", fontWeight:700 }}>{i+1}</td><td style={{ ...S.cell, whiteSpace:"pre-wrap" }}>{c||"—"}</td><td style={{ ...S.cell, width:28, textAlign:"center", fontWeight:700 }}>{i+1}</td><td style={{ ...S.cell, whiteSpace:"pre-wrap" }}>{d.recomendaciones?.[i]||"—"}</td></tr>))}</tbody>
           </table>
         </div>
 
-        <div className="pdf-signatures no-break">
+        <div className="no-break">
   <table style={{ ...S.tbl, marginTop: 10 }}>
     <thead>
       <tr>
@@ -421,7 +433,7 @@ setReport({ estado: data.estado, data: data.data });
             <img
               src={d.firmas.tecnico}
               alt="Firma técnico"
-              style={{ ...signatureImageStyle, margin: "0 auto" }}
+              style={{ maxHeight: 34, width: "auto", maxWidth: 160, objectFit: "contain", margin: "0 auto", display: "block" }}
             />
           )}
           <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700 }}>
@@ -434,7 +446,7 @@ setReport({ estado: data.estado, data: data.data });
             <img
               src={d.firmas.cliente}
               alt="Firma cliente"
-              style={{ ...signatureImageStyle, margin: "0 auto" }}
+              style={{ maxHeight: 34, width: "auto", maxWidth: 160, objectFit: "contain", margin: "0 auto", display: "block" }}
             />
           )}
           <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700 }}>
