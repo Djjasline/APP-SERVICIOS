@@ -705,7 +705,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                       textTransform: "uppercase",
                     }}
                   >
-                    {d.cliente || "—"}
+                    {d.contacto || d.cliente || "—"}
                   </div>
                   <div style={{ marginTop: 1, fontSize: 9, color: "#4b5563" }}>
                     Cédula: {d.firmas?.clienteCedula || "—"}

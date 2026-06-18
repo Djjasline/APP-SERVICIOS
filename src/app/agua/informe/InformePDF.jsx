@@ -530,7 +530,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
                   )}
 
                   <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>
-                    {data.cliente || "—"}
+                    {data.contacto || data.cliente || "—"}
                   </div>
 
                   <div style={{ marginTop: 4, fontSize: 12 }}>

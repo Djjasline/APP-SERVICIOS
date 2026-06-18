@@ -450,7 +450,7 @@ setReport({ estado: data.estado, data: data.data });
             />
           )}
           <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700 }}>
-            {d.cliente || "—"}
+            {d.contacto || d.cliente || "—"}
           </div>
           <div style={{ marginTop: 1, fontSize: 9 }}>
             Cédula: {d.firmas?.clienteCedula || "—"}
