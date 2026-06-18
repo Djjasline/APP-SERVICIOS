@@ -4,7 +4,6 @@ import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
-import { signatureCanvasProps, signatureStrokeProps } from "@/utils/signature";
 
 const checklist = {
   "Sistema Mecánico": [
@@ -302,8 +301,8 @@ pendientes.push({
         <div className="mt-6">
           <p className="text-sm font-semibold">Firma del Inspector</p>
 
-          <div className="border bg-white signature-box">
-            <SignatureCanvas ref={sigRef} {...signatureStrokeProps} canvasProps={signatureCanvasProps} />
+          <div className="border bg-white">
+            <SignatureCanvas ref={sigRef} canvasProps={{ className: "w-full h-[120px]" }} />
           </div>
 
           <button onClick={() => sigRef.current.clear()} className="text-xs text-red-600">

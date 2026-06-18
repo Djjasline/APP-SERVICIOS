@@ -9,7 +9,6 @@ import imageCompression from "browser-image-compression";
 import { supabase } from "@/lib/supabase";
 import { generarPDFRecepcion } from "./generarPDFRecepcion";
 import { useAuth } from "@/context/AuthContext";
-import { signatureCanvasProps, signatureStrokeProps } from "@/utils/signature";
 import {
   checklistVehiculo,
   cloneRecepcionSchema,
@@ -139,10 +138,11 @@ const DamageArea = ({
   const compressImage = async (file) =>
   imageCompression(file, {
     maxSizeMB: 0.18,
-    maxWidthOrHeight: 1280,
     useWebWorker: true,
+    alwaysKeepResolution: true,
     initialQuality: 0.7,
-    fileType: "image/jpeg",
+    maxWidthOrHeight: undefined,
+    fileType: file.type || "image/jpeg",
   });
   
 const addImages = async (files) => {
@@ -303,35 +303,33 @@ const url = await uploadRegistroImage(
                 )}
               </div>
 
-              <div className="damage-photo-frame">
-                <div
-                  className="damage-photo-wrap"
-                  onClick={(e) => addPoint(e, img.id)}
-                >
-                  <img
-                    src={img.url}
-                    alt={`Daño ${index + 1}`}
-                    className="damage-photo-img"
-                  />
+              <div
+                className="damage-photo-wrap"
+                onClick={(e) => addPoint(e, img.id)}
+              >
+                <img
+                  src={img.url}
+                  alt={`Daño ${index + 1}`}
+                  className="damage-photo-img"
+                />
 
-                  {(img.puntos || []).map((p, pi) => (
-                    <button
-                      key={p.id || pi}
-                      type="button"
-                      className="damage-dot"
-                      style={{
-                        left: `${p.x * 100}%`,
-                        top: `${p.y * 100}%`,
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removePoint(img.id, p.id);
-                      }}
-                    >
-                      {pi + 1}
-                    </button>
-                  ))}
-                </div>
+                {(img.puntos || []).map((p, pi) => (
+                  <button
+                    key={p.id || pi}
+                    type="button"
+                    className="damage-dot"
+                    style={{
+                      left: `${p.x * 100}%`,
+                      top: `${p.y * 100}%`,
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removePoint(img.id, p.id);
+                    }}
+                  >
+                    {pi + 1}
+                  </button>
+                ))}
               </div>
 
               {(img.puntos || []).map((p, pi) => (
@@ -366,8 +364,11 @@ const SignatureBox = ({ dataUrl, canvasRef, readOnly = false }) => {
   return (
     <SignatureCanvas
       ref={canvasRef}
-      {...signatureStrokeProps}
-      canvasProps={{ ...signatureCanvasProps, className: "signature-canvas touch-none" }}
+      canvasProps={{
+        width: 280,
+        height: 88,
+        className: "signature-canvas",
+      }}
     />
   );
 };
@@ -571,22 +572,14 @@ const SheetStyles = () => (
 
 .damage-photo-wrap {
   position: relative;
-  display: inline-block;
-  max-width: 100%;
   background: #fff;
   cursor: crosshair;
 }
 
-.damage-photo-frame {
-  text-align: center;
-  background: #fff;
-}
-
 .damage-photo-img {
-  width: auto;
-  max-width: 100%;
-  max-height: 120px;
-  object-fit: contain;
+  width: 100%;
+  height: 82px;
+  object-fit: cover;
   display: block;
 }
 .damage-dot {
@@ -624,14 +617,14 @@ const SheetStyles = () => (
 
 .signature-canvas {
       width: 100%;
-      height: 120px;
+      height: 88px;
       display: block;
       background: #fff;
     }
 
     .signature-img {
       width: 100%;
-      height: 120px;
+      height: 88px;
       object-fit: contain;
       display: block;
     }

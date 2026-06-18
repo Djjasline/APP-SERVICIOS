@@ -14,7 +14,6 @@ import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";
 import { generarPDFInformeAgua } from "./generarPDFInformeAgua";
-import { signatureCanvasProps, signatureStrokeProps } from "@/utils/signature";
 import {
   cloneInformeAguaSchema,
   nuevaActividad,
@@ -124,17 +123,12 @@ const FotosUploader = ({ fotos = [], onChange, readOnly, registroId, actividadId
       const nuevas = [];
       for (const file of Array.from(files)) {
         const compressed = await imageCompression(file, {
-          maxSizeMB: 0.35,
-          maxWidthOrHeight: 1280,
+          maxSizeMB: 0.8,
+          maxWidthOrHeight: 1400,
           useWebWorker: true,
-          initialQuality: 0.75,
-          fileType: "image/jpeg",
         });
-        const url = await uploadRegistroImage(
-          compressed,
-          registroId || "temp-informe-agua",
-          `agua-${actividadId || "actividad"}`
-        );
+        const path = `registros/${registroId}/agua/${actividadId}/${Date.now()}_${file.name}`;
+        const url = await uploadRegistroImage(compressed, path);
         if (url) nuevas.push({ url, descripcion: "" });
       }
       onChange([...fotos, ...nuevas]);
@@ -706,13 +700,10 @@ const Styles = () => (
       border-radius: 6px;
       overflow: hidden;
       background: #fafafa;
-      aspect-ratio: 3 / 1;
-      min-height: 120px;
     }
     .ia-firma-img {
       width: 100%;
-      height: 100%;
-      min-height: 120px;
+      height: 80px;
       object-fit: contain;
       display: block;
       background: #fafafa;
@@ -1063,9 +1054,8 @@ navigate("/agua/recorrido/informe");
                     <div className="ia-firma-canvas-wrap">
                       <SignatureCanvas
                         ref={firmaTecnicoRef}
-                        {...signatureStrokeProps}
                         penColor="#1a2942"
-                        canvasProps={{ ...signatureCanvasProps, className: "ia-firma-img touch-none" }}
+                        canvasProps={{ width: 380, height: 80, className: "ia-firma-img" }}
                       />
                     </div>
                   )}
@@ -1094,9 +1084,8 @@ navigate("/agua/recorrido/informe");
                     <div className="ia-firma-canvas-wrap">
                       <SignatureCanvas
                         ref={firmaSupervisorRef}
-                        {...signatureStrokeProps}
                         penColor="#1a2942"
-                        canvasProps={{ ...signatureCanvasProps, className: "ia-firma-img touch-none" }}
+                        canvasProps={{ width: 380, height: 80, className: "ia-firma-img" }}
                       />
                     </div>
                   )}
