@@ -446,7 +446,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
     fontWeight: 700,
   }}
 >
-  {data.contacto || "—"}
+  {data.tecnicoNombre || "—"}
 </div>
         </td>
 
