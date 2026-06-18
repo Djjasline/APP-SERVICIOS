@@ -14,7 +14,7 @@ const DEPARTMENTS = [
 
 export default function Perfil() {
   const navigate        = useNavigate();
-  const { user, role }  = useAuth();
+  const { user, role, roleLabel }  = useAuth();
 
   const [perfil, setPerfil]               = useState({ full_name: "", phone: "", department: "", avatar_url: "" });
   const [loading, setLoading]             = useState(true);
@@ -214,7 +214,7 @@ export default function Perfil() {
               role === "admin"       ? "bg-blue-100 text-blue-700" :
                                        "bg-gray-100 text-gray-700"
             }`}>
-              {role || "—"}
+              {roleLabel || role || "—"}
             </span>
           </div>
         </div>

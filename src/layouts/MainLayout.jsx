@@ -12,7 +12,7 @@ export default function MainLayout() {
   const [touchStartX, setTouchStartX] = useState(null);
 
   const navigate = useNavigate();
-  const { user, logout, role, email } = useAuth();
+  const { user, logout, role, roleLabel, email } = useAuth();
   const [unread, setUnread] = useState(0);
 
   /* =========================
@@ -175,7 +175,7 @@ export default function MainLayout() {
                       {user?.email || "Usuario"}
                     </div>
                     <div className="text-xs text-gray-300">
-                      Rol: {role || "-"}
+                      Rol: {roleLabel || role || "-"}
                     </div>
                   </div>
 

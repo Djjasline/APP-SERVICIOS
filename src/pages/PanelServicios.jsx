@@ -11,15 +11,16 @@ import {
 
 export default function PanelServicios() {
   const navigate = useNavigate();
-  const { isProveedorVehiculos } = useAuth();
+  const { isProveedorVehiculos, isProveedorVehiculosOnly } = useAuth();
+  const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
 
   useEffect(() => {
-    if (isProveedorVehiculos) {
+    if (proveedorSoloVehiculos) {
       navigate("/area/vehiculos", { replace: true });
     }
-  }, [isProveedorVehiculos, navigate]);
+  }, [proveedorSoloVehiculos, navigate]);
 
-  if (isProveedorVehiculos) {
+  if (proveedorSoloVehiculos) {
     return null;
   }
 

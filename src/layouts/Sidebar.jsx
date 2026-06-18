@@ -17,7 +17,7 @@ import {
 export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isProveedorVehiculos } = useAuth();
+  const { isProveedorVehiculos, isProveedorVehiculosOnly } = useAuth();
 
   const [openVehiculos, setOpenVehiculos] = useState(false);
   const [openOperaciones, setOpenOperaciones] = useState(false);
@@ -25,7 +25,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const [openPetroleo, setOpenPetroleo] = useState(false);
   const [openRepositorios, setOpenRepositorios] = useState(false);
 
-  const puedeVerTodo = !isProveedorVehiculos;
+  const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
+  const puedeVerTodo = !proveedorSoloVehiculos;
 
   const isActive = (paths) => {
     const pathname = location.pathname;
@@ -65,12 +66,12 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
     const isRepositoriosPath = path.startsWith("/repositorios");
 
-    setOpenVehiculos(isVehiculosPath || isProveedorVehiculos);
+    setOpenVehiculos(isVehiculosPath || proveedorSoloVehiculos);
     setOpenAgua(puedeVerTodo && isAguaPath);
     setOpenPetroleo(puedeVerTodo && isPetroleoPath);
     setOpenOperaciones(puedeVerTodo && isOperacionesPath);
     setOpenRepositorios(puedeVerTodo && isRepositoriosPath);
-  }, [location.pathname, isProveedorVehiculos, puedeVerTodo]);
+  }, [location.pathname, proveedorSoloVehiculos, puedeVerTodo]);
 
   const openOnly = (name) => {
     setOpenVehiculos(name === "vehiculos");

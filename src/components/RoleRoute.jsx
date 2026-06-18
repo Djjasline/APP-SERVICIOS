@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 
 export default function RoleRoute({ children, allowedRoles = [] }) {
   const location = useLocation();
-  const { user, role, loading, isSuperAdmin } = useAuth();
+  const { user, role, roles, loading, isSuperAdmin, isTechnicalUser } = useAuth();
 
   /*
     Esperar a que Supabase resuelva la sesión.
@@ -54,7 +54,13 @@ export default function RoleRoute({ children, allowedRoles = [] }) {
   /*
     Validación normal por rol.
   */
-  if (!allowedRoles.includes(role)) {
+  const userRoles = Array.isArray(roles) && roles.length > 0 ? roles : [role];
+
+  if (allowedRoles.includes("tecnico") && isTechnicalUser) {
+    return children;
+  }
+
+  if (!allowedRoles.some((allowedRole) => userRoles.includes(allowedRole))) {
     return <Navigate to="/" replace />;
   }
 
