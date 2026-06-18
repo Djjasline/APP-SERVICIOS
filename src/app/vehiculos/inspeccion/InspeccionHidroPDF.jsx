@@ -600,7 +600,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
                       textTransform: "uppercase",
                     }}
                   >
-                    {d.cliente || "—"}
+                    {d.contacto || d.cliente || "—"}
                   </div>
 
                   <div

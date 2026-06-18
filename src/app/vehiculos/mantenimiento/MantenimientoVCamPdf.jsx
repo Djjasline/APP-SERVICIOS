@@ -398,7 +398,7 @@ export default function MantenimientoVCamPDF() {
                     )}
                   </div>
                   <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase" }}>
-                    {d.cliente || "—"}
+                    {d.contacto || d.cliente || "—"}
                   </div>
                   <div style={{ marginTop: 1, fontSize: 9, color: "#4b5563" }}>
                     Cédula: {d.firmas?.clienteCedula || "—"}
