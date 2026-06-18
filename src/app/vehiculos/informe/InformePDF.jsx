@@ -2,7 +2,6 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf"; // ← ajusta la ruta a tu proyecto
-import { signatureImageStyle } from "@/utils/signature";
 
 export default function InformePDF() {
   const navigate = useNavigate();
@@ -118,13 +117,6 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
 <style>{`
 @media print {
 
-  #pdf-content {
-    max-width: none !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-  }
-
   .page-break {
     page-break-before: always;
   }
@@ -144,17 +136,6 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
   }
 
   img {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  .pdf-flow,
-  .pdf-activities tr {
-    break-inside: auto !important;
-    page-break-inside: auto !important;
-  }
-
-  .pdf-keep {
     break-inside: avoid;
     page-break-inside: avoid;
   }
@@ -284,7 +265,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         {/* ════════════════════
             ESTADO DEL EQUIPO
         ════════════════════ */}
-        <div className="pdf-flow">
+        <div className="no-break">
           <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
 
           {estadoEquipoImagenes.length === 0 ? (
@@ -299,40 +280,38 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             </table>
           ) : (
             estadoEquipoImagenes.map((img, imageIndex) => (
-                <div
-                  key={img.id || imageIndex}
-                  className="pdf-keep"
-                  style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}
-                >
+              <div
+                key={img.id || imageIndex}
+                className="no-break"
+                style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}
+              >
                 <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 11, fontWeight: 700, background: "#f9fafb" }}>
                   Imagen {imageIndex + 1}
                 </div>
                 <div style={{ padding: 10 }}>
-                  <div style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "#fff" }}>
-                    <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
-                      <img
-                        src={img.url}
-                        alt={`estado-equipo-${imageIndex + 1}`}
-                        style={{ maxWidth: "100%", maxHeight: 230, objectFit: "contain", display: "block" }}
-                      />
-                      {(img.puntos || []).map((p, pi) => (
-                        <div
-                          key={p.id || pi}
-                          style={{
-                            position: "absolute",
-                            left: `${p.x * 100}%`, top: `${p.y * 100}%`,
-                            transform: "translate(-50%,-50%)",
-                            width: 18, height: 18, borderRadius: "50%",
-                            background: "#dc2626", border: "2px solid #fff",
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            fontSize: 9, color: "#fff", fontWeight: 700,
-                            boxShadow: "0 1px 3px rgba(0,0,0,0.35)",
-                          }}
-                        >
-                          {pi + 1}
-                        </div>
-                      ))}
-                    </div>
+                  <div style={{ position: "relative", width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden" }}>
+                    <img
+                      src={img.url}
+                      alt={`estado-equipo-${imageIndex + 1}`}
+                      style={{ width: "100%", maxHeight: 230, objectFit: "contain", display: "block" }}
+                    />
+                    {(img.puntos || []).map((p, pi) => (
+                      <div
+                        key={p.id || pi}
+                        style={{
+                          position: "absolute",
+                          left: `${p.x * 100}%`, top: `${p.y * 100}%`,
+                          transform: "translate(-50%,-50%)",
+                          width: 18, height: 18, borderRadius: "50%",
+                          background: "#dc2626", border: "2px solid #fff",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 9, color: "#fff", fontWeight: 700,
+                          boxShadow: "0 1px 3px rgba(0,0,0,0.35)",
+                        }}
+                      >
+                        {pi + 1}
+                      </div>
+                    ))}
                   </div>
                   {(img.puntos || []).length > 0 && (
                     <div style={{ marginTop: 8 }}>
@@ -356,9 +335,11 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         {/* ════════════════════
             ACTIVIDADES — página nueva
         ════════════════════ */}
+        {/* <div className="page-break" /> */}
+
         <p style={{ ...S.sectionTitle, marginTop: 0 }}>ACTIVIDADES REALIZADAS</p>
 
-        <table className="pdf-activities" style={S.tbl}>
+        <table style={S.tbl}>
           <thead>
             <tr>
               <th style={{ ...S.th, width: 40 }}>ÍTEM</th>
@@ -368,7 +349,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
           </thead>
           <tbody>
             {(data.actividades || []).map((a, i) => (
-              <tr key={i}>
+              <tr key={i} className="no-break">
                 <td style={{ ...S.cell, textAlign: "center", verticalAlign: "top" }}>{i + 1}</td>
                 <td style={{ ...S.cell, verticalAlign: "top" }}>
                   <strong>{a.titulo || "—"}</strong>
@@ -398,8 +379,8 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         {/* ════════════════════
             CONCLUSIONES / RECOMENDACIONES
         ════════════════════ */}
-        <div className="pdf-flow">
-          <table className="pdf-activities" style={{ ...S.tbl, marginTop: 14 }}>
+        <div className="no-break">
+          <table style={{ ...S.tbl, marginTop: 14 }}>
             <thead>
               <tr>
                 <th colSpan={2} style={S.th}>CONCLUSIONES</th>
@@ -408,7 +389,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             </thead>
             <tbody>
               {(data.conclusiones || []).map((c, i) => (
-                <tr key={i}>
+                <tr key={i} className="no-break">
                   <td style={{ ...S.cell, width: 28, textAlign: "center", fontWeight: 700 }}>{i + 1}</td>
                   <td style={{ ...S.cell, whiteSpace: "pre-wrap" }}>{c || "—"}</td>
                   <td style={{ ...S.cell, width: 28, textAlign: "center", fontWeight: 700 }}>{i + 1}</td>
@@ -422,7 +403,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
        {/* ════════════════════
     FIRMAS (CORREGIDO)
 ════════════════════ */}
-<div className="pdf-signatures no-break">
+<div className="no-break">
   <table style={{ ...S.tbl, marginTop: 14 }}>
     <thead>
       <tr>
@@ -447,7 +428,14 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             <img
               src={data.firmas.tecnico}
               alt="Firma técnico"
-              style={{ ...signatureImageStyle, margin: "0 auto" }}
+              style={{
+                width: "100%",
+                maxWidth: 180,
+                height: "auto",
+                objectFit: "contain",
+                display: "block",
+                margin: "0 auto",
+              }}
             />
           )}
 
@@ -476,7 +464,14 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
     <img
       src={data.firmas.cliente}
       alt="Firma cliente"
-      style={{ ...signatureImageStyle, margin: "0 auto" }}
+      style={{
+        width: "100%",
+        maxWidth: 180,
+        height: "auto",
+        objectFit: "contain",
+        display: "block",
+        margin: "0 auto",
+      }}
     />
   )}
 

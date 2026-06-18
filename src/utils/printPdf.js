@@ -56,35 +56,12 @@ export function printPdf(elementId = "pdf-root", filename = "documento") {
         size: A4 portrait;
         margin: 10mm;
       }
-      #pdf-content,
-      .pdf-container,
-      .print-area {
-        max-width: none !important;
-        padding: 0 !important;
-        margin: 0 auto !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-      }
-      /* Evitar cortes feos solo en bloques que deben mantenerse juntos. */
+      /* Evitar cortes feos */
       .no-break  { page-break-inside: avoid; break-inside: avoid; }
       .page-break { page-break-before: always; break-before: page; }
       thead { display: table-header-group; }
       tfoot { display: table-footer-group; }
-      tr { page-break-inside: avoid; break-inside: avoid; }
-      .pdf-flow,
-      .pdf-flow > *,
-      .pdf-activities,
-      .pdf-activities tbody,
-      .pdf-activities tr,
-      .pdf-activities td {
-        page-break-inside: auto !important;
-        break-inside: auto !important;
-      }
-      .pdf-keep,
-      .pdf-signatures {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-      }
+      tr, td, th { page-break-inside: avoid; break-inside: avoid; }
       img  { max-width: 100%; page-break-inside: avoid; break-inside: avoid; }
       .no-print { display: none !important; }
     </style>

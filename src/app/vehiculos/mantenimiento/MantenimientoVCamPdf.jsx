@@ -2,7 +2,6 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
-import { signatureImageStyle } from "@/utils/signature";
 
 /* ══════════════════════════════
    ESTILOS — IDÉNTICOS A HYDRO
@@ -84,7 +83,7 @@ const secciones = [
 /* ── TABLA SECCIÓN ── */
 function SeccionTable({ sec, items }) {
   return (
-    <table className="pdf-activities" style={S.tbl}>
+    <table style={S.tbl}>
       <thead>
         <tr>
           <th style={{ ...S.th, width: 130, textAlign: "left" }}>ÍTEM</th>
@@ -139,7 +138,6 @@ export default function MantenimientoVCamPDF() {
         .from("registros")
         .select("*")
         .eq("id", id)
-        .eq("area", "vehiculos")
         .eq("tipo", "mantenimiento")
         .eq("subtipo", "vcam")
         .single();
@@ -213,7 +211,7 @@ export default function MantenimientoVCamPDF() {
         </div>
 
         {/* ── DATOS DEL SERVICIO ── */}
-        <div className="pdf-flow">
+        <div className="no-break">
           <p style={S.sectionTitle}>DATOS DEL SERVICIO</p>
           <table style={S.tbl}>
             <tbody>
@@ -259,7 +257,7 @@ export default function MantenimientoVCamPDF() {
         </div>
 
         {/* ── ESTADO DEL EQUIPO ── */}
-        <div className="pdf-flow">
+        <div className="no-break">
           <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
           {estadoEquipoImagenes.length === 0 ? (
             <table style={S.tbl}><tbody><tr>
@@ -269,7 +267,7 @@ export default function MantenimientoVCamPDF() {
             </tr></tbody></table>
           ) : (
             estadoEquipoImagenes.map((img, i) => (
-              <div key={img.id || i} className="pdf-keep"
+              <div key={img.id || i} className="no-break"
                 style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}>
                 <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 10, fontWeight: 700, background: "#f9fafb" }}>
                   Fotografía {i + 1}
@@ -348,8 +346,9 @@ export default function MantenimientoVCamPDF() {
         </div>
 
         {/* ── SECCIONES ── */}
+        <div className="page-break" />
         {secciones.map((sec, i) => (
-          <div key={i} className="pdf-flow">
+          <div key={i} className="no-break">
             <p style={{ ...S.sectionTitle, marginTop: i === 0 ? 0 : 10 }}>{sec.titulo}</p>
             <SeccionTable sec={sec} items={d.items} />
           </div>
@@ -366,7 +365,7 @@ export default function MantenimientoVCamPDF() {
         )}
 
         {/* ── FIRMAS ── */}
-        <div className="pdf-signatures no-break">
+        <div className="no-break">
           <table style={{ ...S.tbl, marginTop: 10 }}>
             <thead>
               <tr>
@@ -380,7 +379,7 @@ export default function MantenimientoVCamPDF() {
                   <div style={{ height: 45, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {d.firmas?.tecnico ? (
                       <img src={d.firmas.tecnico} alt="Firma técnico"
-                        style={signatureImageStyle} />
+                        style={{ maxHeight: 34, width: "auto", maxWidth: 160, objectFit: "contain", display: "block", filter: "contrast(1.05)" }} />
                     ) : (
                       <span style={{ fontSize: 10, color: "#9ca3af" }}>Sin firma</span>
                     )}
@@ -393,7 +392,7 @@ export default function MantenimientoVCamPDF() {
                   <div style={{ height: 45, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     {d.firmas?.cliente ? (
                       <img src={d.firmas.cliente} alt="Firma cliente"
-                        style={signatureImageStyle} />
+                        style={{ maxHeight: 34, width: "auto", maxWidth: 160, objectFit: "contain", display: "block", filter: "contrast(1.05)" }} />
                     ) : (
                       <span style={{ fontSize: 10, color: "#9ca3af" }}>Sin firma</span>
                     )}

@@ -1,7 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { signatureImageStyle } from "@/utils/signature";
 
 export default function InformePDF() {
   const navigate = useNavigate();
@@ -167,7 +166,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
         </div>
 
        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-<div className="pdf-flow">
+<div className="no-break">
   <h3 className="pdf-title mt-4">
     DESCRIPCIÓN DEL EQUIPO - {data.tipoInforme === "valvula" ? "VÁLVULA" : "BOMBA"}
   </h3>
@@ -239,7 +238,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
 </div>
 
 {/* ================= REGISTRO FOTOGRÁFICO DEL EQUIPO ================= */}
-<div className="pdf-flow">
+<div className="no-break">
   <h3 className="pdf-title mt-4">REGISTRO FOTOGRÁFICO DEL EQUIPO</h3>
 
   {data.tipoInforme === "valvula" ? (
@@ -261,7 +260,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
       ]
         .filter(([, url]) => url)
         .map(([label, url], i) => (
-          <div key={i} className="pdf-keep border rounded p-2">
+          <div key={i} className="border rounded p-2">
             <div className="text-xs font-semibold mb-1">{label}</div>
             <img
               src={url}
@@ -294,7 +293,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
       ]
         .filter(([, url]) => url)
         .map(([label, url], i) => (
-          <div key={i} className="pdf-keep border rounded p-2">
+          <div key={i} className="border rounded p-2">
             <div className="text-xs font-semibold mb-1">{label}</div>
             <img
               src={url}
@@ -315,7 +314,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
 </div>
        
         {/* ================= ESTADO DEL EQUIPO ================= */}
-        <div className="pdf-flow">
+        <div className="no-break">
           <h3 className="pdf-title mt-4">ESTADO DEL EQUIPO</h3>
 
           {estadoEquipoImagenes.length === 0 ? (
@@ -331,44 +330,51 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
           ) : (
             <div className="space-y-4">
               {estadoEquipoImagenes.map((img, imageIndex) => (
-                <div key={img.id || imageIndex} className="pdf-keep border rounded overflow-hidden">
+                <div key={img.id || imageIndex} className="no-break border rounded overflow-hidden">
                   <div className="px-3 py-2 border-b text-sm font-semibold bg-gray-50">
                     Imagen {imageIndex + 1}
                   </div>
 
                   <div className="p-3">
-                    <div style={{ width: "100%", border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "#fff" }}>
-                      <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
-                        <img
-                          src={img.url}
-                          alt={`estado-equipo-${imageIndex + 1}`}
+                    <div
+                      style={{
+                        position: "relative",
+                        width: "100%",
+                        border: "1px solid #d1d5db",
+                        borderRadius: 6,
+                        overflow: "hidden",
+                        background: "#fff",
+                      }}
+                    >
+                      <img
+                        src={img.url}
+                        alt={`estado-equipo-${imageIndex + 1}`}
+                        style={{
+                          width: "100%",
+                          maxHeight: 420,
+                          objectFit: "contain",
+                          display: "block",
+                          background: "#fff",
+                        }}
+                      />
+
+                      {(img.puntos || []).map((p, pointIndex) => (
+                        <div
+                          key={p.id || pointIndex}
                           style={{
-                            maxWidth: "100%",
-                            maxHeight: 420,
-                            objectFit: "contain",
-                            display: "block",
-                            background: "#fff",
+                            position: "absolute",
+                            left: `${p.x * 100}%`,
+                            top: `${p.y * 100}%`,
+                            transform: "translate(-50%, -50%)",
+                            width: 18,
+                            height: 18,
+                            borderRadius: "50%",
+                            background: "#dc2626",
+                            border: "2px solid white",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
                           }}
                         />
-
-                        {(img.puntos || []).map((p, pointIndex) => (
-                          <div
-                            key={p.id || pointIndex}
-                            style={{
-                              position: "absolute",
-                              left: `${p.x * 100}%`,
-                              top: `${p.y * 100}%`,
-                              transform: "translate(-50%, -50%)",
-                              width: 18,
-                              height: 18,
-                              borderRadius: "50%",
-                              background: "#dc2626",
-                              border: "2px solid white",
-                              boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
-                            }}
-                          />
-                        ))}
-                      </div>
+                      ))}
                     </div>
 
                     <div className="mt-3">
@@ -406,8 +412,10 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
         </div>
 
         {/* ================= ACTIVIDADES ================= */}
+        <div className="page-break"></div>
+
         <h3 className="pdf-title mt-4">ACTIVIDADES REALIZADAS</h3>
-        <table className="pdf-table pdf-activities w-full">
+        <table className="pdf-table w-full">
           <thead>
             <tr>
               <th style={{ width: 50 }}>ÍTEM</th>
@@ -417,7 +425,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
           </thead>
           <tbody>
             {data.actividades?.map((a, i) => (
-              <tr key={i}>
+              <tr key={i} className="no-break">
                 <td className="text-center" style={{ verticalAlign: "top" }}>
                   {i + 1}
                 </td>
@@ -464,8 +472,8 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
         </table>
 
         {/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
-        <div className="pdf-flow">
-          <table className="pdf-table pdf-activities w-full mt-4">
+        <div className="no-break">
+          <table className="pdf-table w-full mt-4">
             <thead>
               <tr>
                 <th colSpan={2}>CONCLUSIONES</th>
@@ -488,7 +496,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
         </div>
 
         {/* ================= FIRMAS ================= */}
-        <div className="pdf-signatures no-break">
+        <div className="no-break">
           <table className="pdf-table w-full mt-4">
             <thead>
               <tr>
@@ -503,7 +511,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
                     <img
                       src={data.firmas.tecnico}
                       alt="firma tecnico"
-                      style={{ ...signatureImageStyle, margin: "0 auto" }}
+                      style={{ maxHeight: 120, margin: "0 auto" }}
                     />
                   )}
 
@@ -517,7 +525,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
                     <img
                       src={data.firmas.cliente}
                       alt="firma cliente"
-                      style={{ ...signatureImageStyle, margin: "0 auto" }}
+                      style={{ maxHeight: 120, margin: "0 auto" }}
                     />
                   )}
 

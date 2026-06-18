@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { signatureImageStyle } from "@/utils/signature";
 
 export default function RegistroPDF() {
   const { id } = useParams();
@@ -129,12 +128,11 @@ const imagenIngreso =
           .pdf-page {
             box-shadow: none !important;
             margin: 0 !important;
-            padding: 0 !important;
           }
         }
       `}</style>
 
-      <div className="pdf-page print-area max-w-[900px] mx-auto bg-white p-6 shadow border text-sm text-black">
+      <div className="pdf-page max-w-[900px] mx-auto bg-white p-6 shadow border text-sm text-black">
         {/* ENCABEZADO */}
         <table className="w-full border-collapse border mb-4">
           <tbody>
@@ -163,7 +161,7 @@ const imagenIngreso =
           DATOS GENERALES
         </h3>
 
-        <table className="pdf-activities w-full border-collapse border mb-4 text-xs">
+        <table className="w-full border-collapse border mb-4 text-xs">
           <tbody>
             {[
   ["Pedido / Demanda", pedido],
@@ -254,8 +252,8 @@ const imagenIngreso =
           REGISTRO FOTOGRÁFICO
         </h3>
 
-        <div className="pdf-flow grid grid-cols-2 gap-4 border p-3 mb-4">
-          <div className="pdf-keep">
+        <div className="grid grid-cols-2 gap-4 border p-3 mb-4">
+          <div>
             <div className="font-semibold text-xs mb-2">Imagen salida</div>
             {imagenSalida ? (
   <img
@@ -270,7 +268,7 @@ const imagenIngreso =
             )}
           </div>
 
-          <div className="pdf-keep">
+          <div>
             <div className="font-semibold text-xs mb-2">Imagen ingreso</div>
             {imagenIngreso ? (
   <img
@@ -291,7 +289,7 @@ const imagenIngreso =
   FIRMAS
 </h3>
 
-<table className="pdf-signatures w-full border-collapse border text-xs">
+<table className="w-full border-collapse border text-xs">
   <thead>
     <tr className="bg-gray-100">
       <th className="border p-2">Responsable</th>
@@ -307,7 +305,7 @@ const imagenIngreso =
           <img
             src={firmas.responsable}
             alt="Firma responsable"
-            style={{ ...signatureImageStyle, margin: "0 auto" }}
+            className="max-h-28 mx-auto object-contain"
           />
         ) : (
           <div className="h-28 flex items-center justify-center">
@@ -326,7 +324,7 @@ const imagenIngreso =
           <img
             src={firmas.aprobador}
             alt="Firma aprobador"
-            style={{ ...signatureImageStyle, margin: "0 auto" }}
+            className="max-h-28 mx-auto object-contain"
           />
         ) : (
           <div className="h-28 flex items-center justify-center">
