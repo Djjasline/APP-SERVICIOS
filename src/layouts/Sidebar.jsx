@@ -215,7 +215,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 onClick={() => go("/vehiculos/inspeccion")}
                 className={subItemClass("/vehiculos/inspeccion")}
               >
-                Inspección
+                Informe de Inspección de Equipos
               </button>
 
               <button
@@ -223,7 +223,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 onClick={() => go("/vehiculos/mantenimiento")}
                 className={subItemClass("/vehiculos/mantenimiento")}
               >
-                Mantenimiento
+                Informe de Mantenimiento de Equipos
               </button>
             </div>
           )}

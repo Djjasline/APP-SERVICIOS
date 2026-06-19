@@ -49,14 +49,14 @@ export default function PanelVehiculos() {
 
           <Card
             icon={Wrench}
-            title="Inspección"
+            title="Informe de Inspección de Equipos"
             desc="Evaluación del estado de equipos y sistemas."
             onClick={() => navigate("/inspeccion")}
           />
 
           <Card
             icon={Settings}
-            title="Mantenimiento"
+            title="Informe de Mantenimiento de Equipos"
             desc="Control de mantenimiento preventivo y correctivo."
             onClick={() => navigate("/mantenimiento")}
           />

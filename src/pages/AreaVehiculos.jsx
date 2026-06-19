@@ -27,7 +27,7 @@ export default function AreaVehiculos() {
 />
 
 <CardModulo
-  titulo="Inspección"
+  titulo="Informe de Inspección de Equipos"
   descripcion="Evaluación del estado de equipos como Barredoras, Hidrosuccionadores y Cámaras de inspección."
   ruta="/vehiculos/inspeccion"
   color="bg-yellow-600"
@@ -35,7 +35,7 @@ export default function AreaVehiculos() {
 />
 
 <CardModulo
-  titulo="Mantenimiento"
+  titulo="Informe de Mantenimiento de Equipos"
   descripcion="Control de mantenimiento preventivo de equipos."
   ruta="/vehiculos/mantenimiento"
   color="bg-green-600"
