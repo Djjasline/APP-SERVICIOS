@@ -145,7 +145,7 @@ const imagenIngreso =
                 />
               </td>
               <td className="border p-3 text-center font-bold text-lg">
-                REGISTRO DE HERRAMIENTAS Y EQUIPOS
+                REGISTRO DE SALIDA E INGRESO DE HERRAMIENTAS
               </td>
               <td className="border p-2 w-44 text-xs">
                 <div>Área: Operaciones</div>

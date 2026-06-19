@@ -227,7 +227,7 @@ const handleSubmit = async (e) => {
       {/* HEADER */}
       <div className="flex justify-between items-center flex-wrap gap-2">
         <h1 className="text-xl font-semibold">
-          Control de salida e ingreso de herramientas
+          Registro de salida e ingreso de herramientas
         </h1>
 
         {estado === "completado" && (

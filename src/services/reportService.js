@@ -109,7 +109,7 @@ try {
 function getNombreFormulario(tipo) {
   switch (tipo) {
     case "registro":
-      return "Registro de herramientas";
+      return "Registro de salida e ingreso de herramientas";
     case "recepcion":
       return "Recepción vehicular";
     case "liberacion":

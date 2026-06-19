@@ -360,7 +360,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/operaciones/registro")}
                   className={subItemClass("/operaciones/registro")}
                 >
-                  Registro
+                  Registro de salida e ingreso de herramientas
                 </button>
 
                 <button

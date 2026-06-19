@@ -12,8 +12,8 @@ export default function AreaOperaciones() {
     ruta: "/operaciones/recepcion",
   },
   {
-    titulo: "Registro",
-    descripcion: "Registro de herramientas, equipos y activos operativos.",
+    titulo: "Registro de salida e ingreso de herramientas",
+    descripcion: "Control de salida, retorno y estado de herramientas operativas.",
     icono: <Wrench size={20} />,
     color: "bg-blue-600",
     ruta: "/operaciones/registro",

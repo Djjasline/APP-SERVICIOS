@@ -70,7 +70,7 @@ export default function RegistroHome() {
        {/* HEADER */}
 <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
   <h1 className="text-2xl font-semibold">
-    Control de salida e ingreso de herramientas
+    Registro de salida e ingreso de herramientas
   </h1>
 
   <div className="flex gap-2">
@@ -87,7 +87,7 @@ export default function RegistroHome() {
       onClick={crearNuevoRegistro}
       className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded"
     >
-      + Nuevo registro
+      + Nuevo registro de herramientas
     </button>
   </div>
 </div>
