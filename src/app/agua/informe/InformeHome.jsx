@@ -4,9 +4,17 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function InformeHome() {
+const informeTipos = {
+  bomba: { label: "Informe Bomba", nuevo: "/agua/informe/bomba/nuevo" },
+  valvula: { label: "Informe Válvula", nuevo: "/agua/informe/valvula/nuevo" },
+};
+
+const getInformeTipo = (report) => report?.subtipo || report?.data?.tipoInforme || "bomba";
+
+export default function InformeHome({ tipo = null }) {
   const navigate = useNavigate();
   const { user, isSuperAdmin } = useAuth();
+  const tipoConfig = tipo ? informeTipos[tipo] : null;
 
   const [reports, setReports] = useState([]);
   const [filter, setFilter] = useState("todos");
@@ -42,7 +50,11 @@ export default function InformeHome() {
           return;
         }
 
-        setReports(data || []);
+        const filteredByType = tipo
+          ? (data || []).filter((report) => getInformeTipo(report) === tipo)
+          : data || [];
+
+        setReports(filteredByType);
       } catch (err) {
         console.error("Error cargando:", err);
         setReports([]);
@@ -50,7 +62,7 @@ export default function InformeHome() {
     };
 
     loadReports();
-  }, [user?.id, isSuperAdmin]);
+  }, [user?.id, isSuperAdmin, tipo]);
 
   const filteredReports = reports.filter((r) => {
     const cliente = r.data?.cliente?.toLowerCase() || "";
@@ -76,7 +88,8 @@ export default function InformeHome() {
   });
 
   const openReport = (report) => {
-    navigate(`/agua/informe/${report.id}`);
+    const reportTipo = getInformeTipo(report);
+    navigate(`/agua/informe/${reportTipo}/${report.id}`);
   };
 
   const deleteReport = async (id) => {
@@ -113,7 +126,7 @@ export default function InformeHome() {
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-lg font-semibold text-gray-900">
-          Informe general - Agua
+          {tipoConfig?.label || "Informes Agua"}
         </h1>
 
         <div className="flex items-center gap-3">
@@ -135,10 +148,10 @@ export default function InformeHome() {
       )}
 
       <button
-        onClick={() => navigate("/agua/informe/nuevo")}
+        onClick={() => navigate(tipoConfig?.nuevo || "/agua/informe/nuevo")}
         className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg transition"
       >
-        Nuevo informe
+        {tipoConfig ? `Nuevo ${tipoConfig.label}` : "Nuevo informe"}
       </button>
 
       <div className="flex gap-2">
@@ -233,7 +246,7 @@ export default function InformeHome() {
                 <span>
                   Tipo:{" "}
                   <strong className="text-gray-800">
-                    {r.subtipo || "—"}
+                    {informeTipos[getInformeTipo(r)]?.label || getInformeTipo(r)}
                   </strong>
                 </span>
               </div>

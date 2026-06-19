@@ -24,9 +24,12 @@ const Input = ({ value, onChange, placeholder = "", readOnly = false, className 
   />
 );
 
-export default function NuevoInformeBombaValvula() {
+const validInformeTipos = ["bomba", "valvula"];
+
+export default function NuevoInformeBombaValvula({ tipo = null }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const routeTipo = validInformeTipos.includes(tipo) ? tipo : null;
    const { user, isSuperAdmin } = useAuth();
 const superAdminActivo =
   typeof isSuperAdmin === "function"
@@ -48,7 +51,7 @@ const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
 const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
 
 const isEditing = !!id;
-  const claveAutoguardado = `informe_agua_${id ?? "new"}`;
+  const claveAutoguardado = `informe_agua_${routeTipo || "general"}_${id ?? "new"}`;
    
   /* ─── ESTADO BASE ─── */
   const emptyReport = {
@@ -72,7 +75,7 @@ const isEditing = !!id;
     tecnicoCorreo: "",
 
     // Tipo de informe: "bomba" | "valvula"
-    tipoInforme: "bomba",
+    tipoInforme: routeTipo || "bomba",
 
     // ── EQUIPO BOMBA ──
     bomba: {
@@ -175,6 +178,7 @@ useEffect(() => {
     setData({
       ...emptyReport,
       ...d,
+      tipoInforme: d.tipoInforme || routeTipo || emptyReport.tipoInforme,
       bomba: { ...emptyReport.bomba, ...(d.bomba || {}) },
       valvula: { ...emptyReport.valvula, ...(d.valvula || {}) },
        estadoEquipo: {
@@ -514,7 +518,7 @@ const save = async () => {
     setSuccessMsg(isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
 
       limpiarBorrador(claveAutoguardado);
-    setTimeout(() => navigate("/agua/informe"), 1200);
+    setTimeout(() => navigate(`/agua/informe/${finalData.tipoInforme}`), 1200);
   } catch (err) {
     console.error(err);
     setSuccessMsg("Error al guardar ❌");
@@ -537,23 +541,30 @@ const save = async () => {
         <div className="bg-white p-4 md:p-6 rounded shadow w-full max-w-screen-xl mx-auto space-y-6">
 
           {/* ── SELECTOR TIPO ── */}
-          <div className="flex gap-3 items-center">
-            <span className="font-semibold text-sm">Tipo de informe:</span>
-            {["bomba", "valvula"].map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => set("tipoInforme", t)}
-                className={`px-4 py-1.5 rounded text-sm font-medium border transition ${
-                  data.tipoInforme === t
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "border-gray-300 hover:bg-gray-50"
-                }`}
-              >
-                {t === "bomba" ? "🔧 Bomba" : "🔩 Válvula"}
-              </button>
-            ))}
-          </div>
+          {routeTipo ? (
+            <div className="inline-flex items-center gap-2 rounded border bg-blue-50 px-3 py-2 text-sm text-blue-800">
+              <span className="font-semibold">Tipo de informe:</span>
+              <span>{routeTipo === "bomba" ? "🔧 Bomba" : "🔩 Válvula"}</span>
+            </div>
+          ) : (
+            <div className="flex gap-3 items-center">
+              <span className="font-semibold text-sm">Tipo de informe:</span>
+              {["bomba", "valvula"].map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => set("tipoInforme", t)}
+                  className={`px-4 py-1.5 rounded text-sm font-medium border transition ${
+                    data.tipoInforme === t
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  {t === "bomba" ? "🔧 Bomba" : "🔩 Válvula"}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* ── ENCABEZADO ── */}
         <section className="border rounded overflow-hidden">
@@ -1522,7 +1533,7 @@ const save = async () => {
           <div className="border-t pt-4 mt-6 flex flex-col md:flex-row justify-between gap-3">
             <button
               type="button"
-              onClick={() => navigate("/agua/informe")}
+              onClick={() => navigate(`/agua/informe/${data.tipoInforme || routeTipo || "bomba"}`)}
               className="border px-6 py-2 rounded hover:bg-gray-50 transition"
             >
               ← Volver

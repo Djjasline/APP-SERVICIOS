@@ -262,10 +262,18 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
                 <button
                   type="button"
-                  onClick={() => go("/agua/informe")}
-                  className={subItemClass("/agua/informe")}
+                  onClick={() => go("/agua/informe/bomba")}
+                  className={subItemClass("/agua/informe/bomba")}
                 >
-                  Informes
+                  Informe Bomba
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => go("/agua/informe/valvula")}
+                  className={subItemClass("/agua/informe/valvula")}
+                >
+                  Informe Válvula
                 </button>
 
                 <button

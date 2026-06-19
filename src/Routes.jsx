@@ -158,6 +158,12 @@ export default function RoutesApp() {
 
             <Route path="/agua/informe" element={<TechRoute><AguaInformeHome /></TechRoute>} />
             <Route path="/agua/informe/nuevo" element={<TechRoute><AguaNuevoInforme /></TechRoute>} />
+            <Route path="/agua/informe/bomba" element={<TechRoute><AguaInformeHome tipo="bomba" /></TechRoute>} />
+            <Route path="/agua/informe/bomba/nuevo" element={<TechRoute><AguaNuevoInforme tipo="bomba" /></TechRoute>} />
+            <Route path="/agua/informe/bomba/:id" element={<TechRoute><AguaNuevoInforme tipo="bomba" /></TechRoute>} />
+            <Route path="/agua/informe/valvula" element={<TechRoute><AguaInformeHome tipo="valvula" /></TechRoute>} />
+            <Route path="/agua/informe/valvula/nuevo" element={<TechRoute><AguaNuevoInforme tipo="valvula" /></TechRoute>} />
+            <Route path="/agua/informe/valvula/:id" element={<TechRoute><AguaNuevoInforme tipo="valvula" /></TechRoute>} />
             <Route path="/agua/informe/:id" element={<TechRoute><AguaNuevoInforme /></TechRoute>} />
             <Route path="/agua/recorrido/informe/*" element={<TechRoute><InformeAguaRoutes /></TechRoute>} />
 
