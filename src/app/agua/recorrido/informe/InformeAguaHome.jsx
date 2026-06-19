@@ -70,10 +70,10 @@ export default function InformeAguaHome() {
 <div className="flex flex-wrap justify-between items-center gap-3">
   <div>
     <h1 className="text-lg font-semibold text-gray-900">
-      Informes de Avance – Cloro Gas EPMAPS
+      Informe de recorrido
     </h1>
     <p className="text-sm text-gray-500 mt-0.5">
-      Reportes semanales de mantenimiento preventivo/correctivo
+      Creación e historial de informes de recorrido de agua y saneamiento.
     </p>
   </div>
 
@@ -91,7 +91,7 @@ export default function InformeAguaHome() {
       onClick={() => navigate("/agua/recorrido/informe/new")}
       className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
     >
-      + Nuevo informe
+      + Nuevo informe de recorrido
     </button>
   </div>
 </div>

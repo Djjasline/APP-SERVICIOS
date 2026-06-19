@@ -265,7 +265,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/agua/informe/bomba")}
                   className={subItemClass("/agua/informe/bomba")}
                 >
-                  Informe Bomba
+                  Informe de bombas
                 </button>
 
                 <button
@@ -273,7 +273,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/agua/informe/valvula")}
                   className={subItemClass("/agua/informe/valvula")}
                 >
-                  Informe Válvula
+                  Informe de válvulas
                 </button>
 
                 <button
@@ -281,7 +281,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/agua/recorrido/informe")}
                   className={subItemClass("/agua/recorrido/informe")}
                 >
-                  Recorrido
+                  Informe de recorrido
                 </button>
               </div>
             )}

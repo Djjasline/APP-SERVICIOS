@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const informeTipos = {
-  bomba: { label: "Informe Bomba", nuevo: "/agua/informe/bomba/nuevo" },
-  valvula: { label: "Informe Válvula", nuevo: "/agua/informe/valvula/nuevo" },
+  bomba: { label: "Informe de bombas", nuevo: "/agua/informe/bomba/nuevo" },
+  valvula: { label: "Informe de válvulas", nuevo: "/agua/informe/valvula/nuevo" },
 };
 
 const getInformeTipo = (report) => report?.subtipo || report?.data?.tipoInforme || "bomba";
