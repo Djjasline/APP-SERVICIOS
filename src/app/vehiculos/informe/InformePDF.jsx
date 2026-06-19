@@ -71,6 +71,8 @@ export default function InformePDF() {
 
   const { data } = report;
   const estadoEquipoImagenes = data?.estadoEquipo?.imagenes || [];
+  const reportDescription =
+    "Este informe se utiliza para servicios técnicos generales; no aplica para inspección ni mantenimiento de equipos.";
 
   /* ── Handler de impresión via iframe ── */
   const handlePrint = () => {
@@ -177,9 +179,22 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                 </td>
                 <td
                   colSpan={2}
-                  style={{ ...S.cell, textAlign: "center", fontWeight: 800, fontSize: 13, textTransform: "uppercase" }}
+                  style={{ ...S.cell, textAlign: "center", fontWeight: 800, textTransform: "uppercase" }}
                 >
-                  INFORME GENERAL DE SERVICIOS
+                  <div style={{ fontSize: 13 }}>
+                    INFORME GENERAL DE SERVICIO TÉCNICO
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 3,
+                      fontSize: 8.5,
+                      fontWeight: 400,
+                      lineHeight: 1.25,
+                      textTransform: "none",
+                    }}
+                  >
+                    ({reportDescription})
+                  </div>
                 </td>
                 <td style={{ ...S.cell, width: 170 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>

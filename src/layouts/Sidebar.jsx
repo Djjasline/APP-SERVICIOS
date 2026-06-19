@@ -27,6 +27,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
   const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
   const puedeVerTodo = !proveedorSoloVehiculos;
+  const informeGeneralTooltip =
+    "Informe general de servicio técnico: se usa para servicios técnicos generales; no aplica para inspección ni mantenimiento de equipos.";
 
   const isActive = (paths) => {
     const pathname = location.pathname;
@@ -202,6 +204,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 type="button"
                 onClick={() => go("/vehiculos/informe")}
                 className={subItemClass("/vehiculos/informe")}
+                title={informeGeneralTooltip}
+                aria-label={informeGeneralTooltip}
               >
                 Informes
               </button>
