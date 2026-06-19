@@ -20,7 +20,7 @@ export default function AreaVehiculos() {
 
         <CardModulo
   titulo="Informe General de Servicio Técnico"
-  descripcion="Registro técnico de trabajos realizados."
+  descripcion="Este informe se utiliza para servicios técnicos generales; no aplica para inspección ni mantenimiento de equipos."
   ruta="/vehiculos/informe"
   color="bg-blue-600"
   icono={<FileText size={20} />}
