@@ -165,7 +165,7 @@ export default function InformeHome() {
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <h1 className="text-lg font-semibold text-gray-900">
-          Informe general
+          Informe General de Servicio Técnico
         </h1>
 
         <div className="flex items-center gap-3">
@@ -204,7 +204,7 @@ export default function InformeHome() {
         onClick={() => navigate("/vehiculos/informe/nuevo")}
         className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg transition"
       >
-        Nuevo informe
+        Nuevo Informe General de Servicio Técnico
       </button>
 
       {/* FILTRO ESTADO */}

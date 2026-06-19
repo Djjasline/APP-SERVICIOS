@@ -207,7 +207,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 title={informeGeneralTooltip}
                 aria-label={informeGeneralTooltip}
               >
-                Informes
+                Informe General de Servicio Técnico
               </button>
 
               <button

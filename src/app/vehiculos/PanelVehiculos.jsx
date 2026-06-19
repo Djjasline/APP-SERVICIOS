@@ -42,7 +42,7 @@ export default function PanelVehiculos() {
 
           <Card
             icon={FileText}
-            title="Informe General"
+            title="Informe General de Servicio Técnico"
             desc="Registro técnico de trabajos realizados."
             onClick={() => navigate("/informe")}
           />

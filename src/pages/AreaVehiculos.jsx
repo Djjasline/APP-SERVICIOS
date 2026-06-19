@@ -19,7 +19,7 @@ export default function AreaVehiculos() {
       <div className="grid md:grid-cols-2 gap-6">
 
         <CardModulo
-  titulo="Informe General"
+  titulo="Informe General de Servicio Técnico"
   descripcion="Registro técnico de trabajos realizados."
   ruta="/vehiculos/informe"
   color="bg-blue-600"
