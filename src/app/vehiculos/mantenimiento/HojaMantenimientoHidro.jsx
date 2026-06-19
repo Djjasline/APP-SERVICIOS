@@ -81,6 +81,8 @@ const todosLosItemsFijos = secciones
   .filter((s) => s.tipo !== "otros")
   .flatMap((s) => s.items.map(([c]) => c));
 
+const BASE_EQUIPO_IMG_PATH = "/hidro-base.png";
+
 /* ═══════════════════════════════════════
    ESTADO INICIAL
 ═══════════════════════════════════════ */
@@ -326,6 +328,32 @@ const handleEstadoUpload = async (files) => {
   } finally {
     setUploadingCount((p) => p - filesToUpload.length);
   }
+};
+
+const addBaseImage = () => {
+  const actuales = data.estadoEquipo?.imagenes || [];
+
+  if (actuales.length >= 12) {
+    alert("Máximo 12 fotografías");
+    return;
+  }
+
+  if (actuales.some((img) => img.url === BASE_EQUIPO_IMG_PATH)) return;
+
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: [
+        ...(prev.estadoEquipo?.imagenes || []),
+        {
+          id: `base-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          url: BASE_EQUIPO_IMG_PATH,
+          puntos: [],
+        },
+      ],
+    },
+  }));
 };
 
 const removeEstadoImg = (imgId) =>
@@ -701,6 +729,10 @@ const result = await saveOrUpdateReport({
           <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
           <div className="border rounded bg-white p-3 space-y-4 print:block">
             <div className="flex gap-2">
+              <button type="button" onClick={addBaseImage}
+                className="bg-indigo-600 text-white text-xs px-3 py-2 rounded hover:bg-indigo-700 transition">
+                🧩 Usar imagen base
+              </button>
               <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-gray-700">
                 📁 Subir fotografías
                 <input type="file" accept="image/*" multiple style={{ display: "none" }}
