@@ -28,7 +28,7 @@ export default function RecepcionHome() {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error cargando controles vehiculares:", error);
+      console.error("Error cargando bitácoras vehiculares:", error);
       setRegistros([]);
     } else {
       setRegistros(data || []);
@@ -79,7 +79,7 @@ export default function RecepcionHome() {
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
       <div className="flex flex-wrap justify-between items-center gap-3">
   <h1 className="text-lg font-semibold text-gray-900">
-    Control vehicular
+    Bitácora y control vehicular
   </h1>
 
   <div className="flex gap-2">
@@ -96,7 +96,7 @@ export default function RecepcionHome() {
       onClick={() => navigate("/operaciones/recepcion/new")}
       className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
     >
-      + Nuevo control
+      + Nueva bitácora vehicular
     </button>
   </div>
 </div>
@@ -164,7 +164,7 @@ export default function RecepcionHome() {
             {loading && (
               <tr>
                 <td colSpan="6" className="text-center py-6 text-gray-500">
-                  Cargando controles vehiculares...
+                  Cargando bitácoras vehiculares...
                 </td>
               </tr>
             )}
@@ -172,7 +172,7 @@ export default function RecepcionHome() {
             {!loading && filtered.length === 0 && (
               <tr>
                 <td colSpan="6" className="text-center py-6 text-gray-500">
-                  No hay controles vehiculares registrados
+                  No hay bitácoras vehiculares registradas
                 </td>
               </tr>
             )}

@@ -51,7 +51,7 @@ export default function HojaRecepcionPDF() {
   if (loading) {
     return (
       <div className="p-6 text-sm text-gray-600">
-        Cargando hoja de control vehicular...
+        Cargando bitácora y control vehicular...
       </div>
     );
   }

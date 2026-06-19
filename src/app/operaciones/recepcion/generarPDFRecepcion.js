@@ -175,7 +175,7 @@ export const generarPDFRecepcion = async (data) => {
 
   let y = 5;
 
-  cell(doc, 0, 13, y, 11, "HOJA DE CONTROL VEHICULAR", {
+  cell(doc, 0, 13, y, 11, "BITÁCORA Y CONTROL VEHICULAR", {
     align: "center",
     fontSize: 17,
   });

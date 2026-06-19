@@ -689,7 +689,7 @@ export function ControlVehicularSheet({
 
             <tr>
               <td colSpan={13} className="sheet-title">
-                HOJA DE CONTROL VEHICULAR
+                BITÁCORA Y CONTROL VEHICULAR
                 <img src="/astap-logo.jpg" alt="ASTAP" className="sheet-logo" />
               </td>
             </tr>

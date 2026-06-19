@@ -5,8 +5,8 @@ export default function AreaOperaciones() {
 
  const modulos = [
   {
-    titulo: "Bitácora Vehicular",
-    descripcion: "Control de salida y entrega de vehículos.",
+    titulo: "Bitácora y control vehicular",
+    descripcion: "Control de salida, uso, retorno y recepción de vehículos.",
     icono: <Settings size={20} />,
     color: "bg-indigo-600",
     ruta: "/operaciones/recepcion",

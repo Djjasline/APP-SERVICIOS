@@ -368,7 +368,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/operaciones/recepcion")}
                   className={subItemClass("/operaciones/recepcion")}
                 >
-                  Bitácora Vehicular
+                  Bitácora y control vehicular
                 </button>
 
                 <button

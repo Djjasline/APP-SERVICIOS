@@ -111,7 +111,7 @@ function getNombreFormulario(tipo) {
     case "registro":
       return "Registro de salida e ingreso de herramientas";
     case "recepcion":
-      return "Recepción vehicular";
+      return "Bitácora y control vehicular";
     case "liberacion":
       return "Liberación";
     default:
