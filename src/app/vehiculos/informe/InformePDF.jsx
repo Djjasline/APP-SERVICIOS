@@ -313,11 +313,21 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         {/* ════════════════════
             ESTADO DEL EQUIPO
         ════════════════════ */}
-        {estadoEquipoImagenes.length > 0 && (
-          <div>
-            <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
+        <div>
+          <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
 
-            {estadoEquipoImagenes.map((img, imageIndex) => (
+          {estadoEquipoImagenes.length === 0 ? (
+            <table style={S.tbl}>
+              <tbody>
+                <tr>
+                  <td style={{ ...S.cell, textAlign: "center", color: "#6b7280", padding: "6px 8px" }}>
+                    Sin registros de estado del equipo
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          ) : (
+            estadoEquipoImagenes.map((img, imageIndex) => (
               <div
                 key={img.id || imageIndex}
                 style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}
@@ -385,9 +395,8 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                 </div>
               </div>
             ))
-            }
-          </div>
-        )}
+          )}
+        </div>
 
         {/* ════════════════════
             ACTIVIDADES — página nueva
