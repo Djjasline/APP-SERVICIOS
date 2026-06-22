@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { leerBorrador, limpiarBorrador } from "@/hooks/useAutoguardado";
 import { RotateCcw, X, Clock } from "lucide-react";
 
@@ -13,19 +14,21 @@ import { RotateCcw, X, Clock } from "lucide-react";
  * @param {boolean}   isEditing    - true si es edición (id real), false si es "new"
  */
 export default function BannerAutoguardado({ clave, onRestaurar, isEditing }) {
+  const { user } = useAuth();
   const [borrador, setBorrador] = useState(null);
   const [visible, setVisible] = useState(false);
+  const scope = user?.id || "anon";
 
   useEffect(() => {
     if (!clave) return;
     // Solo mostrar banner en formularios nuevos (no en edición de registros existentes)
     if (isEditing) return;
-    const encontrado = leerBorrador(clave);
+    const encontrado = leerBorrador(clave, scope);
     if (encontrado) {
       setBorrador(encontrado);
       setVisible(true);
     }
-  }, [clave, isEditing]);
+  }, [clave, isEditing, scope]);
 
   const handleRestaurar = () => {
     if (borrador?.datos) {
@@ -35,7 +38,7 @@ export default function BannerAutoguardado({ clave, onRestaurar, isEditing }) {
   };
 
   const handleDescartar = () => {
-    limpiarBorrador(clave);
+    limpiarBorrador(clave, scope);
     setBorrador(null);
     setVisible(false);
   };

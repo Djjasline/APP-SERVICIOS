@@ -1,4 +1,11 @@
 import { useEffect, useRef, useCallback } from "react";
+import { useAuth } from "@/context/AuthContext";
+
+let activeScope = "anon";
+
+const getScope = (scope) => scope || activeScope || "anon";
+const getScopedKey = (clave, scope) => `autoguardado_v2_${getScope(scope)}_${clave}`;
+const getLegacyKey = (clave) => `autoguardado_${clave}`;
 
 /**
  * useAutoguardado
@@ -13,8 +20,14 @@ import { useEffect, useRef, useCallback } from "react";
  * Retorna: { forzarGuardar, limpiar } - funciones para forzar guardado y limpiar borrador local
  */
 export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) {
+  const { user } = useAuth();
+  const scope = user?.id || "anon";
   const datosRef = useRef(datos);
   const debounceRef = useRef(null);
+
+  useEffect(() => {
+    activeScope = scope;
+  }, [scope]);
 
   // Mantener ref actualizada sin re-disparar efectos
   useEffect(() => {
@@ -28,7 +41,7 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
         datos: datosRef.current,
         guardadoEn: new Date().toISOString(),
       };
-      localStorage.setItem(`autoguardado_${clave}`, JSON.stringify(payload));
+      localStorage.setItem(getScopedKey(clave, scope), JSON.stringify(payload));
 
       // Dev-only log para verificar que el autoguardado se ejecuta
       if (process.env.NODE_ENV !== "production") {
@@ -38,7 +51,7 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
     } catch (e) {
       console.warn("[autoguardado] Error al guardar:", e);
     }
-  }, [clave, activo]);
+  }, [clave, activo, scope]);
 
   // Guardar cada N segundos
   useEffect(() => {
@@ -78,11 +91,11 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
   const forzarGuardar = useCallback(() => guardar(), [guardar]);
   const limpiar = useCallback(() => {
     try {
-      localStorage.removeItem(`autoguardado_${clave}`);
+      limpiarBorrador(clave, scope);
     } catch (e) {
       /* silencioso */
     }
-  }, [clave]);
+  }, [clave, scope]);
 
   return { forzarGuardar, limpiar };
 }
@@ -92,9 +105,9 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
  * ------------
  * Retorna { datos, guardadoEn } si existe un borrador, o null.
  */
-export function leerBorrador(clave) {
+export function leerBorrador(clave, scope) {
   try {
-    const raw = localStorage.getItem(`autoguardado_${clave}`);
+    const raw = localStorage.getItem(getScopedKey(clave, scope)) || localStorage.getItem(getLegacyKey(clave));
     if (!raw) return null;
     return JSON.parse(raw);
   } catch {
@@ -107,9 +120,10 @@ export function leerBorrador(clave) {
  * ---------------
  * Elimina el borrador guardado. Llamar tras guardar exitosamente en Supabase.
  */
-export function limpiarBorrador(clave) {
+export function limpiarBorrador(clave, scope) {
   try {
-    localStorage.removeItem(`autoguardado_${clave}`);
+    localStorage.removeItem(getScopedKey(clave, scope));
+    localStorage.removeItem(getLegacyKey(clave));
   } catch {
     // silencioso
   }
