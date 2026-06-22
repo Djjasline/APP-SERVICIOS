@@ -2,6 +2,7 @@ import { supabase } from "../lib/supabase";
 import { createNotification } from "./notificationService";
 
 const KARIM_EMAIL = "kamhez@astap.com";
+const ARIEL_EMAIL = "abriones@astap.com";
 
 export const saveOrUpdateReport = async ({
   id = null,
@@ -64,6 +65,22 @@ export const saveOrUpdateReport = async ({
     }
 
 try {
+  if (result && result.area === "vehiculos") {
+    const formName = getNombreFormularioVehiculos(result.tipo, result.subtipo);
+    const statusLabel = result.estado === "completado" ? "completado" : "borrador";
+    const clientName = result.data?.cliente || "Sin cliente";
+    const code = result.data?.codInf || result.data?.pedidoDemanda || result.id;
+    const technician = result.data?.tecnicoNombre || user.email || "Sin técnico";
+
+    await createNotification({
+      recipient_email: ARIEL_EMAIL,
+      title: `VM Services: ${formName} ${statusLabel}`,
+      message: `${technician} guardó ${formName.toLowerCase()} en estado ${statusLabel}. Cliente: ${clientName}. Código/Pedido: ${code}.`,
+      record_type: `vehiculos_${result.tipo || "formulario"}`,
+      record_id: result.id,
+    });
+  }
+
   if (result && result.area === "operaciones") {
     if (result.tipo === "registro" && result.estado === "salida") {
       await createNotification({
@@ -117,4 +134,11 @@ function getNombreFormulario(tipo) {
     default:
       return "Formulario";
   }
+}
+
+function getNombreFormularioVehiculos(tipo, subtipo) {
+  if (tipo === "informe") return "informe general de servicio técnico";
+  if (tipo === "inspeccion") return `informe de inspección${subtipo ? ` ${subtipo}` : ""}`;
+  if (tipo === "mantenimiento") return `informe de mantenimiento${subtipo ? ` ${subtipo}` : ""}`;
+  return "formulario de vehículos";
 }
