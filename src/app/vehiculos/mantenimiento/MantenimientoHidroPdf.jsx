@@ -357,13 +357,13 @@ export default function MantenimientoHidroPDF() {
         </div>
 
         {/* ── ESTADO DEL EQUIPO ── */}
-        <div className="no-break">
+        <div>
           <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
           {estadoEquipoImagenes.length === 0 ? (
             <table style={S.tbl}>
               <tbody>
                 <tr>
-                  <td style={{ ...S.cell, textAlign: "center", color: "#6b7280", padding: 20 }}>
+                  <td style={{ ...S.cell, textAlign: "center", color: "#6b7280", padding: "6px 8px" }}>
                     Sin registros de estado del equipo
                   </td>
                 </tr>
@@ -373,7 +373,6 @@ export default function MantenimientoHidroPDF() {
             estadoEquipoImagenes.map((img, i) => (
               <div
                 key={img.id || i}
-                className="no-break"
                 style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}
               >
                 <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 11, fontWeight: 700, background: "#f9fafb" }}>

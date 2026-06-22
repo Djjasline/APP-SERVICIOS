@@ -306,13 +306,13 @@ export default function MantenimientoBarredoraPDF() {
         </div>
 
         {/* ── ESTADO DEL EQUIPO ── */}
-        <div className="no-break">
+        <div>
           <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
           {estadoEquipoImagenes.length === 0 ? (
             <table style={S.tbl}>
               <tbody>
                 <tr>
-                  <td style={{ ...S.cell, textAlign: "center", color: "#6b7280", padding: 20 }}>
+                  <td style={{ ...S.cell, textAlign: "center", color: "#6b7280", padding: "6px 8px" }}>
                     Sin registros de estado del equipo
                   </td>
                 </tr>
@@ -322,7 +322,6 @@ export default function MantenimientoBarredoraPDF() {
             estadoEquipoImagenes.map((img, i) => (
               <div
                 key={img.id || i}
-                className="no-break"
                 style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}
               >
                 <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 10, fontWeight: 700, background: "#f9fafb" }}>
@@ -402,9 +401,8 @@ export default function MantenimientoBarredoraPDF() {
         </div>
 
         {/* ── SECCIONES DE MANTENIMIENTO ── */}
-        <div className="page-break" />
         {secciones.map((sec, i) => (
-          <div key={i} className="no-break">
+          <div key={i}>
             <p style={{ ...S.sectionTitle, marginTop: i === 0 ? 0 : 14 }}>{sec.titulo}</p>
             <SeccionTable sec={sec} items={d.items} />
           </div>

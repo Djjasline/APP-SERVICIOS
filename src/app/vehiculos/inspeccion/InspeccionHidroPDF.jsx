@@ -233,7 +233,6 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
   {/* Plantilla base con puntos */}
   {puntosBase.length > 0 && (
     <div
-      className="no-break"
       style={{
         border: "1px solid #d1d5db",
         borderRadius: 6,
@@ -334,7 +333,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
               ...S.cell,
               textAlign: "center",
               color: "#6b7280",
-              padding: 20,
+              padding: "6px 8px",
             }}
           >
             Sin registros de estado del equipo
@@ -346,7 +345,6 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
     estadoEquipoImagenes.map((img, i) => (
       <div
         key={img.id || i}
-        className="no-break"
         style={{
           border: "1px solid #d1d5db",
           borderRadius: 6,
@@ -439,7 +437,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
   )}
 </div>
               {/* PRUEBAS PREVIAS */}
-        <div className="no-break">
+        <div>
           <p style={{ ...S.sectionTitle, marginTop: 0 }}>
             1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
           </p>
@@ -449,7 +447,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
 
         {/* SECCIONES */}
         {secciones.map((sec, i) => (
-          <div key={i} className="no-break">
+          <div key={i}>
             <p style={S.sectionTitle}>{sec.titulo}</p>
             <ChecklistTable items={sec.items} data={d} />
           </div>
