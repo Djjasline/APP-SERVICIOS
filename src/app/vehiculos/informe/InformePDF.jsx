@@ -118,6 +118,19 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
   return (
     <>
 <style>{`
+@page {
+  margin: 10mm 10mm 14mm 10mm;
+  @bottom-right {
+    content: "Página " counter(page);
+    font-size: 9px;
+    color: #6b7280;
+  }
+}
+
+.pdf-page-number {
+  display: none;
+}
+
 @media print {
 
   .page-break {
@@ -141,6 +154,25 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
   img {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  .activities-table tr,
+  .activities-table td {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .pdf-page-number {
+    display: block;
+    position: fixed;
+    right: 0;
+    bottom: -8mm;
+    font-size: 9px;
+    color: #6b7280;
+  }
+
+  .pdf-page-number::after {
+    content: "Página " counter(page);
   }
 
 }
@@ -281,21 +313,11 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         {/* ════════════════════
             ESTADO DEL EQUIPO
         ════════════════════ */}
-        <div>
-          <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
+        {estadoEquipoImagenes.length > 0 && (
+          <div>
+            <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
 
-          {estadoEquipoImagenes.length === 0 ? (
-            <table style={S.tbl}>
-              <tbody>
-                <tr>
-                  <td style={{ ...S.cell, textAlign: "center", color: "#6b7280", padding: 20 }}>
-                    Sin registros de estado del equipo
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          ) : (
-            estadoEquipoImagenes.map((img, imageIndex) => (
+            {estadoEquipoImagenes.map((img, imageIndex) => (
               <div
                 key={img.id || imageIndex}
                 style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}
@@ -308,7 +330,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                     style={{
                       position: "relative",
                       width: "100%",
-                      maxWidth: 420,
+                      maxWidth: 360,
                       aspectRatio: "4 / 3",
                       margin: "0 auto",
                       border: "1px solid #d1d5db",
@@ -363,8 +385,9 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                 </div>
               </div>
             ))
-          )}
-        </div>
+            }
+          </div>
+        )}
 
         {/* ════════════════════
             ACTIVIDADES — página nueva
@@ -373,7 +396,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
 
         <p style={{ ...S.sectionTitle, marginTop: 0 }}>ACTIVIDADES REALIZADAS</p>
 
-        <table style={S.tbl}>
+        <table className="activities-table" style={S.tbl}>
           <thead>
             <tr>
               <th style={{ ...S.th, width: 40 }}>ÍTEM</th>
@@ -383,7 +406,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
           </thead>
           <tbody>
             {(data.actividades || []).map((a, i) => (
-              <tr key={i} className="no-break">
+              <tr key={i}>
                 <td style={{ ...S.cell, textAlign: "center", verticalAlign: "top" }}>{i + 1}</td>
                 <td style={{ ...S.cell, verticalAlign: "top" }}>
                   <strong>{a.titulo || "—"}</strong>
@@ -409,6 +432,8 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             ))}
           </tbody>
         </table>
+
+        <div className="pdf-page-number" />
 
         {/* ════════════════════
             CONCLUSIONES / RECOMENDACIONES
