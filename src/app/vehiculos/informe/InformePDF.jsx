@@ -73,6 +73,7 @@ export default function InformePDF() {
   const estadoEquipoImagenes = data?.estadoEquipo?.imagenes || [];
   const reportDescription =
     "Este informe se utiliza para servicios técnicos generales; no aplica para inspección ni mantenimiento de equipos.";
+  const toPointPercent = (value) => Math.min(100, Math.max(0, Number(value || 0) * 100));
 
   /* ── Handler de impresión via iframe ── */
   const handlePrint = () => {
@@ -304,18 +305,37 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                   Imagen {imageIndex + 1}
                 </div>
                 <div style={{ padding: 10 }}>
-                  <div style={{ position: "relative", width: "100%", border: "1px solid #d1d5db", borderRadius: 4, overflow: "hidden" }}>
+                  <div
+                    style={{
+                      position: "relative",
+                      width: "100%",
+                      maxWidth: 420,
+                      aspectRatio: "4 / 3",
+                      margin: "0 auto",
+                      border: "1px solid #d1d5db",
+                      borderRadius: 4,
+                      overflow: "hidden",
+                      background: "#fff",
+                    }}
+                  >
                     <img
                       src={img.url}
                       alt={`estado-equipo-${imageIndex + 1}`}
-                      style={{ width: "100%", maxHeight: 230, objectFit: "contain", display: "block" }}
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        display: "block",
+                      }}
                     />
                     {(img.puntos || []).map((p, pi) => (
                       <div
                         key={p.id || pi}
                         style={{
                           position: "absolute",
-                          left: `${p.x * 100}%`, top: `${p.y * 100}%`,
+                          left: `${toPointPercent(p.x)}%`, top: `${toPointPercent(p.y)}%`,
                           transform: "translate(-50%,-50%)",
                           width: 18, height: 18, borderRadius: "50%",
                           background: "#dc2626", border: "2px solid #fff",
