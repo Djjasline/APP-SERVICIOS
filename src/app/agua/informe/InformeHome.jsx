@@ -5,8 +5,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const informeTipos = {
-  bomba: { label: "Informe de bombas" },
-  valvula: { label: "Informe de válvulas" },
+  bomba: {
+    label: "Informe general de bombas",
+    description: "(informe general para levantamiento o inspección de bombas)",
+  },
+  valvula: {
+    label: "Informe general de válvulas",
+    description: "(informe general para levantamiento o inspección de válvulas)",
+  },
 };
 
 const getInformeTipo = (report) => report?.subtipo || report?.data?.tipoInforme || "bomba";
@@ -131,9 +137,14 @@ export default function InformeHome({
   return (
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-lg font-semibold text-gray-900">
-          {tipoConfig?.label || `Informes ${areaLabel}`}
-        </h1>
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900">
+            {tipoConfig?.label || `Informes ${areaLabel}`}
+          </h1>
+          {tipoConfig?.description && (
+            <p className="text-sm text-gray-500">{tipoConfig.description}</p>
+          )}
+        </div>
 
         <div className="flex items-center gap-3">
           <SyncStatus />

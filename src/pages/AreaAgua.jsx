@@ -18,16 +18,16 @@ export default function AreaAgua() {
       <div className="grid md:grid-cols-2 gap-6">
 
         <CardModulo
-          titulo="Informe de bombas"
-          descripcion="Creación e historial de informes técnicos de bombas."
+          titulo="Informe general de bombas"
+          descripcion="(informe general para levantamiento o inspección de bombas)"
           ruta="/agua/informe/bomba"
           color="bg-blue-600"
           icono={<FileText size={20} />}
         />
 
         <CardModulo
-          titulo="Informe de válvulas"
-          descripcion="Creación e historial de informes técnicos de válvulas."
+          titulo="Informe general de válvulas"
+          descripcion="(informe general para levantamiento o inspección de válvulas)"
           ruta="/agua/informe/valvula"
           color="bg-cyan-600"
           icono={<FileText size={20} />}

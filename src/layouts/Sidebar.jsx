@@ -272,7 +272,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/agua/informe/bomba")}
                   className={subItemClass("/agua/informe/bomba")}
                 >
-                  Informe de bombas
+                  Informe general de bombas
                 </button>
 
                 <button
@@ -280,7 +280,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/agua/informe/valvula")}
                   className={subItemClass("/agua/informe/valvula")}
                 >
-                  Informe de válvulas
+                  Informe general de válvulas
                 </button>
 
                 <button
@@ -331,7 +331,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/industria/informe/bomba")}
                   className={subItemClass("/industria/informe/bomba")}
                 >
-                  Informe de bombas
+                  Informe general de bombas
                 </button>
 
                 <button
@@ -339,7 +339,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/industria/informe/valvula")}
                   className={subItemClass("/industria/informe/valvula")}
                 >
-                  Informe de válvulas
+                  Informe general de válvulas
                 </button>
               </div>
             )}
@@ -382,7 +382,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/petroleo/informe")}
                   className={subItemClass("/petroleo/informe")}
                 >
-                  Informes de inspección
+                  Informe general de bombas y válvulas
                 </button>
               </div>
             )}

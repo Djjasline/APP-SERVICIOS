@@ -112,9 +112,14 @@ export default function InformeHome() {
   return (
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-lg font-semibold text-gray-900">
-          INFORMES DE INSPECCIÓN
-        </h1>
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900">
+            Informe general de bombas y válvulas
+          </h1>
+          <p className="text-sm text-gray-500">
+            (informe general para levantamiento o inspección de bombas y válvulas)
+          </p>
+        </div>
 
         <div className="flex items-center gap-3">
           <SyncStatus />
@@ -138,7 +143,7 @@ export default function InformeHome() {
         onClick={() =>navigate("/petroleo/informe/nuevo")}
         className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg transition"
       >
-        Nuevo informe de inspección
+        Nuevo informe general
       </button>
 
       <div className="flex gap-2">

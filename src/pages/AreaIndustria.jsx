@@ -13,16 +13,16 @@ export default function AreaIndustria() {
 
       <div className="grid md:grid-cols-2 gap-6">
         <CardModulo
-          titulo="Informe de bombas"
-          descripcion="Creación e historial de informes técnicos de bombas industriales."
+          titulo="Informe general de bombas"
+          descripcion="(informe general para levantamiento o inspección de bombas)"
           ruta="/industria/informe/bomba"
           color="bg-slate-700"
           icono={<FileText size={20} />}
         />
 
         <CardModulo
-          titulo="Informe de válvulas"
-          descripcion="Creación e historial de informes técnicos de válvulas industriales."
+          titulo="Informe general de válvulas"
+          descripcion="(informe general para levantamiento o inspección de válvulas)"
           ruta="/industria/informe/valvula"
           color="bg-orange-600"
           icono={<FileText size={20} />}

@@ -18,8 +18,8 @@ export default function AreaPetroleo() {
       <div className="grid md:grid-cols-2 gap-6">
 
         <CardModulo
-  titulo="INFORMES DE INSPECCIÓN"
-  descripcion="Registro técnico de inspección y valoración de equipos del sector energético."
+  titulo="Informe general de bombas y válvulas"
+  descripcion="(informe general para levantamiento o inspección de bombas y válvulas)"
   ruta="/petroleo/informe"
   color="bg-blue-600"
   icono={<FileText size={20} />}
