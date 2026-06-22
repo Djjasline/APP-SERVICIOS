@@ -7,6 +7,7 @@ import imageCompression from "browser-image-compression";
 const DEPARTMENTS = [
   "Vehículos Especiales",
   "Agua y Saneamiento",
+  "Industria",
   "Petróleo y Energía",
   "Operaciones",
   "Administración",

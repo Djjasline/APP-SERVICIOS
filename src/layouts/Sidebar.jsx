@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Truck,
   Droplet,
+  Factory,
   Fuel,
   Settings,
   FolderOpen,
@@ -22,6 +23,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const [openVehiculos, setOpenVehiculos] = useState(false);
   const [openOperaciones, setOpenOperaciones] = useState(false);
   const [openAgua, setOpenAgua] = useState(false);
+  const [openIndustria, setOpenIndustria] = useState(false);
   const [openPetroleo, setOpenPetroleo] = useState(false);
   const [openRepositorios, setOpenRepositorios] = useState(false);
 
@@ -57,6 +59,9 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
     const isAguaPath =
       path.startsWith("/area/agua") || path.startsWith("/agua");
 
+    const isIndustriaPath =
+      path.startsWith("/area/industria") || path.startsWith("/industria");
+
     const isPetroleoPath =
       path.startsWith("/area/petroleo") || path.startsWith("/petroleo");
 
@@ -70,6 +75,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
     setOpenVehiculos(isVehiculosPath || proveedorSoloVehiculos);
     setOpenAgua(puedeVerTodo && isAguaPath);
+    setOpenIndustria(puedeVerTodo && isIndustriaPath);
     setOpenPetroleo(puedeVerTodo && isPetroleoPath);
     setOpenOperaciones(puedeVerTodo && isOperacionesPath);
     setOpenRepositorios(puedeVerTodo && isRepositoriosPath);
@@ -78,6 +84,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const openOnly = (name) => {
     setOpenVehiculos(name === "vehiculos");
     setOpenAgua(puedeVerTodo && name === "agua");
+    setOpenIndustria(puedeVerTodo && name === "industria");
     setOpenPetroleo(puedeVerTodo && name === "petroleo");
     setOpenOperaciones(puedeVerTodo && name === "operaciones");
     setOpenRepositorios(puedeVerTodo && name === "repositorios");
@@ -165,8 +172,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             aria-current={isActive("/") ? "page" : undefined}
           >
             <LayoutDashboard size={20} className={iconClass} />
-            {openSidebar && "Menú Principal"}
-            {tooltip("Menú Principal")}
+            {openSidebar && "Menú principal de Áreas"}
+            {tooltip("Menú principal de Áreas")}
           </button>
         )}
 
@@ -282,6 +289,57 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   className={subItemClass("/agua/recorrido/informe")}
                 >
                   Informe de recorrido
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* INDUSTRIA */}
+        {puedeVerTodo && (
+          <div>
+            <button
+              type="button"
+              onClick={() => {
+                openOnly(openIndustria ? null : "industria");
+              }}
+              className={itemClass(isActive("/industria"))}
+              aria-expanded={openIndustria}
+              aria-controls="panel-industria"
+            >
+              <Factory size={20} className={iconClass} />
+              {openSidebar && "Industria"}
+              {openSidebar && (openIndustria ? <ChevronDown /> : <ChevronRight />)}
+              {tooltip("Industria")}
+            </button>
+
+            {openSidebar && openIndustria && (
+              <div
+                id="panel-industria"
+                className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
+              >
+                <button
+                  type="button"
+                  onClick={() => go("/area/industria")}
+                  className={subItemClass("/area/industria")}
+                >
+                  Panel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => go("/industria/informe/bomba")}
+                  className={subItemClass("/industria/informe/bomba")}
+                >
+                  Informe de bombas
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => go("/industria/informe/valvula")}
+                  className={subItemClass("/industria/informe/valvula")}
+                >
+                  Informe de válvulas
                 </button>
               </div>
             )}

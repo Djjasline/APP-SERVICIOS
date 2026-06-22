@@ -18,6 +18,7 @@ import Perfil from "./pages/Perfil";
 // ================= ÁREAS =================
 import AreaVehiculos from "./pages/AreaVehiculos";
 import AreaAgua from "./pages/AreaAgua";
+import AreaIndustria from "./pages/AreaIndustria";
 import AreaPetroleo from "./pages/AreaPetroleo";
 import AreaOperaciones from "./pages/AreaOperaciones";
 import AreaRepositorios from "./pages/AreaRepositorios";
@@ -142,6 +143,7 @@ export default function RoutesApp() {
 
             <Route path="/area/vehiculos" element={<VehiculosRoute><AreaVehiculos /></VehiculosRoute>} />
             <Route path="/area/agua" element={<TechRoute><AreaAgua /></TechRoute>} />
+            <Route path="/area/industria" element={<TechRoute><AreaIndustria /></TechRoute>} />
             <Route path="/area/petroleo" element={<TechRoute><AreaPetroleo /></TechRoute>} />
             <Route path="/operaciones" element={<TechRoute><AreaOperaciones /></TechRoute>} />
             <Route path="/repositorios" element={<TechRoute><AreaRepositorios /></TechRoute>} />
@@ -166,6 +168,16 @@ export default function RoutesApp() {
             <Route path="/agua/informe/valvula/:id" element={<TechRoute><AguaNuevoInforme tipo="valvula" /></TechRoute>} />
             <Route path="/agua/informe/:id" element={<TechRoute><AguaNuevoInforme /></TechRoute>} />
             <Route path="/agua/recorrido/informe/*" element={<TechRoute><InformeAguaRoutes /></TechRoute>} />
+
+            <Route path="/industria/informe" element={<TechRoute><AguaInformeHome area="industria" areaLabel="Industria" basePath="/industria/informe" areaPath="/area/industria" /></TechRoute>} />
+            <Route path="/industria/informe/nuevo" element={<TechRoute><AguaNuevoInforme area="industria" basePath="/industria/informe" /></TechRoute>} />
+            <Route path="/industria/informe/bomba" element={<TechRoute><AguaInformeHome tipo="bomba" area="industria" areaLabel="Industria" basePath="/industria/informe" areaPath="/area/industria" /></TechRoute>} />
+            <Route path="/industria/informe/bomba/nuevo" element={<TechRoute><AguaNuevoInforme tipo="bomba" area="industria" basePath="/industria/informe" /></TechRoute>} />
+            <Route path="/industria/informe/bomba/:id" element={<TechRoute><AguaNuevoInforme tipo="bomba" area="industria" basePath="/industria/informe" /></TechRoute>} />
+            <Route path="/industria/informe/valvula" element={<TechRoute><AguaInformeHome tipo="valvula" area="industria" areaLabel="Industria" basePath="/industria/informe" areaPath="/area/industria" /></TechRoute>} />
+            <Route path="/industria/informe/valvula/nuevo" element={<TechRoute><AguaNuevoInforme tipo="valvula" area="industria" basePath="/industria/informe" /></TechRoute>} />
+            <Route path="/industria/informe/valvula/:id" element={<TechRoute><AguaNuevoInforme tipo="valvula" area="industria" basePath="/industria/informe" /></TechRoute>} />
+            <Route path="/industria/informe/:id" element={<TechRoute><AguaNuevoInforme area="industria" basePath="/industria/informe" /></TechRoute>} />
 
             <Route path="/petroleo/informe" element={<TechRoute><PetroleoInformeHome /></TechRoute>} />
             <Route path="/petroleo/informe/nuevo" element={<TechRoute><PetroleoNuevoInforme /></TechRoute>} />
@@ -251,6 +263,7 @@ export default function RoutesApp() {
           <Route path="/informe/pdf/:id" element={<ProtectedRoute><VehiculosRoute><InformePDF /></VehiculosRoute></ProtectedRoute>} />
           <Route path="/vehiculos/informe/pdf/:id" element={<ProtectedRoute><VehiculosRoute><InformePDF /></VehiculosRoute></ProtectedRoute>} />
           <Route path="/agua/informe/pdf/:id" element={<ProtectedRoute><TechRoute><AguaInformePDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/industria/informe/pdf/:id" element={<ProtectedRoute><TechRoute><AguaInformePDF area="industria" basePath="/industria/informe" /></TechRoute></ProtectedRoute>} />
           <Route path="/petroleo/informe/pdf/:id" element={<ProtectedRoute><TechRoute><PetroleoInformePDF /></TechRoute></ProtectedRoute>} />
 
           <Route path="/inspeccion/hidro/:id/pdf" element={<ProtectedRoute><VehiculosRoute><InspeccionHidroPDF /></VehiculosRoute></ProtectedRoute>} />

@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-export default function InformePDF() {
+export default function InformePDF({ area = "agua", basePath = "/agua/informe" }) {
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -18,6 +18,7 @@ export default function InformePDF() {
           .from("registros")
           .select("*")
           .eq("id", id)
+          .eq("area", area)
           .eq("tipo", "informe")
           .single();
 
@@ -41,7 +42,7 @@ export default function InformePDF() {
     };
 
     loadReport();
-  }, [id]);
+  }, [id, area]);
 
   /* ===========================
      NO ENCONTRADO
@@ -51,7 +52,7 @@ export default function InformePDF() {
       <div className="p-6 text-center">
         <p>No se encontró el informe.</p>
         <button
-         onClick={() => navigate("/agua/informe")}
+         onClick={() => navigate(basePath)}
          className="border px-4 py-2 rounded mt-4"
         >
           Volver
@@ -70,7 +71,7 @@ export default function InformePDF() {
       <div className="p-6 text-center">
         <p>Este informe no está completado.</p>
         <button
-          onClick={() => navigate("/agua/informe")}
+          onClick={() => navigate(basePath)}
           className="border px-4 py-2 rounded mt-4"
         >
           Volver
@@ -545,7 +546,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
         {/* ================= BOTONES ================= */}
         <div className="no-print flex justify-between mt-6">
           <button
-            onClick={() => navigate("/agua/informe")}
+            onClick={() => navigate(basePath)}
             className="border px-6 py-2 rounded"
           >
             Volver

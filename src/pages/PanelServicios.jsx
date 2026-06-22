@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import {
   Truck,
   Droplet,
+  Factory,
   Fuel,
   Settings,
   FolderArchive,
@@ -43,6 +44,15 @@ export default function PanelServicios() {
       icon: <Droplet size={28} />,
       color: "bg-cyan-600",
       ruta: "/area/agua",
+    },
+    {
+      id: "industria",
+      titulo: "Industria",
+      descripcion:
+        "Gestión técnica de equipos industriales, bombas y válvulas.",
+      icon: <Factory size={28} />,
+      color: "bg-slate-700",
+      ruta: "/area/industria",
     },
     {
       id: "petroleo",

@@ -26,7 +26,11 @@ const Input = ({ value, onChange, placeholder = "", readOnly = false, className 
 
 const validInformeTipos = ["bomba", "valvula"];
 
-export default function NuevoInformeBombaValvula({ tipo = null }) {
+export default function NuevoInformeBombaValvula({
+  tipo = null,
+  area = "agua",
+  basePath = "/agua/informe",
+}) {
   const { id } = useParams();
   const navigate = useNavigate();
   const routeTipo = validInformeTipos.includes(tipo) ? tipo : null;
@@ -51,7 +55,7 @@ const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
 const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
 
 const isEditing = !!id;
-  const claveAutoguardado = `informe_agua_${routeTipo || "general"}_${id ?? "new"}`;
+  const claveAutoguardado = `informe_${area}_${routeTipo || "general"}_${id ?? "new"}`;
    
   /* ─── ESTADO BASE ─── */
   const emptyReport = {
@@ -169,6 +173,8 @@ useEffect(() => {
       .from("registros")
       .select("*")
       .eq("id", id)
+      .eq("area", area)
+      .eq("tipo", "informe")
       .single();
 
     if (error || !report) return;
@@ -213,7 +219,7 @@ useEffect(() => {
   };
 
   load();
-}, [id]);
+}, [id, area, routeTipo]);
 
    /* ─── AUTO-RELLENAR TÉCNICO LOGUEADO ─── */
 useEffect(() => {
@@ -494,8 +500,8 @@ const save = async () => {
 
   const finalData = {
     ...data,
-    area: "agua",
-    modulo: "agua",
+    area,
+    modulo: area,
     firmas: {
       ...data.firmas,
       tecnico: firmaTecnico,
@@ -508,7 +514,7 @@ const save = async () => {
   try {
     await saveOrUpdateReport({
       id: isEditing ? id : null,
-      area: "agua",
+      area,
       tipo: "informe",
       subtipo: data.tipoInforme === "bomba" ? "bomba" : "valvula",
       data: finalData,
@@ -518,7 +524,7 @@ const save = async () => {
     setSuccessMsg(isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
 
       limpiarBorrador(claveAutoguardado);
-    setTimeout(() => navigate(`/agua/informe/${finalData.tipoInforme}`), 1200);
+    setTimeout(() => navigate(`${basePath}/${finalData.tipoInforme}`), 1200);
   } catch (err) {
     console.error(err);
     setSuccessMsg("Error al guardar ❌");
@@ -1533,7 +1539,7 @@ const save = async () => {
           <div className="border-t pt-4 mt-6 flex flex-col md:flex-row justify-between gap-3">
             <button
               type="button"
-              onClick={() => navigate(`/agua/informe/${data.tipoInforme || routeTipo || "bomba"}`)}
+              onClick={() => navigate(`${basePath}/${data.tipoInforme || routeTipo || "bomba"}`)}
               className="border px-6 py-2 rounded hover:bg-gray-50 transition"
             >
               ← Volver
@@ -1543,7 +1549,7 @@ const save = async () => {
               {isEditing && (
                 <button
                   type="button"
-                  onClick={() => navigate(`/agua/informe/pdf/${id}`)}
+                  onClick={() => navigate(`${basePath}/pdf/${id}`)}
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded transition"
                 >
                   Ver PDF
