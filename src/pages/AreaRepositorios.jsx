@@ -1,16 +1,19 @@
 import CardModulo from "@/components/CardModulo";
+import { useTheme } from "@/context/ThemeContext";
 import { FileText, Database } from "lucide-react";
 
 export default function AreaRepositorios() {
+  const { isLight } = useTheme();
+
   return (
     <div className="p-6 space-y-6">
       {/* HEADER */}
       <div>
-        <h2 className="text-lg font-semibold text-white">
+        <h2 className={`text-lg font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
           Repositorios
         </h2>
 
-        <p className="text-sm text-gray-300">
+        <p className={`text-sm ${isLight ? "text-slate-600" : "text-gray-300"}`}>
           Gestión y almacenamiento de documentos y archivos técnicos.
         </p>
       </div>

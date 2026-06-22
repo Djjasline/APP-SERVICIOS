@@ -1,7 +1,9 @@
 import CardModulo from "@/components/CardModulo";
+import { useTheme } from "@/context/ThemeContext";
 import { Settings, Wrench, Inbox } from "lucide-react";
 
 export default function AreaOperaciones() {
+  const { isLight } = useTheme();
 
  const modulos = [
   {
@@ -31,10 +33,10 @@ export default function AreaOperaciones() {
 
       {/* 🔥 HEADER */}
       <div>
-        <h2 className="text-lg font-semibold text-white">
+        <h2 className={`text-lg font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
           Operaciones
         </h2>
-        <p className="text-sm text-gray-300">
+        <p className={`text-sm ${isLight ? "text-slate-600" : "text-gray-300"}`}>
           Gestión operativa de procesos técnicos.
         </p>
       </div>

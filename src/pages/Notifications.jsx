@@ -4,6 +4,7 @@ import {
   getNotifications,
   markNotificationRead,
 } from "@/services/notificationService";
+import { useTheme } from "@/context/ThemeContext";
 import { useNavigate } from "react-router-dom";
 
 /*
@@ -17,6 +18,7 @@ export default function NotificationsPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { isLight } = useTheme();
 
   useEffect(() => {
     const load = async () => {
@@ -49,17 +51,17 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="min-h-[60vh] text-white">
-      <h1 className="text-2xl font-semibold mb-4 text-white">
+    <div className={`min-h-[60vh] ${isLight ? "text-slate-900" : "text-white"}`}>
+      <h1 className={`text-2xl font-semibold mb-4 ${isLight ? "text-slate-900" : "text-white"}`}>
         Notificaciones
       </h1>
 
       {loading ? (
-        <p className="text-sm text-white">
+        <p className={`text-sm ${isLight ? "text-slate-600" : "text-white"}`}>
           Cargando...
         </p>
       ) : items.length === 0 ? (
-        <p className="text-sm text-white">
+        <p className={`text-sm ${isLight ? "text-slate-600" : "text-white"}`}>
           No tienes notificaciones.
         </p>
       ) : (
@@ -67,20 +69,26 @@ export default function NotificationsPage() {
           {items.map((n) => (
             <li
               key={n.id}
-              className={`p-3 border border-white/10 rounded-lg flex justify-between items-start ${
-                n.read ? "bg-white/5" : "bg-white/10"
+              className={`p-3 border rounded-lg flex justify-between items-start ${
+                isLight
+                  ? n.read
+                    ? "border-slate-200 bg-white"
+                    : "border-blue-200 bg-blue-50"
+                  : n.read
+                  ? "border-white/10 bg-white/5"
+                  : "border-white/10 bg-white/10"
               }`}
             >
               <div>
-                <div className="font-semibold text-white">
+                <div className={`font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
                   {n.title}
                 </div>
 
-                <div className="text-sm text-slate-300">
+                <div className={`text-sm ${isLight ? "text-slate-600" : "text-slate-300"}`}>
                   {n.message}
                 </div>
 
-                <div className="text-xs text-slate-400 mt-2">
+                <div className={`text-xs mt-2 ${isLight ? "text-slate-500" : "text-slate-400"}`}>
                   {n.created_at
                     ? new Date(n.created_at).toLocaleString()
                     : ""}
@@ -91,7 +99,7 @@ export default function NotificationsPage() {
                 {!n.read && (
                   <button
                     onClick={() => handleMarkRead(n.id)}
-                    className="text-xs text-green-400 hover:underline"
+                    className={`text-xs hover:underline ${isLight ? "text-green-700" : "text-green-400"}`}
                   >
                     Marcar como leído
                   </button>
@@ -112,7 +120,7 @@ export default function NotificationsPage() {
         navigate(`/operaciones/liberacion/${n.record_id}`);
       }
     }}
-    className="text-xs text-blue-300 hover:underline"
+    className={`text-xs hover:underline ${isLight ? "text-blue-700" : "text-blue-300"}`}
   >
     Ir al formulario
   </button>
