@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import {
   LayoutDashboard,
   Truck,
@@ -19,6 +20,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isProveedorVehiculos, isProveedorVehiculosOnly } = useAuth();
+  const { isLight } = useTheme();
 
   const [openVehiculos, setOpenVehiculos] = useState(false);
   const [openOperaciones, setOpenOperaciones] = useState(false);
@@ -101,13 +103,17 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
     ${openSidebar ? "gap-3 px-3" : "justify-center px-2"}
     ${
       active
-        ? "bg-white/20 text-white"
+        ? isLight
+          ? "bg-blue-50 text-blue-900"
+          : "bg-white/20 text-white"
+        : isLight
+        ? "text-slate-600 hover:bg-blue-50 hover:text-blue-900"
         : "text-white/80 hover:bg-white/10 hover:text-white"
     }
   `;
 
   const iconClass = `
-    text-white/80 group-hover:text-white transition-all duration-300
+    ${isLight ? "text-slate-500 group-hover:text-blue-900" : "text-white/80 group-hover:text-white"} transition-all duration-300
   `;
 
   const tooltip = (label) =>
@@ -115,7 +121,9 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       <span
         role="tooltip"
         aria-hidden="true"
-        className="absolute left-16 bg-black text-white text-xs px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition pointer-events-none"
+          className={`absolute left-16 text-xs px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition pointer-events-none ${
+            isLight ? "bg-white text-slate-900 border border-slate-200" : "bg-black text-white"
+          }`}
       >
         {label}
       </span>
@@ -124,7 +132,11 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const subItemClass = (path) =>
     `block w-full text-left text-xs px-2 py-1 rounded transition ${
       isActive(path)
-        ? "bg-white/20 text-white border-l-2 border-white pl-3"
+        ? isLight
+          ? "bg-blue-50 text-blue-900 border-l-2 border-blue-700 pl-3"
+          : "bg-white/20 text-white border-l-2 border-white pl-3"
+        : isLight
+        ? "text-slate-500 hover:text-blue-900 hover:bg-blue-50"
         : "text-white/70 hover:text-white hover:bg-white/10"
     }`;
 
@@ -137,15 +149,15 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
     <aside
       className={`
         fixed top-0 left-0 h-screen z-50 flex flex-col
-        bg-gradient-to-b from-[#003366] to-[#001f3f]
-        border-r border-white/10 backdrop-blur-xl
+        ${isLight ? "bg-white/95 border-r border-slate-200" : "bg-gradient-to-b from-[#003366] to-[#001f3f] border-r border-white/10"}
+        backdrop-blur-xl
         transition-all duration-300
         ${openSidebar ? "w-64" : "w-0"}
         overflow-hidden
       `}
     >
       {/* LOGO */}
-      <div className="p-4 flex items-center gap-3 border-b border-white/10 cursor-pointer hover:bg-white/10">
+      <div className={`p-4 flex items-center gap-3 border-b cursor-pointer ${isLight ? "border-slate-200 hover:bg-blue-50" : "border-white/10 hover:bg-white/10"}`}>
         <button
           type="button"
           onClick={() => setOpenSidebar(!openSidebar)}
@@ -157,7 +169,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             alt="ASTAP logo"
             className="w-10 h-10 object-contain"
           />
-          {openSidebar && <span className="text-white font-bold">ASTAP</span>}
+          {openSidebar && <span className={isLight ? "text-slate-900 font-bold" : "text-white font-bold"}>ASTAP</span>}
         </button>
       </div>
 
@@ -515,10 +527,10 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       </div>
 
       {/* FOOTER */}
-      <div className="p-3 border-t border-white/10 text-xs text-white/50 text-center">
+      <div className={`p-3 border-t text-xs text-center ${isLight ? "border-slate-200 text-slate-500" : "border-white/10 text-white/50"}`}>
         {openSidebar ? (
           <>
-            <p className="font-semibold text-white/80">ASTAP</p>
+            <p className={isLight ? "font-semibold text-slate-700" : "font-semibold text-white/80"}>ASTAP</p>
             <p>© 2026 • By Santiago Avilés</p>
           </>
         ) : (

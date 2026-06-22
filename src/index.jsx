@@ -6,13 +6,16 @@ import "./styles/tailwind.css";
 // 🔥 CONTEXTOS
 import { AuthProvider } from "./context/AuthContext";
 import { ReportProvider } from "./context/ReportContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider> {/* 🔐 LOGIN GLOBAL */}
-      <ReportProvider> {/* 📄 INFORMES */}
-        <App />
-      </ReportProvider>
+      <ThemeProvider>
+        <ReportProvider> {/* 📄 INFORMES */}
+          <App />
+        </ReportProvider>
+      </ThemeProvider>
     </AuthProvider>
   </React.StrictMode>
 );

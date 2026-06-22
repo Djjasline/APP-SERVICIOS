@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import imageCompression from "browser-image-compression";
 
 const DEPARTMENTS = [
@@ -16,6 +17,7 @@ const DEPARTMENTS = [
 export default function Perfil() {
   const navigate        = useNavigate();
   const { user, role, roleLabel }  = useAuth();
+  const { theme, setTheme } = useTheme();
 
   const [perfil, setPerfil]               = useState({ full_name: "", phone: "", department: "", avatar_url: "" });
   const [loading, setLoading]             = useState(true);
@@ -247,6 +249,40 @@ export default function Perfil() {
             <option value="">Seleccionar área...</option>
             {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
           </select>
+        </div>
+
+        {/* TEMA */}
+        <div className="space-y-2 rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            Apariencia
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setTheme("light")}
+              className={`rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                theme === "light"
+                  ? "border-blue-600 bg-white text-blue-700 shadow"
+                  : "border-transparent bg-white/60 text-gray-600 hover:bg-white"
+              }`}
+            >
+              Modo claro
+            </button>
+            <button
+              type="button"
+              onClick={() => setTheme("dark")}
+              className={`rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                theme === "dark"
+                  ? "border-blue-600 bg-slate-900 text-white shadow"
+                  : "border-transparent bg-white/60 text-gray-600 hover:bg-white"
+              }`}
+            >
+              Modo oscuro
+            </button>
+          </div>
+          <p className="text-xs text-gray-500">
+            El modo claro usa fondo blanco/azul suave, tarjetas claras y texto oscuro.
+          </p>
         </div>
 
         {/* MENSAJE PERFIL */}

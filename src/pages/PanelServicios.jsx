@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import {
   Truck,
   Droplet,
@@ -13,6 +14,7 @@ import {
 export default function PanelServicios() {
   const navigate = useNavigate();
   const { isProveedorVehiculos, isProveedorVehiculosOnly } = useAuth();
+  const { isLight } = useTheme();
   const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
 
   useEffect(() => {
@@ -86,7 +88,7 @@ export default function PanelServicios() {
   return (
     <div className="relative">
       {/* ================= FONDO COLLAGE ================= */}
-      <div className="absolute inset-0 grid grid-cols-4 opacity-80">
+      <div className={`absolute inset-0 grid grid-cols-4 ${isLight ? "opacity-25" : "opacity-80"}`}>
         {[...Array(8)].map((_, i) => (
           <img
             key={i}
@@ -94,15 +96,14 @@ export default function PanelServicios() {
             alt=""
             className="w-full h-full object-cover"
             style={{
-              filter: "brightness(0.6)",
+              filter: isLight ? "brightness(1.05) saturate(0.8)" : "brightness(0.6)",
               transform: i % 2 === 0 ? "scaleX(-1)" : "none",
             }}
           />
         ))}
       </div>
 
-      {/* 🔥 CAPA OSCURA PARA CONTRASTE */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className={`absolute inset-0 backdrop-blur-sm ${isLight ? "bg-white/70" : "bg-black/50"}`} />
 
       {/* ================= CONTENIDO ================= */}
       <div className="relative p-6 space-y-8">
@@ -114,11 +115,11 @@ export default function PanelServicios() {
             className="w-20 h-20 object-contain"
           />
 
-          <h1 className="text-2xl md:text-3xl font-bold text-white">
+          <h1 className={`text-2xl md:text-3xl font-bold ${isLight ? "text-slate-900" : "text-white"}`}>
             Panel de servicios ASTAP
           </h1>
 
-          <p className="text-sm text-gray-300">
+          <p className={`text-sm ${isLight ? "text-slate-600" : "text-gray-300"}`}>
             Gestión técnica organizada por áreas operativas
           </p>
         </div>

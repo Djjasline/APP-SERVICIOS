@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate, Link } from "react-router-dom";
-import { User, Bell } from "lucide-react";
+import { User, Bell, Moon, Sun } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import Sidebar from "./Sidebar";
 import { getUnreadCount } from "../services/notificationService";
 
@@ -13,6 +14,7 @@ export default function MainLayout() {
 
   const navigate = useNavigate();
   const { user, logout, role, roleLabel, email } = useAuth();
+  const { isLight, toggleTheme } = useTheme();
   const [unread, setUnread] = useState(0);
 
   /* =========================
@@ -73,7 +75,11 @@ export default function MainLayout() {
 
   return (
     <div
-      className="flex h-screen bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b]"
+      className={`flex h-screen transition-colors duration-300 ${
+        isLight
+          ? "bg-gradient-to-br from-slate-50 via-blue-50 to-white text-slate-900"
+          : "bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b] text-white"
+      }`}
       /* ================= SWIPE ================= */
       onTouchStart={(e) => setTouchStartX(e.touches[0].clientX)}
       onTouchEnd={(e) => {
@@ -123,7 +129,13 @@ export default function MainLayout() {
   `}
       >
         {/* ================= HEADER ================= */}
-        <header className="h-16 flex items-center justify-between px-6 backdrop-blur-xl bg-white/5 border-b border-white/10 relative z-50 text-white">
+        <header
+          className={`h-16 flex items-center justify-between px-6 backdrop-blur-xl border-b relative z-50 transition-colors ${
+            isLight
+              ? "bg-white/85 border-slate-200 text-slate-900 shadow-sm"
+              : "bg-white/5 border-white/10 text-white"
+          }`}
+        >
           {/* IZQUIERDA */}
           <div className="flex items-center gap-4">
             {/* LOGO COMO BOTÓN */}
@@ -147,10 +159,12 @@ export default function MainLayout() {
             {/* Icono notificaciones (link a /notifications) */}
             <Link
               to="/notifications"
-              className="relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 transition-colors"
+              className={`relative inline-flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+                isLight ? "hover:bg-slate-100" : "hover:bg-white/10"
+              }`}
               title="Notificaciones"
             >
-              <Bell size={18} className="text-white" />
+              <Bell size={18} className={isLight ? "text-slate-700" : "text-white"} />
               {unread > 0 && (
                 <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-semibold text-white bg-red-600 rounded-full">
                   {unread}
@@ -162,19 +176,29 @@ export default function MainLayout() {
             <div className="relative z-[9999]">
               <div
                 onClick={() => setOpenMenu(!openMenu)}
-                className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center cursor-pointer hover:bg-white/20 transition-all duration-200"
+                className={`w-10 h-10 rounded-full backdrop-blur-md border flex items-center justify-center cursor-pointer transition-all duration-200 ${
+                  isLight
+                    ? "bg-slate-100 border-slate-200 hover:bg-slate-200"
+                    : "bg-white/10 border-white/20 hover:bg-white/20"
+                }`}
               >
-                <User size={18} className="text-white" />
+                <User size={18} className={isLight ? "text-slate-700" : "text-white"} />
               </div>
 
               {openMenu && (
-                <div className="absolute right-0 mt-2 w-60 bg-black/70 backdrop-blur-xl border border-white/20 rounded-xl shadow-xl p-4 text-sm text-white animate-fadeIn">
+                <div
+                  className={`absolute right-0 mt-2 w-64 backdrop-blur-xl border rounded-xl shadow-xl p-4 text-sm animate-fadeIn ${
+                    isLight
+                      ? "bg-white/95 border-slate-200 text-slate-900"
+                      : "bg-black/70 border-white/20 text-white"
+                  }`}
+                >
                   {/* INFO USUARIO */}
-                  <div className="mb-3 border-b border-white/20 pb-2">
+                  <div className={`mb-3 border-b pb-2 ${isLight ? "border-slate-200" : "border-white/20"}`}>
                     <div className="font-semibold">
                       {user?.email || "Usuario"}
                     </div>
-                    <div className="text-xs text-gray-300">
+                    <div className={`text-xs ${isLight ? "text-slate-500" : "text-gray-300"}`}>
                       Rol: {roleLabel || role || "-"}
                     </div>
                   </div>
@@ -186,7 +210,7 @@ export default function MainLayout() {
                         navigate("/perfil");
                         setOpenMenu(false);
                       }}
-                      className="text-left hover:bg-white/10 px-2 py-1 rounded"
+                      className={`text-left px-2 py-1 rounded ${isLight ? "hover:bg-slate-100" : "hover:bg-white/10"}`}
                     >
                       👤 Mi perfil
                     </button>
@@ -195,13 +219,22 @@ export default function MainLayout() {
                         navigate("/notifications");
                         setOpenMenu(false);
                       }}
-                      className="text-left hover:bg-white/10 px-2 py-1 rounded"
+                      className={`text-left px-2 py-1 rounded ${isLight ? "hover:bg-slate-100" : "hover:bg-white/10"}`}
                     >
                       🔔 Ver notificaciones
                     </button>
+                    <button
+                      onClick={toggleTheme}
+                      className={`text-left px-2 py-1 rounded flex items-center gap-2 ${
+                        isLight ? "hover:bg-slate-100" : "hover:bg-white/10"
+                      }`}
+                    >
+                      {isLight ? <Moon size={15} /> : <Sun size={15} />}
+                      {isLight ? "Usar modo oscuro" : "Usar modo claro"}
+                    </button>
                   </div>
 
-                  <div className="border-t border-white/20 my-3" />
+                  <div className={`border-t my-3 ${isLight ? "border-slate-200" : "border-white/20"}`} />
 
                   {/* LOGOUT */}
                   <button
@@ -221,7 +254,13 @@ export default function MainLayout() {
 
         {/* ================= MAIN ================= */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6">
-          <div className="max-w-7xl mx-auto rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-4 md:p-6 shadow-xl min-h-full">
+          <div
+            className={`max-w-7xl mx-auto rounded-2xl backdrop-blur-xl border p-4 md:p-6 shadow-xl min-h-full transition-colors ${
+              isLight
+                ? "bg-white/80 border-slate-200"
+                : "bg-white/5 border-white/10"
+            }`}
+          >
             <Outlet />
           </div>
         </main>
