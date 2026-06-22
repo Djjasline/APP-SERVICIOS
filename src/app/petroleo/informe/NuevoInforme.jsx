@@ -526,6 +526,12 @@ const save = async () => {
 
   const uploading = uploadingCount > 0;
   const isBomba   = data.tipoInforme === "bomba";
+  const informeTitulo = isBomba
+    ? "INFORME GENERAL DE BOMBAS"
+    : "INFORME GENERAL DE VÁLVULAS";
+  const informeDescripcion = isBomba
+    ? "(informe general para levantamiento o inspección de bombas)"
+    : "(informe general para levantamiento o inspección de válvulas)";
 
   /* ─── RENDER ─── */
   return (
@@ -586,7 +592,10 @@ const save = async () => {
           colSpan={3}
           className="border-r text-center font-bold py-3 text-base"
         >
-          INFORME GENERAL DE CAMPO
+          <div>{informeTitulo}</div>
+          <div className="mt-1 text-xs font-normal text-gray-600">
+            {informeDescripcion}
+          </div>
         </td>
 
         <td className="p-2 text-xs w-40">
