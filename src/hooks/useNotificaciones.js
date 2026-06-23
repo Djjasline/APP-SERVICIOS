@@ -15,8 +15,7 @@ import { useAuth } from "@/context/AuthContext";   // ajusta la ruta si es difer
 //   npx web-push generate-vapid-keys
 // Guarda la PRIVADA en Supabase Edge Function secrets (VAPID_PRIVATE_KEY)
 // y la PÚBLICA aquí y en sw.js (__VAPID_PUBLIC_KEY__)
-const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || "";
-
+const VAPID_PUBLIC_KEY = (import.meta.env.VITE_VAPID_PUBLIC_KEY || "").trim();
 // ─── Utilidad: convertir clave VAPID a Uint8Array ───────────────────────────
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -108,17 +107,22 @@ export function useNotificaciones() {
         return false;
       }
 
-      // 2. Obtener el Service Worker registrado
-      const registro = await navigator.serviceWorker.ready;
+   // 2. Obtener el Service Worker registrado
+const registro = await navigator.serviceWorker.ready;
 
-      // 3. Suscribirse al push manager
-      const suscripcion = await registro.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-      });
+// 3. Suscribirse al push manager
+const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
 
-      // 4. Guardar en Supabase
-      await guardarSuscripcionEnSupabase(suscripcion.toJSON());
+console.log("[Push] VAPID length:", VAPID_PUBLIC_KEY.length);
+console.log("[Push] applicationServerKey length:", applicationServerKey.length);
+
+const suscripcion = await registro.pushManager.subscribe({
+  userVisibleOnly: true,
+  applicationServerKey,
+});
+
+// 4. Guardar en Supabase
+await guardarSuscripcionEnSupabase(suscripcion.toJSON());
 
       setSuscrito(true);
       setCargando(false);
