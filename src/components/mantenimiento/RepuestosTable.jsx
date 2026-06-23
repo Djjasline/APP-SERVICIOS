@@ -50,6 +50,7 @@ export default function RepuestosTable({ data, onChange }) {
                     {...textProps}
                     className="input"
                     value={row.descripcion}
+                    placeholder="Ej: Filtro, empaque, aceite"
                     onChange={(e) =>
                       updateRow(i, "descripcion", e.target.value)
                     }
@@ -61,6 +62,7 @@ export default function RepuestosTable({ data, onChange }) {
                     type="number"
                     className="input text-center"
                     value={row.cantidad}
+                    placeholder="Cant."
                     onChange={(e) =>
                       updateRow(i, "cantidad", e.target.value)
                     }
@@ -72,6 +74,7 @@ export default function RepuestosTable({ data, onChange }) {
                     {...textProps}
                     className="input"
                     value={row.observacion}
+                    placeholder="Detalle adicional"
                     onChange={(e) =>
                       updateRow(i, "observacion", e.target.value)
                     }

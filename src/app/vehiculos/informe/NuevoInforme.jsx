@@ -12,6 +12,25 @@ import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
 
+const fieldPlaceholders = {
+  cliente: "Nombre del cliente",
+  direccion: "Dirección del servicio",
+  contacto: "Nombre del contacto",
+  telefono: "Ej: 0991234567",
+  correo: "correo@empresa.com",
+  nota: "Ej: Unidad operativa / referencia interna",
+  marca: "Ej: Vactor / Elgin / IBAK",
+  modelo: "Modelo del equipo",
+  serie: "Serie indicada en placa",
+  anio: "Ej: 2021",
+  vin: "Código VIN / chasis",
+  placa: "Ej: ABC-1234",
+  horasModulo: "Ej: 1250 h",
+  horasChasis: "Ej: 3200 h",
+  kilometraje: "Ej: 45000 km",
+  horometro: "Ej: 1800 h",
+};
+
 export default function NuevoInforme() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -610,6 +629,7 @@ const estadoFinal =
                 <input
                   className="pdf-input w-full"
                   value={data.cliente}
+                  placeholder={fieldPlaceholders.cliente}
                   onChange={(e) => update(["cliente"], e.target.value)}
                 />
               </td>
@@ -618,6 +638,7 @@ const estadoFinal =
                 <input
                   className="pdf-input w-full"
                   value={data.direccion}
+                  placeholder={fieldPlaceholders.direccion}
                   onChange={(e) => update(["direccion"], e.target.value)}
                 />
               </td>
@@ -629,6 +650,7 @@ const estadoFinal =
                 <input
                   className="pdf-input w-full"
                   value={data.contacto}
+                  placeholder={fieldPlaceholders.contacto}
                   onChange={(e) => update(["contacto"], e.target.value)}
                 />
               </td>
@@ -637,6 +659,7 @@ const estadoFinal =
                 <input
                   className="pdf-input w-full"
                   value={data.telefono}
+                  placeholder={fieldPlaceholders.telefono}
                   onChange={(e) => update(["telefono"], e.target.value)}
                 />
               </td>
@@ -648,6 +671,7 @@ const estadoFinal =
                 <input
                   className="pdf-input w-full"
                   value={data.correo}
+                  placeholder={fieldPlaceholders.correo}
                   onChange={(e) => update(["correo"], e.target.value)}
                 />
               </td>
@@ -750,6 +774,7 @@ const estadoFinal =
                       <input
                         className="pdf-input w-full"
                         value={data.equipo[field[1]]}
+                        placeholder={fieldPlaceholders[field[1]] || ""}
                         onChange={(e) =>
                           update(["equipo", field[1]], e.target.value)
                         }
@@ -762,6 +787,7 @@ const estadoFinal =
                           <input
                             className="pdf-input w-full"
                             value={data.equipo[next[1]]}
+                            placeholder={fieldPlaceholders[next[1]] || ""}
                             onChange={(e) =>
                               update(["equipo", next[1]], e.target.value)
                             }

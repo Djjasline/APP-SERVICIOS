@@ -107,6 +107,7 @@ export default function ReportHeader({ data, onChange }) {
               onChange={(e) =>
                 onChange(["descripcion"], e.target.value)
               }
+              placeholder="Ej: Servicio técnico / inspección / mantenimiento"
             />
           </td>
         </tr>

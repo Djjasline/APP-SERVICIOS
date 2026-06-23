@@ -53,7 +53,7 @@ export default function ClientDataSection({ data, onChange }) {
           name="telefono"
           value={data.telefono || ""}
           onChange={onChange}
-          placeholder="Teléfono"
+          placeholder="Ej: 0991234567"
           className="input"
         />
 
@@ -63,7 +63,7 @@ export default function ClientDataSection({ data, onChange }) {
           name="correo"
           value={data.correo || ""}
           onChange={onChange}
-          placeholder="Correo electrónico"
+          placeholder="correo@empresa.com"
           className="input"
         />
 
@@ -81,7 +81,7 @@ export default function ClientDataSection({ data, onChange }) {
           name="direccion"
           value={data.direccion || ""}
           onChange={onChange}
-          placeholder="Dirección"
+          placeholder="Dirección completa del servicio"
           className="input md:col-span-2"
         />
       </div>

@@ -14,12 +14,57 @@ import SignatureCanvas from "react-signature-canvas";
    HELPERS
 ───────────────────────────────────────── */
   
-const Input = ({ value, onChange, placeholder = "", readOnly = false, className = "" }) => (
+const fieldPlaceholders = {
+  referenciaContrato: "Ej: Contrato marco / cliente",
+  pedidoDemanda: "Ej: P-23-046 o D-45821",
+  descripcion: "Ej: Levantamiento técnico de bomba",
+  codInf: "Ej: P-23-046-001 o D-45821-001",
+  cliente: "Nombre del cliente",
+  direccion: "Dirección del servicio",
+  contacto: "Nombre del contacto",
+  telefono: "Ej: 0991234567",
+  correo: "correo@empresa.com",
+  fluido: "Ej: Agua cruda / potable",
+  marca: "Marca del equipo",
+  modeloTipo: "Modelo o tipo",
+  serie: "Número de serie",
+  lugarProcedencia: "Lugar de procedencia",
+  caudal: "Ej: 120 GPM",
+  tdh: "Ej: 45 mca",
+  velocidadGiro: "Ej: 1750 RPM",
+  orientacion: "Vertical / Horizontal",
+  marcaMotor: "Marca del motor",
+  modeloTipoMotor: "Modelo o tipo del motor",
+  voltajeFaseFrecuencia: "Ej: 220V / 3F / 60Hz",
+  factorServicio: "Ej: 1.15",
+  gradoProteccion: "Ej: IP55",
+  tipoConstruccionMotor: "Ej: TEFC / abierto",
+  accesorio: "Ej: Base, acople, tablero",
+  dimensionesAccesorio: "Ej: L x A x H en mm",
+  obraCivil: "Ej: Base de concreto",
+  dimensionesObraCivil: "Ej: L x A x H en mm",
+  diametro: "Ej: 4 pulg",
+  presion: "Ej: 150 PSI",
+  conexion: "Ej: Bridada / roscada",
+  normaBridado: "Ej: ANSI 150",
+  operacion: "Manual / automática",
+  operacionActuador: "Ej: On-Off / modulante",
+  tipoActuador: "Eléctrico / neumático",
+  protocoloComunicacion: "Ej: Modbus / 4-20 mA",
+  distanciaEntreCaras: "Ej: 250 mm",
+  longitudCuerpo: "Ej: 300 mm",
+  espesorContraBridas: "Ej: 18 mm",
+  numPerforaciones: "Ej: 8",
+  diametroAgujero: "Ej: 18 mm",
+  materialTornilleria: "Ej: Acero inoxidable",
+};
+
+const Input = ({ value, onChange, field = "", placeholder, readOnly = false, className = "" }) => (
   <input
     value={value || ""}
     onChange={onChange}
     readOnly={readOnly}
-    placeholder={placeholder}
+    placeholder={placeholder ?? fieldPlaceholders[field] ?? ""}
     className={`w-full border-0 outline-none p-1 text-sm ${readOnly ? "bg-gray-100" : ""} ${className}`}
   />
 );
@@ -655,6 +700,7 @@ const save = async () => {
             onChange={(e) =>
               set("descripcion", e.target.value)
             }
+            field="descripcion"
           />
         </td>
       </tr>
@@ -695,6 +741,7 @@ const save = async () => {
           <Input
             value={data.cliente}
             onChange={(e) => set("cliente", e.target.value)}
+            field="cliente"
           />
         </td>
 
@@ -705,6 +752,7 @@ const save = async () => {
           <Input
             value={data.direccion}
             onChange={(e) => set("direccion", e.target.value)}
+            field="direccion"
           />
         </td>
       </tr>
@@ -717,6 +765,7 @@ const save = async () => {
           <Input
             value={data.contacto}
             onChange={(e) => set("contacto", e.target.value)}
+            field="contacto"
           />
         </td>
 
@@ -727,6 +776,7 @@ const save = async () => {
           <Input
             value={data.telefono}
             onChange={(e) => set("telefono", e.target.value)}
+            field="telefono"
           />
         </td>
       </tr>
@@ -739,6 +789,7 @@ const save = async () => {
           <Input
             value={data.correo}
             onChange={(e) => set("correo", e.target.value)}
+            field="correo"
           />
         </td>
       </tr>
@@ -855,11 +906,7 @@ const save = async () => {
                 onChange={(e) =>
                   setBomba(f1, e.target.value)
                 }
-                placeholder={
-                  f1 === "orientacion"
-                    ? "Vertical / Horizontal"
-                    : ""
-                }
+                field={f1}
               />
             </td>
 
@@ -876,6 +923,7 @@ const save = async () => {
                     onChange={(e) =>
                       setBomba(f2, e.target.value)
                     }
+                    field={f2}
                   />
                 </td>
               </>
@@ -952,6 +1000,7 @@ const save = async () => {
                 onChange={(e) =>
                   setBomba(f1, e.target.value)
                 }
+                field={f1}
               />
             </td>
 
@@ -965,6 +1014,7 @@ const save = async () => {
                 onChange={(e) =>
                   setBomba(f2, e.target.value)
                 }
+                field={f2}
               />
             </td>
 
@@ -1030,6 +1080,7 @@ const save = async () => {
                 onChange={(e) =>
                   setBomba(f1, e.target.value)
                 }
+                field={f1}
               />
             </td>
 
@@ -1043,6 +1094,7 @@ const save = async () => {
                 onChange={(e) =>
                   setBomba(f2, e.target.value)
                 }
+                field={f2}
               />
             </td>
 
@@ -1136,9 +1188,9 @@ const save = async () => {
                   ].map(([l1, f1, l2, f2], i) => (
                     <tr key={i} className="border-b">
                       <td className="border p-2 font-semibold bg-gray-50 w-44">{l1}</td>
-                      <td className="border p-1"><Input value={data.valvula[f1]} onChange={(e) => setValvula(f1, e.target.value)} /></td>
+                      <td className="border p-1"><Input value={data.valvula[f1]} onChange={(e) => setValvula(f1, e.target.value)} field={f1} /></td>
                       <td className="border p-2 font-semibold bg-gray-50 w-44">{l2}</td>
-                      <td className="border p-1"><Input value={data.valvula[f2]} onChange={(e) => setValvula(f2, e.target.value)} /></td>
+                      <td className="border p-1"><Input value={data.valvula[f2]} onChange={(e) => setValvula(f2, e.target.value)} field={f2} /></td>
                     </tr>
                   ))}
 
@@ -1188,9 +1240,9 @@ const save = async () => {
                   ].map(([l1, f1, l2, f2], i) => (
                     <tr key={i} className="border-b">
                       <td className="border p-2 font-semibold bg-gray-50">{l1}</td>
-                      <td className="border p-1"><Input value={data.valvula[f1]} onChange={(e) => setValvula(f1, e.target.value)} /></td>
+                      <td className="border p-1"><Input value={data.valvula[f1]} onChange={(e) => setValvula(f1, e.target.value)} field={f1} /></td>
                       <td className="border p-2 font-semibold bg-gray-50">{l2}</td>
-                      <td className="border p-1"><Input value={data.valvula[f2]} onChange={(e) => setValvula(f2, e.target.value)} /></td>
+                      <td className="border p-1"><Input value={data.valvula[f2]} onChange={(e) => setValvula(f2, e.target.value)} field={f2} /></td>
                     </tr>
                   ))}
 
@@ -1456,6 +1508,7 @@ const save = async () => {
                   <td className="border p-1">
                     <textarea className="w-full border-0 outline-none text-xs p-1 resize-none" rows={3}
                       value={data.conclusiones[i]}
+                      placeholder="Conclusión del servicio"
                       onChange={(e) => {
                         const c = [...data.conclusiones]; c[i] = e.target.value; set("conclusiones", c);
                       }}
@@ -1465,6 +1518,7 @@ const save = async () => {
                   <td className="border p-1">
                     <textarea className="w-full border-0 outline-none text-xs p-1 resize-none" rows={3}
                       value={data.recomendaciones[i]}
+                      placeholder="Recomendación para el cliente"
                       onChange={(e) => {
                         const r = [...data.recomendaciones]; r[i] = e.target.value; set("recomendaciones", r);
                       }}

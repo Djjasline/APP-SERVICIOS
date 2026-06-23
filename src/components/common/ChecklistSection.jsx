@@ -93,6 +93,7 @@ export default function ChecklistSection({
                   <input
                     className="w-full border px-1"
                     value={row.observacion || ""}
+                    placeholder="Observación o novedad detectada"
                     onChange={(e) =>
                       handleChange(
                         item.codigo,

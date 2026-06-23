@@ -957,6 +957,7 @@ navigate("/agua/recorrido/informe");
                 <Input
                   value={data.contrato}
                   onChange={(v) => setField("contrato", v)}
+                  placeholder="Ej: Contrato EPMAPS / ASTAP"
                   readOnly={isLocked}
                 />
               </Field>
@@ -966,6 +967,7 @@ navigate("/agua/recorrido/informe");
                 <Input
                   value={data.pedido}
                   onChange={(v) => setField("pedido", v)}
+                  placeholder="Ej: P-23-046"
                   readOnly={isLocked}
                 />
               </Field>
@@ -973,6 +975,7 @@ navigate("/agua/recorrido/informe");
                 <Input
                   value={data.supervisor}
                   onChange={(v) => setField("supervisor", v)}
+                  placeholder="Nombre del supervisor"
                   readOnly={isLocked}
                 />
               </Field>
@@ -980,6 +983,7 @@ navigate("/agua/recorrido/informe");
                 <Input
                   value={data.administrador}
                   onChange={(v) => setField("administrador", v)}
+                  placeholder="Nombre del administrador"
                   readOnly={isLocked}
                 />
               </Field>

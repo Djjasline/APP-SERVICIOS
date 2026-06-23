@@ -37,7 +37,7 @@ export default function EquipmentDataSection({ data, onChange }) {
           name="marca"
           value={data.marca || ""}
           onChange={onChange}
-          placeholder="Marca"
+          placeholder="Ej: Vactor / Elgin / IBAK"
           className="input"
         />
 
@@ -47,7 +47,7 @@ export default function EquipmentDataSection({ data, onChange }) {
           name="modelo"
           value={data.modelo || ""}
           onChange={onChange}
-          placeholder="Modelo"
+          placeholder="Modelo del equipo"
           className="input"
         />
 
@@ -57,7 +57,7 @@ export default function EquipmentDataSection({ data, onChange }) {
           name="numeroSerie"
           value={data.numeroSerie || ""}
           onChange={onChange}
-          placeholder="Número de serie"
+          placeholder="Serie indicada en placa"
           className="input"
         />
 
@@ -77,7 +77,7 @@ export default function EquipmentDataSection({ data, onChange }) {
           name="placa"
           value={data.placa || ""}
           onChange={onChange}
-          placeholder="Placa"
+          placeholder="Ej: ABC-1234"
           className="input"
         />
 
@@ -87,7 +87,7 @@ export default function EquipmentDataSection({ data, onChange }) {
           name="vin"
           value={data.vin || ""}
           onChange={onChange}
-          placeholder="VIN / Chasis"
+          placeholder="Código VIN / chasis"
           className="input"
         />
 
