@@ -14,6 +14,7 @@ import {
   ChevronRight,
   BookOpen,
   Database,
+  MessageCircle,
 } from "lucide-react";
 
 export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
@@ -186,6 +187,22 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             <LayoutDashboard size={20} className={iconClass} />
             {openSidebar && "Panel de servicios ASTAP"}
             {tooltip("Panel de servicios ASTAP")}
+          </button>
+        )}
+
+
+
+        {/* CHAT INTERNO */}
+        {puedeVerTodo && (
+          <button
+            type="button"
+            onClick={() => go("/chat")}
+            className={itemClass(isActive("/chat"))}
+            aria-current={isActive("/chat") ? "page" : undefined}
+          >
+            <MessageCircle size={20} className={iconClass} />
+            {openSidebar && "Chat interno"}
+            {tooltip("Chat interno")}
           </button>
         )}
 
