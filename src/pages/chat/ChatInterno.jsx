@@ -211,13 +211,35 @@ export default function ChatInterno() {
                         : "hover:bg-white/10"
                     }`}
                   >
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${active ? "bg-white/20" : "bg-blue-600/15 text-blue-600"}`}>
-                      {initials(u)}
-                    </div>
+                   <div
+  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+    active
+      ? "bg-green-500 text-white"
+      : "bg-blue-600/15 text-blue-600"
+  }`}
+>
+  {initials(u)}
+</div>
                     <div className="min-w-0 flex-1">
                       <div className="font-semibold truncate">{displayName(u)}</div>
                       <div className={`text-xs truncate ${active ? "text-blue-100" : "opacity-70"}`}>{u.email}</div>
-                      {u.role && <div className={`text-[11px] mt-1 truncate ${active ? "text-blue-100" : "opacity-60"}`}>{u.role}</div>}
+                      <>
+  {u.role && (
+    <div
+      className={`text-[11px] mt-1 truncate ${
+        active ? "text-green-100" : "opacity-60"
+      }`}
+    >
+      {u.role}
+    </div>
+  )}
+
+  {active && (
+    <div className="text-[11px] font-semibold text-green-200">
+      ● En línea
+    </div>
+  )}
+</>
                     </div>
                   </button>
                 );
@@ -230,13 +252,23 @@ export default function ChatInterno() {
           {usuarioActivo ? (
             <>
               <div className={`p-4 border-b ${isLight ? "border-slate-200 bg-slate-50" : "border-white/10 bg-white/5"} flex items-center gap-3`}>
-                <div className="w-11 h-11 rounded-full bg-blue-600/15 text-blue-600 flex items-center justify-center font-bold">
-                  {initials(usuarioActivo)}
-                </div>
-                <div className="min-w-0">
-                  <div className="font-bold truncate">{displayName(usuarioActivo)}</div>
-                  <div className="text-xs opacity-70 truncate">{usuarioActivo.email}</div>
-                </div>
+                <div className="w-11 h-11 rounded-full bg-green-500 text-white flex items-center justify-center font-bold">
+  {initials(usuarioActivo)}
+</div>
+
+<div className="min-w-0">
+  <div className="font-bold truncate">
+    {displayName(usuarioActivo)}
+  </div>
+
+  <div className="text-xs opacity-70 truncate">
+    {usuarioActivo.email}
+  </div>
+
+  <div className="text-xs font-semibold text-green-600">
+    ● En línea
+  </div>
+</div>
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
