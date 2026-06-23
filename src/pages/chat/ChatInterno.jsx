@@ -84,7 +84,7 @@ export default function ChatInterno() {
   useEffect(() => {
   if (!user?.id) return;
 
-  const channel = supabase.channel("chat-presence", {
+  const channel = supabase.channel("online-users", {
     config: {
       presence: {
         key: user.id,
@@ -106,9 +106,10 @@ export default function ChatInterno() {
     .subscribe(async (status) => {
       if (status === "SUBSCRIBED") {
         await channel.track({
-          user_id: user.id,
-          online_at: new Date().toISOString(),
-        });
+  user_id: user.id,
+  email: user.email,
+  online_at: new Date().toISOString(),
+});
       }
     });
 
@@ -143,8 +144,30 @@ export default function ChatInterno() {
   useEffect(() => {
     if (!conversationId) return;
 
-    const channel = supabase
-      .channel(`chat:${conversationId}`)
+   const channel = supabase
+  .channel(`chat-messages-${conversationId}`)
+  .on(
+    "postgres_changes",
+    {
+      event: "INSERT",
+      schema: "public",
+      table: "chat_messages",
+      filter: `conversation_id=eq.${conversationId}`,
+    },
+    (payload) => {
+      console.log("[Chat] Nuevo mensaje realtime:", payload.new);
+
+      setMensajes((prev) => {
+        if (prev.some((m) => m.id === payload.new.id)) return prev;
+        return [...prev, payload.new];
+      });
+
+      markConversationRead(conversationId, user?.id);
+    }
+  )
+  .subscribe((status) => {
+    console.log("[Chat] Realtime status:", status);
+  });
       .on(
         "postgres_changes",
         {
