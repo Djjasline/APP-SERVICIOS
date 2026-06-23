@@ -48,6 +48,7 @@ export default function ChatInterno() {
   const [cargandoMensajes, setCargandoMensajes] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
+  const [usuariosOnline, setUsuariosOnline] = useState({});
 
   const usuariosFiltrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
@@ -79,6 +80,42 @@ export default function ChatInterno() {
   useEffect(() => {
     cargarUsuarios();
   }, [cargarUsuarios]);
+
+  useEffect(() => {
+  if (!user?.id) return;
+
+  const channel = supabase.channel("chat-presence", {
+    config: {
+      presence: {
+        key: user.id,
+      },
+    },
+  });
+
+  channel
+    .on("presence", { event: "sync" }, () => {
+      const state = channel.presenceState();
+      const online = {};
+
+      Object.keys(state).forEach((userId) => {
+        online[userId] = true;
+      });
+
+      setUsuariosOnline(online);
+    })
+    .subscribe(async (status) => {
+      if (status === "SUBSCRIBED") {
+        await channel.track({
+          user_id: user.id,
+          online_at: new Date().toISOString(),
+        });
+      }
+    });
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [user?.id]);
 
   const abrirChat = useCallback(
     async (otroUsuario) => {
@@ -198,6 +235,9 @@ export default function ChatInterno() {
             ) : (
               usuariosFiltrados.map((u) => {
                 const active = usuarioActivo?.id === u.id;
+
+                const online = !!usuariosOnline[u.id];
+                
                 return (
                   <button
                     key={u.id}
@@ -212,9 +252,12 @@ export default function ChatInterno() {
                     }`}
                   >
                    <div
+  <div
   className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-    active
+    online
       ? "bg-green-500 text-white"
+      : active
+      ? "bg-white/20"
       : "bg-blue-600/15 text-blue-600"
   }`}
 >
@@ -234,7 +277,7 @@ export default function ChatInterno() {
     </div>
   )}
 
-  {active && (
+  {online && (
     <div className="text-[11px] font-semibold text-green-200">
       ● En línea
     </div>
