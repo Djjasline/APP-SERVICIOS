@@ -73,6 +73,25 @@ const todosLosItems = [
 /* ── IMAGEN BASE CÁMARA ── */
 const EQUIPO_IMG_PATH = "/estado-equipo-camara.png";
 
+const fieldPlaceholders = {
+  referenciaContrato: "Ej: Contrato marco / cliente",
+  pedidoDemanda: "Ej: P-23-046 o D-45821",
+  descripcion: "Ej: Inspección técnica cámara V-CAM6",
+  codInf: "Ej: P-23-046-001 o D-45821-001",
+  cliente: "Nombre del cliente",
+  direccion: "Dirección del servicio",
+  contacto: "Nombre del contacto",
+  telefono: "Ej: 0991234567",
+  correo: "correo@empresa.com",
+  nota: "Ej: Unidad operativa / referencia interna",
+  marca: "Marca del equipo",
+  modelo: "Modelo del equipo",
+  anio: "Ej: 2021",
+  serieModulo: "Serie del módulo",
+  serieCarrete: "Serie del carrete",
+  serieCabezal: "Serie del cabezal",
+};
+
 /* ══════════════════════════════
    ESTADO INICIAL
 ══════════════════════════════ */
@@ -606,6 +625,7 @@ const result = await saveOrUpdateReport({
                     <input
                       className="pdf-input w-full"
                       value={data[key]}
+                      placeholder={fieldPlaceholders[key] || ""}
                       onChange={(e) => update([key], e.target.value)}
                     />
                   </td>
@@ -632,6 +652,7 @@ const result = await saveOrUpdateReport({
                   <input
                     className="pdf-input w-full"
                     value={data.cliente}
+                    placeholder={fieldPlaceholders.cliente}
                     onChange={(e) => update(["cliente"], e.target.value)}
                   />
                 </td>
@@ -640,6 +661,7 @@ const result = await saveOrUpdateReport({
                   <input
                     className="pdf-input w-full"
                     value={data.direccion}
+                    placeholder={fieldPlaceholders.direccion}
                     onChange={(e) => update(["direccion"], e.target.value)}
                   />
                 </td>
@@ -650,6 +672,7 @@ const result = await saveOrUpdateReport({
                   <input
                     className="pdf-input w-full"
                     value={data.contacto}
+                    placeholder={fieldPlaceholders.contacto}
                     onChange={(e) => update(["contacto"], e.target.value)}
                   />
                 </td>
@@ -658,6 +681,7 @@ const result = await saveOrUpdateReport({
                   <input
                     className="pdf-input w-full"
                     value={data.telefono}
+                    placeholder={fieldPlaceholders.telefono}
                     onChange={(e) => update(["telefono"], e.target.value)}
                   />
                 </td>
@@ -668,6 +692,7 @@ const result = await saveOrUpdateReport({
                   <input
                     className="pdf-input w-full"
                     value={data.correo}
+                    placeholder={fieldPlaceholders.correo}
                     onChange={(e) => update(["correo"], e.target.value)}
                   />
                 </td>
@@ -757,6 +782,7 @@ const result = await saveOrUpdateReport({
                     <input
                       className="pdf-input w-full"
                       value={data.equipo[f1] || ""}
+                      placeholder={fieldPlaceholders[f1] || ""}
                       onChange={(e) => update(["equipo", f1], e.target.value)}
                     />
                   </td>
@@ -767,6 +793,7 @@ const result = await saveOrUpdateReport({
                         <input
                           className="pdf-input w-full"
                           value={data.equipo[f2] || ""}
+                          placeholder={fieldPlaceholders[f2] || ""}
                           onChange={(e) => update(["equipo", f2], e.target.value)}
                         />
                       </td>
@@ -1001,6 +1028,7 @@ const result = await saveOrUpdateReport({
                       rows={3}
                       style={{ minHeight: 70 }}
                       value={data.conclusiones[i]}
+                      placeholder="Conclusión de la inspección"
                       onChange={(e) => update(["conclusiones", i], e.target.value)}
                     />
                   </td>
@@ -1011,6 +1039,7 @@ const result = await saveOrUpdateReport({
                       rows={3}
                       style={{ minHeight: 70 }}
                       value={data.recomendaciones[i] || ""}
+                      placeholder="Recomendación para el cliente"
                       onChange={(e) => update(["recomendaciones", i], e.target.value)}
                     />
                   </td>

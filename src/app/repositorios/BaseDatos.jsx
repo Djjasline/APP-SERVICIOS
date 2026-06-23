@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { ExternalLink, ArrowLeft, Database } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function BaseDatos() {
   const navigate = useNavigate();
+  const { isLight } = useTheme();
 
   const TEAMDESK_URL =
     "https://www.teamdesk.net/secure/db/53431/overview.aspx?t=381285";
@@ -16,12 +18,12 @@ export default function BaseDatos() {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+          <h2 className={`text-xl font-semibold flex items-center gap-2 ${isLight ? "text-slate-900" : "text-white"}`}>
             <Database size={22} />
             Base de datos
           </h2>
 
-          <p className="text-sm text-gray-300 mt-1">
+          <p className={`text-sm mt-1 ${isLight ? "text-slate-600" : "text-gray-300"}`}>
             Acceso a la base de datos empresarial ASTAP en TeamDesk.
           </p>
         </div>

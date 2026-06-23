@@ -138,6 +138,66 @@
 }
 
 /* =============================
+   FORMULARIOS Y MODO OSCURO
+============================= */
+.bg-white,
+.bg-white\/90,
+.bg-white\/80 {
+  color: #111827;
+}
+
+.pdf-container,
+.print-area,
+.pdf-table {
+  color: #111827;
+}
+
+.pdf-table th,
+.pdf-table td,
+.pdf-label,
+.pdf-title,
+.pdf-container h1,
+.pdf-container h2,
+.pdf-container h3,
+.pdf-container h4,
+.pdf-container h5,
+.pdf-container h6,
+.print-area h1,
+.print-area h2,
+.print-area h3,
+.print-area h4,
+.print-area h5,
+.print-area h6 {
+  color: #111827;
+}
+
+input,
+textarea,
+select,
+.pdf-input,
+.pdf-textarea {
+  color: #111827;
+  background-color: #ffffff;
+}
+
+input::placeholder,
+textarea::placeholder,
+.pdf-input::placeholder,
+.pdf-textarea::placeholder {
+  color: #6b7280;
+  opacity: 1;
+}
+
+input[readonly],
+textarea[readonly],
+input:disabled,
+textarea:disabled,
+select:disabled {
+  color: #374151;
+  -webkit-text-fill-color: #374151;
+}
+
+/* =============================
    UTILITIES (ASTAP)
 ============================= */
 @layer utilities {
@@ -160,4 +220,43 @@
   .border-default {
     border-color: var(--color-border);
   }
+}
+
+/* =============================
+   CONTRASTE FINAL EN SUPERFICIES CLARAS
+============================= */
+.bg-white,
+.bg-gray-50,
+.bg-gray-100,
+.pdf-container,
+.print-area,
+.pdf-table {
+  color: #111827 !important;
+}
+
+.bg-white :where(h1, h2, h3, h4, h5, h6, p, label, td, th, li, strong, small),
+.bg-gray-50 :where(h1, h2, h3, h4, h5, h6, p, label, td, th, li, strong, small),
+.bg-gray-100 :where(h1, h2, h3, h4, h5, h6, p, label, td, th, li, strong, small),
+.pdf-container :where(h1, h2, h3, h4, h5, h6, p, label, td, th, li, strong, small),
+.print-area :where(h1, h2, h3, h4, h5, h6, p, label, td, th, li, strong, small),
+.pdf-table :where(h1, h2, h3, h4, h5, h6, p, label, td, th, li, strong, small) {
+  color: inherit !important;
+}
+
+.bg-blue-600,
+.bg-blue-700,
+.bg-green-600,
+.bg-green-700,
+.bg-red-600,
+.bg-red-700,
+.bg-indigo-600,
+.bg-indigo-700,
+.bg-purple-600,
+.bg-purple-700,
+.bg-gray-600,
+.bg-gray-700,
+.bg-slate-900,
+.bg-slate-950,
+.bg-black {
+  color: #ffffff !important;
 }

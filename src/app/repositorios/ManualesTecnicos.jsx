@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Folder, X, ExternalLink, ArrowLeft } from "lucide-react";
 import { MANUALES_TECNICOS } from "@/data/manualesTecnicos";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function ManualesTecnicos() {
   const navigate = useNavigate();
+  const { isLight } = useTheme();
 
   const [selectedManual, setSelectedManual] = useState(null);
 
@@ -29,11 +31,11 @@ export default function ManualesTecnicos() {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-white">
+          <h2 className={`text-xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
             Manuales técnicos de vehículos especiales
           </h2>
 
-          <p className="text-sm text-gray-300 mt-1">
+          <p className={`text-sm mt-1 ${isLight ? "text-slate-600" : "text-gray-300"}`}>
             Explorador técnico de manuales, catálogos y documentación especializada.
           </p>
         </div>

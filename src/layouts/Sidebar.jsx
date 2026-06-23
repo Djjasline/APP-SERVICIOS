@@ -184,8 +184,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             aria-current={isActive("/") ? "page" : undefined}
           >
             <LayoutDashboard size={20} className={iconClass} />
-            {openSidebar && "Menú principal de Áreas"}
-            {tooltip("Menú principal de Áreas")}
+            {openSidebar && "Panel de servicios ASTAP"}
+            {tooltip("Panel de servicios ASTAP")}
           </button>
         )}
 
@@ -201,9 +201,9 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             aria-controls="panel-vehiculos"
           >
             <Truck size={20} className={iconClass} />
-            {openSidebar && "Vehículos"}
+            {openSidebar && "Vehículos Especiales"}
             {openSidebar && (openVehiculos ? <ChevronDown /> : <ChevronRight />)}
-            {tooltip("Vehículos")}
+            {tooltip("Vehículos Especiales")}
           </button>
 
           {openSidebar && openVehiculos && (
@@ -261,9 +261,9 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               aria-controls="panel-agua"
             >
               <Droplet size={20} className={iconClass} />
-              {openSidebar && "Agua"}
+              {openSidebar && "Agua y Saneamiento"}
               {openSidebar && (openAgua ? <ChevronDown /> : <ChevronRight />)}
-              {tooltip("Agua")}
+              {tooltip("Agua y Saneamiento")}
             </button>
 
             {openSidebar && openAgua && (
@@ -371,9 +371,9 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               aria-controls="panel-petroleo"
             >
               <Fuel size={20} className={iconClass} />
-              {openSidebar && "Petróleo"}
+              {openSidebar && "Petróleo y Energía"}
               {openSidebar && (openPetroleo ? <ChevronDown /> : <ChevronRight />)}
-              {tooltip("Petróleo")}
+              {tooltip("Petróleo y Energía")}
             </button>
 
             {openSidebar && openPetroleo && (

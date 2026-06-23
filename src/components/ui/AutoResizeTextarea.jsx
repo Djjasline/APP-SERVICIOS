@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 
-export default function AutoResizeTextarea({ value, onChange, className = "" }) {
+export default function AutoResizeTextarea({ value, onChange, className = "", placeholder = "Escriba la información" }) {
   const ref = useRef(null);
 
   const resize = () => {
@@ -19,6 +19,7 @@ export default function AutoResizeTextarea({ value, onChange, className = "" }) 
       ref={ref}
       value={value}
       onChange={onChange}
+      placeholder={placeholder}
       rows={1}
       className={`w-full resize-none overflow-hidden ${className}`}
       onInput={resize}

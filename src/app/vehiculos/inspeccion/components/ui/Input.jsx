@@ -1,6 +1,19 @@
 import React from "react";
 import { cn } from "../../utils/cn";
 
+const prettifyFieldName = (value = "") =>
+    value
+        .replace(/([a-z])([A-Z])/g, "$1 $2")
+        .replace(/[_-]+/g, " ")
+        .trim()
+        .toLowerCase();
+
+const getDefaultPlaceholder = ({ label, name, type }) => {
+    if (["date", "file", "checkbox", "radio", "password"].includes(type)) return undefined;
+    const text = label || prettifyFieldName(name);
+    return text ? `Ingrese ${String(text).toLowerCase()}` : undefined;
+};
+
 const Input = React.forwardRef(({
     className,
     type = "text",
@@ -9,6 +22,8 @@ const Input = React.forwardRef(({
     error,
     required = false,
     id,
+    name,
+    placeholder,
     ...props
 }, ref) => {
     // Generate unique ID if not provided
@@ -28,6 +43,7 @@ const Input = React.forwardRef(({
                 )}
                 ref={ref}
                 id={inputId}
+                name={name}
                 {...props}
             />
         );
@@ -44,6 +60,7 @@ const Input = React.forwardRef(({
                 )}
                 ref={ref}
                 id={inputId}
+                name={name}
                 {...props}
             />
         );
@@ -74,6 +91,8 @@ const Input = React.forwardRef(({
                 )}
                 ref={ref}
                 id={inputId}
+                name={name}
+                placeholder={placeholder ?? getDefaultPlaceholder({ label, name, type })}
                 {...props}
             />
 

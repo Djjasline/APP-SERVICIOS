@@ -49,11 +49,32 @@ const checklist = {
   ],
 };
 
+const fieldPlaceholders = {
+  fecha: "dd/mm/aaaa",
+  lugar: "Lugar de inspección",
+  cad: "dd/mm/aaaa",
+  conductor: "Nombre del conductor",
+  cad2: "dd/mm/aaaa",
+  cliente: "Empresa contratista",
+  placa: "Ej: ABC-1234",
+  marca: "Marca del vehículo",
+  gdp: "GDP / mantenimiento",
+  vehiculo: "Tipo de vehículo",
+  color: "Color",
+  curso: "Curso manejo defensivo",
+  anio: "Año del vehículo",
+  cad3: "dd/mm/aaaa",
+  matricula: "Número de matrícula",
+  anio2: "Año matrícula",
+  cad4: "dd/mm/aaaa",
+};
+
 // 🔥 COMPONENTE REUTILIZABLE
 const AutoTextarea = ({ name, onChange }) => (
   <textarea
     name={name}
     rows={1}
+    placeholder={fieldPlaceholders[name] || "Ingrese información"}
     onChange={onChange}
     className="w-full resize-none overflow-hidden outline-none px-1 bg-transparent"
     onInput={(e) => {

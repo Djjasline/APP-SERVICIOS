@@ -91,6 +91,28 @@ const todosLosItemsFijos = secciones.flatMap((s) => s.items.map(([c]) => c));
 
 const BASE_EQUIPO_IMG_PATH = "/barredora-base.png";
 
+const fieldPlaceholders = {
+  referenciaContrato: "Ej: Contrato marco / cliente",
+  pedidoDemanda: "Ej: P-23-046 o D-45821",
+  descripcion: "Ej: Mantenimiento preventivo barredora",
+  codInf: "Ej: P-23-046-001 o D-45821-001",
+  cliente: "Nombre del cliente",
+  direccion: "Dirección del servicio",
+  contacto: "Nombre del contacto",
+  telefono: "Ej: 0991234567",
+  correo: "correo@empresa.com",
+  nota: "Ej: Unidad operativa / referencia interna",
+  marca: "Marca del equipo",
+  modelo: "Modelo del equipo",
+  serie: "Número de serie",
+  anio: "Ej: 2021",
+  vin: "Código VIN / chasis",
+  placa: "Ej: ABC-1234",
+  horasModulo: "Ej: 1250 h",
+  horasChasis: "Ej: 3200 h",
+  kilometraje: "Ej: 45000 km",
+};
+
 /* ═══════════════════════════════════════
    ESTADO INICIAL
 ═══════════════════════════════════════ */
@@ -604,6 +626,7 @@ const result = await saveOrUpdateReport({
                     <input
                       className="pdf-input w-full"
                       value={data[key]}
+                      placeholder={fieldPlaceholders[key] || ""}
                       onChange={(e) => update([key], e.target.value)}
                     />
                   </td>
@@ -628,11 +651,13 @@ const result = await saveOrUpdateReport({
                 <td className="pdf-label">CLIENTE</td>
                 <td>
                   <input className="pdf-input w-full" value={data.cliente}
+                    placeholder={fieldPlaceholders.cliente}
                     onChange={(e) => update(["cliente"], e.target.value)} />
                 </td>
                 <td className="pdf-label">DIRECCIÓN</td>
                 <td>
                   <input className="pdf-input w-full" value={data.direccion}
+                    placeholder={fieldPlaceholders.direccion}
                     onChange={(e) => update(["direccion"], e.target.value)} />
                 </td>
               </tr>
@@ -640,11 +665,13 @@ const result = await saveOrUpdateReport({
                 <td className="pdf-label">CONTACTO</td>
                 <td>
                   <input className="pdf-input w-full" value={data.contacto}
+                    placeholder={fieldPlaceholders.contacto}
                     onChange={(e) => update(["contacto"], e.target.value)} />
                 </td>
                 <td className="pdf-label">TELÉFONO</td>
                 <td>
                   <input className="pdf-input w-full" value={data.telefono}
+                    placeholder={fieldPlaceholders.telefono}
                     onChange={(e) => update(["telefono"], e.target.value)} />
                 </td>
               </tr>
@@ -652,6 +679,7 @@ const result = await saveOrUpdateReport({
                 <td className="pdf-label">CORREO</td>
                 <td>
                   <input className="pdf-input w-full" value={data.correo}
+                    placeholder={fieldPlaceholders.correo}
                     onChange={(e) => update(["correo"], e.target.value)} />
                 </td>
                 <td className="pdf-label">TÉCNICO RESPONSABLE</td>
@@ -727,6 +755,7 @@ const result = await saveOrUpdateReport({
                       <td>
                         <input className="pdf-input w-full"
                           value={data.equipo[field[1]] || ""}
+                          placeholder={fieldPlaceholders[field[1]] || ""}
                           onChange={(e) => update(["equipo", field[1]], e.target.value)} />
                       </td>
                       {next ? (
@@ -735,6 +764,7 @@ const result = await saveOrUpdateReport({
                           <td>
                             <input className="pdf-input w-full"
                               value={data.equipo[next[1]] || ""}
+                              placeholder={fieldPlaceholders[next[1]] || ""}
                               onChange={(e) => update(["equipo", next[1]], e.target.value)} />
                           </td>
                         </>
@@ -904,6 +934,7 @@ const result = await saveOrUpdateReport({
                             type="number"
                             className="pdf-input w-16 text-center"
                             value={data.items?.[codigo]?.cantidad || ""}
+                            placeholder="Cant."
                             onChange={(e) => handleItem(codigo, "cantidad", e.target.value)}
                           />
                         </td>

@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function IndexInspeccion() {
   const navigate = useNavigate();
+  const { isLight } = useTheme();
 
   const {
     user,
@@ -205,13 +207,17 @@ export default function IndexInspeccion() {
     <div className="space-y-6">
       {/* HEADER */}
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-semibold text-white">
+        <h1 className={`text-xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
           Inspección y valoración
         </h1>
 
         <button
           onClick={() => navigate("/area/vehiculos")}
-          className="border border-white/20 text-white px-4 py-1 rounded text-sm hover:bg-white/10 transition"
+          className={`border px-4 py-1 rounded text-sm transition ${
+            isLight
+              ? "border-slate-300 text-slate-700 hover:bg-slate-100"
+              : "border-white/20 text-white hover:bg-white/10"
+          }`}
         >
           ← Volver
         </button>

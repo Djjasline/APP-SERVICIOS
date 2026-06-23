@@ -101,6 +101,29 @@ const todosLosItems = [
 /* ── IMAGEN BASE BARREDORA ── */
 const EQUIPO_IMG_PATH = "/barredora-base.png";
 
+const fieldPlaceholders = {
+  referenciaContrato: "Ej: Contrato marco / cliente",
+  pedidoDemanda: "Ej: P-23-046 o D-45821",
+  descripcion: "Ej: Inspección técnica barredora",
+  codInf: "Ej: P-23-046-001 o D-45821-001",
+  cliente: "Nombre del cliente",
+  direccion: "Dirección del servicio",
+  contacto: "Nombre del contacto",
+  telefono: "Ej: 0991234567",
+  correo: "correo@empresa.com",
+  nota: "Ej: Unidad operativa / referencia interna",
+  marca: "Marca del equipo",
+  modelo: "Modelo del equipo",
+  serie: "Número de serie",
+  anio: "Ej: 2021",
+  vin: "Código VIN / chasis",
+  placa: "Ej: ABC-1234",
+  horasModulo: "Ej: 1250 h",
+  horasChasis: "Ej: 3200 h",
+  kilometraje: "Ej: 45000 km",
+  horometro: "Ej: 1800 h",
+};
+
 /* ══════════════════════════════
    ESTADO INICIAL
 ══════════════════════════════ */
@@ -783,7 +806,7 @@ setTimeout(() => {
               ].map(([label, key]) => (
                 <tr key={key}>
                   <td className="pdf-label">{label}</td>
-                  <td colSpan={2}><input className="pdf-input w-full" value={data[key]} onChange={(e) => update([key], e.target.value)} /></td>
+                  <td colSpan={2}><input className="pdf-input w-full" value={data[key]} placeholder={fieldPlaceholders[key] || ""} onChange={(e) => update([key], e.target.value)} /></td>
                 </tr>
               ))}
             </tbody>
@@ -801,19 +824,19 @@ setTimeout(() => {
             <tbody>
               <tr>
                 <td className="pdf-label">CLIENTE</td>
-                <td><input className="pdf-input w-full" value={data.cliente} onChange={(e) => update(["cliente"], e.target.value)} /></td>
+                <td><input className="pdf-input w-full" value={data.cliente} placeholder={fieldPlaceholders.cliente} onChange={(e) => update(["cliente"], e.target.value)} /></td>
                 <td className="pdf-label">DIRECCIÓN</td>
-                <td><input className="pdf-input w-full" value={data.direccion} onChange={(e) => update(["direccion"], e.target.value)} /></td>
+                <td><input className="pdf-input w-full" value={data.direccion} placeholder={fieldPlaceholders.direccion} onChange={(e) => update(["direccion"], e.target.value)} /></td>
               </tr>
               <tr>
                 <td className="pdf-label">CONTACTO</td>
-                <td><input className="pdf-input w-full" value={data.contacto} onChange={(e) => update(["contacto"], e.target.value)} /></td>
+                <td><input className="pdf-input w-full" value={data.contacto} placeholder={fieldPlaceholders.contacto} onChange={(e) => update(["contacto"], e.target.value)} /></td>
                 <td className="pdf-label">TELÉFONO</td>
-                <td><input className="pdf-input w-full" value={data.telefono} onChange={(e) => update(["telefono"], e.target.value)} /></td>
+                <td><input className="pdf-input w-full" value={data.telefono} placeholder={fieldPlaceholders.telefono} onChange={(e) => update(["telefono"], e.target.value)} /></td>
               </tr>
               <tr>
                 <td className="pdf-label">CORREO</td>
-                <td><input className="pdf-input w-full" value={data.correo} onChange={(e) => update(["correo"], e.target.value)} /></td>
+                <td><input className="pdf-input w-full" value={data.correo} placeholder={fieldPlaceholders.correo} onChange={(e) => update(["correo"], e.target.value)} /></td>
                 <td className="pdf-label">TÉCNICO RESPONSABLE</td>
                 <td>
                  <select
@@ -879,8 +902,8 @@ setTimeout(() => {
                   const next = arr[idx + 1];
                   rows.push(
                     <tr key={idx}>
-                      {field[0] ? <><td className="pdf-label">{field[0]}</td><td><input className="pdf-input w-full" value={data.equipo[field[1]]||""} onChange={(e) => update(["equipo", field[1]], e.target.value)} /></td></> : <td colSpan={2} />}
-                      {next && next[0] ? <><td className="pdf-label">{next[0]}</td><td><input className="pdf-input w-full" value={data.equipo[next[1]]||""} onChange={(e) => update(["equipo", next[1]], e.target.value)} /></td></> : <td colSpan={2} />}
+                      {field[0] ? <><td className="pdf-label">{field[0]}</td><td><input className="pdf-input w-full" value={data.equipo[field[1]]||""} placeholder={fieldPlaceholders[field[1]] || ""} onChange={(e) => update(["equipo", field[1]], e.target.value)} /></td></> : <td colSpan={2} />}
+                      {next && next[0] ? <><td className="pdf-label">{next[0]}</td><td><input className="pdf-input w-full" value={data.equipo[next[1]]||""} placeholder={fieldPlaceholders[next[1]] || ""} onChange={(e) => update(["equipo", next[1]], e.target.value)} /></td></> : <td colSpan={2} />}
                     </tr>
                   );
                 }
@@ -1101,9 +1124,11 @@ setTimeout(() => {
                 <tr key={i}>
                   <td style={{ textAlign:"center" }}>{i+1}</td>
                   <td><textarea className="pdf-textarea w-full resize-none" rows={3} style={{ minHeight:70 }}
+                    placeholder="Conclusión de la inspección"
                     value={data.conclusiones[i]} onChange={(e) => update(["conclusiones", i], e.target.value)} /></td>
                   <td style={{ textAlign:"center" }}>{i+1}</td>
                   <td><textarea className="pdf-textarea w-full resize-none" rows={3} style={{ minHeight:70 }}
+                    placeholder="Recomendación para el cliente"
                     value={data.recomendaciones[i]||""} onChange={(e) => update(["recomendaciones", i], e.target.value)} /></td>
                   {data.conclusiones.length > 1 && (
                     <td className="text-center">

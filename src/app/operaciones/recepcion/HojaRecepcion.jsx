@@ -53,20 +53,22 @@ const updateAtPath = (setter, path, value) => {
   });
 };
 
-const TextCell = ({ value, onChange, type = "text", readOnly = false }) => (
+const TextCell = ({ value, onChange, type = "text", readOnly = false, placeholder = "Ingrese dato" }) => (
   <input
     type={type}
     value={value || ""}
     readOnly={readOnly}
+    placeholder={type === "date" ? undefined : placeholder}
     onChange={(e) => onChange(e.target.value)}
     className="sheet-input"
   />
 );
 
-const TextAreaCell = ({ value, onChange, readOnly = false }) => (
+const TextAreaCell = ({ value, onChange, readOnly = false, placeholder = "Escriba observaciones" }) => (
   <textarea
     value={value || ""}
     readOnly={readOnly}
+    placeholder={placeholder}
     onChange={(e) => onChange(e.target.value)}
     className="sheet-textarea"
   />
@@ -706,6 +708,7 @@ export function ControlVehicularSheet({
                 <TextCell
   value={data.conductor}
   readOnly={readOnly || !canEditConductor}
+  placeholder="Nombre del conductor"
   onChange={(v) => setField("conductor", v)}
 />
               </td>
@@ -718,11 +721,11 @@ export function ControlVehicularSheet({
             <tr style={{ height: 29 }}>
               <td className="cell-label">LUGAR DESTINO:</td>
               <td colSpan={7}>
-                <TextCell value={data.lugarDestino} readOnly={readOnly} onChange={(v) => setField("lugarDestino", v)} />
+                <TextCell value={data.lugarDestino} readOnly={readOnly} placeholder="Lugar de destino" onChange={(v) => setField("lugarDestino", v)} />
               </td>
               <td colSpan={3} className="cell-label">CUIDAD:</td>
               <td colSpan={2}>
-                <TextCell value={data.ciudad} readOnly={readOnly} onChange={(v) => setField("ciudad", v)} />
+                <TextCell value={data.ciudad} readOnly={readOnly} placeholder="Ciudad" onChange={(v) => setField("ciudad", v)} />
               </td>
             </tr>
 
@@ -739,21 +742,21 @@ export function ControlVehicularSheet({
 
             <tr style={{ height: 21 }}>
               <td>
-                <TextCell value={data.modelo} readOnly={readOnly} onChange={(v) => setField("modelo", v)} />
+                <TextCell value={data.modelo} readOnly={readOnly} placeholder="Modelo / marca" onChange={(v) => setField("modelo", v)} />
               </td>
              <td />
              <td colSpan={2}></td>
               <td colSpan={2}>
-                <TextCell value={data.totalCombustible} readOnly={readOnly} onChange={(v) => setField("totalCombustible", v)} />
+                <TextCell value={data.totalCombustible} readOnly={readOnly} placeholder="Ej: 1/2 tanque" onChange={(v) => setField("totalCombustible", v)} />
               </td>
               <td>
-                <TextCell value={data.placa} readOnly={readOnly} onChange={(v) => setField("placa", v)} />
+                <TextCell value={data.placa} readOnly={readOnly} placeholder="Ej: ABC-1234" onChange={(v) => setField("placa", v)} />
               </td>
               <td colSpan={3}>
-                <TextCell value={data.color} readOnly={readOnly} onChange={(v) => setField("color", v)} />
+                <TextCell value={data.color} readOnly={readOnly} placeholder="Color" onChange={(v) => setField("color", v)} />
               </td>
               <td colSpan={2}>
-                <TextCell value={data.picoPlaca} readOnly={readOnly} onChange={(v) => setField("picoPlaca", v)} />
+                <TextCell value={data.picoPlaca} readOnly={readOnly} placeholder="Día / restricción" onChange={(v) => setField("picoPlaca", v)} />
               </td>
             </tr>
 
@@ -761,7 +764,7 @@ export function ControlVehicularSheet({
               <td colSpan={7} />
               <td colSpan={4} className="cell-label-center bold">PEDIDO/DEMANDA</td>
               <td colSpan={2}>
-                <TextCell value={data.pedidoDemanda} readOnly={readOnly} onChange={(v) => setField("pedidoDemanda", v)} />
+                <TextCell value={data.pedidoDemanda} readOnly={readOnly} placeholder="Ej: P-23-046" onChange={(v) => setField("pedidoDemanda", v)} />
               </td>
             </tr>
 
@@ -801,7 +804,7 @@ export function ControlVehicularSheet({
                 <ChoiceCell value={data.documentos.matricula} option="NO" readOnly={readOnly} onChange={(v) => setNested(["documentos", "matricula"], v)} />
               </td>
               <td colSpan={3}>
-                <TextCell value={data.kilometrosSalida} readOnly={readOnly} onChange={(v) => setField("kilometrosSalida", v)} />
+                <TextCell value={data.kilometrosSalida} readOnly={readOnly} placeholder="Km salida" onChange={(v) => setField("kilometrosSalida", v)} />
               </td>
             </tr>
 
@@ -882,7 +885,7 @@ export function ControlVehicularSheet({
                 <ChoiceCell value={data.checklist.interior[interior[7].key]} option="NO" readOnly={readOnly} onChange={(v) => setNested(["checklist", "interior", interior[7].key], v)} />
               </td>
               <td colSpan={9}>
-                <TextCell value={data.observacionesMotor[0]} readOnly={readOnly} onChange={(v) => setNested(["observacionesMotor", 0], v)} />
+                <TextCell value={data.observacionesMotor[0]} readOnly={readOnly} placeholder="Observación del vehículo" onChange={(v) => setNested(["observacionesMotor", 0], v)} />
               </td>
             </tr>
 
@@ -895,7 +898,7 @@ export function ControlVehicularSheet({
                 <ChoiceCell value={data.checklist.interior[interior[8].key]} option="NO" readOnly={readOnly} onChange={(v) => setNested(["checklist", "interior", interior[8].key], v)} />
               </td>
               <td colSpan={9}>
-                <TextCell value={data.observacionesMotor[1]} readOnly={readOnly} onChange={(v) => setNested(["observacionesMotor", 1], v)} />
+                <TextCell value={data.observacionesMotor[1]} readOnly={readOnly} placeholder="Detalle adicional" onChange={(v) => setNested(["observacionesMotor", 1], v)} />
               </td>
             </tr>
 
@@ -927,7 +930,7 @@ export function ControlVehicularSheet({
 
             <tr style={{ height: 70 }}>
               <td colSpan={13}>
-                <TextAreaCell value={data.observacionesEntrega} readOnly={readOnly} onChange={(v) => setField("observacionesEntrega", v)} />
+                <TextAreaCell value={data.observacionesEntrega} readOnly={readOnly} placeholder="Observaciones al momento de la entrega" onChange={(v) => setField("observacionesEntrega", v)} />
               </td>
             </tr>
 
@@ -951,7 +954,7 @@ export function ControlVehicularSheet({
               <td rowSpan={4} />
               <td colSpan={3} rowSpan={4} className="cell-label-center bold">
                 KILOMETROS<br />DE LLEGADA
-                <TextCell value={data.recepcion.kilometrosLlegada} readOnly={readOnly} onChange={(v) => setNested(["recepcion", "kilometrosLlegada"], v)} />
+                <TextCell value={data.recepcion.kilometrosLlegada} readOnly={readOnly} placeholder="Km llegada" onChange={(v) => setNested(["recepcion", "kilometrosLlegada"], v)} />
               </td>
               <td colSpan={5} className="cell-label-center bold">MANTENIMIENTO</td>
             </tr>
@@ -1000,7 +1003,7 @@ export function ControlVehicularSheet({
 
             <tr style={{ height: 92 }}>
               <td colSpan={13}>
-                <TextAreaCell value={data.observacionesRecepcion} readOnly={readOnly} onChange={(v) => setField("observacionesRecepcion", v)} />
+                <TextAreaCell value={data.observacionesRecepcion} readOnly={readOnly} placeholder="Observaciones finales de recepción" onChange={(v) => setField("observacionesRecepcion", v)} />
               </td>
             </tr>
 

@@ -19,6 +19,29 @@ const techName  = (t) => t?.name  || t?.nombre   || "";
 const techPhone = (t) => t?.phone || t?.telefono  || "";
 const techEmail = (t) => t?.email || t?.correo    || "";
 
+const fieldPlaceholders = {
+  referenciaContrato: "Ej: Contrato marco / cliente",
+  pedidoDemanda: "Ej: P-23-046 o D-45821",
+  descripcion: "Ej: Mantenimiento cámara V-CAM6",
+  codInf: "Ej: P-23-046-001 o D-45821-001",
+  cliente: "Nombre del cliente",
+  direccion: "Dirección del servicio",
+  contacto: "Nombre del contacto",
+  telefono: "Ej: 0991234567",
+  correo: "correo@empresa.com",
+  nota: "Ej: Unidad operativa / referencia interna",
+  marca: "Marca del equipo",
+  modelo: "Modelo del equipo",
+  serieModulo: "Serie del módulo",
+  serieCarrete: "Serie del carrete",
+  serieCabezal: "Serie del cabezal",
+  anio: "Ej: 2021",
+  longitudCable: "Ej: 120 m",
+  diametroCable: "Ej: 12 mm",
+  versionSoftware: "Versión instalada",
+  accesorios: "Ej: Cabezal, cable, monitor",
+};
+
 /* ═══════════════════════════════════════
    SECCIONES – MANTENIMIENTO V-CAM6
 ═══════════════════════════════════════ */
@@ -133,6 +156,7 @@ function TablaItems({ seccion, data, handleItem }) {
                   type="number" min="0"
                   className="pdf-input w-20 text-center"
                   value={data.items?.[codigo]?.cantidad || ""}
+                  placeholder="Cant."
                   onChange={(e) => handleItem(codigo, "cantidad", e.target.value)}
                 />
               </td>
@@ -578,6 +602,7 @@ const result = await saveOrUpdateReport({
                   <td className="pdf-label">{label}</td>
                   <td colSpan={2}>
                     <input className="pdf-input w-full" value={data[key]}
+                      placeholder={fieldPlaceholders[key] || ""}
                       onChange={(e) => update([key], e.target.value)} />
                   </td>
                 </tr>
@@ -597,19 +622,19 @@ const result = await saveOrUpdateReport({
             <tbody>
               <tr>
                 <td className="pdf-label">CLIENTE</td>
-                <td><input className="pdf-input w-full" value={data.cliente} onChange={(e) => update(["cliente"], e.target.value)} /></td>
+                <td><input className="pdf-input w-full" value={data.cliente} placeholder={fieldPlaceholders.cliente} onChange={(e) => update(["cliente"], e.target.value)} /></td>
                 <td className="pdf-label">DIRECCIÓN</td>
-                <td><input className="pdf-input w-full" value={data.direccion} onChange={(e) => update(["direccion"], e.target.value)} /></td>
+                <td><input className="pdf-input w-full" value={data.direccion} placeholder={fieldPlaceholders.direccion} onChange={(e) => update(["direccion"], e.target.value)} /></td>
               </tr>
               <tr>
                 <td className="pdf-label">CONTACTO</td>
-                <td><input className="pdf-input w-full" value={data.contacto} onChange={(e) => update(["contacto"], e.target.value)} /></td>
+                <td><input className="pdf-input w-full" value={data.contacto} placeholder={fieldPlaceholders.contacto} onChange={(e) => update(["contacto"], e.target.value)} /></td>
                 <td className="pdf-label">TELÉFONO</td>
-                <td><input className="pdf-input w-full" value={data.telefono} onChange={(e) => update(["telefono"], e.target.value)} /></td>
+                <td><input className="pdf-input w-full" value={data.telefono} placeholder={fieldPlaceholders.telefono} onChange={(e) => update(["telefono"], e.target.value)} /></td>
               </tr>
               <tr>
                 <td className="pdf-label">CORREO</td>
-                <td><input className="pdf-input w-full" value={data.correo} onChange={(e) => update(["correo"], e.target.value)} /></td>
+                <td><input className="pdf-input w-full" value={data.correo} placeholder={fieldPlaceholders.correo} onChange={(e) => update(["correo"], e.target.value)} /></td>
                 <td className="pdf-label">TÉCNICO RESPONSABLE</td>
                 <td>
                   <select className="pdf-input w-full" value={data.tecnicoNombre}
@@ -666,11 +691,13 @@ const result = await saveOrUpdateReport({
                       {field[0] ? (
                         <><td className="pdf-label">{field[0]}</td>
                         <td><input className="pdf-input w-full" value={data.equipo[field[1]] || ""}
+                          placeholder={fieldPlaceholders[field[1]] || ""}
                           onChange={(e) => update(["equipo", field[1]], e.target.value)} /></td></>
                       ) : <td colSpan={2} />}
                       {next && next[0] ? (
                         <><td className="pdf-label">{next[0]}</td>
                         <td><input className="pdf-input w-full" value={data.equipo[next[1]] || ""}
+                          placeholder={fieldPlaceholders[next[1]] || ""}
                           onChange={(e) => update(["equipo", next[1]], e.target.value)} /></td></>
                       ) : <td colSpan={2} />}
                     </tr>
