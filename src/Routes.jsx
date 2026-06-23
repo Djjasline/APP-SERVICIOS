@@ -75,6 +75,7 @@ import RegistroPDF from "./app/operaciones/registro/RegistroPDF";
 
 // ================= NOTIFICACIONES =================
 import NotificationsPage from "./pages/Notifications";
+import ChatInterno from "./pages/chat/ChatInterno";
 
 const TechRoute = ({ children }) => (
   <RoleRoute
@@ -149,6 +150,7 @@ export default function RoutesApp() {
             <Route path="/repositorios" element={<TechRoute><AreaRepositorios /></TechRoute>} />
 
             <Route path="/notifications" element={<TechRoute><NotificationsPage /></TechRoute>} />
+            <Route path="/chat" element={<TechRoute><ChatInterno /></TechRoute>} />
 
             <Route path="/informe" element={<VehiculosRoute><InformeHome /></VehiculosRoute>} />
             <Route path="/informe/nuevo" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
