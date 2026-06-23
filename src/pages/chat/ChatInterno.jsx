@@ -251,7 +251,6 @@ export default function ChatInterno() {
                         : "hover:bg-white/10"
                     }`}
                   >
-                   <div
   <div
   className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
     online
