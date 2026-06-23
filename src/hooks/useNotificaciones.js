@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/lib/supabaseClient"; // ajusta la ruta si es diferente
+import { supabase } from "@/lib/supabase"; // ajusta la ruta si es diferente
 import { useAuth } from "@/context/AuthContext";   // ajusta la ruta si es diferente
 
 // ─── Clave pública VAPID ────────────────────────────────────────────────────
@@ -166,6 +166,6 @@ export function useNotificaciones() {
     error,         // string | null
     solicitarPermiso,
     cancelarSuscripcion,
-    soportado: "Notification" in window && "serviceWorker" in navigator && "PushManager" in window,
+    soportado: typeof window !== "undefined" && "Notification" in window && "serviceWorker" in navigator && "PushManager" in window,
   };
 }
