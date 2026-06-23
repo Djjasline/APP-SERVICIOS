@@ -6,6 +6,21 @@ const STATIC_ASSETS = [
   "/manifest.json",
   "/favicon.ico",
 ];
+let VAPID_PUBLIC_KEY = null;
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = atob(base64);
+  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+}
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SET_VAPID_PUBLIC_KEY") {
+    VAPID_PUBLIC_KEY = event.data.key || null;
+  }
+});
+
 
 // ─── INSTALL ────────────────────────────────────────────────────────────────
 self.addEventListener("install", (event) => {
@@ -126,7 +141,7 @@ self.addEventListener("pushsubscriptionchange", (event) => {
     self.registration.pushManager
       .subscribe({
         userVisibleOnly: true,
-        applicationServerKey: self.__VAPID_PUBLIC_KEY__,
+        applicationServerKey: VAPID_PUBLIC_KEY ? urlBase64ToUint8Array(VAPID_PUBLIC_KEY) : undefined,
       })
       .then((subscription) => {
         // Notificar al cliente para que actualice la suscripción en Supabase
