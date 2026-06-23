@@ -48,6 +48,40 @@ export async function sendMessage(conversationId, senderId, body) {
     .single();
 
   if (error) throw error;
+
+  try {
+    const { data: participantes } = await supabase
+      .from("chat_participants")
+      .select("user_id")
+      .eq("conversation_id", conversationId)
+      .neq("user_id", senderId);
+
+    const userIds = (participantes || []).map((p) => p.user_id);
+
+    if (userIds.length > 0) {
+      const { data: senderProfile } = await supabase
+        .from("profiles")
+        .select("full_name, email")
+        .eq("id", senderId)
+        .maybeSingle();
+
+      const senderName =
+        senderProfile?.full_name || senderProfile?.email || "ASTAP";
+
+      await supabase.functions.invoke("send-push-notification", {
+        body: {
+          tipo: "chat",
+          user_ids: userIds,
+          titulo: `Nuevo mensaje de ${senderName}`,
+          mensaje: text.length > 80 ? `${text.slice(0, 80)}...` : text,
+          url: "/chat",
+        },
+      });
+    }
+  } catch (pushError) {
+    console.error("[Chat] Error enviando push:", pushError);
+  }
+
   return data;
 }
 
