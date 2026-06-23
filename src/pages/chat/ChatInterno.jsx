@@ -142,55 +142,37 @@ export default function ChatInterno() {
   );
 
   useEffect(() => {
-    if (!conversationId) return;
+  if (!conversationId) return;
 
-   const channel = supabase
-  .channel(`chat-messages-${conversationId}`)
-  .on(
-    "postgres_changes",
-    {
-      event: "INSERT",
-      schema: "public",
-      table: "chat_messages",
-      filter: `conversation_id=eq.${conversationId}`,
-    },
-    (payload) => {
-      console.log("[Chat] Nuevo mensaje realtime:", payload.new);
+  const channel = supabase
+    .channel(`chat-messages-${conversationId}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "chat_messages",
+        filter: `conversation_id=eq.${conversationId}`,
+      },
+      (payload) => {
+        console.log("[Chat] Nuevo mensaje realtime:", payload.new);
 
-      setMensajes((prev) => {
-        if (prev.some((m) => m.id === payload.new.id)) return prev;
-        return [...prev, payload.new];
-      });
+        setMensajes((prev) => {
+          if (prev.some((m) => m.id === payload.new.id)) return prev;
+          return [...prev, payload.new];
+        });
 
-      markConversationRead(conversationId, user?.id);
-    }
-  )
-  .subscribe((status) => {
-    console.log("[Chat] Realtime status:", status);
-  });
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "chat_messages",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        (payload) => {
-          setMensajes((prev) => {
-            if (prev.some((m) => m.id === payload.new.id)) return prev;
-            return [...prev, payload.new];
-          });
-          markConversationRead(conversationId, user?.id);
-        }
-      )
-      .subscribe();
+        markConversationRead(conversationId, user?.id);
+      }
+    )
+    .subscribe((status) => {
+      console.log("[Chat] Realtime status:", status);
+    });
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [conversationId, user?.id]);
-
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [conversationId, user?.id]);
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensajes]);
