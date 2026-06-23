@@ -195,6 +195,10 @@ export default function ChatInterno() {
   const panelClass = isLight
     ? "bg-white border-slate-200 text-slate-900"
     : "bg-slate-950/40 border-white/10 text-white";
+  const usuarioActivoOnline = usuarioActivo
+  ? !!usuariosOnline[usuarioActivo.id]
+  : false;
+
 
   return (
     <div className="h-[calc(100vh-9rem)] min-h-[620px] flex flex-col gap-4">
@@ -294,7 +298,13 @@ export default function ChatInterno() {
           {usuarioActivo ? (
             <>
               <div className={`p-4 border-b ${isLight ? "border-slate-200 bg-slate-50" : "border-white/10 bg-white/5"} flex items-center gap-3`}>
-                <div className="w-11 h-11 rounded-full bg-green-500 text-white flex items-center justify-center font-bold">
+               <div
+  className={`w-11 h-11 rounded-full flex items-center justify-center font-bold ${
+    usuarioActivoOnline
+      ? "bg-green-500 text-white"
+      : "bg-blue-600/15 text-blue-600"
+  }`}
+>
   {initials(usuarioActivo)}
 </div>
 
@@ -307,9 +317,11 @@ export default function ChatInterno() {
     {usuarioActivo.email}
   </div>
 
+ {usuarioActivoOnline && (
   <div className="text-xs font-semibold text-green-600">
     ● En línea
   </div>
+)}
 </div>
               </div>
 
