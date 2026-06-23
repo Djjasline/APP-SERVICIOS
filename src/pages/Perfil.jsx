@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import imageCompression from "browser-image-compression";
+import { BotonNotificaciones } from "@/components/BotonNotificaciones";
 
 const DEPARTMENTS = [
   "Vehículos Especiales",
@@ -283,6 +284,17 @@ export default function Perfil() {
           <p className="text-xs text-gray-500">
             El modo claro usa fondo blanco/azul suave, tarjetas claras y texto oscuro.
           </p>
+        </div>
+
+        {/* NOTIFICACIONES PUSH */}
+        <div className="space-y-2 rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            Notificaciones push
+          </label>
+          <p className="text-xs text-gray-500">
+            Activa avisos del sistema incluso cuando la app no esté abierta.
+          </p>
+          <BotonNotificaciones />
         </div>
 
         {/* MENSAJE PERFIL */}
