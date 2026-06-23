@@ -1,6 +1,6 @@
 import CardModulo from "@/components/CardModulo";
 import { useTheme } from "@/context/ThemeContext";
-import { FileText, ClipboardCheck, Wrench } from "lucide-react";
+import { FileText } from "lucide-react";
 
 export default function AreaPetroleo() {
   const { isLight } = useTheme();
@@ -21,12 +21,20 @@ export default function AreaPetroleo() {
       <div className="grid md:grid-cols-2 gap-6">
 
         <CardModulo
-  titulo="Informe general de bombas y válvulas"
-  descripcion="(informe general para levantamiento o inspección de bombas y válvulas)"
-  ruta="/petroleo/informe"
-  color="bg-blue-600"
-  icono={<FileText size={20} />}
-/>
+          titulo="Informe general de bombas"
+          descripcion="(informe general para levantamiento o inspección de bombas)"
+          ruta="/petroleo/informe/bomba"
+          color="bg-blue-600"
+          icono={<FileText size={20} />}
+        />
+
+        <CardModulo
+          titulo="Informe general de válvulas"
+          descripcion="(informe general para levantamiento o inspección de válvulas)"
+          ruta="/petroleo/informe/valvula"
+          color="bg-cyan-600"
+          icono={<FileText size={20} />}
+        />
       </div>
     </div>
   );

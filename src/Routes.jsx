@@ -181,6 +181,12 @@ export default function RoutesApp() {
 
             <Route path="/petroleo/informe" element={<TechRoute><PetroleoInformeHome /></TechRoute>} />
             <Route path="/petroleo/informe/nuevo" element={<TechRoute><PetroleoNuevoInforme /></TechRoute>} />
+            <Route path="/petroleo/informe/bomba" element={<TechRoute><PetroleoInformeHome tipo="bomba" /></TechRoute>} />
+            <Route path="/petroleo/informe/bomba/nuevo" element={<TechRoute><PetroleoNuevoInforme tipo="bomba" /></TechRoute>} />
+            <Route path="/petroleo/informe/bomba/:id" element={<TechRoute><PetroleoNuevoInforme tipo="bomba" /></TechRoute>} />
+            <Route path="/petroleo/informe/valvula" element={<TechRoute><PetroleoInformeHome tipo="valvula" /></TechRoute>} />
+            <Route path="/petroleo/informe/valvula/nuevo" element={<TechRoute><PetroleoNuevoInforme tipo="valvula" /></TechRoute>} />
+            <Route path="/petroleo/informe/valvula/:id" element={<TechRoute><PetroleoNuevoInforme tipo="valvula" /></TechRoute>} />
             <Route path="/petroleo/informe/:id" element={<TechRoute><PetroleoNuevoInforme /></TechRoute>} />
 
             <Route path="/inspeccion" element={<VehiculosRoute><HistorialInspecciones /></VehiculosRoute>} />

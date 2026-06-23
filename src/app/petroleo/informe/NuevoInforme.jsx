@@ -69,7 +69,7 @@ const Input = ({ value, onChange, field = "", placeholder, readOnly = false, cla
   />
 );
 
-export default function NuevoInformeBombaValvula() {
+export default function NuevoInformeBombaValvula({ tipo = null }) {
   const { id } = useParams();
   const navigate = useNavigate();
    const { user, isSuperAdmin } = useAuth();
@@ -93,7 +93,7 @@ const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
 const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
 
 const isEditing = !!id;
-  const claveAutoguardado = `informe_petroleo_${id ?? "new"}`;
+  const claveAutoguardado = `informe_petroleo_${id ?? tipo ?? "new"}`;
    
   /* ─── ESTADO BASE ─── */
   const emptyReport = {
@@ -117,7 +117,7 @@ const isEditing = !!id;
     tecnicoCorreo: "",
 
     // Tipo de informe: "bomba" | "valvula"
-    tipoInforme: "bomba",
+    tipoInforme: tipo || "bomba",
 
     // ── EQUIPO BOMBA ──
     bomba: {
@@ -221,6 +221,7 @@ useEffect(() => {
     setData({
       ...emptyReport,
       ...d,
+      tipoInforme: d.tipoInforme || report.subtipo || tipo || "bomba",
       bomba: { ...emptyReport.bomba, ...(d.bomba || {}) },
       valvula: { ...emptyReport.valvula, ...(d.valvula || {}) },
        estadoEquipo: {
@@ -255,7 +256,12 @@ useEffect(() => {
   };
 
   load();
-}, [id]);
+}, [id, tipo]);
+
+useEffect(() => {
+  if (id || !tipo) return;
+  setData((prev) => ({ ...prev, tipoInforme: tipo }));
+}, [id, tipo]);
 
    /* ─── AUTO-RELLENAR TÉCNICO LOGUEADO ─── */
 useEffect(() => {
@@ -562,7 +568,7 @@ const save = async () => {
     setSuccessMsg(
       isEditing ? "Informe actualizado ✅" : "Informe guardado ✅"
     );
-    setTimeout(() => navigate("/petroleo/informe"), 1200);
+    setTimeout(() => navigate(`/petroleo/informe/${finalData.tipoInforme}`), 1200);
   } catch (err) {
     console.error(err);
     setSuccessMsg("Error al guardar ❌");
