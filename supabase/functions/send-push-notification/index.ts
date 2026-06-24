@@ -40,9 +40,19 @@ serve(async (req) => {
     return new Response(JSON.stringify({ error: "No autorizado" }), { status: 401 });
   }
 
-  const { user_ids, recipient_emails, titulo, mensaje, url } = await req.json();
+  const {
+    user_ids,
+    recipient_emails,
+    titulo,
+    mensaje,
+    url,
+    record_type = "",
+    record_id = null,
+    save_notification = false,
+  } = await req.json();
 
   const targetUserIds = new Set<string>();
+  const targetEmails = new Set<string>();
 
   if (Array.isArray(user_ids)) {
     user_ids.filter(Boolean).forEach((id) => targetUserIds.add(String(id)));
@@ -52,6 +62,8 @@ serve(async (req) => {
     const normalizedEmails = recipient_emails
       .map((email) => String(email || "").trim().toLowerCase())
       .filter(Boolean);
+
+    normalizedEmails.forEach((email) => targetEmails.add(email));
 
     if (normalizedEmails.length > 0) {
       const { data: profiles, error: profilesError } = await supabaseAdmin
@@ -73,11 +85,58 @@ serve(async (req) => {
     }
   }
 
+  if (targetUserIds.size > 0 && targetEmails.size === 0) {
+    const { data: profiles, error: profilesError } = await supabaseAdmin
+      .from("profiles")
+      .select("email")
+      .in("id", Array.from(targetUserIds));
+
+    if (profilesError) {
+      return new Response(JSON.stringify({ error: profilesError.message }), {
+        status: 500,
+        headers: corsHeaders,
+      });
+    }
+
+    (profiles || [])
+      .map((profile) => String(profile.email || "").trim().toLowerCase())
+      .filter(Boolean)
+      .forEach((email) => targetEmails.add(email));
+  }
+
   if (targetUserIds.size === 0) {
     return new Response(JSON.stringify({ error: "Debes indicar destinatarios" }), {
       status: 400,
       headers: corsHeaders,
     });
+  }
+
+  let notificationsInserted = 0;
+
+  if (save_notification && targetEmails.size > 0) {
+    const { data: notifications, error: notificationError } = await supabaseAdmin
+      .from("notifications")
+      .insert(
+        Array.from(targetEmails).map((recipientEmail) => ({
+          recipient_email: recipientEmail,
+          title: titulo || "App Servicios",
+          message: mensaje || "Nueva notificación",
+          record_type,
+          record_id,
+          read: false,
+          created_at: new Date().toISOString(),
+        }))
+      )
+      .select("id");
+
+    if (notificationError) {
+      return new Response(JSON.stringify({ error: notificationError.message }), {
+        status: 500,
+        headers: corsHeaders,
+      });
+    }
+
+    notificationsInserted = notifications?.length || 0;
   }
 
   const query = supabaseAdmin
@@ -115,6 +174,7 @@ serve(async (req) => {
     JSON.stringify({
       enviados: resultados.filter((r) => r.status === "fulfilled").length,
       fallidos: resultados.filter((r) => r.status === "rejected").length,
+      notificaciones: notificationsInserted,
     }),
     {
       headers: {

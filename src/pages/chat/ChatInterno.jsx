@@ -7,6 +7,7 @@ import {
   getChatUsers,
   getMessages,
   getOrCreateDirectConversation,
+  getUnreadMessageCounts,
   markConversationRead,
   sendMessage,
 } from "@/services/chatService";
@@ -49,6 +50,7 @@ export default function ChatInterno() {
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
   const [usuariosOnline, setUsuariosOnline] = useState({});
+  const [noLeidos, setNoLeidos] = useState({});
 
   const usuariosFiltrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
@@ -80,6 +82,23 @@ export default function ChatInterno() {
   useEffect(() => {
     cargarUsuarios();
   }, [cargarUsuarios]);
+
+  const cargarNoLeidos = useCallback(async () => {
+    if (!user?.id) return;
+
+    try {
+      const counts = await getUnreadMessageCounts(user.id);
+      setNoLeidos(counts);
+    } catch (err) {
+      console.error("[Chat] Error cargando no leídos:", err);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    cargarNoLeidos();
+    const timer = setInterval(cargarNoLeidos, 15000);
+    return () => clearInterval(timer);
+  }, [cargarNoLeidos]);
 
   useEffect(() => {
   if (!user?.id) return;
@@ -131,6 +150,7 @@ export default function ChatInterno() {
         const data = await getMessages(convId);
         setMensajes(data);
         await markConversationRead(convId, user.id);
+        setNoLeidos((prev) => ({ ...prev, [otroUsuario.id]: 0 }));
       } catch (err) {
         console.error("[Chat] Error abriendo conversación:", err);
         setError("No se pudo abrir la conversación.");
@@ -163,6 +183,9 @@ export default function ChatInterno() {
         });
 
         markConversationRead(conversationId, user?.id);
+        if (payload.new?.sender_id !== user?.id && usuarioActivo?.id) {
+          setNoLeidos((prev) => ({ ...prev, [usuarioActivo.id]: 0 }));
+        }
       }
     )
     .subscribe((status) => {
@@ -172,7 +195,31 @@ export default function ChatInterno() {
   return () => {
     supabase.removeChannel(channel);
   };
-}, [conversationId, user?.id]);
+}, [conversationId, user?.id, usuarioActivo?.id]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel(`chat-unread-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_messages",
+        },
+        (payload) => {
+          if (payload.new?.sender_id !== user.id) cargarNoLeidos();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [cargarNoLeidos, user?.id]);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensajes]);
@@ -231,7 +278,11 @@ export default function ChatInterno() {
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 placeholder="Buscar usuario..."
-                className="w-full bg-transparent outline-none text-sm"
+                className={`w-full bg-transparent outline-none text-sm ${
+                  isLight
+                    ? "text-slate-900 placeholder:text-slate-400"
+                    : "text-white placeholder:text-slate-400"
+                }`}
               />
             </div>
           </div>
@@ -246,6 +297,7 @@ export default function ChatInterno() {
                 const active = usuarioActivo?.id === u.id;
 
                 const online = !!usuariosOnline[u.id];
+                const unreadCount = noLeidos[u.id] || 0;
                 
                 return (
                   <button
@@ -291,7 +343,12 @@ export default function ChatInterno() {
     </div>
   )}
 </>
-                    </div>
+</div>
+                    {unreadCount > 0 && (
+                      <span className="ml-auto self-center min-w-[22px] h-[22px] rounded-full bg-red-600 px-1.5 text-xs font-bold text-white flex items-center justify-center shadow">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </span>
+                    )}
                   </button>
                 );
               })
@@ -378,8 +435,8 @@ export default function ChatInterno() {
                     rows={1}
                     className={`flex-1 resize-none rounded-xl border px-3 py-2 text-sm outline-none ${
                       isLight
-                        ? "bg-white border-slate-200 focus:border-blue-400"
-                        : "bg-white/5 border-white/10 focus:border-blue-400"
+                        ? "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-blue-400"
+                        : "bg-white/5 border-white/10 text-white placeholder:text-slate-400 focus:border-blue-400"
                     }`}
                   />
                   <button

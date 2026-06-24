@@ -34,6 +34,62 @@ export async function getMessages(conversationId) {
   return data || [];
 }
 
+export async function getUnreadMessageCounts(currentUserId) {
+  if (!currentUserId) return {};
+
+  const { data: ownParticipants, error: participantsError } = await supabase
+    .from("chat_participants")
+    .select("conversation_id, last_read_at")
+    .eq("user_id", currentUserId);
+
+  if (participantsError) throw participantsError;
+
+  const conversationIds = (ownParticipants || []).map((p) => p.conversation_id);
+  if (conversationIds.length === 0) return {};
+
+  const readByConversation = new Map(
+    (ownParticipants || []).map((p) => [p.conversation_id, p.last_read_at])
+  );
+
+  const { data: messages, error: messagesError } = await supabase
+    .from("chat_messages")
+    .select("conversation_id, sender_id, created_at")
+    .in("conversation_id", conversationIds)
+    .neq("sender_id", currentUserId);
+
+  if (messagesError) throw messagesError;
+
+  const unreadByConversation = {};
+
+  (messages || []).forEach((message) => {
+    const lastReadAt = readByConversation.get(message.conversation_id);
+    const isUnread = !lastReadAt || new Date(message.created_at) > new Date(lastReadAt);
+
+    if (isUnread) {
+      unreadByConversation[message.conversation_id] =
+        (unreadByConversation[message.conversation_id] || 0) + 1;
+    }
+  });
+
+  const unreadConversationIds = Object.keys(unreadByConversation);
+  if (unreadConversationIds.length === 0) return {};
+
+  const { data: otherParticipants, error: otherParticipantsError } = await supabase
+    .from("chat_participants")
+    .select("conversation_id, user_id")
+    .in("conversation_id", unreadConversationIds)
+    .neq("user_id", currentUserId);
+
+  if (otherParticipantsError) throw otherParticipantsError;
+
+  return (otherParticipants || []).reduce((acc, participant) => {
+    acc[participant.user_id] =
+      (acc[participant.user_id] || 0) +
+      (unreadByConversation[participant.conversation_id] || 0);
+    return acc;
+  }, {});
+}
+
 export async function sendMessage(conversationId, senderId, body) {
   const text = String(body || "").trim();
   if (!text) return null;

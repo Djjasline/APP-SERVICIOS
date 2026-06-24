@@ -28,45 +28,30 @@ export async function createNotification({
       message,
       record_type,
       record_id,
-      read: false,
-      created_at: new Date().toISOString(),
     };
 
-    const { data, error } = await supabase
-      .from("notifications")
-      .insert(payload)
-      .select()
-      .maybeSingle();
+    const { data, error } = await supabase.functions.invoke("send-push-notification", {
+      body: {
+        recipient_emails: [payload.recipient_email],
+        titulo: payload.title || "App Servicios",
+        mensaje: payload.message || "Nueva notificación",
+        record_type: payload.record_type,
+        record_id: payload.record_id,
+        url: getNotificationUrl(payload),
+        save_notification: true,
+      },
+    });
 
     if (error) {
       console.error("Error creating notification:", error);
       return null;
     }
 
-    sendPushForNotification(payload).catch((pushError) => {
-      console.error("Error sending push notification:", pushError);
-    });
-
     return data;
   } catch (err) {
     console.error("Unexpected error creating notification:", err);
     return null;
   }
-}
-
-async function sendPushForNotification(notification) {
-  if (!notification?.recipient_email) return;
-
-  const { error } = await supabase.functions.invoke("send-push-notification", {
-    body: {
-      recipient_emails: [notification.recipient_email],
-      titulo: notification.title || "App Servicios",
-      mensaje: notification.message || "Nueva notificación",
-      url: getNotificationUrl(notification),
-    },
-  });
-
-  if (error) throw error;
 }
 
 function getNotificationUrl(notification) {
