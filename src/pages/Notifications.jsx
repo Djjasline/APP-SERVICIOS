@@ -119,10 +119,14 @@ export default function NotificationsPage() {
       if (n.record_type === "liberacion") {
         navigate(`/operaciones/liberacion/${n.record_id}`);
       }
+
+      if (n.record_type === "chat") {
+        navigate("/chat");
+      }
     }}
     className={`text-xs hover:underline ${isLight ? "text-blue-700" : "text-blue-300"}`}
   >
-    Ir al formulario
+    {n.record_type === "chat" ? "Abrir chat" : "Ir al formulario"}
   </button>
 )}
               </div>

@@ -5,9 +5,17 @@ create table if not exists public.push_subscriptions (
   p256dh text not null,
   auth text not null,
   created_at timestamptz default now(),
-  updated_at timestamptz default now(),
-  constraint push_subscriptions_user_id_key unique (user_id)
+  updated_at timestamptz default now()
 );
+
+alter table public.push_subscriptions
+  drop constraint if exists push_subscriptions_user_id_key;
+
+create unique index if not exists push_subscriptions_endpoint_key
+  on public.push_subscriptions(endpoint);
+
+create index if not exists push_subscriptions_user_id_idx
+  on public.push_subscriptions(user_id);
 
 alter table public.push_subscriptions enable row level security;
 

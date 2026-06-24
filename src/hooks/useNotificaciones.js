@@ -72,7 +72,7 @@ export function useNotificaciones() {
           auth: subscriptionJSON.keys?.auth,
           updated_at: new Date().toISOString(),
         },
-        { onConflict: "user_id" }
+        { onConflict: "endpoint" }
       );
 
       if (error) console.error("[Push] Error guardando suscripción:", error);
@@ -150,7 +150,8 @@ await guardarSuscripcionEnSupabase(suscripcion.toJSON());
           await supabase
             .from("push_subscriptions")
             .delete()
-            .eq("user_id", user.id);
+            .eq("user_id", user.id)
+            .eq("endpoint", suscripcion.endpoint);
         }
       }
 

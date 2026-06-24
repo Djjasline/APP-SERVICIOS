@@ -8,13 +8,15 @@ const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT")!;
 
 webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-      },
+      headers: corsHeaders,
     });
   }
 
@@ -38,27 +40,58 @@ serve(async (req) => {
     return new Response(JSON.stringify({ error: "No autorizado" }), { status: 401 });
   }
 
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("role")
-    .eq("id", requesterId)
-    .maybeSingle();
+  const { user_ids, recipient_emails, titulo, mensaje, url } = await req.json();
 
-  if (profile?.role !== "super_admin") {
-    return new Response(JSON.stringify({ error: "Solo super_admin puede enviar push" }), { status: 403 });
+  const targetUserIds = new Set<string>();
+
+  if (Array.isArray(user_ids)) {
+    user_ids.filter(Boolean).forEach((id) => targetUserIds.add(String(id)));
   }
 
-  const { user_ids, titulo, mensaje, url } = await req.json();
+  if (Array.isArray(recipient_emails) && recipient_emails.length > 0) {
+    const normalizedEmails = recipient_emails
+      .map((email) => String(email || "").trim().toLowerCase())
+      .filter(Boolean);
 
-  let query = supabaseAdmin.from("push_subscriptions").select("*");
-  if (Array.isArray(user_ids) && user_ids.length > 0) {
-    query = query.in("user_id", user_ids);
+    if (normalizedEmails.length > 0) {
+      const { data: profiles, error: profilesError } = await supabaseAdmin
+        .from("profiles")
+        .select("id, email");
+
+      if (profilesError) {
+        return new Response(JSON.stringify({ error: profilesError.message }), {
+          status: 500,
+          headers: corsHeaders,
+        });
+      }
+
+      const emailSet = new Set(normalizedEmails);
+
+      (profiles || [])
+        .filter((profile) => emailSet.has(String(profile.email || "").trim().toLowerCase()))
+        .forEach((profile) => targetUserIds.add(profile.id));
+    }
   }
+
+  if (targetUserIds.size === 0) {
+    return new Response(JSON.stringify({ error: "Debes indicar destinatarios" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  const query = supabaseAdmin
+    .from("push_subscriptions")
+    .select("*")
+    .in("user_id", Array.from(targetUserIds));
 
   const { data: suscripciones, error } = await query;
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: corsHeaders,
+    });
   }
 
   const payload = JSON.stringify({
@@ -86,7 +119,7 @@ serve(async (req) => {
     {
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
+        ...corsHeaders,
       },
     }
   );

@@ -43,11 +43,48 @@ export async function createNotification({
       return null;
     }
 
+    sendPushForNotification(payload).catch((pushError) => {
+      console.error("Error sending push notification:", pushError);
+    });
+
     return data;
   } catch (err) {
     console.error("Unexpected error creating notification:", err);
     return null;
   }
+}
+
+async function sendPushForNotification(notification) {
+  if (!notification?.recipient_email) return;
+
+  const { error } = await supabase.functions.invoke("send-push-notification", {
+    body: {
+      recipient_emails: [notification.recipient_email],
+      titulo: notification.title || "App Servicios",
+      mensaje: notification.message || "Nueva notificación",
+      url: getNotificationUrl(notification),
+    },
+  });
+
+  if (error) throw error;
+}
+
+function getNotificationUrl(notification) {
+  if (notification.record_type === "chat") return "/chat";
+
+  if (notification.record_type === "registro" && notification.record_id) {
+    return `/operaciones/registro/${notification.record_id}`;
+  }
+
+  if (notification.record_type === "recepcion" && notification.record_id) {
+    return `/operaciones/recepcion/${notification.record_id}`;
+  }
+
+  if (notification.record_type === "liberacion" && notification.record_id) {
+    return `/operaciones/liberacion/${notification.record_id}`;
+  }
+
+  return "/notifications";
 }
 
 export async function getUnreadCount(recipient_email) {
