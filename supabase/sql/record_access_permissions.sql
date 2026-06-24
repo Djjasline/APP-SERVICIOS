@@ -21,24 +21,28 @@ create index if not exists record_access_permissions_owner_idx
 
 alter table public.record_access_permissions enable row level security;
 
+create or replace function public.is_super_admin_user()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(auth.jwt() ->> 'email', '') = 'smaviles@astap.com'
+    or exists (
+      select 1 from public.profiles
+      where id = auth.uid() and role = 'super_admin'
+    );
+$$;
+
 drop policy if exists "Super admin gestiona permisos de registros" on public.record_access_permissions;
 drop policy if exists "Usuario ve sus permisos recibidos" on public.record_access_permissions;
 
 create policy "Super admin gestiona permisos de registros"
   on public.record_access_permissions
   for all
-  using (
-    exists (
-      select 1 from public.profiles
-      where id = auth.uid() and role = 'super_admin'
-    )
-  )
-  with check (
-    exists (
-      select 1 from public.profiles
-      where id = auth.uid() and role = 'super_admin'
-    )
-  );
+  using (public.is_super_admin_user())
+  with check (public.is_super_admin_user());
 
 create policy "Usuario ve sus permisos recibidos"
   on public.record_access_permissions
