@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { useTheme } from "@/context/ThemeContext";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf"; // ← ajusta la ruta a tu proyecto
@@ -6,6 +7,7 @@ import { printPdf } from "@/utils/printPdf"; // ← ajusta la ruta a tu proyecto
 export default function InformePDF({ allowDownload = true, backPath = "/informe" }) {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { isLight } = useTheme();
   const [report, setReport] = useState(null);
 
   /* ── Cargar informe desde Supabase ── */
@@ -88,11 +90,11 @@ export default function InformePDF({ allowDownload = true, backPath = "/informe"
 
   /* ── Estilos inline compartidos ── */
   const S = {
-    tbl:   { width: "100%", borderCollapse: "collapse", fontSize: 10 },
-cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle", fontSize: 10 },
+    tbl:   { width: "100%", borderCollapse: "collapse", fontSize: 10, color: "#111827" },
+cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle", fontSize: 10, color: "#111827", backgroundColor: "#ffffff" },
     label: {
       border: "1px solid #374151", padding: "5px 8px", verticalAlign: "middle",
-      fontSize: 11, fontWeight: 700, backgroundColor: "#f3f4f6",
+      fontSize: 11, fontWeight: 700, backgroundColor: "#f3f4f6", color: "#111827",
       whiteSpace: "nowrap", width: "35%",
     },
     th: {
@@ -177,7 +179,14 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
 
 }
 `}</style>
-    <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
+    <div
+      style={{
+        background: isLight ? "#f3f4f6" : "#0f172a",
+        minHeight: "100vh",
+        padding: "24px 16px",
+        color: isLight ? "#111827" : "#e5e7eb",
+      }}
+    >
 
       {/* ══════════════════════════════════════════
           ÁREA PDF — id="pdf-content"
@@ -190,6 +199,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
           maxWidth: 794,
           margin: "0 auto",
           background: "#fff",
+          color: "#111827",
           padding: "18px",
           boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
           borderRadius: 6,
@@ -229,7 +239,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                     ({reportDescription})
                   </div>
                 </td>
-                <td style={{ ...S.cell, width: 170 }}>
+                <td style={{ ...S.cell, width: 170, color: "#111827" }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>
                   <div>Versión: <strong>01</strong></div>
                 </td>
@@ -332,7 +342,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                 key={img.id || imageIndex}
                 style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}
               >
-                <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 11, fontWeight: 700, background: "#f9fafb" }}>
+                <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 11, fontWeight: 700, background: "#f9fafb", color: "#111827" }}>
                   Imagen {imageIndex + 1}
                 </div>
                 <div style={{ padding: 10 }}>
@@ -382,7 +392,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                   {(img.puntos || []).length > 0 && (
                     <div style={{ marginTop: 8 }}>
                       {img.puntos.map((p, pi) => (
-                        <div key={p.id || pi} style={{ display: "flex", gap: 8, marginBottom: 4, fontSize: 11 }}>
+                        <div key={p.id || pi} style={{ display: "flex", gap: 8, marginBottom: 4, fontSize: 11, color: "#111827" }}>
                           <span style={{ minWidth: 22, fontWeight: 700 }}>{pi + 1})</span>
                           <span style={{ whiteSpace: "pre-wrap" }}>{p.observacion || "—"}</span>
                         </div>
@@ -578,7 +588,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
       >
         <button
           onClick={() => navigate(backPath)}
-          className="border px-6 py-2 rounded"
+          className={`border px-6 py-2 rounded ${isLight ? "border-slate-300 text-slate-700 hover:bg-slate-100" : "border-white/20 text-white hover:bg-white/10"}`}
         >
           Volver
         </button>
