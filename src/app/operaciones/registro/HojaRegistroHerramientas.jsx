@@ -7,12 +7,14 @@ import { TECHNICIANS } from "@/data/technicians";
 import { getRegistroById, updateRegistro, } from "@/utils/registroStorage";
 import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function HojaRegistroHerramientas() {
   const { id } = useParams();
   const isEditing = !!id;
   const claveAutoguardado = `registro_herramientas_${id ?? "new"}`;
   const navigate = useNavigate();
+  const { isLight } = useTheme();
 
   const firmaResponsableRef = useRef(null);
   const firmaAprobadorRef = useRef(null);
@@ -219,10 +221,36 @@ const handleSubmit = async (e) => {
   };
 
   /* ================= RENDER ================= */
+  const pageClass = isLight
+    ? "bg-white text-slate-900"
+    : "bg-slate-900/95 text-white border border-white/10";
+
+  const cardClass = isLight
+    ? "bg-white border-slate-200"
+    : "bg-white/10 border-white/10";
+
+  const sectionClass = isLight
+    ? "bg-slate-50 border-slate-200"
+    : "bg-slate-950/40 border-white/10";
+
+  const inputClass = isLight
+    ? "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 disabled:bg-slate-100 disabled:text-slate-500"
+    : "bg-slate-950/70 border-white/20 text-white placeholder:text-white/40 disabled:bg-white/5 disabled:text-white/40";
+
+  const labelClass = isLight ? "text-slate-700" : "text-white/80";
+  const mutedClass = isLight ? "text-slate-500" : "text-white/60";
+
+  const Field = ({ label, children }) => (
+    <label className="space-y-1 text-xs">
+      <span className={`font-semibold ${labelClass}`}>{label}</span>
+      {children}
+    </label>
+  );
+
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-7xl mx-auto my-6 bg-white shadow rounded-xl p-6 space-y-6"
+      className={`max-w-5xl mx-auto my-6 shadow rounded-xl p-6 space-y-6 ${pageClass}`}
     >
       {/* HEADER */}
       <div className="flex justify-between items-center flex-wrap gap-2">
@@ -253,261 +281,202 @@ const handleSubmit = async (e) => {
         </button>
       )}
 
-      {/* ================= TABLA — una fila por herramienta ================= */}
-      <div className="overflow-x-auto border rounded-xl">
+      {/* ================= HERRAMIENTAS — formato vertical ================= */}
+      <div className="space-y-4">
         <BannerAutoguardado
           clave={claveAutoguardado}
           onRestaurar={(datosGuardados) => setFormData(datosGuardados)}
           isEditing={isEditing}
         />
 
-        <table className="w-full text-xs border-collapse">
-          <thead className="bg-gray-100 text-gray-700">
-            <tr>
-              <th className="px-3 py-2 text-center">Estado</th>
-              <th className="px-3 py-2 text-left">Herramienta / Detalle</th>
-              <th className="px-3 py-2 text-left">N° Pedido</th>
-              <th className="px-3 py-2 text-left">Cantidad</th>
-              <th className="px-3 py-2 text-left">Estado Salida</th>
-              <th className="px-3 py-2 text-left">Técnico Salida</th>
-              <th className="px-3 py-2 text-left">Fecha Salida</th>
-              <th className="px-3 py-2 text-center">Foto Antes 📷</th>
-              <th className="px-3 py-2 text-left">Técnico Ingreso</th>
-              <th className="px-3 py-2 text-left">Fecha Ingreso</th>
-              <th className="px-3 py-2 text-left">Estado Ingreso</th>
-              <th className="px-3 py-2 text-center">Foto Después 📷</th>
-              {!isLocked && <th className="px-3 py-2"></th>}
-            </tr>
-          </thead>
+        {formData.items.length === 0 && (
+          <div className={`rounded-xl border p-8 text-center text-sm ${sectionClass} ${mutedClass}`}>
+            Sin herramientas. Haz clic en "+ Agregar herramienta".
+          </div>
+        )}
 
-          <tbody>
-            {formData.items.length === 0 && (
-              <tr>
-                <td
-                  colSpan={isLocked ? 12 : 13}
-                  className="text-center py-8 text-gray-400"
-                >
-                  Sin herramientas. Haz clic en "+ Agregar herramienta".
-                </td>
-              </tr>
-            )}
+        {formData.items.map((item, index) => {
+          const ingresoCompleto = !!item.imagenIngresoUrl;
 
-            {formData.items.map((item) => {
-              const ingresoCompleto = !!item.imagenIngresoUrl;
+          return (
+            <div key={item.id} className={`rounded-2xl border p-4 shadow-sm space-y-4 ${cardClass}`}>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold">
+                    Herramienta {index + 1}
+                  </p>
+                  <p className={`text-xs ${mutedClass}`}>
+                    {ingresoCompleto ? "Ingreso completo" : "Pendiente de ingreso"}
+                  </p>
+                </div>
 
-              return (
-                <tr key={item.id} className="border-t hover:bg-gray-50">
+                <div className="flex items-center gap-3">
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${ingresoCompleto ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                    {ingresoCompleto ? "Completo" : "Pendiente"}
+                  </span>
 
-                  {/* ESTADO */}
-                  <td className="px-3 py-2 text-center text-base">
-                    {ingresoCompleto ? "🟢" : "🔴"}
-                  </td>
+                  {!isLocked && (
+                    <button
+                      type="button"
+                      onClick={() => removeItem(item.id)}
+                      className="rounded border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+                    >
+                      Eliminar
+                    </button>
+                  )}
+                </div>
+              </div>
 
-                  {/* DETALLE */}
-                  <td className="px-2 py-2">
+              <div className={`rounded-xl border p-4 ${sectionClass}`}>
+                <h2 className="mb-3 text-sm font-semibold">Datos de herramienta</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <Field label="Herramienta / Detalle">
                     <input
                       value={item.detalle}
-                      onChange={(e) =>
-                        updateItem(item.id, "detalle", e.target.value)
-                      }
+                      onChange={(e) => updateItem(item.id, "detalle", e.target.value)}
                       disabled={isLocked}
                       placeholder="Descripción herramienta"
-                      className="border rounded px-2 py-1 w-full min-w-[140px] disabled:bg-gray-50"
+                      className={`w-full rounded border px-3 py-2 text-sm ${inputClass}`}
                     />
-                  </td>
+                  </Field>
 
-                  {/* PEDIDO */}
-                  <td className="px-2 py-2">
+                  <Field label="N° Pedido">
                     <input
                       value={item.pedido}
-                      onChange={(e) =>
-                        updateItem(item.id, "pedido", e.target.value)
-                      }
+                      onChange={(e) => updateItem(item.id, "pedido", e.target.value)}
                       disabled={isLocked}
                       placeholder="N° Pedido"
-                      className="border rounded px-2 py-1 w-full min-w-[90px] disabled:bg-gray-50"
+                      className={`w-full rounded border px-3 py-2 text-sm ${inputClass}`}
                     />
-                  </td>
+                  </Field>
 
-                  {/* CANTIDAD */}
-<td className="px-2 py-2">
-  <input
-    value={item.cantidad || ""}
-    onChange={(e) =>
-      updateItem(item.id, "cantidad", e.target.value)
-    }
-    disabled={isLocked}
-    placeholder="Cantidad"
-    className="border rounded px-2 py-1 w-full min-w-[70px] disabled:bg-gray-50"
-  />
-</td>
-
-{/* ESTADO SALIDA */}
-<td className="px-2 py-2">
-  <input
-    value={item.estadoSalida || ""}
-    onChange={(e) =>
-      updateItem(item.id, "estadoSalida", e.target.value)
-    }
-    disabled={isLocked}
-    placeholder="Estado salida"
-    className="border rounded px-2 py-1 w-full min-w-[110px] disabled:bg-gray-50"
-  />
-</td>
-
-                  {/* TÉCNICO SALIDA */}
-                  <td className="px-2 py-2">
-                    <select
-                      value={item.tecnicoSalida}
-                      onChange={(e) =>
-                        updateItem(item.id, "tecnicoSalida", e.target.value)
-                      }
-                      disabled={isLocked}
-                      className="border rounded px-2 py-1 w-full min-w-[140px] disabled:bg-gray-50"
-                    >
-                      <option value="">Seleccione</option>
-                      {TECHNICIANS.map((t) => (
-                        <option key={t.name} value={t.name}>
-                          {t.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-
-                  {/* FECHA SALIDA */}
-                  <td className="px-2 py-2">
+                  <Field label="Cantidad">
                     <input
-                      type="date"
-                      value={item.fechaSalida || ""}
-                      onChange={(e) =>
-                        updateItem(item.id, "fechaSalida", e.target.value)
-                      }
+                      value={item.cantidad || ""}
+                      onChange={(e) => updateItem(item.id, "cantidad", e.target.value)}
                       disabled={isLocked}
-                      className="border rounded px-2 py-1 disabled:bg-gray-50"
+                      placeholder="Cantidad"
+                      className={`w-full rounded border px-3 py-2 text-sm ${inputClass}`}
                     />
-                  </td>
+                  </Field>
+                </div>
+              </div>
 
-                  {/* FOTO ANTES */}
-                  <td className="px-2 py-2 text-center">
-                    <ImagenCell
-                      item={item}
-                      campo="imagenSalidaUrl"
-                      label="Foto antes"
-                    />
-                  </td>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className={`rounded-xl border p-4 ${sectionClass}`}>
+                  <h2 className="mb-3 text-sm font-semibold">Salida</h2>
+                  <div className="space-y-3">
+                    <Field label="Estado salida">
+                      <input
+                        value={item.estadoSalida || ""}
+                        onChange={(e) => updateItem(item.id, "estadoSalida", e.target.value)}
+                        disabled={isLocked}
+                        placeholder="Estado salida"
+                        className={`w-full rounded border px-3 py-2 text-sm ${inputClass}`}
+                      />
+                    </Field>
 
-                  {/* TÉCNICO INGRESO */}
-                  <td className="px-2 py-2">
-                    <select
-                      value={item.tecnicoIngreso || ""}
-                      onChange={(e) =>
-                        updateItem(item.id, "tecnicoIngreso", e.target.value)
-                      }
-                      disabled={isLocked}
-                      className="border rounded px-2 py-1 w-full min-w-[140px] disabled:bg-gray-50"
-                    >
-                      <option value="">Seleccione</option>
-                      {TECHNICIANS.map((t) => (
-                        <option key={t.name} value={t.name}>
-                          {t.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-
-                  {/* FECHA INGRESO */}
-                  <td className="px-2 py-2">
-                    <input
-                      type="date"
-                      value={item.fechaIngreso || ""}
-                      onChange={(e) =>
-                        updateItem(item.id, "fechaIngreso", e.target.value)
-                      }
-                      disabled={isLocked}
-                      className="border rounded px-2 py-1 disabled:bg-gray-50"
-                    />
-                  </td>
-
-                  {/* ESTADO INGRESO */}
-<td className="px-2 py-2">
-  <input
-    value={item.estadoIngreso || ""}
-    onChange={(e) =>
-      updateItem(item.id, "estadoIngreso", e.target.value)
-    }
-    disabled={isLocked}
-    placeholder="Estado ingreso"
-    className="border rounded px-2 py-1 w-full min-w-[110px] disabled:bg-gray-50"
-  />
-</td>
-
-                  {/* FOTO DESPUÉS */}
-                  <td className="px-2 py-2 text-center">
-                    <ImagenCell
-                      item={item}
-                      campo="imagenIngresoUrl"
-                      label="Foto después"
-                    />
-                  </td>
-
-                  {/* ELIMINAR */}
-                  {!isLocked && (
-                    <td className="px-2 py-2 text-center">
-                      <button
-                        type="button"
-                        onClick={() => removeItem(item.id)}
-                        className="text-red-500 hover:text-red-700 text-base"
-                        title="Eliminar fila"
+                    <Field label="Técnico salida">
+                      <select
+                        value={item.tecnicoSalida}
+                        onChange={(e) => updateItem(item.id, "tecnicoSalida", e.target.value)}
+                        disabled={isLocked}
+                        className={`w-full rounded border px-3 py-2 text-sm ${inputClass}`}
                       >
-                        ✕
-                      </button>
-                    </td>
-                  )}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                        <option value="">Seleccione</option>
+                        {TECHNICIANS.map((t) => (
+                          <option key={t.name} value={t.name}>{t.name}</option>
+                        ))}
+                      </select>
+                    </Field>
+
+                    <Field label="Fecha salida">
+                      <input
+                        type="date"
+                        value={item.fechaSalida || ""}
+                        onChange={(e) => updateItem(item.id, "fechaSalida", e.target.value)}
+                        disabled={isLocked}
+                        className={`w-full rounded border px-3 py-2 text-sm ${inputClass}`}
+                      />
+                    </Field>
+
+                    <Field label="Foto antes">
+                      <div className={`rounded border p-3 ${isLight ? "bg-white border-slate-200" : "bg-slate-950/60 border-white/10"}`}>
+                        <ImagenCell item={item} campo="imagenSalidaUrl" label="Foto antes" />
+                      </div>
+                    </Field>
+
+                    <Field label="Observaciones salida">
+                      <textarea
+                        value={item.observacionesSalida || ""}
+                        onChange={(e) => updateItem(item.id, "observacionesSalida", e.target.value)}
+                        disabled={isLocked}
+                        placeholder="Observaciones al momento de salida"
+                        className={`min-h-[90px] w-full rounded border px-3 py-2 text-sm ${inputClass}`}
+                      />
+                    </Field>
+                  </div>
+                </div>
+
+                <div className={`rounded-xl border p-4 ${sectionClass}`}>
+                  <h2 className="mb-3 text-sm font-semibold">Ingreso</h2>
+                  <div className="space-y-3">
+                    <Field label="Estado ingreso">
+                      <input
+                        value={item.estadoIngreso || ""}
+                        onChange={(e) => updateItem(item.id, "estadoIngreso", e.target.value)}
+                        disabled={isLocked}
+                        placeholder="Estado ingreso"
+                        className={`w-full rounded border px-3 py-2 text-sm ${inputClass}`}
+                      />
+                    </Field>
+
+                    <Field label="Técnico ingreso">
+                      <select
+                        value={item.tecnicoIngreso || ""}
+                        onChange={(e) => updateItem(item.id, "tecnicoIngreso", e.target.value)}
+                        disabled={isLocked}
+                        className={`w-full rounded border px-3 py-2 text-sm ${inputClass}`}
+                      >
+                        <option value="">Seleccione</option>
+                        {TECHNICIANS.map((t) => (
+                          <option key={t.name} value={t.name}>{t.name}</option>
+                        ))}
+                      </select>
+                    </Field>
+
+                    <Field label="Fecha ingreso">
+                      <input
+                        type="date"
+                        value={item.fechaIngreso || ""}
+                        onChange={(e) => updateItem(item.id, "fechaIngreso", e.target.value)}
+                        disabled={isLocked}
+                        className={`w-full rounded border px-3 py-2 text-sm ${inputClass}`}
+                      />
+                    </Field>
+
+                    <Field label="Foto después">
+                      <div className={`rounded border p-3 ${isLight ? "bg-white border-slate-200" : "bg-slate-950/60 border-white/10"}`}>
+                        <ImagenCell item={item} campo="imagenIngresoUrl" label="Foto después" />
+                      </div>
+                    </Field>
+
+                    <Field label="Observaciones ingreso">
+                      <textarea
+                        value={item.observacionesIngreso || ""}
+                        onChange={(e) => updateItem(item.id, "observacionesIngreso", e.target.value)}
+                        disabled={isLocked}
+                        placeholder="Observaciones al momento de ingreso"
+                        className={`min-h-[90px] w-full rounded border px-3 py-2 text-sm ${inputClass}`}
+                      />
+                    </Field>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
-
-      {/* ================= OBSERVACIONES POR HERRAMIENTA ================= */}
-{formData.items.length > 0 && (
-  <div className="grid md:grid-cols-2 gap-4">
-    {formData.items.map((item, index) => (
-      <div key={item.id} className="border rounded p-3 bg-gray-50">
-        <p className="font-semibold text-sm mb-2">
-          Observaciones herramienta {index + 1}
-        </p>
-
-        <label className="text-xs font-semibold">
-          Observaciones salida
-        </label>
-        <textarea
-          value={item.observacionesSalida || ""}
-          onChange={(e) =>
-            updateItem(item.id, "observacionesSalida", e.target.value)
-          }
-          disabled={isLocked}
-          placeholder="Observaciones al momento de salida"
-          className="w-full border rounded p-2 text-xs min-h-[70px] mb-2 disabled:bg-gray-100"
-        />
-
-        <label className="text-xs font-semibold">
-          Observaciones ingreso
-        </label>
-        <textarea
-          value={item.observacionesIngreso || ""}
-          onChange={(e) =>
-            updateItem(item.id, "observacionesIngreso", e.target.value)
-          }
-          disabled={isLocked}
-          placeholder="Observaciones al momento de ingreso"
-          className="w-full border rounded p-2 text-xs min-h-[70px] disabled:bg-gray-100"
-        />
-      </div>
-    ))}
-  </div>
-)}
 
       {/* ================= FIRMAS ================= */}
       <div className="grid md:grid-cols-2 gap-6">
@@ -515,7 +484,7 @@ const handleSubmit = async (e) => {
           <p className="font-semibold mb-1 text-sm">Firma Responsable</p>
           <SignatureCanvas
             ref={firmaResponsableRef}
-            canvasProps={{ className: "border w-full h-32 rounded" }}
+            canvasProps={{ className: "border w-full h-32 rounded bg-white" }}
           />
           {!isLocked && (
             <button
@@ -532,7 +501,7 @@ const handleSubmit = async (e) => {
           <p className="font-semibold mb-1 text-sm">Firma Aprobador</p>
           <SignatureCanvas
             ref={firmaAprobadorRef}
-            canvasProps={{ className: "border w-full h-32 rounded" }}
+            canvasProps={{ className: "border w-full h-32 rounded bg-white" }}
           />
           {!isLocked && (
             <button
@@ -551,7 +520,11 @@ const handleSubmit = async (e) => {
         <button
           type="button"
           onClick={() => navigate("/operaciones/registro")} // ✅ ruta correcta
-          className="border px-4 py-2 rounded hover:bg-gray-50 text-sm"
+          className={`border px-4 py-2 rounded text-sm transition ${
+            isLight
+              ? "border-slate-300 text-slate-700 hover:bg-slate-50"
+              : "border-white/20 text-white hover:bg-white/10"
+          }`}
         >
           ← Volver
         </button>
