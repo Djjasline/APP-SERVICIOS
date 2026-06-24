@@ -3,6 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import {
+  canAccessRecord,
+  getPermittedOwnerIds,
+  getRecordAccessPermissionsForUser,
+  mergeRecords,
+} from "@/services/accessControlService";
 
 const tipos = [
   {
@@ -55,6 +61,7 @@ export default function IndexMantenimiento() {
     superAdminActivo || supervisorProyectoActivo;
 
   const [items, setItems] = useState([]);
+  const [accessPermissions, setAccessPermissions] = useState([]);
   const [estado, setEstado] = useState("todos");
 
   const [filters, setFilters] = useState({
@@ -68,25 +75,41 @@ export default function IndexMantenimiento() {
     if (!user?.id) return;
 
     const load = async () => {
-      let query = supabase
-        .from("registros")
-        .select("*")
-        .eq("area", "vehiculos")
-        .eq("tipo", "mantenimiento")
-        .order("updated_at", { ascending: false });
+      const permissions = await getRecordAccessPermissionsForUser(user.id);
+      setAccessPermissions(permissions);
 
       /*
         REGLA:
         - Super admin ve todo.
         - Supervisor de proyecto ve todos los mantenimientos de vehículos.
-        - Proveedor vehículos ve solo lo suyo.
+        - Proveedor vehículos ve lo suyo y dueños autorizados.
         - Técnico normal ve solo lo suyo.
       */
-      if (!puedeVerTodoVehiculos) {
-        query = query.eq("data->>tecnicoCorreo", user.email);
-      }
+      const loadBaseQuery = () =>
+        supabase
+          .from("registros")
+          .select("*")
+          .eq("area", "vehiculos")
+          .eq("tipo", "mantenimiento")
+          .order("updated_at", { ascending: false });
 
-      const { data, error } = await query;
+      let data = [];
+      let error = null;
+
+      if (puedeVerTodoVehiculos) {
+        const response = await loadBaseQuery();
+        data = response.data || [];
+        error = response.error;
+      } else {
+        const ownerIds = getPermittedOwnerIds(permissions, "vehiculos", "mantenimiento", "view");
+        const [ownResponse, permittedResponse] = await Promise.all([
+          loadBaseQuery().eq("data->>tecnicoCorreo", user.email),
+          ownerIds.length > 0 ? loadBaseQuery().in("user_id", ownerIds) : Promise.resolve({ data: [], error: null }),
+        ]);
+
+        error = ownResponse.error || permittedResponse.error;
+        data = mergeRecords(ownResponse.data || [], permittedResponse.data || []);
+      }
 
       if (error) {
         console.error(error);
@@ -99,6 +122,38 @@ export default function IndexMantenimiento() {
 
     load();
   }, [user?.id, user?.email, puedeVerTodoVehiculos]);
+
+  const isOwnMaintenance = (item) => {
+    return item.user_id === user?.id || item.data?.tecnicoCorreo === user?.email;
+  };
+
+  const canEditMaintenance = (item) => {
+    return (
+      puedeVerTodoVehiculos ||
+      isOwnMaintenance(item) ||
+      canAccessRecord({
+        record: item,
+        userId: user?.id,
+        permissions: accessPermissions,
+        isSuperAdmin: superAdminActivo,
+        action: "edit",
+      })
+    );
+  };
+
+  const canDownloadMaintenance = (item) => {
+    return (
+      puedeVerTodoVehiculos ||
+      isOwnMaintenance(item) ||
+      canAccessRecord({
+        record: item,
+        userId: user?.id,
+        permissions: accessPermissions,
+        isSuperAdmin: superAdminActivo,
+        action: "download",
+      })
+    );
+  };
 
   const handleDelete = async (item) => {
     if (!user?.id) {
@@ -209,7 +264,7 @@ export default function IndexMantenimiento() {
 
       {proveedorVehiculosActivo && (
         <div className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">
-          Acceso proveedor: solo puedes ver los mantenimientos asociados a tu usuario.
+          Acceso proveedor: puedes ver tus mantenimientos y los registros autorizados por administración.
         </div>
       )}
 
@@ -339,16 +394,18 @@ export default function IndexMantenimiento() {
                   </div>
 
                   <div className="flex gap-3 text-sm">
-                    <button
-                      onClick={() =>
-                        navigate(`/vehiculos/mantenimiento/${item.subtipo}/${item.id}`)
-                      }
-                      className="text-blue-600 hover:underline"
-                    >
-                      Abrir
-                    </button>
+                    {canEditMaintenance(item) && (
+                      <button
+                        onClick={() =>
+                          navigate(`/vehiculos/mantenimiento/${item.subtipo}/${item.id}`)
+                        }
+                        className="text-blue-600 hover:underline"
+                      >
+                        Abrir
+                      </button>
+                    )}
 
-                    {item.estado === "completado" && (
+                    {item.estado === "completado" && canDownloadMaintenance(item) && (
                       <button
                         onClick={() =>
                           navigate(`/vehiculos/mantenimiento/${item.subtipo}/${item.id}/pdf`)
@@ -359,12 +416,14 @@ export default function IndexMantenimiento() {
                       </button>
                     )}
 
-                    <button
-                      onClick={() => handleDelete(item)}
-                      className="text-red-600 hover:underline"
-                    >
-                      Eliminar
-                    </button>
+                    {(puedeVerTodoVehiculos || isOwnMaintenance(item)) && (
+                      <button
+                        onClick={() => handleDelete(item)}
+                        className="text-red-600 hover:underline"
+                      >
+                        Eliminar
+                      </button>
+                    )}
                   </div>
                 </div>
               );

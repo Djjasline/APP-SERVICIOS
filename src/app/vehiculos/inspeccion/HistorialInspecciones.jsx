@@ -3,6 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import {
+  canAccessRecord,
+  getPermittedOwnerIds,
+  getRecordAccessPermissionsForUser,
+  mergeRecords,
+} from "@/services/accessControlService";
 
 export default function IndexInspeccion() {
   const navigate = useNavigate();
@@ -34,6 +40,7 @@ export default function IndexInspeccion() {
     superAdminActivo || supervisorProyectoActivo;
 
   const [inspections, setInspections] = useState([]);
+  const [accessPermissions, setAccessPermissions] = useState([]);
 
   /* =============================
      FILTROS
@@ -52,25 +59,41 @@ export default function IndexInspeccion() {
     if (!user?.id) return;
 
     const loadInspections = async () => {
-      let query = supabase
-        .from("registros")
-        .select("*")
-        .eq("tipo", "inspeccion")
-        .or("area.eq.vehiculos,area.is.null")
-        .order("created_at", { ascending: false });
+      const permissions = await getRecordAccessPermissionsForUser(user.id);
+      setAccessPermissions(permissions);
 
       /*
         REGLA:
         - Super admin ve todo.
         - Supervisor de proyecto ve todas las inspecciones de vehículos.
-        - Proveedor vehículos ve solo lo suyo.
+        - Proveedor vehículos ve lo suyo y dueños autorizados.
         - Técnico normal ve solo lo suyo.
       */
-      if (!puedeVerTodoVehiculos) {
-        query = query.eq("user_id", user.id);
-      }
+      const loadBaseQuery = () =>
+        supabase
+          .from("registros")
+          .select("*")
+          .eq("tipo", "inspeccion")
+          .or("area.eq.vehiculos,area.is.null")
+          .order("created_at", { ascending: false });
 
-      const { data, error } = await query;
+      let data = [];
+      let error = null;
+
+      if (puedeVerTodoVehiculos) {
+        const response = await loadBaseQuery();
+        data = response.data || [];
+        error = response.error;
+      } else {
+        const ownerIds = getPermittedOwnerIds(permissions, "vehiculos", "inspeccion", "view");
+        const [ownResponse, permittedResponse] = await Promise.all([
+          loadBaseQuery().eq("user_id", user.id),
+          ownerIds.length > 0 ? loadBaseQuery().in("user_id", ownerIds) : Promise.resolve({ data: [], error: null }),
+        ]);
+
+        error = ownResponse.error || permittedResponse.error;
+        data = mergeRecords(ownResponse.data || [], permittedResponse.data || []);
+      }
 
       if (error) {
         console.error(error);
@@ -83,6 +106,36 @@ export default function IndexInspeccion() {
 
     loadInspections();
   }, [user?.id, puedeVerTodoVehiculos]);
+
+  const isOwnInspection = (item) => item.user_id === user?.id;
+
+  const canEditInspection = (item) => {
+    return (
+      puedeVerTodoVehiculos ||
+      isOwnInspection(item) ||
+      canAccessRecord({
+        record: item,
+        userId: user?.id,
+        permissions: accessPermissions,
+        isSuperAdmin: superAdminActivo,
+        action: "edit",
+      })
+    );
+  };
+
+  const canDownloadInspection = (item) => {
+    return (
+      puedeVerTodoVehiculos ||
+      isOwnInspection(item) ||
+      canAccessRecord({
+        record: item,
+        userId: user?.id,
+        permissions: accessPermissions,
+        isSuperAdmin: superAdminActivo,
+        action: "download",
+      })
+    );
+  };
 
   const normalize = (txt) => String(txt || "").toLowerCase();
 
@@ -136,10 +189,20 @@ export default function IndexInspeccion() {
      ACCIONES
   ============================== */
   const handleOpen = (item) => {
+    if (!canEditInspection(item)) {
+      alert("No tienes permiso para editar esta inspección.");
+      return;
+    }
+
     navigate(`/vehiculos/inspeccion/${item.subtipo}/${item.id}`);
   };
 
   const handleGeneratePdf = (item) => {
+    if (!canDownloadInspection(item)) {
+      alert("No tienes permiso para descargar esta inspección.");
+      return;
+    }
+
     navigate(`/vehiculos/inspeccion/${item.subtipo}/${item.id}/pdf`);
   };
 
@@ -237,7 +300,7 @@ export default function IndexInspeccion() {
 
       {proveedorVehiculosActivo && (
         <div className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">
-          Acceso proveedor: solo puedes ver las inspecciones asociadas a tu usuario.
+          Acceso proveedor: puedes ver tus inspecciones y los registros autorizados por administración.
         </div>
       )}
 
@@ -396,7 +459,7 @@ export default function IndexInspeccion() {
               </div>
 
               <div className="flex gap-3 text-xs shrink-0">
-                {item.estado === "completado" && (
+                {item.estado === "completado" && canDownloadInspection(item) && (
                   <button
                     onClick={() => handleGeneratePdf(item)}
                     className="text-green-600 font-semibold hover:underline"
@@ -405,19 +468,23 @@ export default function IndexInspeccion() {
                   </button>
                 )}
 
-                <button
-                  onClick={() => handleOpen(item)}
-                  className="text-blue-600 hover:underline"
-                >
-                  Abrir
-                </button>
+                {canEditInspection(item) && (
+                  <button
+                    onClick={() => handleOpen(item)}
+                    className="text-blue-600 hover:underline"
+                  >
+                    Abrir
+                  </button>
+                )}
 
-                <button
-                  onClick={() => handleDelete(item)}
-                  className="text-red-600 hover:underline"
-                >
-                  Eliminar
-                </button>
+                {(puedeVerTodoVehiculos || isOwnInspection(item)) && (
+                  <button
+                    onClick={() => handleDelete(item)}
+                    className="text-red-600 hover:underline"
+                  >
+                    Eliminar
+                  </button>
+                )}
               </div>
             </div>
           ))

@@ -15,12 +15,13 @@ import {
   BookOpen,
   Database,
   MessageCircle,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isProveedorVehiculos, isProveedorVehiculosOnly } = useAuth();
+  const { isProveedorVehiculos, isProveedorVehiculosOnly, isSuperAdmin } = useAuth();
   const { isLight } = useTheme();
 
   const [openVehiculos, setOpenVehiculos] = useState(false);
@@ -32,6 +33,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
   const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
   const puedeVerTodo = !proveedorSoloVehiculos;
+  const superAdminActivo =
+    typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
   const informeGeneralTooltip =
     "Informe general de servicio técnico: se usa para servicios técnicos generales; no aplica para inspección ni mantenimiento de equipos.";
 
@@ -203,6 +206,20 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             <MessageCircle size={20} className={iconClass} />
             {openSidebar && "Chat interno"}
             {tooltip("Chat interno")}
+          </button>
+        )}
+
+        {/* ADMINISTRACIÓN */}
+        {superAdminActivo && (
+          <button
+            type="button"
+            onClick={() => go("/admin/permisos-registros")}
+            className={itemClass(isActive("/admin/permisos-registros"))}
+            aria-current={isActive("/admin/permisos-registros") ? "page" : undefined}
+          >
+            <ShieldCheck size={20} className={iconClass} />
+            {openSidebar && "Permisos de registros"}
+            {tooltip("Permisos de registros")}
           </button>
         )}
 

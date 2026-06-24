@@ -1,6 +1,12 @@
 import SyncStatus from "@/components/SyncStatus";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
+import {
+  canAccessRecord,
+  getPermittedOwnerIds,
+  getRecordAccessPermissionsForUser,
+  mergeRecords,
+} from "@/services/accessControlService";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -33,6 +39,7 @@ export default function InformeHome() {
     superAdminActivo || supervisorProyectoActivo;
 
   const [reports, setReports] = useState([]);
+  const [accessPermissions, setAccessPermissions] = useState([]);
   const [filter, setFilter] = useState("todos");
 
   const [filters, setFilters] = useState({
@@ -50,24 +57,40 @@ export default function InformeHome() {
 
     const loadReports = async () => {
       try {
-        let query = supabase
-          .from("registros")
-          .select("*")
-          .eq("tipo", "informe")
-          .order("created_at", { ascending: false });
+        const permissions = await getRecordAccessPermissionsForUser(user.id);
+        setAccessPermissions(permissions);
 
         /*
           REGLA:
           - Super admin ve todo.
           - Supervisor de proyecto ve todos los informes de vehículos.
-          - Proveedor vehículos ve solo lo creado/asignado a su correo.
+          - Proveedor vehículos ve lo creado/asignado a su correo y dueños autorizados.
           - Técnico normal ve solo lo suyo.
         */
-        if (!puedeVerTodoVehiculos) {
-          query = query.eq("data->>tecnicoCorreo", user.email);
-        }
+        const loadBaseQuery = () =>
+          supabase
+            .from("registros")
+            .select("*")
+            .eq("tipo", "informe")
+            .order("created_at", { ascending: false });
 
-        const { data, error } = await query;
+        let data = [];
+        let error = null;
+
+        if (puedeVerTodoVehiculos) {
+          const response = await loadBaseQuery();
+          data = response.data || [];
+          error = response.error;
+        } else {
+          const ownerIds = getPermittedOwnerIds(permissions, "vehiculos", "informe", "view");
+          const [ownResponse, permittedResponse] = await Promise.all([
+            loadBaseQuery().eq("data->>tecnicoCorreo", user.email),
+            ownerIds.length > 0 ? loadBaseQuery().in("user_id", ownerIds) : Promise.resolve({ data: [], error: null }),
+          ]);
+
+          error = ownResponse.error || permittedResponse.error;
+          data = mergeRecords(ownResponse.data || [], permittedResponse.data || []);
+        }
 
         if (error) {
           console.error("Error:", error);
@@ -95,6 +118,38 @@ export default function InformeHome() {
 
     loadReports();
   }, [user?.id, user?.email, puedeVerTodoVehiculos]);
+
+  const isOwnReport = (report) => {
+    return report.user_id === user?.id || report.data?.tecnicoCorreo === user?.email;
+  };
+
+  const canEditReport = (report) => {
+    return (
+      puedeVerTodoVehiculos ||
+      isOwnReport(report) ||
+      canAccessRecord({
+        record: report,
+        userId: user?.id,
+        permissions: accessPermissions,
+        isSuperAdmin: superAdminActivo,
+        action: "edit",
+      })
+    );
+  };
+
+  const canDownloadReport = (report) => {
+    return (
+      puedeVerTodoVehiculos ||
+      isOwnReport(report) ||
+      canAccessRecord({
+        record: report,
+        userId: user?.id,
+        permissions: accessPermissions,
+        isSuperAdmin: superAdminActivo,
+        action: "download",
+      })
+    );
+  };
 
   /* ===========================
      FILTROS
@@ -125,6 +180,11 @@ export default function InformeHome() {
      ABRIR
   =========================== */
   const openReport = (report) => {
+    if (!canEditReport(report)) {
+      alert("No tienes permiso para editar este informe.");
+      return;
+    }
+
     navigate(`/vehiculos/informe/${report.id}`);
   };
 
@@ -195,7 +255,7 @@ export default function InformeHome() {
 
       {proveedorVehiculosActivo && (
         <div className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">
-          Acceso proveedor: solo puedes ver los informes asociados a tu usuario.
+          Acceso proveedor: puedes ver tus informes y los registros autorizados por administración.
         </div>
       )}
 
@@ -329,14 +389,16 @@ export default function InformeHome() {
             </div>
 
             <div className="flex gap-3 text-sm shrink-0">
-              <button
-                onClick={() => openReport(r)}
-                className="text-blue-600 hover:underline"
-              >
-                Abrir
-              </button>
+              {canEditReport(r) && (
+                <button
+                  onClick={() => openReport(r)}
+                  className="text-blue-600 hover:underline"
+                >
+                  Abrir
+                </button>
+              )}
 
-              {r.estado === "completado" && (
+              {r.estado === "completado" && canDownloadReport(r) && (
                 <button
                   onClick={() => navigate(`/vehiculos/informe/pdf/${r.id}`)}
                   className="text-green-600 hover:underline font-semibold"
@@ -345,12 +407,14 @@ export default function InformeHome() {
                 </button>
               )}
 
-              <button
-                onClick={() => deleteReport(r.id)}
-                className="text-red-600 hover:underline"
-              >
-                Eliminar
-              </button>
+              {(puedeVerTodoVehiculos || isOwnReport(r)) && (
+                <button
+                  onClick={() => deleteReport(r.id)}
+                  className="text-red-600 hover:underline"
+                >
+                  Eliminar
+                </button>
+              )}
             </div>
           </div>
         ))}
