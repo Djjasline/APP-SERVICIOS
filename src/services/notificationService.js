@@ -44,12 +44,46 @@ export async function createNotification({
 
     if (error) {
       console.error("Error creating notification:", error);
-      return null;
+      return createNotificationFallback(payload);
     }
 
     return data;
   } catch (err) {
     console.error("Unexpected error creating notification:", err);
+    return createNotificationFallback({
+      recipient_email,
+      title,
+      message,
+      record_type,
+      record_id,
+    });
+  }
+}
+
+async function createNotificationFallback(payload) {
+  try {
+    const { data, error } = await supabase
+      .from("notifications")
+      .insert({
+        recipient_email: payload.recipient_email,
+        title: payload.title,
+        message: payload.message,
+        record_type: payload.record_type,
+        record_id: payload.record_id,
+        read: false,
+        created_at: new Date().toISOString(),
+      })
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error creating notification fallback:", error);
+      return null;
+    }
+
+    return data;
+  } catch (fallbackError) {
+    console.error("Unexpected error creating notification fallback:", fallbackError);
     return null;
   }
 }

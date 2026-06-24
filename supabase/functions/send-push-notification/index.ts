@@ -10,8 +10,19 @@ webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+function jsonResponse(body: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      ...corsHeaders,
+    },
+  });
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -37,7 +48,7 @@ serve(async (req) => {
   const requesterId = userData?.user?.id;
 
   if (!requesterId) {
-    return new Response(JSON.stringify({ error: "No autorizado" }), { status: 401 });
+    return jsonResponse({ error: "No autorizado" }, 401);
   }
 
   const {
@@ -71,10 +82,7 @@ serve(async (req) => {
         .select("id, email");
 
       if (profilesError) {
-        return new Response(JSON.stringify({ error: profilesError.message }), {
-          status: 500,
-          headers: corsHeaders,
-        });
+        return jsonResponse({ error: profilesError.message }, 500);
       }
 
       const emailSet = new Set(normalizedEmails);
@@ -92,10 +100,7 @@ serve(async (req) => {
       .in("id", Array.from(targetUserIds));
 
     if (profilesError) {
-      return new Response(JSON.stringify({ error: profilesError.message }), {
-        status: 500,
-        headers: corsHeaders,
-      });
+      return jsonResponse({ error: profilesError.message }, 500);
     }
 
     (profiles || [])
@@ -105,10 +110,7 @@ serve(async (req) => {
   }
 
   if (targetUserIds.size === 0) {
-    return new Response(JSON.stringify({ error: "Debes indicar destinatarios" }), {
-      status: 400,
-      headers: corsHeaders,
-    });
+    return jsonResponse({ error: "Debes indicar destinatarios" }, 400);
   }
 
   let notificationsInserted = 0;
@@ -130,10 +132,7 @@ serve(async (req) => {
       .select("id");
 
     if (notificationError) {
-      return new Response(JSON.stringify({ error: notificationError.message }), {
-        status: 500,
-        headers: corsHeaders,
-      });
+      return jsonResponse({ error: notificationError.message }, 500);
     }
 
     notificationsInserted = notifications?.length || 0;
@@ -147,10 +146,7 @@ serve(async (req) => {
   const { data: suscripciones, error } = await query;
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: corsHeaders,
-    });
+    return jsonResponse({ error: error.message }, 500);
   }
 
   const payload = JSON.stringify({
@@ -170,17 +166,9 @@ serve(async (req) => {
     )
   );
 
-  return new Response(
-    JSON.stringify({
-      enviados: resultados.filter((r) => r.status === "fulfilled").length,
-      fallidos: resultados.filter((r) => r.status === "rejected").length,
-      notificaciones: notificationsInserted,
-    }),
-    {
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
-      },
-    }
-  );
+  return jsonResponse({
+    enviados: resultados.filter((r) => r.status === "fulfilled").length,
+    fallidos: resultados.filter((r) => r.status === "rejected").length,
+    notificaciones: notificationsInserted,
+  });
 });
