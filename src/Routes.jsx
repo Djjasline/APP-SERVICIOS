@@ -163,10 +163,12 @@ export default function RoutesApp() {
 
             <Route path="/informe" element={<VehiculosRoute><InformeHome /></VehiculosRoute>} />
             <Route path="/informe/nuevo" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
+            <Route path="/informe/ver/:id" element={<VehiculosRoute><RecordPermissionRoute action="view" fallback="/vehiculos/informe"><InformePDF allowDownload={false} backPath="/vehiculos/informe" /></RecordPermissionRoute></VehiculosRoute>} />
             <Route path="/informe/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/informe"><NuevoInforme /></RecordPermissionRoute></VehiculosRoute>} />
 
             <Route path="/vehiculos/informe" element={<VehiculosRoute><InformeHome /></VehiculosRoute>} />
             <Route path="/vehiculos/informe/nuevo" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />
+            <Route path="/vehiculos/informe/ver/:id" element={<VehiculosRoute><RecordPermissionRoute action="view" fallback="/vehiculos/informe"><InformePDF allowDownload={false} backPath="/vehiculos/informe" /></RecordPermissionRoute></VehiculosRoute>} />
             <Route path="/vehiculos/informe/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/informe"><NuevoInforme /></RecordPermissionRoute></VehiculosRoute>} />
 
             <Route path="/agua/informe" element={<TechRoute><AguaInformeHome /></TechRoute>} />

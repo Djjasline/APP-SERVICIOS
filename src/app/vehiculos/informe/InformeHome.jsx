@@ -389,6 +389,13 @@ export default function InformeHome() {
             </div>
 
             <div className="flex gap-3 text-sm shrink-0">
+              <button
+                onClick={() => navigate(`/vehiculos/informe/ver/${r.id}`)}
+                className="text-slate-600 hover:underline font-semibold"
+              >
+                Ver
+              </button>
+
               {canEditReport(r) && (
                 <button
                   onClick={() => openReport(r)}

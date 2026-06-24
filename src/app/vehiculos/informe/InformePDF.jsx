@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf"; // ← ajusta la ruta a tu proyecto
 
-export default function InformePDF() {
+export default function InformePDF({ allowDownload = true, backPath = "/informe" }) {
   const navigate = useNavigate();
   const { id } = useParams();
   const [report, setReport] = useState(null);
@@ -577,17 +577,23 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         style={{ display: "flex", justifyContent: "space-between", maxWidth: 794, margin: "24px auto 0" }}
       >
         <button
-          onClick={() => navigate("/informe")}
+          onClick={() => navigate(backPath)}
           className="border px-6 py-2 rounded"
         >
           Volver
         </button>
-        <button
-          onClick={handlePrint}
-          className="bg-green-600 text-white px-6 py-2 rounded"
-        >
-          Descargar PDF
-        </button>
+        {allowDownload ? (
+          <button
+            onClick={handlePrint}
+            className="bg-green-600 text-white px-6 py-2 rounded"
+          >
+            Descargar PDF
+          </button>
+        ) : (
+          <span className="rounded bg-blue-50 px-4 py-2 text-sm text-blue-700">
+            Vista solo lectura
+          </span>
+        )}
         </div>
 
     </div>
