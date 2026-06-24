@@ -50,3 +50,47 @@ create policy "Super Admin puede ver todas las suscripciones"
       where id = auth.uid() and role = 'super_admin'
     )
   );
+
+create table if not exists public.notifications (
+  id uuid primary key default gen_random_uuid(),
+  recipient_email text not null,
+  title text,
+  message text,
+  record_type text,
+  record_id text,
+  read boolean default false,
+  created_at timestamptz default now()
+);
+
+create index if not exists notifications_recipient_read_idx
+  on public.notifications(lower(recipient_email), read, created_at desc);
+
+alter table public.notifications enable row level security;
+
+drop policy if exists "Usuario puede ver sus notificaciones" on public.notifications;
+drop policy if exists "Usuario puede marcar sus notificaciones" on public.notifications;
+drop policy if exists "Usuarios autenticados pueden crear notificaciones" on public.notifications;
+drop policy if exists "Super Admin puede ver todas las notificaciones" on public.notifications;
+
+create policy "Usuario puede ver sus notificaciones"
+  on public.notifications for select
+  using (lower(recipient_email) = lower(auth.jwt() ->> 'email'));
+
+create policy "Usuario puede marcar sus notificaciones"
+  on public.notifications for update
+  using (lower(recipient_email) = lower(auth.jwt() ->> 'email'))
+  with check (lower(recipient_email) = lower(auth.jwt() ->> 'email'));
+
+create policy "Usuarios autenticados pueden crear notificaciones"
+  on public.notifications for insert
+  to authenticated
+  with check (auth.uid() is not null);
+
+create policy "Super Admin puede ver todas las notificaciones"
+  on public.notifications for select
+  using (
+    exists (
+      select 1 from public.profiles
+      where id = auth.uid() and role = 'super_admin'
+    )
+  );
