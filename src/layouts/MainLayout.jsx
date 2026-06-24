@@ -1,10 +1,36 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Outlet, useNavigate, Link } from "react-router-dom";
 import { User, Bell, Moon, Sun } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import Sidebar from "./Sidebar";
 import { getUnreadCount } from "../services/notificationService";
+import { supabase } from "@/lib/supabase";
+
+function playNotificationSound() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+
+    const audioContext = new AudioContext();
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(660, audioContext.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.18, audioContext.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.3);
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.32);
+  } catch (error) {
+    console.warn("No se pudo reproducir sonido de notificación:", error);
+  }
+}
 
 export default function MainLayout() {
   const [openSidebar, setOpenSidebar] = useState(true);
@@ -16,6 +42,8 @@ export default function MainLayout() {
   const { user, logout, role, roleLabel, email } = useAuth();
   const { isLight, toggleTheme } = useTheme();
   const [unread, setUnread] = useState(0);
+  const [chatAlert, setChatAlert] = useState(null);
+  const chatAlertTimer = useRef(null);
 
   /* =========================
      DETECTAR DISPOSITIVO REAL
@@ -73,6 +101,53 @@ export default function MainLayout() {
     };
   }, [email]);
 
+  useEffect(() => {
+    if (!user?.id) return undefined;
+
+    const channel = supabase
+      .channel(`layout-chat-alerts-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_messages",
+        },
+        (payload) => {
+          if (!payload.new || payload.new.sender_id === user.id) return;
+
+          const message = String(payload.new.body || "").trim();
+          const alert = {
+            title: "Nuevo mensaje en chat interno",
+            message: message.length > 80 ? `${message.slice(0, 80)}...` : message || "Tienes un mensaje nuevo.",
+          };
+
+          playNotificationSound();
+          setChatAlert(alert);
+
+          if (chatAlertTimer.current) clearTimeout(chatAlertTimer.current);
+          chatAlertTimer.current = setTimeout(() => setChatAlert(null), 6000);
+
+          if (
+            typeof Notification !== "undefined" &&
+            Notification.permission === "granted" &&
+            document.visibilityState !== "visible"
+          ) {
+            new Notification(alert.title, {
+              body: alert.message,
+              icon: "/icon-192.png",
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      if (chatAlertTimer.current) clearTimeout(chatAlertTimer.current);
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
   return (
     <div
       className={`flex h-screen transition-colors duration-300 ${
@@ -92,7 +167,27 @@ export default function MainLayout() {
 
         setTouchStartX(null);
       }}
-    >
+      >
+      {chatAlert && (
+        <button
+          type="button"
+          onClick={() => {
+            setChatAlert(null);
+            navigate("/chat");
+          }}
+          className={`fixed right-4 top-20 z-[9999] max-w-sm rounded-2xl border px-4 py-3 text-left shadow-2xl transition ${
+            isLight
+              ? "border-blue-200 bg-white text-slate-900"
+              : "border-white/10 bg-slate-950 text-white"
+          }`}
+        >
+          <div className="text-sm font-semibold">{chatAlert.title}</div>
+          <div className={`mt-1 text-xs ${isLight ? "text-slate-600" : "text-slate-300"}`}>
+            {chatAlert.message}
+          </div>
+        </button>
+      )}
+
       {/* ================= SIDEBAR ================= */}
       <div
         className={`
