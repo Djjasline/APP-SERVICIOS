@@ -1,5 +1,11 @@
 import { supabase } from "@/lib/supabase";
 import { saveOrUpdateReport } from "../services/reportService";
+import {
+  canAccessRecord,
+  getPermittedOwnerIds,
+  getRecordAccessPermissionsForUser,
+  mergeRecords,
+} from "@/services/accessControlService";
 
 const SUPER_ADMIN_EMAIL = "smaviles@astap.com";
 const SUPERVISOR_OPERACIONES_EMAIL = "kamhez@astap.com";
@@ -70,26 +76,43 @@ export async function getAllRegistros() {
 
   if (!user) return [];
 
-  let query = supabase
-    .from("registros")
-    .select("*")
-    .eq("area", "operaciones")
-    .eq("tipo", "registro")
-    .eq("subtipo", "herramienta")
-    .order("created_at", { ascending: false });
+  const loadBaseQuery = () =>
+    supabase
+      .from("registros")
+      .select("*")
+      .eq("area", "operaciones")
+      .eq("tipo", "registro")
+      .eq("subtipo", "herramienta")
+      .order("created_at", { ascending: false });
 
-  if (!canViewAll(user.email)) {
-    query = query.eq("user_id", user.id);
+  if (canViewAll(user.email)) {
+    const { data, error } = await loadBaseQuery();
+
+    if (error) {
+      console.error("Error cargando registros:", error);
+      return [];
+    }
+
+    return data || [];
   }
 
-  const { data, error } = await query;
+  const permissions = await getRecordAccessPermissionsForUser(user.id);
+  const ownerIds = getPermittedOwnerIds(permissions, "operaciones", "registro", "view");
+  const [ownResponse, permittedResponse] = await Promise.all([
+    loadBaseQuery().eq("user_id", user.id),
+    ownerIds.length > 0
+      ? loadBaseQuery().in("user_id", ownerIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+
+  const error = ownResponse.error || permittedResponse.error;
 
   if (error) {
     console.error("Error cargando registros:", error);
     return [];
   }
 
-  return data || [];
+  return mergeRecords(ownResponse.data || [], permittedResponse.data || []);
 }
 
 /* ================= OBTENER POR ID ================= */
@@ -100,7 +123,7 @@ export async function getRegistroById(id) {
 
   if (!user) return null;
 
-  let query = supabase
+  const { data, error } = await supabase
     .from("registros")
     .select("*")
     .eq("id", id)
@@ -109,16 +132,25 @@ export async function getRegistroById(id) {
     .eq("subtipo", "herramienta")
     .maybeSingle();
 
-  if (!canViewAll(user.email)) {
-    query = query.eq("user_id", user.id);
-  }
-
-  const { data, error } = await query;
-
   if (error) {
     console.error("Error obteniendo registro:", error);
     return null;
   }
+
+  if (!data) return null;
+
+  if (canViewAll(user.email) || data.user_id === user.id) return data;
+
+  const permissions = await getRecordAccessPermissionsForUser(user.id);
+  const canEdit = canAccessRecord({
+    record: data,
+    userId: user.id,
+    permissions,
+    isSuperAdmin: user.email?.toLowerCase() === SUPER_ADMIN_EMAIL,
+    action: "edit",
+  });
+
+  if (!canEdit) return null;
 
   return data;
 }

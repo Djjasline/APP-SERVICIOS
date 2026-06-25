@@ -9,6 +9,7 @@ import {
 
 const AREAS = [
   { value: "vehiculos", label: "Vehículos Especiales" },
+  { value: "operaciones", label: "Operaciones" },
   { value: "todos", label: "Todas las áreas" },
 ];
 
@@ -17,6 +18,7 @@ const TIPOS = [
   { value: "informe", label: "Informe General" },
   { value: "inspeccion", label: "Inspección" },
   { value: "mantenimiento", label: "Mantenimiento" },
+  { value: "registro", label: "Registro de herramientas" },
 ];
 
 const emptyForm = {

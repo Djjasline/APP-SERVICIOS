@@ -9,13 +9,15 @@ import {
 
 export default function RecordPermissionRoute({ children, action = "view", fallback = "/" }) {
   const { id } = useParams();
-  const { user, isSuperAdmin, isSupervisorProyecto } = useAuth();
+  const { user, isSuperAdmin, isSupervisorProyecto, isSupervisorOperaciones } = useAuth();
   const [allowed, setAllowed] = useState(null);
 
   const superAdminActivo =
     typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
   const supervisorProyectoActivo =
     typeof isSupervisorProyecto === "function" ? isSupervisorProyecto() : !!isSupervisorProyecto;
+  const supervisorOperacionesActivo =
+    typeof isSupervisorOperaciones === "function" ? isSupervisorOperaciones() : !!isSupervisorOperaciones;
 
   useEffect(() => {
     if (!id || id === "new") {
@@ -46,7 +48,12 @@ export default function RecordPermissionRoute({ children, action = "view", fallb
         record.user_id === user.id ||
         (record.data?.tecnicoCorreo && record.data.tecnicoCorreo === user.email);
 
-      if (superAdminActivo || (area === "vehiculos" && supervisorProyectoActivo) || ownRecord) {
+      if (
+        superAdminActivo ||
+        (area === "vehiculos" && supervisorProyectoActivo) ||
+        (area === "operaciones" && supervisorOperacionesActivo) ||
+        ownRecord
+      ) {
         setAllowed(true);
         return;
       }
@@ -64,7 +71,7 @@ export default function RecordPermissionRoute({ children, action = "view", fallb
     };
 
     loadAccess();
-  }, [action, id, user?.id, user?.email, superAdminActivo, supervisorProyectoActivo]);
+  }, [action, id, user?.id, user?.email, superAdminActivo, supervisorProyectoActivo, supervisorOperacionesActivo]);
 
   if (allowed === null) {
     return <div className="p-6 text-sm text-slate-500">Validando permisos...</div>;

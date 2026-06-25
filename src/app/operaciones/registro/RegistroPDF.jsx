@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/context/ThemeContext";
 
-export default function RegistroPDF() {
+export default function RegistroPDF({ allowDownload = true, backPath = "/operaciones/registro" }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isLight } = useTheme();
@@ -304,18 +304,24 @@ export default function RegistroPDF() {
 
         <div className="no-print mt-6 flex justify-between">
           <button
-            onClick={() => navigate("/operaciones/registro")}
+            onClick={() => navigate(backPath)}
             className={`rounded border px-4 py-2 ${isLight ? "text-slate-700 hover:bg-slate-100" : "bg-white text-slate-900 hover:bg-slate-100"}`}
           >
             Volver
           </button>
 
-          <button
-            onClick={() => window.print()}
-            className="rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
-          >
-            Descargar PDF
-          </button>
+          {allowDownload ? (
+            <button
+              onClick={() => window.print()}
+              className="rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
+            >
+              Descargar PDF
+            </button>
+          ) : (
+            <span className="rounded bg-blue-50 px-4 py-2 text-sm text-blue-700">
+              Vista solo lectura
+            </span>
+          )}
         </div>
       </div>
     </div>

@@ -1,6 +1,12 @@
-import { deleteRegistro, getAllRegistros, createRegistro } from "@/utils/registroStorage";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
+import {
+  canAccessRecord,
+  getRecordAccessPermissionsForUser,
+} from "@/services/accessControlService";
+import { createRegistro, deleteRegistro, getAllRegistros } from "@/utils/registroStorage";
 
 const StatusBadge = ({ estado }) => {
   const styles = {
@@ -10,34 +16,45 @@ const StatusBadge = ({ estado }) => {
   };
 
   return (
-    <span
-      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-        styles[estado] || "bg-gray-100 text-gray-700"
-      }`}
-    >
-      {estado || "—"}
+    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${styles[estado] || "bg-gray-100 text-gray-700"}`}>
+      {estado || "-"}
     </span>
   );
 };
 
 export default function RegistroHome() {
   const navigate = useNavigate();
+  const { user, isSuperAdmin, isSupervisorOperaciones } = useAuth();
+  const { isLight } = useTheme();
   const [registros, setRegistros] = useState([]);
+  const [accessPermissions, setAccessPermissions] = useState([]);
   const [filter, setFilter] = useState("todas");
   const [loading, setLoading] = useState(true);
 
-  // ✅ Carga desde tabla "registros" con filtros correctos (via getAllRegistros)
+  const superAdminActivo =
+    typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
+  const supervisorOperacionesActivo =
+    typeof isSupervisorOperaciones === "function"
+      ? isSupervisorOperaciones()
+      : !!isSupervisorOperaciones;
+  const puedeVerTodoOperaciones = superAdminActivo || supervisorOperacionesActivo;
+
   useEffect(() => {
+    if (!user?.id) return;
+
     const loadData = async () => {
       setLoading(true);
-      const data = await getAllRegistros();
-      const safe = Array.isArray(data) ? data : [];
-      setRegistros(safe);
+      const [data, permissions] = await Promise.all([
+        getAllRegistros(),
+        getRecordAccessPermissionsForUser(user.id),
+      ]);
+      setRegistros(Array.isArray(data) ? data : []);
+      setAccessPermissions(permissions);
       setLoading(false);
     };
 
     loadData();
-  }, []);
+  }, [user?.id]);
 
   const filtered = registros
     .filter((r) => (filter === "todas" ? true : r.estado === filter))
@@ -47,11 +64,40 @@ export default function RegistroHome() {
         new Date(a.created_at || a.createdAt)
     );
 
-  // ✅ Crear nuevo registro y navegar al formulario
+  const isOwnRegistro = (item) => item.user_id === user?.id;
+
+  const canEditRegistro = (item) => {
+    return (
+      puedeVerTodoOperaciones ||
+      isOwnRegistro(item) ||
+      canAccessRecord({
+        record: item,
+        userId: user?.id,
+        permissions: accessPermissions,
+        isSuperAdmin: superAdminActivo,
+        action: "edit",
+      })
+    );
+  };
+
+  const canDownloadRegistro = (item) => {
+    return (
+      puedeVerTodoOperaciones ||
+      isOwnRegistro(item) ||
+      canAccessRecord({
+        record: item,
+        userId: user?.id,
+        permissions: accessPermissions,
+        isSuperAdmin: superAdminActivo,
+        action: "download",
+      })
+    );
+  };
+
   const crearNuevoRegistro = async () => {
     const result = await createRegistro({ data: { items: [] } });
     if (!result?.id) return;
-   navigate(`/operaciones/registro/${result.id}`);
+    navigate(`/operaciones/registro/${result.id}`);
   };
 
   const handleEliminar = async (id) => {
@@ -64,36 +110,37 @@ export default function RegistroHome() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8">
+    <div className={`min-h-screen px-4 py-8 ${isLight ? "bg-slate-50" : "bg-transparent"}`}>
       <div className="max-w-6xl mx-auto space-y-6">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
+          <h1 className={`text-2xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
+            Registro de salida e ingreso de herramientas
+          </h1>
 
-       {/* HEADER */}
-<div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
-  <h1 className="text-2xl font-semibold">
-    Registro de salida e ingreso de herramientas
-  </h1>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => navigate("/operaciones")}
+              className={`border px-4 py-2 rounded transition ${
+                isLight
+                  ? "border-gray-300 text-gray-700 hover:bg-gray-100"
+                  : "border-white/20 text-white hover:bg-white/10"
+              }`}
+            >
+              Volver
+            </button>
 
-  <div className="flex gap-2">
-    <button
-      type="button"
-      onClick={() => navigate("/operaciones")}
-      className="border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-100 transition"
-    >
-      Volver
-    </button>
+            <button
+              type="button"
+              onClick={crearNuevoRegistro}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded"
+            >
+              + Nuevo registro de herramientas
+            </button>
+          </div>
+        </div>
 
-    <button
-      type="button"
-      onClick={crearNuevoRegistro}
-      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded"
-    >
-      + Nuevo registro de herramientas
-    </button>
-  </div>
-</div>
-
-        {/* FILTROS */}
-        <div className="flex gap-2 text-xs">
+        <div className="flex gap-2 text-xs flex-wrap">
           {["todas", "salida", "borrador", "completado"].map((f) => (
             <button
               key={f}
@@ -101,7 +148,9 @@ export default function RegistroHome() {
               className={`px-3 py-1 rounded border ${
                 filter === f
                   ? "bg-slate-900 text-white"
-                  : "bg-white text-slate-600 hover:bg-slate-100"
+                  : isLight
+                  ? "bg-white text-slate-600 hover:bg-slate-100"
+                  : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
               }`}
             >
               {f}
@@ -109,11 +158,10 @@ export default function RegistroHome() {
           ))}
         </div>
 
-        {/* LISTA */}
         {loading ? (
-          <p className="text-sm text-gray-400">Cargando registros...</p>
+          <p className={`text-sm ${isLight ? "text-gray-400" : "text-white/60"}`}>Cargando registros...</p>
         ) : filtered.length === 0 ? (
-          <p className="text-sm text-gray-500">No hay registros aún.</p>
+          <p className={`text-sm ${isLight ? "text-gray-500" : "text-white/60"}`}>No hay registros aún.</p>
         ) : (
           <ul className="space-y-3">
             {filtered.map((item) => {
@@ -127,80 +175,84 @@ export default function RegistroHome() {
               return (
                 <li
                   key={item.id}
-                  className="border rounded-lg p-4 bg-white flex justify-between items-start shadow-sm hover:shadow-md transition-shadow"
+                  className={`border rounded-lg p-4 flex flex-col gap-4 md:flex-row md:justify-between md:items-start shadow-sm hover:shadow-md transition-shadow ${
+                    isLight
+                      ? "bg-white border-slate-200"
+                      : "bg-white/10 border-white/10"
+                  }`}
                 >
-                  {/* INFO */}
                   <div className="space-y-1">
-                    <p className="font-medium text-sm">
-                      <span
-                        className={`font-semibold ${
-                          item.estado === "completado"
-                            ? "text-green-700"
-                            : "text-yellow-700"
-                        }`}
-                      >
-                        {item.estado === "completado"
-                          ? "REGISTRO CERRADO"
-                          : "EN CAMPO"}
+                    <p className={`font-medium text-sm ${isLight ? "text-slate-900" : "text-white"}`}>
+                      <span className={`font-semibold ${item.estado === "completado" ? "text-green-700" : "text-yellow-700"}`}>
+                        {item.estado === "completado" ? "REGISTRO CERRADO" : "EN CAMPO"}
                       </span>
-                      {" – "}
+                      {" - "}
                       {tecnico}
                     </p>
 
                     {pedido && (
-                      <p className="text-slate-500 text-xs">
+                      <p className={`text-xs ${isLight ? "text-slate-500" : "text-white/60"}`}>
                         Pedido: {pedido}
                       </p>
                     )}
 
-                    <p className="text-slate-500 text-xs">
+                    <p className={`text-xs ${isLight ? "text-slate-500" : "text-white/60"}`}>
                       {total} herramienta{total !== 1 ? "s" : ""}
                     </p>
 
                     {total > 0 && (
                       <p className="text-xs mt-1">
                         <span className="text-green-600">
-                          🟢 {ingresadas} ingresada{ingresadas !== 1 ? "s" : ""}
+                          {ingresadas} ingresada{ingresadas !== 1 ? "s" : ""}
                         </span>
                         {"  "}
                         <span className="text-red-600">
-                          🔴 {pendientes} pendiente{pendientes !== 1 ? "s" : ""}
+                          {pendientes} pendiente{pendientes !== 1 ? "s" : ""}
                         </span>
                       </p>
                     )}
 
-                    <p className="text-xs text-gray-400">
-                      {new Date(
-                        item.created_at || item.createdAt
-                      ).toLocaleString()}
+                    <p className={`text-xs ${isLight ? "text-gray-400" : "text-white/50"}`}>
+                      {new Date(item.created_at || item.createdAt).toLocaleString()}
                     </p>
                   </div>
 
-                  {/* ACCIONES */}
-                  <div className="flex items-center gap-3 ml-4 flex-shrink-0">
+                  <div className="flex flex-wrap items-center gap-3 md:ml-4 flex-shrink-0">
                     <StatusBadge estado={item.estado} />
 
                     <button
-                      onClick={() => navigate(`/operaciones/registro/${item.id}`)}
-                      className="text-blue-600 text-xs hover:underline"
+                      onClick={() => navigate(`/operaciones/registro/ver/${item.id}`)}
+                      className={`text-xs font-semibold hover:underline ${isLight ? "text-slate-600" : "text-white/70"}`}
                     >
-                      Abrir
+                      Ver
                     </button>
 
-                    <button
-  onClick={() => navigate(`/operaciones/registro/pdf/${item.id}`)}
-  className="text-green-600 text-xs hover:underline"
->
-  PDF
-</button>
+                    {canEditRegistro(item) && (
+                      <button
+                        onClick={() => navigate(`/operaciones/registro/${item.id}`)}
+                        className="text-blue-600 text-xs hover:underline"
+                      >
+                        Abrir
+                      </button>
+                    )}
 
-                    
-                    <button
-                      onClick={() => handleEliminar(item.id)}
-                      className="text-red-600 text-xs hover:underline"
-                    >
-                      Eliminar
-                    </button>
+                    {canDownloadRegistro(item) && (
+                      <button
+                        onClick={() => navigate(`/operaciones/registro/pdf/${item.id}`)}
+                        className="text-green-600 text-xs hover:underline"
+                      >
+                        PDF
+                      </button>
+                    )}
+
+                    {(superAdminActivo || isOwnRegistro(item)) && (
+                      <button
+                        onClick={() => handleEliminar(item.id)}
+                        className="text-red-600 text-xs hover:underline"
+                      >
+                        Eliminar
+                      </button>
+                    )}
                   </div>
                 </li>
               );

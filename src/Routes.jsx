@@ -270,8 +270,9 @@ export default function RoutesApp() {
 
             <Route path="/operaciones/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
             <Route path="/operaciones/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
-            <Route path="/operaciones/registro/pdf/:id" element={<TechRoute><RegistroPDF /></TechRoute>} />
-            <Route path="/operaciones/registro/:id" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
+            <Route path="/operaciones/registro/ver/:id" element={<TechRoute><RecordPermissionRoute action="view" fallback="/operaciones/registro"><RegistroPDF allowDownload={false} backPath="/operaciones/registro" /></RecordPermissionRoute></TechRoute>} />
+            <Route path="/operaciones/registro/pdf/:id" element={<TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/registro"><RegistroPDF /></RecordPermissionRoute></TechRoute>} />
+            <Route path="/operaciones/registro/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/operaciones/registro"><HojaRegistroHerramientas /></RecordPermissionRoute></TechRoute>} />
 
             <Route path="/repositorios/documentos" element={<TechRoute><AreaRepositorios /></TechRoute>} />
             <Route path="/repositorios/pdf" element={<TechRoute><AreaRepositorios /></TechRoute>} />
