@@ -9,6 +9,9 @@ import {
 
 const AREAS = [
   { value: "vehiculos", label: "Vehículos Especiales" },
+  { value: "agua", label: "Agua y Saneamiento" },
+  { value: "industria", label: "Industria" },
+  { value: "petroleo", label: "Petróleo y Energía" },
   { value: "operaciones", label: "Operaciones" },
   { value: "todos", label: "Todas las áreas" },
 ];

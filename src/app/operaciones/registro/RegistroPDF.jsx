@@ -144,8 +144,16 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
             break-inside: avoid;
             page-break-inside: avoid;
           }
+
+          ${!allowDownload ? `.pdf-page { display: none !important; } .readonly-print-warning { display: block !important; }` : ""}
         }
       `}</style>
+
+      {!allowDownload && (
+        <div className="readonly-print-warning hidden p-8 text-center text-black">
+          Vista solo lectura. Este usuario no tiene permiso de descarga o impresión.
+        </div>
+      )}
 
       <div className="pdf-page mx-auto max-w-[900px] border bg-white p-6 text-sm text-black shadow">
         <table className="mb-4 w-full border-collapse border border-slate-700">

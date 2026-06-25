@@ -177,8 +177,15 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
     content: "Página " counter(page);
   }
 
+  ${!allowDownload ? `#pdf-content { display: none !important; } .readonly-print-warning { display: block !important; }` : ""}
+
 }
 `}</style>
+      {!allowDownload && (
+        <div className="readonly-print-warning hidden p-8 text-center text-black">
+          Vista solo lectura. Este usuario no tiene permiso de descarga o impresión.
+        </div>
+      )}
     <div
       style={{
         background: isLight ? "#f3f4f6" : "#0f172a",

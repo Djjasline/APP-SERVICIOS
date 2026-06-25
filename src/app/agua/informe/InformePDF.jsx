@@ -2,7 +2,11 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-export default function InformePDF({ area = "agua", basePath = "/agua/informe" }) {
+export default function InformePDF({
+  area = "agua",
+  basePath = "/agua/informe",
+  allowDownload = true,
+}) {
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -96,7 +100,20 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
   
   return (
     <div className="p-4 md:p-6 bg-gray-100 min-h-screen">
-     <div className="pdf-container print-area max-w-6xl mx-auto bg-white p-4 md:p-6">
+      <style>{`
+        @media print {
+          .no-print { display: none !important; }
+          ${!allowDownload ? `.print-area { display: none !important; } .readonly-print-warning { display: block !important; }` : ""}
+        }
+      `}</style>
+
+      {!allowDownload && (
+        <div className="readonly-print-warning hidden p-8 text-center text-black">
+          Vista solo lectura. Este usuario no tiene permiso de descarga o impresión.
+        </div>
+      )}
+
+     <div className="pdf-container print-area max-w-6xl mx-auto bg-white p-4 md:p-6 text-black">
 
         {/* ================= ENCABEZADO ================= */}
         <div className="no-break">
@@ -552,16 +569,22 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
             Volver
           </button>
 
-         <button
-  onClick={() => {
-  const nombre = `ASTAP_${(data.codInf || "").replace(/\s/g, "")}_${(data.cliente || "").replace(/\s/g, "_")}`;
-  document.title = nombre;
-  window.print();
-}}
-  className="bg-green-600 text-white px-6 py-2 rounded"
->
-  Descargar PDF
-</button>
+          {allowDownload ? (
+            <button
+              onClick={() => {
+                const nombre = `ASTAP_${(data.codInf || "").replace(/\s/g, "")}_${(data.cliente || "").replace(/\s/g, "_")}`;
+                document.title = nombre;
+                window.print();
+              }}
+              className="bg-green-600 text-white px-6 py-2 rounded"
+            >
+              Descargar PDF
+            </button>
+          ) : (
+            <span className="rounded bg-blue-50 px-4 py-2 text-sm text-blue-700">
+              Vista solo lectura
+            </span>
+          )}
         </div>
 
       </div>
