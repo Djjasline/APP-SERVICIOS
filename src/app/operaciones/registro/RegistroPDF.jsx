@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function RegistroPDF() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isLight } = useTheme();
   const [registro, setRegistro] = useState(null);
 
   useEffect(() => {
@@ -30,8 +32,8 @@ export default function RegistroPDF() {
 
   if (!registro) {
     return (
-      <div className="p-6 text-center">
-        <p>No se encontró el registro.</p>
+      <div className={`p-6 text-center ${isLight ? "text-slate-700" : "text-white"}`}>
+        <p>No se encontro el registro.</p>
         <button
           onClick={() => navigate("/operaciones/registro")}
           className="border px-4 py-2 rounded mt-4"
@@ -50,71 +52,79 @@ export default function RegistroPDF() {
     : [];
 
   const primerItem = items[0] || {};
-
-const pedido =
-  data.pedidoDemanda ||
-  data.pedido ||
-  primerItem.pedido ||
-  primerItem.pedidoDemanda ||
-  "";
-
-const tecnicoSalida =
-  data.tecnicoSalida ||
-  data.tecnicoNombre ||
-  primerItem.tecnicoSalida ||
-  primerItem.responsableSalida ||
-  "";
-
-const fechaSalida =
-  data.fechaSalida ||
-  primerItem.fechaSalida ||
-  "";
-
-const tecnicoIngreso =
-  data.tecnicoIngreso ||
-  primerItem.tecnicoIngreso ||
-  primerItem.responsableIngreso ||
-  "";
-
-const fechaIngreso =
-  data.fechaIngreso ||
-  primerItem.fechaIngreso ||
-  "";
-
-const observacionesSalida =
-  data.observacionesSalida ||
-  primerItem.observacionesSalida ||
-  primerItem.observacionSalida ||
-  "";
-
-const observacionesIngreso =
-  data.observacionesIngreso ||
-  primerItem.observacionesIngreso ||
-  primerItem.observacionIngreso ||
-  "";
-  
   const firmas = data.firmas || {};
 
-  const imagenSalida =
-  data.imagenSalidaUrl ||
-  data.fotoSalida ||
-  data.imagenSalida ||
-  data.items?.find((i) => i.imagenSalidaUrl)?.imagenSalidaUrl ||
-  data.items?.find((i) => i.imagenSalida)?.imagenSalida ||
-  data.items?.find((i) => i.fotoSalida)?.fotoSalida ||
-  "";
+  const pedido =
+    data.pedidoDemanda ||
+    data.pedido ||
+    primerItem.pedido ||
+    primerItem.pedidoDemanda ||
+    "";
 
-const imagenIngreso =
-  data.imagenIngresoUrl ||
-  data.fotoIngreso ||
-  data.imagenIngreso ||
-  data.items?.find((i) => i.imagenIngresoUrl)?.imagenIngresoUrl ||
-  data.items?.find((i) => i.imagenIngreso)?.imagenIngreso ||
-  data.items?.find((i) => i.fotoIngreso)?.fotoIngreso ||
-  "";
+  const tecnicoSalida =
+    data.tecnicoSalida ||
+    data.tecnicoNombre ||
+    primerItem.tecnicoSalida ||
+    primerItem.responsableSalida ||
+    "";
+
+  const fechaSalida = data.fechaSalida || primerItem.fechaSalida || "";
+
+  const tecnicoIngreso =
+    data.tecnicoIngreso ||
+    primerItem.tecnicoIngreso ||
+    primerItem.responsableIngreso ||
+    "";
+
+  const fechaIngreso = data.fechaIngreso || primerItem.fechaIngreso || "";
+
+  const statusLabel = registro.estado === "completado" ? "Registro cerrado" : "En campo";
+
+  const SectionTitle = ({ children }) => (
+    <h3 className="mt-5 border border-[#1e3a5f] bg-[#1e3a5f] px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
+      {children}
+    </h3>
+  );
+
+  const InfoTable = ({ rows }) => (
+    <table className="w-full border-collapse text-xs text-black">
+      <tbody>
+        {rows.map(([label, value], index) => (
+          <tr key={`${label}-${index}`}>
+            <td className="w-44 border border-slate-700 bg-slate-100 px-2 py-1.5 font-semibold">
+              {label}
+            </td>
+            <td className="border border-slate-700 bg-white px-2 py-1.5 whitespace-pre-wrap">
+              {value || "-"}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
+  const ImageBox = ({ title, src }) => (
+    <div className="mt-3">
+      <div className="mb-1 text-xs font-semibold text-black">{title}</div>
+      {src ? (
+        <img
+          src={src}
+          alt={title}
+          className="max-h-64 w-full border border-slate-300 object-contain"
+        />
+      ) : (
+        <div className="flex h-36 items-center justify-center border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-500">
+          Sin imagen
+        </div>
+      )}
+    </div>
+  );
+
+  const getSalidaImage = (item) => item.imagenSalidaUrl || item.imagenSalida || item.fotoSalida || "";
+  const getIngresoImage = (item) => item.imagenIngresoUrl || item.imagenIngreso || item.fotoIngreso || "";
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className={`min-h-screen p-4 ${isLight ? "bg-gray-100" : "bg-slate-950"}`}>
       <style>{`
         @media print {
           .no-print {
@@ -129,229 +139,180 @@ const imagenIngreso =
             box-shadow: none !important;
             margin: 0 !important;
           }
+
+          .avoid-break {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
         }
       `}</style>
 
-      <div className="pdf-page max-w-[900px] mx-auto bg-white p-6 shadow border text-sm text-black">
-        {/* ENCABEZADO */}
-        <table className="w-full border-collapse border mb-4">
+      <div className="pdf-page mx-auto max-w-[900px] border bg-white p-6 text-sm text-black shadow">
+        <table className="mb-4 w-full border-collapse border border-slate-700">
           <tbody>
             <tr>
-              <td className="border p-3 w-32 text-center">
+              <td className="w-32 border border-slate-700 p-3 text-center">
                 <img
                   src="/astap-logo.jpg"
                   alt="ASTAP"
                   className="mx-auto max-h-16 object-contain"
                 />
               </td>
-              <td className="border p-3 text-center font-bold text-lg">
-                REGISTRO DE SALIDA E INGRESO DE HERRAMIENTAS
+              <td className="border border-slate-700 p-3 text-center">
+                <div className="text-lg font-bold uppercase">
+                  Registro de salida e ingreso de herramientas
+                </div>
+                <div className="mt-1 text-xs text-slate-600">
+                  Control operativo de entrega, retorno y estado de herramientas/equipos
+                </div>
               </td>
-              <td className="border p-2 w-44 text-xs">
-                <div>Área: Operaciones</div>
+              <td className="w-48 border border-slate-700 p-2 text-xs">
+                <div>Area: Operaciones</div>
                 <div>Tipo: Registro</div>
-                <div>Estado: {registro.estado || "—"}</div>
+                <div>Estado: {statusLabel}</div>
+                <div>Fecha: {new Date(registro.updated_at || registro.created_at).toLocaleString()}</div>
               </td>
             </tr>
           </tbody>
         </table>
 
-        {/* DATOS GENERALES */}
-        <h3 className="font-bold text-sm bg-gray-100 border px-2 py-1">
-          DATOS GENERALES
-        </h3>
+        <SectionTitle>Datos generales</SectionTitle>
+        <InfoTable
+          rows={[
+            ["Pedido / Demanda", pedido],
+            ["Tecnico salida", tecnicoSalida],
+            ["Fecha salida", fechaSalida],
+            ["Tecnico ingreso", tecnicoIngreso],
+            ["Fecha ingreso", fechaIngreso],
+          ]}
+        />
 
-        <table className="w-full border-collapse border mb-4 text-xs">
+        <SectionTitle>Herramientas / equipos</SectionTitle>
+
+        {items.length === 0 ? (
+          <div className="border border-slate-700 p-4 text-center text-xs text-slate-500">
+            Sin herramientas o equipos registrados
+          </div>
+        ) : (
+          <div className="space-y-5">
+            {items.map((item, index) => {
+              const ingresoCompleto = !!getIngresoImage(item);
+
+              return (
+                <section key={item.id || index} className="avoid-break border border-slate-700">
+                  <div className="flex items-center justify-between border-b border-slate-700 bg-slate-100 px-3 py-2">
+                    <h4 className="text-sm font-bold uppercase">
+                      Herramienta {index + 1}
+                    </h4>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${ingresoCompleto ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                      {ingresoCompleto ? "Ingreso completo" : "Pendiente de ingreso"}
+                    </span>
+                  </div>
+
+                  <div className="p-3">
+                    <InfoTable
+                      rows={[
+                        ["Detalle", item.detalle],
+                        ["Cantidad", item.cantidad],
+                        ["Nro. pedido", item.pedido],
+                      ]}
+                    />
+
+                    <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                      <div className="border border-slate-300 p-3">
+                        <h5 className="mb-2 bg-slate-100 px-2 py-1 text-xs font-bold uppercase">
+                          Salida
+                        </h5>
+                        <InfoTable
+                          rows={[
+                            ["Estado salida", item.estadoSalida],
+                            ["Tecnico salida", item.tecnicoSalida],
+                            ["Fecha salida", item.fechaSalida],
+                            ["Observaciones", item.observacionesSalida || item.observacionSalida],
+                          ]}
+                        />
+                        <ImageBox title="Foto antes" src={getSalidaImage(item)} />
+                      </div>
+
+                      <div className="border border-slate-300 p-3">
+                        <h5 className="mb-2 bg-slate-100 px-2 py-1 text-xs font-bold uppercase">
+                          Ingreso
+                        </h5>
+                        <InfoTable
+                          rows={[
+                            ["Estado ingreso", item.estadoIngreso],
+                            ["Tecnico ingreso", item.tecnicoIngreso],
+                            ["Fecha ingreso", item.fechaIngreso],
+                            ["Observaciones", item.observacionesIngreso || item.observacionIngreso],
+                          ]}
+                        />
+                        <ImageBox title="Foto despues" src={getIngresoImage(item)} />
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        )}
+
+        <SectionTitle>Firmas</SectionTitle>
+        <table className="w-full border-collapse border border-slate-700 text-xs">
+          <thead>
+            <tr className="bg-slate-100">
+              <th className="border border-slate-700 p-2">Responsable</th>
+              <th className="border border-slate-700 p-2">Aprobador / Recepcion</th>
+            </tr>
+          </thead>
+
           <tbody>
-            {[
-  ["Pedido / Demanda", pedido],
-  ["Técnico salida", tecnicoSalida],
-  ["Fecha salida", fechaSalida],
-  ["Técnico ingreso", tecnicoIngreso],
-  ["Fecha ingreso", fechaIngreso],
-].map(([label, value], i) => (
-              <tr key={i}>
-                <td className="border p-2 font-semibold bg-gray-50 w-48">
-                  {label}
-                </td>
-                <td className="border p-2 whitespace-pre-wrap">
-                  {value || "—"}
-                </td>
-              </tr>
-            ))}
+            <tr>
+              <td className="h-36 border border-slate-700 p-2 text-center align-middle">
+                {firmas.responsable ? (
+                  <img
+                    src={firmas.responsable}
+                    alt="Firma responsable"
+                    className="mx-auto max-h-28 object-contain"
+                  />
+                ) : (
+                  <div className="flex h-28 items-center justify-center">-</div>
+                )}
+
+                <div className="mt-2 border-t pt-2 text-xs font-semibold">
+                  Firma Responsable
+                </div>
+              </td>
+
+              <td className="h-36 border border-slate-700 p-2 text-center align-middle">
+                {firmas.aprobador ? (
+                  <img
+                    src={firmas.aprobador}
+                    alt="Firma aprobador"
+                    className="mx-auto max-h-28 object-contain"
+                  />
+                ) : (
+                  <div className="flex h-28 items-center justify-center">-</div>
+                )}
+
+                <div className="mt-2 border-t pt-2 text-xs font-semibold">
+                  Firma Aprobador / Recepcion
+                </div>
+              </td>
+            </tr>
           </tbody>
         </table>
 
-        {/* ITEMS */}
-        <h3 className="font-bold text-sm bg-gray-100 border px-2 py-1">
-          HERRAMIENTAS / EQUIPOS
-        </h3>
-
-        <table className="w-full border-collapse border mb-4 text-xs">
-         <thead>
-  <tr className="bg-gray-100">
-    <th className="border p-2">#</th>
-    <th className="border p-2">Herramienta / Detalle</th>
-    <th className="border p-2">Cantidad</th>
-    <th className="border p-2">Estado Salida</th>
-    <th className="border p-2">Estado Ingreso</th>
-  </tr>
-</thead>
-         <tbody>
-  {items.length === 0 ? (
-    <tr>
-      <td colSpan={5} className="border p-4 text-center text-gray-500">
-        Sin herramientas o equipos registrados
-      </td>
-    </tr>
-  ) : (
-    items.map((item, index) => (
-     <>
-        <tr>
-  <td className="border p-2 text-center">{index + 1}</td>
-
-  <td className="border p-2">
-    {item.detalle || "—"}
-  </td>
-
-  <td className="border p-2 text-center">
-    {item.cantidad || "—"}
-  </td>
-
-  <td className="border p-2">
-    {item.estadoSalida || "—"}
-  </td>
-
-  <td className="border p-2">
-    {item.estadoIngreso || "—"}
-  </td>
-</tr>
-
-<tr>
-  <td colSpan={5} className="border p-2 bg-gray-50">
-    <strong>Observaciones salida:</strong>
-    <br />
-    {item.observacionesSalida || "—"}
-
-    <br />
-    <br />
-
-    <strong>Observaciones ingreso:</strong>
-    <br />
-    {item.observacionesIngreso || "—"}
-  </td>
-</tr>
-     </>
-    ))
-  )}
-</tbody>
-        </table>
-
-        {/* IMÁGENES */}
-        <h3 className="font-bold text-sm bg-gray-100 border px-2 py-1">
-          REGISTRO FOTOGRÁFICO
-        </h3>
-
-        <div className="grid grid-cols-2 gap-4 border p-3 mb-4">
-          <div>
-            <div className="font-semibold text-xs mb-2">Imagen salida</div>
-            {imagenSalida ? (
-  <img
-    src={imagenSalida}
-                alt="Imagen salida"
-                className="w-full max-h-72 object-contain border"
-              />
-            ) : (
-              <div className="border h-40 flex items-center justify-center text-gray-400 text-xs">
-                Sin imagen de salida
-              </div>
-            )}
-          </div>
-
-          <div>
-            <div className="font-semibold text-xs mb-2">Imagen ingreso</div>
-            {imagenIngreso ? (
-  <img
-    src={imagenIngreso}
-                alt="Imagen ingreso"
-                className="w-full max-h-72 object-contain border"
-              />
-            ) : (
-              <div className="border h-40 flex items-center justify-center text-gray-400 text-xs">
-                Sin imagen de ingreso
-              </div>
-            )}
-          </div>
-        </div>
-
-       {/* FIRMAS */}
-<h3 className="font-bold text-sm bg-gray-100 border px-2 py-1">
-  FIRMAS
-</h3>
-
-<table className="w-full border-collapse border text-xs">
-  <thead>
-    <tr className="bg-gray-100">
-      <th className="border p-2">Responsable</th>
-      <th className="border p-2">Aprobador / Recepción</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr>
-      {/* RESPONSABLE */}
-      <td className="border p-2 h-36 text-center align-middle">
-        {firmas.responsable ? (
-          <img
-            src={firmas.responsable}
-            alt="Firma responsable"
-            className="max-h-28 mx-auto object-contain"
-          />
-        ) : (
-          <div className="h-28 flex items-center justify-center">
-            —
-          </div>
-        )}
-
-        <div className="mt-2 border-t pt-2 text-xs font-semibold">
-          Firma Responsable
-        </div>
-      </td>
-
-      {/* APROBADOR */}
-      <td className="border p-2 h-36 text-center align-middle">
-        {firmas.aprobador ? (
-          <img
-            src={firmas.aprobador}
-            alt="Firma aprobador"
-            className="max-h-28 mx-auto object-contain"
-          />
-        ) : (
-          <div className="h-28 flex items-center justify-center">
-            —
-          </div>
-        )}
-
-        <div className="mt-2 border-t pt-2 text-xs font-semibold">
-          Firma Aprobador / Recepción
-        </div>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-        {/* BOTONES */}
-        <div className="no-print flex justify-between mt-6">
+        <div className="no-print mt-6 flex justify-between">
           <button
             onClick={() => navigate("/operaciones/registro")}
-            className="border px-4 py-2 rounded"
+            className={`rounded border px-4 py-2 ${isLight ? "text-slate-700 hover:bg-slate-100" : "bg-white text-slate-900 hover:bg-slate-100"}`}
           >
             Volver
           </button>
 
           <button
             onClick={() => window.print()}
-            className="bg-blue-600 text-white px-6 py-2 rounded"
+            className="rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
           >
             Descargar PDF
           </button>
