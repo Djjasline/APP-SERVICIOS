@@ -167,7 +167,7 @@ const barredoraMaintenanceVariants = {
     subtipo: "barredora-road-wizard",
     routeSegment: "barredora-road-wizard",
     title: "INFORME DE MANTENIMIENTO BARREDORA ROAD WIZARD",
-    imagePath: "/barredora-road-wizard.png",
+    imagePath: "/barredora-roadwizard-base.png",
     draftKey: "mantenimiento_barredora_road_wizard",
     sections: roadWizardSecciones,
   },

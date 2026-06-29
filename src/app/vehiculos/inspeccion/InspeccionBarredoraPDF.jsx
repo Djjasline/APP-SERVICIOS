@@ -201,7 +201,7 @@ const barredoraVariants = {
     subtipo: "barredora-road-wizard",
     title: "INFORME DE INSPECCIÓN BARREDORA ROAD WIZARD",
     filePrefix: "Inspeccion_Barredora_Road_Wizard",
-    imagePath: "/barredora-road-wizard.png",
+    imagePath: "/barredora-roadwizard-base.png",
     imageAlt: "Vista general barredora Road Wizard",
     equipmentTitle: "DESCRIPCIÓN DEL EQUIPO — BARREDORA ROAD WIZARD",
   },
