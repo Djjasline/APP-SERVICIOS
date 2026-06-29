@@ -92,6 +92,84 @@ const secciones = [
   },
 ];
 
+const roadWizardSecciones = [
+  secciones[0],
+  {
+    titulo: "A. MANTENIMIENTO POR 250 Hrs",
+    tipo: "cantidad",
+    items: [
+      ["A.1", "Aceite de motor 15W40"],
+      ["A.2", "Filtro de aceite P/N 51783"],
+      ["A.3", "Filtro de aire primario P/N 7174125"],
+      ["A.4", "Filtro de aire secundario P/N 7174126"],
+      ["A.5", "Filtro de combustible primario P/N 7174127"],
+      ["A.6", "Filtro de combustible secundario (cartucho de filtro) P/N 7174129"],
+      ["A.7", "Desplazamiento a campo"],
+    ],
+  },
+  {
+    titulo: "B. MANTENIMIENTO POR 1000 Hrs",
+    tipo: "cantidad",
+    items: [
+      ["B.1", "Aceite hidraulico AW 68"],
+      ["B.2", "Cartucho filtro hidraulico P/N 1090961"],
+      ["B.3", "Refrigerante Gold TY26576 GL, una vez por año"],
+    ],
+  },
+  {
+    titulo: "C. REPUESTOS QUE SE REQUIEREN PARA 1000 HORAS + AÑO",
+    tipo: "cantidad",
+    items: [
+      ["C.1", "Cepillo central barredora Road Wizard P/N 7173202"],
+      ["C.2", "Set de cepillo lateral 5 segmentos P/N 7173222"],
+      ["C.3", "Rodamiento superior de banda P/N 1034474"],
+      ["C.4", "Rodamiento inferior de banda P/N 1034473"],
+      ["C.5", "Rodamiento cepillo principal P/N 1023051"],
+      ["C.6", "Banda transportadora P/N 1118973"],
+      ["C.7", "Filtro de agua P/N 1052992"],
+      ["C.8", "Luz lateral derecha P/N 0806548"],
+      ["C.9", "Aspersores de cepillos P/N 1040011 (6)"],
+      ["C.10", "Manguera llenado de agua hidrante 2 1/2\" x 21 ft P/N 267290-30"],
+    ],
+  },
+  {
+    titulo: "D. REPUESTOS QUE SE REQUIEREN PARA MANTENIMIENTO DE CHASIS",
+    tipo: "cantidad",
+    items: [
+      ["D.1", "Filtro de A/C"],
+      ["D.2", "Filtro de aire primario"],
+      ["D.3", "Filtro de aire secundario"],
+      ["D.4", "Filtro separador combustible"],
+      ["D.5", "Filtro de combustible separador"],
+      ["D.6", "Filtro de aceite"],
+      ["D.7", "Aceite"],
+      ["D.8", "Grasa"],
+      ["D.9", "Aceite de la direccion"],
+      ["D.10", "Filtro de la direccion"],
+      ["D.11", "Refrigerante"],
+      ["D.12", "Aceite puntas de eje"],
+      ["D.13", "Mano de obra de mantenimiento de 1000 horas y desplazamiento"],
+      ["D.14", "Mano de obra de mantenimiento de 250 horas"],
+    ],
+  },
+  secciones[2],
+];
+
+const barredoraPdfVariants = {
+  pelican: {
+    subtipo: "barredora",
+    title: "INFORME DE MANTENIMIENTO BARREDORA PELICAN",
+    filePrefix: "Mantenimiento_Barredora_Pelican",
+    sections: secciones,
+  },
+  roadWizard: {
+    subtipo: "barredora-road-wizard",
+    title: "INFORME DE MANTENIMIENTO BARREDORA ROAD WIZARD",
+    filePrefix: "Mantenimiento_Barredora_Road_Wizard",
+    sections: roadWizardSecciones,
+  },
+};
+
 /* ── TABLA DE SECCIÓN ── */
 function SeccionTable({ sec, items }) {
   return (
@@ -146,7 +224,8 @@ function SeccionTable({ sec, items }) {
 /* ══════════════════════════════
    COMPONENTE PRINCIPAL
 ══════════════════════════════ */
-export default function MantenimientoBarredoraPDF() {
+export default function MantenimientoBarredoraPDF({ variant = "pelican" }) {
+  const variantConfig = barredoraPdfVariants[variant] || barredoraPdfVariants.pelican;
   const navigate = useNavigate();
   const { id }   = useParams();
   const [report, setReport] = useState(null);
@@ -159,13 +238,13 @@ export default function MantenimientoBarredoraPDF() {
   .eq("id", id)
   .eq("area", "vehiculos")
   .eq("tipo", "mantenimiento")
-  .eq("subtipo", "barredora")
+  .eq("subtipo", variantConfig.subtipo)
   .single();
       if (error || !data) { console.error(error); return; }
       setReport({ id: data.id, estado: data.estado, data: data.data, createdAt: data.created_at });
     };
     load();
-  }, [id]);
+  }, [id, variantConfig.subtipo]);
 
   if (!report) return (
     <div className="p-6 text-center">
@@ -191,7 +270,7 @@ export default function MantenimientoBarredoraPDF() {
     const cliente = (d.cliente       || "cliente").replace(/\s+/g, "-");
     const pedido  = (d.pedidoDemanda || "pedido").replace(/\s+/g, "");
     const codigo  = (d.codInf        || "000").replace(/\s+/g, "");
-    printPdf("pdf-content", `Mantenimiento_Barredora_${cliente}_${pedido}_${codigo}_ASTAP`);
+    printPdf("pdf-content", `${variantConfig.filePrefix}_${cliente}_${pedido}_${codigo}_ASTAP`);
   };
 
   const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
@@ -232,7 +311,7 @@ export default function MantenimientoBarredoraPDF() {
                     textTransform: "uppercase",
                   }}
                 >
-                  INFORME DE MANTENIMIENTO BARREDORA
+                  {variantConfig.title}
                 </td>
                 <td style={{ ...S.cell, width: 170 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>
@@ -401,7 +480,7 @@ export default function MantenimientoBarredoraPDF() {
         </div>
 
         {/* ── SECCIONES DE MANTENIMIENTO ── */}
-        {secciones.map((sec, i) => (
+        {variantConfig.sections.map((sec, i) => (
           <div key={i}>
             <p style={{ ...S.sectionTitle, marginTop: i === 0 ? 0 : 14 }}>{sec.titulo}</p>
             <SeccionTable sec={sec} items={d.items} />

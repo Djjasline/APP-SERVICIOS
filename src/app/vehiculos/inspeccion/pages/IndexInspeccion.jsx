@@ -192,7 +192,7 @@ export default function IndexInspeccion() {
           Inspección y valoración
         </h1>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-4 gap-6">
           <Card
             title="Hidrosuccionador"
             type="hidro"
@@ -200,9 +200,15 @@ export default function IndexInspeccion() {
           />
 
           <Card
-            title="Barredora"
+            title="Barredora Pelican"
             type="barredora"
-            description="Inspección y valoración de barredoras."
+            description="Inspección y valoración de barredora Pelican."
+          />
+
+          <Card
+            title="Barredora Road Wizard"
+            type="barredora-road-wizard"
+            description="Inspección y valoración de barredora Road Wizard."
           />
 
           <Card

@@ -99,8 +99,24 @@ const todosLosItems = [
   ...secciones.flatMap((s) => s.items.map(([c]) => c)),
 ];
 
-/* ── IMAGEN BASE BARREDORA ── */
-const EQUIPO_IMG_PATH = "/barredora-base.png";
+const barredoraVariants = {
+  pelican: {
+    subtipo: "barredora",
+    routeSegment: "barredora",
+    title: "INFORME DE INSPECCIÓN BARREDORA PELICAN",
+    imagePath: "/barredora-base.png",
+    imageAlt: "Vista general barredora Pelican",
+    draftKey: "inspeccion_barredora",
+  },
+  roadWizard: {
+    subtipo: "barredora-road-wizard",
+    routeSegment: "barredora-road-wizard",
+    title: "INFORME DE INSPECCIÓN BARREDORA ROAD WIZARD",
+    imagePath: "/barredora-road-wizard.png",
+    imageAlt: "Vista general barredora Road Wizard",
+    draftKey: "inspeccion_barredora_road_wizard",
+  },
+};
 
 const fieldPlaceholders = {
   referenciaContrato: "Ej: Contrato marco / cliente",
@@ -179,7 +195,8 @@ const emptyForm = {
   },
 };
 
-export default function HojaInspeccionBarredora() {
+export default function HojaInspeccionBarredora({ variant = "pelican" }) {
+const variantConfig = barredoraVariants[variant] || barredoraVariants.pelican;
 const { id } = useParams();
 const navigate = useNavigate();
 const { user, isSuperAdmin } = useAuth();
@@ -189,7 +206,7 @@ const superAdminActivo =
     ? isSuperAdmin()
     : !!isSuperAdmin;
 const isEditing = !!id;
-  const claveAutoguardado = `inspeccion_barredora_${id ?? "new"}`;
+  const claveAutoguardado = `${variantConfig.draftKey}_${id ?? "new"}`;
   const {
     technicians,
     loading: loadingTechnicians,
@@ -263,7 +280,7 @@ useEffect(() => {
   .eq("id", id)
   .eq("area", "vehiculos")
   .eq("tipo", "inspeccion")
-  .eq("subtipo", "barredora")
+  .eq("subtipo", variantConfig.subtipo)
   .single();
     if (error || !reg) return;
 
@@ -383,7 +400,7 @@ const compressAndUpload = async (file, folder) => {
 });
   return await uploadRegistroImage(
     compressedFile,
-    id || "temp-insp-barredora",
+    id || `temp-insp-${variantConfig.routeSegment}`,
     folder
   );
 };
@@ -698,7 +715,7 @@ const result = await saveOrUpdateReport({
   id: isEditing ? id : null,
   area: "vehiculos",
   tipo: "inspeccion",
-  subtipo: "barredora",
+  subtipo: variantConfig.subtipo,
   data: payload,
   estado: estadoFinal,
 });
@@ -714,7 +731,7 @@ setTimeout(() => {
 
   // 🔥 NUEVO REGISTRO
   if (!isEditing && result?.id) {
-    navigate(`/vehiculos/inspeccion/barredora/${result.id}`);
+    navigate(`/vehiculos/inspeccion/${variantConfig.routeSegment}/${result.id}`);
   }
 
   // 🔥 EDICIÓN
@@ -803,7 +820,7 @@ setTimeout(() => {
   </td>
 
   <td colSpan={2} style={{ textAlign:"center", fontWeight:"bold", fontSize:16, verticalAlign:"middle" }}>
-                    INFORME DE INSPECCIÓN BARREDORA
+                    {variantConfig.title}
                  </td>
 
   <td className="text-[10px]" style={{ width:160 }}>
@@ -940,8 +957,8 @@ setTimeout(() => {
     onClick={handleBaseImageClick}
   >
     <img
-      src={EQUIPO_IMG_PATH}
-      alt="Vista general barredora"
+      src={variantConfig.imagePath}
+      alt={variantConfig.imageAlt}
       className="w-full max-h-[420px] object-contain"
     />
 
@@ -1263,7 +1280,7 @@ setTimeout(() => {
             <div className="flex gap-3">
               {isEditing && inspeccionLista && (
                 <button type="button"
-                  onClick={() => navigate(`/vehiculos/inspeccion/barredora/${id}/pdf`)}
+                  onClick={() => navigate(`/vehiculos/inspeccion/${variantConfig.routeSegment}/${id}/pdf`)}
                   className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
                   Ver PDF
                 </button>

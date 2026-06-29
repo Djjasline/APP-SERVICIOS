@@ -19,9 +19,15 @@ const tipos = [
   },
   {
     type: "barredora",
-    title: "Barredora",
-    desc: "Mantenimiento de barredoras",
+    title: "Barredora Pelican",
+    desc: "Mantenimiento de barredora Pelican",
     btn: "bg-green-600 hover:bg-green-700",
+  },
+  {
+    type: "barredora-road-wizard",
+    title: "Barredora Road Wizard",
+    desc: "Mantenimiento de barredora Road Wizard",
+    btn: "bg-teal-600 hover:bg-teal-700",
   },
   {
     type: "vcam",
@@ -197,16 +203,12 @@ export default function IndexMantenimiento() {
       const cliente = (d.cliente || "").toLowerCase();
       const codigo = `${d.codInf || ""} ${d.pedidoDemanda || ""}`.toLowerCase();
       const tecnico = (d.tecnicoNombre || "").toLowerCase();
-      const equipoTxt = `${equipo.marca || ""} ${equipo.modelo || ""} ${equipo.placa || ""} ${equipo.serie || ""}`.toLowerCase();
-
       return (
         (estado === "todos" || item.estado === estado) &&
         cliente.includes(filters.cliente.toLowerCase()) &&
         codigo.includes(filters.codigo.toLowerCase()) &&
         tecnico.includes(filters.tecnico.toLowerCase()) &&
-        (filters.equipo === "" ||
-          item.subtipo === filters.equipo ||
-          equipoTxt.includes(filters.equipo.toLowerCase()))
+        (filters.equipo === "" || item.subtipo === filters.equipo)
       );
     });
   }, [items, estado, filters]);
@@ -269,7 +271,7 @@ export default function IndexMantenimiento() {
       )}
 
       {/* CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {tipos.map(renderCard)}
       </div>
 
@@ -328,7 +330,8 @@ export default function IndexMantenimiento() {
           >
             <option value="">Equipo</option>
             <option value="hidro">Hidrosuccionador</option>
-            <option value="barredora">Barredora</option>
+            <option value="barredora">Barredora Pelican</option>
+            <option value="barredora-road-wizard">Barredora Road Wizard</option>
             <option value="vcam">Cámara V-Cam6</option>
           </select>
         </div>

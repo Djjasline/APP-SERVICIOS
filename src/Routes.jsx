@@ -215,6 +215,8 @@ export default function RoutesApp() {
 
             <Route path="/inspeccion/barredora/new" element={<VehiculosRoute><HojaInspeccionBarredora /></VehiculosRoute>} />
             <Route path="/inspeccion/barredora/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/inspeccion"><HojaInspeccionBarredora /></RecordPermissionRoute></VehiculosRoute>} />
+            <Route path="/inspeccion/barredora-road-wizard/new" element={<VehiculosRoute><HojaInspeccionBarredora variant="roadWizard" /></VehiculosRoute>} />
+            <Route path="/inspeccion/barredora-road-wizard/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/inspeccion"><HojaInspeccionBarredora variant="roadWizard" /></RecordPermissionRoute></VehiculosRoute>} />
 
             <Route path="/inspeccion/camara/new" element={<VehiculosRoute><HojaInspeccionCamara /></VehiculosRoute>} />
             <Route path="/inspeccion/camara/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/inspeccion"><HojaInspeccionCamara /></RecordPermissionRoute></VehiculosRoute>} />
@@ -224,6 +226,8 @@ export default function RoutesApp() {
 
             <Route path="/vehiculos/inspeccion/barredora/new" element={<VehiculosRoute><HojaInspeccionBarredora /></VehiculosRoute>} />
             <Route path="/vehiculos/inspeccion/barredora/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/inspeccion"><HojaInspeccionBarredora /></RecordPermissionRoute></VehiculosRoute>} />
+            <Route path="/vehiculos/inspeccion/barredora-road-wizard/new" element={<VehiculosRoute><HojaInspeccionBarredora variant="roadWizard" /></VehiculosRoute>} />
+            <Route path="/vehiculos/inspeccion/barredora-road-wizard/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/inspeccion"><HojaInspeccionBarredora variant="roadWizard" /></RecordPermissionRoute></VehiculosRoute>} />
 
             <Route path="/vehiculos/inspeccion/camara/new" element={<VehiculosRoute><HojaInspeccionCamara /></VehiculosRoute>} />
             <Route path="/vehiculos/inspeccion/camara/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/inspeccion"><HojaInspeccionCamara /></RecordPermissionRoute></VehiculosRoute>} />
@@ -238,6 +242,8 @@ export default function RoutesApp() {
 
             <Route path="/mantenimiento/barredora/new" element={<VehiculosRoute><HojaMantenimientoBarredora /></VehiculosRoute>} />
             <Route path="/mantenimiento/barredora/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/mantenimiento"><HojaMantenimientoBarredora /></RecordPermissionRoute></VehiculosRoute>} />
+            <Route path="/mantenimiento/barredora-road-wizard/new" element={<VehiculosRoute><HojaMantenimientoBarredora variant="roadWizard" /></VehiculosRoute>} />
+            <Route path="/mantenimiento/barredora-road-wizard/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/mantenimiento"><HojaMantenimientoBarredora variant="roadWizard" /></RecordPermissionRoute></VehiculosRoute>} />
 
             <Route path="/mantenimiento/vcam/new" element={<VehiculosRoute><HojaMantenimientoVCam /></VehiculosRoute>} />
             <Route path="/mantenimiento/vcam/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/mantenimiento"><HojaMantenimientoVCam /></RecordPermissionRoute></VehiculosRoute>} />
@@ -247,6 +253,8 @@ export default function RoutesApp() {
 
             <Route path="/vehiculos/mantenimiento/barredora/new" element={<VehiculosRoute><HojaMantenimientoBarredora /></VehiculosRoute>} />
             <Route path="/vehiculos/mantenimiento/barredora/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/mantenimiento"><HojaMantenimientoBarredora /></RecordPermissionRoute></VehiculosRoute>} />
+            <Route path="/vehiculos/mantenimiento/barredora-road-wizard/new" element={<VehiculosRoute><HojaMantenimientoBarredora variant="roadWizard" /></VehiculosRoute>} />
+            <Route path="/vehiculos/mantenimiento/barredora-road-wizard/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/mantenimiento"><HojaMantenimientoBarredora variant="roadWizard" /></RecordPermissionRoute></VehiculosRoute>} />
 
             <Route path="/vehiculos/mantenimiento/vcam/new" element={<VehiculosRoute><HojaMantenimientoVCam /></VehiculosRoute>} />
             <Route path="/vehiculos/mantenimiento/vcam/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/mantenimiento"><HojaMantenimientoVCam /></RecordPermissionRoute></VehiculosRoute>} />
@@ -291,20 +299,24 @@ export default function RoutesApp() {
 
           <Route path="/inspeccion/hidro/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/inspeccion"><InspeccionHidroPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/inspeccion/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/inspeccion"><InspeccionBarredoraPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/inspeccion/barredora-road-wizard/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/inspeccion"><InspeccionBarredoraPDF variant="roadWizard" /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/inspeccion/camara/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/inspeccion"><InspeccionCamaraPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
 
           <Route path="/vehiculos/inspeccion/hidro/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/inspeccion"><InspeccionHidroPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/vehiculos/inspeccion/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/inspeccion"><InspeccionBarredoraPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/inspeccion/barredora-road-wizard/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/inspeccion"><InspeccionBarredoraPDF variant="roadWizard" /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/vehiculos/inspeccion/camara/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/inspeccion"><InspeccionCamaraPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
 
           <Route path="/operaciones/recepcion/:id/pdf" element={<ProtectedRoute><TechRoute><HojaRecepcionPDF /></TechRoute></ProtectedRoute>} />
 
           <Route path="/mantenimiento/hidro/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoHidroPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/mantenimiento/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoBarredoraPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/mantenimiento/barredora-road-wizard/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoBarredoraPDF variant="roadWizard" /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/mantenimiento/vcam/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoVCamPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
 
           <Route path="/vehiculos/mantenimiento/hidro/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoHidroPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/vehiculos/mantenimiento/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoBarredoraPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/mantenimiento/barredora-road-wizard/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoBarredoraPDF variant="roadWizard" /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/vehiculos/mantenimiento/vcam/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoVCamPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
         </Routes>
             </BrowserRouter>

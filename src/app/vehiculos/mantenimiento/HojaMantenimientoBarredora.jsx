@@ -87,10 +87,91 @@ const secciones = [
   },
 ];
 
-/* Ítems fijos para calcular progreso */
-const todosLosItemsFijos = secciones.flatMap((s) => s.items.map(([c]) => c));
+const roadWizardSecciones = [
+  secciones[0],
+  {
+    id: "A",
+    titulo: "A. MANTENIMIENTO POR 250 Hrs",
+    tipo: "cantidad",
+    items: [
+      ["A.1", "Aceite de motor 15W40"],
+      ["A.2", "Filtro de aceite P/N 51783"],
+      ["A.3", "Filtro de aire primario P/N 7174125"],
+      ["A.4", "Filtro de aire secundario P/N 7174126"],
+      ["A.5", "Filtro de combustible primario P/N 7174127"],
+      ["A.6", "Filtro de combustible secundario (cartucho de filtro) P/N 7174129"],
+      ["A.7", "Desplazamiento a campo"],
+    ],
+  },
+  {
+    id: "B",
+    titulo: "B. MANTENIMIENTO POR 1000 Hrs",
+    tipo: "cantidad",
+    items: [
+      ["B.1", "Aceite hidraulico AW 68"],
+      ["B.2", "Cartucho filtro hidraulico P/N 1090961"],
+      ["B.3", "Refrigerante Gold TY26576 GL, una vez por año"],
+    ],
+  },
+  {
+    id: "C",
+    titulo: "C. REPUESTOS QUE SE REQUIEREN PARA 1000 HORAS + AÑO",
+    tipo: "cantidad",
+    items: [
+      ["C.1", "Cepillo central barredora Road Wizard P/N 7173202"],
+      ["C.2", "Set de cepillo lateral 5 segmentos P/N 7173222"],
+      ["C.3", "Rodamiento superior de banda P/N 1034474"],
+      ["C.4", "Rodamiento inferior de banda P/N 1034473"],
+      ["C.5", "Rodamiento cepillo principal P/N 1023051"],
+      ["C.6", "Banda transportadora P/N 1118973"],
+      ["C.7", "Filtro de agua P/N 1052992"],
+      ["C.8", "Luz lateral derecha P/N 0806548"],
+      ["C.9", "Aspersores de cepillos P/N 1040011 (6)"],
+      ["C.10", "Manguera llenado de agua hidrante 2 1/2\" x 21 ft P/N 267290-30"],
+    ],
+  },
+  {
+    id: "D",
+    titulo: "D. REPUESTOS QUE SE REQUIEREN PARA MANTENIMIENTO DE CHASIS",
+    tipo: "cantidad",
+    items: [
+      ["D.1", "Filtro de A/C"],
+      ["D.2", "Filtro de aire primario"],
+      ["D.3", "Filtro de aire secundario"],
+      ["D.4", "Filtro separador combustible"],
+      ["D.5", "Filtro de combustible separador"],
+      ["D.6", "Filtro de aceite"],
+      ["D.7", "Aceite"],
+      ["D.8", "Grasa"],
+      ["D.9", "Aceite de la direccion"],
+      ["D.10", "Filtro de la direccion"],
+      ["D.11", "Refrigerante"],
+      ["D.12", "Aceite puntas de eje"],
+      ["D.13", "Mano de obra de mantenimiento de 1000 horas y desplazamiento"],
+      ["D.14", "Mano de obra de mantenimiento de 250 horas"],
+    ],
+  },
+  secciones[2],
+];
 
-const BASE_EQUIPO_IMG_PATH = "/barredora-base.png";
+const barredoraMaintenanceVariants = {
+  pelican: {
+    subtipo: "barredora",
+    routeSegment: "barredora",
+    title: "INFORME DE MANTENIMIENTO BARREDORA PELICAN",
+    imagePath: "/barredora-base.png",
+    draftKey: "mantenimiento_barredora",
+    sections: secciones,
+  },
+  roadWizard: {
+    subtipo: "barredora-road-wizard",
+    routeSegment: "barredora-road-wizard",
+    title: "INFORME DE MANTENIMIENTO BARREDORA ROAD WIZARD",
+    imagePath: "/barredora-road-wizard.png",
+    draftKey: "mantenimiento_barredora_road_wizard",
+    sections: roadWizardSecciones,
+  },
+};
 
 const fieldPlaceholders = {
   referenciaContrato: "Ej: Contrato marco / cliente",
@@ -136,7 +217,8 @@ const emptyForm = {
 /* ═══════════════════════════════════════
    COMPONENTE
 ═══════════════════════════════════════ */
-export default function HojaMantenimientoBarredora() {
+export default function HojaMantenimientoBarredora({ variant = "pelican" }) {
+  const variantConfig = barredoraMaintenanceVariants[variant] || barredoraMaintenanceVariants.pelican;
   const { id }    = useParams();
   const navigate  = useNavigate();
  const { user, isSuperAdmin } = useAuth();
@@ -146,7 +228,9 @@ const superAdminActivo =
     ? isSuperAdmin()
     : !!isSuperAdmin;
   const isEditing = !!id;
-  const claveAutoguardado = `mantenimiento_barredora_${id ?? "new"}`;
+  const claveAutoguardado = `${variantConfig.draftKey}_${id ?? "new"}`;
+  const activeSections = variantConfig.sections;
+  const todosLosItemsFijos = activeSections.flatMap((s) => s.items.map(([c]) => c));
 
   const { technicians, loading: loadingTecnicos } = useTechnicians();
 
@@ -199,7 +283,13 @@ const superAdminActivo =
     if (!id) return;
     const load = async () => {
       const { data: reg, error } = await supabase
-        .from("registros").select("*").eq("id", id).single();
+        .from("registros")
+        .select("*")
+        .eq("id", id)
+        .eq("area", "vehiculos")
+        .eq("tipo", "mantenimiento")
+        .eq("subtipo", variantConfig.subtipo)
+        .single();
       if (error || !reg) return;
 
       const d = { ...emptyForm, ...(reg.data || {}) };
@@ -233,7 +323,7 @@ setFirmaClienteEditada(false);
       }, 300);
     };
     load();
-  }, [id]);
+  }, [id, variantConfig.subtipo]);
 
   /* ── AUTO-RELLENAR TÉCNICO LOGUEADO ── */
   useEffect(() => {
@@ -301,7 +391,7 @@ const compressAndUpload = async (file, folder = "estado-equipo") => {
 
     return await uploadRegistroImage(
       fileToUpload,
-      id || "temp-mant-barredora",
+      id || `temp-mant-${variantConfig.routeSegment}`,
       folder
     );
   } catch (error) {
@@ -310,7 +400,7 @@ const compressAndUpload = async (file, folder = "estado-equipo") => {
     try {
       return await uploadRegistroImage(
         file,
-        id || "temp-mant-barredora",
+        id || `temp-mant-${variantConfig.routeSegment}`,
         folder
       );
     } catch (uploadError) {
@@ -392,7 +482,7 @@ const addBaseImage = () => {
     return;
   }
 
-  if (actuales.some((img) => img.url === BASE_EQUIPO_IMG_PATH)) return;
+  if (actuales.some((img) => img.url === variantConfig.imagePath)) return;
 
   setData((prev) => ({
     ...prev,
@@ -402,7 +492,7 @@ const addBaseImage = () => {
         ...(prev.estadoEquipo?.imagenes || []),
         {
           id: `base-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          url: BASE_EQUIPO_IMG_PATH,
+          url: variantConfig.imagePath,
           puntos: [],
         },
       ],
@@ -524,7 +614,7 @@ const result = await saveOrUpdateReport({
   area: "vehiculos",
 
   tipo: "mantenimiento",
-  subtipo: "barredora",
+  subtipo: variantConfig.subtipo,
 
   data: {
     ...data,
@@ -546,7 +636,7 @@ const result = await saveOrUpdateReport({
           : "Borrador guardado ✅"
       );
       setTimeout(() => {
-        if (!isEditing && result?.id) navigate(`/vehiculos/mantenimiento/barredora/${result.id}`);
+        if (!isEditing && result?.id) navigate(`/vehiculos/mantenimiento/${variantConfig.routeSegment}/${result.id}`);
         else navigate("/vehiculos/mantenimiento");
       }, 1200);
     } catch (err) {
@@ -611,7 +701,7 @@ const result = await saveOrUpdateReport({
                   colSpan={2}
                   style={{ textAlign: "center", fontWeight: "bold", fontSize: 16, verticalAlign: "middle" }}
                 >
-                  INFORME DE MANTENIMIENTO BARREDORA
+                  {variantConfig.title}
                 </td>
                 <td className="text-[10px]" style={{ width: 160 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>
@@ -911,7 +1001,7 @@ const result = await saveOrUpdateReport({
   )}
 </div>
           {/* ══ 5. SECCIONES DE MANTENIMIENTO ══ */}
-          {secciones.map((sec) => (
+          {activeSections.map((sec) => (
             <section key={sec.id}>
               <h3 className="font-bold text-xs border-b pb-1 mb-2">{sec.titulo}</h3>
               <table className="pdf-table w-full">
@@ -1112,7 +1202,7 @@ const result = await saveOrUpdateReport({
             <div className="flex gap-3">
               {isEditing && mantenimientoListo && (
                 <button type="button"
-                  onClick={() => navigate(`/vehiculos/mantenimiento/barredora/${id}/pdf`)}
+                  onClick={() => navigate(`/vehiculos/mantenimiento/${variantConfig.routeSegment}/${id}/pdf`)}
                   className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
                   Ver PDF
                 </button>

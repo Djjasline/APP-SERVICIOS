@@ -188,7 +188,27 @@ const secciones = [
 /* ══════════════════════════════
    COMPONENTE PRINCIPAL
 ══════════════════════════════ */
-export default function InspeccionBarredoraPDF() {
+const barredoraVariants = {
+  pelican: {
+    subtipo: "barredora",
+    title: "INFORME DE INSPECCIÓN BARREDORA PELICAN",
+    filePrefix: "Inspeccion_Barredora_Pelican",
+    imagePath: "/barredora-base.png",
+    imageAlt: "Vista general barredora Pelican",
+    equipmentTitle: "DESCRIPCIÓN DEL EQUIPO — BARREDORA PELICAN",
+  },
+  roadWizard: {
+    subtipo: "barredora-road-wizard",
+    title: "INFORME DE INSPECCIÓN BARREDORA ROAD WIZARD",
+    filePrefix: "Inspeccion_Barredora_Road_Wizard",
+    imagePath: "/barredora-road-wizard.png",
+    imageAlt: "Vista general barredora Road Wizard",
+    equipmentTitle: "DESCRIPCIÓN DEL EQUIPO — BARREDORA ROAD WIZARD",
+  },
+};
+
+export default function InspeccionBarredoraPDF({ variant = "pelican" }) {
+  const variantConfig = barredoraVariants[variant] || barredoraVariants.pelican;
   const navigate = useNavigate();
   const { id }   = useParams();
   const [report, setReport] = useState(null);
@@ -210,7 +230,7 @@ export default function InspeccionBarredoraPDF() {
 
     const subtipo = String(data?.subtipo || "").toLowerCase();
 
-    if (subtipo && subtipo !== "barredora") {
+    if (subtipo && subtipo !== variantConfig.subtipo) {
       console.error("El registro no corresponde a barredora:", data?.subtipo);
       return;
     }
@@ -224,7 +244,7 @@ export default function InspeccionBarredoraPDF() {
   };
 
   load();
-}, [id]);
+}, [id, variantConfig.subtipo]);
 
   if (!report) return (
     <div className="p-6 text-center">
@@ -252,7 +272,7 @@ export default function InspeccionBarredoraPDF() {
     const codigo  = (d.codInf     || "000").replace(/\s+/g, "");
   printPdf(
   "pdf-content",
-  `Inspeccion_Barredora_${cliente}_${pedido}_${codigo}_ASTAP`
+  `${variantConfig.filePrefix}_${cliente}_${pedido}_${codigo}_ASTAP`
 );
 };
 
@@ -295,7 +315,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                     textTransform: "uppercase",
                   }}
                 >
-                  INFORME DE INSPECCIÓN BARREDORA
+                  {variantConfig.title}
                 </td>
                 <td style={{ ...S.cell, width: 170 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>
@@ -344,7 +364,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
 
         {/* ── DESCRIPCIÓN DEL EQUIPO ── */}
         <div className="no-break">
-          <p style={S.sectionTitle}>DESCRIPCIÓN DEL EQUIPO — BARREDORA</p>
+          <p style={S.sectionTitle}>{variantConfig.equipmentTitle}</p>
           <table style={S.tbl}>
             <tbody>
               {[
@@ -401,8 +421,8 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                   }}
                 >
                   <img
-                    src="/barredora-base.png"
-                    alt="Vista general barredora"
+                    src={variantConfig.imagePath}
+                    alt={variantConfig.imageAlt}
                     style={{ width: "100%", maxHeight: 240, objectFit: "contain", display: "block" }}
                   />
                   {puntosBase.map((p, pi) => (

@@ -138,6 +138,12 @@ export default function IndexInspeccion() {
   };
 
   const normalize = (txt) => String(txt || "").toLowerCase();
+  const subtipoLabels = {
+    hidro: "Hidrosuccionador",
+    barredora: "Barredora Pelican",
+    "barredora-road-wizard": "Barredora Road Wizard",
+    camara: "Cámara",
+  };
 
   /* =============================
      FILTRO GLOBAL
@@ -173,7 +179,11 @@ export default function IndexInspeccion() {
       estado === "todos" ? true : item.estado === estado;
 
     const matchEquipo =
-      equipo === "todos" ? true : sub.includes(equipo);
+      equipo === "todos"
+        ? true
+        : equipo === "barredora" || equipo === "barredora-road-wizard"
+        ? sub === equipo
+        : sub.includes(equipo);
 
     return (
       matchSearch &&
@@ -305,7 +315,7 @@ export default function IndexInspeccion() {
       )}
 
       {/* CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {renderCard(
           "Hidrosuccionador",
           "Inspección general del equipo",
@@ -314,10 +324,17 @@ export default function IndexInspeccion() {
         )}
 
         {renderCard(
-          "Barredora",
-          "Inspección de barredoras",
+          "Barredora Pelican",
+          "Inspección de barredora Pelican",
           "barredora",
           "bg-green-600 hover:bg-green-700"
+        )}
+
+        {renderCard(
+          "Barredora Road Wizard",
+          "Inspección de barredora Road Wizard",
+          "barredora-road-wizard",
+          "bg-teal-600 hover:bg-teal-700"
         )}
 
         {renderCard(
@@ -382,7 +399,8 @@ export default function IndexInspeccion() {
           >
             <option value="todos">Equipo</option>
             <option value="hidro">Hidro</option>
-            <option value="barredora">Barredora</option>
+            <option value="barredora">Barredora Pelican</option>
+            <option value="barredora-road-wizard">Barredora Road Wizard</option>
             <option value="cam">Cámara</option>
           </select>
         </div>
@@ -400,7 +418,7 @@ export default function IndexInspeccion() {
             >
               <div>
                 <p className="text-[10px] text-gray-400 mb-1 uppercase">
-                  {item.subtipo} - {item.estado}
+                  {subtipoLabels[item.subtipo] || item.subtipo} - {item.estado}
                 </p>
 
                 <p className="font-semibold text-gray-900">
