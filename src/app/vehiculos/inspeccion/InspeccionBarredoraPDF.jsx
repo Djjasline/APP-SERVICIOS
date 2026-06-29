@@ -295,7 +295,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                     textTransform: "uppercase",
                   }}
                 >
-                  HOJA DE INSPECCIÓN BARREDORA
+                  INFORME DE INSPECCIÓN BARREDORA
                 </td>
                 <td style={{ ...S.cell, width: 170 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>

@@ -232,7 +232,7 @@ export default function MantenimientoBarredoraPDF() {
                     textTransform: "uppercase",
                   }}
                 >
-                  HOJA DE MANTENIMIENTO BARREDORA
+                  INFORME DE MANTENIMIENTO BARREDORA
                 </td>
                 <td style={{ ...S.cell, width: 170 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>

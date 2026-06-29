@@ -611,7 +611,7 @@ const result = await saveOrUpdateReport({
                     verticalAlign: "middle",
                   }}
                 >
-                  HOJA DE INSPECCIÓN CÁMARA V-CAM6
+                  INFORME DE INSPECCIÓN CÁMARA V-CAM6
                 </td>
                 <td className="text-[10px]" style={{ width: 160 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>

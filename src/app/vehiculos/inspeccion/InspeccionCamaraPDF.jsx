@@ -153,7 +153,7 @@ setReport({ estado: data.estado, data: data.data });
           <table style={S.tbl}><tbody>
             <tr>
               <td rowSpan={5} style={{ ...S.cell, width: 130, textAlign: "center" }}><img src="/astap-logo.jpg" alt="ASTAP" style={{ maxHeight: 65, margin: "0 auto", display: "block" }} /></td>
-              <td colSpan={2} style={{ ...S.cell, textAlign: "center", fontWeight: 800, fontSize: 13, textTransform: "uppercase" }}>HOJA DE INSPECCIÓN CÁMARA V-CAM6</td>
+              <td colSpan={2} style={{ ...S.cell, textAlign: "center", fontWeight: 800, fontSize: 13, textTransform: "uppercase" }}>INFORME DE INSPECCIÓN CÁMARA V-CAM6</td>
               <td style={{ ...S.cell, width: 170 }}><div>Fecha versión: <strong>01-01-26</strong></div><div>Versión: <strong>01</strong></div></td>
             </tr>
             {[["REFERENCIA CONTRATO",d.referenciaContrato],["PEDIDO / DEMANDA",d.pedidoDemanda],["DESCRIPCIÓN",d.descripcion],["COD. INF.",d.codInf]].map(([l,v],i)=>(<tr key={i}><td style={{ ...S.label, width:"25%" }}>{l}</td><td colSpan={2} style={S.cell}>{v||"—"}</td></tr>))}

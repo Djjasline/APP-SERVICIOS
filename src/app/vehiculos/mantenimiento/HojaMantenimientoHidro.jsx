@@ -585,7 +585,7 @@ const result = await saveOrUpdateReport({
                     verticalAlign: "middle",
                   }}
                 >
-                  HOJA DE MANTENIMIENTO HIDROSUCCIONADOR
+                  INFORME DE MANTENIMIENTO HIDROSUCCIONADOR
                 </td>
                 <td className="text-[10px]" style={{ width: 160 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>

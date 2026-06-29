@@ -611,7 +611,7 @@ const result = await saveOrUpdateReport({
                   colSpan={2}
                   style={{ textAlign: "center", fontWeight: "bold", fontSize: 16, verticalAlign: "middle" }}
                 >
-                  HOJA DE MANTENIMIENTO BARREDORA
+                  INFORME DE MANTENIMIENTO BARREDORA
                 </td>
                 <td className="text-[10px]" style={{ width: 160 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>

@@ -585,7 +585,7 @@ const firmaCliente =
   </td>
 
   <td colSpan={2} style={{ textAlign:"center", fontWeight:"bold", fontSize:16, verticalAlign:"middle" }}>
-    HOJA DE INSPECCIÓN HIDROSUCCIONADOR
+    INFORME DE INSPECCIÓN HIDROSUCCIONADOR
   </td>
 
   <td className="text-[10px]" style={{ width:160 }}>

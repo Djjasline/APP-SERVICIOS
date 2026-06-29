@@ -58,7 +58,7 @@ export default function InspectionList() {
   };
 
   const handleDelete = (id) => {
-    if (!window.confirm("¿Eliminar esta hoja de inspección?")) return;
+    if (!window.confirm("¿Eliminar este informe de inspección?")) return;
     const next = reports.filter((r) => r.id !== id);
     setReports(next);
     saveReports(next);
@@ -72,13 +72,13 @@ export default function InspectionList() {
   return (
     <div className="max-w-6xl mx-auto px-4">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-lg font-semibold">Hojas de inspección</h1>
+        <h1 className="text-lg font-semibold">Informes de inspección</h1>
         <button
           type="button"
           onClick={handleNew}
           className="px-4 py-2 rounded-lg bg-slate-900 text-white text-xs md:text-sm"
         >
-          + Nueva hoja
+          + Nuevo informe
         </button>
       </div>
 
@@ -100,8 +100,8 @@ export default function InspectionList() {
                   colSpan={5}
                   className="px-3 py-6 text-center text-gray-500 text-xs"
                 >
-                  No hay hojas de inspección registradas. Crea una nueva hoja
-                  con el botón “Nueva hoja”.
+                  No hay informes de inspección registrados. Crea un nuevo informe
+                  con el botón “Nuevo informe”.
                 </td>
               </tr>
             ) : (

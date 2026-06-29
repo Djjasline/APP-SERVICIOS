@@ -283,7 +283,7 @@ export default function MantenimientoHidroPDF() {
                     textTransform: "uppercase",
                   }}
                 >
-                  HOJA DE MANTENIMIENTO HIDROSUCCIONADOR
+                  INFORME DE MANTENIMIENTO HIDROSUCCIONADOR
                 </td>
                 <td style={{ ...S.cell, width: 170 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>

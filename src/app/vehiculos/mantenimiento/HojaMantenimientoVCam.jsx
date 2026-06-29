@@ -589,7 +589,7 @@ const result = await saveOrUpdateReport({
                   <img src="/astap-logo.jpg" alt="ASTAP" className="object-contain mx-auto" style={{ maxHeight: 90 }} />
                 </td>
                 <td colSpan={2} style={{ textAlign: "center", fontWeight: "bold", fontSize: 16, verticalAlign: "middle" }}>
-                  HOJA DE MANTENIMIENTO CÁMARA V-CAM6
+                  INFORME DE MANTENIMIENTO CÁMARA V-CAM6
                 </td>
                 <td className="text-[10px]" style={{ width: 160 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>

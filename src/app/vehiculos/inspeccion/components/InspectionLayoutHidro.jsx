@@ -23,7 +23,7 @@ export default function InspectionLayoutHidro({
               <img src="/astap-logo.jpg" alt="ASTAP" style={{ width: 90 }} />
             </td>
             <td colSpan={2} className="text-center font-bold">
-              HOJA DE INSPECCIÓN HIDROSUCCIONADOR
+              INFORME DE INSPECCIÓN HIDROSUCCIONADOR
             </td>
             <td style={{ width: 180, fontSize: 11 }}>
               <div>Fecha versión: 01-01-26</div>

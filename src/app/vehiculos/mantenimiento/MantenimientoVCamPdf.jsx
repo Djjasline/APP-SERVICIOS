@@ -188,7 +188,7 @@ export default function MantenimientoVCamPDF() {
                   <img src="/astap-logo.jpg" alt="ASTAP" style={{ maxHeight: 65, margin: "0 auto", display: "block" }} />
                 </td>
                 <td colSpan={2} style={{ ...S.cell, textAlign: "center", fontWeight: 800, fontSize: 13, textTransform: "uppercase" }}>
-                  HOJA DE MANTENIMIENTO CÁMARA V-CAM6
+                  INFORME DE MANTENIMIENTO CÁMARA V-CAM6
                 </td>
                 <td style={{ ...S.cell, width: 170 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>
