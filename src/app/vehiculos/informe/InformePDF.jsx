@@ -420,13 +420,13 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         ════════════════════ */}
         {/* <div className="page-break" /> */}
 
-        <p style={{ ...S.sectionTitle, marginTop: 0 }}>ACTIVIDADES REALIZADAS</p>
+        <p style={{ ...S.sectionTitle, marginTop: 0 }}>ACTIVIDADES REALIZADAS Y HALLAZGOS</p>
 
         <table className="activities-table" style={S.tbl}>
           <thead>
             <tr>
               <th style={{ ...S.th, width: 40 }}>ÍTEM</th>
-              <th style={{ ...S.th, width: "32%" }}>DESCRIPCIÓN</th>
+              <th style={{ ...S.th, width: "32%" }}>ACTIVIDAD / HALLAZGO</th>
               <th style={S.th}>IMÁGENES</th>
             </tr>
           </thead>
@@ -468,8 +468,8 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
           <table style={{ ...S.tbl, marginTop: 14 }}>
             <thead>
               <tr>
-                <th colSpan={2} style={S.th}>CONCLUSIONES</th>
-                <th colSpan={2} style={S.th}>RECOMENDACIONES</th>
+                <th colSpan={2} style={S.th}>CONCLUSIÓN TÉCNICA</th>
+                <th colSpan={2} style={S.th}>RECOMENDACIÓN ACCIONABLE</th>
               </tr>
             </thead>
             <tbody>

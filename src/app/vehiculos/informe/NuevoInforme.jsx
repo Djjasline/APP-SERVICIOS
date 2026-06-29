@@ -31,6 +31,13 @@ const fieldPlaceholders = {
   horometro: "Ej: 1800 h",
 };
 
+const technicalReportRules = [
+  "Actividad realizada: qué se hizo y sobre qué equipo.",
+  "Hallazgos: evidencia concreta, medición, condición o novedad observada.",
+  "Conclusión técnica: qué significa el hallazgo para la operación del equipo.",
+  "Recomendación accionable: qué se debe hacer, cuándo o en qué próxima intervención.",
+];
+
 export default function NuevoInforme() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -529,11 +536,27 @@ const validateReport = () => {
   }
 
   const actividadValida = data.actividades.some(
-    (a) => a.titulo || a.detalle
+    (a) => a.titulo?.trim() && (a.detalle || "").trim().length >= 15
   );
 
   if (!actividadValida) {
-    return "Debe completar al menos una actividad";
+    return "Debe completar al menos una actividad con detalle técnico verificable";
+  }
+
+  const conclusionValida = (data.conclusiones || []).some(
+    (c) => (c || "").trim().length >= 15
+  );
+
+  if (!conclusionValida) {
+    return "Debe incluir una conclusión técnica concreta";
+  }
+
+  const recomendacionValida = (data.recomendaciones || []).some(
+    (r) => (r || "").trim().length >= 15
+  );
+
+  if (!recomendacionValida) {
+    return "Debe incluir una recomendación accionable";
   }
 
   return null;
@@ -615,6 +638,21 @@ const estadoFinal =
         />
 
         <ReportHeader data={data} onChange={update} />
+
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+          <p className="font-semibold">Lineamientos obligatorios para informe técnico</p>
+          <p className="mt-1 text-blue-800">
+            El informe debe ser objetivo, verificable y permitir trazabilidad para que otra persona entienda qué pasó sin haber estado en campo.
+          </p>
+          <ul className="mt-2 grid gap-1 md:grid-cols-2 list-disc pl-5">
+            {technicalReportRules.map((rule) => (
+              <li key={rule}>{rule}</li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-blue-700">
+            Evitar frases vagas como "está OK", "parece", "más o menos" o "yo pienso". Describir qué se hizo, cómo se verificó y qué acción se recomienda.
+          </p>
+        </div>
 
         {/* ── DATOS DEL CLIENTE Y TÉCNICO ── */}
         <h3 className="font-bold text-sm border-b pb-1">
@@ -944,16 +982,16 @@ const estadoFinal =
           )}
         </div>
 
-        {/* ── ACTIVIDADES REALIZADAS ── */}
+        {/* ── ACTIVIDADES Y HALLAZGOS ── */}
         <h3 className="font-bold text-sm border-b pb-1">
-          ACTIVIDADES REALIZADAS
+          ACTIVIDADES REALIZADAS Y HALLAZGOS
         </h3>
 
         <table className="pdf-table w-full">
           <thead>
             <tr>
               <th style={{ width: 50 }}>ÍTEM</th>
-              <th style={{ width: "35%" }}>DESCRIPCIÓN</th>
+              <th style={{ width: "35%" }}>ACTIVIDAD / HALLAZGO</th>
               <th style={{ width: "55%" }}>IMÁGENES</th>
             </tr>
           </thead>
@@ -965,7 +1003,7 @@ const estadoFinal =
                 <td className="align-top">
                   <textarea
                     className="pdf-textarea w-full resize-none overflow-hidden"
-                    placeholder="Título de la actividad"
+                    placeholder="Actividad realizada: ej. inspección del sistema hidráulico"
                     value={a.titulo}
                     rows={2}
                     style={{ minHeight: "48px" }}
@@ -977,7 +1015,7 @@ const estadoFinal =
 
                   <textarea
                     className="pdf-textarea w-full resize-none overflow-hidden mt-2"
-                    placeholder="Detalle de la actividad"
+                    placeholder="Hallazgo verificable: qué se encontró, cómo se verificó, datos/condición observada y estado final del equipo"
                     value={a.detalle}
                     rows={6}
                     style={{ minHeight: "150px" }}
@@ -1122,16 +1160,16 @@ const estadoFinal =
 
         {/* ── CONCLUSIONES Y RECOMENDACIONES ── */}
         <h3 className="font-bold text-sm border-b pb-1">
-          CONCLUSIONES Y RECOMENDACIONES
+          CONCLUSIÓN TÉCNICA Y RECOMENDACIÓN ACCIONABLE
         </h3>
 
         <table className="pdf-table w-full">
           <thead>
             <tr>
               <th style={{ width: 30 }}>#</th>
-              <th>CONCLUSIONES</th>
+              <th>CONCLUSIÓN TÉCNICA</th>
               <th style={{ width: 30 }}>#</th>
-              <th>RECOMENDACIONES</th>
+              <th>RECOMENDACIÓN ACCIONABLE</th>
               {data.conclusiones.length > 1 && (
                 <th style={{ width: 60 }}></th>
               )}
@@ -1144,7 +1182,7 @@ const estadoFinal =
                 <td>
                   <textarea
                     className="pdf-textarea w-full resize-none overflow-hidden"
-                    placeholder="Conclusión"
+                    placeholder="Qué significa técnicamente lo encontrado y cuál es el estado final del equipo"
                     value={data.conclusiones[i]}
                     rows={3}
                     style={{ minHeight: "70px" }}
@@ -1159,7 +1197,7 @@ const estadoFinal =
                 <td>
                   <textarea
                     className="pdf-textarea w-full resize-none overflow-hidden"
-                    placeholder="Recomendación"
+                    placeholder="Acción sugerida, prioridad o próxima intervención recomendada"
                     value={data.recomendaciones[i]}
                     rows={3}
                     style={{ minHeight: "70px" }}
@@ -1191,7 +1229,7 @@ const estadoFinal =
           onClick={addConclusionRow}
           className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded transition"
         >
-          + Agregar conclusión / recomendación
+          + Agregar conclusión técnica / recomendación accionable
         </button>
 
        {/* ── FIRMAS ── */}
