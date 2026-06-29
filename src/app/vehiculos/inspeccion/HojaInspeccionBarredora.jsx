@@ -672,12 +672,12 @@ const handleSubmit = async (e) => {
   }
 
   if (!(data.conclusiones || []).some((txt) => (txt || "").trim().length >= 15)) {
-    alert("Debe incluir una conclusion tecnica concreta");
+    alert("Debe incluir una conclusión técnica concreta");
     return;
   }
 
   if (!(data.recomendaciones || []).some((txt) => (txt || "").trim().length >= 15)) {
-    alert("Debe incluir una recomendacion accionable");
+    alert("Debe incluir una recomendación accionable");
     return;
   }
 
@@ -1154,11 +1154,11 @@ setTimeout(() => {
                 <tr key={i}>
                   <td style={{ textAlign:"center" }}>{i+1}</td>
                   <td><textarea className="pdf-textarea w-full resize-none" rows={3} style={{ minHeight:70 }}
-                    placeholder="Que significa tecnicamente lo encontrado y cual es el estado final del equipo"
+                    placeholder="Qué significa técnicamente lo encontrado y cuál es el estado final del equipo"
                     value={data.conclusiones[i]} onChange={(e) => update(["conclusiones", i], e.target.value)} /></td>
                   <td style={{ textAlign:"center" }}>{i+1}</td>
                   <td><textarea className="pdf-textarea w-full resize-none" rows={3} style={{ minHeight:70 }}
-                    placeholder="Accion sugerida, prioridad o proxima intervencion recomendada"
+                    placeholder="Acción sugerida, prioridad o próxima intervención recomendada"
                     value={data.recomendaciones[i]||""} onChange={(e) => update(["recomendaciones", i], e.target.value)} /></td>
                   {data.conclusiones.length > 1 && (
                     <td className="text-center">

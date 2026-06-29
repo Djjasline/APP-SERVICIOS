@@ -6,6 +6,7 @@ import { useTheme } from "@/context/ThemeContext";
 import Sidebar from "./Sidebar";
 import { getUnreadCount } from "../services/notificationService";
 import { supabase } from "@/lib/supabase";
+import TechnicalWritingAssistant from "@/components/TechnicalWritingAssistant";
 
 function playNotificationSound() {
   try {
@@ -187,6 +188,8 @@ export default function MainLayout() {
           </div>
         </button>
       )}
+
+      <TechnicalWritingAssistant />
 
       {/* ================= SIDEBAR ================= */}
       <div

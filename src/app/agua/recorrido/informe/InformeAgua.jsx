@@ -854,7 +854,7 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
     }
 
     if ((data.notaFinal || "").trim().length < 20) {
-      return "Debe incluir una nota final tecnica con cierre del periodo";
+      return "Debe incluir una nota final técnica con cierre del período";
     }
 
     return null;
@@ -1072,7 +1072,7 @@ navigate("/agua/recorrido/informe");
             <Textarea
               value={data.notaFinal}
               onChange={(v) => setField("notaFinal", v)}
-              placeholder="Resuma el estado final del periodo, hallazgos relevantes, actividades ejecutadas y accion recomendada..."
+              placeholder="Resuma el estado final del período, hallazgos relevantes, actividades ejecutadas y acción recomendada..."
               readOnly={isLocked}
               rows={4}
             />

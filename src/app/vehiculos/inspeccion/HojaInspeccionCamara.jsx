@@ -449,8 +449,8 @@ const removeEstadoImg = (imgId) => {
     if (!data.cliente)       { alert("Cliente es obligatorio"); return; }
     if (!data.tecnicoNombre) { alert("Técnico es obligatorio"); return; }
     if (!data.fechaServicio) { alert("Fecha de servicio es obligatoria"); return; }
-    if (!(data.conclusiones || []).some((txt) => (txt || "").trim().length >= 15)) { alert("Debe incluir una conclusion tecnica concreta"); return; }
-    if (!(data.recomendaciones || []).some((txt) => (txt || "").trim().length >= 15)) { alert("Debe incluir una recomendacion accionable"); return; }
+    if (!(data.conclusiones || []).some((txt) => (txt || "").trim().length >= 15)) { alert("Debe incluir una conclusión técnica concreta"); return; }
+    if (!(data.recomendaciones || []).some((txt) => (txt || "").trim().length >= 15)) { alert("Debe incluir una recomendación accionable"); return; }
 
     setGuardando(true);
     try {
@@ -1033,7 +1033,7 @@ const result = await saveOrUpdateReport({
                       rows={3}
                       style={{ minHeight: 70 }}
                       value={data.conclusiones[i]}
-                      placeholder="Que significa tecnicamente lo encontrado y cual es el estado final del equipo"
+                      placeholder="Qué significa técnicamente lo encontrado y cuál es el estado final del equipo"
                       onChange={(e) => update(["conclusiones", i], e.target.value)}
                     />
                   </td>
@@ -1044,7 +1044,7 @@ const result = await saveOrUpdateReport({
                       rows={3}
                       style={{ minHeight: 70 }}
                       value={data.recomendaciones[i] || ""}
-                      placeholder="Accion sugerida, prioridad o proxima intervencion recomendada"
+                      placeholder="Acción sugerida, prioridad o próxima intervención recomendada"
                       onChange={(e) => update(["recomendaciones", i], e.target.value)}
                     />
                   </td>

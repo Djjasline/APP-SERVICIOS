@@ -500,7 +500,7 @@ const updatePointObs = (imgId, ptId, value) =>
     if (!data.cliente)       { alert("Cliente es obligatorio"); return; }
     if (!data.tecnicoNombre) { alert("Técnico es obligatorio"); return; }
     if (!data.fechaServicio) { alert("Fecha de servicio es obligatoria"); return; }
-    if ((data.notaFinal || "").trim().length < 20) { alert("Debe incluir una nota final tecnica con cierre del mantenimiento"); return; }
+    if ((data.notaFinal || "").trim().length < 20) { alert("Debe incluir una nota final técnica con cierre del mantenimiento"); return; }
 
     setGuardando(true);
     try {
@@ -817,7 +817,7 @@ const result = await saveOrUpdateReport({
           <h3 className="font-bold text-sm border-b pb-1">NOTA FINAL TECNICA DEL MANTENIMIENTO</h3>
           <textarea
             value={data.notaFinal || ""}
-            placeholder="Resuma el estado final del equipo, trabajos realizados, hallazgos relevantes y accion recomendada..."
+            placeholder="Resuma el estado final del equipo, trabajos realizados, hallazgos relevantes y acción recomendada..."
             className="w-full border rounded p-2 text-sm outline-none overflow-hidden resize-none min-h-[80px]"
             onChange={(e) => {
               update(["notaFinal"], e.target.value);

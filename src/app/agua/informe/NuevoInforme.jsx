@@ -539,7 +539,7 @@ const validateTechnicalReport = () => {
   );
 
   if (!conclusionValida) {
-    return "Debe incluir una conclusion tecnica concreta";
+    return "Debe incluir una conclusión técnica concreta";
   }
 
   const recomendacionValida = (data.recomendaciones || []).some(
@@ -547,7 +547,7 @@ const validateTechnicalReport = () => {
   );
 
   if (!recomendacionValida) {
-    return "Debe incluir una recomendacion accionable";
+    return "Debe incluir una recomendación accionable";
   }
 
   return null;
@@ -1542,7 +1542,7 @@ const save = async () => {
                   <td className="border p-1">
                     <textarea className="w-full border-0 outline-none text-xs p-1 resize-none" rows={3}
                       value={data.conclusiones[i]}
-                      placeholder="Que significa tecnicamente lo encontrado y cual es el estado final del equipo"
+                      placeholder="Qué significa técnicamente lo encontrado y cuál es el estado final del equipo"
                       onChange={(e) => {
                         const c = [...data.conclusiones]; c[i] = e.target.value; set("conclusiones", c);
                       }}
@@ -1552,7 +1552,7 @@ const save = async () => {
                   <td className="border p-1">
                     <textarea className="w-full border-0 outline-none text-xs p-1 resize-none" rows={3}
                       value={data.recomendaciones[i]}
-                      placeholder="Accion sugerida, prioridad o proxima intervencion recomendada"
+                      placeholder="Acción sugerida, prioridad o próxima intervención recomendada"
                       onChange={(e) => {
                         const r = [...data.recomendaciones]; r[i] = e.target.value; set("recomendaciones", r);
                       }}
@@ -1575,7 +1575,7 @@ const save = async () => {
           <button type="button"
             onClick={() => { set("conclusiones", [...data.conclusiones, ""]); set("recomendaciones", [...data.recomendaciones, ""]); }}
             className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded"
-          >+ Agregar conclusion tecnica / recomendacion accionable</button>
+          >+ Agregar conclusión técnica / recomendación accionable</button>
 
           {/* ── FIRMAS ── */}
           <table className="w-full text-sm border-collapse border">

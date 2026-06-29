@@ -108,8 +108,8 @@ const roadWizardSecciones = [
     titulo: "B. MANTENIMIENTO POR 1000 Hrs",
     tipo: "cantidad",
     items: [
-      ["B.1", "Aceite hidraulico AW 68"],
-      ["B.2", "Cartucho filtro hidraulico P/N 1090961"],
+      ["B.1", "Aceite hidráulico AW 68"],
+      ["B.2", "Cartucho filtro hidráulico P/N 1090961"],
       ["B.3", "Refrigerante Gold TY26576 GL, una vez por año"],
     ],
   },
@@ -143,8 +143,8 @@ const roadWizardSecciones = [
       ["D.6", "Filtro de aceite"],
       ["D.7", "Aceite"],
       ["D.8", "Grasa"],
-      ["D.9", "Aceite de la direccion"],
-      ["D.10", "Filtro de la direccion"],
+      ["D.9", "Aceite de la dirección"],
+      ["D.10", "Filtro de la dirección"],
       ["D.11", "Refrigerante"],
       ["D.12", "Aceite puntas de eje"],
       ["D.13", "Mano de obra de mantenimiento de 1000 horas y desplazamiento"],
@@ -592,7 +592,7 @@ const updatePointObs = (imgId, ptId, value) =>
     if (!data.cliente)       { alert("Cliente es obligatorio"); return; }
     if (!data.tecnicoNombre) { alert("Técnico es obligatorio"); return; }
     if (!data.fechaServicio) { alert("Fecha de servicio es obligatoria"); return; }
-    if ((data.notaFinal || "").trim().length < 20) { alert("Debe incluir una nota final tecnica con cierre del mantenimiento"); return; }
+    if ((data.notaFinal || "").trim().length < 20) { alert("Debe incluir una nota final técnica con cierre del mantenimiento"); return; }
 
     setGuardando(true);
     try {
@@ -1091,7 +1091,7 @@ const result = await saveOrUpdateReport({
                 el.style.height = el.scrollHeight + "px";
               }
             }}
-            placeholder="Resuma el estado final del equipo, trabajos realizados, hallazgos relevantes y accion recomendada..."
+            placeholder="Resuma el estado final del equipo, trabajos realizados, hallazgos relevantes y acción recomendada..."
             className="w-full border rounded p-2 text-sm outline-none overflow-hidden resize-none min-h-[80px]"
           />
 
