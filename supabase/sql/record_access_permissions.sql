@@ -63,7 +63,11 @@ create policy "Usuario ve registros permitidos"
         and p.active = true
         and (p.can_view = true or p.can_edit = true or p.can_download = true)
         and (p.area = 'todos' or p.area = coalesce(registros.area, 'vehiculos'))
-        and (p.tipo = 'todos' or p.tipo = coalesce(registros.tipo, 'todos'))
+        and (
+          p.tipo = 'todos'
+          or p.tipo = coalesce(registros.tipo, 'todos')
+          or p.tipo = concat_ws(':', coalesce(registros.tipo, 'todos'), nullif(coalesce(registros.subtipo, ''), ''))
+        )
     )
   );
 
@@ -78,7 +82,11 @@ create policy "Usuario edita registros permitidos"
         and p.active = true
         and p.can_edit = true
         and (p.area = 'todos' or p.area = coalesce(registros.area, 'vehiculos'))
-        and (p.tipo = 'todos' or p.tipo = coalesce(registros.tipo, 'todos'))
+        and (
+          p.tipo = 'todos'
+          or p.tipo = coalesce(registros.tipo, 'todos')
+          or p.tipo = concat_ws(':', coalesce(registros.tipo, 'todos'), nullif(coalesce(registros.subtipo, ''), ''))
+        )
     )
   )
   with check (
@@ -89,6 +97,10 @@ create policy "Usuario edita registros permitidos"
         and p.active = true
         and p.can_edit = true
         and (p.area = 'todos' or p.area = coalesce(registros.area, 'vehiculos'))
-        and (p.tipo = 'todos' or p.tipo = coalesce(registros.tipo, 'todos'))
+        and (
+          p.tipo = 'todos'
+          or p.tipo = coalesce(registros.tipo, 'todos')
+          or p.tipo = concat_ws(':', coalesce(registros.tipo, 'todos'), nullif(coalesce(registros.subtipo, ''), ''))
+        )
     )
   );

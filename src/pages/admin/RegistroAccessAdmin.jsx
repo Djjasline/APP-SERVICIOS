@@ -20,7 +20,15 @@ const TIPOS = [
   { value: "todos", label: "Todos los formatos" },
   { value: "informe", label: "Informe General" },
   { value: "inspeccion", label: "Inspección" },
+  { value: "inspeccion:hidro", label: "Inspección - Hidrosuccionador" },
+  { value: "inspeccion:barredora", label: "Inspección - Barredora Pelican" },
+  { value: "inspeccion:barredora-road-wizard", label: "Inspección - Barredora Road Wizard" },
+  { value: "inspeccion:camara", label: "Inspección - Cámara" },
   { value: "mantenimiento", label: "Mantenimiento" },
+  { value: "mantenimiento:hidro", label: "Mantenimiento - Hidrosuccionador" },
+  { value: "mantenimiento:barredora", label: "Mantenimiento - Barredora Pelican" },
+  { value: "mantenimiento:barredora-road-wizard", label: "Mantenimiento - Barredora Road Wizard" },
+  { value: "mantenimiento:vcam", label: "Mantenimiento - Cámara V-Cam6" },
   { value: "registro", label: "Registro de herramientas" },
 ];
 

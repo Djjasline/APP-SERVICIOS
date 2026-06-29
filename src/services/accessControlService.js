@@ -71,9 +71,9 @@ export async function deleteRecordAccessPermission(id) {
   return true;
 }
 
-export function getPermittedOwnerIds(permissions, area, tipo, action = "view") {
+export function getPermittedOwnerIds(permissions, area, tipo, action = "view", subtipo = "") {
   return (permissions || [])
-    .filter((permission) => permissionMatchesScope(permission, area, tipo))
+    .filter((permission) => permissionMatchesScope(permission, area, tipo, subtipo))
     .filter((permission) => hasPermissionAction(permission, action))
     .map((permission) => permission.owner_user_id)
     .filter(Boolean);
@@ -86,7 +86,7 @@ export function canAccessRecord({ record, userId, permissions, isSuperAdmin, act
 
   return (permissions || []).some((permission) => {
     if (permission.owner_user_id !== record.user_id) return false;
-    if (!permissionMatchesScope(permission, record.area, record.tipo)) return false;
+    if (!permissionMatchesScope(permission, record.area, record.tipo, record.subtipo)) return false;
     return hasPermissionAction(permission, action);
   });
 }
@@ -99,14 +99,17 @@ export function mergeRecords(...groups) {
   return Array.from(map.values());
 }
 
-function permissionMatchesScope(permission, area, tipo) {
+function permissionMatchesScope(permission, area, tipo, subtipo = "") {
   const permissionArea = normalize(permission.area || "todos");
-  const permissionTipo = normalize(permission.tipo || "todos");
+  const [permissionTipo, permissionSubtipo = ""] = normalize(permission.tipo || "todos").split(":");
   const recordArea = normalize(area || "vehiculos");
   const recordTipo = normalize(tipo || "todos");
+  const recordSubtipo = normalize(subtipo || "");
 
   const areaMatches = permissionArea === "todos" || permissionArea === recordArea;
-  const tipoMatches = permissionTipo === "todos" || permissionTipo === recordTipo;
+  const tipoMatches =
+    permissionTipo === "todos" ||
+    (permissionTipo === recordTipo && (!permissionSubtipo || !recordSubtipo || permissionSubtipo === recordSubtipo));
 
   return areaMatches && tipoMatches && permission.active !== false;
 }

@@ -123,6 +123,18 @@ export default function IndexMantenimiento() {
         return;
       }
 
+      if (!puedeVerTodoVehiculos) {
+        data = (data || []).filter((item) => {
+          return item.user_id === user.id || item.data?.tecnicoCorreo === user.email || canAccessRecord({
+            record: item,
+            userId: user.id,
+            permissions,
+            isSuperAdmin: superAdminActivo,
+            action: "view",
+          });
+        });
+      }
+
       setItems(data || []);
     };
 

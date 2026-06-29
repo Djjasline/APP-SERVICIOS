@@ -101,6 +101,18 @@ export default function IndexInspeccion() {
         return;
       }
 
+      if (!puedeVerTodoVehiculos) {
+        data = (data || []).filter((item) => {
+          return item.user_id === user.id || canAccessRecord({
+            record: item,
+            userId: user.id,
+            permissions,
+            isSuperAdmin: superAdminActivo,
+            action: "view",
+          });
+        });
+      }
+
       setInspections(data || []);
     };
 
