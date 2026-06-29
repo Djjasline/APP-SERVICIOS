@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
+import ObservationImagesPdf from "@/components/ObservationImagesPdf";
 
 /* ══════════════════════════════
    ESTILOS — IDÉNTICOS A HYDRO
@@ -115,7 +116,10 @@ function SeccionTable({ sec, items }) {
                   {estado === opt ? "✓" : ""}
                 </td>
               ))}
-              <td style={S.cell}>{item.observacion || "—"}</td>
+              <td style={S.cell}>
+                <div>{item.observacion || "—"}</div>
+                <ObservationImagesPdf images={item.imagenes} />
+              </td>
             </tr>
           );
         })}

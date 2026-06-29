@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
+import ObservationImagesPdf from "@/components/ObservationImagesPdf";
 
 const S = {
   tbl: {
@@ -82,7 +83,8 @@ function ChecklistTable({ items, data }) {
       <tbody>
         {items.map(([codigo, desc]) => {
           const estado = data?.items?.[codigo]?.estado || "";
-          const obs    = data?.items?.[codigo]?.observacion || "";
+          const item = data?.items?.[codigo] || {};
+          const obs = item.observacion || "";
           return (
             <tr key={codigo}>
               <td style={{ ...S.cell, textAlign: "center", fontWeight: 700 }}>{codigo}</td>
@@ -92,7 +94,10 @@ function ChecklistTable({ items, data }) {
                   {estado === opt ? "✓" : ""}
                 </td>
               ))}
-              <td style={S.cell}>{obs || "—"}</td>
+              <td style={S.cell}>
+                <div>{obs || "—"}</div>
+                <ObservationImagesPdf images={item.imagenes} />
+              </td>
             </tr>
           );
         })}

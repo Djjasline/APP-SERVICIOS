@@ -10,6 +10,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { useAuth } from "@/context/AuthContext";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
+import ObservationImageField from "@/components/ObservationImageField";
 
 /* ══════════════════════════════
    PRUEBAS PREVIAS AL SERVICIO
@@ -543,6 +544,12 @@ const result = await saveOrUpdateReport({
           }}
           placeholder="Observaciones..."
           className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
+        />
+        <ObservationImageField
+          value={data.items?.[codigo]?.imagenes || []}
+          onChange={(imagenes) => handleItem(codigo, "imagenes", imagenes)}
+          recordId={id || "temp-insp-camara"}
+          folder={`observacion-${codigo}`}
         />
       </td>
     </tr>

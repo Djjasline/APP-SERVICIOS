@@ -11,6 +11,7 @@ import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
+import ObservationImageField from "@/components/ObservationImageField";
 
 /* ═══════════════════════════════════════
    HELPERS
@@ -132,7 +133,7 @@ const emptyForm = {
 /* ═══════════════════════════════════════
    TABLA DE ÍTEMS
 ═══════════════════════════════════════ */
-function TablaItems({ seccion, data, handleItem }) {
+function TablaItems({ seccion, data, handleItem, recordId }) {
   return (
     <table className="pdf-table w-full">
       <thead>
@@ -185,6 +186,12 @@ function TablaItems({ seccion, data, handleItem }) {
                 ref={(el) => {
                   if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
                 }}
+              />
+              <ObservationImageField
+                value={data.items?.[codigo]?.imagenes || []}
+                onChange={(imagenes) => handleItem(codigo, "imagenes", imagenes)}
+                recordId={recordId || "temp-mant-vcam"}
+                folder={`observacion-${codigo}`}
               />
             </td>
           </tr>
@@ -809,7 +816,7 @@ const result = await saveOrUpdateReport({
           {secciones.map((sec) => (
             <section key={sec.id}>
               <h3 className="font-bold text-xs border-b pb-1 mb-2">{sec.titulo}</h3>
-              <TablaItems seccion={sec} data={data} handleItem={handleItem} />
+              <TablaItems seccion={sec} data={data} handleItem={handleItem} recordId={id || "temp-mant-vcam"} />
             </section>
           ))}
 
