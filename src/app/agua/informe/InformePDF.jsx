@@ -432,12 +432,12 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
         {/* ================= ACTIVIDADES ================= */}
         <div className="page-break"></div>
 
-        <h3 className="pdf-title mt-4">ACTIVIDADES REALIZADAS</h3>
+        <h3 className="pdf-title mt-4">ACTIVIDADES REALIZADAS Y HALLAZGOS</h3>
         <table className="pdf-table w-full">
           <thead>
             <tr>
               <th style={{ width: 50 }}>ÍTEM</th>
-              <th style={{ width: "35%" }}>DESCRIPCIÓN</th>
+              <th style={{ width: "35%" }}>ACTIVIDAD / HALLAZGO</th>
               <th style={{ width: "55%" }}>IMÁGENES</th>
             </tr>
           </thead>
@@ -489,13 +489,13 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
           </tbody>
         </table>
 
-        {/* ================= CONCLUSIONES Y RECOMENDACIONES ================= */}
+        {/* ================= CONCLUSION Y RECOMENDACION ================= */}
         <div className="no-break">
           <table className="pdf-table w-full mt-4">
             <thead>
               <tr>
-                <th colSpan={2}>CONCLUSIONES</th>
-                <th colSpan={2}>RECOMENDACIONES</th>
+                <th colSpan={2}>CONCLUSION TECNICA</th>
+                <th colSpan={2}>RECOMENDACION ACCIONABLE</th>
               </tr>
             </thead>
             <tbody>

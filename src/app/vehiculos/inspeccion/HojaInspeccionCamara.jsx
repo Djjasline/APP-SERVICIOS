@@ -9,6 +9,7 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { useAuth } from "@/context/AuthContext";
+import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 
 /* ══════════════════════════════
    PRUEBAS PREVIAS AL SERVICIO
@@ -448,6 +449,8 @@ const removeEstadoImg = (imgId) => {
     if (!data.cliente)       { alert("Cliente es obligatorio"); return; }
     if (!data.tecnicoNombre) { alert("Técnico es obligatorio"); return; }
     if (!data.fechaServicio) { alert("Fecha de servicio es obligatoria"); return; }
+    if (!(data.conclusiones || []).some((txt) => (txt || "").trim().length >= 15)) { alert("Debe incluir una conclusion tecnica concreta"); return; }
+    if (!(data.recomendaciones || []).some((txt) => (txt || "").trim().length >= 15)) { alert("Debe incluir una recomendacion accionable"); return; }
 
     setGuardando(true);
     try {
@@ -581,6 +584,8 @@ const result = await saveOrUpdateReport({
               {progresoPct}% ítems marcados ({itemsMarcados}/{totalItems})
             </span>
           </div>
+
+          <TechnicalReportGuidance compact />
 
           {/* ══ 1. ENCABEZADO ══ */}
           <table className="pdf-table w-full">
@@ -1004,17 +1009,17 @@ const result = await saveOrUpdateReport({
             </section>
           ))}
 
-          {/* ══ 7. CONCLUSIONES Y RECOMENDACIONES ══ */}
+          {/* ══ 7. CONCLUSION Y RECOMENDACION ══ */}
           <h3 className="font-bold text-sm border-b pb-1">
-            CONCLUSIONES Y RECOMENDACIONES
+            CONCLUSION TECNICA Y RECOMENDACION ACCIONABLE
           </h3>
           <table className="pdf-table w-full">
             <thead>
               <tr>
                 <th style={{ width: 30 }}>#</th>
-                <th>CONCLUSIONES</th>
+                <th>CONCLUSION TECNICA</th>
                 <th style={{ width: 30 }}>#</th>
-                <th>RECOMENDACIONES</th>
+                <th>RECOMENDACION ACCIONABLE</th>
                 {data.conclusiones.length > 1 && <th style={{ width: 60 }}></th>}
               </tr>
             </thead>
@@ -1028,7 +1033,7 @@ const result = await saveOrUpdateReport({
                       rows={3}
                       style={{ minHeight: 70 }}
                       value={data.conclusiones[i]}
-                      placeholder="Conclusión de la inspección"
+                      placeholder="Que significa tecnicamente lo encontrado y cual es el estado final del equipo"
                       onChange={(e) => update(["conclusiones", i], e.target.value)}
                     />
                   </td>
@@ -1039,7 +1044,7 @@ const result = await saveOrUpdateReport({
                       rows={3}
                       style={{ minHeight: 70 }}
                       value={data.recomendaciones[i] || ""}
-                      placeholder="Recomendación para el cliente"
+                      placeholder="Accion sugerida, prioridad o proxima intervencion recomendada"
                       onChange={(e) => update(["recomendaciones", i], e.target.value)}
                     />
                   </td>

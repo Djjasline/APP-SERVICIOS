@@ -11,6 +11,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import ReportHeader from "@/components/report/ReportHeader";
+import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 
 const fieldPlaceholders = {
   cliente: "Nombre del cliente",
@@ -30,13 +31,6 @@ const fieldPlaceholders = {
   kilometraje: "Ej: 45000 km",
   horometro: "Ej: 1800 h",
 };
-
-const technicalReportRules = [
-  "Actividad realizada: qué se hizo y sobre qué equipo.",
-  "Hallazgos: evidencia concreta, medición, condición o novedad observada.",
-  "Conclusión técnica: qué significa el hallazgo para la operación del equipo.",
-  "Recomendación accionable: qué se debe hacer, cuándo o en qué próxima intervención.",
-];
 
 export default function NuevoInforme() {
   const navigate = useNavigate();
@@ -639,20 +633,7 @@ const estadoFinal =
 
         <ReportHeader data={data} onChange={update} />
 
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
-          <p className="font-semibold">Lineamientos obligatorios para informe técnico</p>
-          <p className="mt-1 text-blue-800">
-            El informe debe ser objetivo, verificable y permitir trazabilidad para que otra persona entienda qué pasó sin haber estado en campo.
-          </p>
-          <ul className="mt-2 grid gap-1 md:grid-cols-2 list-disc pl-5">
-            {technicalReportRules.map((rule) => (
-              <li key={rule}>{rule}</li>
-            ))}
-          </ul>
-          <p className="mt-2 text-xs text-blue-700">
-            Evitar frases vagas como "está OK", "parece", "más o menos" o "yo pienso". Describir qué se hizo, cómo se verificó y qué acción se recomienda.
-          </p>
-        </div>
+        <TechnicalReportGuidance />
 
         {/* ── DATOS DEL CLIENTE Y TÉCNICO ── */}
         <h3 className="font-bold text-sm border-b pb-1">

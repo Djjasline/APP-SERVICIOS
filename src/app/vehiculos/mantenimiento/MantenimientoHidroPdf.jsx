@@ -467,7 +467,7 @@ export default function MantenimientoHidroPDF() {
         {/* ── NOTA FINAL ── */}
         {d.notaFinal && (
           <div className="no-break">
-            <p style={S.sectionTitle}>NOTA / OBSERVACIÓN FINAL DEL TÉCNICO</p>
+            <p style={S.sectionTitle}>NOTA FINAL TECNICA DEL MANTENIMIENTO</p>
             <table style={S.tbl}>
               <tbody>
                 <tr>

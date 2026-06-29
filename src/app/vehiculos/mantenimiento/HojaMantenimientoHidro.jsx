@@ -9,6 +9,7 @@ import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import imageCompression from "browser-image-compression";
+import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 
 /* ═══════════════════════════════════════
    SECCIONES
@@ -470,6 +471,7 @@ const updatePointObs = (imgId, ptId, value) =>
     if (!data.cliente)       { alert("Cliente es obligatorio"); return; }
     if (!data.tecnicoNombre) { alert("Técnico es obligatorio"); return; }
     if (!data.fechaServicio) { alert("Fecha de servicio es obligatoria"); return; }
+    if ((data.notaFinal || "").trim().length < 20) { alert("Debe incluir una nota final tecnica con cierre del mantenimiento"); return; }
 
     setGuardando(true);
     try {
@@ -559,6 +561,8 @@ const result = await saveOrUpdateReport({
               {progresoPct}% ítems marcados ({itemsMarcados}/{totalItems})
             </span>
           </div>
+
+          <TechnicalReportGuidance compact />
 
           {/* ══ 1. ENCABEZADO ══ */}
           <table className="pdf-table w-full">
@@ -998,7 +1002,7 @@ const result = await saveOrUpdateReport({
 
           {/* ══ 6. NOTA FINAL ══ */}
           <h3 className="font-bold text-sm border-b pb-1">
-            NOTA / OBSERVACIÓN FINAL DEL TÉCNICO
+            NOTA FINAL TECNICA DEL MANTENIMIENTO
           </h3>
           <textarea
             value={data.notaFinal || ""}
@@ -1013,7 +1017,7 @@ const result = await saveOrUpdateReport({
                 el.style.height = el.scrollHeight + "px";
               }
             }}
-            placeholder="Escriba aquí cualquier observación general, novedad adicional o comentario de cierre..."
+            placeholder="Resuma el estado final del equipo, trabajos realizados, hallazgos relevantes y accion recomendada..."
             className="w-full border rounded p-2 text-sm outline-none overflow-hidden resize-none min-h-[80px]"
           />
 

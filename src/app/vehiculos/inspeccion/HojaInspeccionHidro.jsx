@@ -9,6 +9,7 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { useAuth } from "@/context/AuthContext";
+import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 
 /* ══════════════════════════════
    PRUEBAS PREVIAS AL SERVICIO
@@ -474,6 +475,8 @@ const updateBasePointObs = (ptId, value) =>
     if (!data.cliente)       { alert("Cliente es obligatorio"); return; }
     if (!data.tecnicoNombre) { alert("Técnico es obligatorio"); return; }
     if (!data.fechaServicio) { alert("Fecha de servicio es obligatoria"); return; }
+    if (!(data.conclusiones || []).some((txt) => (txt || "").trim().length >= 15)) { alert("Debe incluir una conclusion tecnica concreta"); return; }
+    if (!(data.recomendaciones || []).some((txt) => (txt || "").trim().length >= 15)) { alert("Debe incluir una recomendacion accionable"); return; }
 
     setGuardando(true);
     try {
@@ -605,11 +608,13 @@ const firmaCliente =
           </table>
 
           {/* ══ 2. DATOS CLIENTE / TÉCNICO ══ */}
-          <BannerAutoguardado
+        <BannerAutoguardado
           clave={claveAutoguardado}
           onRestaurar={(datosGuardados) => setData(datosGuardados)}
           isEditing={isEditing}
         />
+
+        <TechnicalReportGuidance compact />
 
         <h3 className="font-bold text-sm border-b pb-1">DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE</h3>
           <table className="pdf-table w-full">
@@ -858,12 +863,12 @@ const firmaCliente =
             </section>
           ))}
 
-          {/* ══ 7. CONCLUSIONES Y RECOMENDACIONES ══ */}
-          <h3 className="font-bold text-sm border-b pb-1">CONCLUSIONES Y RECOMENDACIONES</h3>
+          {/* ══ 7. CONCLUSION Y RECOMENDACION ══ */}
+          <h3 className="font-bold text-sm border-b pb-1">CONCLUSION TECNICA Y RECOMENDACION ACCIONABLE</h3>
           <table className="pdf-table w-full">
             <thead><tr>
-              <th style={{ width:30 }}>#</th><th>CONCLUSIONES</th>
-              <th style={{ width:30 }}>#</th><th>RECOMENDACIONES</th>
+              <th style={{ width:30 }}>#</th><th>CONCLUSION TECNICA</th>
+              <th style={{ width:30 }}>#</th><th>RECOMENDACION ACCIONABLE</th>
               {data.conclusiones.length > 1 && <th style={{ width:60 }}></th>}
             </tr></thead>
             <tbody>
@@ -871,11 +876,11 @@ const firmaCliente =
                 <tr key={i}>
                   <td style={{ textAlign:"center" }}>{i+1}</td>
                   <td><textarea className="pdf-textarea w-full resize-none" rows={3} style={{ minHeight:70 }}
-                    placeholder="Conclusión de la inspección"
+                    placeholder="Que significa tecnicamente lo encontrado y cual es el estado final del equipo"
                     value={data.conclusiones[i]} onChange={(e) => update(["conclusiones", i], e.target.value)} /></td>
                   <td style={{ textAlign:"center" }}>{i+1}</td>
                   <td><textarea className="pdf-textarea w-full resize-none" rows={3} style={{ minHeight:70 }}
-                    placeholder="Recomendación para el cliente"
+                    placeholder="Accion sugerida, prioridad o proxima intervencion recomendada"
                     value={data.recomendaciones[i]||""} onChange={(e) => update(["recomendaciones", i], e.target.value)} /></td>
                   {data.conclusiones.length > 1 && (
                     <td className="text-center">

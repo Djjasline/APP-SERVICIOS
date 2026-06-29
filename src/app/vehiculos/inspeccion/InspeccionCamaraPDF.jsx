@@ -410,7 +410,7 @@ setReport({ estado: data.estado, data: data.data });
 
         <div className="no-break">
           <table style={{ ...S.tbl, marginTop:10 }}>
-            <thead><tr><th colSpan={2} style={S.th}>CONCLUSIONES</th><th colSpan={2} style={S.th}>RECOMENDACIONES</th></tr></thead>
+            <thead><tr><th colSpan={2} style={S.th}>CONCLUSION TECNICA</th><th colSpan={2} style={S.th}>RECOMENDACION ACCIONABLE</th></tr></thead>
             <tbody>{(d.conclusiones||[]).map((c,i)=>(<tr key={i} className="no-break"><td style={{ ...S.cell, width:28, textAlign:"center", fontWeight:700 }}>{i+1}</td><td style={{ ...S.cell, whiteSpace:"pre-wrap" }}>{c||"—"}</td><td style={{ ...S.cell, width:28, textAlign:"center", fontWeight:700 }}>{i+1}</td><td style={{ ...S.cell, whiteSpace:"pre-wrap" }}>{d.recomendaciones?.[i]||"—"}</td></tr>))}</tbody>
           </table>
         </div>

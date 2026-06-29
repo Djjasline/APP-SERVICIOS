@@ -13,6 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";
+import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { generarPDFInformeAgua } from "./generarPDFInformeAgua";
 import {
   cloneInformeAguaSchema,
@@ -826,8 +827,44 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
     return { ...data, firmas: { tecnico, supervisor } };
   };
 
+  const validateTechnicalReport = () => {
+    const actividadValida = (data.actividades || []).some((act) => {
+      const hasToggle = [
+        act.comprobacionOperativa,
+        act.mantenimientoHidraulico,
+        act.mantenimientoElectrico,
+        act.limpiezaGeneral,
+        act.registroDocumentacion,
+      ].some(Boolean);
+      const detalles = [
+        act.observacionesAdicionales,
+        act.observacionSistema,
+        act.pesoCilindros,
+        act.cloroResidual,
+        act.dosisCl,
+        act.voltaje,
+        act.corriente,
+      ].some((txt) => (txt || "").trim().length >= 3);
+
+      return hasToggle && detalles;
+    });
+
+    if (!actividadValida) {
+      return "Debe registrar al menos una actividad con detalle tecnico verificable";
+    }
+
+    if ((data.notaFinal || "").trim().length < 20) {
+      return "Debe incluir una nota final tecnica con cierre del periodo";
+    }
+
+    return null;
+  };
+
   // ── guardar ───────────────────────────────────────────
   const handleGuardar = async () => {
+    const technicalError = validateTechnicalReport();
+    if (technicalError) { alert(technicalError); return; }
+
     setGuardando(true);
     try {
       const payload = buildPayload();
@@ -940,6 +977,8 @@ navigate("/agua/recorrido/informe");
   onRestaurar={(datosGuardados) => setData(datosGuardados)}
   isEditing={isEditing}
 />
+        <TechnicalReportGuidance />
+
         {/* ── 1. Encabezado del informe ── */}
         <div className="ia-section">
           <div className="ia-section-header">Encabezado del Informe</div>
@@ -1028,12 +1067,12 @@ navigate("/agua/recorrido/informe");
 
         {/* ── 3. Nota final ── */}
         <div className="ia-section">
-          <div className="ia-section-header">Nota Final</div>
+          <div className="ia-section-header">Nota Final Tecnica</div>
           <div className="ia-section-body">
             <Textarea
               value={data.notaFinal}
               onChange={(v) => setField("notaFinal", v)}
-              placeholder="Observaciones generales del período..."
+              placeholder="Resuma el estado final del periodo, hallazgos relevantes, actividades ejecutadas y accion recomendada..."
               readOnly={isLocked}
               rows={4}
             />

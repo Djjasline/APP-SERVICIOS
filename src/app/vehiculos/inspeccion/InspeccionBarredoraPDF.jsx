@@ -560,13 +560,13 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
           </div>
         ))}
 
-        {/* ── CONCLUSIONES Y RECOMENDACIONES ── */}
+        {/* ── CONCLUSION Y RECOMENDACION ── */}
         <div className="no-break">
           <table style={{ ...S.tbl, marginTop: 10 }}>
             <thead>
               <tr>
-                <th colSpan={2} style={S.th}>CONCLUSIONES</th>
-                <th colSpan={2} style={S.th}>RECOMENDACIONES</th>
+                <th colSpan={2} style={S.th}>CONCLUSION TECNICA</th>
+                <th colSpan={2} style={S.th}>RECOMENDACION ACCIONABLE</th>
               </tr>
             </thead>
             <tbody>

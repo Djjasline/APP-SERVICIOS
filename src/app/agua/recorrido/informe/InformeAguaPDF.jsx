@@ -312,7 +312,7 @@ export default function InformeAguaPDF() {
         {/* NOTA FINAL */}
         <section className="border rounded-lg overflow-hidden">
           <div className="bg-[#1a2942] text-white px-4 py-2 text-sm font-semibold uppercase">
-            Nota final
+            Nota final tecnica
           </div>
           <div className="p-4 text-sm whitespace-pre-wrap">
             {d.notaFinal || "—"}

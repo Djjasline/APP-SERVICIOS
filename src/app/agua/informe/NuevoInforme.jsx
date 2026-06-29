@@ -9,6 +9,7 @@ import imageCompression from "browser-image-compression";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
+import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 
 /* ─────────────────────────────────────────
    HELPERS
@@ -524,12 +525,43 @@ const updateEstadoEquipoPointObservation = (imageId, pointId, value) => {
   }));
 };  
 
+const validateTechnicalReport = () => {
+  const actividadValida = (data.actividades || []).some(
+    (act) => act.titulo?.trim() && (act.detalle || "").trim().length >= 15
+  );
+
+  if (!actividadValida) {
+    return "Debe completar al menos una actividad con hallazgo o detalle tecnico verificable";
+  }
+
+  const conclusionValida = (data.conclusiones || []).some(
+    (txt) => (txt || "").trim().length >= 15
+  );
+
+  if (!conclusionValida) {
+    return "Debe incluir una conclusion tecnica concreta";
+  }
+
+  const recomendacionValida = (data.recomendaciones || []).some(
+    (txt) => (txt || "").trim().length >= 15
+  );
+
+  if (!recomendacionValida) {
+    return "Debe incluir una recomendacion accionable";
+  }
+
+  return null;
+};
+
    /* ─── GUARDAR ─── */
 const save = async () => {
   if (!data.cliente) { alert("Cliente requerido"); return; }
   if (!data.tecnicoNombre) { alert("Técnico requerido"); return; }
   if (!data.fechaServicio) { alert("Fecha requerida"); return; }
   if (uploadingCount > 0) { alert("Espera que terminen las imágenes"); return; }
+
+  const technicalError = validateTechnicalReport();
+  if (technicalError) { alert(technicalError); return; }
 
   const firmaTecnico =
     firmaTecnicoEditada &&
@@ -622,6 +654,8 @@ const save = async () => {
               ))}
             </div>
           )}
+
+          <TechnicalReportGuidance />
 
           {/* ── ENCABEZADO ── */}
         <section className="border rounded overflow-hidden">
@@ -1409,13 +1443,13 @@ const save = async () => {
   )}
 </div>
            
-          {/* ── ACTIVIDADES REALIZADAS ── */}
-          <h3 className="font-bold text-sm border-b pb-1">ACTIVIDADES REALIZADAS</h3>
+          {/* ── ACTIVIDADES Y HALLAZGOS ── */}
+          <h3 className="font-bold text-sm border-b pb-1">ACTIVIDADES REALIZADAS Y HALLAZGOS</h3>
           <table className="w-full text-sm border-collapse border">
             <thead>
               <tr className="bg-gray-100">
                 <th className="border p-2 w-12">ÍTEM</th>
-                <th className="border p-2 w-2/5">DESCRIPCIÓN</th>
+                <th className="border p-2 w-2/5">ACTIVIDAD / HALLAZGO</th>
                 <th className="border p-2">IMÁGENES</th>
               </tr>
             </thead>
@@ -1426,7 +1460,7 @@ const save = async () => {
                   <td className="border p-2 align-top">
                     <input
                       className="w-full border rounded p-1 text-xs mb-1"
-                      placeholder="Título de la actividad"
+                      placeholder="Actividad realizada: ej. inspeccion del equipo"
                       value={act.titulo}
                       onChange={(e) => {
                         const acts = [...data.actividades];
@@ -1437,7 +1471,7 @@ const save = async () => {
                     <textarea
                       className="w-full border rounded p-1 text-xs resize-none"
                       rows={5}
-                      placeholder="Detalle de la actividad"
+                      placeholder="Hallazgo verificable: que se encontro, como se verifico, datos/condicion observada y estado final"
                       value={act.detalle}
                       onChange={(e) => {
                         const acts = [...data.actividades];
@@ -1490,14 +1524,14 @@ const save = async () => {
           >+ Agregar actividad</button>
 
           {/* ── CONCLUSIONES Y RECOMENDACIONES ── */}
-          <h3 className="font-bold text-sm border-b pb-1">CONCLUSIONES Y RECOMENDACIONES</h3>
+          <h3 className="font-bold text-sm border-b pb-1">CONCLUSION TECNICA Y RECOMENDACION ACCIONABLE</h3>
           <table className="w-full text-sm border-collapse border">
             <thead>
               <tr className="bg-gray-100">
                 <th className="border p-2 w-8">#</th>
-                <th className="border p-2">CONCLUSIONES</th>
+                <th className="border p-2">CONCLUSION TECNICA</th>
                 <th className="border p-2 w-8">#</th>
-                <th className="border p-2">RECOMENDACIONES</th>
+                <th className="border p-2">RECOMENDACION ACCIONABLE</th>
                 {data.conclusiones.length > 1 && <th className="border p-2 w-16"></th>}
               </tr>
             </thead>
@@ -1508,7 +1542,7 @@ const save = async () => {
                   <td className="border p-1">
                     <textarea className="w-full border-0 outline-none text-xs p-1 resize-none" rows={3}
                       value={data.conclusiones[i]}
-                      placeholder="Conclusión del servicio"
+                      placeholder="Que significa tecnicamente lo encontrado y cual es el estado final del equipo"
                       onChange={(e) => {
                         const c = [...data.conclusiones]; c[i] = e.target.value; set("conclusiones", c);
                       }}
@@ -1518,7 +1552,7 @@ const save = async () => {
                   <td className="border p-1">
                     <textarea className="w-full border-0 outline-none text-xs p-1 resize-none" rows={3}
                       value={data.recomendaciones[i]}
-                      placeholder="Recomendación para el cliente"
+                      placeholder="Accion sugerida, prioridad o proxima intervencion recomendada"
                       onChange={(e) => {
                         const r = [...data.recomendaciones]; r[i] = e.target.value; set("recomendaciones", r);
                       }}
@@ -1541,7 +1575,7 @@ const save = async () => {
           <button type="button"
             onClick={() => { set("conclusiones", [...data.conclusiones, ""]); set("recomendaciones", [...data.recomendaciones, ""]); }}
             className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded"
-          >+ Agregar conclusión / recomendación</button>
+          >+ Agregar conclusion tecnica / recomendacion accionable</button>
 
           {/* ── FIRMAS ── */}
           <table className="w-full text-sm border-collapse border">
