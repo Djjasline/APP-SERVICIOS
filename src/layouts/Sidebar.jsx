@@ -14,6 +14,7 @@ import {
   ChevronRight,
   BookOpen,
   Database,
+  Tags,
   MessageCircle,
   ShieldCheck,
 } from "lucide-react";
@@ -543,6 +544,17 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   <span className="inline-flex items-center gap-2">
                     <BookOpen size={14} />
                     Manuales técnicos
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => go("/repositorios/marcas-productos")}
+                  className={subItemClass("/repositorios/marcas-productos")}
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <Tags size={14} />
+                    Marcas y productos
                   </span>
                 </button>
 

@@ -1,6 +1,6 @@
 import CardModulo from "@/components/CardModulo";
 import { useTheme } from "@/context/ThemeContext";
-import { FileText, Database } from "lucide-react";
+import { FileText, Database, Tags } from "lucide-react";
 
 export default function AreaRepositorios() {
   const { isLight } = useTheme();
@@ -25,6 +25,14 @@ export default function AreaRepositorios() {
           ruta="/repositorios/manuales-tecnicos"
           color="bg-blue-600"
           icono={<FileText size={20} />}
+        />
+
+        <CardModulo
+          titulo="Marcas y productos"
+          descripcion="Accesos rápidos a fabricantes, productos y documentación pública de equipos relacionados."
+          ruta="/repositorios/marcas-productos"
+          color="bg-purple-700"
+          icono={<Tags size={20} />}
         />
 
         <CardModulo
