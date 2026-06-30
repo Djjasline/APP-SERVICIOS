@@ -42,8 +42,8 @@ export default function PanelVehiculos() {
 
           <Card
             icon={FileText}
-            title="Informe General de Servicio Técnico"
-            desc="Este informe se utiliza para servicios técnicos generales; no aplica para inspección ni mantenimiento de equipos."
+            title="Informe Técnico de Servicio"
+            desc="Instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos."
             onClick={() => navigate("/informe")}
           />
 

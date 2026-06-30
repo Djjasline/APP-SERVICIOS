@@ -120,7 +120,7 @@ export default function PanelServicios() {
           </h1>
 
           <p className={`text-sm ${isLight ? "text-slate-600" : "text-gray-300"}`}>
-            Gestión técnica organizada por áreas operativas
+            Gestión técnica organizada por secciones operativas
           </p>
         </div>
 

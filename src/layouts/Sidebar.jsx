@@ -36,7 +36,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const superAdminActivo =
     typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
   const informeGeneralTooltip =
-    "Informe general de servicio técnico: se usa para servicios técnicos generales; no aplica para inspección ni mantenimiento de equipos.";
+    "Informe técnico de servicio: instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
 
   const isActive = (paths) => {
     const pathname = location.pathname;
@@ -260,7 +260,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 title={informeGeneralTooltip}
                 aria-label={informeGeneralTooltip}
               >
-                Informe General de Servicio Técnico
+                Informe Técnico de Servicio
               </button>
 
               <button

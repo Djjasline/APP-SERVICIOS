@@ -22,8 +22,8 @@ export default function AreaVehiculos() {
       <div className="grid md:grid-cols-2 gap-6">
 
         <CardModulo
-  titulo="Informe General de Servicio Técnico"
-  descripcion="Este informe se utiliza para servicios técnicos generales; no aplica para inspección ni mantenimiento de equipos."
+  titulo="Informe Técnico de Servicio"
+  descripcion="Instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos."
   ruta="/vehiculos/informe"
   color="bg-blue-600"
   icono={<FileText size={20} />}

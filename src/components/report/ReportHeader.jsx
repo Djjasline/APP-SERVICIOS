@@ -1,6 +1,6 @@
 export default function ReportHeader({ data, onChange }) {
   const reportDescription =
-    "Este informe se utiliza para servicios técnicos generales; no aplica para inspección ni mantenimiento de equipos.";
+    "Instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
   const referenciaPlaceholder = "Ej: Contrato marco / cliente";
   const pedidoDemandaPlaceholder = "Ej: P-23-046 o D-45821";
 
@@ -42,7 +42,7 @@ export default function ReportHeader({ data, onChange }) {
             }}
           >
             <div style={{ fontSize: "16px" }}>
-              INFORME GENERAL DE SERVICIO TÉCNICO
+              INFORME TÉCNICO DE SERVICIO
             </div>
             <div
               style={{
@@ -107,7 +107,7 @@ export default function ReportHeader({ data, onChange }) {
               onChange={(e) =>
                 onChange(["descripcion"], e.target.value)
               }
-              placeholder="Ej: Servicio técnico / inspección / mantenimiento"
+              placeholder="Ej: Instalación de repuesto / montaje de elemento / reparación de sistema"
             />
           </td>
         </tr>
