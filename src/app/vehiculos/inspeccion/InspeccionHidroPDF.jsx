@@ -4,6 +4,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
 import ObservationImagesPdf from "@/components/ObservationImagesPdf";
 
+const inspectionDescription =
+  "Inspección técnica del módulo hidrosuccionador y sus sistemas, no incluye servicios de chasis.";
+
 const S = {
   tbl: {
     width: "100%",
@@ -184,7 +187,12 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
                 <td rowSpan={5} style={{ ...S.cell, width: 130, textAlign: "center" }}>
                   <img src="/astap-logo.jpg" alt="ASTAP" style={{ maxHeight: 65, margin: "0 auto", display: "block" }} />
                 </td>
-                <td colSpan={2} style={{ ...S.cell, textAlign: "center", fontWeight: 800, fontSize: 13, textTransform: "uppercase" }}>INFORME DE INSPECCIÓN HIDROSUCCIONADOR</td>
+                <td colSpan={2} style={{ ...S.cell, textAlign: "center", fontWeight: 800, fontSize: 13, textTransform: "uppercase" }}>
+                  <div>INFORME DE INSPECCIÓN HIDROSUCCIONADOR</div>
+                  <div style={{ marginTop: 3, fontSize: 8.5, fontWeight: 400, lineHeight: 1.25, textTransform: "none" }}>
+                    {inspectionDescription}
+                  </div>
+                </td>
                 <td style={{ ...S.cell, width: 170 }}><div>Fecha versión: <strong>01-01-26</strong></div><div>Versión: <strong>01</strong></div></td>
               </tr>
               {[["REFERENCIA CONTRATO", d.referenciaContrato],["PEDIDO / DEMANDA", d.pedidoDemanda],["DESCRIPCIÓN", d.descripcion],["COD. INF.", d.codInf]].map(([label, value], i) => (

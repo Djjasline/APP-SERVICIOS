@@ -105,6 +105,7 @@ const barredoraVariants = {
     subtipo: "barredora",
     routeSegment: "barredora",
     title: "INFORME DE INSPECCIÓN BARREDORA PELICAN",
+    description: "Inspección del módulo de barrido incluye motor de combustión interna.",
     imagePath: "/barredora-base.png",
     imageAlt: "Vista general barredora Pelican",
     draftKey: "inspeccion_barredora",
@@ -113,6 +114,7 @@ const barredoraVariants = {
     subtipo: "barredora-road-wizard",
     routeSegment: "barredora-road-wizard",
     title: "INFORME DE INSPECCIÓN BARREDORA ROAD WIZARD",
+    description: "Inspección del módulo barredora Road Wizard incluye motor auxiliar, no incluye servicio de chasis.",
     imagePath: "/barredora-roadwizard-base.png",
     imageAlt: "Vista general barredora Road Wizard",
     draftKey: "inspeccion_barredora_road_wizard",
@@ -827,7 +829,10 @@ setTimeout(() => {
   </td>
 
   <td colSpan={2} style={{ textAlign:"center", fontWeight:"bold", fontSize:16, verticalAlign:"middle" }}>
-                    {variantConfig.title}
+                    <div>{variantConfig.title}</div>
+                    <div className="mt-1 text-[11px] font-normal normal-case leading-tight">
+                      {variantConfig.description}
+                    </div>
                  </td>
 
   <td className="text-[10px]" style={{ width:160 }}>

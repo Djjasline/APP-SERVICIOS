@@ -196,19 +196,19 @@ export default function IndexInspeccion() {
           <Card
             title="Hidrosuccionador"
             type="hidro"
-            description="Inspección general del equipo hidrosuccionador."
+            description="Inspección técnica del módulo hidrosuccionador y sus sistemas, no incluye servicios de chasis."
           />
 
           <Card
             title="Barredora Pelican"
             type="barredora"
-            description="Inspección y valoración de barredora Pelican."
+            description="Inspección del módulo de barrido incluye motor de combustión interna."
           />
 
           <Card
             title="Barredora Road Wizard"
             type="barredora-road-wizard"
-            description="Inspección y valoración de barredora Road Wizard."
+            description="Inspección del módulo barredora Road Wizard incluye motor auxiliar, no incluye servicio de chasis."
           />
 
           <Card

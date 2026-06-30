@@ -12,6 +12,9 @@ import { useAuth } from "@/context/AuthContext";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import ObservationImageField from "@/components/ObservationImageField";
 
+const inspectionDescription =
+  "Inspección técnica del módulo hidrosuccionador y sus sistemas, no incluye servicios de chasis.";
+
 /* ══════════════════════════════
    PRUEBAS PREVIAS AL SERVICIO
 ══════════════════════════════ */
@@ -592,7 +595,10 @@ const firmaCliente =
   </td>
 
   <td colSpan={2} style={{ textAlign:"center", fontWeight:"bold", fontSize:16, verticalAlign:"middle" }}>
-    INFORME DE INSPECCIÓN HIDROSUCCIONADOR
+    <div>INFORME DE INSPECCIÓN HIDROSUCCIONADOR</div>
+    <div className="mt-1 text-[11px] font-normal normal-case leading-tight">
+      {inspectionDescription}
+    </div>
   </td>
 
   <td className="text-[10px]" style={{ width:160 }}>

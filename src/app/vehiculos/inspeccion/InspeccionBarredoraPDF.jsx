@@ -197,6 +197,7 @@ const barredoraVariants = {
   pelican: {
     subtipo: "barredora",
     title: "INFORME DE INSPECCIÓN BARREDORA PELICAN",
+    description: "Inspección del módulo de barrido incluye motor de combustión interna.",
     filePrefix: "Inspeccion_Barredora_Pelican",
     imagePath: "/barredora-base.png",
     imageAlt: "Vista general barredora Pelican",
@@ -205,6 +206,7 @@ const barredoraVariants = {
   roadWizard: {
     subtipo: "barredora-road-wizard",
     title: "INFORME DE INSPECCIÓN BARREDORA ROAD WIZARD",
+    description: "Inspección del módulo barredora Road Wizard incluye motor auxiliar, no incluye servicio de chasis.",
     filePrefix: "Inspeccion_Barredora_Road_Wizard",
     imagePath: "/barredora-roadwizard-base.png",
     imageAlt: "Vista general barredora Road Wizard",
@@ -320,7 +322,10 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                     textTransform: "uppercase",
                   }}
                 >
-                  {variantConfig.title}
+                  <div>{variantConfig.title}</div>
+                  <div style={{ marginTop: 3, fontSize: 8.5, fontWeight: 400, lineHeight: 1.25, textTransform: "none" }}>
+                    {variantConfig.description}
+                  </div>
                 </td>
                 <td style={{ ...S.cell, width: 170 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>
