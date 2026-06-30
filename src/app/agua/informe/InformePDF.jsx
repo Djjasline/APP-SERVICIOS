@@ -85,6 +85,11 @@ export default function InformePDF({
   }
 
   const { data } = report;
+  const isBomba = data?.tipoInforme !== "valvula";
+  const informeTitulo = isBomba ? "INFORME DE BOMBAS" : "INFORME DE VÁLVULAS";
+  const informeDescripcion = isBomba
+    ? "Informe para levantamiento, instalación o inspección de bombas"
+    : "Informe para levantamiento, instalación o inspección de válvulas";
   
 const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
   ? data.estadoEquipo.imagenes.map((img) =>
@@ -132,7 +137,10 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
                 </td>
 
                 <td colSpan={2} className="pdf-title">
-                  INFORME GENERAL DE CAMPO
+                  <div>{informeTitulo}</div>
+                  <div style={{ marginTop: 4, fontSize: 10, fontWeight: 400, lineHeight: 1.3, textTransform: "none" }}>
+                    {informeDescripcion}
+                  </div>
                 </td>
 
                 <td style={{ width: 180, fontSize: 12 }}>

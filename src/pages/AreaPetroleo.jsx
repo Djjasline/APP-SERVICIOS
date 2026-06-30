@@ -21,16 +21,16 @@ export default function AreaPetroleo() {
       <div className="grid md:grid-cols-2 gap-6">
 
         <CardModulo
-          titulo="Informe general de bombas"
-          descripcion="(informe general para levantamiento o inspección de bombas)"
+          titulo="Informe de bombas"
+          descripcion="Informe para levantamiento, instalación o inspección de bombas"
           ruta="/petroleo/informe/bomba"
           color="bg-blue-600"
           icono={<FileText size={20} />}
         />
 
         <CardModulo
-          titulo="Informe general de válvulas"
-          descripcion="(informe general para levantamiento o inspección de válvulas)"
+          titulo="Informe de válvulas"
+          descripcion="Informe para levantamiento, instalación o inspección de válvulas"
           ruta="/petroleo/informe/valvula"
           color="bg-cyan-600"
           icono={<FileText size={20} />}

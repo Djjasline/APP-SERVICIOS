@@ -318,7 +318,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/agua/informe/bomba")}
                   className={subItemClass("/agua/informe/bomba")}
                 >
-                  Informe general de bombas
+                  Informe de bombas
                 </button>
 
                 <button
@@ -326,7 +326,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/agua/informe/valvula")}
                   className={subItemClass("/agua/informe/valvula")}
                 >
-                  Informe general de válvulas
+                  Informe de válvulas
                 </button>
 
                 <button
@@ -377,7 +377,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/industria/informe/bomba")}
                   className={subItemClass("/industria/informe/bomba")}
                 >
-                  Informe general de bombas
+                  Informe de bombas
                 </button>
 
                 <button
@@ -385,7 +385,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/industria/informe/valvula")}
                   className={subItemClass("/industria/informe/valvula")}
                 >
-                  Informe general de válvulas
+                  Informe de válvulas
                 </button>
               </div>
             )}
@@ -428,7 +428,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/petroleo/informe/bomba")}
                   className={subItemClass("/petroleo/informe/bomba")}
                 >
-                  Informe general de bombas
+                  Informe de bombas
                 </button>
 
                 <button
@@ -436,7 +436,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/petroleo/informe/valvula")}
                   className={subItemClass("/petroleo/informe/valvula")}
                 >
-                  Informe general de válvulas
+                  Informe de válvulas
                 </button>
               </div>
             )}

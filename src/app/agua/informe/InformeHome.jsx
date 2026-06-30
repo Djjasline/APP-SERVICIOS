@@ -13,12 +13,12 @@ import { useNavigate } from "react-router-dom";
 
 const informeTipos = {
   bomba: {
-    label: "Informe general de bombas",
-    description: "(informe general para levantamiento o inspección de bombas)",
+    label: "Informe de bombas",
+    description: "Informe para levantamiento, instalación o inspección de bombas",
   },
   valvula: {
-    label: "Informe general de válvulas",
-    description: "(informe general para levantamiento o inspección de válvulas)",
+    label: "Informe de válvulas",
+    description: "Informe para levantamiento, instalación o inspección de válvulas",
   },
 };
 

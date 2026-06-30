@@ -611,11 +611,11 @@ const save = async () => {
   const uploading = uploadingCount > 0;
   const isBomba   = data.tipoInforme === "bomba";
   const informeTitulo = isBomba
-    ? "INFORME GENERAL DE BOMBAS"
-    : "INFORME GENERAL DE VÁLVULAS";
+    ? "INFORME DE BOMBAS"
+    : "INFORME DE VÁLVULAS";
   const informeDescripcion = isBomba
-    ? "(informe general para levantamiento o inspección de bombas)"
-    : "(informe general para levantamiento o inspección de válvulas)";
+    ? "Informe para levantamiento, instalación o inspección de bombas"
+    : "Informe para levantamiento, instalación o inspección de válvulas";
 
   /* ─── RENDER ─── */
   return (
