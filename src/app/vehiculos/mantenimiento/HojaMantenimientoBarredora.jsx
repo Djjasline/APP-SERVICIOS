@@ -77,13 +77,19 @@ const secciones = [
     ],
   },
   {
+    id: "4",
+    titulo: "4. OTROS (ESPECIFICAR)",
+    tipo: "otros",
+    items: [],
+  },
+  {
     id: "3",
-    titulo: "3. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POST SERVICIO",
+    titulo: "5. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POST SERVICIO",
     tipo: "simple",
     items: [
-      ["3.1", "Encendido general del equipo"],
-      ["3.2", "Funcionamiento del sistema de barrido"],
-      ["3.3", "Funcionamiento del sistema hidráulico"],
+      ["5.1", "Encendido general del equipo", "3.1"],
+      ["5.2", "Funcionamiento del sistema de barrido", "3.2"],
+      ["5.3", "Funcionamiento del sistema hidráulico", "3.3"],
     ],
   },
 ];
@@ -153,6 +159,7 @@ const roadWizardSecciones = [
     ],
   },
   secciones[2],
+  secciones[3],
 ];
 
 const barredoraMaintenanceVariants = {
@@ -211,6 +218,7 @@ const emptyForm = {
   },
   estadoEquipo: { imagenes: [] },
   items: {},
+  extras: [],
   notaFinal: "",
   firmas: { tecnico: "", cliente: "", clienteCedula: "" },
 };
@@ -231,7 +239,9 @@ const superAdminActivo =
   const isEditing = !!id;
   const claveAutoguardado = `${variantConfig.draftKey}_${id ?? "new"}`;
   const activeSections = variantConfig.sections;
-  const todosLosItemsFijos = activeSections.flatMap((s) => s.items.map(([c]) => c));
+  const todosLosItemsFijos = activeSections
+    .filter((s) => s.tipo !== "otros")
+    .flatMap((s) => s.items.map(([c]) => c));
 
   const { technicians, loading: loadingTecnicos } = useTechnicians();
 
@@ -586,6 +596,37 @@ const updatePointObs = (imgId, ptId, value) =>
         [codigo]: { ...(prev.items?.[codigo] || {}), [campo]: valor },
       },
     }));
+
+  const agregarExtra = () => {
+    setData((prev) => ({
+      ...prev,
+      extras: [
+        ...(prev.extras || []),
+        {
+          item: `4.${(prev.extras || []).length + 1}`,
+          detalle: "",
+          estado: "",
+          observacion: "",
+          imagenes: [],
+        },
+      ],
+    }));
+  };
+
+  const eliminarExtra = (index) => {
+    setData((prev) => ({
+      ...prev,
+      extras: (prev.extras || []).filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateExtra = (index, field, value) => {
+    setData((prev) => {
+      const extras = [...(prev.extras || [])];
+      extras[index] = { ...extras[index], [field]: value };
+      return { ...prev, extras };
+    });
+  };
 
   /* ── GUARDAR ── */
   const handleGuardar = async () => {
@@ -1014,10 +1055,48 @@ const result = await saveOrUpdateReport({
                     <th style={{ width: 40 }}>SI</th>
                     <th style={{ width: 40 }}>NO</th>
                     <th className="text-left">OBSERVACIÓN</th>
+                    {sec.tipo === "otros" && <th style={{ width: 40 }}>ELIM.</th>}
                   </tr>
                 </thead>
                 <tbody>
-                  {sec.items.map(([codigo, texto]) => (
+                  {sec.tipo === "otros" ? (data.extras || []).map((extra, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="pdf-label">{extra.item}</td>
+                      <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>
+                        <input
+                          className="pdf-input w-full"
+                          placeholder="Especificar..."
+                          value={extra.detalle || ""}
+                          onChange={(e) => updateExtra(index, "detalle", e.target.value)}
+                        />
+                      </td>
+                      <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+                        <input type="radio" name={`extra-${index}`} checked={extra.estado === "SI"} onChange={() => updateExtra(index, "estado", "SI")} />
+                      </td>
+                      <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+                        <input type="radio" name={`extra-${index}`} checked={extra.estado === "NO"} onChange={() => updateExtra(index, "estado", "NO")} />
+                      </td>
+                      <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
+                        <textarea
+                          value={extra.observacion || ""}
+                          onChange={(e) => updateExtra(index, "observacion", e.target.value)}
+                          placeholder="Observaciones..."
+                          className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
+                        />
+                        <ObservationImageField
+                          value={extra.imagenes || []}
+                          onChange={(imagenes) => updateExtra(index, "imagenes", imagenes)}
+                          recordId={id || `temp-mant-${variantConfig.routeSegment}`}
+                          folder={`observacion-extra-${extra.item}`}
+                        />
+                      </td>
+                      <td style={{ border: "1px solid #d1d5db", padding: "4px", textAlign: "center" }}>
+                        <button type="button" onClick={() => eliminarExtra(index)} className="font-bold text-red-600">×</button>
+                      </td>
+                    </tr>
+                  )) : sec.items.map(([codigo, texto, codigoAnterior]) => {
+                    const itemData = data.items?.[codigo] || data.items?.[codigoAnterior] || {};
+                    return (
                     <tr key={codigo} className="hover:bg-gray-50">
                       <td className="pdf-label">{codigo}</td>
                       <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>
@@ -1028,7 +1107,7 @@ const result = await saveOrUpdateReport({
                           <input
                             type="number"
                             className="pdf-input w-16 text-center"
-                            value={data.items?.[codigo]?.cantidad || ""}
+                            value={itemData.cantidad || ""}
                             placeholder="Cant."
                             onChange={(e) => handleItem(codigo, "cantidad", e.target.value)}
                           />
@@ -1038,7 +1117,7 @@ const result = await saveOrUpdateReport({
                         <input
                           type="radio"
                           name={`e-${codigo}`}
-                          checked={data.items?.[codigo]?.estado === "SI"}
+                          checked={itemData.estado === "SI"}
                           onChange={() => handleItem(codigo, "estado", "SI")}
                         />
                       </td>
@@ -1046,13 +1125,13 @@ const result = await saveOrUpdateReport({
                         <input
                           type="radio"
                           name={`e-${codigo}`}
-                          checked={data.items?.[codigo]?.estado === "NO"}
+                          checked={itemData.estado === "NO"}
                           onChange={() => handleItem(codigo, "estado", "NO")}
                         />
                       </td>
                       <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
                         <textarea
-                          value={data.items?.[codigo]?.observacion || ""}
+                          value={itemData.observacion || ""}
                           onChange={(e) => {
                             handleItem(codigo, "observacion", e.target.value);
                             e.target.style.height = "auto";
@@ -1068,16 +1147,24 @@ const result = await saveOrUpdateReport({
                           className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
                         />
                         <ObservationImageField
-                          value={data.items?.[codigo]?.imagenes || []}
+                          value={itemData.imagenes || []}
                           onChange={(imagenes) => handleItem(codigo, "imagenes", imagenes)}
                           recordId={id || `temp-mant-${variantConfig.routeSegment}`}
                           folder={`observacion-${codigo}`}
                         />
                       </td>
                     </tr>
-                  ))}
+                  );
+                  })}
                 </tbody>
               </table>
+              {sec.tipo === "otros" && (
+                <div className="mt-2">
+                  <button type="button" onClick={agregarExtra} className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                    + Agregar extra
+                  </button>
+                </div>
+              )}
             </section>
           ))}
 

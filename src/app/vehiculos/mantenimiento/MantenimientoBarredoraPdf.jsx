@@ -83,12 +83,17 @@ const secciones = [
     ],
   },
   {
-    titulo: "3. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POST SERVICIO",
+    titulo: "4. OTROS (ESPECIFICAR)",
+    tipo: "otros",
+    items: [],
+  },
+  {
+    titulo: "5. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POST SERVICIO",
     tipo: "simple",
     items: [
-      ["3.1", "Encendido general del equipo"],
-      ["3.2", "Funcionamiento del sistema de barrido"],
-      ["3.3", "Funcionamiento del sistema hidráulico"],
+      ["5.1", "Encendido general del equipo", "3.1"],
+      ["5.2", "Funcionamiento del sistema de barrido", "3.2"],
+      ["5.3", "Funcionamiento del sistema hidráulico", "3.3"],
     ],
   },
 ];
@@ -154,6 +159,7 @@ const roadWizardSecciones = [
     ],
   },
   secciones[2],
+  secciones[3],
 ];
 
 const barredoraPdfVariants = {
@@ -172,7 +178,17 @@ const barredoraPdfVariants = {
 };
 
 /* ── TABLA DE SECCIÓN ── */
-function SeccionTable({ sec, items }) {
+function SeccionTable({ sec, items, extras = [] }) {
+  const rows = sec.tipo === "otros"
+    ? extras.map((extra) => ({ codigo: extra.item, texto: extra.detalle || "—", item: extra }))
+    : sec.items.map(([codigo, texto, codigoAnterior]) => ({
+        codigo,
+        texto,
+        item: items?.[codigo] || items?.[codigoAnterior] || {},
+      }));
+
+  if (sec.tipo === "otros" && rows.length === 0) return null;
+
   return (
     <table style={S.tbl}>
       <thead>
@@ -186,8 +202,7 @@ function SeccionTable({ sec, items }) {
         </tr>
       </thead>
       <tbody>
-        {sec.items.map(([codigo, texto]) => {
-          const item = items?.[codigo] || {};
+        {rows.map(({ codigo, texto, item }) => {
           const esSI = item.estado === "SI";
           const esNO = item.estado === "NO";
           return (
@@ -485,9 +500,9 @@ export default function MantenimientoBarredoraPDF({ variant = "pelican" }) {
 
         {/* ── SECCIONES DE MANTENIMIENTO ── */}
         {variantConfig.sections.map((sec, i) => (
-          <div key={i}>
+          (sec.tipo !== "otros" || (d.extras || []).length > 0) && <div key={i}>
             <p style={{ ...S.sectionTitle, marginTop: i === 0 ? 0 : 14 }}>{sec.titulo}</p>
-            <SeccionTable sec={sec} items={d.items} />
+            <SeccionTable sec={sec} items={d.items} extras={d.extras || []} />
           </div>
         ))}
 

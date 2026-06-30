@@ -68,21 +68,36 @@ const secciones = [
     ],
   },
   {
-    titulo: "4. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POSTERIOR AL SERVICIO",
+    titulo: "4. OTROS (ESPECIFICAR)",
+    tipo: "otros",
+    items: [],
+  },
+  {
+    titulo: "5. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POSTERIOR AL SERVICIO",
     tipo: "simple",
     items: [
-      ["4.1", "Encendido general posterior al mantenimiento"],
-      ["4.2", "Verificación de imagen estable y centrada"],
-      ["4.3", "Verificación de iluminación LED"],
-      ["4.4", "Verificación de avance y retroceso del cable"],
-      ["4.5", "Verificación de funcionamiento de controles"],
-      ["4.6", "Prueba final del sistema completo"],
+      ["5.1", "Encendido general posterior al mantenimiento", "4.1"],
+      ["5.2", "Verificación de imagen estable y centrada", "4.2"],
+      ["5.3", "Verificación de iluminación LED", "4.3"],
+      ["5.4", "Verificación de avance y retroceso del cable", "4.4"],
+      ["5.5", "Verificación de funcionamiento de controles", "4.5"],
+      ["5.6", "Prueba final del sistema completo", "4.6"],
     ],
   },
 ];
 
 /* ── TABLA SECCIÓN ── */
-function SeccionTable({ sec, items }) {
+function SeccionTable({ sec, items, extras = [] }) {
+  const rows = sec.tipo === "otros"
+    ? extras.map((extra) => ({ codigo: extra.item, texto: extra.detalle || "—", item: extra }))
+    : sec.items.map(([codigo, texto, codigoAnterior]) => ({
+        codigo,
+        texto,
+        item: items?.[codigo] || items?.[codigoAnterior] || {},
+      }));
+
+  if (sec.tipo === "otros" && rows.length === 0) return null;
+
   return (
     <table style={S.tbl}>
       <thead>
@@ -97,8 +112,7 @@ function SeccionTable({ sec, items }) {
         </tr>
       </thead>
       <tbody>
-        {sec.items.map(([codigo, texto]) => {
-          const item   = items?.[codigo] || {};
+        {rows.map(({ codigo, texto, item }) => {
           const estado = item.estado || "";
           return (
             <tr key={codigo}>
@@ -351,9 +365,9 @@ export default function MantenimientoVCamPDF() {
 
         {/* ── SECCIONES ── */}
         {secciones.map((sec, i) => (
-          <div key={i}>
+          (sec.tipo !== "otros" || (d.extras || []).length > 0) && <div key={i}>
             <p style={{ ...S.sectionTitle, marginTop: i === 0 ? 0 : 10 }}>{sec.titulo}</p>
-            <SeccionTable sec={sec} items={d.items} />
+            <SeccionTable sec={sec} items={d.items} extras={d.extras || []} />
           </div>
         ))}
 

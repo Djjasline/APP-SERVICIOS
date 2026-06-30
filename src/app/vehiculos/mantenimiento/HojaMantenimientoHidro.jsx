@@ -198,6 +198,7 @@ const agregarExtra = () => {
         detalle: "",
         estado: "",
         observacion: "",
+        imagenes: [],
       },
     ],
   }));
@@ -907,6 +908,12 @@ const result = await saveOrUpdateReport({
     onChange={(e) => updateExtra(index, "observacion", e.target.value)}
     placeholder="Observaciones..."
     className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
+  />
+  <ObservationImageField
+    value={extra.imagenes || []}
+    onChange={(imagenes) => updateExtra(index, "imagenes", imagenes)}
+    recordId={id || "temp-mant-hidro"}
+    folder={`observacion-extra-${extra.item}`}
   />
 </td>
 

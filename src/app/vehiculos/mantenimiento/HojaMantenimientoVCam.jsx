@@ -94,21 +94,29 @@ const secciones = [
   },
   {
     id: "4",
-    titulo: "4. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POSTERIOR AL SERVICIO",
+    titulo: "4. OTROS (ESPECIFICAR)",
+    tipo: "otros",
+    items: [],
+  },
+  {
+    id: "5",
+    titulo: "5. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS, POSTERIOR AL SERVICIO",
     tipo: "simple",
     items: [
-      ["4.1", "Encendido general posterior al mantenimiento"],
-      ["4.2", "Verificación de imagen estable y centrada"],
-      ["4.3", "Verificación de iluminación LED"],
-      ["4.4", "Verificación de avance y retroceso del cable"],
-      ["4.5", "Verificación de funcionamiento de controles"],
-      ["4.6", "Prueba final del sistema completo"],
+      ["5.1", "Encendido general posterior al mantenimiento", "4.1"],
+      ["5.2", "Verificación de imagen estable y centrada", "4.2"],
+      ["5.3", "Verificación de iluminación LED", "4.3"],
+      ["5.4", "Verificación de avance y retroceso del cable", "4.4"],
+      ["5.5", "Verificación de funcionamiento de controles", "4.5"],
+      ["5.6", "Prueba final del sistema completo", "4.6"],
     ],
   },
 ];
 
 /* Lista plana para calcular progreso */
-const todosLosItems = secciones.flatMap((sec) => sec.items.map(([codigo]) => codigo));
+const todosLosItems = secciones
+  .filter((sec) => sec.tipo !== "otros")
+  .flatMap((sec) => sec.items.map(([codigo]) => codigo));
 
 /* ═══════════════════════════════════════
    ESTADO INICIAL
@@ -126,6 +134,7 @@ const emptyForm = {
   },
   estadoEquipo: { imagenes: [] },
   items: {},
+  extras: [],
   notaFinal: "",
   firmas: { tecnico: "", cliente: "", clienteCedula: "" },
 };
@@ -133,7 +142,7 @@ const emptyForm = {
 /* ═══════════════════════════════════════
    TABLA DE ÍTEMS
 ═══════════════════════════════════════ */
-function TablaItems({ seccion, data, handleItem, recordId }) {
+function TablaItems({ seccion, data, handleItem, recordId, updateExtra, eliminarExtra }) {
   return (
     <table className="pdf-table w-full">
       <thead>
@@ -145,10 +154,51 @@ function TablaItems({ seccion, data, handleItem, recordId }) {
           <th style={{ width: 40 }}>NO</th>
           <th style={{ width: 40 }}>N/A</th>
           <th className="text-left">OBSERVACIÓN</th>
+          {seccion.tipo === "otros" && <th style={{ width: 40 }}>ELIM.</th>}
         </tr>
       </thead>
       <tbody>
-        {seccion.items.map(([codigo, texto]) => (
+        {seccion.tipo === "otros" ? (data.extras || []).map((extra, index) => (
+          <tr key={index} className="hover:bg-gray-50">
+            <td className="pdf-label">{extra.item}</td>
+            <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>
+              <input
+                className="pdf-input w-full"
+                placeholder="Especificar..."
+                value={extra.detalle || ""}
+                onChange={(e) => updateExtra(index, "detalle", e.target.value)}
+              />
+            </td>
+            <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+              <input type="radio" name={`extra-vcam-${index}`} checked={extra.estado === "SI"} onChange={() => updateExtra(index, "estado", "SI")} />
+            </td>
+            <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+              <input type="radio" name={`extra-vcam-${index}`} checked={extra.estado === "NO"} onChange={() => updateExtra(index, "estado", "NO")} />
+            </td>
+            <td style={{ border: "1px solid #d1d5db", padding: "4px", width: 40, textAlign: "center" }}>
+              <input type="radio" name={`extra-vcam-${index}`} checked={extra.estado === "N/A"} onChange={() => updateExtra(index, "estado", "N/A")} />
+            </td>
+            <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
+              <textarea
+                value={extra.observacion || ""}
+                placeholder="Observación..."
+                className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
+                onChange={(e) => updateExtra(index, "observacion", e.target.value)}
+              />
+              <ObservationImageField
+                value={extra.imagenes || []}
+                onChange={(imagenes) => updateExtra(index, "imagenes", imagenes)}
+                recordId={recordId || "temp-mant-vcam"}
+                folder={`observacion-extra-${extra.item}`}
+              />
+            </td>
+            <td style={{ border: "1px solid #d1d5db", padding: "4px", textAlign: "center" }}>
+              <button type="button" onClick={() => eliminarExtra(index)} className="font-bold text-red-600">×</button>
+            </td>
+          </tr>
+        )) : seccion.items.map(([codigo, texto, codigoAnterior]) => {
+          const itemData = data.items?.[codigo] || data.items?.[codigoAnterior] || {};
+          return (
           <tr key={codigo} className="hover:bg-gray-50">
             <td className="pdf-label">{codigo}</td>
             <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>{texto}</td>
@@ -157,7 +207,7 @@ function TablaItems({ seccion, data, handleItem, recordId }) {
                 <input
                   type="number" min="0"
                   className="pdf-input w-20 text-center"
-                  value={data.items?.[codigo]?.cantidad || ""}
+                  value={itemData.cantidad || ""}
                   placeholder="Cant."
                   onChange={(e) => handleItem(codigo, "cantidad", e.target.value)}
                 />
@@ -168,14 +218,14 @@ function TablaItems({ seccion, data, handleItem, recordId }) {
                 <input
                   type="radio"
                   name={`estado-${codigo}`}
-                  checked={data.items?.[codigo]?.estado === op}
+                  checked={itemData.estado === op}
                   onChange={() => handleItem(codigo, "estado", op)}
                 />
               </td>
             ))}
             <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
               <textarea
-                value={data.items?.[codigo]?.observacion || ""}
+                value={itemData.observacion || ""}
                 placeholder="Observación..."
                 className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
                 onChange={(e) => {
@@ -188,14 +238,15 @@ function TablaItems({ seccion, data, handleItem, recordId }) {
                 }}
               />
               <ObservationImageField
-                value={data.items?.[codigo]?.imagenes || []}
+                value={itemData.imagenes || []}
                 onChange={(imagenes) => handleItem(codigo, "imagenes", imagenes)}
                 recordId={recordId || "temp-mant-vcam"}
                 folder={`observacion-${codigo}`}
               />
             </td>
           </tr>
-        ))}
+        );
+        })}
       </tbody>
     </table>
   );
@@ -305,6 +356,7 @@ const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
             : [],
         },
         items: reg.data?.items || {},
+        extras: reg.data?.extras || [],
       };
       setData(d);
 
@@ -500,6 +552,37 @@ const updatePointObs = (imgId, ptId, value) =>
       ...prev,
       items: { ...prev.items, [codigo]: { ...(prev.items?.[codigo] || {}), [campo]: valor } },
     }));
+
+  const agregarExtra = () => {
+    setData((prev) => ({
+      ...prev,
+      extras: [
+        ...(prev.extras || []),
+        {
+          item: `4.${(prev.extras || []).length + 1}`,
+          detalle: "",
+          estado: "",
+          observacion: "",
+          imagenes: [],
+        },
+      ],
+    }));
+  };
+
+  const eliminarExtra = (index) => {
+    setData((prev) => ({
+      ...prev,
+      extras: (prev.extras || []).filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateExtra = (index, field, value) => {
+    setData((prev) => {
+      const extras = [...(prev.extras || [])];
+      extras[index] = { ...extras[index], [field]: value };
+      return { ...prev, extras };
+    });
+  };
 
   /* ── GUARDAR ── */
   const handleGuardar = async () => {
@@ -816,7 +899,21 @@ const result = await saveOrUpdateReport({
           {secciones.map((sec) => (
             <section key={sec.id}>
               <h3 className="font-bold text-xs border-b pb-1 mb-2">{sec.titulo}</h3>
-              <TablaItems seccion={sec} data={data} handleItem={handleItem} recordId={id || "temp-mant-vcam"} />
+              <TablaItems
+                seccion={sec}
+                data={data}
+                handleItem={handleItem}
+                recordId={id || "temp-mant-vcam"}
+                updateExtra={updateExtra}
+                eliminarExtra={eliminarExtra}
+              />
+              {sec.tipo === "otros" && (
+                <div className="mt-2">
+                  <button type="button" onClick={agregarExtra} className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                    + Agregar extra
+                  </button>
+                </div>
+              )}
             </section>
           ))}
 

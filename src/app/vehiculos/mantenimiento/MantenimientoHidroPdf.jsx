@@ -93,6 +93,7 @@ function SeccionTable({ sec, items, extras = [] }) {
         item: {
           estado: extra.estado,
           observacion: extra.observacion,
+          imagenes: extra.imagenes,
         },
       }))
     : sec.items
