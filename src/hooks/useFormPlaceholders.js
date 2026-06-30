@@ -14,10 +14,10 @@ const EXCLUDED_INPUT_TYPES = new Set([
 ]);
 
 const PLACEHOLDER_EXAMPLES = [
-  [/referencia.*contrato|contrato/, "Ej: Contrato marco / cliente"],
+  [/referencia.*contrato|contrato/, "Ej: información dada por el asesor comercial, gestor interno del área de operaciones o dentro de la base de datos"],
   [/pedido|demanda/, "Ej: P-23-046 o D-45821"],
-  [/codigo.*informe|cod.*inf|informe/, "Ej: P-23-046-001 o D-45821-001"],
-  [/descripcion/, "Ej: Servicio técnico, inspección o mantenimiento realizado"],
+  [/codigo.*informe|cod.*inf|informe/, "Ej: P23-046- número de equipo - 001 (secuencia del servicio)"],
+  [/descripcion/, "Ej: Servicio asignado en ticket de servicio"],
   [/cliente|empresa/, "Ej: Empresa / cliente solicitante"],
   [/direccion/, "Ej: Ciudad, sector, calle principal"],
   [/contacto/, "Ej: Nombre de la persona de contacto"],

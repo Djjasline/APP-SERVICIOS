@@ -344,9 +344,9 @@ export default function MantenimientoBarredoraPDF({ variant = "pelican" }) {
               </tr>
               {[
                 ["REFERENCIA CONTRATO", d.referenciaContrato],
-                ["PEDIDO / DEMANDA",    d.pedidoDemanda],
+                ["N° DE PEDIDO / DEMANDA", d.pedidoDemanda],
                 ["DESCRIPCIÓN",         d.descripcion],
-                ["COD. INF.",           d.codInf],
+                ["CÓDIGO DEL INFORME",  d.codInf],
               ].map(([label, value], i) => (
                 <tr key={i}>
                   <td style={{ ...S.label, width: "25%" }}>{label}</td>

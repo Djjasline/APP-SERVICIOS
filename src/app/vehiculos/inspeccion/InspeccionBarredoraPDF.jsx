@@ -334,9 +334,9 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
               </tr>
               {[
                 ["REFERENCIA CONTRATO", d.referenciaContrato],
-                ["PEDIDO / DEMANDA",    d.pedidoDemanda],
+                ["N° DE PEDIDO / DEMANDA", d.pedidoDemanda],
                 ["DESCRIPCIÓN",         d.descripcion],
-                ["COD. INF.",           d.codInf],
+                ["CÓDIGO DEL INFORME",  d.codInf],
               ].map(([label, value], i) => (
                 <tr key={i}>
                   <td style={{ ...S.label, width: "25%" }}>{label}</td>

@@ -152,7 +152,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
               </tr>
 
               <tr>
-                <td className="pdf-label">COD. INF.</td>
+                <td className="pdf-label">CÓDIGO DEL INFORME</td>
                 <td colSpan={2}>{data.codInf || "—"}</td>
               </tr>
             </tbody>

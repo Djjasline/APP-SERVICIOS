@@ -259,13 +259,13 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                 <td style={S.label}>DESCRIPCIÓN</td>
                 <td colSpan={2} style={S.cell}>{data.descripcion || "—"}</td>
               </tr>
-              {/* ✅ PEDIDO / DEMANDA */}
+              {/* PEDIDO / DEMANDA */}
               <tr>
-                <td style={S.label}>PEDIDO / DEMANDA</td>
+                <td style={S.label}>N° DE PEDIDO / DEMANDA</td>
                 <td colSpan={2} style={S.cell}>{data.pedidoDemanda || "—"}</td>
               </tr>
               <tr>
-                <td style={S.label}>COD. INF.</td>
+                <td style={S.label}>CÓDIGO DEL INFORME</td>
                 <td colSpan={2} style={S.cell}>{data.codInf || "—"}</td>
               </tr>
             </tbody>

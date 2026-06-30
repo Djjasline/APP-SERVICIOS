@@ -88,10 +88,10 @@ const maintenanceDescription =
   "Mantenimiento preventivo del módulo de hidrosuccionador, no incluye servicios de chasis.";
 
 const fieldPlaceholders = {
-  referenciaContrato: "Ej: Contrato marco / cliente",
+  referenciaContrato: "Ej: información dada por el asesor comercial, gestor interno del área de operaciones o dentro de la base de datos",
   pedidoDemanda: "Ej: P-23-046 o D-45821",
-  descripcion: "Ej: Mantenimiento preventivo hidrosuccionador",
-  codInf: "Ej: P-23-046-001 o D-45821-001",
+  descripcion: "Ej: Servicio asignado en ticket de servicio",
+  codInf: "Ej: P23-046- número de equipo - 001 (secuencia del servicio)",
   cliente: "Nombre del cliente",
   direccion: "Dirección del servicio",
   contacto: "Nombre del contacto",
@@ -601,9 +601,9 @@ const result = await saveOrUpdateReport({
               </tr>
               {[
                 ["REFERENCIA DE CONTRATO", "referenciaContrato"],
-                ["PEDIDO / DEMANDA",       "pedidoDemanda"],
+                ["N° DE PEDIDO / DEMANDA", "pedidoDemanda"],
                 ["DESCRIPCIÓN",            "descripcion"],
-                ["CÓDIGO INFORME",         "codInf"],
+                ["CÓDIGO DEL INFORME",     "codInf"],
               ].map(([label, key]) => (
                 <tr key={key}>
                   <td className="pdf-label">{label}</td>

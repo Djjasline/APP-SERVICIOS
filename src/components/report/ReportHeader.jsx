@@ -1,12 +1,10 @@
 export default function ReportHeader({ data, onChange }) {
   const reportDescription =
     "Instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
-  const referenciaPlaceholder = "Ej: Contrato marco / cliente";
+  const referenciaPlaceholder = "Ej: información dada por el asesor comercial, gestor interno del área de operaciones o dentro de la base de datos";
   const pedidoDemandaPlaceholder = "Ej: P-23-046 o D-45821";
-
-  const codInfPlaceholder = data?.pedidoDemanda?.trim()
-    ? `${data.pedidoDemanda.trim()}-001`
-    : "Ej: P-23-046-001 o D-45821-001";
+  const descripcionPlaceholder = "Ej: Servicio asignado en ticket de servicio";
+  const codInfPlaceholder = "Ej: P23-046- número de equipo - 001 (secuencia del servicio)";
 
   return (
     <table className="pdf-table w-full">
@@ -84,7 +82,7 @@ export default function ReportHeader({ data, onChange }) {
 
         {/* PEDIDO */}
         <tr>
-          <td className="pdf-label">PEDIDO / DEMANDA</td>
+          <td className="pdf-label">N° DE PEDIDO / DEMANDA</td>
           <td colSpan={2}>
             <input
               className="pdf-input w-full"
@@ -107,14 +105,14 @@ export default function ReportHeader({ data, onChange }) {
               onChange={(e) =>
                 onChange(["descripcion"], e.target.value)
               }
-              placeholder="Ej: Instalación de repuesto / montaje de elemento / reparación de sistema"
+              placeholder={descripcionPlaceholder}
             />
           </td>
         </tr>
 
         {/* CÓDIGO */}
         <tr>
-          <td className="pdf-label">CÓDIGO INFORME</td>
+          <td className="pdf-label">CÓDIGO DEL INFORME</td>
           <td colSpan={2}>
             <input
               className="pdf-input w-full"

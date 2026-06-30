@@ -16,10 +16,10 @@ import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 ───────────────────────────────────────── */
   
 const fieldPlaceholders = {
-  referenciaContrato: "Ej: Contrato marco / cliente",
+  referenciaContrato: "Ej: información dada por el asesor comercial, gestor interno del área de operaciones o dentro de la base de datos",
   pedidoDemanda: "Ej: P-23-046 o D-45821",
-  descripcion: "Ej: Levantamiento técnico de bomba",
-  codInf: "Ej: P-23-046-001 o D-45821-001",
+  descripcion: "Ej: Servicio asignado en ticket de servicio",
+  codInf: "Ej: P23-046- número de equipo - 001 (secuencia del servicio)",
   cliente: "Nombre del cliente",
   direccion: "Dirección del servicio",
   contacto: "Nombre del contacto",
@@ -702,7 +702,7 @@ const save = async () => {
             onChange={(e) =>
               set("referenciaContrato", e.target.value)
             }
-            placeholder="Ej: Contrato marco / cliente"
+            placeholder={fieldPlaceholders.referenciaContrato}
           />
         </td>
       </tr>
@@ -710,7 +710,7 @@ const save = async () => {
       {/* PEDIDO */}
       <tr className="border-b">
         <td className="border-r p-2 font-semibold bg-gray-50">
-          PEDIDO / DEMANDA
+          N° DE PEDIDO / DEMANDA
         </td>
         <td colSpan={3} className="border p-1">
           <Input
@@ -742,13 +742,13 @@ const save = async () => {
       {/* CODIGO */}
       <tr className="border-b">
         <td className="border-r p-2 font-semibold bg-gray-50">
-          CÓDIGO INFORME
+          CÓDIGO DEL INFORME
         </td>
         <td colSpan={3} className="border p-1">
           <Input
             value={data.codInf}
             onChange={(e) => set("codInf", e.target.value)}
-            placeholder="Ej: P-23-046-001 o D-45821-001"
+            placeholder={fieldPlaceholders.codInf}
           />
         </td>
       </tr>

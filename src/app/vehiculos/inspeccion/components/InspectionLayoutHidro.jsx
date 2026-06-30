@@ -34,7 +34,7 @@ export default function InspectionLayoutHidro({
           {[
             ["REFERENCIA DE CONTRATO", "referenciaContrato"],
             ["DESCRIPCIÓN", "descripcion"],
-            ["COD. INF.", "codInf"],
+            ["CÓDIGO DEL INFORME", "codInf"],
           ].map(([label, key]) => (
             <tr key={key}>
               <td className="pdf-label">{label}</td>

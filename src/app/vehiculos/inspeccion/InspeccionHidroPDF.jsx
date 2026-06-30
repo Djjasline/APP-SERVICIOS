@@ -195,7 +195,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
                 </td>
                 <td style={{ ...S.cell, width: 170 }}><div>Fecha versión: <strong>01-01-26</strong></div><div>Versión: <strong>01</strong></div></td>
               </tr>
-              {[["REFERENCIA CONTRATO", d.referenciaContrato],["PEDIDO / DEMANDA", d.pedidoDemanda],["DESCRIPCIÓN", d.descripcion],["COD. INF.", d.codInf]].map(([label, value], i) => (
+              {[["REFERENCIA CONTRATO", d.referenciaContrato],["N° DE PEDIDO / DEMANDA", d.pedidoDemanda],["DESCRIPCIÓN", d.descripcion],["CÓDIGO DEL INFORME", d.codInf]].map(([label, value], i) => (
                 <tr key={i}><td style={{ ...S.label, width: "25%" }}>{label}</td><td colSpan={2} style={S.cell}>{value || "—"}</td></tr>
               ))}
             </tbody>
