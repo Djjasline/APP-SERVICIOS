@@ -84,6 +84,8 @@ const todosLosItemsFijos = secciones
   .flatMap((s) => s.items.map(([c]) => c));
 
 const BASE_EQUIPO_IMG_PATH = "/hidro-base.png";
+const maintenanceDescription =
+  "Mantenimiento preventivo del módulo de hidrosuccionador, no incluye servicios de chasis.";
 
 const fieldPlaceholders = {
   referenciaContrato: "Ej: Contrato marco / cliente",
@@ -587,7 +589,10 @@ const result = await saveOrUpdateReport({
                     verticalAlign: "middle",
                   }}
                 >
-                  INFORME DE MANTENIMIENTO HIDROSUCCIONADOR
+                  <div>INFORME DE MANTENIMIENTO HIDROSUCCIONADOR</div>
+                  <div className="mt-1 text-[11px] font-normal normal-case leading-tight">
+                    {maintenanceDescription}
+                  </div>
                 </td>
                 <td className="text-[10px]" style={{ width: 160 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>

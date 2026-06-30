@@ -14,19 +14,19 @@ const tipos = [
   {
     type: "hidro",
     title: "Hidrosuccionador",
-    desc: "Mantenimiento preventivo de hidrosuccionador",
+    desc: "Mantenimiento preventivo del módulo de hidrosuccionador, no incluye servicios de chasis.",
     btn: "bg-blue-600 hover:bg-blue-700",
   },
   {
     type: "barredora",
     title: "Barredora Pelican",
-    desc: "Mantenimiento de barredora Pelican",
+    desc: "Mantenimiento del módulo de barrido incluye motor de combustión interna.",
     btn: "bg-green-600 hover:bg-green-700",
   },
   {
     type: "barredora-road-wizard",
     title: "Barredora Road Wizard",
-    desc: "Mantenimiento de barredora Road Wizard",
+    desc: "Mantenimiento del módulo barredora Road Wizard incluye motor auxiliar, no incluye servicio de chasis.",
     btn: "bg-teal-600 hover:bg-teal-700",
   },
   {

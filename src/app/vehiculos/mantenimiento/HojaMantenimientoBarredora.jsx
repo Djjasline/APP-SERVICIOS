@@ -167,6 +167,7 @@ const barredoraMaintenanceVariants = {
     subtipo: "barredora",
     routeSegment: "barredora",
     title: "INFORME DE MANTENIMIENTO BARREDORA PELICAN",
+    description: "Mantenimiento del módulo de barrido incluye motor de combustión interna.",
     imagePath: "/barredora-base.png",
     draftKey: "mantenimiento_barredora",
     sections: secciones,
@@ -175,6 +176,7 @@ const barredoraMaintenanceVariants = {
     subtipo: "barredora-road-wizard",
     routeSegment: "barredora-road-wizard",
     title: "INFORME DE MANTENIMIENTO BARREDORA ROAD WIZARD",
+    description: "Mantenimiento del módulo barredora Road Wizard incluye motor auxiliar, no incluye servicio de chasis.",
     imagePath: "/barredora-roadwizard-base.png",
     draftKey: "mantenimiento_barredora_road_wizard",
     sections: roadWizardSecciones,
@@ -743,7 +745,10 @@ const result = await saveOrUpdateReport({
                   colSpan={2}
                   style={{ textAlign: "center", fontWeight: "bold", fontSize: 16, verticalAlign: "middle" }}
                 >
-                  {variantConfig.title}
+                  <div>{variantConfig.title}</div>
+                  <div className="mt-1 text-[11px] font-normal normal-case leading-tight">
+                    {variantConfig.description}
+                  </div>
                 </td>
                 <td className="text-[10px]" style={{ width: 160 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>

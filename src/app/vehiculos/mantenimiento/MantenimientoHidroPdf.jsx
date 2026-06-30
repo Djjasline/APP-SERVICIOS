@@ -20,6 +20,9 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
   },
 };
 
+const maintenanceDescription =
+  "Mantenimiento preventivo del módulo de hidrosuccionador, no incluye servicios de chasis.";
+
 /* ══════════════════════════════
    SECCIONES — ESPEJO EXACTO DEL FORM
 ══════════════════════════════ */
@@ -288,7 +291,10 @@ export default function MantenimientoHidroPDF() {
                     textTransform: "uppercase",
                   }}
                 >
-                  INFORME DE MANTENIMIENTO HIDROSUCCIONADOR
+                  <div>INFORME DE MANTENIMIENTO HIDROSUCCIONADOR</div>
+                  <div style={{ marginTop: 3, fontSize: 8.5, fontWeight: 400, lineHeight: 1.25, textTransform: "none" }}>
+                    {maintenanceDescription}
+                  </div>
                 </td>
                 <td style={{ ...S.cell, width: 170 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>

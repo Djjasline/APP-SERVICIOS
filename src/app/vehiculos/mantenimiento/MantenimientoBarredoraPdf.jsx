@@ -166,12 +166,14 @@ const barredoraPdfVariants = {
   pelican: {
     subtipo: "barredora",
     title: "INFORME DE MANTENIMIENTO BARREDORA PELICAN",
+    description: "Mantenimiento del módulo de barrido incluye motor de combustión interna.",
     filePrefix: "Mantenimiento_Barredora_Pelican",
     sections: secciones,
   },
   roadWizard: {
     subtipo: "barredora-road-wizard",
     title: "INFORME DE MANTENIMIENTO BARREDORA ROAD WIZARD",
+    description: "Mantenimiento del módulo barredora Road Wizard incluye motor auxiliar, no incluye servicio de chasis.",
     filePrefix: "Mantenimiento_Barredora_Road_Wizard",
     sections: roadWizardSecciones,
   },
@@ -330,7 +332,10 @@ export default function MantenimientoBarredoraPDF({ variant = "pelican" }) {
                     textTransform: "uppercase",
                   }}
                 >
-                  {variantConfig.title}
+                  <div>{variantConfig.title}</div>
+                  <div style={{ marginTop: 3, fontSize: 8.5, fontWeight: 400, lineHeight: 1.25, textTransform: "none" }}>
+                    {variantConfig.description}
+                  </div>
                 </td>
                 <td style={{ ...S.cell, width: 170 }}>
                   <div>Fecha versión: <strong>01-01-26</strong></div>
