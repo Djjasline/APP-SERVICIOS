@@ -10,7 +10,7 @@ export default function AreaRepositorios() {
       {/* HEADER */}
       <div>
         <h2 className={`text-lg font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
-          Repositorios
+          Recursos
         </h2>
 
         <p className={`text-sm ${isLight ? "text-slate-600" : "text-gray-300"}`}>
