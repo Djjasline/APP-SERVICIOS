@@ -75,8 +75,8 @@ export default function PanelServicios() {
       ruta: "/operaciones",
     },
     {
-      id: "repositorios",
-      titulo: "Repositorios",
+      id: "recursos",
+      titulo: "Recursos",
       descripcion:
         "Gestión de documentos, informes PDF y archivos técnicos.",
       icon: <FolderArchive size={28} />,
