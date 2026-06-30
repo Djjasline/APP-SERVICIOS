@@ -503,7 +503,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
           </div>
         )}
 
-        {/* REPOSITORIOS */}
+        {/* RECURSOS */}
         {puedeVerTodo && (
           <div>
             <button
@@ -516,10 +516,10 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               aria-controls="panel-repos"
             >
               <FolderOpen size={20} className={iconClass} />
-              {openSidebar && "Repositorios"}
+              {openSidebar && "Recursos"}
               {openSidebar &&
                 (openRepositorios ? <ChevronDown /> : <ChevronRight />)}
-              {tooltip("Repositorios")}
+              {tooltip("Recursos")}
             </button>
 
             {openSidebar && openRepositorios && (
