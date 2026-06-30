@@ -47,8 +47,15 @@ export default function AreaAgua() {
           icono={<FileText size={20} />}
         />
 
-       <CardModulo
-  titulo="Informe de recorrido"
+        <CardModulo
+  titulo={(
+    <>
+      Informe de recorrido
+      <span className="ml-2 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-800">
+        🚧 En construcción 🚧
+      </span>
+    </>
+  )}
   descripcion="Registro de recorrido e inspección de sistemas hidráulicos."
   ruta="/agua/recorrido/informe"
   color="bg-yellow-600"
