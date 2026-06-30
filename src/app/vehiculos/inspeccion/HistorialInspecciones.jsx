@@ -330,21 +330,21 @@ export default function IndexInspeccion() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {renderCard(
           "Hidrosuccionador",
-          "Inspección general del equipo",
+          "Inspección técnica del módulo hidrosuccionador y sus sistemas, no incluye servicios de chasis.",
           "hidro",
           "bg-blue-600 hover:bg-blue-700"
         )}
 
         {renderCard(
           "Barredora Pelican",
-          "Inspección de barredora Pelican",
+          "Inspección del módulo de barrido incluye motor de combustión interna.",
           "barredora",
           "bg-green-600 hover:bg-green-700"
         )}
 
         {renderCard(
           "Barredora Road Wizard",
-          "Inspección de barredora Road Wizard",
+          "Inspección del módulo barredora Road Wizard incluye motor auxiliar, no incluye servicio de chasis.",
           "barredora-road-wizard",
           "bg-teal-600 hover:bg-teal-700"
         )}
