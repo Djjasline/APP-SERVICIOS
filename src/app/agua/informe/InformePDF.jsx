@@ -88,8 +88,8 @@ export default function InformePDF({
   const isBomba = data?.tipoInforme !== "valvula";
   const informeTitulo = isBomba ? "INFORME DE BOMBAS" : "INFORME DE VÁLVULAS";
   const informeDescripcion = isBomba
-    ? "Informe para levantamiento, instalación o inspección de bombas"
-    : "Informe para levantamiento, instalación o inspección de válvulas";
+    ? "Informe para levantamiento de estado actual, instalación o inspección de bombas"
+    : "Informe para levantamiento de estado actual, instalación o inspección de válvulas";
   
 const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
   ? data.estadoEquipo.imagenes.map((img) =>

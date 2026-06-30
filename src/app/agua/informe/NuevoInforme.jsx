@@ -614,8 +614,8 @@ const save = async () => {
     ? "INFORME DE BOMBAS"
     : "INFORME DE VÁLVULAS";
   const informeDescripcion = isBomba
-    ? "Informe para levantamiento, instalación o inspección de bombas"
-    : "Informe para levantamiento, instalación o inspección de válvulas";
+    ? "Informe para levantamiento de estado actual, instalación o inspección de bombas"
+    : "Informe para levantamiento de estado actual, instalación o inspección de válvulas";
 
   /* ─── RENDER ─── */
   return (
