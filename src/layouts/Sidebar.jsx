@@ -533,7 +533,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/repositorios")}
                   className={subItemClass("/repositorios")}
                 >
-                  General
+                  Panel
                 </button>
 
                 <button
