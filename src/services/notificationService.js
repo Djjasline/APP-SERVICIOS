@@ -1,5 +1,7 @@
 import { supabase } from "@/lib/supabase";
 
+const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
+
 /*
  Servicio mínimo de notificaciones in-app.
 
@@ -22,8 +24,11 @@ export async function createNotification({
   record_id = null,
 }) {
   try {
+    const recipientEmail = normalizeEmail(recipient_email);
+    if (!recipientEmail) return null;
+
     const payload = {
-      recipient_email,
+      recipient_email: recipientEmail,
       title,
       message,
       record_type,
@@ -62,10 +67,13 @@ export async function createNotification({
 
 async function createNotificationFallback(payload) {
   try {
+    const recipientEmail = normalizeEmail(payload.recipient_email);
+    if (!recipientEmail) return null;
+
     const { data, error } = await supabase
       .from("notifications")
       .insert({
-        recipient_email: payload.recipient_email,
+        recipient_email: recipientEmail,
         title: payload.title,
         message: payload.message,
         record_type: payload.record_type,
@@ -107,14 +115,15 @@ function getNotificationUrl(notification) {
 }
 
 export async function getUnreadCount(recipient_email) {
-  if (!recipient_email) return 0;
+  const recipientEmail = normalizeEmail(recipient_email);
+  if (!recipientEmail) return 0;
 
   try {
     // head + exact count para no traer filas completas
     const { count, error } = await supabase
       .from("notifications")
       .select("id", { count: "exact", head: true })
-      .eq("recipient_email", recipient_email)
+      .ilike("recipient_email", recipientEmail)
       .eq("read", false);
 
     if (error) {
@@ -130,13 +139,14 @@ export async function getUnreadCount(recipient_email) {
 }
 
 export async function getNotifications(recipient_email) {
-  if (!recipient_email) return [];
+  const recipientEmail = normalizeEmail(recipient_email);
+  if (!recipientEmail) return [];
 
   try {
     const { data, error } = await supabase
       .from("notifications")
       .select("*")
-      .eq("recipient_email", recipient_email)
+      .ilike("recipient_email", recipientEmail)
       .order("created_at", { ascending: false });
 
     if (error) {
