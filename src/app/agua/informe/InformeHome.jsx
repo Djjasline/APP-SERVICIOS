@@ -1,4 +1,3 @@
-import SyncStatus from "@/components/SyncStatus";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { supabase } from "@/lib/supabase";
@@ -218,7 +217,6 @@ export default function InformeHome({
         </div>
 
         <div className="flex items-center gap-3">
-          <SyncStatus />
           <button
             onClick={() => navigate(areaPath)}
             className={`border px-4 py-1 rounded transition ${
