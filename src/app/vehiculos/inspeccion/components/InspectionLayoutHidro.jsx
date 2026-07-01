@@ -1,4 +1,5 @@
 import SignatureCanvas from "react-signature-canvas";
+import ReportCodeInput from "@/components/ReportCodeInput";
 
 export default function InspectionLayoutHidro({
   data,
@@ -39,12 +40,21 @@ export default function InspectionLayoutHidro({
             <tr key={key}>
               <td className="pdf-label">{label}</td>
               <td colSpan={2}>
-                <input
-                  className="pdf-input"
-                  value={data[key] || ""}
-                  disabled={readOnly}
-                  onChange={(e) => onChange([key], e.target.value)}
-                />
+                {key === "codInf" ? (
+                  <ReportCodeInput
+                    className="pdf-input"
+                    value={data[key] || ""}
+                    disabled={readOnly}
+                    onChange={(value) => onChange([key], value)}
+                  />
+                ) : (
+                  <input
+                    className="pdf-input"
+                    value={data[key] || ""}
+                    disabled={readOnly}
+                    onChange={(e) => onChange([key], e.target.value)}
+                  />
+                )}
               </td>
             </tr>
           ))}

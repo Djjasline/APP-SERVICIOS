@@ -11,6 +11,7 @@ import SignatureCanvas from "react-signature-canvas";
 import { useAuth } from "@/context/AuthContext";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import ObservationImageField from "@/components/ObservationImageField";
+import ReportCodeInput from "@/components/ReportCodeInput";
 
 /* ══════════════════════════════
    PRUEBAS PREVIAS AL SERVICIO
@@ -634,12 +635,20 @@ const result = await saveOrUpdateReport({
                 <tr key={key}>
                   <td className="pdf-label">{label}</td>
                   <td colSpan={2}>
-                    <input
-                      className="pdf-input w-full"
-                      value={data[key]}
-                      placeholder={fieldPlaceholders[key] || ""}
-                      onChange={(e) => update([key], e.target.value)}
-                    />
+                    {key === "codInf" ? (
+                      <ReportCodeInput
+                        value={data[key]}
+                        placeholder={fieldPlaceholders[key] || ""}
+                        onChange={(value) => update([key], value)}
+                      />
+                    ) : (
+                      <input
+                        className="pdf-input w-full"
+                        value={data[key]}
+                        placeholder={fieldPlaceholders[key] || ""}
+                        onChange={(e) => update([key], e.target.value)}
+                      />
+                    )}
                   </td>
                 </tr>
               ))}

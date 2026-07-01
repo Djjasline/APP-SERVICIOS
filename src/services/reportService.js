@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { createNotification } from "./notificationService";
+import { hasReportCodeSequence, normalizeReportCodeValue, reserveNextReportCode } from "./reportCodeService";
 
 const KARIM_EMAIL = "kamhez@astap.com";
 const ARIEL_EMAIL = "abriones@astap.com";
@@ -23,11 +24,13 @@ export const saveOrUpdateReport = async ({
       throw new Error("Usuario no autenticado");
     }
 
+    const reportData = await resolveReportData({ id, data });
+
     const payload = {
       area,
       tipo,
       subtipo,
-      data,
+      data: reportData,
       estado,
       updated_at: new Date().toISOString(),
     };
@@ -122,6 +125,31 @@ try {
     throw error;
   }
 };
+
+async function resolveReportData({ id, data }) {
+  if (!data?.codInf) return data;
+
+  if (!id) {
+    return { ...data, codInf: await reserveNextReportCode(data.codInf) };
+  }
+
+  const { data: existing, error } = await supabase
+    .from("registros")
+    .select("data")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  const previousCode = normalizeReportCodeValue(existing?.data?.codInf);
+  const currentCode = normalizeReportCodeValue(data.codInf);
+
+  if (currentCode && (!hasReportCodeSequence(data.codInf) || currentCode !== previousCode)) {
+    return { ...data, codInf: await reserveNextReportCode(data.codInf) };
+  }
+
+  return data;
+}
 
 function getNombreFormulario(tipo) {
   switch (tipo) {

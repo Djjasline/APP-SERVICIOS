@@ -12,6 +12,7 @@ import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import ObservationImageField from "@/components/ObservationImageField";
+import ReportCodeInput from "@/components/ReportCodeInput";
 
 /* ═══════════════════════════════════════
    HELPERS
@@ -695,9 +696,17 @@ const result = await saveOrUpdateReport({
                 <tr key={key}>
                   <td className="pdf-label">{label}</td>
                   <td colSpan={2}>
-                    <input className="pdf-input w-full" value={data[key]}
-                      placeholder={fieldPlaceholders[key] || ""}
-                      onChange={(e) => update([key], e.target.value)} />
+                    {key === "codInf" ? (
+                      <ReportCodeInput
+                        value={data[key]}
+                        placeholder={fieldPlaceholders[key] || ""}
+                        onChange={(value) => update([key], value)}
+                      />
+                    ) : (
+                      <input className="pdf-input w-full" value={data[key]}
+                        placeholder={fieldPlaceholders[key] || ""}
+                        onChange={(e) => update([key], e.target.value)} />
+                    )}
                   </td>
                 </tr>
               ))}

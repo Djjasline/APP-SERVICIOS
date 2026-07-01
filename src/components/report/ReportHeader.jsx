@@ -1,3 +1,5 @@
+import ReportCodeInput from "@/components/ReportCodeInput";
+
 export default function ReportHeader({ data, onChange }) {
   const reportDescription =
     "Instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
@@ -114,12 +116,9 @@ export default function ReportHeader({ data, onChange }) {
         <tr>
           <td className="pdf-label">CÓDIGO DEL INFORME</td>
           <td colSpan={2}>
-            <input
-              className="pdf-input w-full"
+            <ReportCodeInput
               value={data.codInf || ""}
-              onChange={(e) =>
-                onChange(["codInf"], e.target.value)
-              }
+              onChange={(value) => onChange(["codInf"], value)}
               placeholder={codInfPlaceholder}
             />
           </td>

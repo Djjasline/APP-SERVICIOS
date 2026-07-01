@@ -10,6 +10,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
+import ReportCodeInput from "@/components/ReportCodeInput";
 
 /* ─────────────────────────────────────────
    HELPERS
@@ -745,10 +746,11 @@ const save = async () => {
           CÓDIGO DEL INFORME
         </td>
         <td colSpan={3} className="border p-1">
-          <Input
+          <ReportCodeInput
             value={data.codInf}
-            onChange={(e) => set("codInf", e.target.value)}
+            onChange={(value) => set("codInf", value)}
             placeholder={fieldPlaceholders.codInf}
+            className="w-full border-0 outline-none p-1 text-sm"
           />
         </td>
       </tr>
