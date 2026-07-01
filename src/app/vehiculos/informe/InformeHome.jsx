@@ -2,6 +2,7 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import {
   canAccessRecord,
+  getPermittedOwnerEmails,
   getPermittedOwnerIds,
   getRecordAccessPermissionsForUser,
   mergeRecords,
@@ -82,13 +83,15 @@ export default function InformeHome() {
           error = response.error;
         } else {
           const ownerIds = getPermittedOwnerIds(permissions, "vehiculos", "informe", "view");
-          const [ownResponse, permittedResponse] = await Promise.all([
+          const ownerEmails = getPermittedOwnerEmails(permissions, "vehiculos", "informe", "view");
+          const [ownResponse, permittedResponse, permittedByTechResponse] = await Promise.all([
             loadBaseQuery().eq("data->>tecnicoCorreo", user.email),
             ownerIds.length > 0 ? loadBaseQuery().in("user_id", ownerIds) : Promise.resolve({ data: [], error: null }),
+            ownerEmails.length > 0 ? loadBaseQuery().in("data->>tecnicoCorreo", ownerEmails) : Promise.resolve({ data: [], error: null }),
           ]);
 
-          error = ownResponse.error || permittedResponse.error;
-          data = mergeRecords(ownResponse.data || [], permittedResponse.data || []);
+          error = ownResponse.error || permittedResponse.error || permittedByTechResponse.error;
+          data = mergeRecords(ownResponse.data || [], permittedResponse.data || [], permittedByTechResponse.data || []);
         }
 
         if (error) {

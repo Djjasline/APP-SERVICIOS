@@ -33,13 +33,17 @@ export async function getRecordAccessPermissionsForUser(userId) {
     .eq("active", true);
 
   if (error) throw error;
-  return data || [];
+  return enrichPermissionsWithOwnerProfiles(data || []);
 }
 
 export async function saveRecordAccessPermission(permission) {
+  const ownerProfile = await getProfileById(permission.owner_user_id);
+
   const payload = {
     grantee_user_id: permission.grantee_user_id,
     owner_user_id: permission.owner_user_id,
+    owner_email: ownerProfile?.email || permission.owner_email || "",
+    owner_name: ownerProfile?.full_name || permission.owner_name || "",
     area: permission.area || "vehiculos",
     tipo: permission.tipo || "todos",
     can_view: !!permission.can_view,
@@ -79,13 +83,25 @@ export function getPermittedOwnerIds(permissions, area, tipo, action = "view", s
     .filter(Boolean);
 }
 
+export function getPermittedOwnerEmails(permissions, area, tipo, action = "view", subtipo = "") {
+  return (permissions || [])
+    .filter((permission) => permissionMatchesScope(permission, area, tipo, subtipo))
+    .filter((permission) => hasPermissionAction(permission, action))
+    .map((permission) => normalize(permission.owner_email))
+    .filter(Boolean);
+}
+
 export function canAccessRecord({ record, userId, permissions, isSuperAdmin, action = "view" }) {
   if (!record) return false;
   if (isSuperAdmin) return true;
   if (record.user_id && record.user_id === userId) return true;
 
   return (permissions || []).some((permission) => {
-    if (permission.owner_user_id !== record.user_id) return false;
+    const ownerMatches =
+      permission.owner_user_id === record.user_id ||
+      (permission.owner_email && normalize(record.data?.tecnicoCorreo) === normalize(permission.owner_email));
+
+    if (!ownerMatches) return false;
     if (!permissionMatchesScope(permission, record.area, record.tipo, record.subtipo)) return false;
     return hasPermissionAction(permission, action);
   });
@@ -118,4 +134,51 @@ function hasPermissionAction(permission, action) {
   if (action === "edit") return !!permission.can_edit;
   if (action === "download") return !!permission.can_download;
   return !!permission.can_view || !!permission.can_edit || !!permission.can_download;
+}
+
+async function enrichPermissionsWithOwnerProfiles(permissions) {
+  const permissionsWithEmail = (permissions || []).filter((permission) => permission.owner_email);
+  if (permissionsWithEmail.length === (permissions || []).length) return permissions || [];
+
+  const ownerIds = Array.from(new Set((permissions || []).map((permission) => permission.owner_user_id).filter(Boolean)));
+  if (ownerIds.length === 0) return permissions || [];
+
+  const { data: profiles, error } = await supabase
+    .from("profiles")
+    .select("id, email, full_name")
+    .in("id", ownerIds);
+
+  if (error) {
+    console.error("Error cargando perfiles dueños de permisos:", error);
+    return permissions || [];
+  }
+
+  const profileById = new Map((profiles || []).map((profile) => [profile.id, profile]));
+
+  return (permissions || []).map((permission) => {
+    const ownerProfile = profileById.get(permission.owner_user_id);
+
+    return {
+      ...permission,
+      owner_email: permission.owner_email || ownerProfile?.email || "",
+      owner_name: permission.owner_name || ownerProfile?.full_name || "",
+    };
+  });
+}
+
+async function getProfileById(id) {
+  if (!id) return null;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, email, full_name")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error cargando perfil de permiso:", error);
+    return null;
+  }
+
+  return data;
 }

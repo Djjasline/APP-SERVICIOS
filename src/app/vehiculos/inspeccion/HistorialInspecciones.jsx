@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import {
   canAccessRecord,
+  getPermittedOwnerEmails,
   getPermittedOwnerIds,
   getRecordAccessPermissionsForUser,
   mergeRecords,
@@ -86,13 +87,15 @@ export default function IndexInspeccion() {
         error = response.error;
       } else {
         const ownerIds = getPermittedOwnerIds(permissions, "vehiculos", "inspeccion", "view");
-        const [ownResponse, permittedResponse] = await Promise.all([
+        const ownerEmails = getPermittedOwnerEmails(permissions, "vehiculos", "inspeccion", "view");
+        const [ownResponse, permittedResponse, permittedByTechResponse] = await Promise.all([
           loadBaseQuery().eq("user_id", user.id),
           ownerIds.length > 0 ? loadBaseQuery().in("user_id", ownerIds) : Promise.resolve({ data: [], error: null }),
+          ownerEmails.length > 0 ? loadBaseQuery().in("data->>tecnicoCorreo", ownerEmails) : Promise.resolve({ data: [], error: null }),
         ]);
 
-        error = ownResponse.error || permittedResponse.error;
-        data = mergeRecords(ownResponse.data || [], permittedResponse.data || []);
+        error = ownResponse.error || permittedResponse.error || permittedByTechResponse.error;
+        data = mergeRecords(ownResponse.data || [], permittedResponse.data || [], permittedByTechResponse.data || []);
       }
 
       if (error) {

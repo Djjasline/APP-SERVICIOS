@@ -33,7 +33,7 @@ export default function RecordPermissionRoute({ children, action = "view", fallb
     const loadAccess = async () => {
       const { data: record, error } = await supabase
         .from("registros")
-        .select("id, user_id, area, tipo, data")
+        .select("id, user_id, area, tipo, subtipo, data")
         .eq("id", id)
         .maybeSingle();
 

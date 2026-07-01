@@ -2,6 +2,8 @@ create table if not exists public.record_access_permissions (
   id uuid primary key default gen_random_uuid(),
   grantee_user_id uuid not null references auth.users(id) on delete cascade,
   owner_user_id uuid not null references auth.users(id) on delete cascade,
+  owner_email text,
+  owner_name text,
   area text not null default 'vehiculos',
   tipo text not null default 'todos',
   can_view boolean not null default false,
@@ -12,6 +14,20 @@ create table if not exists public.record_access_permissions (
   updated_at timestamptz not null default now(),
   unique (grantee_user_id, owner_user_id, area, tipo)
 );
+
+alter table public.record_access_permissions
+  add column if not exists owner_email text;
+
+alter table public.record_access_permissions
+  add column if not exists owner_name text;
+
+update public.record_access_permissions p
+set owner_email = coalesce(p.owner_email, owner_profile.email),
+    owner_name = coalesce(p.owner_name, owner_profile.full_name),
+    updated_at = now()
+from public.profiles owner_profile
+where owner_profile.id = p.owner_user_id
+  and (p.owner_email is null or p.owner_email = '' or p.owner_name is null or p.owner_name = '');
 
 create index if not exists record_access_permissions_grantee_idx
   on public.record_access_permissions(grantee_user_id, active);
@@ -59,7 +75,10 @@ create policy "Usuario ve registros permitidos"
     exists (
       select 1 from public.record_access_permissions p
       where p.grantee_user_id = auth.uid()
-        and p.owner_user_id = registros.user_id
+        and (
+          p.owner_user_id = registros.user_id
+          or lower(coalesce(p.owner_email, '')) = lower(coalesce(registros.data->>'tecnicoCorreo', ''))
+        )
         and p.active = true
         and (p.can_view = true or p.can_edit = true or p.can_download = true)
         and (p.area = 'todos' or p.area = coalesce(registros.area, 'vehiculos'))
@@ -78,7 +97,10 @@ create policy "Usuario edita registros permitidos"
     exists (
       select 1 from public.record_access_permissions p
       where p.grantee_user_id = auth.uid()
-        and p.owner_user_id = registros.user_id
+        and (
+          p.owner_user_id = registros.user_id
+          or lower(coalesce(p.owner_email, '')) = lower(coalesce(registros.data->>'tecnicoCorreo', ''))
+        )
         and p.active = true
         and p.can_edit = true
         and (p.area = 'todos' or p.area = coalesce(registros.area, 'vehiculos'))
@@ -93,7 +115,10 @@ create policy "Usuario edita registros permitidos"
     exists (
       select 1 from public.record_access_permissions p
       where p.grantee_user_id = auth.uid()
-        and p.owner_user_id = registros.user_id
+        and (
+          p.owner_user_id = registros.user_id
+          or lower(coalesce(p.owner_email, '')) = lower(coalesce(registros.data->>'tecnicoCorreo', ''))
+        )
         and p.active = true
         and p.can_edit = true
         and (p.area = 'todos' or p.area = coalesce(registros.area, 'vehiculos'))
