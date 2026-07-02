@@ -137,6 +137,16 @@ export default function ProtocoloVactorPDF({ allowDownload = true, backPath = "/
         {CHECKLIST_SECCIONES.map((section) => (
           <div key={section.titulo} className="no-break">
             <p style={{ ...S.sectionTitle, marginTop: 6, fontSize: 10 }}>{section.titulo}</p>
+            {section.imagenReferencia && (
+              <div style={{ border: "1px solid #374151", borderTop: 0, padding: 6, textAlign: "center" }}>
+                <div style={{ fontSize: 9, fontWeight: 700, marginBottom: 4 }}>IMAGEN DE REFERENCIA FIJA DEL PROTOCOLO</div>
+                <img
+                  src={section.imagenReferencia}
+                  alt={`Imagen de referencia ${section.titulo}`}
+                  style={{ maxWidth: "100%", maxHeight: 260, objectFit: "contain" }}
+                />
+              </div>
+            )}
             <table style={S.tbl}>
               <thead><tr><th style={{ ...S.th, width: 45 }}>No.</th><th style={S.th}>Sistema / componente</th><th style={S.th}>Actividad</th><th style={{ ...S.th, width: 42 }}>C</th><th style={{ ...S.th, width: 42 }}>NC</th><th style={{ ...S.th, width: 42 }}>N/A</th><th style={S.th}>Observación</th></tr></thead>
               <tbody>

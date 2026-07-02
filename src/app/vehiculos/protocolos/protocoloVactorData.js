@@ -34,6 +34,7 @@ export const RIESGO_ITEMS = [
 export const CHECKLIST_SECCIONES = [
   {
     titulo: "3.1 SISTEMA DE VACÍO / BLOWER",
+    imagenReferencia: "/sistema-de-vacio.png",
     items: [
       ["3.1.1", "Nivel de aceite del blower", "Verificar nivel de aceite en mirilla."],
       ["3.1.2", "Fugas de aceite", "Revisar fugas en conexiones y carcasa."],
