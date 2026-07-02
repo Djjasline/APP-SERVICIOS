@@ -568,11 +568,11 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                       "noopener,noreferrer"
                     )
                   }
-                  className={subItemClass("/repositorios/entregamiento")}
+                  className={subItemClass("/repositorios/entrenamiento")}
                 >
                   <span className="inline-flex items-center gap-2">
                     <GraduationCap size={14} />
-                    Entregamiento
+                    Entrenamiento
                   </span>
                 </button>
 
