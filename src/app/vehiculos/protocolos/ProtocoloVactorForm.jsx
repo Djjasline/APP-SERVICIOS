@@ -69,7 +69,7 @@ function CheckBox({ checked, onChange }) {
       type="checkbox"
       checked={checked}
       onChange={onChange}
-      className="h-5 w-5 rounded border-2 border-blue-900 accent-blue-900"
+      className="h-5 w-5 rounded border-2 border-white accent-blue-700"
     />
   );
 }
@@ -196,12 +196,12 @@ export default function ProtocoloVactorForm() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border border-blue-900 shadow-sm overflow-hidden">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-white">
+        <div className="bg-blue-950 rounded-xl border border-blue-200 shadow-sm overflow-hidden">
           <h2 className="bg-blue-950 px-4 py-2 text-center text-sm font-bold uppercase text-white">2. Seguridad antes de iniciar <span className="font-normal normal-case">(Marque en cada punto)</span></h2>
-          <div className="divide-y divide-blue-200">
+          <div className="divide-y divide-blue-800">
             {SEGURIDAD_ITEMS.map(([key, label]) => (
-              <label key={key} className="grid grid-cols-[56px_1fr] items-center gap-3 px-3 py-3 text-sm font-semibold text-slate-900">
+              <label key={key} className="grid grid-cols-[56px_1fr] items-center gap-3 px-3 py-3 text-sm font-semibold text-white">
                 <span className="flex justify-center"><CheckBox checked={!!data.seguridad[key]} onChange={(e) => setNested("seguridad", key, e.target.checked)} /></span>
                 <span>{label}</span>
               </label>
@@ -210,11 +210,11 @@ export default function ProtocoloVactorForm() {
         </div>
 
         <div className="grid grid-cols-1 gap-4">
-          <div className="bg-white rounded-xl border border-blue-900 shadow-sm overflow-hidden">
+          <div className="bg-blue-950 rounded-xl border border-blue-200 shadow-sm overflow-hidden">
             <h2 className="bg-blue-950 px-4 py-2 text-center text-sm font-bold uppercase text-white">EPP recomendado</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 p-4">
               {EPP_ITEMS.map(([key, label]) => (
-                <label key={key} className="flex flex-col items-center gap-2 text-center text-sm font-semibold text-slate-900">
+                <label key={key} className="flex flex-col items-center gap-2 text-center text-sm font-semibold text-white">
                   <span>{label}</span>
                   <CheckBox checked={!!data.epp[key]} onChange={(e) => setNested("epp", key, e.target.checked)} />
                 </label>
@@ -222,11 +222,11 @@ export default function ProtocoloVactorForm() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-blue-900 shadow-sm overflow-hidden">
+          <div className="bg-blue-950 rounded-xl border border-blue-200 shadow-sm overflow-hidden">
             <h2 className="bg-blue-950 px-4 py-2 text-center text-sm font-bold uppercase text-white">Riesgos principales</h2>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 p-4">
               {RIESGO_ITEMS.map(([key, label]) => (
-                <label key={key} className="flex flex-col items-center gap-2 text-center text-sm font-semibold text-slate-900">
+                <label key={key} className="flex flex-col items-center gap-2 text-center text-sm font-semibold text-white">
                   <span>{label}</span>
                   <CheckBox checked={!!data.riesgos[key]} onChange={(e) => setNested("riesgos", key, e.target.checked)} />
                 </label>

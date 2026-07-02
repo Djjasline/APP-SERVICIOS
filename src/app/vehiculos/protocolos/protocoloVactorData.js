@@ -20,6 +20,7 @@ export const EPP_ITEMS = [
   ["gafas", "Gafas"],
   ["casco", "Casco"],
   ["proteccionAuditiva", "Protección auditiva"],
+  ["overol", "Overol"],
   ["botas", "Botas de seguridad"],
 ];
 
