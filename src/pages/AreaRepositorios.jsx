@@ -1,6 +1,6 @@
 import CardModulo from "@/components/CardModulo";
 import { useTheme } from "@/context/ThemeContext";
-import { FileText, Database, Tags } from "lucide-react";
+import { FileText, Database, Tags, GraduationCap } from "lucide-react";
 
 export default function AreaRepositorios() {
   const { isLight } = useTheme();
@@ -33,6 +33,14 @@ export default function AreaRepositorios() {
           ruta="/repositorios/marcas-productos"
           color="bg-purple-700"
           icono={<Tags size={20} />}
+        />
+
+        <CardModulo
+          titulo="Entregamiento"
+          descripcion="Portal de entrenamiento de barredoras Elgin e hidrosuccionadores Vactor."
+          ruta="https://fsu.myfslearning.com/student/catalog"
+          color="bg-emerald-600"
+          icono={<GraduationCap size={20} />}
         />
 
         <CardModulo

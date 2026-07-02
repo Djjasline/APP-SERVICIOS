@@ -14,6 +14,7 @@ import {
   ChevronRight,
   BookOpen,
   Database,
+  GraduationCap,
   Tags,
   MessageCircle,
   ShieldCheck,
@@ -555,6 +556,23 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   <span className="inline-flex items-center gap-2">
                     <Tags size={14} />
                     Marcas y productos
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    window.open(
+                      "https://fsu.myfslearning.com/student/catalog",
+                      "_blank",
+                      "noopener,noreferrer"
+                    )
+                  }
+                  className={subItemClass("/repositorios/entregamiento")}
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <GraduationCap size={14} />
+                    Entregamiento
                   </span>
                 </button>
 
