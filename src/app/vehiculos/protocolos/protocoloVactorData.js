@@ -10,12 +10,12 @@ export const EPP_SECTION_IMAGE = "/epp.png";
 
 export const EPP_SECTION_MARKS = {
   seguridad: [
-    ["bloqueo", 4.25, 16.4],
-    ["pto", 4.25, 31.0],
-    ["calzos", 4.25, 43.6],
-    ["area", 4.25, 55.6],
-    ["residuos", 4.25, 67.4],
-    ["extintor", 4.25, 79.8],
+    ["bloqueo", 3.45, 16.4],
+    ["pto", 3.45, 31.0],
+    ["calzos", 3.45, 43.6],
+    ["area", 3.45, 55.6],
+    ["residuos", 3.45, 67.4],
+    ["extintor", 3.45, 79.8],
   ],
   epp: [
     ["guantes", 52.2, 31.0],
@@ -26,11 +26,11 @@ export const EPP_SECTION_MARKS = {
     ["botas", 96.0, 31.0],
   ],
   riesgos: [
-    ["altaPresion", 52.2, 81.0],
-    ["vacio", 61.3, 81.0],
-    ["partesMovimiento", 71.5, 81.0],
-    ["temperaturas", 81.8, 81.0],
-    ["riesgoQuimico", 95.0, 81.0],
+    ["altaPresion", 52.2, 77.2],
+    ["vacio", 61.3, 77.2],
+    ["partesMovimiento", 71.5, 77.2],
+    ["temperaturas", 81.8, 77.2],
+    ["riesgoQuimico", 95.0, 77.2],
   ],
 };
 
