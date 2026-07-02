@@ -1,4 +1,5 @@
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, X } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -48,6 +49,22 @@ const marcas = [
 export default function MarcasProductos() {
   const navigate = useNavigate();
   const { isLight } = useTheme();
+  const [selectedMarca, setSelectedMarca] = useState(null);
+
+  const openMarca = (marca) => {
+    setSelectedMarca(marca);
+    document.body.style.overflow = "hidden";
+  };
+
+  const closeMarca = () => {
+    setSelectedMarca(null);
+    document.body.style.overflow = "";
+  };
+
+  const openExternal = () => {
+    if (!selectedMarca?.url) return;
+    window.open(selectedMarca.url, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -100,15 +117,77 @@ export default function MarcasProductos() {
 
             <button
               type="button"
-              onClick={() => window.open(marca.url, "_blank", "noopener,noreferrer")}
+              onClick={() => openMarca(marca)}
               className={`${marca.color} text-white rounded-lg py-2.5 px-4 text-sm font-semibold hover:opacity-90 transition inline-flex items-center justify-center gap-2`}
             >
-              Abrir sitio
+              Ver acceso
               <ExternalLink size={15} />
             </button>
           </article>
         ))}
       </div>
+
+      {selectedMarca && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" aria-modal="true" role="dialog">
+          <div className="absolute inset-0 bg-black/60" onClick={closeMarca} />
+
+          <div className="relative z-10 w-[92%] max-w-xl overflow-hidden rounded-2xl bg-white shadow-lg">
+            <div className="flex items-center justify-between border-b px-5 py-4">
+              <div>
+                <h3 className="text-base font-semibold text-gray-900">
+                  {selectedMarca.nombre}
+                </h3>
+                <p className="mt-1 text-xs text-gray-500">
+                  Producto externo
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeMarca}
+                aria-label="Cerrar"
+                className="rounded p-2 hover:bg-gray-100"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-4 p-6">
+              <div className="flex items-start gap-4">
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${selectedMarca.color} font-bold text-white`}>
+                  {selectedMarca.iniciales}
+                </div>
+                <p className="text-sm leading-6 text-gray-600">
+                  {selectedMarca.descripcion}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-purple-100 bg-purple-50 p-4 text-sm text-purple-800">
+                Este sitio se abrirá en una pestaña segura del navegador porque pertenece a una plataforma externa.
+              </div>
+
+              <div className="flex flex-col justify-end gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={closeMarca}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={openExternal}
+                  className={`${selectedMarca.color} inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2 text-sm font-medium text-white transition hover:opacity-90`}
+                >
+                  Abrir sitio
+                  <ExternalLink size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

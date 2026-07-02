@@ -46,7 +46,7 @@ export default function AreaRepositorios() {
         <CardModulo
           titulo="Base de datos"
           descripcion="Acceso a base de datos empresarial ASTAP en TeamDesk."
-          ruta="https://www.teamdesk.net/secure/db/53431/overview.aspx?t=381285"
+          ruta="/repositorios/base-datos"
           color="bg-red-600"
           icono={<Database size={20} />}
         />

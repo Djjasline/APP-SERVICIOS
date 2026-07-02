@@ -572,13 +572,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    window.open(
-                      "https://www.teamdesk.net/secure/db/53431/overview.aspx?t=381285",
-                      "_blank",
-                      "noopener,noreferrer"
-                    )
-                  }
+                  onClick={() => go("/repositorios/base-datos")}
                   className={subItemClass("/repositorios/base-datos")}
                 >
                   <span className="inline-flex items-center gap-2">
