@@ -120,7 +120,7 @@ function EppGuideSection({ data, setNested }) {
               style={{
                 left: `${left}%`,
                 top: `${top}%`,
-                width: group === "seguridad" ? "2.45%" : "2.55%",
+                width: group === "seguridad" ? "2.35%" : "2.25%",
                 aspectRatio: "1 / 1",
                 transform: "translate(-50%, -50%)",
               }}
