@@ -9,6 +9,8 @@ import {
   buildInitialBooleanMap,
   buildInitialChecklist,
   CHECKLIST_SECCIONES,
+  EPP_SECTION_IMAGE,
+  EPP_SECTION_MARKS,
   EPP_ITEMS,
   ESPECIFICACIONES,
   LUBRICANTES,
@@ -65,12 +67,46 @@ const inputClass = "w-full rounded border border-slate-300 px-2 py-1 text-sm";
 
 function CheckBox({ checked, onChange }) {
   return (
-    <input
-      type="checkbox"
-      checked={checked}
-      onChange={onChange}
-      className="h-5 w-5 rounded border-2 border-white accent-blue-700"
-    />
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className="flex h-full w-full items-center justify-center text-[clamp(10px,1.6vw,22px)] font-black leading-none text-blue-950"
+    >
+      {checked ? "X" : ""}
+    </button>
+  );
+}
+
+function EppGuideSection({ data, setNested }) {
+  const groups = [
+    ["seguridad", EPP_SECTION_MARKS.seguridad],
+    ["epp", EPP_SECTION_MARKS.epp],
+    ["riesgos", EPP_SECTION_MARKS.riesgos],
+  ];
+
+  return (
+    <section className="rounded-xl border border-blue-900 bg-white p-2 shadow-sm">
+      <div className="relative mx-auto max-w-[1100px] overflow-hidden">
+        <img src={EPP_SECTION_IMAGE} alt="Seguridad, EPP recomendado y riesgos principales" className="block w-full select-none" />
+        {groups.flatMap(([group, marks]) =>
+          marks.map(([key, left, top]) => (
+            <div
+              key={`${group}-${key}`}
+              className="absolute z-10"
+              style={{
+                left: `${left}%`,
+                top: `${top}%`,
+                width: "2.2%",
+                aspectRatio: "1 / 1",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <CheckBox checked={!!data[group]?.[key]} onChange={(checked) => setNested(group, key, checked)} />
+            </div>
+          ))
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -196,45 +232,7 @@ export default function ProtocoloVactorForm() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-white">
-        <div className="bg-blue-950 rounded-xl border border-blue-200 shadow-sm overflow-hidden">
-          <h2 className="bg-blue-950 px-4 py-2 text-center text-sm font-bold uppercase text-white">2. Seguridad antes de iniciar <span className="font-normal normal-case">(Marque en cada punto)</span></h2>
-          <div className="divide-y divide-blue-800">
-            {SEGURIDAD_ITEMS.map(([key, label]) => (
-              <label key={key} className="grid grid-cols-[56px_1fr] items-center gap-3 px-3 py-3 text-sm font-semibold text-white">
-                <span className="flex justify-center"><CheckBox checked={!!data.seguridad[key]} onChange={(e) => setNested("seguridad", key, e.target.checked)} /></span>
-                <span>{label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4">
-          <div className="bg-blue-950 rounded-xl border border-blue-200 shadow-sm overflow-hidden">
-            <h2 className="bg-blue-950 px-4 py-2 text-center text-sm font-bold uppercase text-white">EPP recomendado</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 p-4">
-              {EPP_ITEMS.map(([key, label]) => (
-                <label key={key} className="flex flex-col items-center gap-2 text-center text-sm font-semibold text-white">
-                  <span>{label}</span>
-                  <CheckBox checked={!!data.epp[key]} onChange={(e) => setNested("epp", key, e.target.checked)} />
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-blue-950 rounded-xl border border-blue-200 shadow-sm overflow-hidden">
-            <h2 className="bg-blue-950 px-4 py-2 text-center text-sm font-bold uppercase text-white">Riesgos principales</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 p-4">
-              {RIESGO_ITEMS.map(([key, label]) => (
-                <label key={key} className="flex flex-col items-center gap-2 text-center text-sm font-semibold text-white">
-                  <span>{label}</span>
-                  <CheckBox checked={!!data.riesgos[key]} onChange={(e) => setNested("riesgos", key, e.target.checked)} />
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <EppGuideSection data={data} setNested={setNested} />
 
       <section className="bg-white rounded-xl border shadow-sm p-4 space-y-4">
         <h2 className="font-semibold text-slate-900">3. Checklist de mantenimiento</h2>

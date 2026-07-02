@@ -4,6 +4,8 @@ import { supabase } from "@/lib/supabase";
 import { printPdf } from "@/utils/printPdf";
 import {
   CHECKLIST_SECCIONES,
+  EPP_SECTION_IMAGE,
+  EPP_SECTION_MARKS,
   EPP_ITEMS,
   ESPECIFICACIONES,
   LUBRICANTES,
@@ -41,6 +43,43 @@ function BoxMark({ checked }) {
     <span style={{ display: "inline-flex", width: 14, height: 14, border: "1.5px solid #0b2a66", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800 }}>
       {checked ? "X" : ""}
     </span>
+  );
+}
+
+function Section2Pdf({ data }) {
+  const groups = [
+    ["seguridad", EPP_SECTION_MARKS.seguridad],
+    ["epp", EPP_SECTION_MARKS.epp],
+    ["riesgos", EPP_SECTION_MARKS.riesgos],
+  ];
+
+  return (
+    <div className="no-break" style={{ position: "relative", width: "100%", marginTop: 10 }}>
+      <img src={EPP_SECTION_IMAGE} alt="Seguridad, EPP recomendado y riesgos principales" style={{ display: "block", width: "100%" }} />
+      {groups.flatMap(([group, marks]) =>
+        marks.map(([key, left, top]) => (
+          <div
+            key={`${group}-${key}`}
+            style={{
+              position: "absolute",
+              left: `${left}%`,
+              top: `${top}%`,
+              transform: "translate(-50%, -50%)",
+              width: "2.2%",
+              aspectRatio: "1 / 1",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 12,
+              fontWeight: 900,
+              color: "#0b2a66",
+            }}
+          >
+            {data?.[group]?.[key] ? "X" : ""}
+          </div>
+        ))
+      )}
+    </div>
   );
 }
 
@@ -132,61 +171,7 @@ export default function ProtocoloVactorPDF({ allowDownload = true, backPath = "/
           </tbody></table>
         </div>
 
-        <div className="no-break">
-          <table style={S.tbl}>
-            <tbody>
-              <tr>
-                <td style={{ ...S.th, width: "50%" }}>2. SEGURIDAD ANTES DE INICIAR <span style={{ fontWeight: 400 }}>(Marque en cada punto)</span></td>
-                <td style={{ ...S.th, width: "50%" }}>EPP RECOMENDADO</td>
-              </tr>
-              <tr>
-                <td rowSpan={3} style={{ ...S.cell, padding: 0, verticalAlign: "top" }}>
-                  <table style={S.tbl}>
-                    <tbody>
-                      {SEGURIDAD_ITEMS.map(([key, label]) => (
-                        <tr key={key}>
-                          <td style={{ ...S.cell, textAlign: "center", width: 34 }}><BoxMark checked={!!d.seguridad?.[key]} /></td>
-                          <td style={{ ...S.cell, fontWeight: 700 }}>{label}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </td>
-                <td style={{ ...S.cell, padding: 0 }}>
-                  <table style={S.tbl}>
-                    <tbody>
-                      <tr>
-                        {EPP_ITEMS.map(([key, label]) => (
-                          <td key={key} style={{ ...S.cell, textAlign: "center", fontWeight: 700, width: `${100 / EPP_ITEMS.length}%` }}>
-                            <div>{label}</div>
-                            <div style={{ marginTop: 8 }}><BoxMark checked={!!d.epp?.[key]} /></div>
-                          </td>
-                        ))}
-                      </tr>
-                    </tbody>
-                  </table>
-                </td>
-              </tr>
-              <tr><td style={S.th}>RIESGOS PRINCIPALES</td></tr>
-              <tr>
-                <td style={{ ...S.cell, padding: 0 }}>
-                  <table style={S.tbl}>
-                    <tbody>
-                      <tr>
-                        {RIESGO_ITEMS.map(([key, label]) => (
-                          <td key={key} style={{ ...S.cell, textAlign: "center", fontWeight: 700, width: `${100 / RIESGO_ITEMS.length}%` }}>
-                            <div>{label}</div>
-                            <div style={{ marginTop: 8 }}><BoxMark checked={!!d.riesgos?.[key]} /></div>
-                          </td>
-                        ))}
-                      </tr>
-                    </tbody>
-                  </table>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <Section2Pdf data={d} />
 
         <p style={S.sectionTitle}>3. Checklist de mantenimiento</p>
         {CHECKLIST_SECCIONES.map((section) => (

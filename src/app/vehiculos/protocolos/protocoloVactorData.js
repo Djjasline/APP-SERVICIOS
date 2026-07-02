@@ -6,6 +6,34 @@ export const PROTOCOLO_VACTOR_INFO = {
     "Protocolo para procedimientos, insumos y verificaciones necesarias para realizar el mantenimiento preventivo semestral y anual de hidrosuccionadores Vactor Serie 2100 PD.",
 };
 
+export const EPP_SECTION_IMAGE = "/epp.png";
+
+export const EPP_SECTION_MARKS = {
+  seguridad: [
+    ["bloqueo", 2.9, 18.6],
+    ["pto", 2.9, 31.0],
+    ["calzos", 2.9, 43.1],
+    ["area", 2.9, 55.0],
+    ["residuos", 2.9, 67.0],
+    ["extintor", 2.9, 79.0],
+  ],
+  epp: [
+    ["guantes", 52.0, 30.2],
+    ["gafas", 60.9, 30.2],
+    ["casco", 69.6, 30.2],
+    ["proteccionAuditiva", 78.6, 30.2],
+    ["overol", 87.1, 30.2],
+    ["botas", 96.2, 30.2],
+  ],
+  riesgos: [
+    ["altaPresion", 52.0, 79.0],
+    ["vacio", 61.0, 79.0],
+    ["partesMovimiento", 71.5, 79.0],
+    ["temperaturas", 81.8, 79.0],
+    ["riesgoQuimico", 95.0, 79.0],
+  ],
+};
+
 export const SEGURIDAD_ITEMS = [
   ["bloqueo", "Antes de iniciar el proceso de mantenimiento verifique que el camión esté estacionado en superficie nivelada, apagado, con freno de parqueo y sistema de bloqueo/seguridad aplicado."],
   ["pto", "Desactive los sistemas del módulo siguiendo el proceso del fabricante. PTO desactivado, marcha en neutral, motor apagado y llave retirada."],
