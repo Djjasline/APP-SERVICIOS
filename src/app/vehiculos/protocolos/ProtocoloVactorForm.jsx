@@ -89,8 +89,8 @@ function EppGuideSection({ data, setNested }) {
   ];
 
   return (
-    <section className="rounded-xl border border-blue-900 bg-white p-2 shadow-sm">
-      <div className="relative mx-auto max-w-[1100px] overflow-hidden">
+    <section className="overflow-x-auto rounded-xl border border-blue-900 bg-white p-2 shadow-sm">
+      <div className="relative mx-auto w-[1100px] max-w-none overflow-hidden">
         <img src={EPP_SECTION_IMAGE} alt="Seguridad, EPP recomendado y riesgos principales" className="block w-full select-none" />
         {EPP_SECTION_TEXTS.seguridad.map(([key, label, left, top, width]) => (
           <div
