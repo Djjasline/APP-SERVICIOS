@@ -71,9 +71,9 @@ function GuideCheck({ checked, onChange, compact = false }) {
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`flex h-full w-full items-center justify-center rounded-sm border-2 border-blue-950 bg-white/95 font-black leading-none text-blue-950 shadow-sm transition hover:bg-blue-50 ${
-        checked ? "ring-2 ring-blue-700" : ""
-      } ${compact ? "text-[clamp(8px,1.15vw,15px)]" : "text-[clamp(10px,1.4vw,20px)]"}`}
+      className={`flex h-full w-full items-center justify-center rounded-sm bg-transparent font-black leading-none text-blue-950 transition hover:ring-2 hover:ring-blue-500 ${
+        compact ? "text-[clamp(8px,1vw,14px)]" : "text-[clamp(9px,1.15vw,17px)]"
+      }`}
       aria-pressed={checked}
     >
       {checked ? "✓" : ""}
@@ -95,7 +95,7 @@ function EppGuideSection({ data, setNested }) {
         {EPP_SECTION_TEXTS.seguridad.map(([key, label, left, top, width]) => (
           <div
             key={`texto-seguridad-${key}`}
-            className="absolute z-10 text-[clamp(7px,1.05vw,16px)] font-bold leading-tight text-slate-950"
+            className="absolute z-10 text-[clamp(5px,0.58vw,9px)] font-bold leading-[1.08] text-slate-950"
             style={{ left: `${left}%`, top: `${top}%`, width: `${width}%` }}
           >
             {label}
@@ -105,7 +105,7 @@ function EppGuideSection({ data, setNested }) {
         {[...EPP_SECTION_TEXTS.epp, ...EPP_SECTION_TEXTS.riesgos].map(([key, label, left, top, width]) => (
           <div
             key={`texto-${key}`}
-            className="absolute z-10 -translate-x-1/2 text-center text-[clamp(7px,0.95vw,14px)] font-bold leading-tight text-slate-950"
+            className="absolute z-10 -translate-x-1/2 text-center text-[clamp(5px,0.55vw,8.5px)] font-bold leading-[1.05] text-slate-950"
             style={{ left: `${left}%`, top: `${top}%`, width: `${width}%` }}
           >
             {label}
@@ -120,7 +120,7 @@ function EppGuideSection({ data, setNested }) {
               style={{
                 left: `${left}%`,
                 top: `${top}%`,
-                width: group === "seguridad" ? "2.15%" : "2.35%",
+                width: group === "seguridad" ? "2.7%" : "2.8%",
                 aspectRatio: "1 / 1",
                 transform: "translate(-50%, -50%)",
               }}
