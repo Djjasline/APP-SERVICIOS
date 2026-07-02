@@ -1,0 +1,275 @@
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
+import { saveOrUpdateReport } from "@/services/reportService";
+import ReportCodeInput from "@/components/ReportCodeInput";
+import { leerBorrador, useAutoguardado } from "@/hooks/useAutoguardado";
+import {
+  buildInitialBooleanMap,
+  buildInitialChecklist,
+  CHECKLIST_SECCIONES,
+  EPP_ITEMS,
+  ESPECIFICACIONES,
+  LUBRICANTES,
+  PROTOCOLO_VACTOR_INFO,
+  PRUEBAS_FINALES,
+  RIESGO_ITEMS,
+  SEGURIDAD_ITEMS,
+} from "./protocoloVactorData";
+
+const emptyData = {
+  referenciaContrato: "",
+  pedidoDemanda: "",
+  descripcion: "Mantenimiento semestral/anual de hidrosuccionador Vactor Serie 2100 PD",
+  codInf: "",
+  cliente: "",
+  equipoNo: "",
+  horometro: "",
+  modelo: "2100 PD",
+  serie: "",
+  tipoMantenimiento: "semestral",
+  tecnicoNombre: "",
+  tecnicoCorreo: "",
+  tecnicoFirma: "",
+  seguridad: buildInitialBooleanMap(SEGURIDAD_ITEMS),
+  epp: buildInitialBooleanMap(EPP_ITEMS),
+  riesgos: buildInitialBooleanMap(RIESGO_ITEMS),
+  checklist: buildInitialChecklist(),
+  pruebasFinales: buildInitialBooleanMap(PRUEBAS_FINALES),
+  resultadoGeneral: "",
+  observacionesGenerales: "",
+  aprobacion: {
+    fecha: "",
+    horometro: "",
+    proximoMantenimiento: "",
+    tecnicoResponsable: "",
+    firma: "",
+  },
+};
+
+function mergeData(value = {}) {
+  return {
+    ...emptyData,
+    ...value,
+    seguridad: { ...emptyData.seguridad, ...(value.seguridad || {}) },
+    epp: { ...emptyData.epp, ...(value.epp || {}) },
+    riesgos: { ...emptyData.riesgos, ...(value.riesgos || {}) },
+    checklist: { ...emptyData.checklist, ...(value.checklist || {}) },
+    pruebasFinales: { ...emptyData.pruebasFinales, ...(value.pruebasFinales || {}) },
+    aprobacion: { ...emptyData.aprobacion, ...(value.aprobacion || {}) },
+  };
+}
+
+const inputClass = "w-full rounded border border-slate-300 px-2 py-1 text-sm";
+
+export default function ProtocoloVactorForm() {
+  const { id } = useParams();
+  const isEditing = !!id && id !== "new";
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [data, setData] = useState(emptyData);
+  const [saving, setSaving] = useState(false);
+  const draftKey = `protocolo_vactor_${isEditing ? id : "new"}`;
+  const { limpiar } = useAutoguardado(draftKey, data, !saving);
+
+  useEffect(() => {
+    const load = async () => {
+      if (!isEditing) return;
+
+      const { data: record, error } = await supabase
+        .from("registros")
+        .select("*")
+        .eq("id", id)
+        .eq("area", "vehiculos")
+        .eq("tipo", "protocolo")
+        .eq("subtipo", "hidrosuccionador-vactor")
+        .maybeSingle();
+
+      if (error || !record) {
+        console.error("Error cargando protocolo:", error);
+        alert("No se pudo cargar el protocolo.");
+        navigate("/vehiculos/protocolos");
+        return;
+      }
+
+      setData(mergeData(record.data));
+    };
+
+    load();
+  }, [id, isEditing, navigate]);
+
+  useEffect(() => {
+    if (isEditing || !user?.email) return;
+    const draft = leerBorrador(draftKey, user?.id || "anon");
+    if (draft?.datos) {
+      setData(mergeData(draft.datos));
+      return;
+    }
+
+    setData((prev) => ({ ...prev, tecnicoCorreo: user.email }));
+  }, [draftKey, isEditing, user?.email, user?.id]);
+
+  const set = (field, value) => setData((prev) => ({ ...prev, [field]: value }));
+  const setNested = (group, field, value) => {
+    setData((prev) => ({ ...prev, [group]: { ...prev[group], [field]: value } }));
+  };
+  const setChecklist = (codigo, field, value) => {
+    setData((prev) => ({
+      ...prev,
+      checklist: {
+        ...prev.checklist,
+        [codigo]: { ...(prev.checklist?.[codigo] || {}), [field]: value },
+      },
+    }));
+  };
+
+  const save = async (estado) => {
+    if (!data.tecnicoNombre.trim()) {
+      alert("Técnico responsable es obligatorio.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await saveOrUpdateReport({
+        id: isEditing ? id : null,
+        area: "vehiculos",
+        tipo: "protocolo",
+        subtipo: "hidrosuccionador-vactor",
+        data,
+        estado,
+      });
+
+      limpiar();
+      alert(estado === "completado" ? "Protocolo completado." : "Borrador guardado.");
+      navigate("/vehiculos/protocolos");
+    } catch (error) {
+      console.error(error);
+      alert("Error guardando protocolo.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="p-4 md:p-6 space-y-4 bg-slate-100 min-h-screen">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-xl font-semibold text-slate-900">{PROTOCOLO_VACTOR_INFO.titulo}</h1>
+          <p className="text-sm text-slate-600">{PROTOCOLO_VACTOR_INFO.descripcion}</p>
+        </div>
+        <button className="rounded border px-4 py-2 text-sm" onClick={() => navigate("/vehiculos/protocolos")}>Volver</button>
+      </div>
+
+      <div className="bg-white rounded-xl border shadow-sm p-4 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
+          <div><strong>Código:</strong> {PROTOCOLO_VACTOR_INFO.codigo}</div>
+          <div><strong>Versión:</strong> {PROTOCOLO_VACTOR_INFO.version}</div>
+          <label>Fecha<input className={inputClass} type="date" value={data.aprobacion.fecha} onChange={(e) => setNested("aprobacion", "fecha", e.target.value)} /></label>
+          <label>Código del informe<ReportCodeInput value={data.codInf} onChange={(value) => set("codInf", value)} placeholder="Ej: P-26-006-54" /></label>
+        </div>
+      </div>
+
+      <section className="bg-white rounded-xl border shadow-sm p-4 space-y-3">
+        <h2 className="font-semibold text-slate-900">1. Datos generales del equipo</h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <label className="text-sm">Cliente<input className={inputClass} value={data.cliente} onChange={(e) => set("cliente", e.target.value)} /></label>
+          <label className="text-sm">Equipo No.<input className={inputClass} value={data.equipoNo} onChange={(e) => set("equipoNo", e.target.value)} /></label>
+          <label className="text-sm">Horómetro<input className={inputClass} value={data.horometro} onChange={(e) => set("horometro", e.target.value)} /></label>
+          <label className="text-sm">Modelo<input className={inputClass} value={data.modelo} onChange={(e) => set("modelo", e.target.value)} /></label>
+          <label className="text-sm">Serie<input className={inputClass} value={data.serie} onChange={(e) => set("serie", e.target.value)} /></label>
+          <label className="text-sm">Pedido / Demanda<input className={inputClass} value={data.pedidoDemanda} onChange={(e) => set("pedidoDemanda", e.target.value)} /></label>
+          <label className="text-sm">Referencia contrato<input className={inputClass} value={data.referenciaContrato} onChange={(e) => set("referenciaContrato", e.target.value)} /></label>
+          <label className="text-sm">Tipo de mantenimiento<select className={inputClass} value={data.tipoMantenimiento} onChange={(e) => set("tipoMantenimiento", e.target.value)}><option value="semestral">Semestral</option><option value="anual">Anual</option></select></label>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2">
+          <h2 className="font-semibold text-slate-900">2. Seguridad antes de iniciar</h2>
+          {SEGURIDAD_ITEMS.map(([key, label]) => (
+            <label key={key} className="flex gap-2 text-sm"><input type="checkbox" checked={!!data.seguridad[key]} onChange={(e) => setNested("seguridad", key, e.target.checked)} /> <span>{label}</span></label>
+          ))}
+        </div>
+        <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2">
+          <h2 className="font-semibold text-slate-900">EPP recomendado</h2>
+          {EPP_ITEMS.map(([key, label]) => (
+            <label key={key} className="flex gap-2 text-sm"><input type="checkbox" checked={!!data.epp[key]} onChange={(e) => setNested("epp", key, e.target.checked)} /> {label}</label>
+          ))}
+        </div>
+        <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2">
+          <h2 className="font-semibold text-slate-900">Riesgos principales</h2>
+          {RIESGO_ITEMS.map(([key, label]) => (
+            <label key={key} className="flex gap-2 text-sm"><input type="checkbox" checked={!!data.riesgos[key]} onChange={(e) => setNested("riesgos", key, e.target.checked)} /> {label}</label>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-white rounded-xl border shadow-sm p-4 space-y-4">
+        <h2 className="font-semibold text-slate-900">3. Checklist de mantenimiento</h2>
+        {CHECKLIST_SECCIONES.map((section) => (
+          <div key={section.titulo} className="overflow-x-auto">
+            <h3 className="bg-slate-900 text-white text-xs font-semibold px-3 py-2 rounded-t">{section.titulo}</h3>
+            <table className="w-full text-xs border-collapse border">
+              <thead><tr className="bg-slate-100"><th className="border p-2">No.</th><th className="border p-2">Sistema / componente</th><th className="border p-2">Actividad</th><th className="border p-2">Cumple</th><th className="border p-2">No cumple</th><th className="border p-2">N/A</th><th className="border p-2">Observación</th></tr></thead>
+              <tbody>
+                {section.items.map(([codigo, componente, actividad]) => (
+                  <tr key={codigo}>
+                    <td className="border p-2 font-semibold">{codigo}</td>
+                    <td className="border p-2">{componente}</td>
+                    <td className="border p-2">{actividad}</td>
+                    {["cumple", "noCumple", "na"].map((estado) => (
+                      <td key={estado} className="border p-2 text-center"><input type="radio" name={codigo} checked={data.checklist?.[codigo]?.estado === estado} onChange={() => setChecklist(codigo, "estado", estado)} /></td>
+                    ))}
+                    <td className="border p-2"><input className="w-full border rounded px-2 py-1" value={data.checklist?.[codigo]?.observacion || ""} onChange={(e) => setChecklist(codigo, "observacion", e.target.value)} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </section>
+
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2">
+          <h2 className="font-semibold text-slate-900">4. Pruebas finales de operación</h2>
+          {PRUEBAS_FINALES.map(([key, label]) => (
+            <label key={key} className="flex gap-2 text-sm"><input type="checkbox" checked={!!data.pruebasFinales[key]} onChange={(e) => setNested("pruebasFinales", key, e.target.checked)} /> {label}</label>
+          ))}
+        </div>
+        <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2">
+          <h2 className="font-semibold text-slate-900">5. Resultado general</h2>
+          {["cumple", "noCumple", "na"].map((value) => <label key={value} className="flex gap-2 text-sm"><input type="radio" name="resultado" checked={data.resultadoGeneral === value} onChange={() => set("resultadoGeneral", value)} /> {value === "cumple" ? "Cumple" : value === "noCumple" ? "No cumple" : "N/A"}</label>)}
+          <textarea className={`${inputClass} min-h-24`} placeholder="Observaciones generales" value={data.observacionesGenerales} onChange={(e) => set("observacionesGenerales", e.target.value)} />
+        </div>
+        <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2">
+          <h2 className="font-semibold text-slate-900">Técnico responsable</h2>
+          <input className={inputClass} placeholder="Nombre" value={data.tecnicoNombre} onChange={(e) => set("tecnicoNombre", e.target.value)} />
+          <input className={inputClass} placeholder="Correo" value={data.tecnicoCorreo} onChange={(e) => set("tecnicoCorreo", e.target.value)} />
+          <input className={inputClass} placeholder="Firma / iniciales" value={data.tecnicoFirma} onChange={(e) => set("tecnicoFirma", e.target.value)} />
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-white rounded-xl border shadow-sm p-4"><h2 className="font-semibold text-slate-900 mb-2">Lubricantes</h2><ul className="list-disc pl-5 text-sm text-slate-700">{LUBRICANTES.map((item) => <li key={item}>{item}</li>)}</ul></div>
+        <div className="bg-white rounded-xl border shadow-sm p-4"><h2 className="font-semibold text-slate-900 mb-2">Especificaciones de referencia</h2><table className="w-full text-sm"><tbody>{ESPECIFICACIONES.map(([label, value]) => <tr key={label}><td className="border p-2 font-medium">{label}</td><td className="border p-2">{value}</td></tr>)}</tbody></table></div>
+      </section>
+
+      <section className="bg-white rounded-xl border shadow-sm p-4 space-y-3">
+        <h2 className="font-semibold text-slate-900">6. Registro y aprobación</h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <label className="text-sm">Fecha<input className={inputClass} type="date" value={data.aprobacion.fecha} onChange={(e) => setNested("aprobacion", "fecha", e.target.value)} /></label>
+          <label className="text-sm">Horómetro<input className={inputClass} value={data.aprobacion.horometro} onChange={(e) => setNested("aprobacion", "horometro", e.target.value)} /></label>
+          <label className="text-sm">Próximo mantenimiento<input className={inputClass} value={data.aprobacion.proximoMantenimiento} onChange={(e) => setNested("aprobacion", "proximoMantenimiento", e.target.value)} /></label>
+          <label className="text-sm">Firma<input className={inputClass} value={data.aprobacion.firma} onChange={(e) => setNested("aprobacion", "firma", e.target.value)} /></label>
+        </div>
+      </section>
+
+      <div className="flex flex-col sm:flex-row justify-end gap-3 no-print">
+        <button disabled={saving} onClick={() => save("borrador")} className="rounded border px-5 py-2 text-sm">Guardar borrador</button>
+        <button disabled={saving} onClick={() => save("completado")} className="rounded bg-blue-600 px-5 py-2 text-sm font-semibold text-white">Guardar completado</button>
+      </div>
+    </div>
+  );
+}

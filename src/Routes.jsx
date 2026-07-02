@@ -58,6 +58,11 @@ import MantenimientoHidroPDF from "./app/vehiculos/mantenimiento/MantenimientoHi
 import MantenimientoBarredoraPDF from "./app/vehiculos/mantenimiento/MantenimientoBarredoraPdf";
 import MantenimientoVCamPDF from "./app/vehiculos/mantenimiento/MantenimientoVCamPdf";
 
+// ================= PROTOCOLOS =================
+import ProtocolosHome from "./app/vehiculos/protocolos/ProtocolosHome";
+import ProtocoloVactorForm from "./app/vehiculos/protocolos/ProtocoloVactorForm";
+import ProtocoloVactorPDF from "./app/vehiculos/protocolos/ProtocoloVactorPDF";
+
 // ================= REPOSITORIOS =================
 import ManualesTecnicos from "./app/repositorios/ManualesTecnicos";
 import MarcasProductos from "./app/repositorios/MarcasProductos";
@@ -262,6 +267,11 @@ export default function RoutesApp() {
             <Route path="/vehiculos/mantenimiento/vcam/new" element={<VehiculosRoute><HojaMantenimientoVCam /></VehiculosRoute>} />
             <Route path="/vehiculos/mantenimiento/vcam/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/mantenimiento"><HojaMantenimientoVCam /></RecordPermissionRoute></VehiculosRoute>} />
 
+            <Route path="/vehiculos/protocolos" element={<VehiculosRoute><ProtocolosHome /></VehiculosRoute>} />
+            <Route path="/vehiculos/protocolos/vactor/new" element={<VehiculosRoute><ProtocoloVactorForm /></VehiculosRoute>} />
+            <Route path="/vehiculos/protocolos/vactor/ver/:id" element={<VehiculosRoute><RecordPermissionRoute action="view" fallback="/vehiculos/protocolos"><ProtocoloVactorPDF allowDownload={false} backPath="/vehiculos/protocolos" /></RecordPermissionRoute></VehiculosRoute>} />
+            <Route path="/vehiculos/protocolos/vactor/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/protocolos"><ProtocoloVactorForm /></RecordPermissionRoute></VehiculosRoute>} />
+
             <Route path="/liberacion" element={<Navigate to="/operaciones/liberacion" replace />} />
             <Route path="/liberacion/nuevo" element={<Navigate to="/operaciones/liberacion/nuevo" replace />} />
             <Route path="/liberacion/:id" element={<LiberacionRedirect />} />
@@ -324,6 +334,8 @@ export default function RoutesApp() {
           <Route path="/vehiculos/mantenimiento/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoBarredoraPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/vehiculos/mantenimiento/barredora-road-wizard/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoBarredoraPDF variant="roadWizard" /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/vehiculos/mantenimiento/vcam/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoVCamPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
+
+          <Route path="/vehiculos/protocolos/vactor/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/protocolos"><ProtocoloVactorPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
         </Routes>
             </BrowserRouter>
   );

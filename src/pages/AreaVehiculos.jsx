@@ -1,6 +1,6 @@
 import CardModulo from "@/components/CardModulo";
 import { useTheme } from "@/context/ThemeContext";
-import { FileText, ClipboardCheck, Wrench } from "lucide-react";
+import { FileText, ClipboardCheck, Wrench, ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaVehiculos() {
@@ -54,6 +54,14 @@ export default function AreaVehiculos() {
   ruta="/vehiculos/mantenimiento"
   color="bg-green-600"
   icono={<Wrench size={20} />}
+/>
+
+<CardModulo
+  titulo="Protocolos"
+  descripcion="Protocolos técnicos para procedimientos, mantenimiento y verificación de equipos."
+  ruta="/vehiculos/protocolos"
+  color="bg-indigo-600"
+  icono={<ClipboardList size={20} />}
 />
 
       </div>

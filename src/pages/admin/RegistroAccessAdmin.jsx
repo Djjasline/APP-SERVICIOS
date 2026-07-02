@@ -29,6 +29,8 @@ const TIPOS = [
   { value: "mantenimiento:barredora", label: "Mantenimiento - Barredora Pelican" },
   { value: "mantenimiento:barredora-road-wizard", label: "Mantenimiento - Barredora Road Wizard" },
   { value: "mantenimiento:vcam", label: "Mantenimiento - Cámara V-Cam6" },
+  { value: "protocolo", label: "Protocolo" },
+  { value: "protocolo:hidrosuccionador-vactor", label: "Protocolo - Hidrosuccionador Vactor" },
   { value: "registro", label: "Registro de herramientas" },
 ];
 

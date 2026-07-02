@@ -168,5 +168,6 @@ function getNombreFormularioVehiculos(tipo, subtipo) {
   if (tipo === "informe") return "informe general de servicio técnico";
   if (tipo === "inspeccion") return `informe de inspección${subtipo ? ` ${subtipo}` : ""}`;
   if (tipo === "mantenimiento") return `informe de mantenimiento${subtipo ? ` ${subtipo}` : ""}`;
+  if (tipo === "protocolo") return `protocolo${subtipo ? ` ${subtipo}` : ""}`;
   return "formulario de vehículos";
 }

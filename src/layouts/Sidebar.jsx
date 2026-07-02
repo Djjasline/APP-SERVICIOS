@@ -62,7 +62,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       path.startsWith("/vehiculos") ||
       path.startsWith("/informe") ||
       path.startsWith("/inspeccion") ||
-      path.startsWith("/mantenimiento");
+      path.startsWith("/mantenimiento") ||
+      path.startsWith("/protocolos");
 
     const isAguaPath =
       path.startsWith("/area/agua") || path.startsWith("/agua");
@@ -232,7 +233,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             onClick={() => {
               openOnly(openVehiculos ? null : "vehiculos");
             }}
-            className={itemClass(isActive(["/vehiculos", "/area/vehiculos", "/informe", "/inspeccion", "/mantenimiento"]))}
+            className={itemClass(isActive(["/vehiculos", "/area/vehiculos", "/informe", "/inspeccion", "/mantenimiento", "/protocolos"]))}
             aria-expanded={openVehiculos}
             aria-controls="panel-vehiculos"
           >
@@ -279,6 +280,14 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 className={subItemClass("/vehiculos/mantenimiento")}
               >
                 Informe de Mantenimiento de Equipos
+              </button>
+
+              <button
+                type="button"
+                onClick={() => go("/vehiculos/protocolos")}
+                className={subItemClass("/vehiculos/protocolos")}
+              >
+                Protocolos
               </button>
             </div>
           )}
