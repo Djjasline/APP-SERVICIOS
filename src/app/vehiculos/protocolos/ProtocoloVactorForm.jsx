@@ -66,14 +66,12 @@ function mergeData(value = {}) {
 
 const inputClass = "w-full rounded border border-slate-300 px-2 py-1 text-sm";
 
-function GuideCheck({ checked, onChange, compact = false, showBox = false }) {
+function GuideCheck({ checked, onChange, compact = false }) {
   return (
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`flex h-full w-full items-center justify-center rounded-sm font-black leading-none text-blue-950 transition hover:ring-2 hover:ring-blue-500 ${
-        showBox ? "border-2 border-blue-950 bg-white/95 shadow-sm" : "bg-transparent"
-      } ${
+      className={`flex h-full w-full items-center justify-center rounded-sm border-2 border-blue-950 bg-white/95 font-black leading-none text-blue-950 shadow-sm transition hover:bg-blue-50 hover:ring-2 hover:ring-blue-500 ${
         compact ? "text-[clamp(8px,0.95vw,13px)]" : "text-[clamp(9px,1.1vw,16px)]"
       }`}
       aria-pressed={checked}
@@ -122,12 +120,12 @@ function EppGuideSection({ data, setNested }) {
               style={{
                 left: `${left}%`,
                 top: `${top}%`,
-                width: group === "seguridad" ? "2.7%" : "2.8%",
+                width: group === "seguridad" ? "2.45%" : "2.55%",
                 aspectRatio: "1 / 1",
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <GuideCheck checked={!!data[group]?.[key]} compact={group !== "seguridad"} showBox={group !== "seguridad"} onChange={(checked) => setNested(group, key, checked)} />
+              <GuideCheck checked={!!data[group]?.[key]} compact={group !== "seguridad"} onChange={(checked) => setNested(group, key, checked)} />
             </div>
           ))
         )}
