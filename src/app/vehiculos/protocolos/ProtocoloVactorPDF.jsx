@@ -6,6 +6,7 @@ import {
   CHECKLIST_SECCIONES,
   EPP_SECTION_IMAGE,
   EPP_SECTION_MARKS,
+  EPP_SECTION_TEXTS,
   EPP_ITEMS,
   ESPECIFICACIONES,
   LUBRICANTES,
@@ -56,6 +57,42 @@ function Section2Pdf({ data }) {
   return (
     <div className="no-break" style={{ position: "relative", width: "100%", marginTop: 10 }}>
       <img src={EPP_SECTION_IMAGE} alt="Seguridad, EPP recomendado y riesgos principales" style={{ display: "block", width: "100%" }} />
+      {EPP_SECTION_TEXTS.seguridad.map(([key, label, left, top, width]) => (
+        <div
+          key={`texto-seguridad-${key}`}
+          style={{
+            position: "absolute",
+            left: `${left}%`,
+            top: `${top}%`,
+            width: `${width}%`,
+            fontSize: 7.2,
+            lineHeight: 1.16,
+            fontWeight: 800,
+            color: "#020617",
+          }}
+        >
+          {label}
+        </div>
+      ))}
+      {[...EPP_SECTION_TEXTS.epp, ...EPP_SECTION_TEXTS.riesgos].map(([key, label, left, top, width]) => (
+        <div
+          key={`texto-${key}`}
+          style={{
+            position: "absolute",
+            left: `${left}%`,
+            top: `${top}%`,
+            width: `${width}%`,
+            transform: "translateX(-50%)",
+            textAlign: "center",
+            fontSize: 7,
+            lineHeight: 1.12,
+            fontWeight: 800,
+            color: "#020617",
+          }}
+        >
+          {label}
+        </div>
+      ))}
       {groups.flatMap(([group, marks]) =>
         marks.map(([key, left, top]) => (
           <div
@@ -65,17 +102,19 @@ function Section2Pdf({ data }) {
               left: `${left}%`,
               top: `${top}%`,
               transform: "translate(-50%, -50%)",
-              width: "2.2%",
+              width: group === "seguridad" ? "2.15%" : "2.35%",
               aspectRatio: "1 / 1",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 12,
+              border: "1.3px solid #0b2a66",
+              background: "#fff",
+              fontSize: group === "seguridad" ? 10 : 9,
               fontWeight: 900,
               color: "#0b2a66",
             }}
           >
-            {data?.[group]?.[key] ? "X" : ""}
+            {data?.[group]?.[key] ? "✓" : ""}
           </div>
         ))
       )}

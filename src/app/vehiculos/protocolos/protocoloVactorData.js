@@ -34,6 +34,32 @@ export const EPP_SECTION_MARKS = {
   ],
 };
 
+export const EPP_SECTION_TEXTS = {
+  seguridad: [
+    ["bloqueo", "Antes de iniciar el proceso de mantenimiento verifique que el camión este estacionado en superficie nivelada, apagado, con freno de parqueo y sistema de bloqueo/seguridad aplicado.", 13.0, 14.0, 33.5],
+    ["pto", "Desactive los sistemas del módulo siguiendo el proceso del fabricante. PTO desactivado, marcha en neutral, motor apagado y llave retirada del switch.", 13.0, 29.8, 33.5],
+    ["calzos", "Coloque calzos en las ruedas.", 13.0, 42.2, 33.5],
+    ["area", "Área de trabajo limpia, iluminada y señalizada.", 13.0, 54.1, 33.5],
+    ["residuos", "Revise que el equipo esté limpio y sin residuos sueltos, especialmente en tanque de desechos.", 13.0, 65.6, 33.5],
+    ["extintor", "Extintor disponible y kit antiderrames accesible.", 13.0, 78.3, 33.5],
+  ],
+  epp: [
+    ["guantes", "Guantes", 51.7, 29.0, 6.2],
+    ["gafas", "Gafas", 60.6, 29.0, 6.2],
+    ["casco", "Casco", 69.5, 29.0, 6.2],
+    ["proteccionAuditiva", "Protección auditiva", 78.6, 29.0, 7.0],
+    ["overol", "Overol", 87.2, 29.0, 6.2],
+    ["botas", "Botas de seguridad", 96.0, 29.0, 7.0],
+  ],
+  riesgos: [
+    ["altaPresion", "Alta presión de agua", 51.8, 67.2, 7.2],
+    ["vacio", "Vacío / succión de material", 61.0, 67.2, 7.2],
+    ["partesMovimiento", "Partes en movimiento", 71.5, 67.2, 7.2],
+    ["temperaturas", "Temperaturas elevadas", 81.8, 67.2, 7.2],
+    ["riesgoQuimico", "Riesgo químico", 95.0, 67.2, 7.2],
+  ],
+};
+
 export const SEGURIDAD_ITEMS = [
   ["bloqueo", "Antes de iniciar el proceso de mantenimiento verifique que el camión esté estacionado en superficie nivelada, apagado, con freno de parqueo y sistema de bloqueo/seguridad aplicado."],
   ["pto", "Desactive los sistemas del módulo siguiendo el proceso del fabricante. PTO desactivado, marcha en neutral, motor apagado y llave retirada."],

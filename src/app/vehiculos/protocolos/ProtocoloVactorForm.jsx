@@ -11,6 +11,7 @@ import {
   CHECKLIST_SECCIONES,
   EPP_SECTION_IMAGE,
   EPP_SECTION_MARKS,
+  EPP_SECTION_TEXTS,
   EPP_ITEMS,
   ESPECIFICACIONES,
   LUBRICANTES,
@@ -65,14 +66,17 @@ function mergeData(value = {}) {
 
 const inputClass = "w-full rounded border border-slate-300 px-2 py-1 text-sm";
 
-function CheckBox({ checked, onChange }) {
+function GuideCheck({ checked, onChange, compact = false }) {
   return (
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className="flex h-full w-full items-center justify-center text-[clamp(10px,1.6vw,22px)] font-black leading-none text-blue-950"
+      className={`flex h-full w-full items-center justify-center rounded-sm border-2 border-blue-950 bg-white/95 font-black leading-none text-blue-950 shadow-sm transition hover:bg-blue-50 ${
+        checked ? "ring-2 ring-blue-700" : ""
+      } ${compact ? "text-[clamp(8px,1.15vw,15px)]" : "text-[clamp(10px,1.4vw,20px)]"}`}
+      aria-pressed={checked}
     >
-      {checked ? "X" : ""}
+      {checked ? "✓" : ""}
     </button>
   );
 }
@@ -88,6 +92,26 @@ function EppGuideSection({ data, setNested }) {
     <section className="rounded-xl border border-blue-900 bg-white p-2 shadow-sm">
       <div className="relative mx-auto max-w-[1100px] overflow-hidden">
         <img src={EPP_SECTION_IMAGE} alt="Seguridad, EPP recomendado y riesgos principales" className="block w-full select-none" />
+        {EPP_SECTION_TEXTS.seguridad.map(([key, label, left, top, width]) => (
+          <div
+            key={`texto-seguridad-${key}`}
+            className="absolute z-10 text-[clamp(7px,1.05vw,16px)] font-bold leading-tight text-slate-950"
+            style={{ left: `${left}%`, top: `${top}%`, width: `${width}%` }}
+          >
+            {label}
+          </div>
+        ))}
+
+        {[...EPP_SECTION_TEXTS.epp, ...EPP_SECTION_TEXTS.riesgos].map(([key, label, left, top, width]) => (
+          <div
+            key={`texto-${key}`}
+            className="absolute z-10 -translate-x-1/2 text-center text-[clamp(7px,0.95vw,14px)] font-bold leading-tight text-slate-950"
+            style={{ left: `${left}%`, top: `${top}%`, width: `${width}%` }}
+          >
+            {label}
+          </div>
+        ))}
+
         {groups.flatMap(([group, marks]) =>
           marks.map(([key, left, top]) => (
             <div
@@ -96,12 +120,12 @@ function EppGuideSection({ data, setNested }) {
               style={{
                 left: `${left}%`,
                 top: `${top}%`,
-                width: "2.2%",
+                width: group === "seguridad" ? "2.15%" : "2.35%",
                 aspectRatio: "1 / 1",
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <CheckBox checked={!!data[group]?.[key]} onChange={(checked) => setNested(group, key, checked)} />
+              <GuideCheck checked={!!data[group]?.[key]} compact={group !== "seguridad"} onChange={(checked) => setNested(group, key, checked)} />
             </div>
           ))
         )}
