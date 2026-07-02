@@ -117,6 +117,7 @@ export const CHECKLIST_SECCIONES = [
   },
   {
     titulo: "3.3 SISTEMA DE AGUA A ALTA PRESIÓN (RODDER PUMP)",
+    imagenReferencia: "/sistema-de-agua.png",
     items: [
       ["3.3.1", "Fugas en bomba", "Revisar fugas en conexiones y sellos."],
       ["3.3.2", "Filtros y strainer (Y 3\")", "Limpiar canastillas y reemplazar O-ring."],
