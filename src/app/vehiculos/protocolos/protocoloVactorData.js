@@ -10,12 +10,12 @@ export const EPP_SECTION_IMAGE = "/epp.png";
 
 export const EPP_SECTION_MARKS = {
   seguridad: [
-    ["bloqueo", 3.35, 16.6],
-    ["pto", 3.35, 31.2],
-    ["calzos", 3.35, 43.7],
-    ["area", 3.35, 55.6],
-    ["residuos", 3.35, 67.3],
-    ["extintor", 3.35, 78.6],
+    ["bloqueo", 3.75, 16.6],
+    ["pto", 3.75, 31.2],
+    ["calzos", 3.75, 43.7],
+    ["area", 3.75, 55.6],
+    ["residuos", 3.75, 65.9],
+    ["extintor", 3.75, 77.3],
   ],
   epp: [
     ["guantes", 52.2, 31.0],
