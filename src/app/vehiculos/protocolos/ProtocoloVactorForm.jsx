@@ -66,13 +66,15 @@ function mergeData(value = {}) {
 
 const inputClass = "w-full rounded border border-slate-300 px-2 py-1 text-sm";
 
-function GuideCheck({ checked, onChange, compact = false }) {
+function GuideCheck({ checked, onChange, compact = false, showBox = false }) {
   return (
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`flex h-full w-full items-center justify-center rounded-sm bg-transparent font-black leading-none text-blue-950 transition hover:ring-2 hover:ring-blue-500 ${
-        compact ? "text-[clamp(8px,1vw,14px)]" : "text-[clamp(9px,1.15vw,17px)]"
+      className={`flex h-full w-full items-center justify-center rounded-sm font-black leading-none text-blue-950 transition hover:ring-2 hover:ring-blue-500 ${
+        showBox ? "border-2 border-blue-950 bg-white/95 shadow-sm" : "bg-transparent"
+      } ${
+        compact ? "text-[clamp(8px,0.95vw,13px)]" : "text-[clamp(9px,1.1vw,16px)]"
       }`}
       aria-pressed={checked}
     >
@@ -95,7 +97,7 @@ function EppGuideSection({ data, setNested }) {
         {EPP_SECTION_TEXTS.seguridad.map(([key, label, left, top, width]) => (
           <div
             key={`texto-seguridad-${key}`}
-            className="absolute z-10 text-[clamp(5px,0.58vw,9px)] font-bold leading-[1.08] text-slate-950"
+            className="absolute z-10 text-[clamp(6.5px,0.74vw,11px)] font-bold leading-[1.08] text-slate-950"
             style={{ left: `${left}%`, top: `${top}%`, width: `${width}%` }}
           >
             {label}
@@ -125,7 +127,7 @@ function EppGuideSection({ data, setNested }) {
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <GuideCheck checked={!!data[group]?.[key]} compact={group !== "seguridad"} onChange={(checked) => setNested(group, key, checked)} />
+              <GuideCheck checked={!!data[group]?.[key]} compact={group !== "seguridad"} showBox={group !== "seguridad"} onChange={(checked) => setNested(group, key, checked)} />
             </div>
           ))
         )}

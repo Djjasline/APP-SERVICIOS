@@ -36,12 +36,12 @@ export const EPP_SECTION_MARKS = {
 
 export const EPP_SECTION_TEXTS = {
   seguridad: [
-    ["bloqueo", "Antes de iniciar el proceso de mantenimiento verifique que el camión este estacionado en superficie nivelada, apagado, con freno de parqueo y sistema de bloqueo/seguridad aplicado.", 14.6, 12.1, 29.5],
-    ["pto", "Desactive los sistemas del módulo siguiendo el proceso del fabricante. PTO desactivado, marcha en neutral, motor apagado y llave retirada del switch.", 14.6, 29.6, 29.5],
-    ["calzos", "Coloque calzos en las ruedas.", 14.6, 43.7, 29.5],
-    ["area", "Área de trabajo limpia, iluminada y señalizada.", 14.6, 55.6, 29.5],
-    ["residuos", "Revise que el equipo esté limpio y sin residuos sueltos, especialmente en tanque de desechos.", 14.6, 67.0, 29.5],
-    ["extintor", "Extintor disponible y kit antiderrames accesible.", 14.6, 80.8, 29.5],
+    ["bloqueo", "Antes de iniciar el proceso de mantenimiento verifique que el camión este estacionado en superficie nivelada, apagado, con freno de parqueo y sistema de bloqueo/seguridad aplicado.", 14.4, 12.0, 30.0],
+    ["pto", "Desactive los sistemas del módulo siguiendo el proceso del fabricante. PTO desactivado, marcha en neutral, motor apagado y llave retirada del switch.", 14.4, 29.2, 30.0],
+    ["calzos", "Coloque calzos en las ruedas.", 14.4, 43.5, 30.0],
+    ["area", "Área de trabajo limpia, iluminada y señalizada.", 14.4, 55.3, 30.0],
+    ["residuos", "Revise que el equipo esté limpio y sin residuos sueltos, especialmente en tanque de desechos.", 14.4, 66.2, 30.0],
+    ["extintor", "Extintor disponible y kit antiderrames accesible.", 14.4, 77.0, 30.0],
   ],
   epp: [
     ["guantes", "Guantes", 51.8, 21.9, 5.8],
