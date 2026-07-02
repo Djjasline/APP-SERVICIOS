@@ -572,7 +572,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 >
                   <span className="inline-flex items-center gap-2">
                     <GraduationCap size={14} />
-                    Entrenamiento de vehículos especiales
+                    entrenamiento de vehículos especiales
                   </span>
                 </button>
 
