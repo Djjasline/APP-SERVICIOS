@@ -1,4 +1,4 @@
-const CACHE_NAME = "app-servicios-v6";
+const CACHE_NAME = "app-servicios-v7";
 
 const STATIC_ASSETS = [
   "/",
@@ -98,16 +98,25 @@ self.addEventListener("push", (event) => {
     }
   }
 
+  const badgeCount = Number(data.data?.badgeCount ?? data.badgeCount ?? 1) || 1;
+
+  const badgePromise = "setAppBadge" in navigator
+    ? navigator.setAppBadge(badgeCount).catch(() => undefined)
+    : Promise.resolve();
+
   event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: data.icon,
-      badge: data.badge,
-      tag: data.tag,
-      data: data.data,
-      vibrate: [200, 100, 200],
-      requireInteraction: data.requireInteraction ?? false,
-    })
+    Promise.all([
+      badgePromise,
+      self.registration.showNotification(data.title, {
+        body: data.body,
+        icon: data.icon,
+        badge: data.badge,
+        tag: data.tag,
+        data: data.data,
+        vibrate: [200, 100, 200],
+        requireInteraction: data.requireInteraction ?? false,
+      }),
+    ])
   );
 });
 

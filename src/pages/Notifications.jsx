@@ -6,6 +6,7 @@ import {
 } from "@/services/notificationService";
 import { useTheme } from "@/context/ThemeContext";
 import { useNavigate } from "react-router-dom";
+import { setAppBadgeCount } from "@/utils/appBadge";
 
 /*
  Página de Notificaciones in-app.
@@ -26,7 +27,9 @@ export default function NotificationsPage() {
 
       const data = await getNotifications(email);
 
-      setItems(Array.isArray(data) ? data : []);
+      const notifications = Array.isArray(data) ? data : [];
+      setItems(notifications);
+      setAppBadgeCount(notifications.filter((item) => !item.read).length);
       setLoading(false);
     };
 
@@ -37,16 +40,19 @@ export default function NotificationsPage() {
     const ok = await markNotificationRead(id);
 
     if (ok) {
-      setItems((prev) =>
-        prev.map((p) =>
+      setItems((prev) => {
+        const next = prev.map((p) =>
           p.id === id
             ? {
                 ...p,
                 read: true,
               }
             : p
-        )
-      );
+        );
+
+        setAppBadgeCount(next.filter((item) => !item.read).length);
+        return next;
+      });
     }
   };
 

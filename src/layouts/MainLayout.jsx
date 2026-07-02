@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import { getUnreadCount } from "../services/notificationService";
 import { supabase } from "@/lib/supabase";
 import TechnicalWritingAssistant from "@/components/TechnicalWritingAssistant";
+import { clearAppBadge, setAppBadgeCount } from "@/utils/appBadge";
 
 function playNotificationSound() {
   try {
@@ -45,6 +46,11 @@ export default function MainLayout() {
   const [unread, setUnread] = useState(0);
   const [chatAlert, setChatAlert] = useState(null);
   const chatAlertTimer = useRef(null);
+  const unreadRef = useRef(0);
+
+  useEffect(() => {
+    unreadRef.current = unread;
+  }, [unread]);
 
   /* =========================
      DETECTAR DISPOSITIVO REAL
@@ -83,11 +89,13 @@ export default function MainLayout() {
     const load = async () => {
       if (!email) {
         if (mounted) setUnread(0);
+        clearAppBadge();
         return;
       }
       try {
         const count = await getUnreadCount(email);
         if (mounted) setUnread(count || 0);
+        setAppBadgeCount(count || 0);
       } catch (e) {
         console.error("Error cargando notificaciones:", e);
       }
@@ -128,6 +136,7 @@ export default function MainLayout() {
 
           if (chatAlertTimer.current) clearTimeout(chatAlertTimer.current);
           chatAlertTimer.current = setTimeout(() => setChatAlert(null), 6000);
+          setAppBadgeCount((unreadRef.current || 0) + 1);
 
           if (
             typeof Notification !== "undefined" &&

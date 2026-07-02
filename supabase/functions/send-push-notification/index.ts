@@ -14,6 +14,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const normalizeEmail = (email: unknown) => String(email || "").trim().toLowerCase();
+
 function jsonResponse(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -71,7 +73,7 @@ serve(async (req) => {
 
   if (Array.isArray(recipient_emails) && recipient_emails.length > 0) {
     const normalizedEmails = recipient_emails
-      .map((email) => String(email || "").trim().toLowerCase())
+      .map((email) => normalizeEmail(email))
       .filter(Boolean);
 
     normalizedEmails.forEach((email) => targetEmails.add(email));
@@ -104,7 +106,7 @@ serve(async (req) => {
     }
 
     (profiles || [])
-      .map((profile) => String(profile.email || "").trim().toLowerCase())
+      .map((profile) => normalizeEmail(profile.email))
       .filter(Boolean)
       .forEach((email) => targetEmails.add(email));
   }
@@ -138,6 +140,35 @@ serve(async (req) => {
     notificationsInserted = notifications?.length || 0;
   }
 
+  const { data: targetProfiles, error: targetProfilesError } = await supabaseAdmin
+    .from("profiles")
+    .select("id, email")
+    .in("id", Array.from(targetUserIds));
+
+  if (targetProfilesError) {
+    return jsonResponse({ error: targetProfilesError.message }, 500);
+  }
+
+  const emailByUserId = new Map(
+    (targetProfiles || []).map((profile) => [profile.id, normalizeEmail(profile.email)])
+  );
+
+  const unreadCountByEmail = new Map<string, number>();
+
+  if (targetEmails.size > 0) {
+    await Promise.all(
+      Array.from(targetEmails).map(async (email) => {
+        const { count } = await supabaseAdmin
+          .from("notifications")
+          .select("id", { count: "exact", head: true })
+          .ilike("recipient_email", email)
+          .eq("read", false);
+
+        unreadCountByEmail.set(email, count || 0);
+      })
+    );
+  }
+
   const query = supabaseAdmin
     .from("push_subscriptions")
     .select("*")
@@ -149,21 +180,24 @@ serve(async (req) => {
     return jsonResponse({ error: error.message }, 500);
   }
 
-  const payload = JSON.stringify({
-    title: titulo || "App Servicios",
-    body: mensaje || "Nueva notificación",
-    icon: "/icon-192.png",
-    badge: "/icon-192.png",
-    data: { url: url || "/notifications" },
-  });
-
   const resultados = await Promise.allSettled(
-    (suscripciones || []).map((sub) =>
-      webpush.sendNotification(
+    (suscripciones || []).map((sub) => {
+      const recipientEmail = emailByUserId.get(sub.user_id) || "";
+      const badgeCount = unreadCountByEmail.get(recipientEmail) || 1;
+      const payload = JSON.stringify({
+        title: titulo || "App Servicios",
+        body: mensaje || "Nueva notificación",
+        icon: "/icon-192.png",
+        badge: "/icon-192.png",
+        data: { url: url || "/notifications", badgeCount },
+        badgeCount,
+      });
+
+      return webpush.sendNotification(
         { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
         payload
-      )
-    )
+      );
+    })
   );
 
   return jsonResponse({
