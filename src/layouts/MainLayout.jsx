@@ -9,6 +9,26 @@ import { supabase } from "@/lib/supabase";
 import TechnicalWritingAssistant from "@/components/TechnicalWritingAssistant";
 import { clearAppBadge, setAppBadgeCount } from "@/utils/appBadge";
 
+const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
+
+function getNotificationPath(notification) {
+  if (notification.record_type === "registro" && notification.record_id) {
+    return `/operaciones/registro/${notification.record_id}`;
+  }
+
+  if (notification.record_type === "recepcion" && notification.record_id) {
+    return `/operaciones/recepcion/${notification.record_id}`;
+  }
+
+  if (notification.record_type === "liberacion" && notification.record_id) {
+    return `/operaciones/liberacion/${notification.record_id}`;
+  }
+
+  if (notification.record_type === "chat") return "/chat";
+
+  return "/notifications";
+}
+
 function playNotificationSound() {
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -111,24 +131,31 @@ export default function MainLayout() {
   }, [email]);
 
   useEffect(() => {
-    if (!user?.id) return undefined;
+    const currentEmail = normalizeEmail(email);
+    if (!currentEmail) return undefined;
 
     const channel = supabase
-      .channel(`layout-chat-alerts-${user.id}`)
+      .channel(`layout-notifications-${currentEmail}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
-          table: "chat_messages",
+          table: "notifications",
         },
         (payload) => {
-          if (!payload.new || payload.new.sender_id === user.id) return;
+          const notification = payload.new;
+          if (!notification) return;
 
-          const message = String(payload.new.body || "").trim();
+          const recipientEmail = normalizeEmail(notification.recipient_email);
+          if (recipientEmail && recipientEmail !== currentEmail) return;
+
+          const title = notification.title || "Nueva notificación";
+          const message = String(notification.message || "").trim();
           const alert = {
-            title: "Nuevo mensaje en chat interno",
-            message: message.length > 80 ? `${message.slice(0, 80)}...` : message || "Tienes un mensaje nuevo.",
+            title,
+            message: message.length > 90 ? `${message.slice(0, 90)}...` : message || "Tienes una notificación nueva.",
+            path: getNotificationPath(notification),
           };
 
           playNotificationSound();
@@ -136,18 +163,17 @@ export default function MainLayout() {
 
           if (chatAlertTimer.current) clearTimeout(chatAlertTimer.current);
           chatAlertTimer.current = setTimeout(() => setChatAlert(null), 6000);
-          setAppBadgeCount((unreadRef.current || 0) + 1);
 
-          if (
-            typeof Notification !== "undefined" &&
-            Notification.permission === "granted" &&
-            document.visibilityState !== "visible"
-          ) {
-            new Notification(alert.title, {
-              body: alert.message,
-              icon: "/icon-192.png",
+          if (!notification.read) {
+            setUnread((prev) => {
+              const next = (prev || 0) + 1;
+              setAppBadgeCount(next);
+              return next;
             });
           }
+
+          // La notificación de sistema la maneja el service worker push.
+          // Aquí solo actualizamos campana, badge e indicador interno.
         }
       )
       .subscribe();
@@ -156,7 +182,7 @@ export default function MainLayout() {
       if (chatAlertTimer.current) clearTimeout(chatAlertTimer.current);
       supabase.removeChannel(channel);
     };
-  }, [user?.id]);
+  }, [email, navigate]);
 
   return (
     <div
@@ -183,7 +209,7 @@ export default function MainLayout() {
           type="button"
           onClick={() => {
             setChatAlert(null);
-            navigate("/chat");
+            navigate(chatAlert.path || "/notifications");
           }}
           className={`fixed right-4 top-20 z-[9999] max-w-sm rounded-2xl border px-4 py-3 text-left shadow-2xl transition ${
             isLight

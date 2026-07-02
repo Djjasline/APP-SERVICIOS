@@ -7,6 +7,27 @@ import {
 import { useTheme } from "@/context/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import { setAppBadgeCount } from "@/utils/appBadge";
+import { supabase } from "@/lib/supabase";
+
+const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
+
+function getNotificationPath(notification) {
+  if (notification.record_type === "registro" && notification.record_id) {
+    return `/operaciones/registro/${notification.record_id}`;
+  }
+
+  if (notification.record_type === "recepcion" && notification.record_id) {
+    return `/operaciones/recepcion/${notification.record_id}`;
+  }
+
+  if (notification.record_type === "liberacion" && notification.record_id) {
+    return `/operaciones/liberacion/${notification.record_id}`;
+  }
+
+  if (notification.record_type === "chat") return "/chat";
+
+  return "";
+}
 
 /*
  Página de Notificaciones in-app.
@@ -36,6 +57,42 @@ export default function NotificationsPage() {
     load();
   }, [email]);
 
+  useEffect(() => {
+    const currentEmail = normalizeEmail(email);
+    if (!currentEmail) return undefined;
+
+    const channel = supabase
+      .channel(`notifications-page-${currentEmail}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+        },
+        (payload) => {
+          const notification = payload.new;
+          if (!notification) return;
+
+          const recipientEmail = normalizeEmail(notification.recipient_email);
+          if (recipientEmail && recipientEmail !== currentEmail) return;
+
+          setItems((prev) => {
+            if (prev.some((item) => item.id === notification.id)) return prev;
+
+            const next = [notification, ...prev];
+            setAppBadgeCount(next.filter((item) => !item.read).length);
+            return next;
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [email]);
+
   const handleMarkRead = async (id) => {
     const ok = await markNotificationRead(id);
 
@@ -54,6 +111,24 @@ export default function NotificationsPage() {
         return next;
       });
     }
+  };
+
+  const updateReadState = (id) => {
+    setItems((prev) => {
+      const next = prev.map((p) => (p.id === id ? { ...p, read: true } : p));
+      setAppBadgeCount(next.filter((item) => !item.read).length);
+      return next;
+    });
+  };
+
+  const handleOpenNotification = async (notification) => {
+    if (!notification.read) {
+      const ok = await markNotificationRead(notification.id);
+      if (ok) updateReadState(notification.id);
+    }
+
+    const path = getNotificationPath(notification);
+    if (path) navigate(path);
   };
 
   return (
@@ -113,23 +188,7 @@ export default function NotificationsPage() {
 
                 {n.record_id && (
   <button
-    onClick={() => {
-      if (n.record_type === "registro") {
-        navigate(`/operaciones/registro/${n.record_id}`);
-      }
-
-      if (n.record_type === "recepcion") {
-        navigate(`/operaciones/recepcion/${n.record_id}`);
-      }
-
-      if (n.record_type === "liberacion") {
-        navigate(`/operaciones/liberacion/${n.record_id}`);
-      }
-
-      if (n.record_type === "chat") {
-        navigate("/chat");
-      }
-    }}
+    onClick={() => handleOpenNotification(n)}
     className={`text-xs hover:underline ${isLight ? "text-blue-700" : "text-blue-300"}`}
   >
     {n.record_type === "chat" ? "Abrir chat" : "Ir al formulario"}
