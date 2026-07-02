@@ -95,7 +95,7 @@ function EppGuideSection({ data, setNested }) {
         {EPP_SECTION_TEXTS.seguridad.map(([key, label, left, top, width]) => (
           <div
             key={`texto-seguridad-${key}`}
-            className="absolute z-10 text-[clamp(6.5px,0.74vw,11px)] font-bold leading-[1.08] text-slate-950"
+            className="absolute z-10 text-[clamp(7.5px,0.82vw,12px)] font-bold leading-[1.08] text-slate-950"
             style={{ left: `${left}%`, top: `${top}%`, width: `${width}%` }}
           >
             {label}
@@ -105,7 +105,7 @@ function EppGuideSection({ data, setNested }) {
         {[...EPP_SECTION_TEXTS.epp, ...EPP_SECTION_TEXTS.riesgos].map(([key, label, left, top, width]) => (
           <div
             key={`texto-${key}`}
-            className="absolute z-10 -translate-x-1/2 text-center text-[clamp(5px,0.55vw,8.5px)] font-bold leading-[1.05] text-slate-950"
+            className="absolute z-10 -translate-x-1/2 text-center text-[clamp(6px,0.62vw,9.5px)] font-bold leading-[1.05] text-slate-950"
             style={{ left: `${left}%`, top: `${top}%`, width: `${width}%` }}
           >
             {label}
