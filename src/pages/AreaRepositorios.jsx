@@ -36,9 +36,9 @@ export default function AreaRepositorios() {
         />
 
         <CardModulo
-          titulo="entrenamiento de vehículos especiales"
+          titulo="Entrenamiento de vehículos especiales"
           descripcion="Portal de entrenamiento de barredoras Elgin e hidrosuccionadores Vactor."
-          ruta="https://fsu.myfslearning.com/student/catalog"
+          ruta="/repositorios/entrenamiento"
           color="bg-emerald-600"
           icono={<GraduationCap size={20} />}
         />

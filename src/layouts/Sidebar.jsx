@@ -561,18 +561,12 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    window.open(
-                      "https://fsu.myfslearning.com/student/catalog",
-                      "_blank",
-                      "noopener,noreferrer"
-                    )
-                  }
+                  onClick={() => go("/repositorios/entrenamiento")}
                   className={subItemClass("/repositorios/entrenamiento")}
                 >
                   <span className="inline-flex items-center gap-2">
                     <GraduationCap size={14} />
-                    entrenamiento de vehículos especiales
+                    Entrenamiento de vehículos especiales
                   </span>
                 </button>
 
