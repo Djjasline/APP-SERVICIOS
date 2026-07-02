@@ -63,6 +63,17 @@ function mergeData(value = {}) {
 
 const inputClass = "w-full rounded border border-slate-300 px-2 py-1 text-sm";
 
+function CheckBox({ checked, onChange }) {
+  return (
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={onChange}
+      className="h-5 w-5 rounded border-2 border-blue-900 accent-blue-900"
+    />
+  );
+}
+
 export default function ProtocoloVactorForm() {
   const { id } = useParams();
   const isEditing = !!id && id !== "new";
@@ -185,24 +196,43 @@ export default function ProtocoloVactorForm() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2">
-          <h2 className="font-semibold text-slate-900">2. Seguridad antes de iniciar</h2>
-          {SEGURIDAD_ITEMS.map(([key, label]) => (
-            <label key={key} className="flex gap-2 text-sm"><input type="checkbox" checked={!!data.seguridad[key]} onChange={(e) => setNested("seguridad", key, e.target.checked)} /> <span>{label}</span></label>
-          ))}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-white rounded-xl border border-blue-900 shadow-sm overflow-hidden">
+          <h2 className="bg-blue-950 px-4 py-2 text-center text-sm font-bold uppercase text-white">2. Seguridad antes de iniciar <span className="font-normal normal-case">(Marque en cada punto)</span></h2>
+          <div className="divide-y divide-blue-200">
+            {SEGURIDAD_ITEMS.map(([key, label]) => (
+              <label key={key} className="grid grid-cols-[56px_1fr] items-center gap-3 px-3 py-3 text-sm font-semibold text-slate-900">
+                <span className="flex justify-center"><CheckBox checked={!!data.seguridad[key]} onChange={(e) => setNested("seguridad", key, e.target.checked)} /></span>
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
         </div>
-        <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2">
-          <h2 className="font-semibold text-slate-900">EPP recomendado</h2>
-          {EPP_ITEMS.map(([key, label]) => (
-            <label key={key} className="flex gap-2 text-sm"><input type="checkbox" checked={!!data.epp[key]} onChange={(e) => setNested("epp", key, e.target.checked)} /> {label}</label>
-          ))}
-        </div>
-        <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2">
-          <h2 className="font-semibold text-slate-900">Riesgos principales</h2>
-          {RIESGO_ITEMS.map(([key, label]) => (
-            <label key={key} className="flex gap-2 text-sm"><input type="checkbox" checked={!!data.riesgos[key]} onChange={(e) => setNested("riesgos", key, e.target.checked)} /> {label}</label>
-          ))}
+
+        <div className="grid grid-cols-1 gap-4">
+          <div className="bg-white rounded-xl border border-blue-900 shadow-sm overflow-hidden">
+            <h2 className="bg-blue-950 px-4 py-2 text-center text-sm font-bold uppercase text-white">EPP recomendado</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 p-4">
+              {EPP_ITEMS.map(([key, label]) => (
+                <label key={key} className="flex flex-col items-center gap-2 text-center text-sm font-semibold text-slate-900">
+                  <span>{label}</span>
+                  <CheckBox checked={!!data.epp[key]} onChange={(e) => setNested("epp", key, e.target.checked)} />
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl border border-blue-900 shadow-sm overflow-hidden">
+            <h2 className="bg-blue-950 px-4 py-2 text-center text-sm font-bold uppercase text-white">Riesgos principales</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 p-4">
+              {RIESGO_ITEMS.map(([key, label]) => (
+                <label key={key} className="flex flex-col items-center gap-2 text-center text-sm font-semibold text-slate-900">
+                  <span>{label}</span>
+                  <CheckBox checked={!!data.riesgos[key]} onChange={(e) => setNested("riesgos", key, e.target.checked)} />
+                </label>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 

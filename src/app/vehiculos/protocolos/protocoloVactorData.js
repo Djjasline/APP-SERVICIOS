@@ -48,6 +48,7 @@ export const CHECKLIST_SECCIONES = [
   },
   {
     titulo: "3.2 SISTEMA HIDRÁULICO",
+    imagenReferencia: "/sistema-hidraulico.png",
     items: [
       ["3.2.1", "Nivel de aceite hidráulico", "Verificar nivel en tanque."],
       ["3.2.2", "Fugas en mangueras y conexiones", "Revisar fugas visibles."],

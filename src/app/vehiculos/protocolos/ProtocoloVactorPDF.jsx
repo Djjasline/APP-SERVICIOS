@@ -36,6 +36,14 @@ function BoolList({ items, values }) {
   );
 }
 
+function BoxMark({ checked }) {
+  return (
+    <span style={{ display: "inline-flex", width: 14, height: 14, border: "1.5px solid #0b2a66", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800 }}>
+      {checked ? "X" : ""}
+    </span>
+  );
+}
+
 function StatusCell({ current, value }) {
   return <td style={{ ...S.cell, textAlign: "center", width: 42, fontWeight: 700 }}>{current === value ? "X" : ""}</td>;
 }
@@ -125,12 +133,59 @@ export default function ProtocoloVactorPDF({ allowDownload = true, backPath = "/
         </div>
 
         <div className="no-break">
-          <p style={S.sectionTitle}>2. Seguridad, EPP y riesgos</p>
-          <table style={S.tbl}><tbody><tr>
-            <td style={{ ...S.cell, width: "50%", verticalAlign: "top" }}><strong>Seguridad antes de iniciar</strong><BoolList items={SEGURIDAD_ITEMS} values={d.seguridad} /></td>
-            <td style={{ ...S.cell, width: "25%", verticalAlign: "top" }}><strong>EPP recomendado</strong><BoolList items={EPP_ITEMS} values={d.epp} /></td>
-            <td style={{ ...S.cell, width: "25%", verticalAlign: "top" }}><strong>Riesgos principales</strong><BoolList items={RIESGO_ITEMS} values={d.riesgos} /></td>
-          </tr></tbody></table>
+          <table style={S.tbl}>
+            <tbody>
+              <tr>
+                <td style={{ ...S.th, width: "50%" }}>2. SEGURIDAD ANTES DE INICIAR <span style={{ fontWeight: 400 }}>(Marque en cada punto)</span></td>
+                <td style={{ ...S.th, width: "50%" }}>EPP RECOMENDADO</td>
+              </tr>
+              <tr>
+                <td rowSpan={3} style={{ ...S.cell, padding: 0, verticalAlign: "top" }}>
+                  <table style={S.tbl}>
+                    <tbody>
+                      {SEGURIDAD_ITEMS.map(([key, label]) => (
+                        <tr key={key}>
+                          <td style={{ ...S.cell, textAlign: "center", width: 34 }}><BoxMark checked={!!d.seguridad?.[key]} /></td>
+                          <td style={{ ...S.cell, fontWeight: 700 }}>{label}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </td>
+                <td style={{ ...S.cell, padding: 0 }}>
+                  <table style={S.tbl}>
+                    <tbody>
+                      <tr>
+                        {EPP_ITEMS.map(([key, label]) => (
+                          <td key={key} style={{ ...S.cell, textAlign: "center", fontWeight: 700, width: `${100 / EPP_ITEMS.length}%` }}>
+                            <div>{label}</div>
+                            <div style={{ marginTop: 8 }}><BoxMark checked={!!d.epp?.[key]} /></div>
+                          </td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <tr><td style={S.th}>RIESGOS PRINCIPALES</td></tr>
+              <tr>
+                <td style={{ ...S.cell, padding: 0 }}>
+                  <table style={S.tbl}>
+                    <tbody>
+                      <tr>
+                        {RIESGO_ITEMS.map(([key, label]) => (
+                          <td key={key} style={{ ...S.cell, textAlign: "center", fontWeight: 700, width: `${100 / RIESGO_ITEMS.length}%` }}>
+                            <div>{label}</div>
+                            <div style={{ marginTop: 8 }}><BoxMark checked={!!d.riesgos?.[key]} /></div>
+                          </td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <p style={S.sectionTitle}>3. Checklist de mantenimiento</p>
