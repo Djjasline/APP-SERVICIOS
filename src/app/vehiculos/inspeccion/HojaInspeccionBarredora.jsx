@@ -10,9 +10,9 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
-import ObservationImageField from "@/components/ObservationImageField";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
+import InspectionChecklistRow from "@/components/InspectionChecklistRow";
 
 
 /* =============================
@@ -763,41 +763,6 @@ setTimeout(() => {
 };
 
 
-   
- /* ── TABLA CHECKLIST (SI / NO / N/A) ── */
-  const CheckRow = ({ codigo, descripcion }) => (
-    <tr className="hover:bg-gray-50">
-      <td className="pdf-label text-xs">{codigo}</td>
-      <td style={{ border:"1px solid #d1d5db", padding:"4px 8px", fontSize:12 }}>{descripcion}</td>
-      {["SI", "NO", "NA"].map((opt) => (
-        <td key={opt} className="text-center" style={{ border:"1px solid #d1d5db", padding:"4px", width:40 }}>
-          <input type="radio" name={`chk-${codigo}`}
-            checked={data.items?.[codigo]?.estado === opt}
-            onChange={() => handleItem(codigo, "estado", opt)} />
-        </td>
-      ))}
-      <td style={{ border:"1px solid #d1d5db", padding:"2px 4px" }}>
-        <textarea
-          value={data.items?.[codigo]?.observacion || ""}
-          onChange={(e) => {
-            handleItem(codigo, "observacion", e.target.value);
-            e.target.style.height = "auto";
-            e.target.style.height = e.target.scrollHeight + "px";
-          }}
-          ref={(el) => { if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; } }}
-          placeholder="Observaciones..."
-          className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
-        />
-        <ObservationImageField
-          value={data.items?.[codigo]?.imagenes || []}
-          onChange={(imagenes) => handleItem(codigo, "imagenes", imagenes)}
-          recordId={id || `temp-insp-${variantConfig.routeSegment}`}
-          folder={`observacion-${codigo}`}
-        />
-      </td>
-    </tr>
-  );
-
   //* ── RENDER ── */
   return (
     <>
@@ -1103,7 +1068,9 @@ setTimeout(() => {
               <th style={{ width:40 }}>SI</th><th style={{ width:40 }}>NO</th><th style={{ width:40 }}>N/A</th>
               <th className="text-left">OBSERVACIÓN</th>
             </tr></thead>
-            <tbody>{pruebasPrevias.map(([c,d]) => <CheckRow key={c} codigo={c} descripcion={d} />)}</tbody>
+            <tbody>{pruebasPrevias.map(([c,d]) => (
+              <InspectionChecklistRow key={c} codigo={c} descripcion={d} item={data.items?.[c]} onItemChange={handleItem} recordId={id || `temp-insp-${variantConfig.routeSegment}`} />
+            ))}</tbody>
           </table>
 
           {/* ── SECCIONES A–E ── */}
@@ -1153,10 +1120,13 @@ setTimeout(() => {
 
       <tbody>
         {sec.items.map(([c, d]) => (
-          <CheckRow
+          <InspectionChecklistRow
             key={c}
             codigo={c}
             descripcion={d}
+            item={data.items?.[c]}
+            onItemChange={handleItem}
+            recordId={id || `temp-insp-${variantConfig.routeSegment}`}
           />
         ))}
       </tbody>
