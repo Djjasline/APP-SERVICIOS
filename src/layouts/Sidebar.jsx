@@ -559,6 +559,17 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
                 <button
                   type="button"
+                  onClick={() => go("/repositorios/documoto-elgin")}
+                  className={subItemClass("/repositorios/documoto-elgin")}
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <BookOpen size={14} />
+                    Documoto - Elgin
+                  </span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => go("/repositorios/marcas-productos")}
                   className={subItemClass("/repositorios/marcas-productos")}
                 >

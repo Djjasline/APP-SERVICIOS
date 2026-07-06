@@ -65,6 +65,7 @@ import ProtocoloVactorPDF from "./app/vehiculos/protocolos/ProtocoloVactorPDF";
 
 // ================= REPOSITORIOS =================
 import ManualesTecnicos from "./app/repositorios/ManualesTecnicos";
+import DocumotoElgin from "./app/repositorios/DocumotoElgin";
 import MarcasProductos from "./app/repositorios/MarcasProductos";
 import EntrenamientoVehiculos from "./app/repositorios/EntrenamientoVehiculos";
 import BaseDatos from "./app/repositorios/BaseDatos";
@@ -302,6 +303,7 @@ export default function RoutesApp() {
             <Route path="/repositorios/pdf" element={<TechRoute><AreaRepositorios /></TechRoute>} />
             <Route path="/repositorios/archivos" element={<TechRoute><AreaRepositorios /></TechRoute>} />
             <Route path="/repositorios/manuales-tecnicos" element={<TechRoute><ManualesTecnicos /></TechRoute>} />
+            <Route path="/repositorios/documoto-elgin" element={<TechRoute><DocumotoElgin /></TechRoute>} />
             <Route path="/repositorios/marcas-productos" element={<TechRoute><MarcasProductos /></TechRoute>} />
             <Route path="/repositorios/entrenamiento" element={<TechRoute><EntrenamientoVehiculos /></TechRoute>} />
             <Route path="/repositorios/base-datos" element={<TechRoute><BaseDatos /></TechRoute>} />
