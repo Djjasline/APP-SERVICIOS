@@ -1,8 +1,6 @@
-const CACHE_NAME = "app-servicios-v7";
+const CACHE_NAME = "app-servicios-v8";
 
 const STATIC_ASSETS = [
-  "/",
-  "/index.html",
   "/manifest.json",
   "/favicon.ico",
 ];
@@ -52,6 +50,21 @@ self.addEventListener("fetch", (event) => {
 
   // Para llamadas a Supabase siempre ir a la red
   if (url.hostname.includes("supabase.co")) return;
+
+  if (event.request.mode === "navigate" || url.pathname === "/" || url.pathname === "/index.html") {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put("/index.html", responseClone);
+          });
+          return networkResponse;
+        })
+        .catch(() => caches.match("/index.html"))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
