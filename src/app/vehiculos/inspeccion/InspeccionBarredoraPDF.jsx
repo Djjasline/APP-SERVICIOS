@@ -379,19 +379,47 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
           <table style={S.tbl}>
             <tbody>
               {[
-                ["NOTA",             d.equipo?.nota],
-                ["MARCA",            d.equipo?.marca],
-                ["MODELO",           d.equipo?.modelo],
-                ["AÑO MODELO",       d.equipo?.anio],
-                ["N° SERIE MÓDULO",  d.equipo?.serieModulo],
-                ["N° SERIE CARRETE", d.equipo?.serieCarrete],
-                ["N° SERIE CABEZAL", d.equipo?.serieCabezal],
-              ].map(([l, v], i) => (
-                <tr key={i}>
-                  <td style={S.label}>{l}</td>
-                  <td style={S.cell}>{v || "—"}</td>
-                </tr>
-              ))}
+                ["NOTA", d.equipo?.nota],
+                ["MARCA", d.equipo?.marca],
+                ["MODELO", d.equipo?.modelo],
+                ["N° SERIE", d.equipo?.serie],
+                ["AÑO MODELO", d.equipo?.anio],
+                ["VIN / CHASIS", d.equipo?.vin],
+                ["PLACA", d.equipo?.placa],
+                ["HORAS MÓDULO", d.equipo?.horasModulo],
+                ["HORAS CHASIS", d.equipo?.horasChasis],
+                ["KILOMETRAJE", d.equipo?.kilometraje],
+                ["HORÓMETRO", d.equipo?.horometro],
+                [null, null],
+              ].reduce((rows, field, idx, arr) => {
+                if (idx % 2 !== 0) return rows;
+
+                const next = arr[idx + 1];
+
+                rows.push(
+                  <tr key={idx}>
+                    {field[0] ? (
+                      <>
+                        <td style={{ ...S.label, width: "25%" }}>{field[0]}</td>
+                        <td style={{ ...S.cell, width: "25%" }}>{field[1] || "—"}</td>
+                      </>
+                    ) : (
+                      <td colSpan={2} style={S.cell} />
+                    )}
+
+                    {next?.[0] ? (
+                      <>
+                        <td style={{ ...S.label, width: "25%" }}>{next[0]}</td>
+                        <td style={{ ...S.cell, width: "25%" }}>{next[1] || "—"}</td>
+                      </>
+                    ) : (
+                      <td colSpan={2} style={S.cell} />
+                    )}
+                  </tr>
+                );
+
+                return rows;
+              }, [])}
             </tbody>
           </table>
         </div>
