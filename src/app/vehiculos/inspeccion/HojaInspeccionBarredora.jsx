@@ -12,6 +12,7 @@ import SignatureCanvas from "react-signature-canvas";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import ObservationImageField from "@/components/ObservationImageField";
 import ReportCodeInput from "@/components/ReportCodeInput";
+import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 
 
 /* =============================
@@ -189,6 +190,7 @@ const emptyForm = {
 
   conclusiones: [""],
   recomendaciones: [""],
+  anexoItems: createDefaultPartsAnnexRows(),
 
   notaFinal: "",
 
@@ -1163,6 +1165,8 @@ setTimeout(() => {
 
   </section>
 ))}
+
+          <InspectionPartsAnnex rows={data.anexoItems} onChange={(rows) => update(["anexoItems"], rows)} />
 
           {/* ══ 7. CONCLUSION Y RECOMENDACION ══ */}
           <h3 className="font-bold text-sm border-b pb-1">CONCLUSION TECNICA Y RECOMENDACION ACCIONABLE</h3>

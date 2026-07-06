@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
 import ObservationImagesPdf from "@/components/ObservationImagesPdf";
+import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 
 const inspectionDescription =
   "Inspección técnica del módulo hidrosuccionador y sus sistemas, no incluye servicios de chasis.";
@@ -465,6 +466,8 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
             <ChecklistTable items={sec.items} data={d} />
           </div>
         ))}
+
+        <InspectionPartsAnnexPdf rows={d.anexoItems} styles={S} />
 
         {/* CONCLUSION Y RECOMENDACION */}
         <div className="no-break">

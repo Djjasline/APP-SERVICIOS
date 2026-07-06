@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
 import ObservationImagesPdf from "@/components/ObservationImagesPdf";
+import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 
 const S = {
   tbl: {
@@ -412,6 +413,8 @@ setReport({ estado: data.estado, data: data.data });
             <ChecklistTable items={sec.items} data={d} />
           </div>
         ))}
+
+        <InspectionPartsAnnexPdf rows={d.anexoItems} styles={S} />
 
         <div className="no-break">
           <table style={{ ...S.tbl, marginTop:10 }}>

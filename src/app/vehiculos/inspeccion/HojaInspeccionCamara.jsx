@@ -12,6 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import ObservationImageField from "@/components/ObservationImageField";
 import ReportCodeInput from "@/components/ReportCodeInput";
+import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 
 /* ══════════════════════════════
    PRUEBAS PREVIAS AL SERVICIO
@@ -113,6 +114,7 @@ const emptyForm = {
   },
   items: {},
   conclusiones: [""], recomendaciones: [""],
+  anexoItems: createDefaultPartsAnnexRows(),
   notaFinal: "",
   firmas: { tecnico: "", cliente: "", clienteCedula: "" },
 };
@@ -1024,6 +1026,8 @@ const result = await saveOrUpdateReport({
               </table>
             </section>
           ))}
+
+          <InspectionPartsAnnex rows={data.anexoItems} onChange={(rows) => update(["anexoItems"], rows)} />
 
           {/* ══ 7. CONCLUSION Y RECOMENDACION ══ */}
           <h3 className="font-bold text-sm border-b pb-1">

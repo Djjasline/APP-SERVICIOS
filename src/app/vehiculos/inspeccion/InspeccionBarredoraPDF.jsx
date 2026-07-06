@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
 import ObservationImagesPdf from "@/components/ObservationImagesPdf";
+import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 
 /* ══════════════════════════════
    ESTILOS — COMPACTOS PDF
@@ -589,6 +590,8 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
             <ChecklistTable items={sec.items} data={d} />
           </div>
         ))}
+
+        <InspectionPartsAnnexPdf rows={d.anexoItems} styles={S} />
 
         {/* ── CONCLUSION Y RECOMENDACION ── */}
         <div className="no-break">
