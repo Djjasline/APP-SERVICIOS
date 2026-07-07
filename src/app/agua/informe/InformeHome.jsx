@@ -1,5 +1,4 @@
 import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
 import { supabase } from "@/lib/supabase";
 import {
   canAccessRecord,
@@ -32,7 +31,6 @@ export default function InformeHome({
   areaPath = "/area/agua",
 }) {
   const navigate = useNavigate();
-  const { isLight } = useTheme();
   const { user, isSuperAdmin } = useAuth();
   const tipoConfig = tipo ? informeTipos[tipo] : null;
   const superAdminActivo =
@@ -199,15 +197,9 @@ export default function InformeHome({
     setReports((prev) => prev.filter((r) => r.id !== id));
   };
 
-  const cardClass = isLight
-    ? "bg-white text-slate-900"
-    : "bg-white/10 text-white border border-white/10";
-  const inputClass = isLight
-    ? "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
-    : "bg-slate-950/70 border-white/20 text-white placeholder:text-white/40";
-  const rowClass = isLight
-    ? "bg-gray-50 border-gray-200"
-    : "bg-white/5 border-white/10";
+  const cardClass = "bg-white text-gray-900";
+  const inputClass = "bg-white border-gray-300 text-gray-900 placeholder:text-gray-400";
+  const rowClass = "bg-gray-50 border-gray-200";
 
   return (
     <div className={`rounded-2xl p-6 shadow space-y-6 ${cardClass}`}>
@@ -217,18 +209,14 @@ export default function InformeHome({
             {tipoConfig?.label || `Informes ${areaLabel}`}
           </h1>
           {tipoConfig?.description && (
-            <p className={isLight ? "text-sm text-gray-500" : "text-sm text-white/60"}>{tipoConfig.description}</p>
+            <p className="text-sm text-gray-500">{tipoConfig.description}</p>
           )}
         </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(areaPath)}
-            className={`border px-4 py-1 rounded transition ${
-              isLight
-                ? "border-gray-300 text-gray-700 hover:bg-gray-100"
-                : "border-white/20 text-white hover:bg-white/10"
-            }`}
+            className="border border-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-100 transition"
           >
             Volver
           </button>
@@ -256,9 +244,7 @@ export default function InformeHome({
             className={`px-3 py-1 border rounded text-sm ${
               filter === f
                 ? "bg-gray-200 text-gray-900"
-                : isLight
-                ? "text-gray-600 hover:bg-gray-100"
-                : "text-white/70 hover:bg-white/10 hover:text-white"
+                : "text-gray-600 hover:bg-gray-100"
             }`}
           >
             {f}
@@ -298,7 +284,7 @@ export default function InformeHome({
 
       <div className="space-y-3">
         {filteredReports.length === 0 && (
-          <div className={`border rounded-xl p-6 ${isLight ? "bg-gray-50 text-gray-500" : "bg-white/5 text-white/60 border-white/10"}`}>
+          <div className="bg-gray-50 border rounded-xl p-6 text-gray-500">
             Sin registros
           </div>
         )}
@@ -311,22 +297,22 @@ export default function InformeHome({
             <div className="space-y-1">
               <p className="font-semibold">{r.data?.cliente || "Sin cliente"}</p>
 
-              <div className={isLight ? "flex flex-wrap gap-3 text-xs text-gray-600" : "flex flex-wrap gap-3 text-xs text-white/70"}>
+              <div className="flex flex-wrap gap-3 text-xs text-gray-600">
                 <span>Pedido: <strong>{r.data?.pedidoDemanda || "-"}</strong></span>
                 <span>Informe: <strong>{r.data?.codInf || "-"}</strong></span>
                 <span>Tipo: <strong>{informeTipos[getInformeTipo(r)]?.label || getInformeTipo(r)}</strong></span>
               </div>
 
-              <p className={isLight ? "text-xs text-gray-500 italic" : "text-xs text-white/60 italic"}>
+              <p className="text-xs text-gray-500 italic">
                 {r.data?.referenciaContrato || r.data?.descripcion || "Sin descripción"}
               </p>
 
               <div className="flex flex-wrap justify-between items-center text-xs pt-1 gap-3">
-                <span className={isLight ? "text-gray-500" : "text-white/60"}>
+                <span className="text-gray-500">
                   {new Date(r.updated_at || r.created_at).toLocaleString()}
                 </span>
                 {superAdminActivo && (
-                  <span className={isLight ? "text-[11px] text-gray-500" : "text-[11px] text-white/50"}>
+                  <span className="text-[11px] text-gray-500">
                     Usuario: {r.data?.tecnicoNombre || "Sin técnico"}
                   </span>
                 )}
@@ -339,7 +325,7 @@ export default function InformeHome({
             <div className="flex gap-3 text-sm shrink-0 flex-wrap">
               <button
                 onClick={() => navigate(`${basePath}/ver/${r.id}`)}
-                className={`font-semibold hover:underline ${isLight ? "text-slate-600" : "text-white/70"}`}
+                className="text-slate-600 hover:underline font-semibold"
               >
                 Ver
               </button>
