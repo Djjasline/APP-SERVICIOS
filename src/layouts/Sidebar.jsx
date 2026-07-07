@@ -18,6 +18,7 @@ import {
   Tags,
   MessageCircle,
   ShieldCheck,
+  SlidersHorizontal,
 } from "lucide-react";
 
 export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
@@ -63,7 +64,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       path.startsWith("/informe") ||
       path.startsWith("/inspeccion") ||
       path.startsWith("/mantenimiento") ||
-      path.startsWith("/protocolos");
+      path.startsWith("/protocolos") ||
+      path.startsWith("/configurador");
 
     const isAguaPath =
       path.startsWith("/area/agua") || path.startsWith("/agua");
@@ -233,7 +235,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             onClick={() => {
               openOnly(openVehiculos ? null : "vehiculos");
             }}
-            className={itemClass(isActive(["/vehiculos", "/area/vehiculos", "/informe", "/inspeccion", "/mantenimiento", "/protocolos"]))}
+            className={itemClass(isActive(["/vehiculos", "/area/vehiculos", "/informe", "/inspeccion", "/mantenimiento", "/protocolos", "/configurador"]))}
             aria-expanded={openVehiculos}
             aria-controls="panel-vehiculos"
           >
@@ -288,6 +290,17 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 className={subItemClass("/vehiculos/protocolos")}
               >
                 Protocolos
+              </button>
+
+              <button
+                type="button"
+                onClick={() => go("/vehiculos/configurador")}
+                className={subItemClass("/vehiculos/configurador")}
+              >
+                <span className="inline-flex items-center gap-2">
+                  <SlidersHorizontal size={14} />
+                  Configurador 🚧
+                </span>
               </button>
             </div>
           )}

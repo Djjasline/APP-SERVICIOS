@@ -62,6 +62,7 @@ import MantenimientoVCamPDF from "./app/vehiculos/mantenimiento/MantenimientoVCa
 import ProtocolosHome from "./app/vehiculos/protocolos/ProtocolosHome";
 import ProtocoloVactorForm from "./app/vehiculos/protocolos/ProtocoloVactorForm";
 import ProtocoloVactorPDF from "./app/vehiculos/protocolos/ProtocoloVactorPDF";
+import ConfiguradorHome from "./app/vehiculos/configurador/ConfiguradorHome";
 
 // ================= REPOSITORIOS =================
 import ManualesTecnicos from "./app/repositorios/ManualesTecnicos";
@@ -272,6 +273,7 @@ export default function RoutesApp() {
             <Route path="/vehiculos/protocolos/vactor/new" element={<VehiculosRoute><ProtocoloVactorForm /></VehiculosRoute>} />
             <Route path="/vehiculos/protocolos/vactor/ver/:id" element={<VehiculosRoute><RecordPermissionRoute action="view" fallback="/vehiculos/protocolos"><ProtocoloVactorPDF allowDownload={false} backPath="/vehiculos/protocolos" /></RecordPermissionRoute></VehiculosRoute>} />
             <Route path="/vehiculos/protocolos/vactor/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/protocolos"><ProtocoloVactorForm /></RecordPermissionRoute></VehiculosRoute>} />
+            <Route path="/vehiculos/configurador" element={<VehiculosRoute><ConfiguradorHome /></VehiculosRoute>} />
 
             <Route path="/liberacion" element={<Navigate to="/operaciones/liberacion" replace />} />
             <Route path="/liberacion/nuevo" element={<Navigate to="/operaciones/liberacion/nuevo" replace />} />
