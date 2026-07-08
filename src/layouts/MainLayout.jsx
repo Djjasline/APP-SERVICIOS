@@ -123,11 +123,15 @@ export default function MainLayout() {
     };
 
     load();
-    const t = setInterval(load, 20000); // cada 20s
+    const t = setInterval(load, 5000); // respaldo si Realtime no está activo
+
+    const handleFocus = () => load();
+    window.addEventListener("focus", handleFocus);
 
     return () => {
       mounted = false;
       clearInterval(t);
+      window.removeEventListener("focus", handleFocus);
     };
   }, [email]);
 

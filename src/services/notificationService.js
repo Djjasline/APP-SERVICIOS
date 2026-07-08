@@ -45,6 +45,64 @@ export async function createNotification({
   }
 }
 
+export async function createUserNotifications({
+  user_ids = [],
+  recipient_emails = [],
+  title,
+  message,
+  record_type = "",
+  record_id = null,
+}) {
+  const userIds = Array.from(new Set((user_ids || []).filter(Boolean).map(String)));
+  const recipientEmails = Array.from(
+    new Set((recipient_emails || []).map(normalizeEmail).filter(Boolean))
+  );
+
+  if (userIds.length === 0 && recipientEmails.length === 0) return null;
+
+  const payload = {
+    title,
+    message,
+    record_type,
+    record_id,
+  };
+
+  try {
+    const { data, error } = await supabase.functions.invoke("send-push-notification", {
+      body: {
+        user_ids: userIds,
+        recipient_emails: recipientEmails,
+        titulo: title || "App Servicios",
+        mensaje: message || "Nueva notificación",
+        record_type,
+        record_id,
+        url: getNotificationUrl(payload),
+        save_notification: true,
+      },
+    });
+
+    if (!error) return data;
+
+    console.error("Error creating user notifications:", error);
+  } catch (err) {
+    console.error("Unexpected error creating user notifications:", err);
+  }
+
+  if (recipientEmails.length === 0) return null;
+
+  return Promise.all(
+    recipientEmails.map((recipientEmail) =>
+      createNotification({
+        recipient_email: recipientEmail,
+        title,
+        message,
+        record_type,
+        record_id,
+      })
+    )
+  );
+}
+
 async function sendPushNotification(payload) {
   try {
     const { error } = await supabase.functions.invoke("send-push-notification", {

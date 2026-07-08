@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { createNotification } from "@/services/notificationService";
+import { createUserNotifications } from "@/services/notificationService";
 
 export async function getChatUsers(currentUserId) {
   let query = supabase
@@ -130,20 +130,14 @@ export async function sendMessage(conversationId, senderId, body) {
         .select("email")
         .in("id", userIds);
 
-      await Promise.all(
-        (recipientProfiles || [])
-          .map((profile) => profile.email)
-          .filter(Boolean)
-          .map((recipientEmail) =>
-            createNotification({
-              recipient_email: recipientEmail,
-              title: `Nuevo mensaje de ${senderName}`,
-              message: text.length > 120 ? `${text.slice(0, 120)}...` : text,
-              record_type: "chat",
-              record_id: conversationId,
-            })
-          )
-      );
+      await createUserNotifications({
+        user_ids: userIds,
+        recipient_emails: (recipientProfiles || []).map((profile) => profile.email),
+        title: `Nuevo mensaje de ${senderName}`,
+        message: text.length > 120 ? `${text.slice(0, 120)}...` : text,
+        record_type: "chat",
+        record_id: conversationId,
+      });
     }
   } catch (notificationError) {
     console.error("[Chat] Error creando notificación:", notificationError);
