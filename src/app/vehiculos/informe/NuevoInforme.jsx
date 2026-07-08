@@ -984,7 +984,7 @@ const estadoFinal =
                 <td className="align-top">
                   <textarea
                     className="pdf-textarea w-full resize-none overflow-hidden"
-                    placeholder="Actividad realizada: ej. inspección del sistema hidráulico"
+                    placeholder="Trabajo realizado: qué se hizo, sobre qué componente y con qué objetivo"
                     value={a.titulo}
                     rows={2}
                     style={{ minHeight: "48px" }}
@@ -996,7 +996,7 @@ const estadoFinal =
 
                   <textarea
                     className="pdf-textarea w-full resize-none overflow-hidden mt-2"
-                    placeholder="Hallazgo verificable: qué se encontró, cómo se verificó, datos/condición observada y estado final del equipo"
+                    placeholder="Hallazgo técnico: qué se encontró, cómo se verificó, medición/condición observada, evidencia y efecto operativo"
                     value={a.detalle}
                     rows={6}
                     style={{ minHeight: "150px" }}
@@ -1163,7 +1163,7 @@ const estadoFinal =
                 <td>
                   <textarea
                     className="pdf-textarea w-full resize-none overflow-hidden"
-                    placeholder="Qué significa técnicamente lo encontrado y cuál es el estado final del equipo"
+                    placeholder="Conclusión: qué significa lo encontrado, causa probable, si quedó operativo, riesgo y si requiere intervención"
                     value={data.conclusiones[i]}
                     rows={3}
                     style={{ minHeight: "70px" }}
@@ -1178,7 +1178,7 @@ const estadoFinal =
                 <td>
                   <textarea
                     className="pdf-textarea w-full resize-none overflow-hidden"
-                    placeholder="Acción sugerida, prioridad o próxima intervención recomendada"
+                    placeholder="Recomendación: acción concreta, prioridad, plazo y repuesto/servicio a cotizar si aplica"
                     value={data.recomendaciones[i]}
                     rows={3}
                     style={{ minHeight: "70px" }}

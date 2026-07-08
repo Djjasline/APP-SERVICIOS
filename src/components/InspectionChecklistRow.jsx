@@ -29,7 +29,7 @@ export default function InspectionChecklistRow({
         <textarea
           value={current.observacion || ""}
           onChange={(event) => onItemChange(codigo, "observacion", event.target.value)}
-          placeholder="Observaciones..."
+          placeholder="Hallazgo observable, condición encontrada, medición o evidencia. Evite frases vagas."
           className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
         />
         <ObservationImageField

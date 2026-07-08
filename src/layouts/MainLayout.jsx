@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import { getUnreadCount } from "../services/notificationService";
 import { supabase } from "@/lib/supabase";
 import TechnicalWritingAssistant from "@/components/TechnicalWritingAssistant";
+import AutoCapitalizeInputs from "@/components/AutoCapitalizeInputs";
 import { clearAppBadge, setAppBadgeCount } from "@/utils/appBadge";
 
 const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
@@ -225,6 +226,7 @@ export default function MainLayout() {
       )}
 
       <TechnicalWritingAssistant />
+      <AutoCapitalizeInputs />
 
       {/* ================= SIDEBAR ================= */}
       <div

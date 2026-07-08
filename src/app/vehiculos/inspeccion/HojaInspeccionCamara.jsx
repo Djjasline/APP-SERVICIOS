@@ -1005,7 +1005,7 @@ const result = await saveOrUpdateReport({
                       rows={3}
                       style={{ minHeight: 70 }}
                       value={data.conclusiones[i]}
-                      placeholder="Qué significa técnicamente lo encontrado y cuál es el estado final del equipo"
+                      placeholder="Conclusión: qué significa lo encontrado, causa probable, si quedó operativo, riesgo y si requiere intervención"
                       onChange={(e) => update(["conclusiones", i], e.target.value)}
                     />
                   </td>
@@ -1016,7 +1016,7 @@ const result = await saveOrUpdateReport({
                       rows={3}
                       style={{ minHeight: 70 }}
                       value={data.recomendaciones[i] || ""}
-                      placeholder="Acción sugerida, prioridad o próxima intervención recomendada"
+                      placeholder="Recomendación: acción concreta, prioridad, plazo y repuesto/servicio a cotizar si aplica"
                       onChange={(e) => update(["recomendaciones", i], e.target.value)}
                     />
                   </td>

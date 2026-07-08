@@ -1151,11 +1151,11 @@ setTimeout(() => {
                 <tr key={i}>
                   <td style={{ textAlign:"center" }}>{i+1}</td>
                   <td><textarea className="pdf-textarea w-full resize-none" rows={3} style={{ minHeight:70 }}
-                    placeholder="Qué significa técnicamente lo encontrado y cuál es el estado final del equipo"
+                    placeholder="Conclusión: qué significa lo encontrado, causa probable, si quedó operativo, riesgo y si requiere intervención"
                     value={data.conclusiones[i]} onChange={(e) => update(["conclusiones", i], e.target.value)} /></td>
                   <td style={{ textAlign:"center" }}>{i+1}</td>
                   <td><textarea className="pdf-textarea w-full resize-none" rows={3} style={{ minHeight:70 }}
-                    placeholder="Acción sugerida, prioridad o próxima intervención recomendada"
+                    placeholder="Recomendación: acción concreta, prioridad, plazo y repuesto/servicio a cotizar si aplica"
                     value={data.recomendaciones[i]||""} onChange={(e) => update(["recomendaciones", i], e.target.value)} /></td>
                   {data.conclusiones.length > 1 && (
                     <td className="text-center">

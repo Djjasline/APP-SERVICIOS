@@ -1462,7 +1462,7 @@ const save = async () => {
                   <td className="border p-2 align-top">
                     <input
                       className="w-full border rounded p-1 text-xs mb-1"
-                      placeholder="Actividad realizada: ej. inspeccion del equipo"
+                      placeholder="Trabajo realizado: qué se hizo, sobre qué componente y con qué objetivo"
                       value={act.titulo}
                       onChange={(e) => {
                         const acts = [...data.actividades];
@@ -1473,7 +1473,7 @@ const save = async () => {
                     <textarea
                       className="w-full border rounded p-1 text-xs resize-none"
                       rows={5}
-                      placeholder="Hallazgo verificable: que se encontro, como se verifico, datos/condicion observada y estado final"
+                      placeholder="Hallazgo técnico: qué se encontró, cómo se verificó, medición/condición observada, evidencia y efecto operativo"
                       value={act.detalle}
                       onChange={(e) => {
                         const acts = [...data.actividades];
@@ -1544,7 +1544,7 @@ const save = async () => {
                   <td className="border p-1">
                     <textarea className="w-full border-0 outline-none text-xs p-1 resize-none" rows={3}
                       value={data.conclusiones[i]}
-                      placeholder="Qué significa técnicamente lo encontrado y cuál es el estado final del equipo"
+                      placeholder="Conclusión: qué significa lo encontrado, causa probable, si quedó operativo, riesgo y si requiere intervención"
                       onChange={(e) => {
                         const c = [...data.conclusiones]; c[i] = e.target.value; set("conclusiones", c);
                       }}
@@ -1554,7 +1554,7 @@ const save = async () => {
                   <td className="border p-1">
                     <textarea className="w-full border-0 outline-none text-xs p-1 resize-none" rows={3}
                       value={data.recomendaciones[i]}
-                      placeholder="Acción sugerida, prioridad o próxima intervención recomendada"
+                      placeholder="Recomendación: acción concreta, prioridad, plazo y repuesto/servicio a cotizar si aplica"
                       onChange={(e) => {
                         const r = [...data.recomendaciones]; r[i] = e.target.value; set("recomendaciones", r);
                       }}
