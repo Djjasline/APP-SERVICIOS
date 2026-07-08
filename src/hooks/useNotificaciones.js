@@ -35,16 +35,6 @@ export function useNotificaciones() {
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState(null);
 
-  // Verificar si ya hay suscripción activa al montar
-  useEffect(() => {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
-
-    navigator.serviceWorker.ready.then(async (registro) => {
-      const suscripcionExistente = await registro.pushManager.getSubscription();
-      setSuscrito(!!suscripcionExistente);
-    });
-  }, []);
-
   // Escuchar renovación automática de suscripción desde el SW
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
@@ -80,6 +70,28 @@ export function useNotificaciones() {
     [user]
   );
 
+  // Verificar y re-sincronizar suscripción activa con Supabase.
+  useEffect(() => {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) return undefined;
+
+    let cancelled = false;
+
+    navigator.serviceWorker.ready.then(async (registro) => {
+      const suscripcionExistente = await registro.pushManager.getSubscription();
+      if (cancelled) return;
+
+      setSuscrito(!!suscripcionExistente);
+
+      if (suscripcionExistente && user?.id) {
+        await guardarSuscripcionEnSupabase(suscripcionExistente.toJSON());
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [guardarSuscripcionEnSupabase, user?.id]);
+
   // ── Solicitar permiso y suscribirse ─────────────────────────────────────
   const solicitarPermiso = useCallback(async () => {
     setError(null);
@@ -107,22 +119,23 @@ export function useNotificaciones() {
         return false;
       }
 
-   // 2. Obtener el Service Worker registrado
-const registro = await navigator.serviceWorker.ready;
+      // 2. Obtener el Service Worker registrado
+      const registro = await navigator.serviceWorker.ready;
 
-// 3. Suscribirse al push manager
-const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+      // 3. Reutilizar o crear suscripción en el push manager
+      let suscripcion = await registro.pushManager.getSubscription();
 
-console.log("[Push] VAPID length:", VAPID_PUBLIC_KEY.length);
-console.log("[Push] applicationServerKey length:", applicationServerKey.length);
+      if (!suscripcion) {
+        const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
 
-const suscripcion = await registro.pushManager.subscribe({
-  userVisibleOnly: true,
-  applicationServerKey,
-});
+        suscripcion = await registro.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey,
+        });
+      }
 
-// 4. Guardar en Supabase
-await guardarSuscripcionEnSupabase(suscripcion.toJSON());
+      // 4. Guardar en Supabase
+      await guardarSuscripcionEnSupabase(suscripcion.toJSON());
 
       setSuscrito(true);
       setCargando(false);

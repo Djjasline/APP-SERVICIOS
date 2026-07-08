@@ -111,10 +111,6 @@ serve(async (req) => {
       .forEach((email) => targetEmails.add(email));
   }
 
-  if (targetUserIds.size === 0) {
-    return jsonResponse({ error: "Debes indicar destinatarios" }, 400);
-  }
-
   let notificationsInserted = 0;
 
   if (save_notification && targetEmails.size > 0) {
@@ -138,6 +134,15 @@ serve(async (req) => {
     }
 
     notificationsInserted = notifications?.length || 0;
+  }
+
+  if (targetUserIds.size === 0) {
+    return jsonResponse({
+      enviados: 0,
+      fallidos: 0,
+      notificaciones: notificationsInserted,
+      warning: "No se encontraron usuarios/suscripciones push para los destinatarios.",
+    });
   }
 
   const { data: targetProfiles, error: targetProfilesError } = await supabaseAdmin

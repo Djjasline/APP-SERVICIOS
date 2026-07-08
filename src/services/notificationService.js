@@ -35,7 +35,19 @@ export async function createNotification({
       record_id,
     };
 
-    const { data, error } = await supabase.functions.invoke("send-push-notification", {
+    const notification = await createNotificationFallback(payload);
+    await sendPushNotification(payload);
+
+    return notification;
+  } catch (err) {
+    console.error("Unexpected error creating notification:", err);
+    return null;
+  }
+}
+
+async function sendPushNotification(payload) {
+  try {
+    const { error } = await supabase.functions.invoke("send-push-notification", {
       body: {
         recipient_emails: [payload.recipient_email],
         titulo: payload.title || "App Servicios",
@@ -43,25 +55,15 @@ export async function createNotification({
         record_type: payload.record_type,
         record_id: payload.record_id,
         url: getNotificationUrl(payload),
-        save_notification: true,
+        save_notification: false,
       },
     });
 
     if (error) {
-      console.error("Error creating notification:", error);
-      return createNotificationFallback(payload);
+      console.error("Error sending push notification:", error);
     }
-
-    return data;
   } catch (err) {
-    console.error("Unexpected error creating notification:", err);
-    return createNotificationFallback({
-      recipient_email,
-      title,
-      message,
-      record_type,
-      record_id,
-    });
+    console.error("Unexpected error sending push notification:", err);
   }
 }
 

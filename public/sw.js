@@ -1,4 +1,4 @@
-const CACHE_NAME = "app-servicios-v8";
+const CACHE_NAME = "app-servicios-v9";
 
 const STATIC_ASSETS = [
   "/manifest.json",
@@ -18,6 +18,24 @@ self.addEventListener("message", (event) => {
     VAPID_PUBLIC_KEY = event.data.key || null;
   }
 });
+
+function setBadgeCount(count) {
+  const value = Number(count) || 0;
+
+  if ("setAppBadge" in self.registration) {
+    return value > 0
+      ? self.registration.setAppBadge(value)
+      : self.registration.clearAppBadge?.() || Promise.resolve();
+  }
+
+  if (typeof navigator !== "undefined" && "setAppBadge" in navigator) {
+    return value > 0
+      ? navigator.setAppBadge(value)
+      : navigator.clearAppBadge?.() || Promise.resolve();
+  }
+
+  return Promise.resolve();
+}
 
 
 // ─── INSTALL ────────────────────────────────────────────────────────────────
@@ -113,9 +131,7 @@ self.addEventListener("push", (event) => {
 
   const badgeCount = Number(data.data?.badgeCount ?? data.badgeCount ?? 1) || 1;
 
-  const badgePromise = "setAppBadge" in navigator
-    ? navigator.setAppBadge(badgeCount).catch(() => undefined)
-    : Promise.resolve();
+  const badgePromise = setBadgeCount(badgeCount).catch(() => undefined);
 
   event.waitUntil(
     Promise.all([
