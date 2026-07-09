@@ -61,11 +61,23 @@ export async function createUserNotifications({
   if (userIds.length === 0 && recipientEmails.length === 0) return null;
 
   const payload = {
+    recipient_email: recipientEmails[0],
     title,
     message,
     record_type,
     record_id,
   };
+
+  const savedNotifications = recipientEmails.length > 0
+    ? await Promise.all(
+        recipientEmails.map((recipientEmail) =>
+          createNotificationFallback({
+            ...payload,
+            recipient_email: recipientEmail,
+          })
+        )
+      )
+    : [];
 
   try {
     const { data, error } = await supabase.functions.invoke("send-push-notification", {
@@ -77,30 +89,23 @@ export async function createUserNotifications({
         record_type,
         record_id,
         url: getNotificationUrl(payload),
-        save_notification: true,
+        save_notification: recipientEmails.length === 0,
       },
     });
 
-    if (!error) return data;
+    if (!error) {
+      return {
+        ...(data || {}),
+        notificaciones_locales: savedNotifications.filter(Boolean).length,
+      };
+    }
 
     console.error("Error creating user notifications:", error);
   } catch (err) {
     console.error("Unexpected error creating user notifications:", err);
   }
 
-  if (recipientEmails.length === 0) return null;
-
-  return Promise.all(
-    recipientEmails.map((recipientEmail) =>
-      createNotification({
-        recipient_email: recipientEmail,
-        title,
-        message,
-        record_type,
-        record_id,
-      })
-    )
-  );
+  return savedNotifications;
 }
 
 async function sendPushNotification(payload) {

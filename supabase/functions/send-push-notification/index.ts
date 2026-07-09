@@ -2,12 +2,6 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import webpush from "npm:web-push";
 
-const VAPID_PUBLIC_KEY = Deno.env.get("VAPID_PUBLIC_KEY")!;
-const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY")!;
-const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT")!;
-
-webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -15,6 +9,26 @@ const corsHeaders = {
 };
 
 const normalizeEmail = (email: unknown) => String(email || "").trim().toLowerCase();
+
+function configureWebPush() {
+  const publicKey = Deno.env.get("VAPID_PUBLIC_KEY") || "";
+  const privateKey = Deno.env.get("VAPID_PRIVATE_KEY") || "";
+  const subject = Deno.env.get("VAPID_SUBJECT") || "mailto:smaviles@astap.com";
+
+  if (!publicKey || !privateKey) {
+    return { ok: false, error: "VAPID keys no configuradas" };
+  }
+
+  try {
+    webpush.setVapidDetails(subject, publicKey, privateKey);
+    return { ok: true, error: null };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "VAPID inválido",
+    };
+  }
+}
 
 function jsonResponse(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -142,6 +156,16 @@ serve(async (req) => {
       fallidos: 0,
       notificaciones: notificationsInserted,
       warning: "No se encontraron usuarios/suscripciones push para los destinatarios.",
+    });
+  }
+
+  const vapid = configureWebPush();
+  if (!vapid.ok) {
+    return jsonResponse({
+      enviados: 0,
+      fallidos: 0,
+      notificaciones: notificationsInserted,
+      warning: `Push omitido: ${vapid.error}`,
     });
   }
 
