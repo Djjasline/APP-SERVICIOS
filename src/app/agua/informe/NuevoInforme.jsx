@@ -81,6 +81,7 @@ export default function NuevoInformeBombaValvula({
   const { id } = useParams();
   const navigate = useNavigate();
   const routeTipo = validInformeTipos.includes(tipo) ? tipo : null;
+  const isIndustria = area === "industria";
    const { user, isSuperAdmin } = useAuth();
 const superAdminActivo =
   typeof isSuperAdmin === "function"
@@ -233,7 +234,13 @@ useEffect(() => {
       ...d,
       tipoInforme: d.tipoInforme || routeTipo || emptyReport.tipoInforme,
       bomba: { ...emptyReport.bomba, ...(d.bomba || {}) },
+      bombas: Array.isArray(d.bombas) && d.bombas.length > 0
+        ? d.bombas.map((bomba) => ({ ...emptyReport.bomba, ...(bomba || {}) }))
+        : [{ ...emptyReport.bomba, ...(d.bomba || {}) }],
       valvula: { ...emptyReport.valvula, ...(d.valvula || {}) },
+      valvulas: Array.isArray(d.valvulas) && d.valvulas.length > 0
+        ? d.valvulas.map((valvula) => ({ ...emptyReport.valvula, ...(valvula || {}) }))
+        : [{ ...emptyReport.valvula, ...(d.valvula || {}) }],
        estadoEquipo: {
   imagenes: Array.isArray(d.estadoEquipo?.imagenes)
     ? d.estadoEquipo.imagenes
@@ -305,6 +312,94 @@ useEffect(() => {
 
   const setValvula = (field, value) =>
     setData((p) => ({ ...p, valvula: { ...p.valvula, [field]: value } }));
+
+  const getBombaItems = (report = data) => {
+    const items = Array.isArray(report.bombas) && report.bombas.length > 0
+      ? report.bombas
+      : [report.bomba || {}];
+
+    return items.map((bomba) => ({ ...emptyReport.bomba, ...(bomba || {}) }));
+  };
+
+  const getValvulaItems = (report = data) => {
+    const items = Array.isArray(report.valvulas) && report.valvulas.length > 0
+      ? report.valvulas
+      : [report.valvula || {}];
+
+    return items.map((valvula) => ({ ...emptyReport.valvula, ...(valvula || {}) }));
+  };
+
+  const setBombaItem = (index, field, value) => {
+    setData((p) => {
+      const bombas = getBombaItems(p);
+      bombas[index] = { ...bombas[index], [field]: value };
+
+      return {
+        ...p,
+        bombas,
+        bomba: index === 0 ? bombas[0] : p.bomba,
+      };
+    });
+  };
+
+  const setValvulaItem = (index, field, value) => {
+    setData((p) => {
+      const valvulas = getValvulaItems(p);
+      valvulas[index] = { ...valvulas[index], [field]: value };
+
+      return {
+        ...p,
+        valvulas,
+        valvula: index === 0 ? valvulas[0] : p.valvula,
+      };
+    });
+  };
+
+  const addBombaItem = () => {
+    setData((p) => {
+      const bombas = getBombaItems(p);
+      return {
+        ...p,
+        bombas: [...bombas, { ...emptyReport.bomba }],
+      };
+    });
+  };
+
+  const addValvulaItem = () => {
+    setData((p) => {
+      const valvulas = getValvulaItems(p);
+      return {
+        ...p,
+        valvulas: [...valvulas, { ...emptyReport.valvula }],
+      };
+    });
+  };
+
+  const removeBombaItem = (index) => {
+    setData((p) => {
+      const bombas = getBombaItems(p).filter((_, itemIndex) => itemIndex !== index);
+      const nextBombas = bombas.length > 0 ? bombas : [{ ...emptyReport.bomba }];
+
+      return {
+        ...p,
+        bombas: nextBombas,
+        bomba: nextBombas[0],
+      };
+    });
+  };
+
+  const removeValvulaItem = (index) => {
+    setData((p) => {
+      const valvulas = getValvulaItems(p).filter((_, itemIndex) => itemIndex !== index);
+      const nextValvulas = valvulas.length > 0 ? valvulas : [{ ...emptyReport.valvula }];
+
+      return {
+        ...p,
+        valvulas: nextValvulas,
+        valvula: nextValvulas[0],
+      };
+    });
+  };
 
   /* ─── SUBIDA DE IMÁGENES ─── */
   const compress = async (file) =>
@@ -618,6 +713,317 @@ const save = async () => {
     ? "Informe para levantamiento de estado actual, instalación o inspección de bombas"
     : "Informe para levantamiento de estado actual, instalación o inspección de válvulas";
 
+  const bombaItems = isIndustria ? getBombaItems() : [data.bomba];
+  const valvulaItems = isIndustria ? getValvulaItems() : [data.valvula];
+
+  const renderEquipoTitle = ({ icon, label, value, placeholder, onChange, onRemove, showRemove }) => (
+    <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+      <div className="font-bold text-blue-800">{icon} {label}</div>
+      <div className="flex flex-col gap-2 md:flex-row md:items-center">
+        {isIndustria && (
+          <input
+            className="w-full rounded border border-blue-200 bg-white px-2 py-1 text-xs font-normal text-slate-700 outline-none md:w-56"
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+          />
+        )}
+        {showRemove && (
+          <button
+            type="button"
+            onClick={onRemove}
+            className="rounded bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-200"
+          >
+            Eliminar
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderBombaTable = (bombaItem, bombaIndex) => {
+    const updateBomba = (field, value) => {
+      if (isIndustria) {
+        setBombaItem(bombaIndex, field, value);
+        return;
+      }
+
+      setBomba(field, value);
+    };
+
+    return (
+      <table className="w-full text-sm border-collapse">
+        <tbody>
+          <tr className="border-b bg-blue-50">
+            <td colSpan={4} className="p-2">
+              {renderEquipoTitle({
+                icon: "🔧",
+                label: "BOMBA",
+                value: bombaItem.identificacion,
+                placeholder: `Ej: Bomba ${bombaIndex + 1}`,
+                onChange: (value) => updateBomba("identificacion", value),
+                onRemove: () => removeBombaItem(bombaIndex),
+                showRemove: isIndustria && bombaItems.length > 1,
+              })}
+            </td>
+          </tr>
+
+          {[
+            ["FLUIDO", "fluido", "MARCA", "marca"],
+            ["MODELO / TIPO", "modeloTipo", "N° SERIE", "serie"],
+            ["LUGAR DE PROCEDENCIA", "lugarProcedencia", "Q (Caudal)", "caudal"],
+            ["TDH (cabeza)", "tdh", "VELOCIDAD DE GIRO", "velocidadGiro"],
+            ["ORIENTACIÓN", "orientacion", null, null],
+          ].map(([l1, f1, l2, f2], i) => (
+            <tr key={i} className="border-b">
+              <td className="border p-2 font-semibold bg-gray-50 w-44">{l1}</td>
+              <td className="border p-1">
+                <Input value={bombaItem[f1]} onChange={(e) => updateBomba(f1, e.target.value)} field={f1} />
+              </td>
+              {l2 ? (
+                <>
+                  <td className="border p-2 font-semibold bg-gray-50 w-44">{l2}</td>
+                  <td className="border p-1">
+                    <Input value={bombaItem[f2]} onChange={(e) => updateBomba(f2, e.target.value)} field={f2} />
+                  </td>
+                </>
+              ) : (
+                <td colSpan={2} className="border bg-white" />
+              )}
+            </tr>
+          ))}
+
+          <tr className="border-b">
+            <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA BOMBA</td>
+            <td colSpan={3} className="border p-2">
+              <ImageUploadField
+                url={bombaItem.fotoPlacaBomba}
+                onUpload={(e) => handleSingleImage(e, (url) => updateBomba("fotoPlacaBomba", url), `placa-bomba-${bombaIndex + 1}`)}
+                onRemove={() => updateBomba("fotoPlacaBomba", "")}
+                label="Foto placa bomba"
+              />
+            </td>
+          </tr>
+
+          <tr className="border-b bg-blue-50">
+            <td colSpan={4} className="p-2 font-bold text-blue-800">⚡ MOTOR</td>
+          </tr>
+
+          {[
+            ["MARCA", "marcaMotor", "MODELO / TIPO", "modeloTipoMotor"],
+            ["VOLTAJE / FASE / FREC.", "voltajeFaseFrecuencia", "S.F (FACTOR DE SERVICIO)", "factorServicio"],
+            ["GRADO DE PROTECCIÓN", "gradoProteccion", "TIPO DE CONSTRUCCIÓN", "tipoConstruccionMotor"],
+          ].map(([l1, f1, l2, f2], i) => (
+            <tr key={i} className="border-b">
+              <td className="border p-2 font-semibold bg-gray-50">{l1}</td>
+              <td className="border p-1">
+                <Input value={bombaItem[f1]} onChange={(e) => updateBomba(f1, e.target.value)} field={f1} />
+              </td>
+              <td className="border p-2 font-semibold bg-gray-50">{l2}</td>
+              <td className="border p-1">
+                <Input value={bombaItem[f2]} onChange={(e) => updateBomba(f2, e.target.value)} field={f2} />
+              </td>
+            </tr>
+          ))}
+
+          <tr className="border-b">
+            <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA DEL MOTOR</td>
+            <td colSpan={3} className="border p-2">
+              <ImageUploadField
+                url={bombaItem.fotoPlacaMotor}
+                onUpload={(e) => handleSingleImage(e, (url) => updateBomba("fotoPlacaMotor", url), `placa-motor-${bombaIndex + 1}`)}
+                onRemove={() => updateBomba("fotoPlacaMotor", "")}
+                label="Foto placa motor"
+              />
+            </td>
+          </tr>
+
+          <tr className="border-b bg-blue-50">
+            <td colSpan={4} className="p-2 font-bold text-blue-800">🏗️ ACCESORIO / OBRA CIVIL</td>
+          </tr>
+
+          {[
+            ["ACCESORIO", "accesorio", "DIMENSIONES ACCESORIO (L/A/H)", "dimensionesAccesorio"],
+            ["OBRA CIVIL", "obraCivil", "DIMENSIONES OBRA CIVIL (L/A/H)", "dimensionesObraCivil"],
+          ].map(([l1, f1, l2, f2], i) => (
+            <tr key={i} className="border-b">
+              <td className="border p-2 font-semibold bg-gray-50">{l1}</td>
+              <td className="border p-1">
+                <Input value={bombaItem[f1]} onChange={(e) => updateBomba(f1, e.target.value)} field={f1} />
+              </td>
+              <td className="border p-2 font-semibold bg-gray-50">{l2}</td>
+              <td className="border p-1">
+                <Input value={bombaItem[f2]} onChange={(e) => updateBomba(f2, e.target.value)} field={f2} />
+              </td>
+            </tr>
+          ))}
+
+          <tr className="border-b">
+            <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA BASE METÁLICA</td>
+            <td className="border p-2">
+              <ImageUploadField
+                url={bombaItem.fotoPlacaBaseMetalica}
+                onUpload={(e) => handleSingleImage(e, (url) => updateBomba("fotoPlacaBaseMetalica", url), `base-metalica-${bombaIndex + 1}`)}
+                onRemove={() => updateBomba("fotoPlacaBaseMetalica", "")}
+                label="Foto base metálica"
+              />
+            </td>
+            <td className="border p-2 font-semibold bg-gray-50">FOTO BASE DE CONCRETO</td>
+            <td className="border p-2">
+              <ImageUploadField
+                url={bombaItem.fotoBaseConcrete}
+                onUpload={(e) => handleSingleImage(e, (url) => updateBomba("fotoBaseConcrete", url), `base-concreto-${bombaIndex + 1}`)}
+                onRemove={() => updateBomba("fotoBaseConcrete", "")}
+                label="Foto base concreto"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    );
+  };
+
+  const renderValvulaTable = (valvulaItem, valvulaIndex) => {
+    const updateValvula = (field, value) => {
+      if (isIndustria) {
+        setValvulaItem(valvulaIndex, field, value);
+        return;
+      }
+
+      setValvula(field, value);
+    };
+
+    const updateRegistroDimensional = (value) => updateValvula("registroFotoDimensional", value);
+
+    return (
+      <table className="w-full text-sm border-collapse">
+        <tbody>
+          <tr className="border-b bg-blue-50">
+            <td colSpan={4} className="p-2">
+              {renderEquipoTitle({
+                icon: "🔩",
+                label: "VÁLVULA",
+                value: valvulaItem.identificacion,
+                placeholder: `Ej: Válvula ${valvulaIndex + 1}`,
+                onChange: (value) => updateValvula("identificacion", value),
+                onRemove: () => removeValvulaItem(valvulaIndex),
+                showRemove: isIndustria && valvulaItems.length > 1,
+              })}
+            </td>
+          </tr>
+
+          {[
+            ["FLUIDO", "fluido", "MARCA", "marca"],
+            ["MODELO / TIPO", "modeloTipo", "N° SERIE", "serie"],
+            ["LUGAR DE PROCEDENCIA", "lugarProcedencia", "DIÁMETRO", "diametro"],
+            ["PRESIÓN", "presion", "CONEXIÓN", "conexion"],
+            ["NORMA DE BRIDADO", "normaBridado", "OPERACIÓN", "operacion"],
+            ["OPERACIÓN ACTUADOR", "operacionActuador", "TIPO DE ACTUADOR", "tipoActuador"],
+            ["VOLTAJE / FASE / FREC.", "voltajeFaseFrecuencia", "PROTOCOLO COMUNICACIÓN", "protocoloComunicacion"],
+          ].map(([l1, f1, l2, f2], i) => (
+            <tr key={i} className="border-b">
+              <td className="border p-2 font-semibold bg-gray-50 w-44">{l1}</td>
+              <td className="border p-1"><Input value={valvulaItem[f1]} onChange={(e) => updateValvula(f1, e.target.value)} field={f1} /></td>
+              <td className="border p-2 font-semibold bg-gray-50 w-44">{l2}</td>
+              <td className="border p-1"><Input value={valvulaItem[f2]} onChange={(e) => updateValvula(f2, e.target.value)} field={f2} /></td>
+            </tr>
+          ))}
+
+          <tr className="border-b">
+            <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA VÁLVULA</td>
+            <td colSpan={3} className="border p-2">
+              <ImageUploadField
+                url={valvulaItem.fotoPlacaValvula}
+                onUpload={(e) => handleSingleImage(e, (url) => updateValvula("fotoPlacaValvula", url), `placa-valvula-${valvulaIndex + 1}`)}
+                onRemove={() => updateValvula("fotoPlacaValvula", "")}
+                label="Foto placa válvula"
+              />
+            </td>
+          </tr>
+
+          <tr className="border-b">
+            <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA ACTUADOR 1</td>
+            <td className="border p-2">
+              <ImageUploadField
+                url={valvulaItem.fotoPlacaActuador1}
+                onUpload={(e) => handleSingleImage(e, (url) => updateValvula("fotoPlacaActuador1", url), `actuador-1-${valvulaIndex + 1}`)}
+                onRemove={() => updateValvula("fotoPlacaActuador1", "")}
+                label="Actuador 1"
+              />
+            </td>
+            <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA ACTUADOR 2</td>
+            <td className="border p-2">
+              <ImageUploadField
+                url={valvulaItem.fotoPlacaActuador2}
+                onUpload={(e) => handleSingleImage(e, (url) => updateValvula("fotoPlacaActuador2", url), `actuador-2-${valvulaIndex + 1}`)}
+                onRemove={() => updateValvula("fotoPlacaActuador2", "")}
+                label="Actuador 2"
+              />
+            </td>
+          </tr>
+
+          <tr className="border-b bg-blue-50">
+            <td colSpan={4} className="p-2 font-bold text-blue-800">📐 DIMENSIONES</td>
+          </tr>
+
+          {[
+            ["DIST. ENTRE CARAS (F2F)", "distanciaEntreCaras", "LONGITUD CUERPO VÁLVULA", "longitudCuerpo"],
+            ["ESPESOR CONTRA BRIDAS", "espesorContraBridas", "N° PERFORACIONES EN BRIDA", "numPerforaciones"],
+            ["DIÁMETRO AGUJERO EN BRIDA", "diametroAgujero", "MATERIAL TORNILLERÍA", "materialTornilleria"],
+          ].map(([l1, f1, l2, f2], i) => (
+            <tr key={i} className="border-b">
+              <td className="border p-2 font-semibold bg-gray-50">{l1}</td>
+              <td className="border p-1"><Input value={valvulaItem[f1]} onChange={(e) => updateValvula(f1, e.target.value)} field={f1} /></td>
+              <td className="border p-2 font-semibold bg-gray-50">{l2}</td>
+              <td className="border p-1"><Input value={valvulaItem[f2]} onChange={(e) => updateValvula(f2, e.target.value)} field={f2} /></td>
+            </tr>
+          ))}
+
+          <tr className="border-b">
+            <td className="border p-2 font-semibold bg-gray-50 align-top">REGISTRO FOTOGRÁFICO DIMENSIONAL</td>
+            <td colSpan={3} className="border p-2">
+              <div className="flex gap-2 mb-2 flex-wrap">
+                <label className="bg-gray-600 text-white text-xs px-3 py-1.5 rounded cursor-pointer hover:bg-gray-700">
+                  📁 Galería
+                  <input type="file" accept="image/*" multiple className="hidden"
+                    onChange={(e) => handleMultiImages(e, valvulaItem.registroFotoDimensional || [],
+                      (cb) => {
+                        const updated = typeof cb === "function" ? cb(valvulaItem.registroFotoDimensional || []) : cb;
+                        updateRegistroDimensional(updated);
+                      }, `registro-dimensional-${valvulaIndex + 1}`
+                    )}
+                  />
+                </label>
+                <label className="bg-blue-600 text-white text-xs px-3 py-1.5 rounded cursor-pointer hover:bg-blue-700">
+                  📷 Cámara
+                  <input type="file" accept="image/*" capture="environment" multiple className="hidden"
+                    onChange={(e) => handleMultiImages(e, valvulaItem.registroFotoDimensional || [],
+                      (cb) => {
+                        const updated = typeof cb === "function" ? cb(valvulaItem.registroFotoDimensional || []) : cb;
+                        updateRegistroDimensional(updated);
+                      }, `registro-dimensional-${valvulaIndex + 1}`
+                    )}
+                  />
+                </label>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {(valvulaItem.registroFotoDimensional || []).map((url, i) => (
+                  <div key={i} className="relative">
+                    <img src={url} className="w-full h-32 object-cover rounded border" />
+                    <button type="button"
+                      onClick={() => updateRegistroDimensional((valvulaItem.registroFotoDimensional || []).filter((_, j) => j !== i))}
+                      className="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow"
+                    >✕</button>
+                  </div>
+                ))}
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    );
+  };
+
   /* ─── RENDER ─── */
   return (
     <>
@@ -898,445 +1304,53 @@ const save = async () => {
   </table>
 </section>         
            
-          {/* ════════════════════════════════════
-    DESCRIPCIÓN DEL EQUIPO — BOMBA
-════════════════════════════════════ */}
-{isBomba && (
-  <section className="border rounded overflow-hidden">
-    <div className="bg-gray-100 p-2 font-semibold text-sm text-center uppercase">
-      Descripción del Equipo
-    </div>
+          <section className="border rounded overflow-hidden">
+            <div className="bg-gray-100 p-2 font-semibold text-sm text-center uppercase">
+              Descripción del Equipo
+            </div>
 
-    <table className="w-full text-sm border-collapse">
-      <tbody>
+            {isBomba ? (
+              <div className="space-y-4">
+                {bombaItems.map((bombaItem, bombaIndex) => (
+                  <div key={bombaIndex} className={bombaIndex > 0 ? "border-t" : ""}>
+                    {renderBombaTable(bombaItem, bombaIndex)}
+                  </div>
+                ))}
 
-        {/* ── BOMBA ── */}
-        <tr className="border-b bg-blue-50">
-          <td colSpan={4} className="p-2 font-bold text-blue-800">
-            🔧 BOMBA
-          </td>
-        </tr>
-
-        {[
-          ["FLUIDO", "fluido", "MARCA", "marca"],
-
-          ["MODELO / TIPO", "modeloTipo", "N° SERIE", "serie"],
-
-          ["LUGAR DE PROCEDENCIA", "lugarProcedencia", "Q (Caudal)", "caudal"],
-
-          ["TDH (cabeza)", "tdh", "VELOCIDAD DE GIRO", "velocidadGiro"],
-
-          ["ORIENTACIÓN", "orientacion", null, null],
-
-        ].map(([l1, f1, l2, f2], i) => (
-          <tr key={i} className="border-b">
-
-            {/* CAMPO IZQUIERDO */}
-            <td className="border p-2 font-semibold bg-gray-50 w-44">
-              {l1}
-            </td>
-
-            <td className="border p-1">
-              <Input
-                value={data.bomba[f1]}
-                onChange={(e) =>
-                  setBomba(f1, e.target.value)
-                }
-                field={f1}
-              />
-            </td>
-
-            {/* CAMPO DERECHO */}
-            {l2 ? (
-              <>
-                <td className="border p-2 font-semibold bg-gray-50 w-44">
-                  {l2}
-                </td>
-
-                <td className="border p-1">
-                  <Input
-                    value={data.bomba[f2]}
-                    onChange={(e) =>
-                      setBomba(f2, e.target.value)
-                    }
-                    field={f2}
-                  />
-                </td>
-              </>
-            ) : (
-              <td colSpan={2} className="border bg-white" />
-            )}
-
-          </tr>
-        ))}
-
-        {/* FOTO PLACA BOMBA */}
-        <tr className="border-b">
-          <td className="border p-2 font-semibold bg-gray-50">
-            FOTO PLACA BOMBA
-          </td>
-
-          <td colSpan={3} className="border p-2">
-            <ImageUploadField
-              url={data.bomba.fotoPlacaBomba}
-              onUpload={(e) =>
-                handleSingleImage(
-                  e,
-                  (url) =>
-                    setBomba("fotoPlacaBomba", url),
-                  "placa-bomba"
-                )
-              }
-              onRemove={() =>
-                setBomba("fotoPlacaBomba", "")
-              }
-              label="Foto placa bomba"
-            />
-          </td>
-        </tr>
-
-        {/* ── MOTOR ── */}
-        <tr className="border-b bg-blue-50">
-          <td colSpan={4} className="p-2 font-bold text-blue-800">
-            ⚡ MOTOR
-          </td>
-        </tr>
-
-        {[
-          [
-            "MARCA",
-            "marcaMotor",
-            "MODELO / TIPO",
-            "modeloTipoMotor",
-          ],
-
-          [
-            "VOLTAJE / FASE / FREC.",
-            "voltajeFaseFrecuencia",
-            "S.F (FACTOR DE SERVICIO)",
-            "factorServicio",
-          ],
-
-          [
-            "GRADO DE PROTECCIÓN",
-            "gradoProteccion",
-            "TIPO DE CONSTRUCCIÓN",
-            "tipoConstruccionMotor",
-          ],
-        ].map(([l1, f1, l2, f2], i) => (
-          <tr key={i} className="border-b">
-
-            <td className="border p-2 font-semibold bg-gray-50">
-              {l1}
-            </td>
-
-            <td className="border p-1">
-              <Input
-                value={data.bomba[f1]}
-                onChange={(e) =>
-                  setBomba(f1, e.target.value)
-                }
-                field={f1}
-              />
-            </td>
-
-            <td className="border p-2 font-semibold bg-gray-50">
-              {l2}
-            </td>
-
-            <td className="border p-1">
-              <Input
-                value={data.bomba[f2]}
-                onChange={(e) =>
-                  setBomba(f2, e.target.value)
-                }
-                field={f2}
-              />
-            </td>
-
-          </tr>
-        ))}
-
-        {/* FOTO PLACA MOTOR */}
-        <tr className="border-b">
-          <td className="border p-2 font-semibold bg-gray-50">
-            FOTO PLACA DEL MOTOR
-          </td>
-
-          <td colSpan={3} className="border p-2">
-            <ImageUploadField
-              url={data.bomba.fotoPlacaMotor}
-              onUpload={(e) =>
-                handleSingleImage(
-                  e,
-                  (url) =>
-                    setBomba("fotoPlacaMotor", url),
-                  "placa-motor"
-                )
-              }
-              onRemove={() =>
-                setBomba("fotoPlacaMotor", "")
-              }
-              label="Foto placa motor"
-            />
-          </td>
-        </tr>
-
-        {/* ── ACCESORIO / OBRA CIVIL ── */}
-        <tr className="border-b bg-blue-50">
-          <td colSpan={4} className="p-2 font-bold text-blue-800">
-            🏗️ ACCESORIO / OBRA CIVIL
-          </td>
-        </tr>
-
-        {[
-          [
-            "ACCESORIO",
-            "accesorio",
-            "DIMENSIONES ACCESORIO (L/A/H)",
-            "dimensionesAccesorio",
-          ],
-
-          [
-            "OBRA CIVIL",
-            "obraCivil",
-            "DIMENSIONES OBRA CIVIL (L/A/H)",
-            "dimensionesObraCivil",
-          ],
-        ].map(([l1, f1, l2, f2], i) => (
-          <tr key={i} className="border-b">
-
-            <td className="border p-2 font-semibold bg-gray-50">
-              {l1}
-            </td>
-
-            <td className="border p-1">
-              <Input
-                value={data.bomba[f1]}
-                onChange={(e) =>
-                  setBomba(f1, e.target.value)
-                }
-                field={f1}
-              />
-            </td>
-
-            <td className="border p-2 font-semibold bg-gray-50">
-              {l2}
-            </td>
-
-            <td className="border p-1">
-              <Input
-                value={data.bomba[f2]}
-                onChange={(e) =>
-                  setBomba(f2, e.target.value)
-                }
-                field={f2}
-              />
-            </td>
-
-          </tr>
-        ))}
-
-        {/* FOTOS BASE */}
-        <tr className="border-b">
-
-          <td className="border p-2 font-semibold bg-gray-50">
-            FOTO PLACA BASE METÁLICA
-          </td>
-
-          <td className="border p-2">
-            <ImageUploadField
-              url={data.bomba.fotoPlacaBaseMetalica}
-              onUpload={(e) =>
-                handleSingleImage(
-                  e,
-                  (url) =>
-                    setBomba(
-                      "fotoPlacaBaseMetalica",
-                      url
-                    ),
-                  "base-metalica"
-                )
-              }
-              onRemove={() =>
-                setBomba(
-                  "fotoPlacaBaseMetalica",
-                  ""
-                )
-              }
-              label="Foto base metálica"
-            />
-          </td>
-
-          <td className="border p-2 font-semibold bg-gray-50">
-            FOTO BASE DE CONCRETO
-          </td>
-
-          <td className="border p-2">
-            <ImageUploadField
-              url={data.bomba.fotoBaseConcrete}
-              onUpload={(e) =>
-                handleSingleImage(
-                  e,
-                  (url) =>
-                    setBomba(
-                      "fotoBaseConcrete",
-                      url
-                    ),
-                  "base-concreto"
-                )
-              }
-              onRemove={() =>
-                setBomba("fotoBaseConcrete", "")
-              }
-              label="Foto base concreto"
-            />
-          </td>
-
-        </tr>
-
-      </tbody>
-    </table>
-  </section>
-)}
-
-          {/* ════════════════════════════════════
-              DESCRIPCIÓN DEL EQUIPO — VÁLVULA
-          ════════════════════════════════════ */}
-          {!isBomba && (
-            <section className="border rounded overflow-hidden">
-              <div className="bg-gray-100 p-2 font-semibold text-sm text-center uppercase">
-                Descripción del Equipo
+                {isIndustria && (
+                  <div className="p-3">
+                    <button
+                      type="button"
+                      onClick={addBombaItem}
+                      className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded"
+                    >
+                      + Agregar otra bomba
+                    </button>
+                  </div>
+                )}
               </div>
-              <table className="w-full text-sm border-collapse">
-                <tbody>
-                  <tr className="border-b bg-blue-50">
-                    <td colSpan={4} className="p-2 font-bold text-blue-800">🔩 VÁLVULA</td>
-                  </tr>
-                  {[
-                    ["FLUIDO",                    "fluido",                "MARCA",                  "marca"],
-                    ["MODELO / TIPO",             "modeloTipo",            "N° SERIE",               "serie"],
-                    ["LUGAR DE PROCEDENCIA",      "lugarProcedencia",      "DIÁMETRO",               "diametro"],
-                    ["PRESIÓN",                   "presion",               "CONEXIÓN",               "conexion"],
-                    ["NORMA DE BRIDADO",          "normaBridado",          "OPERACIÓN",              "operacion"],
-                    ["OPERACIÓN ACTUADOR",        "operacionActuador",     "TIPO DE ACTUADOR",       "tipoActuador"],
-                    ["VOLTAJE / FASE / FREC.",    "voltajeFaseFrecuencia", "PROTOCOLO COMUNICACIÓN", "protocoloComunicacion"],
-                  ].map(([l1, f1, l2, f2], i) => (
-                    <tr key={i} className="border-b">
-                      <td className="border p-2 font-semibold bg-gray-50 w-44">{l1}</td>
-                      <td className="border p-1"><Input value={data.valvula[f1]} onChange={(e) => setValvula(f1, e.target.value)} field={f1} /></td>
-                      <td className="border p-2 font-semibold bg-gray-50 w-44">{l2}</td>
-                      <td className="border p-1"><Input value={data.valvula[f2]} onChange={(e) => setValvula(f2, e.target.value)} field={f2} /></td>
-                    </tr>
-                  ))}
+            ) : (
+              <div className="space-y-4">
+                {valvulaItems.map((valvulaItem, valvulaIndex) => (
+                  <div key={valvulaIndex} className={valvulaIndex > 0 ? "border-t" : ""}>
+                    {renderValvulaTable(valvulaItem, valvulaIndex)}
+                  </div>
+                ))}
 
-                  {/* Foto placa válvula */}
-                  <tr className="border-b">
-                    <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA VÁLVULA</td>
-                    <td colSpan={3} className="border p-2">
-                      <ImageUploadField
-                        url={data.valvula.fotoPlacaValvula}
-                        onUpload={(e) => handleSingleImage(e, (url) => setValvula("fotoPlacaValvula", url), "placa-valvula")}
-                        onRemove={() => setValvula("fotoPlacaValvula", "")}
-                        label="Foto placa válvula"
-                      />
-                    </td>
-                  </tr>
-
-                  {/* Fotos actuador (siempre dos) */}
-                  <tr className="border-b">
-                    <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA ACTUADOR 1</td>
-                    <td className="border p-2">
-                      <ImageUploadField
-                        url={data.valvula.fotoPlacaActuador1}
-                        onUpload={(e) => handleSingleImage(e, (url) => setValvula("fotoPlacaActuador1", url), "actuador-1")}
-                        onRemove={() => setValvula("fotoPlacaActuador1", "")}
-                        label="Actuador 1"
-                      />
-                    </td>
-                    <td className="border p-2 font-semibold bg-gray-50">FOTO PLACA ACTUADOR 2</td>
-                    <td className="border p-2">
-                      <ImageUploadField
-                        url={data.valvula.fotoPlacaActuador2}
-                        onUpload={(e) => handleSingleImage(e, (url) => setValvula("fotoPlacaActuador2", url), "actuador-2")}
-                        onRemove={() => setValvula("fotoPlacaActuador2", "")}
-                        label="Actuador 2"
-                      />
-                    </td>
-                  </tr>
-
-                  {/* ── DIMENSIONES ── */}
-                  <tr className="border-b bg-blue-50">
-                    <td colSpan={4} className="p-2 font-bold text-blue-800">📐 DIMENSIONES</td>
-                  </tr>
-                  {[
-                    ["DIST. ENTRE CARAS (F2F)",      "distanciaEntreCaras",  "LONGITUD CUERPO VÁLVULA",   "longitudCuerpo"],
-                    ["ESPESOR CONTRA BRIDAS",         "espesorContraBridas",  "N° PERFORACIONES EN BRIDA", "numPerforaciones"],
-                    ["DIÁMETRO AGUJERO EN BRIDA",     "diametroAgujero",      "MATERIAL TORNILLERÍA",      "materialTornilleria"],
-                  ].map(([l1, f1, l2, f2], i) => (
-                    <tr key={i} className="border-b">
-                      <td className="border p-2 font-semibold bg-gray-50">{l1}</td>
-                      <td className="border p-1"><Input value={data.valvula[f1]} onChange={(e) => setValvula(f1, e.target.value)} field={f1} /></td>
-                      <td className="border p-2 font-semibold bg-gray-50">{l2}</td>
-                      <td className="border p-1"><Input value={data.valvula[f2]} onChange={(e) => setValvula(f2, e.target.value)} field={f2} /></td>
-                    </tr>
-                  ))}
-
-                  {/* Registro fotográfico dimensional */}
-                  <tr className="border-b">
-                    <td className="border p-2 font-semibold bg-gray-50 align-top">REGISTRO FOTOGRÁFICO DIMENSIONAL</td>
-                    <td colSpan={3} className="border p-2">
-                      <div className="flex gap-2 mb-2 flex-wrap">
-                        <label className="bg-gray-600 text-white text-xs px-3 py-1.5 rounded cursor-pointer hover:bg-gray-700">
-                          📁 Galería
-                          <input type="file" accept="image/*" multiple className="hidden"
-                            onChange={(e) => handleMultiImages(e, data.valvula.registroFotoDimensional,
-                              (cb) => setData((p) => {
-                                const updated = typeof cb === "function"
-                                  ? cb(p.valvula.registroFotoDimensional)
-                                  : cb;
-                                return { ...p, valvula: { ...p.valvula, registroFotoDimensional: updated } };
-                              }), "registro-dimensional"
-                            )}
-                          />
-                        </label>
-                        <label className="bg-blue-600 text-white text-xs px-3 py-1.5 rounded cursor-pointer hover:bg-blue-700">
-                          📷 Cámara
-                          <input type="file" accept="image/*" capture="environment" multiple className="hidden"
-                            onChange={(e) => handleMultiImages(e, data.valvula.registroFotoDimensional,
-                              (cb) => setData((p) => {
-                                const updated = typeof cb === "function"
-                                  ? cb(p.valvula.registroFotoDimensional)
-                                  : cb;
-                                return { ...p, valvula: { ...p.valvula, registroFotoDimensional: updated } };
-                              }), "registro-dimensional"
-                            )}
-                          />
-                        </label>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2">
-                        {(data.valvula.registroFotoDimensional || []).map((url, i) => (
-                          <div key={i} className="relative">
-                            <img src={url} className="w-full h-32 object-cover rounded border" />
-                            <button type="button"
-                              onClick={() => setData((p) => ({
-                                ...p,
-                                valvula: {
-                                  ...p.valvula,
-                                  registroFotoDimensional: p.valvula.registroFotoDimensional.filter((_, j) => j !== i)
-                                }
-                              }))}
-                              className="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow"
-                            >✕</button>
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </section>
-          )}
+                {isIndustria && (
+                  <div className="p-3">
+                    <button
+                      type="button"
+                      onClick={addValvulaItem}
+                      className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded"
+                    >
+                      + Agregar otra válvula
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
 
 <BannerAutoguardado
           clave={claveAutoguardado}

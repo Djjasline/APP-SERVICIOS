@@ -90,6 +90,13 @@ export default function InformePDF({
   const informeDescripcion = isBomba
     ? "Informe para levantamiento de estado actual, instalación o inspección de bombas"
     : "Informe para levantamiento de estado actual, instalación o inspección de válvulas";
+  const bombaItems = Array.isArray(data?.bombas) && data.bombas.length > 0
+    ? data.bombas
+    : [data?.bomba || {}];
+  const valvulaItems = Array.isArray(data?.valvulas) && data.valvulas.length > 0
+    ? data.valvulas
+    : [data?.valvula || {}];
+  const equipoNombre = (base, item, index) => item?.identificacion || `${base} ${index + 1}`;
   
 const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
   ? data.estadoEquipo.imagenes.map((img) =>
@@ -191,153 +198,151 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
           </table>
         </div>
 
-       {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
-<div className="no-break">
-  <h3 className="pdf-title mt-4">
-    DESCRIPCIÓN DEL EQUIPO - {data.tipoInforme === "valvula" ? "VÁLVULA" : "BOMBA"}
-  </h3>
+        {/* ================= DESCRIPCIÓN DEL EQUIPO ================= */}
+        <div className="no-break">
+          <h3 className="pdf-title mt-4">
+            DESCRIPCIÓN DEL EQUIPO - {data.tipoInforme === "valvula" ? "VÁLVULA" : "BOMBA"}
+          </h3>
 
-  {data.tipoInforme === "valvula" ? (
-    <table className="pdf-table w-full">
-      <tbody>
-        {[
-          ["FLUIDO", data.valvula?.fluido],
-          ["MARCA", data.valvula?.marca],
-          ["MODELO / TIPO", data.valvula?.modeloTipo],
-          ["N° SERIE", data.valvula?.serie],
-          ["LUGAR DE PROCEDENCIA", data.valvula?.lugarProcedencia],
-          ["DIÁMETRO", data.valvula?.diametro],
-          ["PRESIÓN", data.valvula?.presion],
-          ["CONEXIÓN", data.valvula?.conexion],
-          ["NORMA DE BRIDADO", data.valvula?.normaBridado],
-          ["OPERACIÓN", data.valvula?.operacion],
-          ["OPERACIÓN ACTUADOR", data.valvula?.operacionActuador],
-          ["TIPO DE ACTUADOR", data.valvula?.tipoActuador],
-          ["VOLTAJE / FASE / FRECUENCIA", data.valvula?.voltajeFaseFrecuencia],
-          ["PROTOCOLO COMUNICACIÓN", data.valvula?.protocoloComunicacion],
-          ["DIST. ENTRE CARAS (F2F)", data.valvula?.distanciaEntreCaras],
-          ["LONGITUD CUERPO VÁLVULA", data.valvula?.longitudCuerpo],
-          ["ESPESOR CONTRA BRIDAS", data.valvula?.espesorContraBridas],
-          ["N° PERFORACIONES EN BRIDA", data.valvula?.numPerforaciones],
-          ["DIÁMETRO AGUJERO EN BRIDA", data.valvula?.diametroAgujero],
-          ["MATERIAL TORNILLERÍA", data.valvula?.materialTornilleria],
-        ].map(([label, value], i) => (
-          <tr key={i}>
-            <td className="pdf-label">{label}</td>
-            <td>{value || "—"}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  ) : (
-    <table className="pdf-table w-full">
-      <tbody>
-        {[
-          ["FLUIDO", data.bomba?.fluido],
-          ["MARCA", data.bomba?.marca],
-          ["MODELO / TIPO", data.bomba?.modeloTipo],
-          ["N° SERIE", data.bomba?.serie],
-          ["LUGAR DE PROCEDENCIA", data.bomba?.lugarProcedencia],
-          ["Q (CAUDAL)", data.bomba?.caudal],
-          ["TDH (CABEZA)", data.bomba?.tdh],
-          ["VELOCIDAD DE GIRO", data.bomba?.velocidadGiro],
-          ["ORIENTACIÓN", data.bomba?.orientacion],
-          ["MARCA MOTOR", data.bomba?.marcaMotor],
-          ["MODELO / TIPO MOTOR", data.bomba?.modeloTipoMotor],
-          ["VOLTAJE / FASE / FRECUENCIA", data.bomba?.voltajeFaseFrecuencia],
-          ["S.F FACTOR DE SERVICIO", data.bomba?.factorServicio],
-          ["GRADO DE PROTECCIÓN", data.bomba?.gradoProteccion],
-          ["TIPO DE CONSTRUCCIÓN", data.bomba?.tipoConstruccionMotor],
-          ["ACCESORIO", data.bomba?.accesorio],
-          ["DIMENSIONES ACCESORIO (L/A/H)", data.bomba?.dimensionesAccesorio],
-          ["OBRA CIVIL", data.bomba?.obraCivil],
-          ["DIMENSIONES OBRA CIVIL (L/A/H)", data.bomba?.dimensionesObraCivil],
-        ].map(([label, value], i) => (
-          <tr key={i}>
-            <td className="pdf-label">{label}</td>
-            <td>{value || "—"}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )}
-</div>
+          {data.tipoInforme === "valvula" ? (
+            valvulaItems.map((valvula, valvulaIndex) => (
+              <div key={valvulaIndex} className="no-break">
+                <h4 className="mt-3 mb-1 text-sm font-bold">
+                  {equipoNombre("VÁLVULA", valvula, valvulaIndex)}
+                </h4>
+                <table className="pdf-table w-full">
+                  <tbody>
+                    {[
+                      ["FLUIDO", valvula?.fluido],
+                      ["MARCA", valvula?.marca],
+                      ["MODELO / TIPO", valvula?.modeloTipo],
+                      ["N° SERIE", valvula?.serie],
+                      ["LUGAR DE PROCEDENCIA", valvula?.lugarProcedencia],
+                      ["DIÁMETRO", valvula?.diametro],
+                      ["PRESIÓN", valvula?.presion],
+                      ["CONEXIÓN", valvula?.conexion],
+                      ["NORMA DE BRIDADO", valvula?.normaBridado],
+                      ["OPERACIÓN", valvula?.operacion],
+                      ["OPERACIÓN ACTUADOR", valvula?.operacionActuador],
+                      ["TIPO DE ACTUADOR", valvula?.tipoActuador],
+                      ["VOLTAJE / FASE / FRECUENCIA", valvula?.voltajeFaseFrecuencia],
+                      ["PROTOCOLO COMUNICACIÓN", valvula?.protocoloComunicacion],
+                      ["DIST. ENTRE CARAS (F2F)", valvula?.distanciaEntreCaras],
+                      ["LONGITUD CUERPO VÁLVULA", valvula?.longitudCuerpo],
+                      ["ESPESOR CONTRA BRIDAS", valvula?.espesorContraBridas],
+                      ["N° PERFORACIONES EN BRIDA", valvula?.numPerforaciones],
+                      ["DIÁMETRO AGUJERO EN BRIDA", valvula?.diametroAgujero],
+                      ["MATERIAL TORNILLERÍA", valvula?.materialTornilleria],
+                    ].map(([label, value], i) => (
+                      <tr key={i}>
+                        <td className="pdf-label">{label}</td>
+                        <td>{value || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))
+          ) : (
+            bombaItems.map((bomba, bombaIndex) => (
+              <div key={bombaIndex} className="no-break">
+                <h4 className="mt-3 mb-1 text-sm font-bold">
+                  {equipoNombre("BOMBA", bomba, bombaIndex)}
+                </h4>
+                <table className="pdf-table w-full">
+                  <tbody>
+                    {[
+                      ["FLUIDO", bomba?.fluido],
+                      ["MARCA", bomba?.marca],
+                      ["MODELO / TIPO", bomba?.modeloTipo],
+                      ["N° SERIE", bomba?.serie],
+                      ["LUGAR DE PROCEDENCIA", bomba?.lugarProcedencia],
+                      ["Q (CAUDAL)", bomba?.caudal],
+                      ["TDH (CABEZA)", bomba?.tdh],
+                      ["VELOCIDAD DE GIRO", bomba?.velocidadGiro],
+                      ["ORIENTACIÓN", bomba?.orientacion],
+                      ["MARCA MOTOR", bomba?.marcaMotor],
+                      ["MODELO / TIPO MOTOR", bomba?.modeloTipoMotor],
+                      ["VOLTAJE / FASE / FRECUENCIA", bomba?.voltajeFaseFrecuencia],
+                      ["S.F FACTOR DE SERVICIO", bomba?.factorServicio],
+                      ["GRADO DE PROTECCIÓN", bomba?.gradoProteccion],
+                      ["TIPO DE CONSTRUCCIÓN", bomba?.tipoConstruccionMotor],
+                      ["ACCESORIO", bomba?.accesorio],
+                      ["DIMENSIONES ACCESORIO (L/A/H)", bomba?.dimensionesAccesorio],
+                      ["OBRA CIVIL", bomba?.obraCivil],
+                      ["DIMENSIONES OBRA CIVIL (L/A/H)", bomba?.dimensionesObraCivil],
+                    ].map(([label, value], i) => (
+                      <tr key={i}>
+                        <td className="pdf-label">{label}</td>
+                        <td>{value || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))
+          )}
+        </div>
 
-{/* ================= REGISTRO FOTOGRÁFICO DEL EQUIPO ================= */}
-<div className="no-break">
-  <h3 className="pdf-title mt-4">REGISTRO FOTOGRÁFICO DEL EQUIPO</h3>
+        {/* ================= REGISTRO FOTOGRÁFICO DEL EQUIPO ================= */}
+        <div className="no-break">
+          <h3 className="pdf-title mt-4">REGISTRO FOTOGRÁFICO DEL EQUIPO</h3>
 
-  {data.tipoInforme === "valvula" ? (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-        gap: 10,
-      }}
-    >
-      {[
-        ["Foto placa válvula", data.valvula?.fotoPlacaValvula],
-        ["Foto placa actuador 1", data.valvula?.fotoPlacaActuador1],
-        ["Foto placa actuador 2", data.valvula?.fotoPlacaActuador2],
-        ...(data.valvula?.registroFotoDimensional || []).map((url, i) => [
-          `Registro dimensional ${i + 1}`,
-          url,
-        ]),
-      ]
-        .filter(([, url]) => url)
-        .map(([label, url], i) => (
-          <div key={i} className="border rounded p-2">
-            <div className="text-xs font-semibold mb-1">{label}</div>
-            <img
-              src={url}
-              alt={label}
-              style={{
-                width: "100%",
-                maxHeight: 260,
-                objectFit: "contain",
-                border: "1px solid #ccc",
-                borderRadius: 6,
-                display: "block",
-              }}
-            />
-          </div>
-        ))}
-    </div>
-  ) : (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-        gap: 10,
-      }}
-    >
-      {[
-        ["Foto placa bomba", data.bomba?.fotoPlacaBomba],
-        ["Foto placa motor", data.bomba?.fotoPlacaMotor],
-        ["Foto placa base metálica", data.bomba?.fotoPlacaBaseMetalica],
-        ["Foto base de concreto", data.bomba?.fotoBaseConcrete],
-      ]
-        .filter(([, url]) => url)
-        .map(([label, url], i) => (
-          <div key={i} className="border rounded p-2">
-            <div className="text-xs font-semibold mb-1">{label}</div>
-            <img
-              src={url}
-              alt={label}
-              style={{
-                width: "100%",
-                maxHeight: 260,
-                objectFit: "contain",
-                border: "1px solid #ccc",
-                borderRadius: 6,
-                display: "block",
-              }}
-            />
-          </div>
-        ))}
-    </div>
-  )}
-</div>
+          {(data.tipoInforme === "valvula" ? valvulaItems : bombaItems).map((equipo, equipoIndex) => {
+            const fotos = data.tipoInforme === "valvula"
+              ? [
+                  ["Foto placa válvula", equipo?.fotoPlacaValvula],
+                  ["Foto placa actuador 1", equipo?.fotoPlacaActuador1],
+                  ["Foto placa actuador 2", equipo?.fotoPlacaActuador2],
+                  ...(equipo?.registroFotoDimensional || []).map((url, i) => [
+                    `Registro dimensional ${i + 1}`,
+                    url,
+                  ]),
+                ]
+              : [
+                  ["Foto placa bomba", equipo?.fotoPlacaBomba],
+                  ["Foto placa motor", equipo?.fotoPlacaMotor],
+                  ["Foto placa base metálica", equipo?.fotoPlacaBaseMetalica],
+                  ["Foto base de concreto", equipo?.fotoBaseConcrete],
+                ];
+
+            const fotosValidas = fotos.filter(([, url]) => url);
+            if (fotosValidas.length === 0) return null;
+
+            return (
+              <div key={equipoIndex} className="no-break">
+                <h4 className="mt-3 mb-1 text-sm font-bold">
+                  {equipoNombre(data.tipoInforme === "valvula" ? "VÁLVULA" : "BOMBA", equipo, equipoIndex)}
+                </h4>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                    gap: 10,
+                  }}
+                >
+                  {fotosValidas.map(([label, url], i) => (
+                    <div key={i} className="border rounded p-2">
+                      <div className="text-xs font-semibold mb-1">{label}</div>
+                      <img
+                        src={url}
+                        alt={label}
+                        style={{
+                          width: "100%",
+                          maxHeight: 260,
+                          objectFit: "contain",
+                          border: "1px solid #ccc",
+                          borderRadius: 6,
+                          display: "block",
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
        
         {/* ================= ESTADO DEL EQUIPO ================= */}
         <div className="no-break">
