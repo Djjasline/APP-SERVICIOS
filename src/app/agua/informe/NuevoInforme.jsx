@@ -81,7 +81,7 @@ export default function NuevoInformeBombaValvula({
   const { id } = useParams();
   const navigate = useNavigate();
   const routeTipo = validInformeTipos.includes(tipo) ? tipo : null;
-  const isIndustria = area === "industria";
+  const supportsMultipleEquipment = ["agua", "industria", "petroleo"].includes(area);
    const { user, isSuperAdmin } = useAuth();
 const superAdminActivo =
   typeof isSuperAdmin === "function"
@@ -713,14 +713,14 @@ const save = async () => {
     ? "Informe para levantamiento de estado actual, instalación o inspección de bombas"
     : "Informe para levantamiento de estado actual, instalación o inspección de válvulas";
 
-  const bombaItems = isIndustria ? getBombaItems() : [data.bomba];
-  const valvulaItems = isIndustria ? getValvulaItems() : [data.valvula];
+  const bombaItems = supportsMultipleEquipment ? getBombaItems() : [data.bomba];
+  const valvulaItems = supportsMultipleEquipment ? getValvulaItems() : [data.valvula];
 
   const renderEquipoTitle = ({ icon, label, value, placeholder, onChange, onRemove, showRemove }) => (
     <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
       <div className="font-bold text-blue-800">{icon} {label}</div>
       <div className="flex flex-col gap-2 md:flex-row md:items-center">
-        {isIndustria && (
+        {supportsMultipleEquipment && (
           <input
             className="w-full rounded border border-blue-200 bg-white px-2 py-1 text-xs font-normal text-slate-700 outline-none md:w-56"
             value={value || ""}
@@ -743,7 +743,7 @@ const save = async () => {
 
   const renderBombaTable = (bombaItem, bombaIndex) => {
     const updateBomba = (field, value) => {
-      if (isIndustria) {
+      if (supportsMultipleEquipment) {
         setBombaItem(bombaIndex, field, value);
         return;
       }
@@ -763,7 +763,7 @@ const save = async () => {
                 placeholder: `Ej: Bomba ${bombaIndex + 1}`,
                 onChange: (value) => updateBomba("identificacion", value),
                 onRemove: () => removeBombaItem(bombaIndex),
-                showRemove: isIndustria && bombaItems.length > 1,
+                showRemove: supportsMultipleEquipment && bombaItems.length > 1,
               })}
             </td>
           </tr>
@@ -885,7 +885,7 @@ const save = async () => {
 
   const renderValvulaTable = (valvulaItem, valvulaIndex) => {
     const updateValvula = (field, value) => {
-      if (isIndustria) {
+      if (supportsMultipleEquipment) {
         setValvulaItem(valvulaIndex, field, value);
         return;
       }
@@ -907,7 +907,7 @@ const save = async () => {
                 placeholder: `Ej: Válvula ${valvulaIndex + 1}`,
                 onChange: (value) => updateValvula("identificacion", value),
                 onRemove: () => removeValvulaItem(valvulaIndex),
-                showRemove: isIndustria && valvulaItems.length > 1,
+                showRemove: supportsMultipleEquipment && valvulaItems.length > 1,
               })}
             </td>
           </tr>
@@ -1317,7 +1317,7 @@ const save = async () => {
                   </div>
                 ))}
 
-                {isIndustria && (
+                {supportsMultipleEquipment && (
                   <div className="p-3">
                     <button
                       type="button"
@@ -1337,7 +1337,7 @@ const save = async () => {
                   </div>
                 ))}
 
-                {isIndustria && (
+                {supportsMultipleEquipment && (
                   <div className="p-3">
                     <button
                       type="button"
