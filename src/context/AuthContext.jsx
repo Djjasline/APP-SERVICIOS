@@ -9,6 +9,7 @@ const SUPERVISOR_PROYECTO_EMAILS = ["abriones@astap.com"];
 const TECHNICAL_USER_EMAILS = ["abriones@astap.com"];
 
 const normalizeRole = (value) => String(value || "").trim().toLowerCase();
+const COMMERCIAL_ROLES = ["ing. comercial", "ingeniero comercial", "comercial"];
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -101,15 +102,17 @@ export function AuthProvider({ children }) {
   ].filter(Boolean);
 
   const role = emailRoles[0] || profileRole || "tecnico";
+  const hasCommercialAccess = COMMERCIAL_ROLES.includes(profileRole);
 
   const hasTechnicalAccess =
-    role === "tecnico" || TECHNICAL_USER_EMAILS.includes(email);
+    role === "tecnico" || hasCommercialAccess || TECHNICAL_USER_EMAILS.includes(email);
 
   const roles = Array.from(
     new Set([
       role,
       ...emailRoles,
       profileRole,
+      ...(hasCommercialAccess ? ["comercial"] : []),
       ...(hasTechnicalAccess ? ["tecnico"] : []),
     ].filter(Boolean))
   );
