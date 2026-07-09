@@ -103,9 +103,7 @@ export function AuthProvider({ children }) {
 
   const role = emailRoles[0] || profileRole || "tecnico";
   const hasCommercialAccess = COMMERCIAL_ROLES.includes(profileRole);
-
-  const hasTechnicalAccess =
-    role === "tecnico" || hasCommercialAccess || TECHNICAL_USER_EMAILS.includes(email);
+  const hasTechnicalAccess = !!user?.id;
 
   const roles = Array.from(
     new Set([
