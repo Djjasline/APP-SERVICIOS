@@ -8,6 +8,7 @@ import { leerBorrador, useAutoguardado } from "@/hooks/useAutoguardado";
 import {
   buildInitialBooleanMap,
   buildInitialChecklist,
+  buildInitialStatusMap,
   CHECKLIST_SECCIONES,
   EPP_SECTION_IMAGE,
   EPP_SECTION_MARKS,
@@ -18,7 +19,9 @@ import {
   INSTRUCCIONES_OPERACION,
   LUBRICANTES,
   PROTOCOLO_VACTOR_INFO,
+  PRUEBAS_PREVIAS,
   PRUEBAS_FINALES,
+  RECAMBIO_ELEMENTOS,
   RIESGO_ITEMS,
   SEGURIDAD_ITEMS,
 } from "./protocoloVactorData";
@@ -40,6 +43,8 @@ const emptyData = {
   seguridad: buildInitialBooleanMap(SEGURIDAD_ITEMS),
   epp: buildInitialBooleanMap(EPP_ITEMS),
   riesgos: buildInitialBooleanMap(RIESGO_ITEMS),
+  pruebasPrevias: buildInitialStatusMap(PRUEBAS_PREVIAS),
+  recambios: buildInitialStatusMap(RECAMBIO_ELEMENTOS, true),
   checklist: buildInitialChecklist(),
   pruebasFinales: buildInitialBooleanMap(PRUEBAS_FINALES),
   resultadoGeneral: "",
@@ -60,6 +65,8 @@ function mergeData(value = {}) {
     seguridad: { ...emptyData.seguridad, ...(value.seguridad || {}) },
     epp: { ...emptyData.epp, ...(value.epp || {}) },
     riesgos: { ...emptyData.riesgos, ...(value.riesgos || {}) },
+    pruebasPrevias: { ...emptyData.pruebasPrevias, ...(value.pruebasPrevias || {}) },
+    recambios: { ...emptyData.recambios, ...(value.recambios || {}) },
     checklist: { ...emptyData.checklist, ...(value.checklist || {}) },
     pruebasFinales: { ...emptyData.pruebasFinales, ...(value.pruebasFinales || {}) },
     aprobacion: { ...emptyData.aprobacion, ...(value.aprobacion || {}) },
@@ -196,6 +203,15 @@ export default function ProtocoloVactorForm() {
       },
     }));
   };
+  const setStatusItem = (group, codigo, field, value) => {
+    setData((prev) => ({
+      ...prev,
+      [group]: {
+        ...prev[group],
+        [codigo]: { ...(prev[group]?.[codigo] || {}), [field]: value },
+      },
+    }));
+  };
 
   const save = async (estado) => {
     if (!data.tecnicoNombre.trim()) {
@@ -259,6 +275,49 @@ export default function ProtocoloVactorForm() {
       </section>
 
       <EppGuideSection data={data} setNested={setNested} />
+
+      <section className="bg-white rounded-xl border shadow-sm p-4 space-y-4">
+        <h2 className="font-semibold text-slate-900">Pruebas de encendido previas al servicio</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs border-collapse border">
+            <thead><tr className="bg-slate-100"><th className="border p-2">Ítem</th><th className="border p-2">Detalle</th><th className="border p-2">Cumple</th><th className="border p-2">No cumple</th><th className="border p-2">N/A</th><th className="border p-2">Observación</th></tr></thead>
+            <tbody>
+              {PRUEBAS_PREVIAS.map(([codigo, detalle]) => (
+                <tr key={codigo}>
+                  <td className="border p-2 font-semibold">{codigo}</td>
+                  <td className="border p-2">{detalle}</td>
+                  {["cumple", "noCumple", "na"].map((estado) => (
+                    <td key={estado} className="border p-2 text-center"><input type="radio" name={`prueba-previa-${codigo}`} checked={data.pruebasPrevias?.[codigo]?.estado === estado} onChange={() => setStatusItem("pruebasPrevias", codigo, "estado", estado)} /></td>
+                  ))}
+                  <td className="border p-2"><input className="w-full border rounded px-2 py-1" value={data.pruebasPrevias?.[codigo]?.observacion || ""} onChange={(e) => setStatusItem("pruebasPrevias", codigo, "observacion", e.target.value)} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="bg-white rounded-xl border shadow-sm p-4 space-y-4">
+        <h2 className="font-semibold text-slate-900">Recambio de elementos del módulo hidrosuccionador</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs border-collapse border">
+            <thead><tr className="bg-slate-100"><th className="border p-2">Ítem</th><th className="border p-2">Elemento</th><th className="border p-2">Cantidad</th><th className="border p-2">Cumple</th><th className="border p-2">No cumple</th><th className="border p-2">N/A</th><th className="border p-2">Observación</th></tr></thead>
+            <tbody>
+              {RECAMBIO_ELEMENTOS.map(([codigo, detalle]) => (
+                <tr key={codigo}>
+                  <td className="border p-2 font-semibold">{codigo}</td>
+                  <td className="border p-2">{detalle}</td>
+                  <td className="border p-2"><input className="w-20 border rounded px-2 py-1 text-center" value={data.recambios?.[codigo]?.cantidad || ""} onChange={(e) => setStatusItem("recambios", codigo, "cantidad", e.target.value)} /></td>
+                  {["cumple", "noCumple", "na"].map((estado) => (
+                    <td key={estado} className="border p-2 text-center"><input type="radio" name={`recambio-${codigo}`} checked={data.recambios?.[codigo]?.estado === estado} onChange={() => setStatusItem("recambios", codigo, "estado", estado)} /></td>
+                  ))}
+                  <td className="border p-2"><input className="w-full border rounded px-2 py-1" value={data.recambios?.[codigo]?.observacion || ""} onChange={(e) => setStatusItem("recambios", codigo, "observacion", e.target.value)} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-white rounded-xl border shadow-sm p-4">

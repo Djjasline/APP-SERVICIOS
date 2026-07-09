@@ -13,7 +13,9 @@ import {
   INSTRUCCIONES_OPERACION,
   LUBRICANTES,
   PROTOCOLO_VACTOR_INFO,
+  PRUEBAS_PREVIAS,
   PRUEBAS_FINALES,
+  RECAMBIO_ELEMENTOS,
   RIESGO_ITEMS,
   SEGURIDAD_ITEMS,
 } from "./protocoloVactorData";
@@ -128,6 +130,30 @@ function StatusCell({ current, value }) {
   return <td style={{ ...S.cell, textAlign: "center", width: 42, fontWeight: 700 }}>{current === value ? "X" : ""}</td>;
 }
 
+function StatusTable({ items, values, includeCantidad = false }) {
+  return (
+    <table style={S.tbl}>
+      <thead><tr><th style={{ ...S.th, width: 45 }}>Ítem</th><th style={S.th}>Detalle</th>{includeCantidad && <th style={{ ...S.th, width: 58 }}>Cant.</th>}<th style={{ ...S.th, width: 42 }}>C</th><th style={{ ...S.th, width: 42 }}>NC</th><th style={{ ...S.th, width: 42 }}>N/A</th><th style={S.th}>Observación</th></tr></thead>
+      <tbody>
+        {items.map(([codigo, detalle]) => {
+          const item = values?.[codigo] || {};
+          return (
+            <tr key={codigo}>
+              <td style={{ ...S.cell, textAlign: "center", fontWeight: 700 }}>{codigo}</td>
+              <td style={S.cell}>{detalle}</td>
+              {includeCantidad && <td style={{ ...S.cell, textAlign: "center" }}>{item.cantidad || "-"}</td>}
+              <StatusCell current={item.estado} value="cumple" />
+              <StatusCell current={item.estado} value="noCumple" />
+              <StatusCell current={item.estado} value="na" />
+              <td style={S.cell}>{item.observacion || "-"}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+}
+
 export default function ProtocoloVactorPDF({ allowDownload = true, backPath = "/vehiculos/protocolos" }) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -213,6 +239,16 @@ export default function ProtocoloVactorPDF({ allowDownload = true, backPath = "/
         </div>
 
         <Section2Pdf data={d} />
+
+        <div className="no-break">
+          <p style={S.sectionTitle}>Pruebas de encendido previas al servicio</p>
+          <StatusTable items={PRUEBAS_PREVIAS} values={d.pruebasPrevias} />
+        </div>
+
+        <div className="no-break">
+          <p style={S.sectionTitle}>Recambio de elementos del módulo hidrosuccionador</p>
+          <StatusTable items={RECAMBIO_ELEMENTOS} values={d.recambios} includeCantidad />
+        </div>
 
         <div className="no-break">
           <p style={S.sectionTitle}>Herramientas e instrucciones operativas</p>

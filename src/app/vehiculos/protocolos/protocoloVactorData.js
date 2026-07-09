@@ -86,6 +86,32 @@ export const RIESGO_ITEMS = [
   ["riesgoQuimico", "Riesgo químico"],
 ];
 
+export const PRUEBAS_PREVIAS = [
+  ["1.1", "Prueba de encendido general del equipo"],
+  ["1.2", "Verificación de funcionamiento de controles principales"],
+  ["1.3", "Revisión de alarmas o mensajes de fallo"],
+  ["1.4", "Revisión de niveles: aceite blower ISO 220, hidráulico AW 46, transfer 80W-90 y agua"],
+];
+
+export const RECAMBIO_ELEMENTOS = [
+  ["2.1", "Tapón de expansión PN 45731-30"],
+  ["2.2", "Empaque externo tapa filtro en Y 3\" PN 41272-30"],
+  ["2.3", "Empaque externo tapa filtro en Y 3\" New Model PN 513726A-30"],
+  ["2.4", "Empaque interno tapa filtro en Y 3\" New Model PN 513726B-31"],
+  ["2.5", "Empaque interno tapa filtro en Y 3\" PN 41271-30"],
+  ["2.6", "Empaque filtro de agua Y 2\" PN 46137-30"],
+  ["2.7", "Empaque filtro de agua Y 2\" PN 46138-30"],
+  ["2.8", "Malla filtro de agua 2\" PN 45803-30"],
+  ["2.9", "O-Ring válvula check 2\" PN 29674-30"],
+  ["2.10", "O-Ring válvula check 3\" PN 29640-30"],
+  ["2.11", "Malla filtro de agua 3\" PN 41280-30"],
+  ["2.12", "Filtro aceite hidráulico cartucho New Model PN 514335-30"],
+  ["2.13", "Filtro aceite hidráulico cartucho PN 1099061"],
+  ["2.14", "Aceite caja transferencia SAE 80W-90 EP (galones)"],
+  ["2.15", "Aceite soplador ISO 220 (galones)"],
+  ["2.16", "Aceite hidráulico AW 46 (galones)"],
+];
+
 export const CHECKLIST_SECCIONES = [
   {
     titulo: "3.1. SISTEMA DE VACÍO / BLOWER",
@@ -203,6 +229,13 @@ export function buildInitialChecklist() {
     section.items.forEach(([codigo]) => {
       acc[codigo] = { estado: "", observacion: "" };
     });
+    return acc;
+  }, {});
+}
+
+export function buildInitialStatusMap(items, includeCantidad = false) {
+  return items.reduce((acc, [codigo]) => {
+    acc[codigo] = includeCantidad ? { estado: "", cantidad: "", observacion: "" } : { estado: "", observacion: "" };
     return acc;
   }, {});
 }
