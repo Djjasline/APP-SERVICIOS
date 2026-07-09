@@ -2,6 +2,28 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
+function getLoginErrorMessage(message = "") {
+  const normalized = message.toLowerCase();
+
+  if (normalized.includes("invalid login credentials")) {
+    return "Correo o contraseña incorrectos.";
+  }
+
+  if (normalized.includes("email not confirmed")) {
+    return "El correo del usuario no está confirmado.";
+  }
+
+  if (normalized.includes("too many requests")) {
+    return "Demasiados intentos. Espera unos minutos e intenta de nuevo.";
+  }
+
+  if (normalized.includes("failed to fetch") || normalized.includes("network")) {
+    return "No se pudo conectar con el servidor. Revisa la conexión.";
+  }
+
+  return message || "No se pudo iniciar sesión.";
+}
+
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -23,7 +45,7 @@ export default function Login() {
     if (result.success) {
       navigate("/");
     } else {
-      setError("Credenciales incorrectas");
+      setError(getLoginErrorMessage(result.message));
     }
   };
 
