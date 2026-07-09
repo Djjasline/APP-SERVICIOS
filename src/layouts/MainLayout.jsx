@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import Sidebar from "./Sidebar";
 import { getUnreadCount } from "../services/notificationService";
+import { getUnreadAppUpdatesCount } from "@/services/appUpdatesService";
 import { supabase } from "@/lib/supabase";
 import TechnicalWritingAssistant from "@/components/TechnicalWritingAssistant";
 import AutoCapitalizeInputs from "@/components/AutoCapitalizeInputs";
@@ -114,9 +115,11 @@ export default function MainLayout() {
         return;
       }
       try {
-        const count = await getUnreadCount(email);
-        if (mounted) setUnread(count || 0);
-        setAppBadgeCount(count || 0);
+        const notificationsCount = await getUnreadCount(email);
+        const updatesCount = getUnreadAppUpdatesCount(email);
+        const totalCount = (notificationsCount || 0) + (updatesCount || 0);
+        if (mounted) setUnread(totalCount);
+        setAppBadgeCount(totalCount);
       } catch (e) {
         console.error("Error cargando notificaciones:", e);
       }

@@ -8,10 +8,16 @@ import { useTheme } from "@/context/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import { setAppBadgeCount } from "@/utils/appBadge";
 import { supabase } from "@/lib/supabase";
+import {
+  getAppUpdates,
+  markAppUpdateRead,
+} from "@/services/appUpdatesService";
 
 const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
 
 function getNotificationPath(notification) {
+  if (notification.record_type === "app_update") return "";
+
   if (notification.record_type === "registro" && notification.record_id) {
     return `/operaciones/registro/${notification.record_id}`;
   }
@@ -42,6 +48,14 @@ export default function NotificationsPage() {
   const navigate = useNavigate();
   const { isLight } = useTheme();
 
+  const setItemsAndBadge = (updater) => {
+    setItems((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
+      setAppBadgeCount((next || []).filter((item) => !item.read).length);
+      return next;
+    });
+  };
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -49,8 +63,12 @@ export default function NotificationsPage() {
       const data = await getNotifications(email);
 
       const notifications = Array.isArray(data) ? data : [];
-      setItems(notifications);
-      setAppBadgeCount(notifications.filter((item) => !item.read).length);
+      const updates = getAppUpdates(email);
+      const allItems = [...updates, ...notifications].sort(
+        (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
+      );
+
+      setItemsAndBadge(allItems);
       setLoading(false);
     };
 
@@ -77,11 +95,10 @@ export default function NotificationsPage() {
           const recipientEmail = normalizeEmail(notification.recipient_email);
           if (recipientEmail && recipientEmail !== currentEmail) return;
 
-          setItems((prev) => {
+          setItemsAndBadge((prev) => {
             if (prev.some((item) => item.id === notification.id)) return prev;
 
             const next = [notification, ...prev];
-            setAppBadgeCount(next.filter((item) => !item.read).length);
             return next;
           });
         }
@@ -94,10 +111,18 @@ export default function NotificationsPage() {
   }, [email]);
 
   const handleMarkRead = async (id) => {
+    const item = items.find((notification) => notification.id === id);
+
+    if (item?.isAppUpdate) {
+      const ok = markAppUpdateRead(email, item.update_id || item.id);
+      if (ok) updateReadState(id);
+      return;
+    }
+
     const ok = await markNotificationRead(id);
 
     if (ok) {
-      setItems((prev) => {
+      setItemsAndBadge((prev) => {
         const next = prev.map((p) =>
           p.id === id
             ? {
@@ -107,22 +132,26 @@ export default function NotificationsPage() {
             : p
         );
 
-        setAppBadgeCount(next.filter((item) => !item.read).length);
         return next;
       });
     }
   };
 
   const updateReadState = (id) => {
-    setItems((prev) => {
+    setItemsAndBadge((prev) => {
       const next = prev.map((p) => (p.id === id ? { ...p, read: true } : p));
-      setAppBadgeCount(next.filter((item) => !item.read).length);
       return next;
     });
   };
 
   const handleOpenNotification = async (notification) => {
     if (!notification.read) {
+      if (notification.isAppUpdate) {
+        const ok = markAppUpdateRead(email, notification.update_id || notification.id);
+        if (ok) updateReadState(notification.id);
+        return;
+      }
+
       const ok = await markNotificationRead(notification.id);
       if (ok) updateReadState(notification.id);
     }
@@ -164,6 +193,12 @@ export default function NotificationsPage() {
                 <div className={`font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
                   {n.title}
                 </div>
+
+                {n.isAppUpdate && (
+                  <div className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${isLight ? "bg-purple-100 text-purple-700" : "bg-purple-500/20 text-purple-200"}`}>
+                    Boletín de actualización
+                  </div>
+                )}
 
                 <div className={`text-sm ${isLight ? "text-slate-600" : "text-slate-300"}`}>
                   {n.message}
