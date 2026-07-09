@@ -96,6 +96,7 @@ const TechRoute = ({ children }) => (
       "admin",
       "tecnico",
       "supervisor_operaciones",
+      "supervisor_proyecto",
     ]}
   >
     {children}
