@@ -9,6 +9,8 @@ import {
   EPP_SECTION_TEXTS,
   EPP_ITEMS,
   ESPECIFICACIONES,
+  HERRAMIENTAS,
+  INSTRUCCIONES_OPERACION,
   LUBRICANTES,
   PROTOCOLO_VACTOR_INFO,
   PRUEBAS_FINALES,
@@ -211,6 +213,14 @@ export default function ProtocoloVactorPDF({ allowDownload = true, backPath = "/
         </div>
 
         <Section2Pdf data={d} />
+
+        <div className="no-break">
+          <p style={S.sectionTitle}>Herramientas e instrucciones operativas</p>
+          <table style={S.tbl}><tbody><tr>
+            <td style={{ ...S.cell, width: "50%", verticalAlign: "top" }}><strong>Herramientas requeridas</strong><ul style={{ margin: "6px 0 0 18px", padding: 0 }}>{HERRAMIENTAS.map((item) => <li key={item}>{item}</li>)}</ul></td>
+            <td style={{ ...S.cell, width: "50%", verticalAlign: "top" }}><strong>Instrucciones operativas</strong><ol style={{ margin: "6px 0 0 18px", padding: 0 }}>{INSTRUCCIONES_OPERACION.map((item) => <li key={item}>{item}</li>)}</ol></td>
+          </tr></tbody></table>
+        </div>
 
         <p style={S.sectionTitle}>3. Checklist de mantenimiento</p>
         {CHECKLIST_SECCIONES.map((section) => (

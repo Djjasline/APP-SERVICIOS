@@ -14,6 +14,8 @@ import {
   EPP_SECTION_TEXTS,
   EPP_ITEMS,
   ESPECIFICACIONES,
+  HERRAMIENTAS,
+  INSTRUCCIONES_OPERACION,
   LUBRICANTES,
   PROTOCOLO_VACTOR_INFO,
   PRUEBAS_FINALES,
@@ -257,6 +259,21 @@ export default function ProtocoloVactorForm() {
       </section>
 
       <EppGuideSection data={data} setNested={setNested} />
+
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-white rounded-xl border shadow-sm p-4">
+          <h2 className="font-semibold text-slate-900 mb-2">Herramientas requeridas</h2>
+          <ul className="list-disc pl-5 text-sm text-slate-700 space-y-1">
+            {HERRAMIENTAS.map((item) => <li key={item}>{item}</li>)}
+          </ul>
+        </div>
+        <div className="bg-white rounded-xl border shadow-sm p-4">
+          <h2 className="font-semibold text-slate-900 mb-2">Instrucciones operativas</h2>
+          <ol className="list-decimal pl-5 text-sm text-slate-700 space-y-1">
+            {INSTRUCCIONES_OPERACION.map((item) => <li key={item}>{item}</li>)}
+          </ol>
+        </div>
+      </section>
 
       <section className="bg-white rounded-xl border shadow-sm p-4 space-y-4">
         <h2 className="font-semibold text-slate-900">3. Checklist de mantenimiento</h2>

@@ -88,35 +88,39 @@ export const RIESGO_ITEMS = [
 
 export const CHECKLIST_SECCIONES = [
   {
-    titulo: "3.1 SISTEMA DE VACÍO / BLOWER",
+    titulo: "3.1. SISTEMA DE VACÍO / BLOWER",
     imagenReferencia: "/sistema-de-vacio.png",
     items: [
-      ["3.1.1", "Nivel de aceite del blower", "Verificar nivel de aceite en mirilla."],
+      ["3.1.1", "Nivel de aceite del blower", "Verificar nivel de aceite en mirilla. Especificación: Aceite Blower Roots ISO 220."],
       ["3.1.2", "Fugas de aceite", "Revisar fugas en conexiones y carcasa."],
       ["3.1.3", "Estado de bandas o acople", "Verificar tensión y estado."],
       ["3.1.4", "Conjunto indicador de filtro", "Revisar estado y limpiar."],
       ["3.1.5", "Respirador del blower", "Limpiar y verificar libre."],
-      ["3.1.6", "Cambio de aceite del blower", "Drenar y reemplazar aceite según especificación."],
-      ["3.1.7", "Vacío máximo alcanzado", "Verificar vacío. Objetivo: 15 - 16 inHg."],
-      ["3.1.8", "Válvula de alivio de vacío", "Verificar funcionamiento (vacuum relief)."],
+      ["3.1.6", "Cambio de aceite del blower", "Drenar y reemplazar con Aceite Blower Roots ISO 220."],
+      ["3.1.7", "Temperatura del blower", "Verificar temperatura de operación. Máx. 90 °C."],
+      ["3.1.8", "Vacío máximo alcanzado", "Verificar vacío. Objetivo: 15 - 16 inHg."],
+      ["3.1.9", "Válvula de alivio de vacío", "Verificar funcionamiento (vacuum relief)."],
+      ["3.1.10", "Ruido y vibración del blower", "Verificar operación estable, sin vibración anormal ni ruido metálico."],
     ],
   },
   {
-    titulo: "3.2 SISTEMA HIDRÁULICO",
+    titulo: "3.2. SISTEMA HIDRÁULICO",
     imagenReferencia: "/sistema-hidraulico.png",
     items: [
-      ["3.2.1", "Nivel de aceite hidráulico", "Verificar nivel en tanque."],
+      ["3.2.1", "Nivel de aceite hidráulico", "Verificar nivel en tanque. Especificación: Aceite Hidráulico ISO 46 AW 46."],
       ["3.2.2", "Fugas en mangueras y conexiones", "Revisar fugas visibles."],
       ["3.2.3", "Estado de mangueras", "Revisar grietas, desgaste y abrazaderas."],
       ["3.2.4", "Indicador de saturación del filtro", "Revisar indicador de aceite."],
       ["3.2.5", "Elemento del filtro hidráulico", "Reemplazar elemento del filtro."],
       ["3.2.6", "Diálisis / filtración del aceite", "Realizar diálisis según programa."],
       ["3.2.7", "Respiradero del tanque hidráulico", "Limpiar respiradero."],
-      ["3.2.8", "Drene lubricante", "Use el lubricante recomendado."],
+      ["3.2.8", "Condición del aceite hidráulico", "Verificar color, contaminación visible y presencia de agua o espuma."],
+      ["3.2.9", "Temperatura hidráulica", "Verificar temperatura de operación. Máx. 70 °C."],
+      ["3.2.10", "Drene lubricante", "Use Aceite Hidráulico ISO 46 AW 46."],
     ],
   },
   {
-    titulo: "3.3 SISTEMA DE AGUA A ALTA PRESIÓN (RODDER PUMP)",
+    titulo: "3.3. SISTEMA DE AGUA A ALTA PRESIÓN (RODDER PUMP)",
     imagenReferencia: "/sistema-de-agua.png",
     items: [
       ["3.3.1", "Fugas en bomba", "Revisar fugas en conexiones y sellos."],
@@ -126,17 +130,22 @@ export const CHECKLIST_SECCIONES = [
       ["3.3.5", "Sensor de proximidad", "Verificar funcionamiento visual (luz testigo)."],
       ["3.3.6", "Presión de operación", "Verificar presión. Máx. 2000 PSI."],
       ["3.3.7", "Caudal de agua", "Verificar caudal. Objetivo: 60 GPM."],
+      ["3.3.8", "Boquillas y lanza", "Inspeccionar desgaste, obstrucciones y fijación antes de prueba."],
+      ["3.3.9", "Manguera de alta presión", "Revisar cortes, ampollas, acoples y protección contra roce."],
+      ["3.3.10", "Válvula reguladora / descargador", "Verificar respuesta gradual y retorno estable de presión."],
     ],
   },
   {
-    titulo: "3.4 TRANSFER CASE Y PTO",
+    titulo: "3.4. TRANSFER CASE Y PTO",
     items: [
-      ["3.4.1", "Nivel de aceite del transfer case", "Verificar nivel."],
+      ["3.4.1", "Nivel de aceite del transfer case", "Verificar nivel. Especificación: Aceite Transfer Case SAE 80W-90 EP."],
       ["3.4.2", "Fugas en transfer case", "Revisar fugas."],
-      ["3.4.3", "Cambio de aceite transfer case", "Drenar y reemplazar aceite."],
+      ["3.4.3", "Cambio de aceite transfer case", "Drenar y reemplazar con Aceite Transfer Case SAE 80W-90 EP."],
       ["3.4.4", "Estado de cardanes", "Revisar crucetas y lubricar."],
       ["3.4.5", "Alineación del cardán", "Verificar alineación."],
       ["3.4.6", "PTO", "Verificar funcionamiento y fugas."],
+      ["3.4.7", "Enganche y desenganche PTO", "Confirmar respuesta correcta, sin golpes ni retardo excesivo."],
+      ["3.4.8", "Protecciones y guardas", "Verificar guardas instaladas y aseguradas en cardanes y acoples."],
     ],
   },
 ];
@@ -145,6 +154,10 @@ export const PRUEBAS_FINALES = [
   ["blower", "Prueba de vacío en blower (15 - 16 inHg)"],
   ["presionAgua", "Prueba de presión de agua (máx. 2000 PSI)"],
   ["caudalAgua", "Prueba de caudal de agua (60 GPM)"],
+  ["valvulaAlivio", "Prueba de válvula de alivio de vacío"],
+  ["descargadorAgua", "Prueba de válvula reguladora / descargador de agua"],
+  ["temperaturas", "Verificación de temperaturas de operación"],
+  ["fugasPostPrueba", "Inspección de fugas posterior a pruebas"],
   ["funciones", "Prueba de funciones generales del equipo"],
 ];
 
@@ -153,6 +166,28 @@ export const LUBRICANTES = [
   "Aceite Transfer Case SAE 80W-90 EP",
   "Aceite Hidráulico ISO 46 AW 46",
   "Grasa Multipropósito NLGI 2",
+];
+
+export const HERRAMIENTAS = [
+  "Juego de llaves mixtas, copas y extensiones",
+  "Torquímetro calibrado",
+  "Vacuómetro 0 - 30 inHg",
+  "Manómetro de agua 0 - 3000 PSI",
+  "Multímetro y lámpara de inspección",
+  "Pistola engrasadora",
+  "Extractor o bomba manual para drenaje de aceite",
+  "Equipo de diálisis / filtración hidráulica",
+  "Bandejas de contención, embudos y paños absorbentes",
+  "Kit antiderrames y recipientes para disposición de residuos",
+];
+
+export const INSTRUCCIONES_OPERACION = [
+  "Aplicar bloqueo, etiquetado y control de energías antes de intervenir el equipo.",
+  "Confirmar que el tanque de desechos esté descargado, limpio y ventilado antes de inspeccionar.",
+  "Usar únicamente lubricantes con la especificación indicada en este protocolo.",
+  "Realizar las pruebas de presión y vacío de forma gradual, con el personal fuera de la línea de descarga y succión.",
+  "No operar la bomba de agua sin suministro suficiente ni con mangueras, boquillas o acoples deteriorados.",
+  "Registrar en observaciones cualquier fuga, ruido, vibración, temperatura anormal o componente pendiente de corrección.",
 ];
 
 export const ESPECIFICACIONES = [
