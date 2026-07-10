@@ -1,5 +1,26 @@
 const APP_UPDATES = [
   {
+    id: "2026-07-10-pdf-equipment-image-layout",
+    title: "PDFs de vehículos más compactos",
+    message:
+      "Se ajustó Estado del equipo para que la imagen no se corte entre páginas, use una caja máxima de 95 mm x 70 mm y aproveche mejor la primera hoja del PDF.",
+    created_at: "2026-07-10T17:30:00-05:00",
+  },
+  {
+    id: "2026-07-10-vcam-protocol",
+    title: "Nuevo protocolo Cámara V-CAM6",
+    message:
+      "Ya está disponible el protocolo de mantenimiento preventivo para Cámara V-CAM6, con formulario, PDF, checklist, repuestos, pruebas finales y permisos administrativos.",
+    created_at: "2026-07-10T16:30:00-05:00",
+  },
+  {
+    id: "2026-07-10-vactor-protocol-improvements",
+    title: "Protocolo Vactor mejorado",
+    message:
+      "El protocolo Vactor ahora incluye pruebas previas, recambio de elementos, herramientas, instrucciones operativas, especificaciones de aceite y más verificaciones finales.",
+    created_at: "2026-07-10T15:30:00-05:00",
+  },
+  {
     id: "2026-07-09-multiple-pumps-valves",
     title: "Múltiples bombas y válvulas",
     message:
