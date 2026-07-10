@@ -1,0 +1,147 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
+
+export default function VisitaCampoHome() {
+  const navigate = useNavigate();
+  const { user, isSuperAdmin } = useAuth();
+  const superAdminActivo = typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
+  const [records, setRecords] = useState([]);
+  const [filter, setFilter] = useState("todos");
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const loadRecords = async () => {
+      let query = supabase
+        .from("registros")
+        .select("*")
+        .eq("area", "petroleo")
+        .eq("tipo", "visita_campo")
+        .order("created_at", { ascending: false });
+
+      if (!superAdminActivo) query = query.eq("user_id", user.id);
+
+      const { data, error } = await query;
+      if (error) {
+        console.error("Error cargando visitas de campo:", error);
+        setRecords([]);
+        return;
+      }
+
+      setRecords(data || []);
+    };
+
+    loadRecords();
+  }, [user?.id, superAdminActivo]);
+
+  const filtered = records.filter((record) => {
+    const q = search.trim().toLowerCase();
+    const text = [
+      record.data?.codigoDocumento,
+      record.data?.cliente,
+      record.data?.ubicacion,
+      record.data?.marca,
+      record.data?.modelos,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return (
+      (!q || text.includes(q)) &&
+      (filter === "todos" ||
+        (filter === "borrador" && record.estado !== "completado") ||
+        (filter === "completado" && record.estado === "completado"))
+    );
+  });
+
+  const deleteRecord = async (record) => {
+    if (!user?.id) return;
+    if (!confirm("¿Eliminar este informe de visita en campo?")) return;
+
+    let query = supabase.from("registros").delete().eq("id", record.id).eq("tipo", "visita_campo");
+    if (!superAdminActivo) query = query.eq("user_id", user.id);
+
+    const { error } = await query;
+    if (error) {
+      console.error(error);
+      alert("No se pudo eliminar el informe.");
+      return;
+    }
+
+    setRecords((prev) => prev.filter((item) => item.id !== record.id));
+  };
+
+  return (
+    <div className="rounded-2xl bg-white p-6 text-gray-900 shadow space-y-6">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h1 className="text-lg font-semibold">Informe técnico de visita en campo</h1>
+          <p className="text-sm text-gray-500">Historial propio para informes de visitas técnicas de Petróleo.</p>
+        </div>
+        <button onClick={() => navigate("/area/petroleo")} className="btn-volver-orange py-1">Volver</button>
+      </div>
+
+      <button
+        onClick={() => navigate("/petroleo/visita-campo/nuevo")}
+        className="w-full rounded-lg bg-orange-600 py-2 text-white transition hover:bg-orange-700"
+      >
+        Nuevo informe técnico de visita en campo
+      </button>
+
+      <div className="flex flex-wrap gap-2">
+        {["todos", "borrador", "completado"].map((item) => (
+          <button
+            key={item}
+            onClick={() => setFilter(item)}
+            className={`rounded border px-3 py-1 text-sm ${filter === item ? "bg-gray-200" : "hover:bg-gray-100"}`}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+
+      <input
+        value={search}
+        onChange={(event) => setSearch(event.target.value)}
+        placeholder="Buscar por cliente, código, ubicación, marca o modelo..."
+        className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+      />
+
+      <div className="space-y-3">
+        {filtered.length === 0 ? (
+          <div className="rounded-xl border bg-gray-50 p-6 text-sm text-gray-500">Sin registros</div>
+        ) : (
+          filtered.map((record) => (
+            <div key={record.id} className="rounded-xl border bg-gray-50 p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="space-y-1">
+                <p className="font-semibold">{record.data?.codigoDocumento || "Sin código"} - {record.data?.cliente || "Sin cliente"}</p>
+                <p className="text-xs text-gray-600">
+                  Ubicación: <strong>{record.data?.ubicacion || "-"}</strong> | Marca: <strong>{record.data?.marca || "-"}</strong>
+                </p>
+                <p className="text-xs text-gray-500">{new Date(record.updated_at || record.created_at).toLocaleString()}</p>
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${record.estado === "completado" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-700"}`}>
+                  {record.estado === "completado" ? "Completado" : "Borrador"}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-3 text-sm">
+                <button onClick={() => navigate(`/petroleo/visita-campo/ver/${record.id}`)} className="font-semibold text-slate-600 hover:underline">Ver</button>
+                <button onClick={() => navigate(`/petroleo/visita-campo/${record.id}`)} className="text-blue-600 hover:underline">Abrir</button>
+                {record.estado === "completado" && (
+                  <button onClick={() => navigate(`/petroleo/visita-campo/${record.id}/pdf`)} className="font-semibold text-green-600 hover:underline">PDF</button>
+                )}
+                {(superAdminActivo || record.user_id === user?.id) && (
+                  <button onClick={() => deleteRecord(record)} className="text-red-600 hover:underline">Eliminar</button>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}

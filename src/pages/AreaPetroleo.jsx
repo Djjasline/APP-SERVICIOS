@@ -1,6 +1,6 @@
 import CardModulo from "@/components/CardModulo";
 import { useTheme } from "@/context/ThemeContext";
-import { FileText } from "lucide-react";
+import { ClipboardList, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaPetroleo() {
@@ -30,6 +30,14 @@ export default function AreaPetroleo() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
+
+        <CardModulo
+          titulo="Informe técnico de visita en campo"
+          descripcion="Informe para visita técnica, levantamiento de bombas centrífugas, repuestos críticos y recomendaciones API/ANSI."
+          ruta="/petroleo/visita-campo"
+          color="bg-orange-600"
+          icono={<ClipboardList size={20} />}
+        />
 
         <CardModulo
           titulo="Informe de bombas"

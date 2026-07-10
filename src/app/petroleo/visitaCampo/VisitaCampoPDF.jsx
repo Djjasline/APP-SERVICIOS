@@ -1,0 +1,201 @@
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { printPdf } from "@/utils/printPdf";
+import { useAuth } from "@/context/AuthContext";
+import { createEmptyVisitaCampoData } from "./visitaCampoData";
+import { parseTableText } from "./tableUtils";
+
+const S = {
+  page: {
+    width: "210mm",
+    minHeight: "297mm",
+    margin: "0 auto",
+    padding: "12mm",
+    background: "#fff",
+    color: "#111",
+    fontFamily: "Arial, Helvetica, sans-serif",
+    fontSize: 11,
+    lineHeight: 1.45,
+  },
+  table: { width: "100%", borderCollapse: "collapse" },
+  cell: { border: "1px solid #111", padding: 5, verticalAlign: "top" },
+  headerCell: { border: "1px solid #111", padding: 5, fontWeight: 700, background: "#eee" },
+};
+
+function Header({ data }) {
+  return (
+    <table style={{ ...S.table, marginBottom: 10 }}>
+      <tbody>
+        <tr>
+          <td rowSpan={3} style={{ ...S.cell, width: "22%", textAlign: "center" }}>
+            <img src="/astap-logo.jpg" alt="ASTAP" style={{ width: 76, maxHeight: 58, objectFit: "contain" }} />
+          </td>
+          <td rowSpan={3} style={{ ...S.cell, width: "46%", textAlign: "center", fontWeight: 700 }}>
+            <div>ASTAP CIA. LTDA.</div>
+            <div style={{ fontStyle: "italic", marginTop: 4 }}>{data.titulo || "Informe técnico de visita en campo"}</div>
+          </td>
+          <td style={{ ...S.cell, width: "16%", fontWeight: 700, textAlign: "right" }}>{data.codigoDocumento || "-"}</td>
+          <td style={{ ...S.cell, width: "16%" }} />
+        </tr>
+        <tr>
+          <td style={{ ...S.cell, fontWeight: 700, textAlign: "right" }}>No. Revisión</td>
+          <td style={S.cell}>{data.revision || "-"}</td>
+        </tr>
+        <tr>
+          <td style={{ ...S.cell, fontWeight: 700, textAlign: "right" }}>Fecha:</td>
+          <td style={S.cell}>{data.fecha || "-"}</td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
+function SectionTitle({ children }) {
+  return <div style={{ border: "1px solid #111", padding: 4, fontWeight: 700, textAlign: "center", background: "#eee", marginTop: 8 }}>{children}</div>;
+}
+
+function TextBlock({ children }) {
+  return <div style={{ border: "1px solid #111", borderTop: 0, padding: 10, whiteSpace: "pre-line", textAlign: "justify" }}>{children}</div>;
+}
+
+function RenderTable({ text }) {
+  const rows = parseTableText(text);
+  if (rows.length === 0) return null;
+
+  return (
+    <table style={{ ...S.table, marginTop: 8 }}>
+      <tbody>
+        {rows.map((row, rowIndex) => (
+          <tr key={`${rowIndex}-${row.join("-")}`}>
+            {row.map((cell, cellIndex) => (
+              <td key={cellIndex} style={rowIndex === 0 ? S.headerCell : S.cell}>
+                {cell || " "}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function BulletList({ items }) {
+  return (
+    <ul style={{ margin: "8px 0 0 18px", padding: 0 }}>
+      {(items || []).map((item, index) => (
+        <li key={index} style={{ marginBottom: 6, textAlign: "justify" }}>{item}</li>
+      ))}
+    </ul>
+  );
+}
+
+export default function VisitaCampoPDF({ allowDownload = true }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { user, isSuperAdmin } = useAuth();
+  const superAdminActivo = typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
+  const [record, setRecord] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadRecord = async () => {
+      const { data, error } = await supabase.from("registros").select("*").eq("id", id).maybeSingle();
+      if (error) console.error(error);
+      if (data && !superAdminActivo && data.user_id !== user?.id) {
+        setRecord(null);
+      } else {
+        setRecord(data || null);
+      }
+      setLoading(false);
+    };
+
+    loadRecord();
+  }, [id, superAdminActivo, user?.id]);
+
+  if (loading) return <div className="p-6 text-gray-500">Cargando PDF...</div>;
+  if (!record) return <div className="p-6 text-center"><p>No se encontró el informe.</p><button onClick={() => navigate("/petroleo/visita-campo")} className="btn-volver-orange mt-4">Volver</button></div>;
+  if (record.estado !== "completado" && allowDownload) return <div className="p-6 text-center"><p>Este informe aún no está completado.</p><button onClick={() => navigate(`/petroleo/visita-campo/${id}`)} className="btn-volver-orange mt-4">Volver</button></div>;
+
+  const data = { ...createEmptyVisitaCampoData(), ...(record.data || {}) };
+
+  return (
+    <div className="bg-gray-100 p-4 text-gray-900">
+      <div className="mx-auto mb-4 flex max-w-[210mm] justify-between gap-2 print:hidden">
+        <button onClick={() => navigate("/petroleo/visita-campo")} className="btn-volver-orange">Volver</button>
+        {allowDownload && (
+          <button onClick={() => printPdf("visita-campo-pdf", `ASTAP_${data.codigoDocumento || record.id}_visita_campo`)} className="rounded bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700">Descargar / imprimir PDF</button>
+        )}
+      </div>
+
+      <div id="visita-campo-pdf" style={S.page}>
+        <Header data={data} />
+
+        <table style={S.table}>
+          <tbody>
+            <tr><td style={{ ...S.headerCell, width: "18%" }}>CLIENTE:</td><td style={S.cell}>{data.cliente}</td><td style={{ ...S.headerCell, width: "18%" }}>MODELOS:</td><td style={S.cell}>{data.modelos}</td></tr>
+            <tr><td style={S.headerCell}>UBICACIÓN:</td><td style={S.cell}>{data.ubicacion}</td><td style={S.headerCell}>MARCA:</td><td style={S.cell}>{data.marca}</td></tr>
+          </tbody>
+        </table>
+
+        <SectionTitle>Antecedentes</SectionTitle>
+        <TextBlock>{data.antecedentes}</TextBlock>
+
+        <SectionTitle>Objetivos de la asistencia en campo</SectionTitle>
+        <div style={{ border: "1px solid #111", borderTop: 0, padding: 10 }}><BulletList items={data.objetivos} /></div>
+
+        <Header data={data} />
+        <SectionTitle>Descripción de actividades</SectionTitle>
+        <TextBlock>{data.descripcionLugar}</TextBlock>
+        <div style={{ border: "1px solid #111", borderTop: 0, padding: 10 }}>
+          {data.actividades.map((actividad, index) => (
+            <div key={index} style={{ marginBottom: 10 }}>
+              <strong>{index + 1}. {actividad.titulo}:</strong>
+              <p style={{ margin: "6px 0 0", whiteSpace: "pre-line", textAlign: "justify" }}>{actividad.detalle}</p>
+            </div>
+          ))}
+        </div>
+
+        <Header data={data} />
+        <SectionTitle>Tabla resumen de equipos centrífugos</SectionTitle>
+        <TextBlock>{data.equiposIntro}</TextBlock>
+        <RenderTable text={data.equiposTabla} />
+
+        <SectionTitle>Lista de partes recomendada por el fabricante - FLOWSERVE</SectionTitle>
+        <TextBlock>{data.partesIntro}</TextBlock>
+
+        {(data.repuestos || []).map((grupo, index) => (
+          <div key={index} style={{ breakInside: "avoid", pageBreakInside: "avoid", marginTop: 12 }}>
+            <Header data={data} />
+            <h3 style={{ margin: "10px 0 6px", fontSize: 13 }}>{grupo.titulo}</h3>
+            <RenderTable text={grupo.rows} />
+            {grupo.caption && <p style={{ textAlign: "center", fontSize: 10, fontStyle: "italic" }}>{grupo.caption}</p>}
+          </div>
+        ))}
+
+        <Header data={data} />
+        <SectionTitle>Tiempo mínimo para cambio de partes según normativa API 610 y ANSI B73.1</SectionTitle>
+        <RenderTable text={data.intervalosTabla} />
+        <TextBlock>{data.notaIntervalos}</TextBlock>
+
+        <Header data={data} />
+        <SectionTitle>Conclusiones</SectionTitle>
+        <div style={{ border: "1px solid #111", borderTop: 0, padding: 10 }}><BulletList items={data.conclusiones} /></div>
+
+        <SectionTitle>Recomendaciones</SectionTitle>
+        <div style={{ border: "1px solid #111", borderTop: 0, padding: 10 }}><BulletList items={data.recomendaciones} /></div>
+
+        <table style={{ ...S.table, marginTop: 28 }}>
+          <tbody>
+            <tr><td style={S.headerCell}>REALIZADO POR</td><td style={S.headerCell}>REVISADO POR</td><td style={S.headerCell}>RECIBIDO POR</td></tr>
+            <tr>
+              <td style={{ ...S.cell, height: 80, whiteSpace: "pre-line", textAlign: "center", verticalAlign: "bottom" }}>{data.realizadoPor}</td>
+              <td style={{ ...S.cell, height: 80, whiteSpace: "pre-line", textAlign: "center", verticalAlign: "bottom" }}>{data.revisadoPor}</td>
+              <td style={{ ...S.cell, height: 80, whiteSpace: "pre-line", textAlign: "center", verticalAlign: "bottom" }}>{data.recibidoPor}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
