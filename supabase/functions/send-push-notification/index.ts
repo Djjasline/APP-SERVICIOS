@@ -10,6 +10,21 @@ const corsHeaders = {
 
 const normalizeEmail = (email: unknown) => String(email || "").trim().toLowerCase();
 
+type PushSendResult = {
+  ok: boolean;
+  endpoint: string;
+  statusCode: number | null;
+};
+
+function getPushStatusCode(error: unknown) {
+  if (typeof error === "object" && error !== null && "statusCode" in error) {
+    const statusCode = Number((error as { statusCode?: unknown }).statusCode);
+    return Number.isFinite(statusCode) ? statusCode : null;
+  }
+
+  return null;
+}
+
 function configureWebPush() {
   const publicKey = Deno.env.get("VAPID_PUBLIC_KEY") || "";
   const privateKey = Deno.env.get("VAPID_PRIVATE_KEY") || "";
@@ -209,8 +224,8 @@ serve(async (req) => {
     return jsonResponse({ error: error.message }, 500);
   }
 
-  const resultados = await Promise.allSettled(
-    (suscripciones || []).map((sub) => {
+  const resultados: PushSendResult[] = await Promise.all(
+    (suscripciones || []).map(async (sub) => {
       const recipientEmail = emailByUserId.get(sub.user_id) || "";
       const badgeCount = unreadCountByEmail.get(recipientEmail) || 1;
       const payload = JSON.stringify({
@@ -222,16 +237,34 @@ serve(async (req) => {
         badgeCount,
       });
 
-      return webpush.sendNotification(
-        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-        payload
-      );
+      try {
+        await webpush.sendNotification(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          payload
+        );
+
+        return { ok: true, endpoint: sub.endpoint, statusCode: null };
+      } catch (error) {
+        return { ok: false, endpoint: sub.endpoint, statusCode: getPushStatusCode(error) };
+      }
     })
   );
 
+  const staleEndpoints = resultados
+    .filter((result) => !result.ok && [404, 410].includes(result.statusCode || 0))
+    .map((result) => result.endpoint);
+
+  if (staleEndpoints.length > 0) {
+    await supabaseAdmin
+      .from("push_subscriptions")
+      .delete()
+      .in("endpoint", staleEndpoints);
+  }
+
   return jsonResponse({
-    enviados: resultados.filter((r) => r.status === "fulfilled").length,
-    fallidos: resultados.filter((r) => r.status === "rejected").length,
+    enviados: resultados.filter((r) => r.ok).length,
+    fallidos: resultados.filter((r) => !r.ok).length,
+    suscripciones_eliminadas: staleEndpoints.length,
     notificaciones: notificationsInserted,
   });
 });

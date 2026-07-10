@@ -1,10 +1,28 @@
 const CACHE_NAME = "app-servicios-v9";
+const VAPID_CACHE_NAME = "app-servicios-vapid";
+const VAPID_PUBLIC_KEY_REQUEST = "/__vapid_public_key__";
 
 const STATIC_ASSETS = [
   "/manifest.json",
   "/favicon.ico",
 ];
 let VAPID_PUBLIC_KEY = null;
+
+async function persistVapidPublicKey(key) {
+  if (!key) return;
+
+  const cache = await caches.open(VAPID_CACHE_NAME);
+  await cache.put(VAPID_PUBLIC_KEY_REQUEST, new Response(key));
+}
+
+async function getVapidPublicKey() {
+  if (VAPID_PUBLIC_KEY) return VAPID_PUBLIC_KEY;
+
+  const cached = await caches.match(VAPID_PUBLIC_KEY_REQUEST);
+  const key = cached ? (await cached.text()).trim() : "";
+  VAPID_PUBLIC_KEY = key || null;
+  return VAPID_PUBLIC_KEY;
+}
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -16,6 +34,7 @@ function urlBase64ToUint8Array(base64String) {
 self.addEventListener("message", (event) => {
   if (event.data?.type === "SET_VAPID_PUBLIC_KEY") {
     VAPID_PUBLIC_KEY = event.data.key || null;
+    event.waitUntil?.(persistVapidPublicKey(VAPID_PUBLIC_KEY));
   }
 });
 
@@ -52,7 +71,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((cacheNames) =>
       Promise.all(
         cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) return caches.delete(cache);
+          if (![CACHE_NAME, VAPID_CACHE_NAME].includes(cache)) return caches.delete(cache);
         })
       )
     )
@@ -176,21 +195,26 @@ self.addEventListener("notificationclick", (event) => {
 // ─── PUSH SUBSCRIPTION CHANGE (renovación automática) ───────────────────────
 self.addEventListener("pushsubscriptionchange", (event) => {
   event.waitUntil(
-    self.registration.pushManager
-      .subscribe({
+    (async () => {
+      const vapidPublicKey = await getVapidPublicKey();
+
+      if (!vapidPublicKey) {
+        console.warn("[Push] No se puede renovar suscripción: falta VAPID_PUBLIC_KEY.");
+        return;
+      }
+
+      const subscription = await self.registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: VAPID_PUBLIC_KEY ? urlBase64ToUint8Array(VAPID_PUBLIC_KEY) : undefined,
-      })
-      .then((subscription) => {
-        // Notificar al cliente para que actualice la suscripción en Supabase
-        return self.clients.matchAll().then((clients) => {
-          clients.forEach((client) =>
-            client.postMessage({
-              type: "PUSH_SUBSCRIPTION_CHANGED",
-              subscription: subscription.toJSON(),
-            })
-          );
-        });
-      })
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+      });
+
+      const clients = await self.clients.matchAll();
+      clients.forEach((client) =>
+        client.postMessage({
+          type: "PUSH_SUBSCRIPTION_CHANGED",
+          subscription: subscription.toJSON(),
+        })
+      );
+    })()
   );
 });

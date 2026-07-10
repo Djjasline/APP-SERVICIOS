@@ -16,6 +16,14 @@ import { useAuth } from "@/context/AuthContext";   // ajusta la ruta si es difer
 // Guarda la PRIVADA en Supabase Edge Function secrets (VAPID_PRIVATE_KEY)
 // y la PÚBLICA aquí y en sw.js (__VAPID_PUBLIC_KEY__)
 const VAPID_PUBLIC_KEY = (import.meta.env.VITE_VAPID_PUBLIC_KEY || "").trim();
+
+function sendVapidPublicKey(registration) {
+  if (!VAPID_PUBLIC_KEY) return;
+
+  const worker = registration.active || registration.waiting || registration.installing;
+  worker?.postMessage({ type: "SET_VAPID_PUBLIC_KEY", key: VAPID_PUBLIC_KEY });
+}
+
 // ─── Utilidad: convertir clave VAPID a Uint8Array ───────────────────────────
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -77,6 +85,8 @@ export function useNotificaciones() {
     let cancelled = false;
 
     navigator.serviceWorker.ready.then(async (registro) => {
+      sendVapidPublicKey(registro);
+
       const suscripcionExistente = await registro.pushManager.getSubscription();
       if (cancelled) return;
 
