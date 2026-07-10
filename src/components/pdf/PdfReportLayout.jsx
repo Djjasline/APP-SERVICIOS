@@ -21,8 +21,9 @@ export function PdfEquipmentImageFrame({ src, alt, points = [] }) {
         style={{
           position: "relative",
           width: "95mm",
-          height: "70mm",
+          height: "58mm",
           maxWidth: "100%",
+          maxHeight: "70mm",
           border: "1px solid #d1d5db",
           borderRadius: 4,
           overflow: "hidden",
@@ -37,6 +38,7 @@ export function PdfEquipmentImageFrame({ src, alt, points = [] }) {
           style={{
             width: "100%",
             height: "100%",
+            maxHeight: "70mm",
             objectFit: "contain",
             display: "block",
           }}

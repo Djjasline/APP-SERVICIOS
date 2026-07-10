@@ -120,7 +120,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
     <>
 <style>{`
 @page {
-  margin: 10mm 10mm 14mm 10mm;
+  margin: 6mm 6mm 8mm 6mm;
   @bottom-right {
     content: "Página " counter(page);
     font-size: 9px;
@@ -167,7 +167,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
     display: block;
     position: fixed;
     right: 0;
-    bottom: -8mm;
+    bottom: -5mm;
     font-size: 9px;
     color: #6b7280;
   }
@@ -330,9 +330,9 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             ESTADO DEL EQUIPO
         ════════════════════ */}
         <div>
-          <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
-
           {estadoEquipoImagenes.length === 0 ? (
+            <div className="no-break" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+            <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
             <table style={S.tbl}>
               <tbody>
                 <tr>
@@ -342,17 +342,19 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                 </tr>
               </tbody>
             </table>
+            </div>
           ) : (
             estadoEquipoImagenes.map((img, imageIndex) => (
               <div
                 key={img.id || imageIndex}
                 className="no-break"
-                style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10, breakInside: "avoid", pageBreakInside: "avoid" }}
+                style={{ marginTop: 4, breakInside: "avoid", pageBreakInside: "avoid" }}
               >
-                <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 11, fontWeight: 700, background: "#f9fafb", color: "#111827" }}>
+                {imageIndex === 0 && <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>}
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#111827", marginBottom: 2 }}>
                   Imagen {imageIndex + 1}
                 </div>
-                <div style={{ padding: 10 }}>
+                <div>
                   <PdfEquipmentImageFrame src={img.url} alt={`estado-equipo-${imageIndex + 1}`} points={img.puntos} />
                   {(img.puntos || []).length > 0 && (
                     <div style={{ marginTop: 8 }}>
@@ -365,7 +367,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                     </div>
                   )}
                   {(img.puntos || []).length === 0 && (
-                    <div style={{ marginTop: 6, fontSize: 11, color: "#6b7280" }}>Sin puntos marcados</div>
+                    <div style={{ marginTop: 3, fontSize: 10, color: "#6b7280" }}>Sin puntos marcados</div>
                   )}
                 </div>
               </div>
