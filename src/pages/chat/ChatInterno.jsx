@@ -101,41 +101,27 @@ export default function ChatInterno() {
   }, [cargarNoLeidos]);
 
   useEffect(() => {
-  if (!user?.id) return;
+    if (!user?.id) return undefined;
 
-  const channel = supabase.channel("online-users", {
-    config: {
-      presence: {
-        key: user.id,
-      },
-    },
-  });
+    const channel = supabase.channel("online-users");
 
-  channel
-    .on("presence", { event: "sync" }, () => {
-      const state = channel.presenceState();
-      const online = {};
+    channel
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        const online = {};
 
-      Object.keys(state).forEach((userId) => {
-        online[userId] = true;
-      });
+        Object.keys(state).forEach((userId) => {
+          online[userId] = true;
+        });
 
-      setUsuariosOnline(online);
-    })
-    .subscribe(async (status) => {
-      if (status === "SUBSCRIBED") {
-        await channel.track({
-  user_id: user.id,
-  email: user.email,
-  online_at: new Date().toISOString(),
-});
-      }
-    });
+        setUsuariosOnline(online);
+      })
+      .subscribe();
 
-  return () => {
-    supabase.removeChannel(channel);
-  };
-}, [user?.id]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
 
   const abrirChat = useCallback(
     async (otroUsuario) => {

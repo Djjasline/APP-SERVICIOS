@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { getUnreadAppUpdatesCount } from "@/services/appUpdatesService";
+import { getUnreadMessageCounts } from "@/services/chatService";
+import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard,
   Truck,
@@ -36,6 +38,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const [openPetroleo, setOpenPetroleo] = useState(false);
   const [openRepositorios, setOpenRepositorios] = useState(false);
   const [unreadBulletins, setUnreadBulletins] = useState(0);
+  const [unreadChat, setUnreadChat] = useState(0);
 
   const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
   const puedeVerTodo = !proveedorSoloVehiculos;
@@ -118,6 +121,53 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       window.removeEventListener("focus", loadUnreadBulletins);
     };
   }, [user?.id, location.pathname]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadUnreadChat = async () => {
+      if (!user?.id || !puedeVerTodo) {
+        if (mounted) setUnreadChat(0);
+        return;
+      }
+
+      try {
+        const counts = await getUnreadMessageCounts(user.id);
+        const total = Object.values(counts || {}).reduce((sum, value) => sum + (Number(value) || 0), 0);
+        if (mounted) setUnreadChat(total);
+      } catch (error) {
+        console.error("Error cargando mensajes no leídos:", error);
+      }
+    };
+
+    loadUnreadChat();
+    const interval = setInterval(loadUnreadChat, 10000);
+    window.addEventListener("focus", loadUnreadChat);
+
+    const channel = user?.id
+      ? supabase
+          .channel(`sidebar-chat-unread-${user.id}`)
+          .on(
+            "postgres_changes",
+            {
+              event: "INSERT",
+              schema: "public",
+              table: "chat_messages",
+            },
+            (payload) => {
+              if (payload.new?.sender_id !== user.id) loadUnreadChat();
+            }
+          )
+          .subscribe()
+      : null;
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+      window.removeEventListener("focus", loadUnreadChat);
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, [user?.id, puedeVerTodo, location.pathname]);
 
   const openOnly = (name) => {
     setOpenVehiculos(name === "vehiculos");
@@ -236,7 +286,19 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             aria-current={isActive("/chat") ? "page" : undefined}
           >
             <MessageCircle size={20} className={iconClass} />
-            {openSidebar && "Chat interno"}
+            {openSidebar && (
+              <span className="flex flex-1 items-center justify-between gap-2">
+                <span>Chat interno</span>
+                {unreadChat > 0 && (
+                  <span className="min-w-5 rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
+                    {unreadChat > 99 ? "99+" : unreadChat}
+                  </span>
+                )}
+              </span>
+            )}
+            {!openSidebar && unreadChat > 0 && (
+              <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-600 ring-2 ring-white" />
+            )}
             {tooltip("Chat interno")}
           </button>
         )}
