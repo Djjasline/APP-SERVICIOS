@@ -22,6 +22,8 @@ create unique index if not exists push_subscriptions_endpoint_key
 create index if not exists push_subscriptions_user_id_idx
   on public.push_subscriptions(user_id);
 
+grant select, insert, update, delete on public.push_subscriptions to authenticated;
+
 alter table public.push_subscriptions enable row level security;
 
 drop policy if exists "Usuario puede ver su suscripcion" on public.push_subscriptions;
@@ -69,6 +71,8 @@ create table if not exists public.notifications (
 
 create index if not exists notifications_recipient_read_idx
   on public.notifications(lower(recipient_email), read, created_at desc);
+
+grant select, insert, update on public.notifications to authenticated;
 
 alter table public.notifications enable row level security;
 
