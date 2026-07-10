@@ -10,6 +10,7 @@ import {
   getRecordAccessPermissionsForUser,
   mergeRecords,
 } from "@/services/accessControlService";
+import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 
 export default function IndexInspeccion() {
   const navigate = useNavigate();
@@ -220,6 +221,23 @@ export default function IndexInspeccion() {
     }
 
     navigate(`/vehiculos/inspeccion/${item.subtipo}/${item.id}`);
+  };
+
+  const handleDuplicate = async (item) => {
+    if (!canEditInspection(item)) {
+      alert("No tienes permiso para duplicar esta inspección.");
+      return;
+    }
+
+    if (!confirm("¿Duplicar esta inspección como borrador sin código de informe?")) return;
+
+    try {
+      const duplicated = await duplicateRecordAsDraft(item, user);
+      navigate(`/vehiculos/inspeccion/${duplicated.subtipo}/${duplicated.id}`);
+    } catch (error) {
+      console.error("Error duplicando inspección:", error);
+      alert("No se pudo duplicar la inspección.");
+    }
   };
 
   const handleGeneratePdf = (item) => {
@@ -507,6 +525,15 @@ export default function IndexInspeccion() {
                     className="text-blue-600 hover:underline"
                   >
                     Abrir
+                  </button>
+                )}
+
+                {canEditInspection(item) && (
+                  <button
+                    onClick={() => handleDuplicate(item)}
+                    className="text-amber-600 font-semibold hover:underline"
+                  >
+                    Duplicar
                   </button>
                 )}
 

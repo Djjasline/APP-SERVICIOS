@@ -9,6 +9,7 @@ import {
 } from "@/services/accessControlService";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 
 export default function InformeHome() {
   const navigate = useNavigate();
@@ -188,6 +189,23 @@ export default function InformeHome() {
     }
 
     navigate(`/vehiculos/informe/${report.id}`);
+  };
+
+  const duplicateReport = async (report) => {
+    if (!canEditReport(report)) {
+      alert("No tienes permiso para duplicar este informe.");
+      return;
+    }
+
+    if (!confirm("¿Duplicar este informe como borrador sin código de informe?")) return;
+
+    try {
+      const duplicated = await duplicateRecordAsDraft(report, user);
+      navigate(`/vehiculos/informe/${duplicated.id}`);
+    } catch (error) {
+      console.error("Error duplicando informe:", error);
+      alert("No se pudo duplicar el informe.");
+    }
   };
 
   /* ===========================
@@ -402,6 +420,15 @@ export default function InformeHome() {
                   className="text-blue-600 hover:underline"
                 >
                   Abrir
+                </button>
+              )}
+
+              {canEditReport(r) && (
+                <button
+                  onClick={() => duplicateReport(r)}
+                  className="text-amber-600 hover:underline font-semibold"
+                >
+                  Duplicar
                 </button>
               )}
 

@@ -9,6 +9,7 @@ import {
 } from "@/services/accessControlService";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 
 const informeTipos = {
   bomba: {
@@ -165,6 +166,24 @@ export default function InformeHome({
 
     const reportTipo = getInformeTipo(report);
     navigate(`${basePath}/${reportTipo}/${report.id}`);
+  };
+
+  const duplicateReport = async (report) => {
+    if (!canEditReport(report)) {
+      alert("No tienes permiso para duplicar este informe.");
+      return;
+    }
+
+    if (!confirm("¿Duplicar este informe como borrador sin código de informe?")) return;
+
+    try {
+      const duplicated = await duplicateRecordAsDraft(report, user);
+      const reportTipo = getInformeTipo(duplicated);
+      navigate(`${basePath}/${reportTipo}/${duplicated.id}`);
+    } catch (error) {
+      console.error("Error duplicando informe:", error);
+      alert("No se pudo duplicar el informe.");
+    }
   };
 
   const deleteReport = async (id) => {
@@ -332,6 +351,11 @@ export default function InformeHome({
               {canEditReport(r) && (
                 <button onClick={() => openReport(r)} className="text-blue-600 hover:underline">
                   Abrir
+                </button>
+              )}
+              {canEditReport(r) && (
+                <button onClick={() => duplicateReport(r)} className="text-amber-600 hover:underline font-semibold">
+                  Duplicar
                 </button>
               )}
               {r.estado === "completado" && canDownloadReport(r) && (
