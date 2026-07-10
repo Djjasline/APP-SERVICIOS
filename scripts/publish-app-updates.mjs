@@ -1,3 +1,5 @@
+import { execSync } from "node:child_process";
+
 const supabaseUrl = process.env.SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const eventPath = process.env.GITHUB_EVENT_PATH;
@@ -15,7 +17,7 @@ if (!eventPath) {
 }
 
 const event = await readJson(eventPath);
-const commits = Array.isArray(event.commits) ? event.commits : [];
+const commits = Array.isArray(event.commits) && event.commits.length > 0 ? event.commits : [getCurrentCommit()].filter(Boolean);
 const visibleCommits = commits.filter((commit) => {
   const message = String(commit.message || "");
   return !/\[(skip bulletin|skip update|no bulletin)\]/i.test(message);
@@ -65,6 +67,17 @@ console.log(`Boletín publicado: ${title}`);
 async function readJson(path) {
   const fs = await import("node:fs/promises");
   return JSON.parse(await fs.readFile(path, "utf8"));
+}
+
+function getCurrentCommit() {
+  try {
+    const raw = execSync("git log -1 --pretty=format:%H%x1f%s%x1f%cI", { encoding: "utf8" });
+    const [id, message, timestamp] = raw.split("\x1f");
+    return { id, message, timestamp };
+  } catch (error) {
+    console.warn("No se pudo leer el commit actual:", error.message);
+    return null;
+  }
 }
 
 function firstLine(message) {
