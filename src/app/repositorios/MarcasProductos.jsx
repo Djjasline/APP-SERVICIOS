@@ -52,6 +52,14 @@ const marcas = [
     color: "bg-cyan-700",
     iniciales: "UB",
   },
+  {
+    nombre: "Convertworld",
+    descripcion: "Conversor de unidades para presión, caudal, longitud, masa, volumen, temperatura y otras magnitudes.",
+    url: "https://www.convertworld.com/es/",
+    dominio: "convertworld.com",
+    color: "bg-violet-700",
+    iniciales: "CW",
+  },
 ];
 
 export default function MarcasProductos() {
