@@ -99,7 +99,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
     let mounted = true;
 
     const loadUnreadBulletins = async () => {
-      if (!user?.id || !superAdminActivo) {
+      if (!user?.id) {
         if (mounted) setUnreadBulletins(0);
         return;
       }
@@ -117,7 +117,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       clearInterval(interval);
       window.removeEventListener("focus", loadUnreadBulletins);
     };
-  }, [user?.id, superAdminActivo, location.pathname]);
+  }, [user?.id, location.pathname]);
 
   const openOnly = (name) => {
     setOpenVehiculos(name === "vehiculos");
@@ -241,6 +241,31 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
           </button>
         )}
 
+        {puedeVerTodo && (
+          <button
+            type="button"
+            onClick={() => go("/notifications")}
+            className={itemClass(isActive("/notifications"))}
+            aria-current={isActive("/notifications") ? "page" : undefined}
+          >
+            <Megaphone size={20} className={iconClass} />
+            {openSidebar && (
+              <span className="flex flex-1 items-center justify-between gap-2">
+                <span>Boletines</span>
+                {unreadBulletins > 0 && (
+                  <span className="min-w-5 rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
+                    {unreadBulletins > 99 ? "99+" : unreadBulletins}
+                  </span>
+                )}
+              </span>
+            )}
+            {!openSidebar && unreadBulletins > 0 && (
+              <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-600 ring-2 ring-white" />
+            )}
+            {tooltip("Boletines")}
+          </button>
+        )}
+
         {/* ADMINISTRACIÓN */}
         {superAdminActivo && (
           <>
@@ -253,28 +278,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               <ShieldCheck size={20} className={iconClass} />
               {openSidebar && "Permisos de registros"}
               {tooltip("Permisos de registros")}
-            </button>
-            <button
-              type="button"
-              onClick={() => go("/admin/boletines")}
-              className={itemClass(isActive("/admin/boletines"))}
-              aria-current={isActive("/admin/boletines") ? "page" : undefined}
-            >
-              <Megaphone size={20} className={iconClass} />
-              {openSidebar && (
-                <span className="flex flex-1 items-center justify-between gap-2">
-                  <span>Boletines</span>
-                  {unreadBulletins > 0 && (
-                    <span className="min-w-5 rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
-                      {unreadBulletins > 99 ? "99+" : unreadBulletins}
-                    </span>
-                  )}
-                </span>
-              )}
-              {!openSidebar && unreadBulletins > 0 && (
-                <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-600 ring-2 ring-white" />
-              )}
-              {tooltip("Boletines")}
             </button>
           </>
         )}

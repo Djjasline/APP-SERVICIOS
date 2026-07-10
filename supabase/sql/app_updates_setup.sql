@@ -26,6 +26,8 @@ create table if not exists public.app_updates (
 create index if not exists app_updates_active_created_idx
   on public.app_updates(active, created_at desc);
 
+grant select, insert, update, delete on public.app_updates to authenticated;
+
 alter table public.app_updates enable row level security;
 
 drop policy if exists "Usuarios autenticados ven boletines activos" on public.app_updates;
@@ -53,6 +55,8 @@ create table if not exists public.app_update_reads (
 
 create index if not exists app_update_reads_user_idx
   on public.app_update_reads(user_id, read_at desc);
+
+grant select, insert, update, delete on public.app_update_reads to authenticated;
 
 alter table public.app_update_reads enable row level security;
 

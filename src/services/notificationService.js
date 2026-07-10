@@ -35,10 +35,8 @@ export async function createNotification({
       record_id,
     };
 
-    const notification = await createNotificationFallback(payload);
-    await sendPushNotification(payload);
-
-    return notification;
+    const notification = await sendPushNotification(payload, { saveNotification: true });
+    return notification || createNotificationFallback(payload);
   } catch (err) {
     console.error("Unexpected error creating notification:", err);
     return null;
@@ -68,36 +66,20 @@ export async function createUserNotifications({
     record_id,
   };
 
-  const savedNotifications = recipientEmails.length > 0
-    ? await Promise.all(
-        recipientEmails.map((recipientEmail) =>
-          createNotificationFallback({
-            ...payload,
-            recipient_email: recipientEmail,
-          })
-        )
-      )
-    : [];
-
   try {
-    const { data, error } = await supabase.functions.invoke("send-push-notification", {
-      body: {
-        user_ids: userIds,
-        recipient_emails: recipientEmails,
-        titulo: title || "App Servicios",
-        mensaje: message || "Nueva notificación",
-        record_type,
-        record_id,
-        url: getNotificationUrl(payload),
-        save_notification: recipientEmails.length === 0,
-      },
+    const { data, error } = await invokePushNotification({
+      user_ids: userIds,
+      recipient_emails: recipientEmails,
+      titulo: title || "App Servicios",
+      mensaje: message || "Nueva notificación",
+      record_type,
+      record_id,
+      url: getNotificationUrl(payload),
+      save_notification: true,
     });
 
     if (!error) {
-      return {
-        ...(data || {}),
-        notificaciones_locales: savedNotifications.filter(Boolean).length,
-      };
+      return data || null;
     }
 
     console.error("Error creating user notifications:", error);
@@ -105,29 +87,51 @@ export async function createUserNotifications({
     console.error("Unexpected error creating user notifications:", err);
   }
 
-  return savedNotifications;
+  return Promise.all(
+    recipientEmails.map((recipientEmail) =>
+      createNotificationFallback({
+        ...payload,
+        recipient_email: recipientEmail,
+      })
+    )
+  );
 }
 
-async function sendPushNotification(payload) {
+async function sendPushNotification(payload, { saveNotification = false } = {}) {
   try {
-    const { error } = await supabase.functions.invoke("send-push-notification", {
-      body: {
-        recipient_emails: [payload.recipient_email],
-        titulo: payload.title || "App Servicios",
-        mensaje: payload.message || "Nueva notificación",
-        record_type: payload.record_type,
-        record_id: payload.record_id,
-        url: getNotificationUrl(payload),
-        save_notification: false,
-      },
+    const { data, error } = await invokePushNotification({
+      recipient_emails: [payload.recipient_email],
+      titulo: payload.title || "App Servicios",
+      mensaje: payload.message || "Nueva notificación",
+      record_type: payload.record_type,
+      record_id: payload.record_id,
+      url: getNotificationUrl(payload),
+      save_notification: saveNotification,
     });
 
     if (error) {
       console.error("Error sending push notification:", error);
+      return null;
     }
+
+    return data || null;
   } catch (err) {
     console.error("Unexpected error sending push notification:", err);
+    return null;
   }
+}
+
+async function invokePushNotification(body) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  return supabase.functions.invoke("send-push-notification", {
+    body,
+    headers: session?.access_token
+      ? { Authorization: `Bearer ${session.access_token}` }
+      : undefined,
+  });
 }
 
 async function createNotificationFallback(payload) {
