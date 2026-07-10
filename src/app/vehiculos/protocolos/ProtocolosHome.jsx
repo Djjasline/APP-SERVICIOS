@@ -11,7 +11,27 @@ import {
   mergeRecords,
 } from "@/services/accessControlService";
 
-const PROTOCOL_SUBTIPO = "hidrosuccionador-vactor";
+const PROTOCOLS = [
+  {
+    subtipo: "hidrosuccionador-vactor",
+    title: "Protocolo de hidrosuccionador Vactor",
+    label: "Hidrosuccionador Vactor",
+    description: "Mantenimiento semestral y anual de hidrosuccionadores Vactor Serie 2100 PD.",
+    path: "vactor",
+  },
+  {
+    subtipo: "camara-vcam6",
+    title: "Protocolo de cámara V-CAM6",
+    label: "Cámara V-CAM6",
+    description: "Mantenimiento preventivo de cámara de inspección, cable, carrete, monitor y cabezal.",
+    path: "vcam",
+  },
+];
+
+const PROTOCOL_BY_SUBTIPO = PROTOCOLS.reduce((acc, item) => {
+  acc[item.subtipo] = item;
+  return acc;
+}, {});
 
 export default function ProtocolosHome() {
   const navigate = useNavigate();
@@ -40,7 +60,7 @@ export default function ProtocolosHome() {
           .select("*")
           .eq("area", "vehiculos")
           .eq("tipo", "protocolo")
-          .eq("subtipo", PROTOCOL_SUBTIPO)
+          .in("subtipo", PROTOCOLS.map((item) => item.subtipo))
           .order("created_at", { ascending: false });
 
       let data = [];
@@ -51,8 +71,8 @@ export default function ProtocolosHome() {
         data = response.data || [];
         error = response.error;
       } else {
-        const ownerIds = getPermittedOwnerIds(userPermissions, "vehiculos", "protocolo", "view", PROTOCOL_SUBTIPO);
-        const ownerEmails = getPermittedOwnerEmails(userPermissions, "vehiculos", "protocolo", "view", PROTOCOL_SUBTIPO);
+        const ownerIds = getPermittedOwnerIds(userPermissions, "vehiculos", "protocolo", "view");
+        const ownerEmails = getPermittedOwnerEmails(userPermissions, "vehiculos", "protocolo", "view");
         const [ownResponse, permittedResponse, permittedByTechResponse] = await Promise.all([
           baseQuery().eq("user_id", user.id),
           ownerIds.length > 0 ? baseQuery().in("user_id", ownerIds) : Promise.resolve({ data: [], error: null }),
@@ -101,7 +121,7 @@ export default function ProtocolosHome() {
       .eq("id", item.id)
       .eq("area", "vehiculos")
       .eq("tipo", "protocolo")
-      .eq("subtipo", PROTOCOL_SUBTIPO);
+      .eq("subtipo", item.subtipo);
 
     if (!puedeVerTodoVehiculos) query = query.eq("user_id", user.id);
 
@@ -130,13 +150,15 @@ export default function ProtocolosHome() {
       {proveedorVehiculosActivo && <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-700">Acceso proveedor: puedes ver tus protocolos y los registros autorizados por administración.</div>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-5 rounded-xl shadow flex flex-col gap-4 hover:shadow-lg hover:-translate-y-1 transition">
-          <div>
-            <h2 className="font-semibold text-gray-900">Protocolo de hidrosuccionador Vactor</h2>
-            <p className="text-sm text-gray-500">Mantenimiento semestral y anual de hidrosuccionadores Vactor Serie 2100 PD.</p>
+        {PROTOCOLS.map((protocol) => (
+          <div key={protocol.subtipo} className="bg-white p-5 rounded-xl shadow flex flex-col gap-4 hover:shadow-lg hover:-translate-y-1 transition">
+            <div>
+              <h2 className="font-semibold text-gray-900">{protocol.title}</h2>
+              <p className="text-sm text-gray-500">{protocol.description}</p>
+            </div>
+            <button onClick={() => navigate(`/vehiculos/protocolos/${protocol.path}/new`)} className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm transition">+ Nuevo protocolo</button>
           </div>
-          <button onClick={() => navigate("/vehiculos/protocolos/vactor/new")} className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm transition">+ Nuevo protocolo</button>
-        </div>
+        ))}
       </div>
 
       <div className="bg-white p-4 rounded-xl shadow space-y-4">
@@ -152,23 +174,26 @@ export default function ProtocolosHome() {
         {filtered.length === 0 ? (
           <p className="text-sm text-gray-400">Sin resultados</p>
         ) : (
-          filtered.map((item) => (
-            <div key={item.id} className="border rounded-lg p-3 flex flex-col md:flex-row md:justify-between md:items-center gap-3 text-sm">
-              <div>
-                <p className="text-[10px] text-gray-400 mb-1 uppercase">Hidrosuccionador Vactor - {item.estado}</p>
-                <p className="font-semibold text-gray-900">{item.data?.cliente || "Sin cliente"}</p>
-                <p className="text-xs text-gray-600">Equipo: <strong>{item.data?.equipoNo || "-"}</strong> | Código: <strong>{item.data?.codInf || "-"}</strong></p>
-                <p className="text-xs text-gray-500">Pedido: <strong>{item.data?.pedidoDemanda || "-"}</strong> | Técnico: <strong>{item.data?.tecnicoNombre || "-"}</strong></p>
-                <p className="text-xs text-gray-400">{new Date(item.updated_at || item.created_at).toLocaleString()}</p>
-                <span className={`mt-1 inline-block px-2 py-0.5 rounded text-white text-[10px] ${item.estado === "completado" ? "bg-green-600" : "bg-yellow-500"}`}>{item.estado === "completado" ? "Completado" : "Borrador"}</span>
+          filtered.map((item) => {
+            const protocol = PROTOCOL_BY_SUBTIPO[item.subtipo] || PROTOCOLS[0];
+            return (
+              <div key={item.id} className="border rounded-lg p-3 flex flex-col md:flex-row md:justify-between md:items-center gap-3 text-sm">
+                <div>
+                  <p className="text-[10px] text-gray-400 mb-1 uppercase">{protocol.label} - {item.estado}</p>
+                  <p className="font-semibold text-gray-900">{item.data?.cliente || "Sin cliente"}</p>
+                  <p className="text-xs text-gray-600">Equipo: <strong>{item.data?.equipoNo || "-"}</strong> | Código: <strong>{item.data?.codInf || "-"}</strong></p>
+                  <p className="text-xs text-gray-500">Pedido: <strong>{item.data?.pedidoDemanda || "-"}</strong> | Técnico: <strong>{item.data?.tecnicoNombre || "-"}</strong></p>
+                  <p className="text-xs text-gray-400">{new Date(item.updated_at || item.created_at).toLocaleString()}</p>
+                  <span className={`mt-1 inline-block px-2 py-0.5 rounded text-white text-[10px] ${item.estado === "completado" ? "bg-green-600" : "bg-yellow-500"}`}>{item.estado === "completado" ? "Completado" : "Borrador"}</span>
+                </div>
+                <div className="flex gap-3 text-xs shrink-0">
+                  {item.estado === "completado" && canDownload(item) && <button onClick={() => navigate(`/vehiculos/protocolos/${protocol.path}/${item.id}/pdf`)} className="text-green-600 font-semibold hover:underline">PDF</button>}
+                  {canEdit(item) && <button onClick={() => navigate(`/vehiculos/protocolos/${protocol.path}/${item.id}`)} className="text-blue-600 hover:underline">Abrir</button>}
+                  {(puedeVerTodoVehiculos || isOwn(item)) && <button onClick={() => handleDelete(item)} className="text-red-600 hover:underline">Eliminar</button>}
+                </div>
               </div>
-              <div className="flex gap-3 text-xs shrink-0">
-                {item.estado === "completado" && canDownload(item) && <button onClick={() => navigate(`/vehiculos/protocolos/vactor/${item.id}/pdf`)} className="text-green-600 font-semibold hover:underline">PDF</button>}
-                {canEdit(item) && <button onClick={() => navigate(`/vehiculos/protocolos/vactor/${item.id}`)} className="text-blue-600 hover:underline">Abrir</button>}
-                {(puedeVerTodoVehiculos || isOwn(item)) && <button onClick={() => handleDelete(item)} className="text-red-600 hover:underline">Eliminar</button>}
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

@@ -31,6 +31,7 @@ const TIPOS = [
   { value: "mantenimiento:vcam", label: "Mantenimiento - Cámara V-Cam6" },
   { value: "protocolo", label: "Protocolo" },
   { value: "protocolo:hidrosuccionador-vactor", label: "Protocolo - Hidrosuccionador Vactor" },
+  { value: "protocolo:camara-vcam6", label: "Protocolo - Cámara V-Cam6" },
   { value: "registro", label: "Registro de herramientas" },
 ];
 
