@@ -44,6 +44,14 @@ const marcas = [
     color: "bg-emerald-700",
     iniciales: "SR",
   },
+  {
+    nombre: "USA BlueBook",
+    descripcion: "Suministros, herramientas, equipos y productos para agua, saneamiento y mantenimiento operativo.",
+    url: "https://www.usabluebook.com/en-us/",
+    dominio: "usabluebook.com",
+    color: "bg-cyan-700",
+    iniciales: "UB",
+  },
 ];
 
 export default function MarcasProductos() {
