@@ -11,6 +11,9 @@ create table if not exists public.push_subscriptions (
 alter table public.push_subscriptions
   drop constraint if exists push_subscriptions_user_id_key;
 
+alter table public.push_subscriptions
+  drop constraint if exists push_subscriptions_user_id_unique;
+
 create unique index if not exists push_subscriptions_endpoint_key
   on public.push_subscriptions(endpoint);
 
