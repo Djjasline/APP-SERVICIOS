@@ -90,6 +90,7 @@ import RegistroPDF from "./app/operaciones/registro/RegistroPDF";
 import NotificationsPage from "./pages/Notifications";
 import ChatInterno from "./pages/chat/ChatInterno";
 import RegistroAccessAdmin from "./pages/admin/RegistroAccessAdmin";
+import AppUpdatesAdmin from "./pages/admin/AppUpdatesAdmin";
 
 const TechRoute = ({ children }) => (
   <RoleRoute
@@ -173,6 +174,7 @@ export default function RoutesApp() {
             <Route path="/notifications" element={<TechRoute><NotificationsPage /></TechRoute>} />
             <Route path="/chat" element={<TechRoute><ChatInterno /></TechRoute>} />
             <Route path="/admin/permisos-registros" element={<SuperAdminRoute><RegistroAccessAdmin /></SuperAdminRoute>} />
+            <Route path="/admin/boletines" element={<SuperAdminRoute><AppUpdatesAdmin /></SuperAdminRoute>} />
 
             <Route path="/informe" element={<VehiculosRoute><InformeHome /></VehiculosRoute>} />
             <Route path="/informe/nuevo" element={<VehiculosRoute><NuevoInforme /></VehiculosRoute>} />

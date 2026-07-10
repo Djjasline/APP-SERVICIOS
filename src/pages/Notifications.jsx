@@ -42,7 +42,7 @@ function getNotificationPath(notification) {
 */
 
 export default function NotificationsPage() {
-  const { email } = useAuth();
+  const { email, user } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -63,7 +63,7 @@ export default function NotificationsPage() {
       const data = await getNotifications(email);
 
       const notifications = Array.isArray(data) ? data : [];
-      const updates = getAppUpdates(email);
+      const updates = await getAppUpdates(user?.id);
       const allItems = [...updates, ...notifications].sort(
         (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
       );
@@ -73,7 +73,7 @@ export default function NotificationsPage() {
     };
 
     load();
-  }, [email]);
+  }, [email, user?.id]);
 
   useEffect(() => {
     const currentEmail = normalizeEmail(email);
@@ -113,8 +113,8 @@ export default function NotificationsPage() {
   const handleMarkRead = async (id) => {
     const item = items.find((notification) => notification.id === id);
 
-    if (item?.isAppUpdate) {
-      const ok = markAppUpdateRead(email, item.update_id || item.id);
+      if (item?.isAppUpdate) {
+      const ok = await markAppUpdateRead(user?.id, item.update_id || item.id);
       if (ok) updateReadState(id);
       return;
     }
@@ -147,7 +147,7 @@ export default function NotificationsPage() {
   const handleOpenNotification = async (notification) => {
     if (!notification.read) {
       if (notification.isAppUpdate) {
-        const ok = markAppUpdateRead(email, notification.update_id || notification.id);
+        const ok = await markAppUpdateRead(user?.id, notification.update_id || notification.id);
         if (ok) updateReadState(notification.id);
         return;
       }

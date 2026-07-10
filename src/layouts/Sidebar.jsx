@@ -17,6 +17,7 @@ import {
   GraduationCap,
   Tags,
   MessageCircle,
+  Megaphone,
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
@@ -216,16 +217,28 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
         {/* ADMINISTRACIÓN */}
         {superAdminActivo && (
-          <button
-            type="button"
-            onClick={() => go("/admin/permisos-registros")}
-            className={itemClass(isActive("/admin/permisos-registros"))}
-            aria-current={isActive("/admin/permisos-registros") ? "page" : undefined}
-          >
-            <ShieldCheck size={20} className={iconClass} />
-            {openSidebar && "Permisos de registros"}
-            {tooltip("Permisos de registros")}
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => go("/admin/permisos-registros")}
+              className={itemClass(isActive("/admin/permisos-registros"))}
+              aria-current={isActive("/admin/permisos-registros") ? "page" : undefined}
+            >
+              <ShieldCheck size={20} className={iconClass} />
+              {openSidebar && "Permisos de registros"}
+              {tooltip("Permisos de registros")}
+            </button>
+            <button
+              type="button"
+              onClick={() => go("/admin/boletines")}
+              className={itemClass(isActive("/admin/boletines"))}
+              aria-current={isActive("/admin/boletines") ? "page" : undefined}
+            >
+              <Megaphone size={20} className={iconClass} />
+              {openSidebar && "Boletines"}
+              {tooltip("Boletines")}
+            </button>
+          </>
         )}
 
         {/* VEHÍCULOS */}

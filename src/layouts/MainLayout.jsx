@@ -116,7 +116,7 @@ export default function MainLayout() {
       }
       try {
         const notificationsCount = await getUnreadCount(email);
-        const updatesCount = getUnreadAppUpdatesCount(email);
+        const updatesCount = await getUnreadAppUpdatesCount(user?.id);
         const totalCount = (notificationsCount || 0) + (updatesCount || 0);
         if (mounted) setUnread(totalCount);
         setAppBadgeCount(totalCount);
@@ -136,7 +136,35 @@ export default function MainLayout() {
       clearInterval(t);
       window.removeEventListener("focus", handleFocus);
     };
-  }, [email]);
+  }, [email, user?.id]);
+
+  useEffect(() => {
+    if (!user?.id) return undefined;
+
+    const channel = supabase
+      .channel(`layout-app-updates-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "app_updates",
+          filter: "active=eq.true",
+        },
+        () => {
+          setUnread((prev) => {
+            const next = (prev || 0) + 1;
+            setAppBadgeCount(next);
+            return next;
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     const currentEmail = normalizeEmail(email);
