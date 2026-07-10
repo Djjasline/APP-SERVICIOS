@@ -67,6 +67,7 @@ export default function MainLayout() {
   const { isLight, toggleTheme } = useTheme();
   const [unread, setUnread] = useState(0);
   const [chatAlert, setChatAlert] = useState(null);
+  const [usuariosOnline, setUsuariosOnline] = useState({});
   const chatAlertTimer = useRef(null);
   const unreadRef = useRef(0);
 
@@ -149,17 +150,29 @@ export default function MainLayout() {
       },
     });
 
-    channel.subscribe(async (status) => {
-      if (status === "SUBSCRIBED") {
-        await channel.track({
-          user_id: user.id,
-          email: user.email,
-          online_at: new Date().toISOString(),
+    channel
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        const online = {};
+
+        Object.keys(state).forEach((userId) => {
+          online[userId] = true;
         });
-      }
-    });
+
+        setUsuariosOnline(online);
+      })
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await channel.track({
+            user_id: user.id,
+            email: user.email,
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
 
     return () => {
+      setUsuariosOnline({});
       supabase.removeChannel(channel);
     };
   }, [user?.id, user?.email]);
@@ -457,7 +470,7 @@ export default function MainLayout() {
                 : "bg-white/5 border-white/10"
             }`}
           >
-            <Outlet />
+            <Outlet context={{ usuariosOnline }} />
           </div>
         </main>
       </div>

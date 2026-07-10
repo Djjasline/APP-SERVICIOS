@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import { Send, MessageCircle, Search, UserCircle2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
@@ -37,6 +38,7 @@ function formatTime(value) {
 export default function ChatInterno() {
   const { user } = useAuth();
   const { isLight } = useTheme();
+  const { usuariosOnline = {} } = useOutletContext() || {};
   const bottomRef = useRef(null);
 
   const [usuarios, setUsuarios] = useState([]);
@@ -49,7 +51,6 @@ export default function ChatInterno() {
   const [cargandoMensajes, setCargandoMensajes] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
-  const [usuariosOnline, setUsuariosOnline] = useState({});
   const [noLeidos, setNoLeidos] = useState({});
 
   const usuariosFiltrados = useMemo(() => {
@@ -99,29 +100,6 @@ export default function ChatInterno() {
     const timer = setInterval(cargarNoLeidos, 15000);
     return () => clearInterval(timer);
   }, [cargarNoLeidos]);
-
-  useEffect(() => {
-    if (!user?.id) return undefined;
-
-    const channel = supabase.channel("online-users");
-
-    channel
-      .on("presence", { event: "sync" }, () => {
-        const state = channel.presenceState();
-        const online = {};
-
-        Object.keys(state).forEach((userId) => {
-          online[userId] = true;
-        });
-
-        setUsuariosOnline(online);
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id]);
 
   const abrirChat = useCallback(
     async (otroUsuario) => {
