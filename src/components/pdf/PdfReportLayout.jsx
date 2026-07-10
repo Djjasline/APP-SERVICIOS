@@ -78,7 +78,7 @@ export function PdfConclusionRecommendationTable({ conclusiones = [], recomendac
   const rows = Array.from({ length: rowCount }, (_, index) => index);
 
   return (
-    <table style={{ ...styles.tbl, width: "95%", margin: "14px auto 0", tableLayout: "fixed" }}>
+    <table style={{ ...styles.tbl, width: "100%", margin: "14px 0 0 0", tableLayout: "fixed" }}>
       <thead>
         <tr>
           <th style={{ ...styles.th, width: "50%" }}>CONCLUSIÓN TÉCNICA</th>

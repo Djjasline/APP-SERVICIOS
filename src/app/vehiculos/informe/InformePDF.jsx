@@ -74,6 +74,7 @@ export default function InformePDF({ allowDownload = true, backPath = "/informe"
 
   const { data } = report;
   const estadoEquipoImagenes = data?.estadoEquipo?.imagenes || [];
+  const logoSrc = typeof window !== "undefined" ? `${window.location.origin}/astap-logo.jpg` : "/astap-logo.jpg";
   const reportDescription =
     "Instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
   /* ── Handler de impresión via iframe ── */
@@ -121,15 +122,10 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
 <style>{`
 @page {
   margin: 6mm 6mm 8mm 6mm;
-  @bottom-right {
-    content: "Página " counter(page);
-    font-size: 9px;
-    color: #6b7280;
-  }
 }
 
 .pdf-page-number {
-  display: none;
+  display: none !important;
 }
 
 @media print {
@@ -161,19 +157,6 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
   .activities-table td {
     break-inside: auto !important;
     page-break-inside: auto !important;
-  }
-
-  .pdf-page-number {
-    display: block;
-    position: fixed;
-    right: 0;
-    bottom: -5mm;
-    font-size: 9px;
-    color: #6b7280;
-  }
-
-  .pdf-page-number::after {
-    content: "Página " counter(page);
   }
 
   ${!allowDownload ? `#pdf-content { display: none !important; } .readonly-print-warning { display: block !important; }` : ""}
@@ -221,7 +204,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
               <tr>
                 <td rowSpan={5} style={{ ...S.cell, width: 130, textAlign: "center" }}>
                   <img
-                    src="/astap-logo.jpg"
+                    src={logoSrc}
                     alt="ASTAP"
                     style={{ maxHeight: 65, margin: "0 auto", display: "block" }}
                   />
@@ -418,8 +401,6 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             ))}
           </tbody>
         </table>
-
-        <div className="pdf-page-number" />
 
         {/* ════════════════════
             CONCLUSIONES / RECOMENDACIONES

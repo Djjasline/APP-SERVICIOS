@@ -1,5 +1,12 @@
 const APP_UPDATES = [
   {
+    id: "2026-07-10-vehicle-pdf-print-fixes",
+    title: "Corrección de impresión PDF vehículos",
+    message:
+      "Se corrigió la numeración montada, la carga del logo ASTAP, el ancho del cuadro de conclusiones/recomendaciones y la espera de imágenes antes de imprimir PDFs.",
+    created_at: "2026-07-10T18:30:00-05:00",
+  },
+  {
     id: "2026-07-10-pdf-equipment-image-layout",
     title: "PDFs de vehículos más compactos",
     message:

@@ -91,11 +91,27 @@ export function printPdf(elementId = "pdf-root", filename = "documento") {
 
   doc.body.appendChild(contentClone);
 
+  const waitForImages = async () => {
+    const images = Array.from(doc.images || []);
+    await Promise.all(
+      images.map((img) => {
+        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+        if (typeof img.decode === "function") return img.decode().catch(() => {});
+
+        return new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      })
+    );
+  };
+
   /* 5 ── Esperar a que carguen imágenes y estilos, luego imprimir */
   iframe.onload = () => {
     // pequeño delay para que los estilos copiados se apliquen
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
+        await waitForImages();
         iframe.contentWindow.focus();
         iframe.contentWindow.print();
       } catch (e) {
