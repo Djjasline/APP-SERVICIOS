@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
 import ObservationImagesPdf from "@/components/ObservationImagesPdf";
+import { PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
 
 /* ══════════════════════════════
    ESTILOS — IDÉNTICOS A HYDRO
@@ -390,56 +391,7 @@ export default function MantenimientoHidroPDF() {
                   Fotografía {i + 1}
                 </div>
                 <div style={{ padding: 10 }}>
-                 <div
-  style={{
-    width: "100%",
-    border: "1px solid #d1d5db",
-    borderRadius: 4,
-    overflow: "hidden",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "#fff",
-  }}
->
-  <div
-    style={{
-      position: "relative",
-      display: "inline-block",
-      maxWidth: "100%",
-    }}
-  >
-    <img
-      src={img.url}
-      alt={`estado-${i + 1}`}
-      style={{
-        maxWidth: "100%",
-        maxHeight: 230,
-        objectFit: "contain",
-        display: "block",
-      }}
-    />
-                    {(img.puntos || []).map((p, pi) => (
-                      <div
-                        key={p.id || pi}
-                        style={{
-                          position: "absolute",
-                          left: `${p.x * 100}%`,
-                          top: `${p.y * 100}%`,
-                          transform: "translate(-50%,-50%)",
-                          width: 18, height: 18,
-                          borderRadius: "50%",
-                          background: "#dc2626",
-                          border: "2px solid #fff",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontSize: 9, color: "#fff", fontWeight: 700,
-                        }}
-                      >
-                        {pi + 1}
-                      </div>
-                                        ))}
-                  </div>
-                </div>
+                  <PdfEquipmentImageFrame src={img.url} alt={`estado-${i + 1}`} points={img.puntos} />
 
                   {(img.puntos || []).length > 0 && (
                     <div style={{ marginTop: 8 }}>

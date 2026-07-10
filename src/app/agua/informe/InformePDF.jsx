@@ -1,6 +1,13 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
+
+const S = {
+  tbl: { width: "100%", borderCollapse: "collapse", fontSize: 10 },
+  cell: { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle", fontSize: 10 },
+  th: { border: "1px solid #374151", padding: "4px 6px", backgroundColor: "#1e3a5f", color: "#fff", fontWeight: 700, textAlign: "center", fontSize: 10 },
+};
 
 export default function InformePDF({
   area = "agua",
@@ -367,46 +374,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
                   </div>
 
                   <div className="p-3">
-                    <div
-                      style={{
-                        position: "relative",
-                        width: "100%",
-                        border: "1px solid #d1d5db",
-                        borderRadius: 6,
-                        overflow: "hidden",
-                        background: "#fff",
-                      }}
-                    >
-                      <img
-                        src={img.url}
-                        alt={`estado-equipo-${imageIndex + 1}`}
-                        style={{
-                          width: "100%",
-                          maxHeight: 420,
-                          objectFit: "contain",
-                          display: "block",
-                          background: "#fff",
-                        }}
-                      />
-
-                      {(img.puntos || []).map((p, pointIndex) => (
-                        <div
-                          key={p.id || pointIndex}
-                          style={{
-                            position: "absolute",
-                            left: `${p.x * 100}%`,
-                            top: `${p.y * 100}%`,
-                            transform: "translate(-50%, -50%)",
-                            width: 18,
-                            height: 18,
-                            borderRadius: "50%",
-                            background: "#dc2626",
-                            border: "2px solid white",
-                            boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
-                          }}
-                        />
-                      ))}
-                    </div>
+                    <PdfEquipmentImageFrame src={img.url} alt={`estado-equipo-${imageIndex + 1}`} points={img.puntos} />
 
                     <div className="mt-3">
                       {(img.puntos || []).length === 0 ? (
@@ -504,26 +472,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
 
         {/* ================= CONCLUSION Y RECOMENDACION ================= */}
         <div className="no-break">
-          <table className="pdf-table w-full mt-4">
-            <thead>
-              <tr>
-                <th colSpan={2}>CONCLUSION TECNICA</th>
-                <th colSpan={2}>RECOMENDACION ACCIONABLE</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.conclusiones?.map((c, i) => (
-                <tr key={i}>
-                  <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
-                  <td style={{ whiteSpace: "pre-wrap" }}>{c || "—"}</td>
-                  <td style={{ width: 30, textAlign: "center" }}>{i + 1}</td>
-                  <td style={{ whiteSpace: "pre-wrap" }}>
-                    {data.recomendaciones?.[i] || "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <PdfConclusionRecommendationTable conclusiones={data.conclusiones} recomendaciones={data.recomendaciones} styles={S} />
         </div>
 
         {/* ================= FIRMAS ================= */}

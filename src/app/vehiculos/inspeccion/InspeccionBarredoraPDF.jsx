@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
 import ObservationImagesPdf from "@/components/ObservationImagesPdf";
 import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
+import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
 
 /* ══════════════════════════════
    ESTILOS — COMPACTOS PDF
@@ -450,45 +451,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                 Vista general del equipo
               </div>
               <div style={{ padding: 10 }}>
-                <div
-                  style={{
-                    position: "relative",
-                    width: "100%",
-                    border: "1px solid #d1d5db",
-                    borderRadius: 4,
-                    overflow: "hidden",
-                  }}
-                >
-                  <img
-                    src={variantConfig.imagePath}
-                    alt={variantConfig.imageAlt}
-                    style={{ width: "100%", maxHeight: 240, objectFit: "contain", display: "block" }}
-                  />
-                  {puntosBase.map((p, pi) => (
-                    <div
-                      key={p.id || pi}
-                      style={{
-                        position: "absolute",
-                        left: `${p.x * 100}%`,
-                        top: `${p.y * 100}%`,
-                        transform: "translate(-50%,-50%)",
-                        width: 18,
-                        height: 18,
-                        borderRadius: "50%",
-                        background: "#dc2626",
-                        border: "2px solid #fff",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 9,
-                        color: "#fff",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {pi + 1}
-                    </div>
-                  ))}
-                </div>
+                <PdfEquipmentImageFrame src={variantConfig.imagePath} alt={variantConfig.imageAlt} points={puntosBase} />
                 {puntosBase.length > 0 && (
                   <div style={{ marginTop: 8 }}>
                     {puntosBase.map((p, pi) => (
@@ -540,50 +503,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                   Fotografía {i + 1}
                 </div>
                 <div style={{ padding: 10 }}>
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      border: "1px solid #d1d5db",
-                      borderRadius: 4,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <img
-                      src={img.url}
-                      alt={`estado-${i + 1}`}
-                      style={{
-                        width: "100%",
-                        maxHeight: 240,
-                        objectFit: "contain",
-                        display: "block",
-                      }}
-                    />
-                    {(img.puntos || []).map((p, pi) => (
-                      <div
-                        key={p.id || pi}
-                        style={{
-                          position: "absolute",
-                          left: `${p.x * 100}%`,
-                          top: `${p.y * 100}%`,
-                          transform: "translate(-50%,-50%)",
-                          width: 18,
-                          height: 18,
-                          borderRadius: "50%",
-                          background: "#dc2626",
-                          border: "2px solid #fff",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 9,
-                          color: "#fff",
-                          fontWeight: 700,
-                        }}
-                      >
-                        {pi + 1}
-                      </div>
-                    ))}
-                  </div>
+                  <PdfEquipmentImageFrame src={img.url} alt={`estado-${i + 1}`} points={img.puntos} />
                   {(img.puntos || []).length > 0 && (
                     <div style={{ marginTop: 8 }}>
                       {img.puntos.map((p, pi) => (
@@ -623,30 +543,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
 
         {/* ── CONCLUSION Y RECOMENDACION ── */}
         <div className="no-break">
-          <table style={{ ...S.tbl, marginTop: 10 }}>
-            <thead>
-              <tr>
-                <th colSpan={2} style={S.th}>CONCLUSION TECNICA</th>
-                <th colSpan={2} style={S.th}>RECOMENDACION ACCIONABLE</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(d.conclusiones || []).map((c, i) => (
-                <tr key={i} className="no-break">
-                  <td style={{ ...S.cell, width: 28, textAlign: "center", fontWeight: 700 }}>
-                    {i + 1}
-                  </td>
-                  <td style={{ ...S.cell, whiteSpace: "pre-wrap" }}>{c || "—"}</td>
-                  <td style={{ ...S.cell, width: 28, textAlign: "center", fontWeight: 700 }}>
-                    {i + 1}
-                  </td>
-                  <td style={{ ...S.cell, whiteSpace: "pre-wrap" }}>
-                    {d.recomendaciones?.[i] || "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <PdfConclusionRecommendationTable conclusiones={d.conclusiones} recomendaciones={d.recomendaciones} styles={S} />
         </div>
 
         {/* ── NOTA FINAL ── */}

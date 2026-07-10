@@ -3,6 +3,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf"; // ← ajusta la ruta a tu proyecto
+import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
 
 export default function InformePDF({ allowDownload = true, backPath = "/informe" }) {
   const navigate = useNavigate();
@@ -75,8 +76,6 @@ export default function InformePDF({ allowDownload = true, backPath = "/informe"
   const estadoEquipoImagenes = data?.estadoEquipo?.imagenes || [];
   const reportDescription =
     "Instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
-  const toPointPercent = (value) => Math.min(100, Math.max(0, Number(value || 0) * 100));
-
   /* ── Handler de impresión via iframe ── */
   const handlePrint = () => {
   const cliente = (data.cliente || "cliente").replace(/\s+/g, "-");
@@ -353,49 +352,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                   Imagen {imageIndex + 1}
                 </div>
                 <div style={{ padding: 10 }}>
-                  <div
-                    style={{
-                      position: "relative",
-                      width: "100%",
-                      maxWidth: 360,
-                      aspectRatio: "4 / 3",
-                      margin: "0 auto",
-                      border: "1px solid #d1d5db",
-                      borderRadius: 4,
-                      overflow: "hidden",
-                      background: "#fff",
-                    }}
-                  >
-                    <img
-                      src={img.url}
-                      alt={`estado-equipo-${imageIndex + 1}`}
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "contain",
-                        display: "block",
-                      }}
-                    />
-                    {(img.puntos || []).map((p, pi) => (
-                      <div
-                        key={p.id || pi}
-                        style={{
-                          position: "absolute",
-                          left: `${toPointPercent(p.x)}%`, top: `${toPointPercent(p.y)}%`,
-                          transform: "translate(-50%,-50%)",
-                          width: 18, height: 18, borderRadius: "50%",
-                          background: "#dc2626", border: "2px solid #fff",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontSize: 9, color: "#fff", fontWeight: 700,
-                          boxShadow: "0 1px 3px rgba(0,0,0,0.35)",
-                        }}
-                      >
-                        {pi + 1}
-                      </div>
-                    ))}
-                  </div>
+                  <PdfEquipmentImageFrame src={img.url} alt={`estado-equipo-${imageIndex + 1}`} points={img.puntos} />
                   {(img.puntos || []).length > 0 && (
                     <div style={{ marginTop: 8 }}>
                       {img.puntos.map((p, pi) => (
@@ -465,24 +422,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             CONCLUSIONES / RECOMENDACIONES
         ════════════════════ */}
         <div className="no-break">
-          <table style={{ ...S.tbl, marginTop: 14 }}>
-            <thead>
-              <tr>
-                <th colSpan={2} style={S.th}>CONCLUSIÓN TÉCNICA</th>
-                <th colSpan={2} style={S.th}>RECOMENDACIÓN ACCIONABLE</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(data.conclusiones || []).map((c, i) => (
-                <tr key={i} className="no-break">
-                  <td style={{ ...S.cell, width: 28, textAlign: "center", fontWeight: 700 }}>{i + 1}</td>
-                  <td style={{ ...S.cell, whiteSpace: "pre-wrap" }}>{c || "—"}</td>
-                  <td style={{ ...S.cell, width: 28, textAlign: "center", fontWeight: 700 }}>{i + 1}</td>
-                  <td style={{ ...S.cell, whiteSpace: "pre-wrap" }}>{data.recomendaciones?.[i] || "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <PdfConclusionRecommendationTable conclusiones={data.conclusiones} recomendaciones={data.recomendaciones} styles={S} />
         </div>
 
        {/* ════════════════════
