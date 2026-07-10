@@ -1337,7 +1337,7 @@ onEnd={() => {
           <button
             type="button"
             onClick={() => navigate("/vehiculos/informe")}
-            className="border px-6 py-2 rounded hover:bg-gray-50 transition"
+            className="btn-volver-orange px-6"
           >
             ← Volver
           </button>

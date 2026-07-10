@@ -171,7 +171,7 @@ export default function Perfil() {
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-semibold">Mi perfil</h1>
           <button onClick={() => navigate(-1)}
-            className="border px-4 py-1 rounded text-sm hover:bg-gray-50">
+            className="btn-volver-orange py-1">
             ← Volver
           </button>
         </div>

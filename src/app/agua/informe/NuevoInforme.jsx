@@ -1653,7 +1653,7 @@ const save = async () => {
             <button
               type="button"
               onClick={() => navigate(`${basePath}/${data.tipoInforme || routeTipo || "bomba"}`)}
-              className="border px-6 py-2 rounded hover:bg-gray-50 transition"
+              className="btn-volver-orange px-6"
             >
               ← Volver
             </button>

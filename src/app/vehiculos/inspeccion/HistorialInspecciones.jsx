@@ -319,11 +319,7 @@ export default function IndexInspeccion() {
 
         <button
           onClick={() => navigate("/area/vehiculos")}
-          className={`border px-4 py-1 rounded text-sm transition ${
-            isLight
-              ? "border-slate-300 text-slate-700 hover:bg-slate-100"
-              : "border-white/20 text-white hover:bg-white/10"
-          }`}
+          className="btn-volver-orange py-1"
         >
           ← Volver
         </button>

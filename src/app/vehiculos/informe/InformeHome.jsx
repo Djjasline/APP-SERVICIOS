@@ -251,7 +251,7 @@ export default function InformeHome() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate("/area/vehiculos")}
-            className="border border-gray-300 text-gray-700 px-4 py-1 rounded hover:bg-gray-100 transition"
+            className="btn-volver-orange py-1"
           >
             Volver
           </button>

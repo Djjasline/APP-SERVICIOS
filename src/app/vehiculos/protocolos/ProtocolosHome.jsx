@@ -142,7 +142,7 @@ export default function ProtocolosHome() {
           <h1 className={`text-xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>Protocolos</h1>
           <p className={`text-sm ${isLight ? "text-slate-600" : "text-slate-300"}`}>Protocolos técnicos para vehículos especiales.</p>
         </div>
-        <button onClick={() => navigate("/area/vehiculos")} className={`border px-4 py-2 rounded text-sm ${isLight ? "border-slate-300 text-slate-700 hover:bg-slate-100" : "border-white/20 text-white hover:bg-white/10"}`}>Volver</button>
+        <button onClick={() => navigate("/area/vehiculos")} className="btn-volver-orange">Volver</button>
       </div>
 
       {superAdminActivo && <div className="rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-2 text-sm text-yellow-800">Modo super administrador: estás viendo todos los protocolos de vehículos.</div>}
