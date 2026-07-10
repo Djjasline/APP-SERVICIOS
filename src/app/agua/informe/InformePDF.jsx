@@ -368,7 +368,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
           ) : (
             <div className="space-y-4">
               {estadoEquipoImagenes.map((img, imageIndex) => (
-                <div key={img.id || imageIndex} className="no-break border rounded overflow-hidden">
+                <div key={img.id || imageIndex} className="no-break border rounded overflow-hidden" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
                   <div className="px-3 py-2 border-b text-sm font-semibold bg-gray-50">
                     Imagen {imageIndex + 1}
                   </div>

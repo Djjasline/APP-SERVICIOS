@@ -432,11 +432,14 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
           {/* Plantilla base con puntos */}
           {puntosBase.length > 0 && (
             <div
+              className="no-break"
               style={{
                 border: "1px solid #d1d5db",
                 borderRadius: 6,
                 overflow: "hidden",
                 marginTop: 10,
+                breakInside: "avoid",
+                pageBreakInside: "avoid",
               }}
             >
               <div
@@ -484,11 +487,14 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
             estadoEquipoImagenes.map((img, i) => (
               <div
                 key={img.id || i}
+                className="no-break"
                 style={{
                   border: "1px solid #d1d5db",
                   borderRadius: 6,
                   overflow: "hidden",
                   marginTop: 10,
+                  breakInside: "avoid",
+                  pageBreakInside: "avoid",
                 }}
               >
                 <div

@@ -287,7 +287,8 @@ export default function MantenimientoVCamPDF() {
           ) : (
             estadoEquipoImagenes.map((img, i) => (
               <div key={img.id || i}
-                style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}>
+                className="no-break"
+                style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10, breakInside: "avoid", pageBreakInside: "avoid" }}>
                 <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 10, fontWeight: 700, background: "#f9fafb" }}>
                   Fotografía {i + 1}
                 </div>

@@ -5,27 +5,38 @@ const markerPercent = (value) => {
 
 export function PdfEquipmentImageFrame({ src, alt, points = [] }) {
   return (
-    <div style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center", background: "#fff" }}>
+    <div
+      className="no-break"
+      style={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "#fff",
+        breakInside: "avoid",
+        pageBreakInside: "avoid",
+      }}
+    >
       <div
         style={{
           position: "relative",
-          display: "inline-block",
-          maxWidth: "95mm",
-          maxHeight: "70mm",
+          width: "95mm",
+          height: "70mm",
+          maxWidth: "100%",
           border: "1px solid #d1d5db",
           borderRadius: 4,
           overflow: "hidden",
           background: "#fff",
+          breakInside: "avoid",
+          pageBreakInside: "avoid",
         }}
       >
         <img
           src={src}
           alt={alt}
           style={{
-            maxWidth: "95mm",
-            maxHeight: "70mm",
-            width: "auto",
-            height: "auto",
+            width: "100%",
+            height: "100%",
             objectFit: "contain",
             display: "block",
           }}

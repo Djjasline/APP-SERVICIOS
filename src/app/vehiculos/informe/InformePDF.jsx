@@ -346,7 +346,8 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             estadoEquipoImagenes.map((img, imageIndex) => (
               <div
                 key={img.id || imageIndex}
-                style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10 }}
+                className="no-break"
+                style={{ border: "1px solid #d1d5db", borderRadius: 6, overflow: "hidden", marginTop: 10, breakInside: "avoid", pageBreakInside: "avoid" }}
               >
                 <div style={{ padding: "5px 10px", borderBottom: "1px solid #d1d5db", fontSize: 11, fontWeight: 700, background: "#f9fafb", color: "#111827" }}>
                   Imagen {imageIndex + 1}
