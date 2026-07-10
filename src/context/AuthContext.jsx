@@ -16,28 +16,29 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const loadProfile = async (authUser) => {
+    if (!authUser?.id) {
+      setProfile(null);
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", authUser.id)
+      .single();
+
+    if (error) {
+      console.error("Error cargando perfil:", error);
+      setProfile(null);
+      return null;
+    }
+
+    setProfile(data);
+    return data;
+  };
+
   useEffect(() => {
-    const loadProfile = async (authUser) => {
-      if (!authUser?.id) {
-        setProfile(null);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", authUser.id)
-        .single();
-
-      if (error) {
-        console.error("Error cargando perfil:", error);
-        setProfile(null);
-        return;
-      }
-
-      setProfile(data);
-    };
-
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       const authUser = session?.user ?? null;
       setUser(authUser);
@@ -90,6 +91,8 @@ export function AuthProvider({ children }) {
     setUser(null);
     setProfile(null);
   };
+
+  const refreshProfile = () => loadProfile(user);
 
   const email = user?.email?.trim().toLowerCase() || "";
 
@@ -145,6 +148,7 @@ export function AuthProvider({ children }) {
         isTechnicalUser,
         login,
         logout,
+        refreshProfile,
         loading,
       }}
     >

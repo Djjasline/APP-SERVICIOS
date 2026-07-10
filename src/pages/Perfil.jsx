@@ -17,7 +17,7 @@ const DEPARTMENTS = [
 
 export default function Perfil() {
   const navigate        = useNavigate();
-  const { user, role, roleLabel }  = useAuth();
+  const { user, role, roleLabel, refreshProfile }  = useAuth();
   const { theme, setTheme } = useTheme();
 
   const [perfil, setPerfil]               = useState({ full_name: "", phone: "", department: "", avatar_url: "" });
@@ -111,6 +111,7 @@ export default function Perfil() {
         .eq("id", user.id);
 
       setPerfil((p) => ({ ...p, avatar_url: avatarUrl }));
+      await refreshProfile?.();
       setMensaje({ tipo: "ok", texto: "Foto actualizada ✅" });
     } catch (err) {
       console.error(err);

@@ -63,7 +63,7 @@ export default function MainLayout() {
   const [touchStartX, setTouchStartX] = useState(null);
 
   const navigate = useNavigate();
-  const { user, logout, role, roleLabel, email } = useAuth();
+  const { user, profile, logout, role, roleLabel, email } = useAuth();
   const { isLight, toggleTheme } = useTheme();
   const [unread, setUnread] = useState(0);
   const [chatAlert, setChatAlert] = useState(null);
@@ -391,7 +391,15 @@ export default function MainLayout() {
                     : "bg-white/10 border-white/20 hover:bg-white/20"
                 }`}
               >
-                <User size={18} className={isLight ? "text-slate-700" : "text-white"} />
+                {profile?.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.full_name || user?.email || "Usuario"}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <User size={18} className={isLight ? "text-slate-700" : "text-white"} />
+                )}
               </div>
 
               {openMenu && (
