@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { getUnreadAppUpdatesCount } from "@/services/appUpdatesService";
 import {
   LayoutDashboard,
   Truck,
@@ -25,7 +26,7 @@ import {
 export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isProveedorVehiculos, isProveedorVehiculosOnly, isSuperAdmin } = useAuth();
+  const { user, isProveedorVehiculos, isProveedorVehiculosOnly, isSuperAdmin } = useAuth();
   const { isLight } = useTheme();
 
   const [openVehiculos, setOpenVehiculos] = useState(false);
@@ -34,6 +35,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const [openIndustria, setOpenIndustria] = useState(false);
   const [openPetroleo, setOpenPetroleo] = useState(false);
   const [openRepositorios, setOpenRepositorios] = useState(false);
+  const [unreadBulletins, setUnreadBulletins] = useState(0);
 
   const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
   const puedeVerTodo = !proveedorSoloVehiculos;
@@ -92,6 +94,30 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
     setOpenOperaciones(puedeVerTodo && isOperacionesPath);
     setOpenRepositorios(puedeVerTodo && isRepositoriosPath);
   }, [location.pathname, proveedorSoloVehiculos, puedeVerTodo]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadUnreadBulletins = async () => {
+      if (!user?.id || !superAdminActivo) {
+        if (mounted) setUnreadBulletins(0);
+        return;
+      }
+
+      const count = await getUnreadAppUpdatesCount(user.id);
+      if (mounted) setUnreadBulletins(count || 0);
+    };
+
+    loadUnreadBulletins();
+    const interval = setInterval(loadUnreadBulletins, 10000);
+    window.addEventListener("focus", loadUnreadBulletins);
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+      window.removeEventListener("focus", loadUnreadBulletins);
+    };
+  }, [user?.id, superAdminActivo, location.pathname]);
 
   const openOnly = (name) => {
     setOpenVehiculos(name === "vehiculos");
@@ -235,7 +261,19 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               aria-current={isActive("/admin/boletines") ? "page" : undefined}
             >
               <Megaphone size={20} className={iconClass} />
-              {openSidebar && "Boletines"}
+              {openSidebar && (
+                <span className="flex flex-1 items-center justify-between gap-2">
+                  <span>Boletines</span>
+                  {unreadBulletins > 0 && (
+                    <span className="min-w-5 rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
+                      {unreadBulletins > 99 ? "99+" : unreadBulletins}
+                    </span>
+                  )}
+                </span>
+              )}
+              {!openSidebar && unreadBulletins > 0 && (
+                <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-600 ring-2 ring-white" />
+              )}
               {tooltip("Boletines")}
             </button>
           </>
