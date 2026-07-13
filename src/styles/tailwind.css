@@ -264,3 +264,20 @@ select:disabled {
 .bg-black {
   color: #ffffff !important;
 }
+
+/* Login: mobile avoids the heavy background image; desktop loads it via CSS media query. */
+.login-bg {
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.55), transparent 34rem),
+    linear-gradient(135deg, #0f172a 0%, #1e1b4b 46%, #111827 100%);
+}
+
+@media (min-width: 768px) {
+  .login-bg {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.42)),
+      url("/background-astap.png");
+    background-position: center;
+    background-size: cover;
+  }
+}

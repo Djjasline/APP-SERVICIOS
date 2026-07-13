@@ -50,27 +50,19 @@ export default function Login() {
   };
 
   return (
-    <div className="relative h-screen w-full flex items-center justify-center overflow-hidden">
-
-      {/* 🌄 FONDO */}
-      <img
-        src="/background-astap.png"
-        alt=""
-        aria-hidden="true"
-        className="absolute w-full h-full object-cover"
-      />
-
-      {/* 🔥 CAPA OSCURA */}
-      <div className="absolute inset-0 bg-black/40" />
-
+    <div className="login-bg relative h-screen w-full flex items-center justify-center overflow-hidden px-4">
       {/* 💎 CARD GLASS */}
-      <div className="relative z-10 w-[350px] p-8 rounded-2xl 
+      <main id="acceso" className="relative z-10 w-[350px] p-8 rounded-2xl 
         backdrop-blur-xl bg-white/10 border border-white/20 
         shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
 
         <h1 className="text-white text-xl font-semibold text-center mb-6">
           ASTAP Login
         </h1>
+
+        <h2 id="seguridad" className="text-white/90 text-sm font-medium text-center mb-4">
+          Acceso seguro a servicios tecnicos
+        </h2>
 
         {/* FORM */}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -124,7 +116,16 @@ export default function Login() {
 
         </form>
 
-      </div>
+        <nav className="mt-5 flex justify-center gap-4 text-xs text-white/80" aria-label="Enlaces internos">
+          <a href="#acceso" className="hover:text-white hover:underline">
+            Acceso
+          </a>
+          <a href="#seguridad" className="hover:text-white hover:underline">
+            Seguridad
+          </a>
+        </nav>
+
+      </main>
     </div>
   );
 }

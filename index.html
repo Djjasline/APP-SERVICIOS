@@ -43,13 +43,67 @@
       "description": "Plataforma digital ASTAP para gestionar informes tecnicos, inspecciones, mantenimiento y operaciones internas."
     }
   </script>
+  <style>
+    .app-shell-fallback {
+      align-items: center;
+      background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.55), transparent 34rem), linear-gradient(135deg, #0f172a 0%, #1e1b4b 46%, #111827 100%);
+      color: #fff;
+      display: flex;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .app-shell-fallback main {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 1rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      max-width: 350px;
+      padding: 2rem;
+      text-align: center;
+      width: 100%;
+    }
+
+    .app-shell-fallback h1 {
+      font-size: 1.25rem;
+      margin: 0 0 1rem;
+    }
+
+    .app-shell-fallback h2,
+    .app-shell-fallback p,
+    .app-shell-fallback a {
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 0.875rem;
+    }
+
+    .app-shell-fallback nav {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+  </style>
   <link rel="icon" href="/favicon.ico" />
   <link rel="manifest" href="/manifest.json" />
 </head>
 
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
-  <div class="dhiwise-code" id="root"></div>
+  <div class="dhiwise-code" id="root">
+    <div class="app-shell-fallback">
+      <main id="acceso">
+        <h1>APP Servicios ASTAP</h1>
+        <h2 id="seguridad">Acceso seguro a servicios tecnicos</h2>
+        <p>Plataforma digital para informes, inspecciones, mantenimiento y operaciones internas.</p>
+        <nav aria-label="Enlaces internos">
+          <a href="#acceso">Acceso</a>
+          <a href="#seguridad">Seguridad</a>
+        </nav>
+      </main>
+    </div>
+  </div>
   <script type="module" src="/src/index.jsx"></script>
 </body>
 
