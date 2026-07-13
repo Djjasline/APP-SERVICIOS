@@ -305,6 +305,7 @@ export default function MainLayout() {
       {/* ================= SIDEBAR ================= */}
       <div
         className={`
+          app-sidebar
           fixed top-0 left-0 h-full z-50
           transition-all duration-300 ease-smooth
           ${openSidebar ? "translate-x-0" : "-translate-x-full"}
@@ -327,6 +328,7 @@ export default function MainLayout() {
       {/* ================= CONTENIDO ================= */}
       <div
         className={`
+    app-content
     flex-1 flex flex-col transition-all duration-300
     ${
       isMobile
@@ -339,7 +341,7 @@ export default function MainLayout() {
       >
         {/* ================= HEADER ================= */}
         <header
-          className={`h-16 flex items-center justify-between px-6 backdrop-blur-xl border-b relative z-50 transition-colors ${
+          className={`app-header h-16 flex items-center justify-between px-6 backdrop-blur-xl border-b relative z-50 transition-colors ${
             isLight
               ? "bg-white/85 border-slate-200 text-slate-900 shadow-sm"
               : "bg-white/5 border-white/10 text-white"
@@ -470,9 +472,9 @@ export default function MainLayout() {
         </header>
 
         {/* ================= MAIN ================= */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6">
+        <main className="app-main flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6">
           <div
-            className={`max-w-7xl mx-auto rounded-2xl backdrop-blur-xl border p-4 md:p-6 shadow-xl min-h-full transition-colors ${
+            className={`app-page-shell max-w-7xl mx-auto rounded-2xl backdrop-blur-xl border p-4 md:p-6 shadow-xl min-h-full transition-colors ${
               isLight
                 ? "bg-white/80 border-slate-200"
                 : "bg-white/5 border-white/10"

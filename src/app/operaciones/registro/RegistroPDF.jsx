@@ -91,7 +91,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
       <tbody>
         {rows.map(([label, value], index) => (
           <tr key={`${label}-${index}`}>
-            <td className="w-44 border border-neutral-900 bg-neutral-100 px-2 py-1.5 font-semibold">
+            <td className="w-[38%] border border-neutral-900 bg-neutral-100 px-2 py-1.5 font-semibold">
               {label}
             </td>
             <td className="border border-neutral-900 bg-white px-2 py-1.5 whitespace-pre-wrap">
@@ -124,7 +124,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
   const getIngresoImage = (item) => item.imagenIngresoUrl || item.imagenIngreso || item.fotoIngreso || "";
 
   return (
-    <div className={`min-h-screen p-4 ${isLight ? "bg-gray-100" : "bg-slate-950"}`}>
+    <div className={`registro-pdf-screen min-h-screen p-4 ${isLight ? "bg-gray-100" : "bg-slate-950"}`}>
       <style>{`
         .registro-section-title {
           background: #1f2937 !important;
@@ -155,8 +155,46 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
           body {
             width: auto !important;
             height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
             background: white !important;
             overflow: visible !important;
+          }
+
+          .app-sidebar,
+          .app-header,
+          .no-print {
+            display: none !important;
+          }
+
+          .app-content {
+            display: block !important;
+            margin-left: 0 !important;
+            width: 100% !important;
+          }
+
+          .app-main {
+            display: block !important;
+            overflow: visible !important;
+            padding: 0 !important;
+          }
+
+          .app-page-shell {
+            max-width: none !important;
+            min-height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: white !important;
+            box-shadow: none !important;
+          }
+
+          .registro-pdf-screen {
+            min-height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
           }
 
           .registro-pdf-page,
@@ -165,13 +203,12 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
           }
 
           .registro-pdf-page {
-            position: absolute !important;
-            inset: 0 auto auto 0 !important;
-            width: 194mm !important;
-            max-width: 194mm !important;
+            position: static !important;
+            width: 190mm !important;
+            max-width: 190mm !important;
             box-shadow: none !important;
-            margin: 0 !important;
-            padding: 6mm !important;
+            margin: 0 auto !important;
+            padding: 0 !important;
             border: 0 !important;
             background: white !important;
             color: black !important;
