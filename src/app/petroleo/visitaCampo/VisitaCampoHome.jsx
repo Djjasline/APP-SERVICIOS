@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
+import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 
 export default function VisitaCampoHome() {
   const navigate = useNavigate();
@@ -75,6 +76,23 @@ export default function VisitaCampoHome() {
     setRecords((prev) => prev.filter((item) => item.id !== record.id));
   };
 
+  const duplicateRecord = async (record) => {
+    if (!user?.id) {
+      alert("Usuario no autenticado");
+      return;
+    }
+
+    if (!confirm("¿Duplicar este informe de visita como borrador sin código?")) return;
+
+    try {
+      const duplicated = await duplicateRecordAsDraft(record, user);
+      navigate(`/petroleo/visita-campo/${duplicated.id}`);
+    } catch (error) {
+      console.error("Error duplicando visita de campo:", error);
+      alert("No se pudo duplicar el informe de visita.");
+    }
+  };
+
   return (
     <div className="rounded-2xl bg-white p-6 text-gray-900 shadow space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -131,6 +149,7 @@ export default function VisitaCampoHome() {
               <div className="flex flex-wrap gap-3 text-sm">
                 <button onClick={() => navigate(`/petroleo/visita-campo/ver/${record.id}`)} className="font-semibold text-slate-600 hover:underline">Ver</button>
                 <button onClick={() => navigate(`/petroleo/visita-campo/${record.id}`)} className="text-blue-600 hover:underline">Abrir</button>
+                <button onClick={() => duplicateRecord(record)} className="font-semibold text-amber-600 hover:underline">Duplicar</button>
                 {record.estado === "completado" && (
                   <button onClick={() => navigate(`/petroleo/visita-campo/${record.id}/pdf`)} className="font-semibold text-green-600 hover:underline">PDF</button>
                 )}

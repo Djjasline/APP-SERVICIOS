@@ -47,12 +47,25 @@ function prepareDuplicatedData(record, user) {
   };
 }
 
+function resolveRecordArea(record) {
+  if (record?.area || record?.data?.area) return record.area || record.data.area;
+
+  if (["registro", "recepcion", "liberacion"].includes(record?.tipo)) {
+    return "operaciones";
+  }
+
+  if (record?.subtipo === "avance_epmaps") return "agua";
+  if (record?.tipo === "visita_campo") return "petroleo";
+
+  return "vehiculos";
+}
+
 export async function duplicateRecordAsDraft(record, user) {
   if (!record?.id) throw new Error("Registro inválido para duplicar.");
   if (!user?.id) throw new Error("Usuario no autenticado.");
 
   const payload = {
-    area: record.area || record.data?.area || "vehiculos",
+    area: resolveRecordArea(record),
     tipo: record.tipo,
     subtipo: record.subtipo || "general",
     estado: "borrador",

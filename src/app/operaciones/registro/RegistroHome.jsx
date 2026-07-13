@@ -6,6 +6,7 @@ import {
   canAccessRecord,
   getRecordAccessPermissionsForUser,
 } from "@/services/accessControlService";
+import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { createRegistro, deleteRegistro, getAllRegistros } from "@/utils/registroStorage";
 
 const StatusBadge = ({ estado }) => {
@@ -106,6 +107,23 @@ export default function RegistroHome() {
     const ok = await deleteRegistro(id);
     if (ok) {
       setRegistros((prev) => prev.filter((r) => r.id !== id));
+    }
+  };
+
+  const handleDuplicar = async (item) => {
+    if (!canEditRegistro(item)) {
+      alert("No tienes permiso para duplicar este registro.");
+      return;
+    }
+
+    if (!window.confirm("¿Duplicar este registro como borrador?")) return;
+
+    try {
+      const duplicated = await duplicateRecordAsDraft(item, user);
+      navigate(`/operaciones/registro/${duplicated.id}`);
+    } catch (error) {
+      console.error("Error duplicando registro:", error);
+      alert("No se pudo duplicar el registro.");
     }
   };
 
@@ -238,6 +256,15 @@ export default function RegistroHome() {
                         className="text-green-600 text-xs hover:underline"
                       >
                         PDF
+                      </button>
+                    )}
+
+                    {canEditRegistro(item) && (
+                      <button
+                        onClick={() => handleDuplicar(item)}
+                        className="text-amber-600 text-xs font-semibold hover:underline"
+                      >
+                        Duplicar
                       </button>
                     )}
 

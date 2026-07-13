@@ -10,6 +10,7 @@ import {
   getRecordAccessPermissionsForUser,
   mergeRecords,
 } from "@/services/accessControlService";
+import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 
 const PROTOCOLS = [
   {
@@ -135,6 +136,24 @@ export default function ProtocolosHome() {
     setRecords((prev) => prev.filter((record) => record.id !== item.id));
   };
 
+  const handleDuplicate = async (item) => {
+    if (!canEdit(item)) {
+      alert("No tienes permiso para duplicar este protocolo.");
+      return;
+    }
+
+    if (!confirm("¿Duplicar este protocolo como borrador sin código?")) return;
+
+    try {
+      const duplicated = await duplicateRecordAsDraft(item, user);
+      const protocol = PROTOCOL_BY_SUBTIPO[duplicated.subtipo] || PROTOCOLS[0];
+      navigate(`/vehiculos/protocolos/${protocol.path}/${duplicated.id}`);
+    } catch (error) {
+      console.error("Error duplicando protocolo:", error);
+      alert("No se pudo duplicar el protocolo.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -189,6 +208,7 @@ export default function ProtocolosHome() {
                 <div className="flex gap-3 text-xs shrink-0">
                   {item.estado === "completado" && canDownload(item) && <button onClick={() => navigate(`/vehiculos/protocolos/${protocol.path}/${item.id}/pdf`)} className="text-green-600 font-semibold hover:underline">PDF</button>}
                   {canEdit(item) && <button onClick={() => navigate(`/vehiculos/protocolos/${protocol.path}/${item.id}`)} className="text-blue-600 hover:underline">Abrir</button>}
+                  {canEdit(item) && <button onClick={() => handleDuplicate(item)} className="font-semibold text-amber-600 hover:underline">Duplicar</button>}
                   {(puedeVerTodoVehiculos || isOwn(item)) && <button onClick={() => handleDelete(item)} className="text-red-600 hover:underline">Eliminar</button>}
                 </div>
               </div>

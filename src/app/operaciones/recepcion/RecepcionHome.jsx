@@ -2,9 +2,12 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { generarPDFRecepcion } from "./generarPDFRecepcion";
+import { useAuth } from "@/context/AuthContext";
+import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 
 export default function RecepcionHome() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [registros, setRegistros] = useState([]);
   const [filter, setFilter] = useState("todos");
@@ -73,6 +76,23 @@ export default function RecepcionHome() {
     }
 
     setRegistros((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const duplicate = async (record) => {
+    if (!user?.id) {
+      alert("Usuario no autenticado");
+      return;
+    }
+
+    if (!confirm("¿Duplicar esta bitácora como borrador?")) return;
+
+    try {
+      const duplicated = await duplicateRecordAsDraft(record, user);
+      navigate(`/operaciones/recepcion/${duplicated.id}`);
+    } catch (error) {
+      console.error("Error duplicando bitácora:", error);
+      alert("No se pudo duplicar la bitácora.");
+    }
   };
 
   return (
@@ -218,6 +238,13 @@ export default function RecepcionHome() {
                         className="text-blue-600 hover:underline"
                       >
                         Abrir
+                      </button>
+
+                      <button
+                        onClick={() => duplicate(r)}
+                        className="text-amber-600 hover:underline font-semibold"
+                      >
+                        Duplicar
                       </button>
 
                       <button

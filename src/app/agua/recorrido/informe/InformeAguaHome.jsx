@@ -5,10 +5,13 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 
 
 export default function InformeAguaHome() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [registros, setRegistros] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("todos");
@@ -62,6 +65,23 @@ export default function InformeAguaHome() {
       return;
     }
     setRegistros((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const duplicate = async (record) => {
+    if (!user?.id) {
+      alert("Usuario no autenticado");
+      return;
+    }
+
+    if (!confirm("¿Duplicar este informe de recorrido como borrador sin código?")) return;
+
+    try {
+      const duplicated = await duplicateRecordAsDraft(record, user);
+      navigate(`/agua/recorrido/informe/${duplicated.id}`);
+    } catch (error) {
+      console.error("Error duplicando informe de recorrido:", error);
+      alert("No se pudo duplicar el informe de recorrido.");
+    }
   };
 
   return (
@@ -208,6 +228,13 @@ export default function InformeAguaHome() {
                         className="text-blue-600 hover:underline text-xs font-medium"
                       >
                         Abrir
+                      </button>
+
+                      <button
+                        onClick={() => duplicate(r)}
+                        className="text-amber-600 hover:underline text-xs font-semibold"
+                      >
+                        Duplicar
                       </button>
 
                       <button

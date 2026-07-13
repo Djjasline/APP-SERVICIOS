@@ -10,6 +10,7 @@ import {
   getRecordAccessPermissionsForUser,
   mergeRecords,
 } from "@/services/accessControlService";
+import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 
 const tipos = [
   {
@@ -208,6 +209,23 @@ export default function IndexMantenimiento() {
     }
 
     setItems((prev) => prev.filter((i) => i.id !== item.id));
+  };
+
+  const handleDuplicate = async (item) => {
+    if (!canEditMaintenance(item)) {
+      alert("No tienes permiso para duplicar este mantenimiento.");
+      return;
+    }
+
+    if (!confirm("¿Duplicar este mantenimiento como borrador sin código de informe?")) return;
+
+    try {
+      const duplicated = await duplicateRecordAsDraft(item, user);
+      navigate(`/vehiculos/mantenimiento/${duplicated.subtipo}/${duplicated.id}`);
+    } catch (error) {
+      console.error("Error duplicando mantenimiento:", error);
+      alert("No se pudo duplicar el mantenimiento.");
+    }
   };
 
   const filtered = useMemo(() => {
@@ -427,6 +445,15 @@ export default function IndexMantenimiento() {
                         className="text-green-600 hover:underline font-semibold"
                       >
                         PDF
+                      </button>
+                    )}
+
+                    {canEditMaintenance(item) && (
+                      <button
+                        onClick={() => handleDuplicate(item)}
+                        className="text-amber-600 hover:underline font-semibold"
+                      >
+                        Duplicar
                       </button>
                     )}
 
