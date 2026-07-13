@@ -139,11 +139,15 @@ export default function InformeHome({
 
   const filteredReports = reports.filter((r) => {
     const cliente = r.data?.cliente?.toLowerCase() || "";
-    const pedido =
-      r.data?.pedidoDemanda?.toLowerCase() ||
-      r.data?.referenciaContrato?.toLowerCase() ||
-      r.data?.codInf?.toLowerCase() ||
-      "";
+    const pedido = [
+      r.data?.pedidoDemanda,
+      r.data?.referenciaContrato,
+      r.data?.codInf,
+      r.data?.codigo,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
     const tecnico = r.data?.tecnicoNombre?.toLowerCase() || "";
     const fecha = r.updated_at || r.created_at;
 
