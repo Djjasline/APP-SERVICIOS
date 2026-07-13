@@ -209,6 +209,24 @@ estadoEquipo: {
 
   const [data, setData] = useState(emptyReport);
 
+  const resizeTextarea = (textarea) => {
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  };
+
+  const autoResize = (event) => {
+    resizeTextarea(event.target);
+  };
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      document
+        .querySelectorAll("textarea[data-auto-resize='true']")
+        .forEach((textarea) => resizeTextarea(textarea));
+    });
+  }, [data.actividades, data.conclusiones, data.recomendaciones]);
+
   // Autoguardado automático cada 15 segundos
   useAutoguardado(claveAutoguardado, data, !isEditing);
 
@@ -1485,10 +1503,12 @@ const save = async () => {
                       }}
                     />
                     <textarea
+                      data-auto-resize="true"
                       className="w-full border rounded p-1 text-xs resize-none"
                       rows={5}
                       placeholder="Hallazgo técnico: qué se encontró, cómo se verificó, medición/condición observada, evidencia y efecto operativo"
                       value={act.detalle}
+                      onInput={autoResize}
                       onChange={(e) => {
                         const acts = [...data.actividades];
                         acts[i] = { ...acts[i], detalle: e.target.value };
@@ -1556,9 +1576,10 @@ const save = async () => {
                 <tr key={i}>
                   <td className="border p-2 text-center">{i + 1}</td>
                   <td className="border p-1">
-                    <textarea className="w-full border-0 outline-none text-xs p-1 resize-none" rows={3}
+                    <textarea data-auto-resize="true" className="w-full border-0 outline-none text-xs p-1 resize-none overflow-hidden" rows={3}
                       value={data.conclusiones[i]}
                       placeholder="Conclusión: qué significa lo encontrado, causa probable, si quedó operativo, riesgo y si requiere intervención"
+                      onInput={autoResize}
                       onChange={(e) => {
                         const c = [...data.conclusiones]; c[i] = e.target.value; set("conclusiones", c);
                       }}
@@ -1566,9 +1587,10 @@ const save = async () => {
                   </td>
                   <td className="border p-2 text-center">{i + 1}</td>
                   <td className="border p-1">
-                    <textarea className="w-full border-0 outline-none text-xs p-1 resize-none" rows={3}
+                    <textarea data-auto-resize="true" className="w-full border-0 outline-none text-xs p-1 resize-none overflow-hidden" rows={3}
                       value={data.recomendaciones[i]}
                       placeholder="Recomendación: acción concreta, prioridad, plazo y repuesto/servicio a cotizar si aplica"
+                      onInput={autoResize}
                       onChange={(e) => {
                         const r = [...data.recomendaciones]; r[i] = e.target.value; set("recomendaciones", r);
                       }}

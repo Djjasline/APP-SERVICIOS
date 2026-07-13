@@ -132,10 +132,23 @@ const sigCliente = useRef(null);
   /* ===========================
      AUTO RESIZE TEXTAREA
   =========================== */
-  const autoResize = (e) => {
-    e.target.style.height = "auto";
-    e.target.style.height = `${e.target.scrollHeight}px`;
+  const resizeTextarea = (textarea) => {
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
   };
+
+  const autoResize = (e) => {
+    resizeTextarea(e.target);
+  };
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      document
+        .querySelectorAll("textarea[data-auto-resize='true']")
+        .forEach((textarea) => resizeTextarea(textarea));
+    });
+  }, [data.actividades, data.conclusiones, data.recomendaciones]);
 
   /* ===========================
      PRELLENAR TÉCNICO LOGUEADO
@@ -983,6 +996,7 @@ const estadoFinal =
 
                 <td className="align-top">
                   <textarea
+                    data-auto-resize="true"
                     className="pdf-textarea w-full resize-none overflow-hidden"
                     placeholder="Trabajo realizado: qué se hizo, sobre qué componente y con qué objetivo"
                     value={a.titulo}
@@ -995,6 +1009,7 @@ const estadoFinal =
                   />
 
                   <textarea
+                    data-auto-resize="true"
                     className="pdf-textarea w-full resize-none overflow-hidden mt-2"
                     placeholder="Hallazgo técnico: qué se encontró, cómo se verificó, medición/condición observada, evidencia y efecto operativo"
                     value={a.detalle}
@@ -1162,6 +1177,7 @@ const estadoFinal =
                 <td style={{ textAlign: "center" }}>{i + 1}</td>
                 <td>
                   <textarea
+                    data-auto-resize="true"
                     className="pdf-textarea w-full resize-none overflow-hidden"
                     placeholder="Conclusión: qué significa lo encontrado, causa probable, si quedó operativo, riesgo y si requiere intervención"
                     value={data.conclusiones[i]}
@@ -1177,6 +1193,7 @@ const estadoFinal =
                 <td style={{ textAlign: "center" }}>{i + 1}</td>
                 <td>
                   <textarea
+                    data-auto-resize="true"
                     className="pdf-textarea w-full resize-none overflow-hidden"
                     placeholder="Recomendación: acción concreta, prioridad, plazo y repuesto/servicio a cotizar si aplica"
                     value={data.recomendaciones[i]}
