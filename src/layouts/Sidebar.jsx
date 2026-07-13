@@ -597,77 +597,82 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             </button>
 
             {openSidebar && openRepositorios && (
-              <div
-                id="panel-repos"
-                className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
-              >
-                <button
-                  type="button"
-                  onClick={() => go("/repositorios")}
-                  className={subItemClass("/repositorios")}
+              <>
+                <div
+                  id="panel-repos"
+                  className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
                 >
-                  Panel
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => go("/chat")}
-                  className={subItemClass("/chat")}
-                >
-                  <span className="inline-flex w-full items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-2">
-                      <MessageCircle size={14} />
-                      Chat interno
-                    </span>
-                    {unreadChat > 0 && (
-                      <span className="min-w-5 rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
-                        {unreadChat > 99 ? "99+" : unreadChat}
-                      </span>
-                    )}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => go("/notifications")}
-                  className={subItemClass("/notifications")}
-                >
-                  <span className="inline-flex w-full items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-2">
-                      <Megaphone size={14} />
-                      Boletines
-                    </span>
-                    {unreadBulletins > 0 && (
-                      <span className="min-w-5 rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
-                        {unreadBulletins > 99 ? "99+" : unreadBulletins}
-                      </span>
-                    )}
-                  </span>
-                </button>
-
-                {superAdminActivo && (
                   <button
                     type="button"
-                    onClick={() => go("/admin/permisos-registros")}
-                    className={subItemClass("/admin/permisos-registros")}
+                    onClick={() => go("/repositorios")}
+                    className={subItemClass("/repositorios")}
                   >
-                    <span className="inline-flex items-center gap-2">
-                      <ShieldCheck size={14} />
-                      Permisos de registros
+                    Panel
+                  </button>
+                </div>
+
+                <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
+                  <button
+                    type="button"
+                    onClick={() => go("/chat")}
+                    className={subItemClass("/chat")}
+                  >
+                    <span className="inline-flex w-full items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-2">
+                        <MessageCircle size={14} />
+                        Chat interno
+                      </span>
+                      {unreadChat > 0 && (
+                        <span className="min-w-5 rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
+                          {unreadChat > 99 ? "99+" : unreadChat}
+                        </span>
+                      )}
                     </span>
                   </button>
-                )}
 
-                <button
-                  type="button"
-                  onClick={() => go("/repositorios/manuales-tecnicos")}
-                  className={subItemClass("/repositorios/manuales-tecnicos")}
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <BookOpen size={14} />
-                    Manuales técnicos
-                  </span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => go("/notifications")}
+                    className={subItemClass("/notifications")}
+                  >
+                    <span className="inline-flex w-full items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-2">
+                        <Megaphone size={14} />
+                        Boletines
+                      </span>
+                      {unreadBulletins > 0 && (
+                        <span className="min-w-5 rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
+                          {unreadBulletins > 99 ? "99+" : unreadBulletins}
+                        </span>
+                      )}
+                    </span>
+                  </button>
+
+                  {superAdminActivo && (
+                    <button
+                      type="button"
+                      onClick={() => go("/admin/permisos-registros")}
+                      className={subItemClass("/admin/permisos-registros")}
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        <ShieldCheck size={14} />
+                        Permisos de registros
+                      </span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
+                  <button
+                    type="button"
+                    onClick={() => go("/repositorios/manuales-tecnicos")}
+                    className={subItemClass("/repositorios/manuales-tecnicos")}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <BookOpen size={14} />
+                      Manuales técnicos
+                    </span>
+                  </button>
 
                 <button
                   type="button"
@@ -712,7 +717,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                     Base de datos
                   </span>
                 </button>
-              </div>
+                </div>
+              </>
             )}
           </div>
         )}
