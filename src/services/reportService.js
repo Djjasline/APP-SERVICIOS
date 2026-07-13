@@ -1,9 +1,7 @@
 import { supabase } from "../lib/supabase";
 import { createNotification } from "./notificationService";
+import { getNotificationRecipientsForRecord } from "./notificationRecipientService";
 import { hasReportCodeSequence, normalizeReportCodeValue, reserveNextReportCode } from "./reportCodeService";
-
-const KARIM_EMAIL = "kamhez@astap.com";
-const ARIEL_EMAIL = "abriones@astap.com";
 
 export const saveOrUpdateReport = async ({
   id = null,
@@ -67,57 +65,7 @@ export const saveOrUpdateReport = async ({
       throw error;
     }
 
-try {
-  if (result && result.area === "vehiculos") {
-    const formName = getNombreFormularioVehiculos(result.tipo, result.subtipo);
-    const statusLabel = result.estado === "completado" ? "completado" : "borrador";
-    const clientName = result.data?.cliente || "Sin cliente";
-    const code = result.data?.codInf || result.data?.pedidoDemanda || result.id;
-    const technician = result.data?.tecnicoNombre || user.email || "Sin técnico";
-
-    await createNotification({
-      recipient_email: ARIEL_EMAIL,
-      title: `VM Services: ${formName} ${statusLabel}`,
-      message: `${technician} guardó ${formName.toLowerCase()} en estado ${statusLabel}. Cliente: ${clientName}. Código/Pedido: ${code}.`,
-      record_type: `vehiculos_${result.tipo || "formulario"}`,
-      record_id: result.id,
-    });
-  }
-
-  if (result && result.area === "operaciones") {
-    if (result.tipo === "registro" && result.estado === "salida") {
-      await createNotification({
-        recipient_email: KARIM_EMAIL,
-        title: "Herramientas pendientes de ingreso",
-        message: `El registro ${result.id} tiene herramientas en campo y requiere revisión de Karim.`,
-        record_type: "registro",
-        record_id: result.id,
-      });
-    }
-
-    if (result.tipo === "recepcion") {
-      await createNotification({
-        recipient_email: KARIM_EMAIL,
-        title: "Nueva recepción pendiente",
-        message: `La recepción ${result.id} requiere revisión y firma.`,
-        record_type: "recepcion",
-        record_id: result.id,
-      });
-    }
-
-    if (result.tipo === "liberacion") {
-      await createNotification({
-        recipient_email: KARIM_EMAIL,
-        title: "Nueva liberación pendiente",
-        message: `La liberación ${result.id} requiere revisión y firma.`,
-        record_type: "liberacion",
-        record_id: result.id,
-      });
-    }
-  }
-} catch (notifyErr) {
-  console.error("Error al intentar notificar:", notifyErr);
-}
+    await notifyConfiguredRecipients(result, user);
 
     return result;
   } catch (error) {
@@ -162,6 +110,45 @@ function getNombreFormulario(tipo) {
     default:
       return "Formulario";
   }
+}
+
+async function notifyConfiguredRecipients(result, user) {
+  if (!result) return;
+
+  try {
+    const recipients = await getNotificationRecipientsForRecord({
+      area: result.area,
+      tipo: result.tipo,
+      subtipo: result.subtipo,
+    });
+
+    if (recipients.length === 0) return;
+
+    const formName = getNombreFormularioPorArea(result);
+    const statusLabel = result.estado === "completado" ? "completado" : "borrador";
+    const clientName = result.data?.cliente || result.data?.conductor || result.data?.equipo || "Sin cliente";
+    const code = result.data?.codInf || result.data?.codigo || result.data?.pedidoDemanda || result.id;
+    const technician = result.data?.tecnicoNombre || user.email || "Sin técnico";
+
+    await Promise.all(
+      recipients.map((recipient_email) =>
+        createNotification({
+          recipient_email,
+          title: `App Servicios: ${formName} ${statusLabel}`,
+          message: `${technician} guardó ${formName.toLowerCase()} en estado ${statusLabel}. Referencia: ${clientName}. Código/Pedido: ${code}.`,
+          record_type: result.tipo || "formulario",
+          record_id: result.id,
+        })
+      )
+    );
+  } catch (notifyErr) {
+    console.error("Error al intentar notificar:", notifyErr);
+  }
+}
+
+function getNombreFormularioPorArea(result) {
+  if (result.area === "vehiculos") return getNombreFormularioVehiculos(result.tipo, result.subtipo);
+  return getNombreFormulario(result.tipo);
 }
 
 function getNombreFormularioVehiculos(tipo, subtipo) {

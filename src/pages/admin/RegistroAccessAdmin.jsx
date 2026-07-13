@@ -6,6 +6,11 @@ import {
   getAllRecordAccessPermissions,
   saveRecordAccessPermission,
 } from "@/services/accessControlService";
+import {
+  deleteNotificationRecipientRule,
+  getAllNotificationRecipientRules,
+  saveNotificationRecipientRule,
+} from "@/services/notificationRecipientService";
 
 const AREAS = [
   { value: "vehiculos", label: "Vehículos Especiales" },
@@ -19,6 +24,9 @@ const AREAS = [
 const TIPOS = [
   { value: "todos", label: "Todos los formatos" },
   { value: "informe", label: "Informe General" },
+  { value: "informe:bomba", label: "Informe - Bomba" },
+  { value: "informe:valvula", label: "Informe - Válvula" },
+  { value: "informe:avance_epmaps", label: "Informe - Recorrido/EPMAPS" },
   { value: "inspeccion", label: "Inspección" },
   { value: "inspeccion:hidro", label: "Inspección - Hidrosuccionador" },
   { value: "inspeccion:barredora", label: "Inspección - Barredora Pelican" },
@@ -33,6 +41,9 @@ const TIPOS = [
   { value: "protocolo:hidrosuccionador-vactor", label: "Protocolo - Hidrosuccionador Vactor" },
   { value: "protocolo:camara-vcam6", label: "Protocolo - Cámara V-Cam6" },
   { value: "registro", label: "Registro de herramientas" },
+  { value: "recepcion", label: "Bitácora y control vehicular" },
+  { value: "liberacion", label: "Liberación" },
+  { value: "visita_campo", label: "Visita de campo" },
 ];
 
 const emptyForm = {
@@ -45,11 +56,20 @@ const emptyForm = {
   can_download: false,
 };
 
+const emptyNotificationForm = {
+  recipient_user_id: "",
+  area: "todos",
+  tipo: "todos",
+  active: true,
+};
+
 export default function RegistroAccessAdmin() {
   const { isLight } = useTheme();
   const [profiles, setProfiles] = useState([]);
   const [permissions, setPermissions] = useState([]);
+  const [notificationRules, setNotificationRules] = useState([]);
   const [form, setForm] = useState(emptyForm);
+  const [notificationForm, setNotificationForm] = useState(emptyNotificationForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -78,8 +98,18 @@ export default function RegistroAccessAdmin() {
         getAccessProfiles(),
         getAllRecordAccessPermissions(),
       ]);
+      let notificationRulesData = [];
+
+      try {
+        notificationRulesData = await getAllNotificationRecipientRules();
+      } catch (notificationErr) {
+        console.error(notificationErr);
+        setError("No se pudieron cargar los destinatarios de notificaciones. Ejecuta el SQL de configuración si aún no existe la tabla.");
+      }
+
       setProfiles(profilesData);
       setPermissions(permissionsData);
+      setNotificationRules(notificationRulesData);
     } catch (err) {
       console.error(err);
       setError("No se pudieron cargar los usuarios o permisos.");
@@ -91,6 +121,11 @@ export default function RegistroAccessAdmin() {
   const handleChange = (field, value) => {
     setMessage("");
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleNotificationChange = (field, value) => {
+    setMessage("");
+    setNotificationForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (event) => {
@@ -126,6 +161,30 @@ export default function RegistroAccessAdmin() {
     }
   };
 
+  const handleNotificationSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+
+    if (!notificationForm.recipient_user_id) {
+      setError("Selecciona el destinatario de notificaciones.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      await saveNotificationRecipientRule(notificationForm);
+      setMessage("Destinatario de notificaciones guardado correctamente.");
+      setNotificationForm(emptyNotificationForm);
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      setError("No se pudo guardar el destinatario. Verifica que el SQL de destinatarios esté ejecutado en Supabase.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleDelete = async (permission) => {
     if (!confirm("¿Eliminar este permiso?")) return;
 
@@ -136,6 +195,19 @@ export default function RegistroAccessAdmin() {
     } catch (err) {
       console.error(err);
       setError("No se pudo eliminar el permiso.");
+    }
+  };
+
+  const handleNotificationDelete = async (rule) => {
+    if (!confirm("¿Eliminar este destinatario de notificaciones?")) return;
+
+    try {
+      await deleteNotificationRecipientRule(rule.id);
+      setNotificationRules((prev) => prev.filter((item) => item.id !== rule.id));
+      setMessage("Destinatario eliminado.");
+    } catch (err) {
+      console.error(err);
+      setError("No se pudo eliminar el destinatario.");
     }
   };
 
@@ -302,6 +374,124 @@ export default function RegistroAccessAdmin() {
                       <button
                         type="button"
                         onClick={() => handleDelete(permission)}
+                        className="text-red-600 hover:underline"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <form onSubmit={handleNotificationSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
+        <div>
+          <h2 className="font-semibold">Destinatarios de notificaciones</h2>
+          <p className={`text-sm ${isLight ? "text-slate-600" : "text-white/70"}`}>
+            Define quién recibe avisos cuando se guardan formularios por área y formato. Si cambia un correo, actualiza el perfil del usuario y no el código.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <label className="space-y-1 text-sm">
+            <span className="font-medium">Destinatario</span>
+            <select
+              value={notificationForm.recipient_user_id}
+              onChange={(event) => handleNotificationChange("recipient_user_id", event.target.value)}
+              className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
+            >
+              <option value="">Seleccionar usuario</option>
+              {sortedProfiles.map((profile) => (
+                <option key={profile.id} value={profile.id}>
+                  {getProfileLabel(profile)}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="space-y-1 text-sm">
+            <span className="font-medium">Área</span>
+            <select
+              value={notificationForm.area}
+              onChange={(event) => handleNotificationChange("area", event.target.value)}
+              className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
+            >
+              {AREAS.map((area) => (
+                <option key={area.value} value={area.value}>
+                  {area.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="space-y-1 text-sm">
+            <span className="font-medium">Formato</span>
+            <select
+              value={notificationForm.tipo}
+              onChange={(event) => handleNotificationChange("tipo", event.target.value)}
+              className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
+            >
+              {TIPOS.map((tipo) => (
+                <option key={tipo.value} value={tipo.value}>
+                  {tipo.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <label className="inline-flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={notificationForm.active}
+            onChange={(event) => handleNotificationChange("active", event.target.checked)}
+            className="h-4 w-4 rounded border-slate-300"
+          />
+          Activo
+        </label>
+
+        <button
+          type="submit"
+          disabled={saving || loading}
+          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:opacity-60"
+        >
+          {saving ? "Guardando..." : "Guardar destinatario"}
+        </button>
+      </form>
+
+      <div className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
+        <h2 className="font-semibold">Destinatarios activos</h2>
+
+        {loading ? (
+          <p className={isLight ? "text-slate-500" : "text-white/60"}>Cargando...</p>
+        ) : notificationRules.length === 0 ? (
+          <p className={isLight ? "text-slate-500" : "text-white/60"}>No hay destinatarios configurados.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm">
+              <thead className={isLight ? "text-slate-500" : "text-white/60"}>
+                <tr>
+                  <th className="py-2 pr-4">Destinatario</th>
+                  <th className="py-2 pr-4">Alcance</th>
+                  <th className="py-2 pr-4">Estado</th>
+                  <th className="py-2 pr-4">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {notificationRules.map((rule) => (
+                  <tr key={rule.id} className={isLight ? "border-t border-slate-100" : "border-t border-white/10"}>
+                    <td className="py-3 pr-4">{getProfileLabel(profileById[rule.recipient_user_id]) || rule.recipient_email}</td>
+                    <td className="py-3 pr-4">
+                      {getAreaLabel(rule.area)} / {getTipoLabel(rule.tipo)}
+                    </td>
+                    <td className="py-3 pr-4">{rule.active === false ? "Inactivo" : "Activo"}</td>
+                    <td className="py-3 pr-4">
+                      <button
+                        type="button"
+                        onClick={() => handleNotificationDelete(rule)}
                         className="text-red-600 hover:underline"
                       >
                         Eliminar
