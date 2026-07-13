@@ -55,6 +55,8 @@ export default function Login() {
       {/* 🌄 FONDO */}
       <img
         src="/background-astap.png"
+        alt=""
+        aria-hidden="true"
         className="absolute w-full h-full object-cover"
       />
 
@@ -66,9 +68,9 @@ export default function Login() {
         backdrop-blur-xl bg-white/10 border border-white/20 
         shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
 
-        <h2 className="text-white text-xl font-semibold text-center mb-6">
+        <h1 className="text-white text-xl font-semibold text-center mb-6">
           ASTAP Login
-        </h2>
+        </h1>
 
         {/* FORM */}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -76,6 +78,7 @@ export default function Login() {
           {/* EMAIL */}
           <input
             type="email"
+            aria-label="Correo electronico"
             placeholder="Correo"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -90,6 +93,7 @@ export default function Login() {
           {/* PASSWORD */}
           <input
             type="password"
+            aria-label="Contrasena"
             placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
