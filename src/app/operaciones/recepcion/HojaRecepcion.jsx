@@ -1194,7 +1194,7 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
         <button
           type="button"
          onClick={() => navigate("/operaciones/recepcion")}
-          className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10"
+          className="btn-volver-orange"
         >
           Volver
         </button>

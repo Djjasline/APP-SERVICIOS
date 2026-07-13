@@ -81,7 +81,7 @@ export default function InformeAguaPDF() {
         <button
           type="button"
           onClick={() => navigate("/agua/recorrido/informe")}
-          className="border px-4 py-2 rounded mt-4 hover:bg-gray-50"
+          className="btn-volver-orange mt-4"
         >
           Volver
         </button>
@@ -119,7 +119,7 @@ export default function InformeAguaPDF() {
             <button
               type="button"
               onClick={() => navigate("/agua/recorrido/informe")}
-              className="border px-4 py-2 rounded text-sm hover:bg-gray-50"
+              className="btn-volver-orange"
             >
               ← Volver
             </button>

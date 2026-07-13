@@ -121,11 +121,7 @@ export default function RegistroHome() {
             <button
               type="button"
               onClick={() => navigate("/operaciones")}
-              className={`border px-4 py-2 rounded transition ${
-                isLight
-                  ? "border-gray-300 text-gray-700 hover:bg-gray-100"
-                  : "border-white/20 text-white hover:bg-white/10"
-              }`}
+              className="btn-volver-orange"
             >
               Volver
             </button>

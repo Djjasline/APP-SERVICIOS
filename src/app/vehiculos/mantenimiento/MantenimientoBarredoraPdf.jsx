@@ -271,7 +271,7 @@ export default function MantenimientoBarredoraPDF({ variant = "pelican" }) {
   if (!report) return (
     <div className="p-6 text-center">
       <p>No se encontró el mantenimiento.</p>
-      <button onClick={() => navigate("/mantenimiento")} className="border px-4 py-2 rounded mt-4">
+      <button onClick={() => navigate("/mantenimiento")} className="btn-volver-orange mt-4">
         Volver
       </button>
     </div>
@@ -280,7 +280,7 @@ export default function MantenimientoBarredoraPDF({ variant = "pelican" }) {
   if (report.estado !== "completado") return (
     <div className="p-6 text-center">
       <p>Este mantenimiento no está completado aún.</p>
-      <button onClick={() => navigate("/mantenimiento")} className="border px-4 py-2 rounded mt-4">
+      <button onClick={() => navigate("/mantenimiento")} className="btn-volver-orange mt-4">
         Volver
       </button>
     </div>
@@ -548,7 +548,7 @@ export default function MantenimientoBarredoraPDF({ variant = "pelican" }) {
           margin: "24px auto 0",
         }}
       >
-        <button onClick={() => navigate("/mantenimiento")} className="border px-6 py-2 rounded">
+        <button onClick={() => navigate("/mantenimiento")} className="btn-volver-orange px-6">
           Volver
         </button>
         <button onClick={handlePrint} className="bg-green-600 text-white px-6 py-2 rounded">

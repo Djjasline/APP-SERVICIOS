@@ -990,7 +990,7 @@ const firmaCliente =
           {/* ══ 10. BOTONES ══ */}
           <div className="flex flex-col md:flex-row justify-between gap-3 pt-4">
             <button type="button" onClick={() => navigate("/vehiculos/inspeccion")}
-              className="border px-6 py-2 rounded hover:bg-gray-50 transition">
+              className="btn-volver-orange px-6">
               ← Volver
             </button>
             <div className="flex gap-3">

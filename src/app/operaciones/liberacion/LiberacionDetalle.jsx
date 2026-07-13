@@ -97,9 +97,9 @@ export default function LiberacionDetalle() {
 
         {/* BOTONES */}
         <div className="flex justify-between mt-6">
-         <button
+          <button
   onClick={() => navigate("/operaciones/liberacion")}
-  className="px-4 py-2 border rounded"
+  className="btn-volver-orange"
 >
   Volver
 </button>

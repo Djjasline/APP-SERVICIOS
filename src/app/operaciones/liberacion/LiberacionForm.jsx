@@ -340,7 +340,7 @@ pendientes.push({
 
         {/* BOTONES */}
         <div className="flex justify-between mt-6">
-          <button onClick={() => navigate("/operaciones/liberacion")} className="border px-4 py-2">
+          <button onClick={() => navigate("/operaciones/liberacion")} className="btn-volver-orange">
             Volver
           </button>
 

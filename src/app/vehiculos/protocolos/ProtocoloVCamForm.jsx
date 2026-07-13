@@ -206,7 +206,7 @@ export default function ProtocoloVCamForm() {
           <h1 className="text-xl font-semibold text-slate-900">{PROTOCOLO_VCAM_INFO.titulo}</h1>
           <p className="text-sm text-slate-600">{PROTOCOLO_VCAM_INFO.descripcion}</p>
         </div>
-        <button className="rounded border px-4 py-2 text-sm" onClick={() => navigate("/vehiculos/protocolos")}>Volver</button>
+        <button className="btn-volver-orange" onClick={() => navigate("/vehiculos/protocolos")}>Volver</button>
       </div>
 
       <div className="bg-white rounded-xl border shadow-sm p-4">

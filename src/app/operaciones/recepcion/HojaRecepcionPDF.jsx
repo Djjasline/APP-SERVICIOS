@@ -62,7 +62,7 @@ export default function HojaRecepcionPDF() {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="border px-4 py-2 rounded text-sm hover:bg-gray-50"
+          className="btn-volver-orange"
         >
           Volver
         </button>

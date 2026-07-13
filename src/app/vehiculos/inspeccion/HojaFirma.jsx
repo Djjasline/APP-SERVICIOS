@@ -127,7 +127,7 @@ export default function HojaFirma() {
       <div className="flex justify-end gap-4">
         <button
           onClick={() => navigate(-1)}
-          className="border px-4 py-2 rounded"
+          className="btn-volver-orange"
         >
           Volver
         </button>

@@ -934,7 +934,7 @@ navigate("/agua/recorrido/informe");
           <button
             type="button"
             onClick={() => navigate("/agua/recorrido/informe")}
-            className="ia-btn ia-btn--ghost"
+            className="btn-volver-orange"
           >
             ← Volver
           </button>

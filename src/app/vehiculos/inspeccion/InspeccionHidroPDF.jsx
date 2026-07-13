@@ -161,9 +161,9 @@ setReport({
     load();
   }, [id]);
 
-  if (!report) return (<div className="p-6 text-center"><p>No se encontró la inspección.</p><button onClick={() => navigate("/vehiculos/inspeccion")} className="border px-4 py-2 rounded mt-4">Volver</button></div>);
+  if (!report) return (<div className="p-6 text-center"><p>No se encontró la inspección.</p><button onClick={() => navigate("/vehiculos/inspeccion")} className="btn-volver-orange mt-4">Volver</button></div>);
 
-  if (report.estado !== "completado") return (<div className="p-6 text-center"><p>Esta inspección no está completada.</p><button onClick={() => navigate("/vehiculos/inspeccion")} className="border px-4 py-2 rounded mt-4">Volver</button></div>);
+  if (report.estado !== "completado") return (<div className="p-6 text-center"><p>Esta inspección no está completada.</p><button onClick={() => navigate("/vehiculos/inspeccion")} className="btn-volver-orange mt-4">Volver</button></div>);
 
   const { data: d } = report;
 
@@ -542,7 +542,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
       </div>
       {/* BOTONES */}
       <div className="no-print" style={{ display: "flex", justifyContent: "space-between", maxWidth: 794, margin: "24px auto 0" }}>
-        <button onClick={() => navigate("/vehiculos/inspeccion")} className="border px-6 py-2 rounded">Volver</button>
+        <button onClick={() => navigate("/vehiculos/inspeccion")} className="btn-volver-orange px-6">Volver</button>
         <button onClick={handlePrint} className="bg-green-600 text-white px-6 py-2 rounded">Descargar PDF</button>
       </div>
     </div>

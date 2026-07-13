@@ -520,11 +520,7 @@ const handleSubmit = async (e) => {
         <button
           type="button"
           onClick={() => navigate("/operaciones/registro")} // ✅ ruta correcta
-          className={`border px-4 py-2 rounded text-sm transition ${
-            isLight
-              ? "border-slate-300 text-slate-700 hover:bg-slate-50"
-              : "border-white/20 text-white hover:bg-white/10"
-          }`}
+          className="btn-volver-orange"
         >
           ← Volver
         </button>

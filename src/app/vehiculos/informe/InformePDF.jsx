@@ -49,7 +49,7 @@ export default function InformePDF({ allowDownload = true, backPath = "/informe"
         <p>No se encontró el informe.</p>
         <button
           onClick={() => navigate("/informe")}
-          className="border px-4 py-2 rounded mt-4"
+          className="btn-volver-orange mt-4"
         >
           Volver
         </button>
@@ -64,7 +64,7 @@ export default function InformePDF({ allowDownload = true, backPath = "/informe"
         <p>Este informe no está completado.</p>
         <button
           onClick={() => navigate("/informe")}
-          className="border px-4 py-2 rounded mt-4"
+          className="btn-volver-orange mt-4"
         >
           Volver
         </button>
@@ -519,7 +519,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
       >
         <button
           onClick={() => navigate(backPath)}
-          className={`border px-6 py-2 rounded ${isLight ? "border-slate-300 text-slate-700 hover:bg-slate-100" : "border-white/20 text-white hover:bg-white/10"}`}
+          className="btn-volver-orange px-6"
         >
           Volver
         </button>

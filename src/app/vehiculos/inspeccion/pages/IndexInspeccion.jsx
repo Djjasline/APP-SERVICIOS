@@ -183,7 +183,7 @@ export default function IndexInspeccion() {
       <div className="max-w-6xl mx-auto space-y-6">
         <button
           onClick={() => navigate("/")}
-          className="text-sm text-blue-600 hover:underline"
+          className="btn-volver-orange"
         >
           ← Volver al panel principal
         </button>

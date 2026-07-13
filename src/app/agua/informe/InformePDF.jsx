@@ -64,7 +64,7 @@ export default function InformePDF({
         <p>No se encontró el informe.</p>
         <button
          onClick={() => navigate(basePath)}
-         className="border px-4 py-2 rounded mt-4"
+         className="btn-volver-orange mt-4"
         >
           Volver
         </button>
@@ -83,7 +83,7 @@ export default function InformePDF({
         <p>Este informe no está completado.</p>
         <button
           onClick={() => navigate(basePath)}
-          className="border px-4 py-2 rounded mt-4"
+          className="btn-volver-orange mt-4"
         >
           Volver
         </button>
@@ -526,7 +526,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
         <div className="no-print flex justify-between mt-6">
           <button
             onClick={() => navigate(basePath)}
-            className="border px-6 py-2 rounded"
+            className="btn-volver-orange px-6"
           >
             Volver
           </button>

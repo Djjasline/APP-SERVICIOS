@@ -36,7 +36,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
         <p>No se encontro el registro.</p>
         <button
           onClick={() => navigate("/operaciones/registro")}
-          className="border px-4 py-2 rounded mt-4"
+          className="btn-volver-orange mt-4"
         >
           Volver
         </button>
@@ -313,7 +313,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
         <div className="no-print mt-6 flex justify-between">
           <button
             onClick={() => navigate(backPath)}
-            className={`rounded border px-4 py-2 ${isLight ? "text-slate-700 hover:bg-slate-100" : "bg-white text-slate-900 hover:bg-slate-100"}`}
+            className="btn-volver-orange"
           >
             Volver
           </button>

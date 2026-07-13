@@ -81,7 +81,7 @@ export default function InformeAguaHome() {
     <button
       type="button"
       onClick={() => navigate("/area/agua")}
-      className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition"
+      className="btn-volver-orange"
     >
       Volver
     </button>

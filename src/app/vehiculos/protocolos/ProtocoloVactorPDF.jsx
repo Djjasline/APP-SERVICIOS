@@ -182,11 +182,11 @@ export default function ProtocoloVactorPDF({ allowDownload = true, backPath = "/
   }, [id]);
 
   if (!record) {
-    return <div className="p-6 text-center"><p>No se encontró el protocolo.</p><button onClick={() => navigate(backPath)} className="border px-4 py-2 rounded mt-4">Volver</button></div>;
+    return <div className="p-6 text-center"><p>No se encontró el protocolo.</p><button onClick={() => navigate(backPath)} className="btn-volver-orange mt-4">Volver</button></div>;
   }
 
   if (record.estado !== "completado") {
-    return <div className="p-6 text-center"><p>Este protocolo no está completado.</p><button onClick={() => navigate(backPath)} className="border px-4 py-2 rounded mt-4">Volver</button></div>;
+    return <div className="p-6 text-center"><p>Este protocolo no está completado.</p><button onClick={() => navigate(backPath)} className="btn-volver-orange mt-4">Volver</button></div>;
   }
 
   const d = record.data || {};
@@ -204,7 +204,7 @@ export default function ProtocoloVactorPDF({ allowDownload = true, backPath = "/
   return (
     <div style={{ background: "#f3f4f6", minHeight: "100vh", padding: "24px 16px" }}>
       <div className="no-print" style={{ maxWidth: 794, margin: "0 auto 12px auto", display: "flex", justifyContent: "space-between", gap: 8 }}>
-        <button onClick={() => navigate(backPath)} className="border px-4 py-2 rounded bg-white text-sm">Volver</button>
+        <button onClick={() => navigate(backPath)} className="btn-volver-orange">Volver</button>
         {allowDownload && <button onClick={handlePrint} className="bg-green-600 text-white px-4 py-2 rounded text-sm">Descargar / imprimir PDF</button>}
       </div>
 

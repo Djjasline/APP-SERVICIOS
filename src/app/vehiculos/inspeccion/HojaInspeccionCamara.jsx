@@ -1181,7 +1181,7 @@ const result = await saveOrUpdateReport({
             <button
               type="button"
               onClick={() => navigate("/vehiculos/inspeccion")}
-              className="border px-6 py-2 rounded hover:bg-gray-50 transition"
+              className="btn-volver-orange px-6"
             >
               ← Volver
             </button>

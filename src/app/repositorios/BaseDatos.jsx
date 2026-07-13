@@ -31,7 +31,7 @@ export default function BaseDatos() {
         <button
           type="button"
           onClick={() => navigate("/repositorios")}
-          className="bg-white text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition inline-flex items-center gap-2 w-fit"
+          className="btn-volver-orange gap-2 w-fit"
         >
           <ArrowLeft size={16} />
           Volver

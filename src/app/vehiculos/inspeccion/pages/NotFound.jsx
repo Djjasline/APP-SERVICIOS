@@ -11,7 +11,7 @@ const NotFound = () => {
       </p>
       <button
         onClick={() => navigate("/")}
-        className="px-6 py-3 rounded-md border border-gray-300 shadow-sm text-sm font-medium bg-white hover:bg-gray-50"
+        className="btn-volver-orange px-6 py-3"
       >
         Volver al inicio
       </button>
