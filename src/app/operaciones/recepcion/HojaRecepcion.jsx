@@ -499,7 +499,7 @@ const SheetStyles = () => (
     .fuel-box {
       width: 100%;
       height: 100%;
-      min-height: 74px;
+      min-height: 58px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -510,7 +510,7 @@ const SheetStyles = () => (
 
     .fuel-svg {
       width: 96%;
-      max-height: 64px;
+      max-height: 50px;
     }
 
     .fuel-range {
@@ -519,8 +519,8 @@ const SheetStyles = () => (
     }
 
     .damage-area-photo {
-  min-height: 310px;
-  padding: 8px;
+  min-height: 170px;
+  padding: 5px;
   background: #fff;
 }
 
@@ -544,7 +544,7 @@ const SheetStyles = () => (
 }
 
 .damage-empty {
-  height: 260px;
+  height: 130px;
   border: 1px dashed #9ca3af;
   display: flex;
   flex-direction: column;
@@ -606,7 +606,7 @@ const SheetStyles = () => (
 
 .damage-photo-img {
   width: 100%;
-  height: 142px;
+  height: 88px;
   object-fit: cover;
   display: block;
 }
@@ -645,14 +645,14 @@ const SheetStyles = () => (
 
 .signature-canvas {
       width: 100%;
-      height: 88px;
+      height: 58px;
       display: block;
       background: #fff;
     }
 
     .signature-img {
       width: 100%;
-      height: 88px;
+      height: 58px;
       object-fit: contain;
       display: block;
     }
@@ -935,7 +935,7 @@ export function ControlVehicularSheet({
               <td colSpan={9} />
             </tr>
 
-            <tr style={{ height: 26 }}>
+            <tr style={{ height: 20 }}>
               <td colSpan={13} className="cell-label-center" style={{ fontSize: 14 }}>
                 DAÑOS DE CARROCERÍA Y COMENTARIOS GENERALES
               </td>
@@ -952,23 +952,23 @@ export function ControlVehicularSheet({
               </td>
             </tr>
 
-            <tr style={{ height: 22 }}>
+            <tr style={{ height: 18 }}>
               <td colSpan={13} className="cell-label">OBSERVACIONES ENTREGA:</td>
             </tr>
 
-            <tr style={{ height: 70 }}>
+            <tr style={{ height: 44 }}>
               <td colSpan={13}>
                 <TextAreaCell value={data.observacionesEntrega} readOnly={readOnly} placeholder="Observaciones al momento de la entrega" onChange={(v) => setField("observacionesEntrega", v)} />
               </td>
             </tr>
 
-            <tr style={{ height: 26 }}>
+            <tr style={{ height: 20 }}>
               <td colSpan={13} className="section-title">
                 RECEPCIÓN VEHICULAR
               </td>
             </tr>
 
-            <tr style={{ height: 18 }}>
+            <tr style={{ height: 15 }}>
               <td rowSpan={4} className="cell-label-center bold">
                 NIVEL<br />DE COMBUSTIBLE LLEGADA
               </td>
@@ -987,12 +987,12 @@ export function ControlVehicularSheet({
               <td colSpan={5} className="cell-label-center bold">MANTENIMIENTO</td>
             </tr>
 
-            <tr style={{ height: 18 }}>
+            <tr style={{ height: 14 }}>
               <td colSpan={3} className="small-center bold">SI</td>
               <td colSpan={2} className="small-center bold">NO</td>
             </tr>
 
-            <tr style={{ height: 24 }}>
+            <tr style={{ height: 18 }}>
               <td colSpan={3} rowSpan={2}>
                 <ChoiceCell value={data.recepcion.mantenimiento} option="SI" readOnly={readOnly} onChange={(v) => setNested(["recepcion", "mantenimiento"], v)} />
               </td>
@@ -1000,9 +1000,9 @@ export function ControlVehicularSheet({
                 <ChoiceCell value={data.recepcion.mantenimiento} option="NO" readOnly={readOnly} onChange={(v) => setNested(["recepcion", "mantenimiento"], v)} />
               </td>
             </tr>
-            <tr style={{ height: 24 }} />
+            <tr style={{ height: 18 }} />
 
-            <tr style={{ height: 95 }}>
+            <tr style={{ height: 66 }}>
               <td className="cell-label-center" style={{ fontSize: 14 }}>
                 FIRMA RESPONSABLE /<br />CONDUCTOR:
               </td>
@@ -1025,51 +1025,16 @@ export function ControlVehicularSheet({
               </td>
             </tr>
 
-            <tr style={{ height: 22 }}>
+            <tr style={{ height: 18 }}>
               <td colSpan={13} className="cell-label bold">OBSERVACIONES DE LA RECEPCIÓN:</td>
             </tr>
 
-            <tr style={{ height: 92 }}>
+            <tr style={{ height: 52 }}>
               <td colSpan={13}>
                 <TextAreaCell value={data.observacionesRecepcion} readOnly={readOnly} placeholder="Observaciones finales de recepción" onChange={(v) => setField("observacionesRecepcion", v)} />
               </td>
             </tr>
 
-            <tr style={{ height: 15 }}>
-              <td colSpan={5} className="footer-cell bold">ASTAP Cía. Ltda.</td>
-              <td colSpan={2} />
-              <td colSpan={6} className="footer-cell bold">TELÉFONOS CONTACTO/EMERGENCIA:</td>
-            </tr>
-            <tr style={{ height: 13 }}>
-              <td colSpan={5} className="footer-cell">Av. Naciones Unidas 1084 y Av. Amazonas</td>
-              <td colSpan={2} />
-              <td colSpan={6} />
-            </tr>
-            <tr style={{ height: 12 }}>
-              <td colSpan={5} className="footer-cell">Torre B, 6to Piso</td>
-              <td colSpan={2} />
-              <td colSpan={6} className="footer-cell">ECUASISTENCIA 0999494488</td>
-            </tr>
-            <tr style={{ height: 12 }}>
-              <td colSpan={5} className="footer-cell">Telef: 2262154 / Fax: 2462160</td>
-              <td colSpan={2} />
-              <td colSpan={6} className="footer-cell">DECISEG - AMERICA MEDINA - CEL. 0987166104 - TELF.3530422</td>
-            </tr>
-            <tr style={{ height: 12 }}>
-              <td colSpan={5} className="footer-cell">P.O. BOX: 17-17-1136</td>
-              <td colSpan={2} />
-              <td colSpan={6} className="footer-cell">DECISEG - GABRIELA CORAL - CEL. 0987690320 - TELF. 3530422</td>
-            </tr>
-            <tr style={{ height: 12 }}>
-              <td colSpan={5} className="footer-cell">E-mail: astap@astap.com</td>
-              <td colSpan={2} />
-              <td colSpan={6} />
-            </tr>
-            <tr style={{ height: 13 }}>
-              <td colSpan={5} className="footer-cell">Quito-Ecuador</td>
-              <td colSpan={2} />
-              <td colSpan={6} />
-            </tr>
           </tbody>
         </table>
       </div>

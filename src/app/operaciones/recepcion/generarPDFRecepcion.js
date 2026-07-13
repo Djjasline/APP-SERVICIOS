@@ -323,7 +323,7 @@ export const generarPDFRecepcion = async (data) => {
   const danosImagenes = data.danos?.imagenes || [];
   const boxX = colX(0);
   const boxW = colW(0, 13);
-  const boxH = 72;
+  const boxH = 48;
 
   cell(doc, 0, 13, y, boxH);
 
@@ -336,7 +336,7 @@ export const generarPDFRecepcion = async (data) => {
     const gap = 2;
     const maxFotos = Math.min(3, danosImagenes.length);
     const fotoW = (boxW - gap * (maxFotos + 1)) / maxFotos;
-    const fotoH = 38;
+    const fotoH = 24;
     const fotoY = y + 3;
 
     for (let i = 0; i < maxFotos; i += 1) {
@@ -418,100 +418,63 @@ export const generarPDFRecepcion = async (data) => {
   y += boxH;
   cell(doc, 0, 13, y, 5.5, "OBSERVACIONES ENTREGA:", { fontSize: 7.5 });
   y += 5.5;
-  cell(doc, 0, 13, y, 25, data.observacionesEntrega, { fontSize: 7 });
-  y += 25;
-
-  doc.addPage();
-  doc.setLineWidth(0.25);
-  y = 8;
-
-  cell(doc, 0, 13, y, 8, "BITÁCORA Y CONTROL VEHICULAR", {
-    align: "center",
-    fontSize: 13,
-    bold: true,
-    fillColor: [248, 250, 252],
-  });
-  y += 8;
+  cell(doc, 0, 13, y, 16, data.observacionesEntrega, { fontSize: 7 });
+  y += 16;
 
   cell(doc, 0, 13, y, 6, "RECEPCIÓN VEHICULAR", { bold: true, fontSize: 9, fillColor: [219, 234, 254] });
   y += 6;
 
-  cell(doc, 0, 1, y, 22, "NIVEL\nDE COMBUSTIBLE LLEGADA", {
+  cell(doc, 0, 1, y, 18, "NIVEL\nDE COMBUSTIBLE LLEGADA", {
     align: "center",
     bold: true,
     fontSize: 7,
   });
-  cell(doc, 1, 3, y, 22);
-  drawGauge(doc, colX(1), y, colW(1, 3), 22, data.recepcion?.combustibleLlegada);
-  cell(doc, 4, 1, y, 22);
-  cell(doc, 5, 3, y, 22, `KILÓMETROS\nDE LLEGADA\n${textValue(data.recepcion?.kilometrosLlegada)}`, {
+  cell(doc, 1, 3, y, 18);
+  drawGauge(doc, colX(1), y, colW(1, 3), 18, data.recepcion?.combustibleLlegada);
+  cell(doc, 4, 1, y, 18);
+  cell(doc, 5, 3, y, 18, `KILÓMETROS\nDE LLEGADA\n${textValue(data.recepcion?.kilometrosLlegada)}`, {
     align: "center",
     bold: true,
     fontSize: 7,
   });
-  cell(doc, 8, 5, y, 6, "MANTENIMIENTO", { align: "center", bold: true, fontSize: 7 });
-  cell(doc, 8, 3, y + 6, 5, "SI", { align: "center", bold: true, fontSize: 6 });
-  cell(doc, 11, 2, y + 6, 5, "NO", { align: "center", bold: true, fontSize: 6 });
-  cell(doc, 8, 3, y + 11, 11, data.recepcion?.mantenimiento === "SI" ? "X" : "", {
+  cell(doc, 8, 5, y, 5, "MANTENIMIENTO", { align: "center", bold: true, fontSize: 7 });
+  cell(doc, 8, 3, y + 5, 4.5, "SI", { align: "center", bold: true, fontSize: 6 });
+  cell(doc, 11, 2, y + 5, 4.5, "NO", { align: "center", bold: true, fontSize: 6 });
+  cell(doc, 8, 3, y + 9.5, 8.5, data.recepcion?.mantenimiento === "SI" ? "X" : "", {
     align: "center",
     bold: true,
   });
-  cell(doc, 11, 2, y + 11, 11, data.recepcion?.mantenimiento === "NO" ? "X" : "", {
+  cell(doc, 11, 2, y + 9.5, 8.5, data.recepcion?.mantenimiento === "NO" ? "X" : "", {
     align: "center",
     bold: true,
   });
-  y += 22;
+  y += 18;
 
-  cell(doc, 0, 1, y, 22, "FIRMA RESPONSABLE /\nCONDUCTOR:", {
+  cell(doc, 0, 1, y, 18, "FIRMA RESPONSABLE /\nCONDUCTOR:", {
     align: "center",
     fontSize: 8,
   });
-  cell(doc, 1, 4, y, 22);
+  cell(doc, 1, 4, y, 18);
   if (data.firmas?.responsable) {
-    doc.addImage(data.firmas.responsable, "PNG", colX(1) + 2, y + 2, colW(1, 4) - 4, 18);
+    doc.addImage(data.firmas.responsable, "PNG", colX(1) + 2, y + 2, colW(1, 4) - 4, 14);
   }
-  cell(doc, 5, 3, y, 22, "RECEPCIÓN FINAL SERVICIO:", {
+  cell(doc, 5, 3, y, 18, "RECEPCIÓN FINAL SERVICIO:", {
     align: "center",
     fontSize: 8,
   });
-  cell(doc, 8, 5, y, 22);
+  cell(doc, 8, 5, y, 18);
   if (data.firmas?.recepcionFinal) {
-    doc.addImage(data.firmas.recepcionFinal, "PNG", colX(8) + 2, y + 2, colW(8, 5) - 4, 18);
+    doc.addImage(data.firmas.recepcionFinal, "PNG", colX(8) + 2, y + 2, colW(8, 5) - 4, 14);
   }
-  y += 22;
+  y += 18;
 
   cell(doc, 0, 13, y, 5.5, "OBSERVACIONES DE LA RECEPCIÓN:", {
     bold: true,
     fontSize: 7.5,
   });
   y += 5.5;
-  cell(doc, 0, 13, y, 18, data.observacionesRecepcion, { fontSize: 7 });
-  y += 18;
-
-  const footerRows = [
-    ["ASTAP Cía. Ltda.", "TELÉFONOS CONTACTO/EMERGENCIA:"],
-    ["Av. Naciones Unidas 1084 y Av. Amazonas", ""],
-    ["Torre B, 6to Piso", "ECUASISTENCIA 0999494488"],
-    ["Telef: 2262154 / Fax: 2462160", "DECISEG - AMERICA MEDINA - CEL. 0987166104 - TELF.3530422"],
-    ["P.O. BOX: 17-17-1136", "DECISEG - GABRIELA CORAL - CEL. 0987690320 - TELF. 3530422"],
-    ["E-mail: astap@astap.com", ""],
-    ["Quito-Ecuador", ""],
-  ];
-
-  footerRows.forEach(([left, right], index) => {
-    cell(doc, 0, 5, y, 3.4, left, {
-      align: "center",
-      bold: index === 0,
-      fontSize: 5.5,
-    });
-    cell(doc, 5, 2, y, 3.4);
-    cell(doc, 7, 6, y, 3.4, right, {
-      align: "center",
-      bold: index === 0,
-      fontSize: 5.5,
-    });
-    y += 3.4;
-  });
+  cell(doc, 0, 13, y, 14, data.observacionesRecepcion, { fontSize: 7 });
+  y += 14;
 
   doc.save("hoja_control_vehicular.pdf");
 };
