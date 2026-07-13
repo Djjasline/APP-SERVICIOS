@@ -11,6 +11,10 @@ import {
   getAllNotificationRecipientRules,
   saveNotificationRecipientRule,
 } from "@/services/notificationRecipientService";
+import {
+  getReportCodeSequences,
+  updateReportCodeSequence,
+} from "@/services/reportCodeService";
 
 const AREAS = [
   { value: "vehiculos", label: "Vehículos Especiales" },
@@ -63,15 +67,23 @@ const emptyNotificationForm = {
   active: true,
 };
 
+const emptySequenceForm = {
+  prefix: "",
+  last_number: "",
+};
+
 export default function RegistroAccessAdmin() {
   const { isLight } = useTheme();
   const [profiles, setProfiles] = useState([]);
   const [permissions, setPermissions] = useState([]);
   const [notificationRules, setNotificationRules] = useState([]);
+  const [sequences, setSequences] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [notificationForm, setNotificationForm] = useState(emptyNotificationForm);
+  const [sequenceForm, setSequenceForm] = useState(emptySequenceForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [sequenceSaving, setSequenceSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -99,6 +111,7 @@ export default function RegistroAccessAdmin() {
         getAllRecordAccessPermissions(),
       ]);
       let notificationRulesData = [];
+      let sequencesData = [];
 
       try {
         notificationRulesData = await getAllNotificationRecipientRules();
@@ -107,9 +120,17 @@ export default function RegistroAccessAdmin() {
         setError("No se pudieron cargar los destinatarios de notificaciones. Ejecuta el SQL de configuración si aún no existe la tabla.");
       }
 
+      try {
+        sequencesData = await getReportCodeSequences();
+      } catch (sequenceErr) {
+        console.error(sequenceErr);
+        setError((prev) => prev || "No se pudieron cargar las secuencias. Ejecuta el SQL actualizado de report_code_sequences si aún no existe el control.");
+      }
+
       setProfiles(profilesData);
       setPermissions(permissionsData);
       setNotificationRules(notificationRulesData);
+      setSequences(sequencesData);
     } catch (err) {
       console.error(err);
       setError("No se pudieron cargar los usuarios o permisos.");
@@ -126,6 +147,11 @@ export default function RegistroAccessAdmin() {
   const handleNotificationChange = (field, value) => {
     setMessage("");
     setNotificationForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSequenceChange = (field, value) => {
+    setMessage("");
+    setSequenceForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (event) => {
@@ -185,6 +211,25 @@ export default function RegistroAccessAdmin() {
     }
   };
 
+  const handleSequenceSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+
+    try {
+      setSequenceSaving(true);
+      await updateReportCodeSequence(sequenceForm.prefix, sequenceForm.last_number);
+      setMessage("Secuencia actualizada correctamente.");
+      setSequenceForm(emptySequenceForm);
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      setError(err?.message || "No se pudo actualizar la secuencia.");
+    } finally {
+      setSequenceSaving(false);
+    }
+  };
+
   const handleDelete = async (permission) => {
     if (!confirm("¿Eliminar este permiso?")) return;
 
@@ -209,6 +254,14 @@ export default function RegistroAccessAdmin() {
       console.error(err);
       setError("No se pudo eliminar el destinatario.");
     }
+  };
+
+  const editSequence = (sequence) => {
+    setMessage("");
+    setSequenceForm({
+      prefix: sequence.prefix || "",
+      last_number: String(sequence.last_number ?? ""),
+    });
   };
 
   const cardClass = isLight
@@ -386,6 +439,95 @@ export default function RegistroAccessAdmin() {
           </div>
         )}
       </div>
+
+      <form onSubmit={handleSequenceSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
+        <div>
+          <h2 className="font-semibold">Control de secuencias de informes</h2>
+          <p className={`text-sm ${isLight ? "text-slate-600" : "text-white/70"}`}>
+            Ajusta el último número reservado por prefijo. Ejemplo: para que el próximo código sea P-26-006-57-005, deja el prefijo P-26-006-57 con último número 4.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_180px_auto] gap-4 items-end">
+          <label className="space-y-1 text-sm">
+            <span className="font-medium">Prefijo</span>
+            <input
+              value={sequenceForm.prefix}
+              onChange={(event) => handleSequenceChange("prefix", event.target.value)}
+              placeholder="Ej: P-26-006-57"
+              className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
+            />
+          </label>
+
+          <label className="space-y-1 text-sm">
+            <span className="font-medium">Último número</span>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={sequenceForm.last_number}
+              onChange={(event) => handleSequenceChange("last_number", event.target.value)}
+              placeholder="Ej: 4"
+              className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
+            />
+          </label>
+
+          <button
+            type="submit"
+            disabled={sequenceSaving || loading}
+            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
+          >
+            {sequenceSaving ? "Guardando..." : "Guardar secuencia"}
+          </button>
+        </div>
+
+        <div className={`rounded-lg border px-4 py-3 text-sm ${isLight ? "border-blue-200 bg-blue-50 text-blue-900" : "border-blue-300/30 bg-blue-500/10 text-blue-100"}`}>
+          Si corriges un informe histórico de 005 a 004, ajusta esta secuencia a 4 después de editar el código del registro. Si todavía existe un informe con 005, el sistema tomará 005 como último existente y el próximo será 006.
+        </div>
+
+        {loading ? (
+          <p className={isLight ? "text-slate-500" : "text-white/60"}>Cargando secuencias...</p>
+        ) : sequences.length === 0 ? (
+          <p className={isLight ? "text-slate-500" : "text-white/60"}>No hay secuencias registradas.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm">
+              <thead className={isLight ? "text-slate-500" : "text-white/60"}>
+                <tr>
+                  <th className="py-2 pr-4">Prefijo</th>
+                  <th className="py-2 pr-4">Último número</th>
+                  <th className="py-2 pr-4">Siguiente sugerido</th>
+                  <th className="py-2 pr-4">Actualizado</th>
+                  <th className="py-2 pr-4">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sequences.map((sequence) => (
+                  <tr key={sequence.prefix} className={isLight ? "border-t border-slate-100" : "border-t border-white/10"}>
+                    <td className="py-3 pr-4 font-semibold">{sequence.prefix}</td>
+                    <td className="py-3 pr-4">{sequence.last_number}</td>
+                    <td className="py-3 pr-4">
+                      {sequence.prefix}-{String((Number(sequence.last_number) || 0) + 1).padStart(3, "0")}
+                    </td>
+                    <td className="py-3 pr-4">
+                      {sequence.updated_at ? new Date(sequence.updated_at).toLocaleString() : "-"}
+                    </td>
+                    <td className="py-3 pr-4">
+                      <button
+                        type="button"
+                        onClick={() => editSequence(sequence)}
+                        className="text-blue-600 hover:underline"
+                      >
+                        Editar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </form>
 
       <form onSubmit={handleNotificationSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
         <div>

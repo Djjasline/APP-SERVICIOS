@@ -40,3 +40,31 @@ export async function reserveNextReportCode(inputCode) {
   if (error) throw error;
   return data || inputCode;
 }
+
+export async function getReportCodeSequences() {
+  const { data, error } = await supabase.rpc("list_report_code_sequences");
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function updateReportCodeSequence(prefix, lastNumber) {
+  const normalizedPrefix = normalizeReportCodePrefix(prefix);
+  const parsedLastNumber = Number(lastNumber);
+
+  if (!normalizedPrefix || normalizedPrefix.length < 5) {
+    throw new Error("Ingresa un prefijo válido. Ej: P-26-006-57");
+  }
+
+  if (!Number.isInteger(parsedLastNumber) || parsedLastNumber < 0) {
+    throw new Error("El último número debe ser un entero mayor o igual a cero.");
+  }
+
+  const { data, error } = await supabase.rpc("update_report_code_sequence", {
+    input_prefix: normalizedPrefix,
+    input_last_number: parsedLastNumber,
+  });
+
+  if (error) throw error;
+  return data;
+}

@@ -109,6 +109,72 @@ begin
 end;
 $$;
 
+create or replace function public.is_report_sequence_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select lower(coalesce(auth.email(), '')) = 'smaviles@astap.com';
+$$;
+
+create or replace function public.list_report_code_sequences()
+returns table(prefix text, last_number integer, updated_at timestamptz)
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not public.is_report_sequence_admin() then
+    raise exception 'No autorizado para ver secuencias de informes';
+  end if;
+
+  return query
+  select s.prefix, s.last_number, s.updated_at
+  from public.report_code_sequences s
+  order by s.prefix asc;
+end;
+$$;
+
+create or replace function public.update_report_code_sequence(input_prefix text, input_last_number integer)
+returns public.report_code_sequences
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  normalized_prefix text;
+  saved public.report_code_sequences;
+begin
+  if not public.is_report_sequence_admin() then
+    raise exception 'No autorizado para editar secuencias de informes';
+  end if;
+
+  normalized_prefix := public.normalize_report_code_prefix(input_prefix);
+
+  if normalized_prefix is null or char_length(normalized_prefix) < 5 then
+    raise exception 'Prefijo inválido';
+  end if;
+
+  if input_last_number is null or input_last_number < 0 then
+    raise exception 'El último número debe ser mayor o igual a cero';
+  end if;
+
+  insert into public.report_code_sequences(prefix, last_number, updated_at)
+  values (normalized_prefix, input_last_number, now())
+  on conflict (prefix) do update
+  set last_number = excluded.last_number,
+      updated_at = now()
+  returning * into saved;
+
+  return saved;
+end;
+$$;
+
 grant execute on function public.normalize_report_code_prefix(text) to authenticated;
 grant execute on function public.peek_next_report_code(text) to authenticated;
 grant execute on function public.reserve_next_report_code(text) to authenticated;
+grant execute on function public.is_report_sequence_admin() to authenticated;
+grant execute on function public.list_report_code_sequences() to authenticated;
+grant execute on function public.update_report_code_sequence(text, integer) to authenticated;
