@@ -127,17 +127,58 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
     <div className={`min-h-screen p-4 ${isLight ? "bg-gray-100" : "bg-slate-950"}`}>
       <style>{`
         @media print {
+          @page {
+            size: A4 portrait;
+            margin: 8mm;
+          }
+
+          body * {
+            visibility: hidden !important;
+          }
+
           .no-print {
             display: none !important;
           }
 
+          html,
           body {
+            width: auto !important;
+            height: auto !important;
             background: white !important;
+            overflow: visible !important;
           }
 
-          .pdf-page {
+          .registro-pdf-page,
+          .registro-pdf-page * {
+            visibility: visible !important;
+          }
+
+          .registro-pdf-page {
+            position: absolute !important;
+            inset: 0 auto auto 0 !important;
+            width: 194mm !important;
+            max-width: 194mm !important;
             box-shadow: none !important;
             margin: 0 !important;
+            padding: 6mm !important;
+            border: 0 !important;
+            background: white !important;
+            color: black !important;
+          }
+
+          .registro-pdf-page table {
+            width: 100% !important;
+            table-layout: fixed !important;
+          }
+
+          .registro-pdf-page .registro-print-grid {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+          }
+
+          .registro-pdf-page img {
+            max-width: 100% !important;
+            object-fit: contain !important;
           }
 
           .avoid-break {
@@ -145,7 +186,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
             page-break-inside: avoid;
           }
 
-          ${!allowDownload ? `.pdf-page { display: none !important; } .readonly-print-warning { display: block !important; }` : ""}
+          ${!allowDownload ? `.pdf-page { display: none !important; } .readonly-print-warning, .readonly-print-warning * { display: block !important; visibility: visible !important; }` : ""}
         }
       `}</style>
 
@@ -155,7 +196,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
         </div>
       )}
 
-      <div className="pdf-page mx-auto max-w-[900px] border bg-white p-6 text-sm text-black shadow">
+      <div className="pdf-page print-area registro-pdf-page mx-auto max-w-[900px] border bg-white p-6 text-sm text-black shadow">
         <table className="mb-4 w-full border-collapse border border-slate-700">
           <tbody>
             <tr>
@@ -226,7 +267,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
                       ]}
                     />
 
-                    <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                    <div className="registro-print-grid mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
                       <div className="border border-slate-300 p-3">
                         <h5 className="mb-2 bg-slate-100 px-2 py-1 text-xs font-bold uppercase">
                           Salida

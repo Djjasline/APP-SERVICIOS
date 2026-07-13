@@ -265,6 +265,24 @@ select:disabled {
   color: #ffffff !important;
 }
 
+html[data-theme="dark"] :where(h1, h2, h3, h4, h5, h6).text-gray-900,
+html[data-theme="dark"] :where(h1, h2, h3, h4, h5, h6).text-slate-900,
+html[data-theme="dark"] :where(h1, h2, h3, h4, h5, h6).text-gray-800,
+html[data-theme="dark"] :where(h1, h2, h3, h4, h5, h6).text-slate-800,
+html[data-theme="dark"] :where(h1, h2, h3, h4, h5, h6).text-gray-700,
+html[data-theme="dark"] :where(h1, h2, h3, h4, h5, h6).text-slate-700 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-gray-900,
+html[data-theme="dark"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-slate-900,
+html[data-theme="dark"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-gray-800,
+html[data-theme="dark"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-slate-800,
+html[data-theme="dark"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-gray-700,
+html[data-theme="dark"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-slate-700 {
+  color: #111827 !important;
+}
+
 /* Login: mobile avoids the heavy background image; desktop loads it via CSS media query. */
 .login-bg {
   background:
