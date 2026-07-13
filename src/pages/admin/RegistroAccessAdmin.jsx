@@ -13,6 +13,7 @@ import {
 } from "@/services/notificationRecipientService";
 import {
   getReportCodeSequences,
+  updateExistingReportCode,
   updateReportCodeSequence,
 } from "@/services/reportCodeService";
 
@@ -72,6 +73,11 @@ const emptySequenceForm = {
   last_number: "",
 };
 
+const emptyCodeCorrectionForm = {
+  current_code: "",
+  new_code: "",
+};
+
 export default function RegistroAccessAdmin() {
   const { isLight } = useTheme();
   const [profiles, setProfiles] = useState([]);
@@ -81,9 +87,11 @@ export default function RegistroAccessAdmin() {
   const [form, setForm] = useState(emptyForm);
   const [notificationForm, setNotificationForm] = useState(emptyNotificationForm);
   const [sequenceForm, setSequenceForm] = useState(emptySequenceForm);
+  const [codeCorrectionForm, setCodeCorrectionForm] = useState(emptyCodeCorrectionForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [sequenceSaving, setSequenceSaving] = useState(false);
+  const [codeCorrectionSaving, setCodeCorrectionSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -152,6 +160,11 @@ export default function RegistroAccessAdmin() {
   const handleSequenceChange = (field, value) => {
     setMessage("");
     setSequenceForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleCodeCorrectionChange = (field, value) => {
+    setMessage("");
+    setCodeCorrectionForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (event) => {
@@ -227,6 +240,30 @@ export default function RegistroAccessAdmin() {
       setError(err?.message || "No se pudo actualizar la secuencia.");
     } finally {
       setSequenceSaving(false);
+    }
+  };
+
+  const handleCodeCorrectionSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+
+    if (!confirm("¿Corregir únicamente el código de este informe existente? El contenido y estado del informe no cambiarán.")) return;
+
+    try {
+      setCodeCorrectionSaving(true);
+      const result = await updateExistingReportCode(
+        codeCorrectionForm.current_code,
+        codeCorrectionForm.new_code
+      );
+      setMessage(`Código corregido: ${result?.old_code || codeCorrectionForm.current_code} → ${result?.new_code || codeCorrectionForm.new_code}.`);
+      setCodeCorrectionForm(emptyCodeCorrectionForm);
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      setError(err?.message || "No se pudo corregir el código del informe.");
+    } finally {
+      setCodeCorrectionSaving(false);
     }
   };
 
@@ -446,6 +483,46 @@ export default function RegistroAccessAdmin() {
           <p className={`text-sm ${isLight ? "text-slate-600" : "text-white/70"}`}>
             Ajusta el último número reservado por prefijo. Ejemplo: para que el próximo código sea P-26-006-57-005, deja el prefijo P-26-006-57 con último número 4.
           </p>
+        </div>
+
+        <div className={`rounded-xl border p-4 space-y-4 ${isLight ? "border-slate-200 bg-slate-50" : "border-white/10 bg-white/5"}`}>
+          <div>
+            <h3 className="text-sm font-semibold">Corregir código de informe existente</h3>
+            <p className={`text-xs ${isLight ? "text-slate-600" : "text-white/60"}`}>
+              Úsalo para informes completados o bloqueados. Solo cambia el código del informe; no cambia firmas, estado ni contenido.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4 items-end">
+            <label className="space-y-1 text-sm">
+              <span className="font-medium">Código actual</span>
+              <input
+                value={codeCorrectionForm.current_code}
+                onChange={(event) => handleCodeCorrectionChange("current_code", event.target.value)}
+                placeholder="Ej: P-26-006-57-006"
+                className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
+              />
+            </label>
+
+            <label className="space-y-1 text-sm">
+              <span className="font-medium">Código correcto</span>
+              <input
+                value={codeCorrectionForm.new_code}
+                onChange={(event) => handleCodeCorrectionChange("new_code", event.target.value)}
+                placeholder="Ej: P-26-006-57-004"
+                className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
+              />
+            </label>
+
+            <button
+              type="button"
+              onClick={handleCodeCorrectionSubmit}
+              disabled={codeCorrectionSaving || loading}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+            >
+              {codeCorrectionSaving ? "Corrigiendo..." : "Corregir código"}
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[1fr_180px_auto] gap-4 items-end">

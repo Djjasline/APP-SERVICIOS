@@ -68,3 +68,24 @@ export async function updateReportCodeSequence(prefix, lastNumber) {
   if (error) throw error;
   return data;
 }
+
+export async function updateExistingReportCode(currentCode, newCode) {
+  const normalizedCurrentCode = normalizeReportCodeValue(currentCode);
+  const normalizedNewCode = normalizeReportCodeValue(newCode);
+
+  if (!normalizedCurrentCode || !normalizedNewCode) {
+    throw new Error("Ingresa el código actual y el código correcto.");
+  }
+
+  if (normalizedCurrentCode === normalizedNewCode) {
+    throw new Error("El código actual y el código correcto son iguales.");
+  }
+
+  const { data, error } = await supabase.rpc("update_existing_report_code", {
+    input_current_code: normalizedCurrentCode,
+    input_new_code: normalizedNewCode,
+  });
+
+  if (error) throw error;
+  return Array.isArray(data) ? data[0] : data;
+}

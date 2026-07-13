@@ -172,9 +172,67 @@ begin
 end;
 $$;
 
+create or replace function public.update_existing_report_code(input_current_code text, input_new_code text)
+returns table(id uuid, old_code text, new_code text, area text, tipo text, estado text)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  normalized_current text;
+  normalized_new text;
+  target_count integer;
+begin
+  if not public.is_report_sequence_admin() then
+    raise exception 'No autorizado para corregir códigos de informes';
+  end if;
+
+  normalized_current := regexp_replace(coalesce(input_current_code, ''), '\s+', '', 'g');
+  normalized_current := regexp_replace(btrim(normalized_current), '-+$', '');
+  normalized_new := regexp_replace(coalesce(input_new_code, ''), '\s+', '', 'g');
+  normalized_new := regexp_replace(btrim(normalized_new), '-+$', '');
+
+  if normalized_current = '' or normalized_new = '' then
+    raise exception 'Ingresa el código actual y el código correcto';
+  end if;
+
+  if normalized_current = normalized_new then
+    raise exception 'El código actual y el código correcto son iguales';
+  end if;
+
+  if exists (
+    select 1
+    from public.registros
+    where regexp_replace(data->>'codInf', '\s+', '', 'g') = normalized_new
+  ) then
+    raise exception 'Ya existe un informe con el código %', normalized_new;
+  end if;
+
+  select count(*) into target_count
+  from public.registros
+  where regexp_replace(data->>'codInf', '\s+', '', 'g') = normalized_current;
+
+  if target_count = 0 then
+    raise exception 'No se encontró ningún informe con el código %', normalized_current;
+  end if;
+
+  if target_count > 1 then
+    raise exception 'Hay más de un informe con el código %. Corrige manualmente desde Supabase.', normalized_current;
+  end if;
+
+  return query
+  update public.registros r
+  set data = jsonb_set(r.data, '{codInf}', to_jsonb(normalized_new), true),
+      updated_at = now()
+  where regexp_replace(r.data->>'codInf', '\s+', '', 'g') = normalized_current
+  returning r.id, normalized_current, normalized_new, r.area, r.tipo, r.estado;
+end;
+$$;
+
 grant execute on function public.normalize_report_code_prefix(text) to authenticated;
 grant execute on function public.peek_next_report_code(text) to authenticated;
 grant execute on function public.reserve_next_report_code(text) to authenticated;
 grant execute on function public.is_report_sequence_admin() to authenticated;
 grant execute on function public.list_report_code_sequences() to authenticated;
 grant execute on function public.update_report_code_sequence(text, integer) to authenticated;
+grant execute on function public.update_existing_report_code(text, text) to authenticated;
