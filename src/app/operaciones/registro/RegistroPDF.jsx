@@ -81,7 +81,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
   const statusLabel = registro.estado === "completado" ? "Registro cerrado" : "En campo";
 
   const SectionTitle = ({ children }) => (
-    <h3 className="mt-5 border border-[#1e3a5f] bg-[#1e3a5f] px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
+    <h3 className="registro-section-title mt-5 border px-3 py-1.5 text-xs font-bold uppercase tracking-wide">
       {children}
     </h3>
   );
@@ -91,10 +91,10 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
       <tbody>
         {rows.map(([label, value], index) => (
           <tr key={`${label}-${index}`}>
-            <td className="w-44 border border-slate-700 bg-slate-100 px-2 py-1.5 font-semibold">
+            <td className="w-44 border border-neutral-900 bg-neutral-100 px-2 py-1.5 font-semibold">
               {label}
             </td>
-            <td className="border border-slate-700 bg-white px-2 py-1.5 whitespace-pre-wrap">
+            <td className="border border-neutral-900 bg-white px-2 py-1.5 whitespace-pre-wrap">
               {value || "-"}
             </td>
           </tr>
@@ -110,10 +110,10 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
         <img
           src={src}
           alt={title}
-          className="max-h-64 w-full border border-slate-300 object-contain"
+          className="max-h-64 w-full border border-neutral-300 object-contain"
         />
       ) : (
-        <div className="flex h-36 items-center justify-center border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-500">
+        <div className="flex h-36 items-center justify-center border border-dashed border-neutral-300 bg-neutral-50 text-xs text-neutral-500">
           Sin imagen
         </div>
       )}
@@ -126,6 +126,17 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
   return (
     <div className={`min-h-screen p-4 ${isLight ? "bg-gray-100" : "bg-slate-950"}`}>
       <style>{`
+        .registro-section-title {
+          background: #1f2937 !important;
+          border-color: #111827 !important;
+          color: #ffffff !important;
+        }
+
+        .registro-pdf-page {
+          --registro-border: #111827;
+          --registro-soft-border: #d4d4d4;
+        }
+
         @media print {
           @page {
             size: A4 portrait;
@@ -197,25 +208,25 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
       )}
 
       <div className="pdf-page print-area registro-pdf-page mx-auto max-w-[900px] border bg-white p-6 text-sm text-black shadow">
-        <table className="mb-4 w-full border-collapse border border-slate-700">
+        <table className="mb-4 w-full border-collapse border border-neutral-900">
           <tbody>
             <tr>
-              <td className="w-32 border border-slate-700 p-3 text-center">
+              <td className="w-32 border border-neutral-900 p-3 text-center">
                 <img
                   src="/astap-logo.jpg"
                   alt="ASTAP"
                   className="mx-auto max-h-16 object-contain"
                 />
               </td>
-              <td className="border border-slate-700 p-3 text-center">
+              <td className="border border-neutral-900 p-3 text-center">
                 <div className="text-lg font-bold uppercase">
                   Registro de salida e ingreso de herramientas
                 </div>
-                <div className="mt-1 text-xs text-slate-600">
+                <div className="mt-1 text-xs text-neutral-700">
                   Control operativo de entrega, retorno y estado de herramientas/equipos
                 </div>
               </td>
-              <td className="w-48 border border-slate-700 p-2 text-xs">
+              <td className="w-48 border border-neutral-900 p-2 text-xs">
                 <div>Area: Operaciones</div>
                 <div>Tipo: Registro</div>
                 <div>Estado: {statusLabel}</div>
@@ -239,7 +250,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
         <SectionTitle>Herramientas / equipos</SectionTitle>
 
         {items.length === 0 ? (
-          <div className="border border-slate-700 p-4 text-center text-xs text-slate-500">
+          <div className="border border-neutral-900 p-4 text-center text-xs text-neutral-500">
             Sin herramientas o equipos registrados
           </div>
         ) : (
@@ -248,8 +259,8 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
               const ingresoCompleto = !!getIngresoImage(item);
 
               return (
-                <section key={item.id || index} className="avoid-break border border-slate-700">
-                  <div className="flex items-center justify-between border-b border-slate-700 bg-slate-100 px-3 py-2">
+                <section key={item.id || index} className="avoid-break border border-neutral-900">
+                  <div className="flex items-center justify-between border-b border-neutral-900 bg-neutral-100 px-3 py-2">
                     <h4 className="text-sm font-bold uppercase">
                       Herramienta {index + 1}
                     </h4>
@@ -268,8 +279,8 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
                     />
 
                     <div className="registro-print-grid mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <div className="border border-slate-300 p-3">
-                        <h5 className="mb-2 bg-slate-100 px-2 py-1 text-xs font-bold uppercase">
+                      <div className="border border-neutral-300 p-3">
+                        <h5 className="mb-2 bg-neutral-100 px-2 py-1 text-xs font-bold uppercase text-neutral-950">
                           Salida
                         </h5>
                         <InfoTable
@@ -283,8 +294,8 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
                         <ImageBox title="Foto antes" src={getSalidaImage(item)} />
                       </div>
 
-                      <div className="border border-slate-300 p-3">
-                        <h5 className="mb-2 bg-slate-100 px-2 py-1 text-xs font-bold uppercase">
+                      <div className="border border-neutral-300 p-3">
+                        <h5 className="mb-2 bg-neutral-100 px-2 py-1 text-xs font-bold uppercase text-neutral-950">
                           Ingreso
                         </h5>
                         <InfoTable
@@ -306,17 +317,17 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
         )}
 
         <SectionTitle>Firmas</SectionTitle>
-        <table className="w-full border-collapse border border-slate-700 text-xs">
+        <table className="w-full border-collapse border border-neutral-900 text-xs">
           <thead>
-            <tr className="bg-slate-100">
-              <th className="border border-slate-700 p-2">Responsable</th>
-              <th className="border border-slate-700 p-2">Aprobador / Recepcion</th>
+            <tr className="bg-neutral-100">
+              <th className="border border-neutral-900 p-2">Responsable</th>
+              <th className="border border-neutral-900 p-2">Aprobador / Recepcion</th>
             </tr>
           </thead>
 
           <tbody>
             <tr>
-              <td className="h-36 border border-slate-700 p-2 text-center align-middle">
+              <td className="h-36 border border-neutral-900 p-2 text-center align-middle">
                 {firmas.responsable ? (
                   <img
                     src={firmas.responsable}
@@ -332,7 +343,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
                 </div>
               </td>
 
-              <td className="h-36 border border-slate-700 p-2 text-center align-middle">
+              <td className="h-36 border border-neutral-900 p-2 text-center align-middle">
                 {firmas.aprobador ? (
                   <img
                     src={firmas.aprobador}
