@@ -265,7 +265,7 @@ pendientes.push({
         {/* CHECKLIST */}
         {Object.entries(checklist).map(([section, items]) => (
           <div key={section}>
-            <h2 className="bg-blue-600 text-white px-2 py-1">{section}</h2>
+            <h2 className="border border-blue-300 bg-blue-100 px-2 py-1 font-semibold text-slate-900">{section}</h2>
 
             {items.map((item, index) => {
               const key = `${section}-${index}`;

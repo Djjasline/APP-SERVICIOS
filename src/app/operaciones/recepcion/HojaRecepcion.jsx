@@ -432,7 +432,8 @@ const SheetStyles = () => (
       font-size: 14px;
       font-weight: 700;
       text-align: left;
-      background: #eef2ff;
+      background: #dbeafe;
+      color: #0f172a;
     }
 
     .cell-label {

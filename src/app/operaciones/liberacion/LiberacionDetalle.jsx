@@ -63,7 +63,7 @@ export default function LiberacionDetalle() {
 
         {/* CHECKLIST */}
         <div className="space-y-2">
-          <h2 className="bg-blue-600 text-white px-2 py-1 text-sm font-semibold">
+          <h2 className="border border-blue-300 bg-blue-100 px-2 py-1 text-sm font-semibold text-slate-900">
             Checklist
           </h2>
 

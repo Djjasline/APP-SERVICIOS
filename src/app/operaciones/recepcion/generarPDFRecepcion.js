@@ -195,7 +195,7 @@ export const generarPDFRecepcion = async (data) => {
   });
   y += 11;
 
-  cell(doc, 0, 13, y, 6, "ENTREGA VEHICULAR", { bold: true, fontSize: 9, fillColor: [238, 242, 255] });
+  cell(doc, 0, 13, y, 6, "ENTREGA VEHICULAR", { bold: true, fontSize: 9, fillColor: [219, 234, 254] });
   y += 6;
 
   cell(doc, 0, 1, y, 7, "CONDUCTOR:", { fontSize: 8 });
@@ -316,7 +316,7 @@ export const generarPDFRecepcion = async (data) => {
   cell(doc, 0, 13, y, 6, "DAÑOS DE CARROCERÍA Y COMENTARIOS GENERALES", {
     align: "center",
     fontSize: 9,
-    fillColor: [238, 242, 255],
+    fillColor: [219, 234, 254],
   });
   y += 6;
 
@@ -433,7 +433,7 @@ export const generarPDFRecepcion = async (data) => {
   });
   y += 8;
 
-  cell(doc, 0, 13, y, 6, "RECEPCIÓN VEHICULAR", { bold: true, fontSize: 9, fillColor: [238, 242, 255] });
+  cell(doc, 0, 13, y, 6, "RECEPCIÓN VEHICULAR", { bold: true, fontSize: 9, fillColor: [219, 234, 254] });
   y += 6;
 
   cell(doc, 0, 1, y, 22, "NIVEL\nDE COMBUSTIBLE LLEGADA", {

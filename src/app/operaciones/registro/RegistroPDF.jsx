@@ -127,9 +127,9 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
     <div className={`registro-pdf-screen min-h-screen p-4 ${isLight ? "bg-gray-100" : "bg-slate-950"}`}>
       <style>{`
         .registro-section-title {
-          background: #1f2937 !important;
-          border-color: #111827 !important;
-          color: #ffffff !important;
+          background: #dbeafe !important;
+          border-color: #93c5fd !important;
+          color: #0f172a !important;
         }
 
         .registro-pdf-page {
@@ -297,7 +297,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
 
               return (
                 <section key={item.id || index} className="avoid-break border border-neutral-900">
-                  <div className="flex items-center justify-between border-b border-neutral-900 bg-neutral-100 px-3 py-2">
+                  <div className="flex items-center justify-between border-b border-neutral-900 bg-blue-50 px-3 py-2">
                     <h4 className="text-sm font-bold uppercase">
                       Herramienta {index + 1}
                     </h4>
@@ -317,7 +317,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
 
                     <div className="registro-print-grid mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
                       <div className="border border-neutral-300 p-3">
-                        <h5 className="mb-2 bg-neutral-100 px-2 py-1 text-xs font-bold uppercase text-neutral-950">
+                        <h5 className="mb-2 border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-bold uppercase text-slate-900">
                           Salida
                         </h5>
                         <InfoTable
@@ -332,7 +332,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
                       </div>
 
                       <div className="border border-neutral-300 p-3">
-                        <h5 className="mb-2 bg-neutral-100 px-2 py-1 text-xs font-bold uppercase text-neutral-950">
+                        <h5 className="mb-2 border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-bold uppercase text-slate-900">
                           Ingreso
                         </h5>
                         <InfoTable
@@ -356,7 +356,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
         <SectionTitle>Firmas</SectionTitle>
         <table className="w-full border-collapse border border-neutral-900 text-xs">
           <thead>
-            <tr className="bg-neutral-100">
+            <tr className="bg-blue-50">
               <th className="border border-neutral-900 p-2">Responsable</th>
               <th className="border border-neutral-900 p-2">Aprobador / Recepcion</th>
             </tr>
