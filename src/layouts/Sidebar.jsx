@@ -88,11 +88,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       path.startsWith("/recepcion") ||
       path.startsWith("/liberacion");
 
-    const isRepositoriosPath =
-      path.startsWith("/repositorios") ||
-      path.startsWith("/chat") ||
-      path.startsWith("/notifications") ||
-      path.startsWith("/admin/permisos-registros");
+    const isRepositoriosPath = path.startsWith("/repositorios");
 
     setOpenVehiculos(isVehiculosPath || proveedorSoloVehiculos);
     setOpenAgua(puedeVerTodo && isAguaPath);
@@ -585,7 +581,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               onClick={() => {
                 openOnly(openRepositorios ? null : "repositorios");
               }}
-              className={itemClass(isActive(["/repositorios", "/chat", "/notifications", "/admin/permisos-registros"]))}
+              className={itemClass(isActive("/repositorios"))}
               aria-expanded={openRepositorios}
               aria-controls="panel-repos"
             >
@@ -595,6 +591,59 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 (openRepositorios ? <ChevronDown /> : <ChevronRight />)}
               {tooltip("Recursos")}
             </button>
+
+            {openSidebar && (
+              <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
+                <button
+                  type="button"
+                  onClick={() => go("/chat")}
+                  className={subItemClass("/chat")}
+                >
+                  <span className="inline-flex w-full items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-2">
+                      <MessageCircle size={14} />
+                      Chat interno
+                    </span>
+                    {unreadChat > 0 && (
+                      <span className="min-w-5 rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
+                        {unreadChat > 99 ? "99+" : unreadChat}
+                      </span>
+                    )}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => go("/notifications")}
+                  className={subItemClass("/notifications")}
+                >
+                  <span className="inline-flex w-full items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-2">
+                      <Megaphone size={14} />
+                      Boletines
+                    </span>
+                    {unreadBulletins > 0 && (
+                      <span className="min-w-5 rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
+                        {unreadBulletins > 99 ? "99+" : unreadBulletins}
+                      </span>
+                    )}
+                  </span>
+                </button>
+
+                {superAdminActivo && (
+                  <button
+                    type="button"
+                    onClick={() => go("/admin/permisos-registros")}
+                    className={subItemClass("/admin/permisos-registros")}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <ShieldCheck size={14} />
+                      Permisos de registros
+                    </span>
+                  </button>
+                )}
+              </div>
+            )}
 
             {openSidebar && openRepositorios && (
               <>
@@ -609,57 +658,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   >
                     Panel
                   </button>
-                </div>
-
-                <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
-                  <button
-                    type="button"
-                    onClick={() => go("/chat")}
-                    className={subItemClass("/chat")}
-                  >
-                    <span className="inline-flex w-full items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-2">
-                        <MessageCircle size={14} />
-                        Chat interno
-                      </span>
-                      {unreadChat > 0 && (
-                        <span className="min-w-5 rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
-                          {unreadChat > 99 ? "99+" : unreadChat}
-                        </span>
-                      )}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => go("/notifications")}
-                    className={subItemClass("/notifications")}
-                  >
-                    <span className="inline-flex w-full items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-2">
-                        <Megaphone size={14} />
-                        Boletines
-                      </span>
-                      {unreadBulletins > 0 && (
-                        <span className="min-w-5 rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
-                          {unreadBulletins > 99 ? "99+" : unreadBulletins}
-                        </span>
-                      )}
-                    </span>
-                  </button>
-
-                  {superAdminActivo && (
-                    <button
-                      type="button"
-                      onClick={() => go("/admin/permisos-registros")}
-                      className={subItemClass("/admin/permisos-registros")}
-                    >
-                      <span className="inline-flex items-center gap-2">
-                        <ShieldCheck size={14} />
-                        Permisos de registros
-                      </span>
-                    </button>
-                  )}
                 </div>
 
                 <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
