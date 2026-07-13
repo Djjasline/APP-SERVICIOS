@@ -283,9 +283,16 @@ const url = await uploadRegistroImage(
         </div>
       )}
 
+      {!readOnly && (
+        <div className="no-print damage-help">
+          Sube hasta 6 fotos. Haz clic sobre una imagen para marcar un daño y escribe la observación del punto marcado.
+        </div>
+      )}
+
       {imagenes.length === 0 ? (
         <div className="damage-empty">
-          Sin fotografías de daños registradas
+          <strong>Sin fotografías de daños registradas</strong>
+          <span>Agrega evidencia de carrocería, accesorios o novedades visibles.</span>
         </div>
       ) : (
         <div className="damage-photo-list">
@@ -378,22 +385,23 @@ const SignatureBox = ({ dataUrl, canvasRef, readOnly = false }) => {
 const SheetStyles = () => (
   <style>{`
     .control-sheet {
-      width: 998px;
+      width: 1060px;
       background: #fff;
       color: #000;
       font-family: Calibri, Arial, sans-serif;
-      font-size: 11px;
-      line-height: 1.05;
+      font-size: 12px;
+      line-height: 1.15;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
     }
 
     .control-sheet table {
-      width: 998px;
+      width: 1060px;
       border-collapse: collapse;
       table-layout: fixed;
     }
 
     .control-sheet td {
-      border: 1px solid #111;
+      border: 1px solid #334155;
       padding: 0;
       vertical-align: middle;
       overflow: hidden;
@@ -404,8 +412,9 @@ const SheetStyles = () => (
       height: 42px;
       text-align: center;
       font-size: 24px;
-      font-weight: 400;
+      font-weight: 700;
       letter-spacing: 0;
+      background: #f8fafc;
     }
 
     .sheet-logo {
@@ -423,6 +432,7 @@ const SheetStyles = () => (
       font-size: 14px;
       font-weight: 700;
       text-align: left;
+      background: #eef2ff;
     }
 
     .cell-label {
@@ -508,8 +518,8 @@ const SheetStyles = () => (
     }
 
     .damage-area-photo {
-  min-height: 224px;
-  padding: 6px;
+  min-height: 310px;
+  padding: 8px;
   background: #fff;
 }
 
@@ -533,18 +543,22 @@ const SheetStyles = () => (
 }
 
 .damage-empty {
-  height: 180px;
+  height: 260px;
   border: 1px dashed #9ca3af;
   display: flex;
+  flex-direction: column;
+  gap: 4px;
   align-items: center;
   justify-content: center;
   color: #6b7280;
   font-size: 12px;
+  text-align: center;
+  padding: 12px;
 }
 
 .damage-photo-list {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
 .damage-photo-card {
@@ -572,6 +586,17 @@ const SheetStyles = () => (
   cursor: pointer;
 }
 
+.damage-help {
+  margin-bottom: 6px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1e3a8a;
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .damage-photo-wrap {
   position: relative;
   background: #fff;
@@ -580,7 +605,7 @@ const SheetStyles = () => (
 
 .damage-photo-img {
   width: 100%;
-  height: 82px;
+  height: 142px;
   object-fit: cover;
   display: block;
 }
@@ -723,14 +748,14 @@ export function ControlVehicularSheet({
               <td colSpan={7}>
                 <TextCell value={data.lugarDestino} readOnly={readOnly} placeholder="Lugar de destino" onChange={(v) => setField("lugarDestino", v)} />
               </td>
-              <td colSpan={3} className="cell-label">CUIDAD:</td>
+              <td colSpan={3} className="cell-label">CIUDAD:</td>
               <td colSpan={2}>
                 <TextCell value={data.ciudad} readOnly={readOnly} placeholder="Ciudad" onChange={(v) => setField("ciudad", v)} />
               </td>
             </tr>
 
             <tr style={{ height: 58 }}>
-              <td rowSpan={2} className="cell-label-center">VEHICULO:</td>
+              <td rowSpan={2} className="cell-label-center">VEHÍCULO:</td>
               <td className="cell-label">MODELO / MARCA:</td>
               <td className="small-center bold"></td>
               <td colSpan={2} className="cell-label-center">COMBUSTIBLE:</td>
@@ -744,8 +769,10 @@ export function ControlVehicularSheet({
               <td>
                 <TextCell value={data.modelo} readOnly={readOnly} placeholder="Modelo / marca" onChange={(v) => setField("modelo", v)} />
               </td>
-             <td />
-             <td colSpan={2}></td>
+              <td />
+              <td colSpan={2}>
+                <TextCell value={data.combustible} readOnly={readOnly} placeholder="Ej: Diésel / gasolina" onChange={(v) => setField("combustible", v)} />
+              </td>
               <td colSpan={2}>
                 <TextCell value={data.totalCombustible} readOnly={readOnly} placeholder="Ej: 1/2 tanque" onChange={(v) => setField("totalCombustible", v)} />
               </td>
@@ -770,7 +797,7 @@ export function ControlVehicularSheet({
 
             <tr style={{ height: 23 }}>
               <td rowSpan={13} className="cell-label-center" style={{ fontSize: 16 }}>
-                DOCUMENTOS Y ESTADO<br />DEL VEHICULO:
+                DOCUMENTOS Y ESTADO<br />DEL VEHÍCULO:
               </td>
               <td rowSpan={2} className="cell-label">{documentosVehiculo[0].label}</td>
               <td className="small-center">SI</td>
@@ -909,7 +936,7 @@ export function ControlVehicularSheet({
 
             <tr style={{ height: 26 }}>
               <td colSpan={13} className="cell-label-center" style={{ fontSize: 14 }}>
-                DAÑOS DE CARROCERIA Y COMENTARIOS GENERALES
+                DAÑOS DE CARROCERÍA Y COMENTARIOS GENERALES
               </td>
             </tr>
 
@@ -953,7 +980,7 @@ export function ControlVehicularSheet({
               </td>
               <td rowSpan={4} />
               <td colSpan={3} rowSpan={4} className="cell-label-center bold">
-                KILOMETROS<br />DE LLEGADA
+                KILÓMETROS<br />DE LLEGADA
                 <TextCell value={data.recepcion.kilometrosLlegada} readOnly={readOnly} placeholder="Km llegada" onChange={(v) => setNested(["recepcion", "kilometrosLlegada"], v)} />
               </td>
               <td colSpan={5} className="cell-label-center bold">MANTENIMIENTO</td>
@@ -986,7 +1013,7 @@ export function ControlVehicularSheet({
                 />
               </td>
               <td colSpan={3} className="cell-label-center" style={{ fontSize: 14 }}>
-                RECEPCION FINAL SERVICIO:
+                RECEPCIÓN FINAL SERVICIO:
               </td>
               <td colSpan={5}>
                <SignatureBox
@@ -1010,7 +1037,7 @@ export function ControlVehicularSheet({
             <tr style={{ height: 15 }}>
               <td colSpan={5} className="footer-cell bold">ASTAP Cía. Ltda.</td>
               <td colSpan={2} />
-              <td colSpan={6} className="footer-cell bold">TELEFONOS CONTACTO/EMERGENCIA:</td>
+              <td colSpan={6} className="footer-cell bold">TELÉFONOS CONTACTO/EMERGENCIA:</td>
             </tr>
             <tr style={{ height: 13 }}>
               <td colSpan={5} className="footer-cell">Av. Naciones Unidas 1084 y Av. Amazonas</td>
@@ -1254,6 +1281,10 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
             </>
           )}
         </div>
+      </div>
+
+      <div className="no-print rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+        Completa datos de entrega, documentos, kilometraje y combustible. En daños de carrocería puedes subir fotos, marcar puntos sobre la imagen y describir cada novedad antes de guardar o descargar el PDF.
       </div>
 
       <div className="overflow-x-auto bg-white shadow border p-2">

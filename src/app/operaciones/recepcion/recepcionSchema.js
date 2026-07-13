@@ -1,7 +1,7 @@
 export const documentosVehiculo = [
-  { key: "soat", label: "SOGA:" },
+  { key: "soat", label: "SOAT:" },
   { key: "manualSeguradora", label: "MANUAL SEGURADORA" },
-  { key: "matricula", label: "MATRICULA" },
+  { key: "matricula", label: "MATRÍCULA" },
 ];
 
 export const checklistVehiculo = {
@@ -42,6 +42,7 @@ export const recepcionSchema = {
 
   modelo: "",
   seleccionado: false,
+  combustible: "",
   totalCombustible: "",
   placa: "",
   color: "",

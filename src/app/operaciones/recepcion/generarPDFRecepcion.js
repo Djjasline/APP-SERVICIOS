@@ -66,7 +66,14 @@ const addText = (doc, text, x, y, w, h, opts = {}) => {
 const cell = (doc, col, span, y, h, text = "", opts = {}) => {
   const x = colX(col);
   const w = colW(col, span);
-  doc.rect(x, y, w, h);
+  doc.setDrawColor(0, 0, 0);
+  doc.setTextColor(0, 0, 0);
+  if (opts.fillColor) {
+    doc.setFillColor(...opts.fillColor);
+    doc.rect(x, y, w, h, "FD");
+  } else {
+    doc.rect(x, y, w, h);
+  }
   if (text !== "") addText(doc, text, x, y, w, h, opts);
 };
 
@@ -178,6 +185,8 @@ export const generarPDFRecepcion = async (data) => {
   cell(doc, 0, 13, y, 11, "BITÁCORA Y CONTROL VEHICULAR", {
     align: "center",
     fontSize: 17,
+    bold: true,
+    fillColor: [248, 250, 252],
   });
   addText(doc, "ASTAP", colX(11), y, colW(11, 2), 11, {
     align: "center",
@@ -186,7 +195,7 @@ export const generarPDFRecepcion = async (data) => {
   });
   y += 11;
 
-  cell(doc, 0, 13, y, 6, "ENTREGA VEHICULAR", { bold: true, fontSize: 9 });
+  cell(doc, 0, 13, y, 6, "ENTREGA VEHICULAR", { bold: true, fontSize: 9, fillColor: [238, 242, 255] });
   y += 6;
 
   cell(doc, 0, 1, y, 7, "CONDUCTOR:", { fontSize: 8 });
@@ -197,11 +206,11 @@ export const generarPDFRecepcion = async (data) => {
 
   cell(doc, 0, 1, y, 7, "LUGAR DESTINO:", { fontSize: 8 });
   cell(doc, 1, 7, y, 7, data.lugarDestino, { fontSize: 8 });
-  cell(doc, 8, 3, y, 7, "CUIDAD:", { fontSize: 8 });
+  cell(doc, 8, 3, y, 7, "CIUDAD:", { fontSize: 8 });
   cell(doc, 11, 2, y, 7, data.ciudad, { align: "center", fontSize: 8 });
   y += 7;
 
-  cell(doc, 0, 1, y, 11, "VEHICULO:", { align: "center", fontSize: 8 });
+  cell(doc, 0, 1, y, 11, "VEHÍCULO:", { align: "center", fontSize: 8 });
   cell(doc, 1, 1, y, 11, "MODELO:", { align: "center", fontSize: 8 });
   cell(doc, 2, 1, y, 11, "SEL.", {
   align: "center",
@@ -232,7 +241,7 @@ export const generarPDFRecepcion = async (data) => {
 
   const docsTop = y;
   const docsHeight = 6 + 5.5 + 5.5 + 6 * 5.1 + 3 * 5.1 + 4;
-  cell(doc, 0, 1, docsTop, docsHeight, "DOCUMENTOS Y ESTADO\nDEL VEHICULO:", {
+  cell(doc, 0, 1, docsTop, docsHeight, "DOCUMENTOS Y ESTADO\nDEL VEHÍCULO:", {
     align: "center",
     fontSize: 9,
   });
@@ -243,10 +252,10 @@ export const generarPDFRecepcion = async (data) => {
   cell(doc, 4, 1, y, 11.5, "MANUAL SEGURADORA", { fontSize: 6.5 });
   cell(doc, 5, 1, y, 6, "SI", { align: "center", fontSize: 6 });
   cell(doc, 6, 1, y, 6, "NO", { align: "center", fontSize: 6 });
-  cell(doc, 7, 1, y, 11.5, "MATRICULA", { fontSize: 7 });
+  cell(doc, 7, 1, y, 11.5, "MATRÍCULA", { fontSize: 7 });
   cell(doc, 8, 1, y, 6, "SI", { align: "center", fontSize: 6 });
   cell(doc, 9, 1, y, 6, "NO", { align: "center", fontSize: 6 });
-  cell(doc, 10, 3, y, 6, "KILOMETROS SALIDA", { align: "center", fontSize: 7 });
+  cell(doc, 10, 3, y, 6, "KILÓMETROS SALIDA", { align: "center", fontSize: 7 });
   y += 6;
 
   choiceCell(doc, 2, y, 5.5, data.documentos?.soat, "SI");
@@ -304,103 +313,127 @@ export const generarPDFRecepcion = async (data) => {
   cell(doc, 4, 9, y, 4);
   y += 4;
 
-  cell(doc, 0, 13, y, 6, "DAÑOS DE CARROCERIA Y COMENTARIOS GENERALES", {
+  cell(doc, 0, 13, y, 6, "DAÑOS DE CARROCERÍA Y COMENTARIOS GENERALES", {
     align: "center",
     fontSize: 9,
+    fillColor: [238, 242, 255],
   });
   y += 6;
 
-const danosImagenes = data.danos?.imagenes || [];
-const boxX = colX(0);
-const boxW = colW(0, 13);
-const boxH = 55;
+  const danosImagenes = data.danos?.imagenes || [];
+  const boxX = colX(0);
+  const boxW = colW(0, 13);
+  const boxH = 72;
 
-cell(doc, 0, 13, y, boxH);
+  cell(doc, 0, 13, y, boxH);
 
-if (danosImagenes.length === 0) {
-  addText(doc, "Sin fotografías de daños registradas", boxX, y, boxW, boxH, {
-    align: "center",
-    fontSize: 8,
-  });
-} else {
-  const gap = 2;
-  const maxFotos = Math.min(5, danosImagenes.length);
-  const fotoW = (boxW - gap * (maxFotos + 1)) / maxFotos;
-  const fotoH = 22;
-  const fotoY = y + 3;
+  if (danosImagenes.length === 0) {
+    addText(doc, "Sin fotografías de daños registradas", boxX, y, boxW, boxH, {
+      align: "center",
+      fontSize: 8,
+    });
+  } else {
+    const gap = 2;
+    const maxFotos = Math.min(3, danosImagenes.length);
+    const fotoW = (boxW - gap * (maxFotos + 1)) / maxFotos;
+    const fotoH = 38;
+    const fotoY = y + 3;
 
-  for (let i = 0; i < maxFotos; i += 1) {
-    const item = danosImagenes[i];
-    const fotoX = boxX + gap + i * (fotoW + gap);
-    const imgData = await imageToDataUrl(item.url);
+    for (let i = 0; i < maxFotos; i += 1) {
+      const item = danosImagenes[i];
+      const fotoX = boxX + gap + i * (fotoW + gap);
+      const imgData = await imageToDataUrl(item.url);
 
-    doc.rect(fotoX, fotoY, fotoW, fotoH);
+      doc.rect(fotoX, fotoY, fotoW, fotoH);
 
-   if (imgData) {
-  const props = doc.getImageProperties(imgData);
-  const ratio = props.width / props.height;
+      if (imgData) {
+        const props = doc.getImageProperties(imgData);
+        const ratio = props.width / props.height;
+        let drawW = fotoW;
+        let drawH = fotoW / ratio;
 
-  let drawW = fotoW;
-  let drawH = fotoW / ratio;
+        if (drawH > fotoH) {
+          drawH = fotoH;
+          drawW = fotoH * ratio;
+        }
 
-  if (drawH > fotoH) {
-    drawH = fotoH;
-    drawW = fotoH * ratio;
-  }
+        const drawX = fotoX + (fotoW - drawW) / 2;
+        const drawY = fotoY + (fotoH - drawH) / 2;
+        const format = String(imgData).startsWith("data:image/png") ? "PNG" : "JPEG";
 
-  const drawX = fotoX + (fotoW - drawW) / 2;
-  const drawY = fotoY + (fotoH - drawH) / 2;
+        doc.addImage(imgData, format, drawX, drawY, drawW, drawH);
+      } else {
+        addText(doc, "Imagen no disponible", fotoX, fotoY, fotoW, fotoH, {
+          align: "center",
+          fontSize: 6,
+        });
+      }
 
-  doc.addImage(imgData, "JPEG", drawX, drawY, drawW, drawH);
-}
-    else {
-      addText(doc, "Imagen no disponible", fotoX, fotoY, fotoW, fotoH, {
-        align: "center",
-        fontSize: 6,
+      (item.puntos || []).forEach((p, pi) => {
+        const px = fotoX + Number(p.x || 0) * fotoW;
+        const py = fotoY + Number(p.y || 0) * fotoH;
+
+        doc.setFillColor(220, 38, 38);
+        doc.setDrawColor(255, 255, 255);
+        doc.circle(px, py, 2.2, "FD");
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(6);
+        doc.text(String(pi + 1), px, py + 0.2, {
+          align: "center",
+          baseline: "middle",
+        });
+
+        doc.setTextColor(0, 0, 0);
+      });
+
+      let obsY = fotoY + fotoH + 4;
+
+      (item.puntos || []).forEach((p, pi) => {
+        const texto = `${pi + 1}) ${p.observacion || "—"}`;
+        const lines = doc.splitTextToSize(texto, fotoW - 1);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(5.5);
+        doc.text(lines, fotoX, obsY);
+
+        obsY += lines.length * 2.4;
       });
     }
 
-    (item.puntos || []).forEach((p, pi) => {
-      const px = fotoX + Number(p.x || 0) * fotoW;
-      const py = fotoY + Number(p.y || 0) * fotoH;
-
-      doc.setFillColor(220, 38, 38);
-      doc.setDrawColor(255, 255, 255);
-      doc.circle(px, py, 2.2, "FD");
-
-      doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(6);
-      doc.text(String(pi + 1), px, py + 0.2, {
-        align: "center",
-        baseline: "middle",
-      });
-
-      doc.setTextColor(0, 0, 0);
-    });
-
-    let obsY = fotoY + fotoH + 4;
-
-    (item.puntos || []).forEach((p, pi) => {
-      const texto = `${pi + 1}) ${p.observacion || "—"}`;
-      const lines = doc.splitTextToSize(texto, fotoW - 1);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(5.5);
-      doc.text(lines, fotoX, obsY);
-
-      obsY += lines.length * 2.4;
-    });
+    if (danosImagenes.length > maxFotos) {
+      addText(
+        doc,
+        `Se muestran ${maxFotos} de ${danosImagenes.length} fotografías registradas.`,
+        boxX,
+        y + boxH - 5,
+        boxW,
+        4,
+        { align: "center", fontSize: 6 }
+      );
+    }
   }
-}
 
-y += boxH;
+  y += boxH;
   cell(doc, 0, 13, y, 5.5, "OBSERVACIONES ENTREGA:", { fontSize: 7.5 });
   y += 5.5;
-  cell(doc, 0, 13, y, 17, data.observacionesEntrega, { fontSize: 7 });
-  y += 17;
+  cell(doc, 0, 13, y, 25, data.observacionesEntrega, { fontSize: 7 });
+  y += 25;
 
-  cell(doc, 0, 13, y, 6, "RECEPCIÓN VEHICULAR", { bold: true, fontSize: 9 });
+  doc.addPage();
+  doc.setLineWidth(0.25);
+  y = 8;
+
+  cell(doc, 0, 13, y, 8, "BITÁCORA Y CONTROL VEHICULAR", {
+    align: "center",
+    fontSize: 13,
+    bold: true,
+    fillColor: [248, 250, 252],
+  });
+  y += 8;
+
+  cell(doc, 0, 13, y, 6, "RECEPCIÓN VEHICULAR", { bold: true, fontSize: 9, fillColor: [238, 242, 255] });
   y += 6;
 
   cell(doc, 0, 1, y, 22, "NIVEL\nDE COMBUSTIBLE LLEGADA", {
@@ -411,7 +444,7 @@ y += boxH;
   cell(doc, 1, 3, y, 22);
   drawGauge(doc, colX(1), y, colW(1, 3), 22, data.recepcion?.combustibleLlegada);
   cell(doc, 4, 1, y, 22);
-  cell(doc, 5, 3, y, 22, `KILOMETROS\nDE LLEGADA\n${textValue(data.recepcion?.kilometrosLlegada)}`, {
+  cell(doc, 5, 3, y, 22, `KILÓMETROS\nDE LLEGADA\n${textValue(data.recepcion?.kilometrosLlegada)}`, {
     align: "center",
     bold: true,
     fontSize: 7,
@@ -437,7 +470,7 @@ y += boxH;
   if (data.firmas?.responsable) {
     doc.addImage(data.firmas.responsable, "PNG", colX(1) + 2, y + 2, colW(1, 4) - 4, 18);
   }
-  cell(doc, 5, 3, y, 22, "RECEPCION FINAL SERVICIO:", {
+  cell(doc, 5, 3, y, 22, "RECEPCIÓN FINAL SERVICIO:", {
     align: "center",
     fontSize: 8,
   });
@@ -456,7 +489,7 @@ y += boxH;
   y += 18;
 
   const footerRows = [
-    ["ASTAP Cía. Ltda.", "TELEFONOS CONTACTO/EMERGENCIA:"],
+    ["ASTAP Cía. Ltda.", "TELÉFONOS CONTACTO/EMERGENCIA:"],
     ["Av. Naciones Unidas 1084 y Av. Amazonas", ""],
     ["Torre B, 6to Piso", "ECUASISTENCIA 0999494488"],
     ["Telef: 2262154 / Fax: 2462160", "DECISEG - AMERICA MEDINA - CEL. 0987166104 - TELF.3530422"],
