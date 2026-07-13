@@ -1152,6 +1152,15 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
     }
   };
 
+  const handleVistaPreviaPDF = () => {
+    if (!registroId) {
+      alert("Guarda primero la bitácora para abrir la vista previa del PDF.");
+      return;
+    }
+
+    navigate(`/operaciones/recepcion/${registroId}/pdf`);
+  };
+
   const handleDesbloquear = () => {
     if (
       confirm(
@@ -1199,6 +1208,14 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
             className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10"
           >
             Descargar PDF
+          </button>
+
+          <button
+            type="button"
+            onClick={handleVistaPreviaPDF}
+            className="border border-white/60 text-white px-4 py-2 rounded text-sm hover:bg-white/10"
+          >
+            Vista previa PDF
           </button>
 
           {isLocked ? (

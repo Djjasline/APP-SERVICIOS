@@ -248,11 +248,18 @@ export default function RecepcionHome() {
                       </button>
 
                       <button
-  onClick={() => navigate(`/operaciones/recepcion/${r.id}/pdf`)}
-  className="text-green-600 hover:underline"
->
-  PDF
-</button>
+                        onClick={() => navigate(`/operaciones/recepcion/${r.id}/pdf`)}
+                        className="text-indigo-600 hover:underline font-semibold"
+                      >
+                        Vista previa
+                      </button>
+
+                      <button
+                        onClick={() => generarPDFRecepcion(r.data || {})}
+                        className="text-green-600 hover:underline"
+                      >
+                        Descargar PDF
+                      </button>
 
                       <button
                         onClick={() => remove(r.id)}
