@@ -20,7 +20,7 @@ export default function BaseDatos() {
         <div>
           <h2 className={`text-xl font-semibold flex items-center gap-2 ${isLight ? "text-slate-900" : "text-white"}`}>
             <Database size={22} />
-            Base de datos
+            Base de datos ASTAP
           </h2>
 
           <p className={`text-sm mt-1 ${isLight ? "text-slate-600" : "text-gray-300"}`}>
