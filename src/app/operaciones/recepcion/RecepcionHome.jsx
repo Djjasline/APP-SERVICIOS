@@ -4,12 +4,20 @@ import { useNavigate } from "react-router-dom";
 import { generarPDFRecepcion } from "./generarPDFRecepcion";
 import { useAuth } from "@/context/AuthContext";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
+import {
+  canAccessRecord,
+  getAccessibleRecordsForUser,
+} from "@/services/accessControlService";
 
 export default function RecepcionHome() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isSuperAdmin, isSupervisorOperaciones } = useAuth();
+  const superAdminActivo = typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
+  const supervisorOperacionesActivo = typeof isSupervisorOperaciones === "function" ? isSupervisorOperaciones() : !!isSupervisorOperaciones;
+  const puedeVerTodoOperaciones = superAdminActivo || supervisorOperacionesActivo;
 
   const [registros, setRegistros] = useState([]);
+  const [accessPermissions, setAccessPermissions] = useState([]);
   const [filter, setFilter] = useState("todos");
   const [loading, setLoading] = useState(true);
 
@@ -21,20 +29,24 @@ export default function RecepcionHome() {
   });
 
   const loadRegistros = async () => {
+    if (!user?.id) return;
     setLoading(true);
 
-    const { data, error } = await supabase
-      .from("registros")
-      .select("*")
-      .eq("tipo", "recepcion")
-      .eq("subtipo", "control_vehicular")
-      .order("created_at", { ascending: false });
+    try {
+      const { records, permissions } = await getAccessibleRecordsForUser({
+        userId: user.id,
+        userEmail: user.email,
+        area: "operaciones",
+        tipo: "recepcion",
+        subtipo: "control_vehicular",
+        canViewAll: puedeVerTodoOperaciones,
+      });
 
-    if (error) {
+      setAccessPermissions(permissions);
+      setRegistros(records);
+    } catch (error) {
       console.error("Error cargando bitácoras vehiculares:", error);
       setRegistros([]);
-    } else {
-      setRegistros(data || []);
     }
 
     setLoading(false);
@@ -42,7 +54,18 @@ export default function RecepcionHome() {
 
   useEffect(() => {
     loadRegistros();
-  }, []);
+  }, [user?.id, user?.email, puedeVerTodoOperaciones]);
+
+  const isOwn = (record) => record.user_id === user?.id || record.data?.tecnicoCorreo === user?.email;
+  const canEdit = (record) =>
+    puedeVerTodoOperaciones ||
+    isOwn(record) ||
+    canAccessRecord({ record, userId: user?.id, permissions: accessPermissions, isSuperAdmin: superAdminActivo, action: "edit" });
+  const canDownload = (record) =>
+    puedeVerTodoOperaciones ||
+    isOwn(record) ||
+    canAccessRecord({ record, userId: user?.id, permissions: accessPermissions, isSuperAdmin: superAdminActivo, action: "download" });
+  const canDelete = (record) => puedeVerTodoOperaciones || isOwn(record);
 
   const filtered = registros.filter((r) => {
     const d = r.data || {};
@@ -81,6 +104,11 @@ export default function RecepcionHome() {
   const duplicate = async (record) => {
     if (!user?.id) {
       alert("Usuario no autenticado");
+      return;
+    }
+
+    if (!canEdit(record)) {
+      alert("No tienes permiso para duplicar esta bitácora.");
       return;
     }
 
@@ -233,19 +261,23 @@ export default function RecepcionHome() {
                     </td>
 
                     <td className="px-4 py-2 text-right space-x-2 whitespace-nowrap">
-                      <button
-                        onClick={() => navigate(`/operaciones/recepcion/${r.id}`)}
-                        className="text-blue-600 hover:underline"
-                      >
-                        Abrir
-                      </button>
+                      {canEdit(r) && (
+                        <button
+                          onClick={() => navigate(`/operaciones/recepcion/${r.id}`)}
+                          className="text-blue-600 hover:underline"
+                        >
+                          Abrir
+                        </button>
+                      )}
 
-                      <button
-                        onClick={() => duplicate(r)}
-                        className="text-amber-600 hover:underline font-semibold"
-                      >
-                        Duplicar
-                      </button>
+                      {canEdit(r) && (
+                        <button
+                          onClick={() => duplicate(r)}
+                          className="text-amber-600 hover:underline font-semibold"
+                        >
+                          Duplicar
+                        </button>
+                      )}
 
                       <button
                         onClick={() => navigate(`/operaciones/recepcion/${r.id}/pdf`)}
@@ -254,19 +286,23 @@ export default function RecepcionHome() {
                         Vista previa
                       </button>
 
-                      <button
-                        onClick={() => generarPDFRecepcion(r.data || {})}
-                        className="text-green-600 hover:underline"
-                      >
-                        Descargar PDF
-                      </button>
+                      {canDownload(r) && (
+                        <button
+                          onClick={() => generarPDFRecepcion(r.data || {})}
+                          className="text-green-600 hover:underline"
+                        >
+                          Descargar PDF
+                        </button>
+                      )}
 
-                      <button
-                        onClick={() => remove(r.id)}
-                        className="text-red-500 hover:underline"
-                      >
-                        Eliminar
-                      </button>
+                      {canDelete(r) && (
+                        <button
+                          onClick={() => remove(r.id)}
+                          className="text-red-500 hover:underline"
+                        >
+                          Eliminar
+                        </button>
+                      )}
                     </td>
                   </tr>
                 );

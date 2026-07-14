@@ -225,7 +225,7 @@ export default function RoutesApp() {
 
             <Route path="/petroleo/visita-campo" element={<TechRoute><VisitaCampoHome /></TechRoute>} />
             <Route path="/petroleo/visita-campo/nuevo" element={<TechRoute><VisitaCampoForm /></TechRoute>} />
-            <Route path="/petroleo/visita-campo/ver/:id" element={<TechRoute><VisitaCampoPDF allowDownload={false} /></TechRoute>} />
+            <Route path="/petroleo/visita-campo/ver/:id" element={<TechRoute><RecordPermissionRoute action="view" fallback="/petroleo/visita-campo"><VisitaCampoPDF allowDownload={false} /></RecordPermissionRoute></TechRoute>} />
             <Route path="/petroleo/visita-campo/:id" element={<TechRoute><VisitaCampoForm /></TechRoute>} />
 
             <Route path="/inspeccion" element={<VehiculosRoute><HistorialInspecciones /></VehiculosRoute>} />
@@ -310,7 +310,7 @@ export default function RoutesApp() {
 
             <Route path="/operaciones/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />
             <Route path="/operaciones/recepcion/new" element={<TechRoute><HojaRecepcion /></TechRoute>} />
-            <Route path="/operaciones/recepcion/:id" element={<TechRoute><HojaRecepcion /></TechRoute>} />
+            <Route path="/operaciones/recepcion/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/operaciones/recepcion"><HojaRecepcion /></RecordPermissionRoute></TechRoute>} />
 
             <Route path="/operaciones/registro" element={<TechRoute><RegistroHome /></TechRoute>} />
             <Route path="/operaciones/registro/new" element={<TechRoute><HojaRegistroHerramientas /></TechRoute>} />
@@ -333,7 +333,7 @@ export default function RoutesApp() {
           <Route path="/agua/informe/pdf/:id" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/agua/informe"><AguaInformePDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
           <Route path="/industria/informe/pdf/:id" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/industria/informe"><AguaInformePDF area="industria" basePath="/industria/informe" /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
           <Route path="/petroleo/informe/pdf/:id" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/petroleo/informe"><PetroleoInformePDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
-          <Route path="/petroleo/visita-campo/:id/pdf" element={<ProtectedRoute><TechRoute><VisitaCampoPDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/petroleo/visita-campo/:id/pdf" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/petroleo/visita-campo"><VisitaCampoPDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
 
           <Route path="/inspeccion/hidro/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/inspeccion"><InspeccionHidroPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/inspeccion/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/inspeccion"><InspeccionBarredoraPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
@@ -345,7 +345,7 @@ export default function RoutesApp() {
           <Route path="/vehiculos/inspeccion/barredora-road-wizard/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/inspeccion"><InspeccionBarredoraPDF variant="roadWizard" /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/vehiculos/inspeccion/camara/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/inspeccion"><InspeccionCamaraPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
 
-          <Route path="/operaciones/recepcion/:id/pdf" element={<ProtectedRoute><TechRoute><HojaRecepcionPDF /></TechRoute></ProtectedRoute>} />
+          <Route path="/operaciones/recepcion/:id/pdf" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="view" fallback="/operaciones/recepcion"><HojaRecepcionPDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
 
           <Route path="/mantenimiento/hidro/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoHidroPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/mantenimiento/barredora/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoBarredoraPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />

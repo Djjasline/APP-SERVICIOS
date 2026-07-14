@@ -36,6 +36,49 @@ export async function getRecordAccessPermissionsForUser(userId) {
   return enrichPermissionsWithOwnerProfiles(data || []);
 }
 
+export async function getAccessibleRecordsForUser({
+  userId,
+  userEmail = "",
+  area,
+  tipo,
+  subtipo = "",
+  canViewAll = false,
+  action = "view",
+}) {
+  if (!userId) return { records: [], permissions: [] };
+
+  const permissions = await getRecordAccessPermissionsForUser(userId);
+  const baseQuery = () => {
+    let query = supabase
+      .from("registros")
+      .select("*")
+      .eq("area", area)
+      .eq("tipo", tipo)
+      .order("created_at", { ascending: false });
+
+    if (subtipo) query = query.eq("subtipo", subtipo);
+    return query;
+  };
+
+  if (canViewAll) {
+    const { data, error } = await baseQuery();
+    if (error) throw error;
+    return { records: data || [], permissions };
+  }
+
+  const normalizedUserEmail = normalize(userEmail);
+  const { data, error } = await baseQuery();
+
+  if (error) throw error;
+
+  const records = (data || []).filter((record) => {
+    const ownRecord = record.user_id === userId || normalize(record.data?.tecnicoCorreo) === normalizedUserEmail;
+    return ownRecord || canAccessRecord({ record, userId, permissions, isSuperAdmin: false, action });
+  });
+
+  return { records, permissions };
+}
+
 export async function saveRecordAccessPermission(permission) {
   const ownerProfile = await getProfileById(permission.owner_user_id);
 

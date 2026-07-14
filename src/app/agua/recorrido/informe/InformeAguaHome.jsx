@@ -7,37 +7,55 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
+import {
+  canAccessRecord,
+  getAccessibleRecordsForUser,
+} from "@/services/accessControlService";
 
 
 export default function InformeAguaHome() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
+  const superAdminActivo = typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
   const [registros, setRegistros] = useState([]);
+  const [accessPermissions, setAccessPermissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("todos");
   const [busqueda, setBusqueda] = useState("");
 
   const loadRegistros = async () => {
+    if (!user?.id) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from("registros")
-      .select("*")
-      .eq("tipo", "informe")
-      .eq("subtipo", "avance_epmaps")
-      .order("created_at", { ascending: false });
 
-    if (error) {
+    try {
+      const { records, permissions } = await getAccessibleRecordsForUser({
+        userId: user.id,
+        userEmail: user.email,
+        area: "agua",
+        tipo: "informe",
+        subtipo: "avance_epmaps",
+        canViewAll: superAdminActivo,
+      });
+
+      setAccessPermissions(permissions);
+      setRegistros(records);
+    } catch (error) {
       console.error("Error cargando informes:", error);
       setRegistros([]);
-    } else {
-      setRegistros(data || []);
     }
     setLoading(false);
   };
 
   useEffect(() => {
     loadRegistros();
-  }, []);
+  }, [user?.id, user?.email, superAdminActivo]);
+
+  const isOwn = (record) => record.user_id === user?.id || record.data?.tecnicoCorreo === user?.email;
+  const canEdit = (record) =>
+    superAdminActivo ||
+    isOwn(record) ||
+    canAccessRecord({ record, userId: user?.id, permissions: accessPermissions, isSuperAdmin: superAdminActivo, action: "edit" });
+  const canDelete = (record) => superAdminActivo || isOwn(record);
 
   const filtered = registros.filter((r) => {
     const d = r.data || {};
@@ -70,6 +88,11 @@ export default function InformeAguaHome() {
   const duplicate = async (record) => {
     if (!user?.id) {
       alert("Usuario no autenticado");
+      return;
+    }
+
+    if (!canEdit(record)) {
+      alert("No tienes permiso para duplicar este informe de recorrido.");
       return;
     }
 
@@ -223,19 +246,23 @@ export default function InformeAguaHome() {
                     </td>
 
                     <td className="px-4 py-3 text-right space-x-3 whitespace-nowrap">
-                      <button
-                        onClick={() => navigate(`/agua/recorrido/informe/${r.id}`)}
-                        className="text-blue-600 hover:underline text-xs font-medium"
-                      >
-                        Abrir
-                      </button>
+                      {canEdit(r) && (
+                        <button
+                          onClick={() => navigate(`/agua/recorrido/informe/${r.id}`)}
+                          className="text-blue-600 hover:underline text-xs font-medium"
+                        >
+                          Abrir
+                        </button>
+                      )}
 
-                      <button
-                        onClick={() => duplicate(r)}
-                        className="text-amber-600 hover:underline text-xs font-semibold"
-                      >
-                        Duplicar
-                      </button>
+                      {canEdit(r) && (
+                        <button
+                          onClick={() => duplicate(r)}
+                          className="text-amber-600 hover:underline text-xs font-semibold"
+                        >
+                          Duplicar
+                        </button>
+                      )}
 
                       <button
   onClick={() => navigate(`/agua/recorrido/informe/pdf/${r.id}`)}
@@ -244,12 +271,14 @@ export default function InformeAguaHome() {
   PDF
 </button>
 
-                      <button
-                        onClick={() => remove(r.id)}
-                        className="text-red-500 hover:underline text-xs font-medium"
-                      >
-                        Eliminar
-                      </button>
+                      {canDelete(r) && (
+                        <button
+                          onClick={() => remove(r.id)}
+                          className="text-red-500 hover:underline text-xs font-medium"
+                        >
+                          Eliminar
+                        </button>
+                      )}
                     </td>
                   </tr>
                 );

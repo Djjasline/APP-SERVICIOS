@@ -2,9 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { saveOrUpdateReport } from "../services/reportService";
 import {
   canAccessRecord,
-  getPermittedOwnerIds,
   getRecordAccessPermissionsForUser,
-  mergeRecords,
 } from "@/services/accessControlService";
 
 const SUPER_ADMIN_EMAIL = "smaviles@astap.com";
@@ -97,22 +95,18 @@ export async function getAllRegistros() {
   }
 
   const permissions = await getRecordAccessPermissionsForUser(user.id);
-  const ownerIds = getPermittedOwnerIds(permissions, "operaciones", "registro", "view");
-  const [ownResponse, permittedResponse] = await Promise.all([
-    loadBaseQuery().eq("user_id", user.id),
-    ownerIds.length > 0
-      ? loadBaseQuery().in("user_id", ownerIds)
-      : Promise.resolve({ data: [], error: null }),
-  ]);
-
-  const error = ownResponse.error || permittedResponse.error;
+  const { data, error } = await loadBaseQuery();
 
   if (error) {
     console.error("Error cargando registros:", error);
     return [];
   }
 
-  return mergeRecords(ownResponse.data || [], permittedResponse.data || []);
+  const userEmail = user.email?.toLowerCase() || "";
+  return (data || []).filter((record) => {
+    const ownRecord = record.user_id === user.id || record.data?.tecnicoCorreo?.toLowerCase() === userEmail;
+    return ownRecord || canAccessRecord({ record, userId: user.id, permissions, isSuperAdmin: false, action: "view" });
+  });
 }
 
 /* ================= OBTENER POR ID ================= */
@@ -142,15 +136,15 @@ export async function getRegistroById(id) {
   if (canViewAll(user.email) || data.user_id === user.id) return data;
 
   const permissions = await getRecordAccessPermissionsForUser(user.id);
-  const canEdit = canAccessRecord({
+  const canView = canAccessRecord({
     record: data,
     userId: user.id,
     permissions,
     isSuperAdmin: user.email?.toLowerCase() === SUPER_ADMIN_EMAIL,
-    action: "edit",
+    action: "view",
   });
 
-  if (!canEdit) return null;
+  if (!canView) return null;
 
   return data;
 }

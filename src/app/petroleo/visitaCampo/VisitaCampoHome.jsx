@@ -3,12 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
+import {
+  canAccessRecord,
+  getAccessibleRecordsForUser,
+} from "@/services/accessControlService";
 
 export default function VisitaCampoHome() {
   const navigate = useNavigate();
   const { user, isSuperAdmin } = useAuth();
   const superAdminActivo = typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
   const [records, setRecords] = useState([]);
+  const [accessPermissions, setAccessPermissions] = useState([]);
   const [filter, setFilter] = useState("todos");
   const [search, setSearch] = useState("");
 
@@ -16,27 +21,35 @@ export default function VisitaCampoHome() {
     if (!user?.id) return;
 
     const loadRecords = async () => {
-      let query = supabase
-        .from("registros")
-        .select("*")
-        .eq("area", "petroleo")
-        .eq("tipo", "visita_campo")
-        .order("created_at", { ascending: false });
+      try {
+        const { records: permittedRecords, permissions } = await getAccessibleRecordsForUser({
+          userId: user.id,
+          userEmail: user.email,
+          area: "petroleo",
+          tipo: "visita_campo",
+          canViewAll: superAdminActivo,
+        });
 
-      if (!superAdminActivo) query = query.eq("user_id", user.id);
-
-      const { data, error } = await query;
-      if (error) {
+        setAccessPermissions(permissions);
+        setRecords(permittedRecords);
+      } catch (error) {
         console.error("Error cargando visitas de campo:", error);
         setRecords([]);
-        return;
       }
-
-      setRecords(data || []);
     };
 
     loadRecords();
-  }, [user?.id, superAdminActivo]);
+  }, [user?.id, user?.email, superAdminActivo]);
+
+  const isOwn = (record) => record.user_id === user?.id || record.data?.tecnicoCorreo === user?.email;
+  const canEdit = (record) =>
+    superAdminActivo ||
+    isOwn(record) ||
+    canAccessRecord({ record, userId: user?.id, permissions: accessPermissions, isSuperAdmin: superAdminActivo, action: "edit" });
+  const canDownload = (record) =>
+    superAdminActivo ||
+    isOwn(record) ||
+    canAccessRecord({ record, userId: user?.id, permissions: accessPermissions, isSuperAdmin: superAdminActivo, action: "download" });
 
   const filtered = records.filter((record) => {
     const q = search.trim().toLowerCase();
@@ -79,6 +92,11 @@ export default function VisitaCampoHome() {
   const duplicateRecord = async (record) => {
     if (!user?.id) {
       alert("Usuario no autenticado");
+      return;
+    }
+
+    if (!canEdit(record)) {
+      alert("No tienes permiso para duplicar este informe de visita.");
       return;
     }
 
@@ -148,9 +166,13 @@ export default function VisitaCampoHome() {
 
               <div className="flex flex-wrap gap-3 text-sm">
                 <button onClick={() => navigate(`/petroleo/visita-campo/ver/${record.id}`)} className="font-semibold text-slate-600 hover:underline">Ver</button>
-                <button onClick={() => navigate(`/petroleo/visita-campo/${record.id}`)} className="text-blue-600 hover:underline">Abrir</button>
-                <button onClick={() => duplicateRecord(record)} className="font-semibold text-amber-600 hover:underline">Duplicar</button>
-                {record.estado === "completado" && (
+                {canEdit(record) && (
+                  <button onClick={() => navigate(`/petroleo/visita-campo/${record.id}`)} className="text-blue-600 hover:underline">Abrir</button>
+                )}
+                {canEdit(record) && (
+                  <button onClick={() => duplicateRecord(record)} className="font-semibold text-amber-600 hover:underline">Duplicar</button>
+                )}
+                {record.estado === "completado" && canDownload(record) && (
                   <button onClick={() => navigate(`/petroleo/visita-campo/${record.id}/pdf`)} className="font-semibold text-green-600 hover:underline">PDF</button>
                 )}
                 {(superAdminActivo || record.user_id === user?.id) && (

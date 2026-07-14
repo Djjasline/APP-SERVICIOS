@@ -3,12 +3,20 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
+import {
+  canAccessRecord,
+  getAccessibleRecordsForUser,
+} from "@/services/accessControlService";
 
 export default function LiberacionHome() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isSuperAdmin, isSupervisorOperaciones } = useAuth();
+  const superAdminActivo = typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
+  const supervisorOperacionesActivo = typeof isSupervisorOperaciones === "function" ? isSupervisorOperaciones() : !!isSupervisorOperaciones;
+  const puedeVerTodoOperaciones = superAdminActivo || supervisorOperacionesActivo;
 
   const [registros, setRegistros] = useState([]);
+  const [accessPermissions, setAccessPermissions] = useState([]);
   const [filter, setFilter] = useState("todos");
 
   const [filters, setFilters] = useState({
@@ -19,20 +27,36 @@ export default function LiberacionHome() {
 
   // 🔄 CARGAR DATA
   useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase
-  .from("registros")
-  .select("*")
-  .eq("area", "operaciones")
-  .eq("tipo", "liberacion")
-  .eq("subtipo", "general")
-  .order("created_at", { ascending: false });
+    if (!user?.id) return;
 
-      setRegistros(data || []);
+    const load = async () => {
+      try {
+        const { records, permissions } = await getAccessibleRecordsForUser({
+          userId: user.id,
+          userEmail: user.email,
+          area: "operaciones",
+          tipo: "liberacion",
+          subtipo: "general",
+          canViewAll: puedeVerTodoOperaciones,
+        });
+
+        setAccessPermissions(permissions);
+        setRegistros(records);
+      } catch (error) {
+        console.error("Error cargando autorizaciones:", error);
+        setRegistros([]);
+      }
     };
 
     load();
-  }, []);
+  }, [user?.id, user?.email, puedeVerTodoOperaciones]);
+
+  const isOwn = (record) => record.user_id === user?.id || record.data?.tecnicoCorreo === user?.email;
+  const canEdit = (record) =>
+    puedeVerTodoOperaciones ||
+    isOwn(record) ||
+    canAccessRecord({ record, userId: user?.id, permissions: accessPermissions, isSuperAdmin: superAdminActivo, action: "edit" });
+  const canDelete = (record) => puedeVerTodoOperaciones || isOwn(record);
 
   // 🎯 FILTROS
   const filtered = registros.filter((r) => {
@@ -66,6 +90,11 @@ export default function LiberacionHome() {
   const duplicate = async (record) => {
     if (!user?.id) {
       alert("Usuario no autenticado");
+      return;
+    }
+
+    if (!canEdit(record)) {
+      alert("No tienes permiso para duplicar esta autorización.");
       return;
     }
 
@@ -220,19 +249,23 @@ export default function LiberacionHome() {
                     Abrir
                   </button>
 
-                  <button
-                    onClick={() => duplicate(r)}
-                    className="text-amber-600 hover:underline font-semibold"
-                  >
-                    Duplicar
-                  </button>
+                  {canEdit(r) && (
+                    <button
+                      onClick={() => duplicate(r)}
+                      className="text-amber-600 hover:underline font-semibold"
+                    >
+                      Duplicar
+                    </button>
+                  )}
 
-                  <button
-                    onClick={() => remove(r.id)}
-                    className="text-red-500 hover:underline"
-                  >
-                    Eliminar
-                  </button>
+                  {canDelete(r) && (
+                    <button
+                      onClick={() => remove(r.id)}
+                      className="text-red-500 hover:underline"
+                    >
+                      Eliminar
+                    </button>
+                  )}
                 </td>
 
               </tr>
