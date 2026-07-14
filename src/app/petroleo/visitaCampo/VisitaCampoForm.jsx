@@ -152,16 +152,37 @@ export default function VisitaCampoForm() {
 
       <label className={labelClass}>Antecedentes<AutoTextarea rows={7} className={inputClass} value={data.antecedentes} onChange={(e) => set("antecedentes", e.target.value)} /></label>
       <label className={labelClass}>Objetivos de la asistencia en campo<AutoTextarea rows={6} className={inputClass} value={listToText(data.objetivos)} onChange={(e) => set("objetivos", textToList(e.target.value))} /></label>
-      <label className={labelClass}>Lugar de ubicación del equipo<AutoTextarea rows={4} className={inputClass} value={data.descripcionLugar} onChange={(e) => set("descripcionLugar", e.target.value)} /></label>
 
-      <section className="space-y-3">
-        <h2 className="font-semibold">Descripción de actividades</h2>
+      <section className="rounded-xl border border-slate-300 bg-white shadow-sm">
+        <h2 className="border-b border-slate-300 bg-slate-100 px-4 py-2 text-center text-sm font-semibold text-slate-900">
+          Descripción de actividades
+        </h2>
+
+        <div className="space-y-4 p-4">
+          <label className={labelClass}>
+            Lugar de ubicación del equipo.
+            <AutoTextarea
+              rows={4}
+              className={inputClass}
+              value={data.descripcionLugar}
+              onChange={(e) => set("descripcionLugar", e.target.value)}
+            />
+          </label>
+
         {data.actividades.map((actividad, index) => (
-          <div key={index} className="rounded border bg-gray-50 p-3 space-y-2">
-            <input className={inputClass} value={actividad.titulo} onChange={(e) => setData((prev) => ({ ...prev, actividades: prev.actividades.map((item, itemIndex) => itemIndex === index ? { ...item, titulo: e.target.value } : item) }))} />
+          <div key={index} className="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-2">
+            <label className={labelClass}>
+              {index + 1}. {actividad.titulo}:
+              <input
+                className={inputClass}
+                value={actividad.titulo}
+                onChange={(e) => setData((prev) => ({ ...prev, actividades: prev.actividades.map((item, itemIndex) => itemIndex === index ? { ...item, titulo: e.target.value } : item) }))}
+              />
+            </label>
             <AutoTextarea rows={3} className={inputClass} value={actividad.detalle} onChange={(e) => setData((prev) => ({ ...prev, actividades: prev.actividades.map((item, itemIndex) => itemIndex === index ? { ...item, detalle: e.target.value } : item) }))} />
           </div>
         ))}
+        </div>
       </section>
 
       <label className={labelClass}>Tabla resumen de equipos<AutoTextarea rows={12} className={`${inputClass} font-mono`} value={data.equiposTabla} onChange={(e) => set("equiposTabla", e.target.value)} /></label>

@@ -146,8 +146,12 @@ export default function VisitaCampoPDF({ allowDownload = true }) {
 
         <Header data={data} />
         <SectionTitle>Descripción de actividades</SectionTitle>
-        <TextBlock>{data.descripcionLugar}</TextBlock>
         <div style={{ border: "1px solid #111", borderTop: 0, padding: 10 }}>
+          <div style={{ marginBottom: 12 }}>
+            <strong>Lugar de ubicación del equipo.</strong>
+            <p style={{ margin: "8px 0 0", whiteSpace: "pre-line", textAlign: "justify" }}>{data.descripcionLugar}</p>
+          </div>
+
           {data.actividades.map((actividad, index) => (
             <div key={index} style={{ marginBottom: 10 }}>
               <strong>{index + 1}. {actividad.titulo}:</strong>
