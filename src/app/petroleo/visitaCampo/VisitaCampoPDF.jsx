@@ -326,6 +326,7 @@ export default function VisitaCampoPDF({ allowDownload = true }) {
   const navigate = useNavigate();
   const { user, isSuperAdmin } = useAuth();
   const superAdminActivo = typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
+  const puedeVerBorrador = superAdminActivo || String(user?.email || "").toLowerCase() === "smaviles@astap.com";
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -333,7 +334,7 @@ export default function VisitaCampoPDF({ allowDownload = true }) {
     const loadRecord = async () => {
       const { data, error } = await supabase.from("registros").select("*").eq("id", id).maybeSingle();
       if (error) console.error(error);
-      if (data && !superAdminActivo && data.user_id !== user?.id) {
+      if (data && !puedeVerBorrador && data.user_id !== user?.id) {
         setRecord(null);
       } else {
         setRecord(data || null);
@@ -342,11 +343,11 @@ export default function VisitaCampoPDF({ allowDownload = true }) {
     };
 
     loadRecord();
-  }, [id, superAdminActivo, user?.id]);
+  }, [id, puedeVerBorrador, user?.id]);
 
   if (loading) return <div className="p-6 text-gray-500">Cargando PDF...</div>;
   if (!record) return <div className="p-6 text-center"><p>No se encontró el informe.</p><button onClick={() => navigate("/petroleo/visita-campo")} className="btn-volver-orange mt-4">Volver</button></div>;
-  if (record.estado !== "completado" && allowDownload) return <div className="p-6 text-center"><p>Este informe aún no está completado.</p><button onClick={() => navigate(`/petroleo/visita-campo/${id}`)} className="btn-volver-orange mt-4">Volver</button></div>;
+  if (record.estado !== "completado" && allowDownload && !puedeVerBorrador) return <div className="p-6 text-center"><p>Este informe aún no está completado.</p><button onClick={() => navigate(`/petroleo/visita-campo/${id}`)} className="btn-volver-orange mt-4">Volver</button></div>;
 
   const data = { ...createEmptyVisitaCampoData(), ...(record.data || {}) };
 
