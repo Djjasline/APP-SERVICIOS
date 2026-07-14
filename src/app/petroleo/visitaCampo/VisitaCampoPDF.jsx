@@ -206,6 +206,54 @@ function RepuestoTable({ text }) {
   );
 }
 
+function IntervalosTable({ text }) {
+  const rows = parseTableText(text);
+  if (rows.length === 0) return null;
+
+  const widths = ["24%", "38%", "38%"];
+
+  return (
+    <table style={{ ...S.table, marginTop: 8 }}>
+      <tbody>
+        {rows.map((row, rowIndex) => (
+          <tr key={`${rowIndex}-${row.join("-")}`}>
+            {row.map((cell, cellIndex) => (
+              <td
+                key={cellIndex}
+                style={{
+                  ...(rowIndex === 0 ? S.headerCell : S.cell),
+                  width: widths[cellIndex],
+                  padding: 4,
+                  fontSize: 9,
+                  textAlign: "center",
+                  verticalAlign: "middle",
+                  whiteSpace: "pre-line",
+                  fontWeight: rowIndex === 0 || cellIndex === 0 ? 700 : 600,
+                }}
+              >
+                {cell || " "}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function IntervalosBox({ intro, tableText, note }) {
+  return (
+    <div style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+      <div style={{ border: "1px solid #111", padding: 4, fontWeight: 700, textAlign: "center", textDecoration: "underline", marginTop: 8 }}>
+        Tiempo mínimo para cambio de partes según normativa API 610 y ANSI B73.1
+      </div>
+      {intro && <div style={{ border: "1px solid #111", borderTop: 0, padding: 10, whiteSpace: "pre-line", textAlign: "justify", fontWeight: 600 }}>{intro}</div>}
+      <IntervalosTable text={tableText} />
+      {note && <div style={{ padding: "10px 14px", whiteSpace: "pre-line", textAlign: "justify", fontSize: 10, fontWeight: 600 }}>{note}</div>}
+    </div>
+  );
+}
+
 function BulletList({ items }) {
   return (
     <ul style={{ margin: "8px 0 0 18px", padding: 0 }}>
@@ -306,9 +354,7 @@ export default function VisitaCampoPDF({ allowDownload = true }) {
         ))}
 
         <Header data={data} />
-        <SectionTitle>Tiempo mínimo para cambio de partes según normativa API 610 y ANSI B73.1</SectionTitle>
-        <RenderTable text={data.intervalosTabla} />
-        <TextBlock>{data.notaIntervalos}</TextBlock>
+        <IntervalosBox intro={data.intervalosIntro} tableText={data.intervalosTabla} note={data.notaIntervalos} />
 
         <Header data={data} />
         <SectionTitle>Conclusiones</SectionTitle>

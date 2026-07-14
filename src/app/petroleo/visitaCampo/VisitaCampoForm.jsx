@@ -11,6 +11,7 @@ const inputClass = "w-full rounded border border-gray-300 px-3 py-2 text-sm";
 const labelClass = "space-y-1 text-xs font-semibold uppercase tracking-wide text-gray-500";
 const equipmentColumns = ["ESTACIÓN", "GRUPO DE BOMBA", "MODELO DE BOMBA", "SERIE", "TOTAL"];
 const repuestoColumns = ["Ítem", "Descripción", "Ref.", "N/P", "Código EPP", "Cant."];
+const intervaloColumns = ["Parte", "API 610", "ANSI B73.1"];
 
 const AutoTextarea = ({ value, onChange, className = "", rows = 3, ...props }) => {
   const ref = useRef(null);
@@ -228,6 +229,78 @@ const RepuestoEditableTable = ({ tableText, onChange }) => {
   );
 };
 
+const normalizeIntervaloRow = (row = []) => intervaloColumns.map((_, index) => String(row[index] || "").replace(/\r?\n/g, " / "));
+
+const parseIntervaloRows = (tableText) => {
+  const rows = parseTableText(tableText);
+  const body = rows[0]?.[0]?.toLowerCase() === intervaloColumns[0].toLowerCase() ? rows.slice(1) : rows;
+  const normalizedRows = body.map(normalizeIntervaloRow).filter((row) => row.some((cell) => cell.trim()));
+
+  return normalizedRows.length > 0 ? normalizedRows : [normalizeIntervaloRow()];
+};
+
+const intervaloRowsToText = (rows) => [intervaloColumns, ...rows.map(normalizeIntervaloRow)].map((row) => row.join("\t")).join("\n");
+
+const IntervalosEditableTable = ({ tableText, onChange }) => {
+  const rows = parseIntervaloRows(tableText);
+
+  const updateCell = (rowIndex, cellIndex, value) => {
+    const nextRows = rows.map((row, index) => (index === rowIndex ? row.map((cell, colIndex) => (colIndex === cellIndex ? value : cell)) : row));
+    onChange(intervaloRowsToText(nextRows));
+  };
+
+  const addRow = () => {
+    onChange(intervaloRowsToText([...rows, normalizeIntervaloRow()]));
+  };
+
+  const removeRow = (rowIndex) => {
+    const nextRows = rows.filter((_, index) => index !== rowIndex);
+    onChange(intervaloRowsToText(nextRows.length > 0 ? nextRows : [normalizeIntervaloRow()]));
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="overflow-x-auto rounded border border-slate-300">
+        <table className="w-full min-w-[860px] border-collapse bg-white text-xs text-slate-900">
+          <thead className="bg-slate-100 text-center font-bold uppercase">
+            <tr>
+              {intervaloColumns.map((column) => (
+                <th key={column} className="border border-slate-300 px-2 py-2">
+                  {column}
+                </th>
+              ))}
+              <th className="w-20 border border-slate-300 px-2 py-2">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, rowIndex) => (
+              <tr key={rowIndex} className="align-top">
+                <td className="w-[22%] border border-slate-300 p-1">
+                  <AutoTextarea rows={2} className="w-full resize-none rounded border border-slate-200 px-2 py-1 text-center font-semibold" value={row[0]} onChange={(e) => updateCell(rowIndex, 0, e.target.value)} />
+                </td>
+                <td className="w-[36%] border border-slate-300 p-1">
+                  <AutoTextarea rows={3} className="w-full resize-none rounded border border-slate-200 px-2 py-1 text-center" value={row[1]} onChange={(e) => updateCell(rowIndex, 1, e.target.value)} />
+                </td>
+                <td className="w-[36%] border border-slate-300 p-1">
+                  <AutoTextarea rows={3} className="w-full resize-none rounded border border-slate-200 px-2 py-1 text-center" value={row[2]} onChange={(e) => updateCell(rowIndex, 2, e.target.value)} />
+                </td>
+                <td className="border border-slate-300 p-1 text-center">
+                  <button type="button" onClick={() => removeRow(rowIndex)} className="rounded bg-red-600 px-2 py-1 text-[11px] font-semibold text-white hover:bg-red-700">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <button type="button" onClick={addRow} className="rounded bg-slate-700 px-3 py-1 text-sm font-semibold text-white hover:bg-slate-800">
+        Agregar fila
+      </button>
+    </div>
+  );
+};
+
 const EquipmentSummaryPreview = ({ intro, tableText }) => {
   const rows = parseTableText(tableText);
   const header = rows[0] || [];
@@ -291,6 +364,26 @@ const PartsIntroBox = ({ value, onChange }) => (
       value={value}
       onChange={onChange}
     />
+  </section>
+);
+
+const IntervalosBox = ({ intro, tableText, note, onIntroChange, onTableChange, onNoteChange }) => (
+  <section className="space-y-3 rounded-xl border border-slate-300 bg-white p-4 shadow-sm">
+    <h2 className="rounded border border-slate-900 bg-slate-100 px-3 py-1 text-center text-sm font-bold text-slate-950">
+      Tiempo mínimo para cambio de partes según normativa API 610 y ANSI B73.1
+    </h2>
+    <label className={labelClass}>
+      Criterio de confiabilidad operacional
+      <AutoTextarea rows={4} className={inputClass} value={intro} onChange={onIntroChange} />
+    </label>
+    <div className={labelClass}>
+      <span>Tabla de intervalos</span>
+      <IntervalosEditableTable tableText={tableText} onChange={onTableChange} />
+    </div>
+    <label className={labelClass}>
+      Nota y criterios complementarios
+      <AutoTextarea rows={8} className={inputClass} value={note} onChange={onNoteChange} />
+    </label>
   </section>
 );
 
@@ -529,8 +622,14 @@ export default function VisitaCampoForm() {
         ))}
       </section>
 
-      <label className={labelClass}>Intervalos API 610 / ANSI B73.1<AutoTextarea rows={7} className={`${inputClass} font-mono`} value={data.intervalosTabla} onChange={(e) => set("intervalosTabla", e.target.value)} /></label>
-      <label className={labelClass}>Nota de intervalos<AutoTextarea rows={4} className={inputClass} value={data.notaIntervalos} onChange={(e) => set("notaIntervalos", e.target.value)} /></label>
+      <IntervalosBox
+        intro={data.intervalosIntro}
+        tableText={data.intervalosTabla}
+        note={data.notaIntervalos}
+        onIntroChange={(e) => set("intervalosIntro", e.target.value)}
+        onTableChange={(value) => set("intervalosTabla", value)}
+        onNoteChange={(e) => set("notaIntervalos", e.target.value)}
+      />
       <label className={labelClass}>Conclusiones<AutoTextarea rows={6} className={inputClass} value={listToText(data.conclusiones)} onChange={(e) => set("conclusiones", textToList(e.target.value))} /></label>
       <label className={labelClass}>Recomendaciones<AutoTextarea rows={6} className={inputClass} value={listToText(data.recomendaciones)} onChange={(e) => set("recomendaciones", textToList(e.target.value))} /></label>
 
