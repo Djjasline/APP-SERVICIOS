@@ -373,6 +373,16 @@ const SignatureBox = ({ dataUrl, canvasRef, readOnly = false }) => {
   return (
     <SignatureCanvas
       ref={canvasRef}
+      penColor="black"
+      minWidth={0.5}
+      maxWidth={1.8}
+      onBegin={() => {
+        document.activeElement?.blur();
+        document.body.style.overflow = "hidden";
+      }}
+      onEnd={() => {
+        document.body.style.overflow = "";
+      }}
       canvasProps={{
         width: 280,
         height: 88,
@@ -648,6 +658,7 @@ const SheetStyles = () => (
       height: 58px;
       display: block;
       background: #fff;
+      touch-action: none;
     }
 
     .signature-img {

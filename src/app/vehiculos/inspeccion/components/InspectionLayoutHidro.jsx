@@ -13,6 +13,15 @@ export default function InspectionLayoutHidro({
   onNotaChange,
   clearAllPoints,
 }) {
+  const handleSignatureBegin = () => {
+    document.activeElement?.blur();
+    document.body.style.overflow = "hidden";
+  };
+
+  const handleSignatureEnd = () => {
+    document.body.style.overflow = "";
+  };
+
   return (
     <div className="bg-white max-w-6xl mx-auto p-6 shadow space-y-6">
 
@@ -238,7 +247,12 @@ export default function InspectionLayoutHidro({
         ) : (
           <SignatureCanvas
             ref={firmasRef?.tecnico}
-            canvasProps={{ className: "w-full h-full" }}
+            penColor="black"
+            minWidth={0.5}
+            maxWidth={1.8}
+            onBegin={handleSignatureBegin}
+            onEnd={handleSignatureEnd}
+            canvasProps={{ className: "w-full h-full touch-none" }}
           />
         )}
       </td>
@@ -254,7 +268,12 @@ export default function InspectionLayoutHidro({
         ) : (
           <SignatureCanvas
             ref={firmasRef?.cliente}
-            canvasProps={{ className: "w-full h-full" }}
+            penColor="black"
+            minWidth={0.5}
+            maxWidth={1.8}
+            onBegin={handleSignatureBegin}
+            onEnd={handleSignatureEnd}
+            canvasProps={{ className: "w-full h-full touch-none" }}
           />
         )}
       </td>

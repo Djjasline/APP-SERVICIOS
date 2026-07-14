@@ -708,6 +708,7 @@ const Styles = () => (
       object-fit: contain;
       display: block;
       background: #fafafa;
+      touch-action: none;
     }
     .ia-firma-limpiar {
       font-size: 11px;
@@ -918,6 +919,15 @@ navigate("/agua/recorrido/informe");
     updateAtPath(setData, ["firmas", key], "");
   };
 
+  const handleFirmaBegin = () => {
+    document.activeElement?.blur();
+    document.body.style.overflow = "hidden";
+  };
+
+  const handleFirmaEnd = () => {
+    document.body.style.overflow = "";
+  };
+
   const tempId = registroId || `temp-informe-agua-${Date.now()}`;
 
   // ── render ────────────────────────────────────────────
@@ -1098,6 +1108,10 @@ navigate("/agua/recorrido/informe");
                       <SignatureCanvas
                         ref={firmaTecnicoRef}
                         penColor="#1a2942"
+                        minWidth={0.5}
+                        maxWidth={1.8}
+                        onBegin={handleFirmaBegin}
+                        onEnd={handleFirmaEnd}
                         canvasProps={{ width: 380, height: 80, className: "ia-firma-img" }}
                       />
                     </div>
@@ -1128,6 +1142,10 @@ navigate("/agua/recorrido/informe");
                       <SignatureCanvas
                         ref={firmaSupervisorRef}
                         penColor="#1a2942"
+                        minWidth={0.5}
+                        maxWidth={1.8}
+                        onBegin={handleFirmaBegin}
+                        onEnd={handleFirmaEnd}
                         canvasProps={{ width: 380, height: 80, className: "ia-firma-img" }}
                       />
                     </div>

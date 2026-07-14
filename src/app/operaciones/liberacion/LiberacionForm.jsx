@@ -90,6 +90,15 @@ export default function LiberacionForm() {
   const claveAutoguardado = `liberacion_new`;
   const sigRef = useRef();
 
+  const handleSignatureBegin = () => {
+    document.activeElement?.blur();
+    document.body.style.overflow = "hidden";
+  };
+
+  const handleSignatureEnd = () => {
+    document.body.style.overflow = "";
+  };
+
   const [licencia, setLicencia] = useState("");
 
   const [form, setForm] = useState({
@@ -323,7 +332,15 @@ pendientes.push({
           <p className="text-sm font-semibold">Firma del Inspector</p>
 
           <div className="border bg-white">
-            <SignatureCanvas ref={sigRef} canvasProps={{ className: "w-full h-[120px]" }} />
+            <SignatureCanvas
+              ref={sigRef}
+              penColor="black"
+              minWidth={0.5}
+              maxWidth={1.8}
+              onBegin={handleSignatureBegin}
+              onEnd={handleSignatureEnd}
+              canvasProps={{ className: "w-full h-[120px] touch-none" }}
+            />
           </div>
 
           <button onClick={() => sigRef.current.clear()} className="text-xs text-red-600">

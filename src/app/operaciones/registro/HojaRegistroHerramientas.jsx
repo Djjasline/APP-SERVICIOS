@@ -19,6 +19,15 @@ export default function HojaRegistroHerramientas() {
   const firmaResponsableRef = useRef(null);
   const firmaAprobadorRef = useRef(null);
 
+  const handleSignatureBegin = () => {
+    document.activeElement?.blur();
+    document.body.style.overflow = "hidden";
+  };
+
+  const handleSignatureEnd = () => {
+    document.body.style.overflow = "";
+  };
+
   const [previewImage, setPreviewImage] = useState(null);
   const [guardando, setGuardando] = useState(false);
 
@@ -56,6 +65,15 @@ useAutoguardado(claveAutoguardado, formData, !isLocked);
 
     load();
   }, [id]);
+
+  useEffect(() => {
+    if (!firmaResponsableRef.current || !firmaAprobadorRef.current) return;
+
+    firmaResponsableRef.current.clear();
+    firmaAprobadorRef.current.clear();
+    if (formData.firmas?.responsable) firmaResponsableRef.current.fromDataURL(formData.firmas.responsable);
+    if (formData.firmas?.aprobador) firmaAprobadorRef.current.fromDataURL(formData.firmas.aprobador);
+  }, [formData.firmas?.responsable, formData.firmas?.aprobador]);
 
   /* ================= AGREGAR ITEM ================= */
   const addItem = () => {
@@ -484,12 +502,20 @@ const handleSubmit = async (e) => {
           <p className="font-semibold mb-1 text-sm">Firma Responsable</p>
           <SignatureCanvas
             ref={firmaResponsableRef}
-            canvasProps={{ className: "border w-full h-32 rounded bg-white" }}
+            penColor="black"
+            minWidth={0.5}
+            maxWidth={1.8}
+            onBegin={handleSignatureBegin}
+            onEnd={handleSignatureEnd}
+            canvasProps={{ className: "border w-full h-32 rounded bg-white touch-none" }}
           />
           {!isLocked && (
             <button
               type="button"
-              onClick={() => firmaResponsableRef.current?.clear()}
+              onClick={() => {
+                firmaResponsableRef.current?.clear();
+                setFormData((prev) => ({ ...prev, firmas: { ...(prev.firmas || {}), responsable: "" } }));
+              }}
               className="text-xs text-red-500 mt-1 hover:underline"
             >
               Limpiar
@@ -501,12 +527,20 @@ const handleSubmit = async (e) => {
           <p className="font-semibold mb-1 text-sm">Firma Aprobador</p>
           <SignatureCanvas
             ref={firmaAprobadorRef}
-            canvasProps={{ className: "border w-full h-32 rounded bg-white" }}
+            penColor="black"
+            minWidth={0.5}
+            maxWidth={1.8}
+            onBegin={handleSignatureBegin}
+            onEnd={handleSignatureEnd}
+            canvasProps={{ className: "border w-full h-32 rounded bg-white touch-none" }}
           />
           {!isLocked && (
             <button
               type="button"
-              onClick={() => firmaAprobadorRef.current?.clear()}
+              onClick={() => {
+                firmaAprobadorRef.current?.clear();
+                setFormData((prev) => ({ ...prev, firmas: { ...(prev.firmas || {}), aprobador: "" } }));
+              }}
               className="text-xs text-red-500 mt-1 hover:underline"
             >
               Limpiar

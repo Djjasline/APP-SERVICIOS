@@ -4,6 +4,7 @@ import SignatureCanvas from "react-signature-canvas";
 export default function SignaturesSection({ data = {}, onChange }) {
   const tecnicoRef = useRef(null);
   const clienteRef = useRef(null);
+  const loadedRef = useRef({ tecnico: "", cliente: "" });
 
   /* ============================
      RECARGAR FIRMA SI EXISTE
@@ -11,18 +12,18 @@ export default function SignaturesSection({ data = {}, onChange }) {
   useEffect(() => {
   if (!tecnicoRef.current || !clienteRef.current) return;
 
-  // Técnico
-  if (data?.tecnico) {
-    tecnicoRef.current.fromDataURL(data.tecnico);
-  } else {
+  const tecnico = data?.tecnico || "";
+  if (tecnico !== loadedRef.current.tecnico) {
     tecnicoRef.current.clear();
+    if (tecnico) tecnicoRef.current.fromDataURL(tecnico);
+    loadedRef.current.tecnico = tecnico;
   }
 
-  // Cliente
-  if (data?.cliente) {
-    clienteRef.current.fromDataURL(data.cliente);
-  } else {
+  const cliente = data?.cliente || "";
+  if (cliente !== loadedRef.current.cliente) {
     clienteRef.current.clear();
+    if (cliente) clienteRef.current.fromDataURL(cliente);
+    loadedRef.current.cliente = cliente;
   }
 }, [data?.tecnico, data?.cliente]);
   /* ============================
@@ -31,7 +32,8 @@ export default function SignaturesSection({ data = {}, onChange }) {
   const updateState = () => {
     if (!onChange) return;
 
-    onChange({
+    const next = {
+      ...data,
       tecnico:
         tecnicoRef.current && !tecnicoRef.current.isEmpty()
           ? tecnicoRef.current.toDataURL()
@@ -40,7 +42,9 @@ export default function SignaturesSection({ data = {}, onChange }) {
         clienteRef.current && !clienteRef.current.isEmpty()
           ? clienteRef.current.toDataURL()
           : "",
-    });
+    };
+    loadedRef.current = { tecnico: next.tecnico, cliente: next.cliente };
+    onChange(next);
   };
 
   /* ============================
@@ -48,6 +52,7 @@ export default function SignaturesSection({ data = {}, onChange }) {
   ============================ */
   const clearTecnico = () => {
   tecnicoRef.current?.clear();
+  loadedRef.current.tecnico = "";
   onChange?.({
     ...data,
     tecnico: "",
@@ -56,6 +61,7 @@ export default function SignaturesSection({ data = {}, onChange }) {
 
 const clearCliente = () => {
   clienteRef.current?.clear();
+  loadedRef.current.cliente = "";
   onChange?.({
     ...data,
     cliente: "",
@@ -77,10 +83,6 @@ const clearCliente = () => {
 
   return (
     <section className="bg-white border rounded-xl p-6 space-y-6">
-     <h2 style={{ color: "red", fontSize: 40 }}>
-  COMPONENTE FIRMA CORRECTO
-</h2>
-
       <div className="grid md:grid-cols-2 gap-6 text-center">
 
         {/* ================= TÉCNICO ================= */}
@@ -95,7 +97,7 @@ const clearCliente = () => {
             onEnd={handleEnd}
             canvasProps={{
               className:
-                "border w-full h-32 rounded-md bg-white",
+                "border w-full h-32 rounded-md bg-white touch-none",
             }}
           />
 
@@ -120,7 +122,7 @@ const clearCliente = () => {
             onEnd={handleEnd}
             canvasProps={{
               className:
-                "border w-full h-32 rounded-md bg-white",
+                "border w-full h-32 rounded-md bg-white touch-none",
             }}
           />
 
