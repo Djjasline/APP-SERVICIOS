@@ -171,14 +171,9 @@ export default function VisitaCampoForm() {
 
         {data.actividades.map((actividad, index) => (
           <div key={index} className="rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-2">
-            <label className={labelClass}>
+            <div className="text-xs font-semibold uppercase tracking-wide text-gray-700">
               {index + 1}. {actividad.titulo}:
-              <input
-                className={inputClass}
-                value={actividad.titulo}
-                onChange={(e) => setData((prev) => ({ ...prev, actividades: prev.actividades.map((item, itemIndex) => itemIndex === index ? { ...item, titulo: e.target.value } : item) }))}
-              />
-            </label>
+            </div>
             <AutoTextarea rows={3} className={inputClass} value={actividad.detalle} onChange={(e) => setData((prev) => ({ ...prev, actividades: prev.actividades.map((item, itemIndex) => itemIndex === index ? { ...item, detalle: e.target.value } : item) }))} />
           </div>
         ))}
