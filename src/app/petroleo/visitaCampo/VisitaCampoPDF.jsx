@@ -81,13 +81,26 @@ function RenderTable({ text }) {
 }
 
 const getStationRowSpan = (rows, rowIndex) => {
-  const station = rows[rowIndex]?.[0];
-  if (!station) return 1;
-  if (rowIndex > 0 && rows[rowIndex - 1]?.[0] === station) return 0;
+  const station = rows[rowIndex]?.[0]?.trim();
+  if (!station) {
+    for (let i = rowIndex - 1; i >= 0; i -= 1) {
+      if (rows[i]?.[0]?.trim()) return 0;
+    }
+    return 1;
+  }
+  if (rowIndex > 0) {
+    let previousStation = "";
+    for (let i = rowIndex - 1; i >= 0; i -= 1) {
+      previousStation = rows[i]?.[0]?.trim();
+      if (previousStation) break;
+    }
+    if (previousStation === station) return 0;
+  }
 
   let span = 1;
   for (let i = rowIndex + 1; i < rows.length; i += 1) {
-    if (rows[i]?.[0] !== station) break;
+    const nextStation = rows[i]?.[0]?.trim();
+    if (nextStation && nextStation !== station) break;
     span += 1;
   }
 

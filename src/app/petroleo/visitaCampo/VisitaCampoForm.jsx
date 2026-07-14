@@ -7,6 +7,7 @@ import { listToText, parseTableText, textToList } from "./tableUtils";
 
 const inputClass = "w-full rounded border border-gray-300 px-3 py-2 text-sm";
 const labelClass = "space-y-1 text-xs font-semibold uppercase tracking-wide text-gray-500";
+const equipmentColumns = ["ESTACIÓN", "GRUPO DE BOMBA", "MODELO DE BOMBA", "SERIE", "TOTAL"];
 
 const AutoTextarea = ({ value, onChange, className = "", rows = 3, ...props }) => {
   const ref = useRef(null);
@@ -38,17 +39,109 @@ const AutoTextarea = ({ value, onChange, className = "", rows = 3, ...props }) =
 };
 
 const getStationRowSpan = (rows, rowIndex) => {
-  const station = rows[rowIndex]?.[0];
-  if (!station) return 1;
-  if (rowIndex > 0 && rows[rowIndex - 1]?.[0] === station) return 0;
+  const station = rows[rowIndex]?.[0]?.trim();
+  if (!station) {
+    for (let i = rowIndex - 1; i >= 0; i -= 1) {
+      if (rows[i]?.[0]?.trim()) return 0;
+    }
+    return 1;
+  }
+  if (rowIndex > 0) {
+    let previousStation = "";
+    for (let i = rowIndex - 1; i >= 0; i -= 1) {
+      previousStation = rows[i]?.[0]?.trim();
+      if (previousStation) break;
+    }
+    if (previousStation === station) return 0;
+  }
 
   let span = 1;
   for (let i = rowIndex + 1; i < rows.length; i += 1) {
-    if (rows[i]?.[0] !== station) break;
+    const nextStation = rows[i]?.[0]?.trim();
+    if (nextStation && nextStation !== station) break;
     span += 1;
   }
 
   return span;
+};
+
+const normalizeEquipmentRow = (row = []) => equipmentColumns.map((_, index) => row[index] || "");
+
+const parseEquipmentRows = (tableText) => {
+  const rows = parseTableText(tableText);
+  const body = rows[0]?.[0]?.toUpperCase() === equipmentColumns[0] ? rows.slice(1) : rows;
+  const normalizedRows = body.map(normalizeEquipmentRow).filter((row) => row.some((cell) => cell.trim()));
+
+  return normalizedRows.length > 0 ? normalizedRows : [normalizeEquipmentRow()];
+};
+
+const equipmentRowsToText = (rows) => [equipmentColumns, ...rows.map(normalizeEquipmentRow)].map((row) => row.join("\t")).join("\n");
+
+const EquipmentEditableTable = ({ tableText, onChange }) => {
+  const rows = parseEquipmentRows(tableText);
+
+  const updateCell = (rowIndex, cellIndex, value) => {
+    const nextRows = rows.map((row, index) => (index === rowIndex ? row.map((cell, colIndex) => (colIndex === cellIndex ? value : cell)) : row));
+    onChange(equipmentRowsToText(nextRows));
+  };
+
+  const addRow = () => {
+    const lastStation = [...rows].reverse().find((row) => row[0]?.trim())?.[0] || "Nueva estación";
+    onChange(equipmentRowsToText([...rows, [lastStation, "", "", "", ""]]));
+  };
+
+  const removeRow = (rowIndex) => {
+    const nextRows = rows.filter((_, index) => index !== rowIndex);
+    onChange(equipmentRowsToText(nextRows.length > 0 ? nextRows : [normalizeEquipmentRow()]));
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="overflow-x-auto rounded border border-slate-300">
+        <table className="w-full min-w-[920px] border-collapse bg-white text-xs text-slate-900">
+          <thead className="bg-slate-100 text-center font-bold uppercase">
+            <tr>
+              {equipmentColumns.map((column) => (
+                <th key={column} className="border border-slate-300 px-2 py-2">
+                  {column}
+                </th>
+              ))}
+              <th className="w-20 border border-slate-300 px-2 py-2">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, rowIndex) => (
+              <tr key={rowIndex} className="align-top">
+                <td className="w-[16%] border border-slate-300 p-1">
+                  <AutoTextarea rows={2} className="w-full resize-none rounded border border-slate-200 px-2 py-1 text-center font-semibold uppercase" value={row[0]} onChange={(e) => updateCell(rowIndex, 0, e.target.value)} />
+                </td>
+                <td className="w-[13%] border border-slate-300 p-1">
+                  <input className="w-full rounded border border-slate-200 px-2 py-1 text-center" value={row[1]} onChange={(e) => updateCell(rowIndex, 1, e.target.value)} />
+                </td>
+                <td className="w-[20%] border border-slate-300 p-1">
+                  <input className="w-full rounded border border-slate-200 px-2 py-1 text-center" value={row[2]} onChange={(e) => updateCell(rowIndex, 2, e.target.value)} />
+                </td>
+                <td className="w-[39%] border border-slate-300 p-1">
+                  <AutoTextarea rows={2} className="w-full resize-none rounded border border-slate-200 px-2 py-1 text-center" value={row[3]} onChange={(e) => updateCell(rowIndex, 3, e.target.value)} />
+                </td>
+                <td className="w-[8%] border border-slate-300 p-1">
+                  <input className="w-full rounded border border-slate-200 px-2 py-1 text-center" value={row[4]} onChange={(e) => updateCell(rowIndex, 4, e.target.value)} />
+                </td>
+                <td className="border border-slate-300 p-1 text-center">
+                  <button type="button" onClick={() => removeRow(rowIndex)} className="rounded bg-red-600 px-2 py-1 text-[11px] font-semibold text-white hover:bg-red-700">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <button type="button" onClick={addRow} className="rounded bg-slate-700 px-3 py-1 text-sm font-semibold text-white hover:bg-slate-800">
+        Agregar fila
+      </button>
+    </div>
+  );
 };
 
 const EquipmentSummaryPreview = ({ intro, tableText }) => {
@@ -249,8 +342,11 @@ export default function VisitaCampoForm() {
       <section className="space-y-3 rounded-xl border border-slate-300 bg-white p-4 shadow-sm">
         <h2 className="text-center text-sm font-semibold text-slate-900">Tabla resumen de equipos centrífugos</h2>
         <label className={labelClass}>Texto introductorio<AutoTextarea rows={3} className={inputClass} value={data.equiposIntro} onChange={(e) => set("equiposIntro", e.target.value)} /></label>
-        <label className={labelClass}>Datos de la tabla<AutoTextarea rows={12} className={`${inputClass} font-mono`} value={data.equiposTabla} onChange={(e) => set("equiposTabla", e.target.value)} /></label>
-        <p className="text-xs text-gray-500">Usa tabulaciones entre columnas. La primera línea es encabezado.</p>
+        <div className={labelClass}>
+          <span>Datos de la tabla</span>
+          <EquipmentEditableTable tableText={data.equiposTabla} onChange={(value) => set("equiposTabla", value)} />
+        </div>
+        <p className="text-xs text-gray-500">Para repetir la misma estación en varias filas, puedes escribirla solo en la primera fila del grupo.</p>
         <EquipmentSummaryPreview intro={data.equiposIntro} tableText={data.equiposTabla} />
       </section>
 
