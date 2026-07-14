@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import imageCompression from "browser-image-compression";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
+import { uploadRegistroImage } from "@/utils/storage";
 import { createEmptyVisitaCampoData } from "./visitaCampoData";
 import { listToText, parseTableText, textToList } from "./tableUtils";
 
 const inputClass = "w-full rounded border border-gray-300 px-3 py-2 text-sm";
 const labelClass = "space-y-1 text-xs font-semibold uppercase tracking-wide text-gray-500";
 const equipmentColumns = ["ESTACIÓN", "GRUPO DE BOMBA", "MODELO DE BOMBA", "SERIE", "TOTAL"];
+const repuestoColumns = ["Ítem", "Descripción", "Ref.", "N/P", "Código EPP", "Cant."];
 
 const AutoTextarea = ({ value, onChange, className = "", rows = 3, ...props }) => {
   const ref = useRef(null);
@@ -144,6 +147,87 @@ const EquipmentEditableTable = ({ tableText, onChange }) => {
   );
 };
 
+const normalizeRepuestoRow = (row = []) => repuestoColumns.map((_, index) => row[index] || "");
+
+const parseRepuestoRows = (tableText) => {
+  const rows = parseTableText(tableText);
+  const body = rows[0]?.[0]?.toLowerCase() === repuestoColumns[0].toLowerCase() ? rows.slice(1) : rows;
+  const normalizedRows = body.map(normalizeRepuestoRow).filter((row) => row.some((cell) => cell.trim()));
+
+  return normalizedRows.length > 0 ? normalizedRows : [normalizeRepuestoRow()];
+};
+
+const repuestoRowsToText = (rows) => [repuestoColumns, ...rows.map(normalizeRepuestoRow)].map((row) => row.join("\t")).join("\n");
+
+const RepuestoEditableTable = ({ tableText, onChange }) => {
+  const rows = parseRepuestoRows(tableText);
+
+  const updateCell = (rowIndex, cellIndex, value) => {
+    const nextRows = rows.map((row, index) => (index === rowIndex ? row.map((cell, colIndex) => (colIndex === cellIndex ? value : cell)) : row));
+    onChange(repuestoRowsToText(nextRows));
+  };
+
+  const addRow = () => {
+    onChange(repuestoRowsToText([...rows, normalizeRepuestoRow()]));
+  };
+
+  const removeRow = (rowIndex) => {
+    const nextRows = rows.filter((_, index) => index !== rowIndex);
+    onChange(repuestoRowsToText(nextRows.length > 0 ? nextRows : [normalizeRepuestoRow()]));
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="overflow-x-auto rounded border border-slate-300">
+        <table className="w-full min-w-[980px] border-collapse bg-white text-xs text-slate-900">
+          <thead className="bg-slate-100 text-center font-bold uppercase">
+            <tr>
+              {repuestoColumns.map((column) => (
+                <th key={column} className="border border-slate-300 px-2 py-2">
+                  {column}
+                </th>
+              ))}
+              <th className="w-20 border border-slate-300 px-2 py-2">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, rowIndex) => (
+              <tr key={rowIndex} className="align-top">
+                <td className="w-[8%] border border-slate-300 p-1">
+                  <input className="w-full rounded border border-slate-200 px-2 py-1 text-center" value={row[0]} onChange={(e) => updateCell(rowIndex, 0, e.target.value)} />
+                </td>
+                <td className="w-[31%] border border-slate-300 p-1">
+                  <AutoTextarea rows={2} className="w-full resize-none rounded border border-slate-200 px-2 py-1 font-semibold" value={row[1]} onChange={(e) => updateCell(rowIndex, 1, e.target.value)} />
+                </td>
+                <td className="w-[11%] border border-slate-300 p-1">
+                  <input className="w-full rounded border border-slate-200 px-2 py-1 text-center" value={row[2]} onChange={(e) => updateCell(rowIndex, 2, e.target.value)} />
+                </td>
+                <td className="w-[19%] border border-slate-300 p-1">
+                  <input className="w-full rounded border border-slate-200 px-2 py-1 text-center" value={row[3]} onChange={(e) => updateCell(rowIndex, 3, e.target.value)} />
+                </td>
+                <td className="w-[19%] border border-slate-300 p-1">
+                  <input className="w-full rounded border border-slate-200 px-2 py-1 text-center" value={row[4]} onChange={(e) => updateCell(rowIndex, 4, e.target.value)} />
+                </td>
+                <td className="w-[8%] border border-slate-300 p-1">
+                  <input className="w-full rounded border border-slate-200 px-2 py-1 text-center" value={row[5]} onChange={(e) => updateCell(rowIndex, 5, e.target.value)} />
+                </td>
+                <td className="border border-slate-300 p-1 text-center">
+                  <button type="button" onClick={() => removeRow(rowIndex)} className="rounded bg-red-600 px-2 py-1 text-[11px] font-semibold text-white hover:bg-red-700">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <button type="button" onClick={addRow} className="rounded bg-slate-700 px-3 py-1 text-sm font-semibold text-white hover:bg-slate-800">
+        Agregar fila
+      </button>
+    </div>
+  );
+};
+
 const EquipmentSummaryPreview = ({ intro, tableText }) => {
   const rows = parseTableText(tableText);
   const header = rows[0] || [];
@@ -219,6 +303,7 @@ export default function VisitaCampoForm() {
   const [data, setData] = useState(createEmptyVisitaCampoData());
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
+  const [uploadingRepuesto, setUploadingRepuesto] = useState(null);
 
   useEffect(() => {
     if (!id) return;
@@ -264,12 +349,34 @@ export default function VisitaCampoForm() {
   const addRepuesto = () => {
     setData((prev) => ({
       ...prev,
-      repuestos: [...prev.repuestos, { titulo: "Nuevo grupo", caption: "", rows: "Ítem\tDescripción\tRef.\tN/P\tCódigo EPP\tCant." }],
+      repuestos: [...prev.repuestos, { titulo: "Nuevo grupo", caption: "", rows: repuestoRowsToText([normalizeRepuestoRow()]), esquema: "" }],
     }));
   };
 
   const removeRepuesto = (index) => {
     setData((prev) => ({ ...prev, repuestos: prev.repuestos.filter((_, itemIndex) => itemIndex !== index) }));
+  };
+
+  const uploadRepuestoImage = async (index, files) => {
+    const file = Array.from(files || []).find((item) => item.type?.startsWith("image/") || /\.(heic|heif)$/i.test(item.name || ""));
+    if (!file) return;
+
+    setUploadingRepuesto(index);
+    try {
+      const isHeic = /\.(heic|heif)$/i.test(file.name || "") || /heic|heif/i.test(file.type || "");
+      const fileToUpload = isHeic
+        ? file
+        : await imageCompression(file, {
+            maxSizeMB: 0.5,
+            maxWidthOrHeight: 1600,
+            useWebWorker: true,
+            initialQuality: 0.78,
+          });
+      const url = await uploadRegistroImage(fileToUpload, id || "visita-campo-temp", `repuesto-esquema-${index + 1}`);
+      if (url) updateRepuesto(index, "esquema", url);
+    } finally {
+      setUploadingRepuesto(null);
+    }
   };
 
   const save = async (estado = "borrador") => {
@@ -378,7 +485,46 @@ export default function VisitaCampoForm() {
               <button type="button" onClick={() => removeRepuesto(index)} className="rounded bg-red-600 px-3 text-sm text-white">Eliminar</button>
             </div>
             <input className={inputClass} value={grupo.caption} onChange={(e) => updateRepuesto(index, "caption", e.target.value)} />
-            <AutoTextarea rows={7} className={`${inputClass} font-mono`} value={grupo.rows} onChange={(e) => updateRepuesto(index, "rows", e.target.value)} />
+            <RepuestoEditableTable tableText={grupo.rows} onChange={(value) => updateRepuesto(index, "rows", value)} />
+            <div className="rounded border border-slate-300 bg-white p-3">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Esquema / imagen de referencia</div>
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  id={`repuesto-esquema-galeria-${index}`}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(event) => {
+                    uploadRepuestoImage(index, event.target.files);
+                    event.target.value = "";
+                  }}
+                />
+                <input
+                  id={`repuesto-esquema-camara-${index}`}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(event) => {
+                    uploadRepuestoImage(index, event.target.files);
+                    event.target.value = "";
+                  }}
+                />
+                <label htmlFor={`repuesto-esquema-camara-${index}`} className="cursor-pointer rounded border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100">
+                  Cámara
+                </label>
+                <label htmlFor={`repuesto-esquema-galeria-${index}`} className="cursor-pointer rounded border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">
+                  Imagen
+                </label>
+                {uploadingRepuesto === index && <span className="text-xs text-slate-500">Subiendo imagen...</span>}
+                {grupo.esquema && (
+                  <button type="button" onClick={() => updateRepuesto(index, "esquema", "")} className="rounded bg-red-600 px-3 py-1 text-xs font-semibold text-white hover:bg-red-700">
+                    Quitar imagen
+                  </button>
+                )}
+              </div>
+              {grupo.esquema && <img src={grupo.esquema} alt={`Esquema ${grupo.titulo}`} className="mt-3 max-h-72 w-full rounded border object-contain" />}
+            </div>
           </div>
         ))}
       </section>

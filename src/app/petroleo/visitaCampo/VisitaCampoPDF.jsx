@@ -173,6 +173,39 @@ function PartsIntroBox({ text }) {
   );
 }
 
+function RepuestoTable({ text }) {
+  const rows = parseTableText(text);
+  if (rows.length === 0) return null;
+
+  const widths = ["7%", "35%", "11%", "19%", "20%", "8%"];
+
+  return (
+    <table style={{ ...S.table, marginTop: 6 }}>
+      <tbody>
+        {rows.map((row, rowIndex) => (
+          <tr key={`${rowIndex}-${row.join("-")}`}>
+            {row.map((cell, cellIndex) => (
+              <td
+                key={cellIndex}
+                style={{
+                  ...(rowIndex === 0 ? S.headerCell : S.cell),
+                  width: widths[cellIndex],
+                  padding: 3,
+                  fontSize: 9,
+                  textAlign: cellIndex === 1 ? "left" : "center",
+                  verticalAlign: "middle",
+                }}
+              >
+                {cell || " "}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
 function BulletList({ items }) {
   return (
     <ul style={{ margin: "8px 0 0 18px", padding: 0 }}>
@@ -262,8 +295,13 @@ export default function VisitaCampoPDF({ allowDownload = true }) {
           <div key={index} style={{ breakInside: "avoid", pageBreakInside: "avoid", marginTop: 12 }}>
             <Header data={data} />
             <h3 style={{ margin: "10px 0 6px", fontSize: 13 }}>{grupo.titulo}</h3>
-            <RenderTable text={grupo.rows} />
+            <RepuestoTable text={grupo.rows} />
             {grupo.caption && <p style={{ textAlign: "center", fontSize: 10, fontStyle: "italic" }}>{grupo.caption}</p>}
+            {grupo.esquema && (
+              <div style={{ marginTop: 8, textAlign: "center" }}>
+                <img src={grupo.esquema} alt={`Esquema ${grupo.titulo}`} style={{ maxWidth: "100%", maxHeight: 430, objectFit: "contain" }} />
+              </div>
+            )}
           </div>
         ))}
 

@@ -51,24 +51,28 @@ export const defaultVisitaCampoData = {
       caption: "Tabla 1: Repuestos recomendados para bomba Durco MK3 - Grupo 1.",
       rows:
         "Ítem\tDescripción\tRef.\tN/P\tCódigo EPP\tCant.\n1\tIMPELLER 1K 3X2-62 RV\t2200\tMY50729A62-CD4M\t0000088990-1\t1\n5\tGASKET IMPELLER GP1K\t4590.2\tAY51803A-TFR\t0000088992-1\t3\n6\tSHAFT GP1K SOLID\t2100\tCY50682AA-316\tN/D\t3\n8\tBEARING IB 1K OIL\t3011\tAY50719A-SR\t0000015395-1\t3",
+      esquema: "",
     },
     {
       titulo: "Durco Grupo 2",
       caption: "Tabla 2: Repuestos recomendados para bomba Durco MK3 - Grupo 2.",
       rows:
         "Ítem\tDescripción\tRef.\tN/P\tCódigo EPP\tCant.\n1\tIMPELLER 2K3X2-82 RV\t2200\tMY53316A82\t\t1\n2\tIMPELLER 2K3X2-10A RV\t2200\tMY53320A100\t\t2\n8\tGASKET IMPELLER GP2 STD\t4590.2\tSA3210AA00-TFR\t0000073835-1\t4\n11\tBEARING IB GP2/2K/2V OIL\t3011\tY21963A-SR\t0000015417-1\t3",
+      esquema: "",
     },
     {
       titulo: "Bomba 3GT",
       caption: "Tabla 4: Repuestos recomendados para bomba Flowserve modelo 3GT.",
       rows:
         "Ítem\tDescripción\tRef.\tN/P\tCódigo EPP\tCant.\n1\tIMPELLER 10.75MD 1ST STG\t3A\t60178605\tPor catalogar\t1\n5\tPUMP SHAFT\t10\t60043338\tPor catalogar\t1\n21\tBRG DUPLEX PAIR\t-\t95215380\tPor catalogar\t1",
+      esquema: "",
     },
     {
       titulo: "Bomba DVS",
       caption: "Tabla 6: Repuestos recomendados para bomba United Pump modelo DVS.",
       rows:
         "Ítem\tDescripción\tRef.\tN/P\tCódigo EPP\tCant.\n1\tKEY IMPELLER\t10A\t-\tPor catalogar\t1\n4\tINTERMEDIATE SHAFT SLEEVES\t9\t-\tPor catalogar\t2\n17\tBEARING BALL THRUST\t31A\tFRVB7310BECBM\tPor catalogar\t2",
+      esquema: "",
     },
   ],
   intervalosTabla:
