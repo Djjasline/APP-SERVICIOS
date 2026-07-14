@@ -6,7 +6,6 @@ import { getUnreadAppUpdatesCount } from "@/services/appUpdatesService";
 import { getUnreadMessageCounts } from "@/services/chatService";
 import { supabase } from "@/lib/supabase";
 import {
-  LayoutDashboard,
   Truck,
   Droplet,
   Factory,
@@ -190,16 +189,16 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
     ${
       active
         ? isLight
-          ? "bg-blue-50 text-blue-900"
-          : "bg-white/20 text-white"
+          ? "bg-emerald-50 text-emerald-900"
+          : "bg-emerald-400/20 text-emerald-50"
         : isLight
-        ? "text-slate-600 hover:bg-blue-50 hover:text-blue-900"
-        : "text-white/80 hover:bg-white/10 hover:text-white"
+        ? "text-slate-600 hover:bg-emerald-50 hover:text-emerald-900"
+        : "text-white/80 hover:bg-emerald-400/10 hover:text-emerald-50"
     }
   `;
 
   const iconClass = `
-    ${isLight ? "text-slate-500 group-hover:text-blue-900" : "text-white/80 group-hover:text-white"} transition-all duration-300
+    ${isLight ? "text-slate-500 group-hover:text-emerald-900" : "text-white/80 group-hover:text-emerald-50"} transition-all duration-300
   `;
 
   const tooltip = (label) =>
@@ -219,11 +218,11 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
     `block w-full text-left text-xs px-2 py-1 rounded transition ${
       isActive(path)
         ? isLight
-          ? "bg-blue-50 text-blue-900 border-l-2 border-blue-700 pl-3"
-          : "bg-white/20 text-white border-l-2 border-white pl-3"
+          ? "bg-emerald-50 text-emerald-900 border-l-2 border-emerald-500 pl-3"
+          : "bg-emerald-400/20 text-emerald-50 border-l-2 border-emerald-300 pl-3"
         : isLight
-        ? "text-slate-500 hover:text-blue-900 hover:bg-blue-50"
-        : "text-white/70 hover:text-white hover:bg-white/10"
+        ? "text-slate-500 hover:text-emerald-900 hover:bg-emerald-50"
+        : "text-white/70 hover:text-emerald-50 hover:bg-emerald-400/10"
     }`;
 
   const go = (path) => {
@@ -243,7 +242,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       `}
     >
       {/* LOGO */}
-      <div className={`p-4 flex items-center gap-3 border-b cursor-pointer ${isLight ? "border-slate-200 hover:bg-blue-50" : "border-white/10 hover:bg-white/10"}`}>
+      <div className={`p-4 flex items-center gap-3 border-b cursor-pointer ${isLight ? "border-slate-200 hover:bg-emerald-50" : "border-white/10 hover:bg-emerald-400/10"}`}>
         <button
           type="button"
           onClick={() => setOpenSidebar(!openSidebar)}
@@ -261,25 +260,12 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
       {/* CONTENIDO */}
       <div className="flex-1 p-3 space-y-2 text-sm overflow-y-auto">
-        {/* DASHBOARD */}
-        {puedeVerTodo && (
-          <button
-            type="button"
-            onClick={() => go("/")}
-            className={itemClass(isActive("/"))}
-            aria-current={isActive("/") ? "page" : undefined}
-          >
-            <LayoutDashboard size={20} className={iconClass} />
-            {openSidebar && "Panel de servicios ASTAP"}
-            {tooltip("Panel de servicios ASTAP")}
-          </button>
-        )}
         {/* VEHÍCULOS */}
         <div>
           <button
             type="button"
             onClick={() => {
-              openOnly(openVehiculos ? null : "vehiculos");
+              openOnly("vehiculos");
             }}
             className={itemClass(isActive(["/vehiculos", "/area/vehiculos", "/informe", "/inspeccion", "/mantenimiento", "/protocolos", "/configurador"]))}
             aria-expanded={openVehiculos}
@@ -296,14 +282,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               id="panel-vehiculos"
               className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
             >
-              <button
-                type="button"
-                onClick={() => go("/area/vehiculos")}
-                className={subItemClass("/area/vehiculos")}
-              >
-                Panel
-              </button>
-
               <button
                 type="button"
                 onClick={() => go("/vehiculos/informe")}
@@ -358,7 +336,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             <button
               type="button"
               onClick={() => {
-                openOnly(openAgua ? null : "agua");
+                openOnly("agua");
               }}
               className={itemClass(isActive("/agua"))}
               aria-expanded={openAgua}
@@ -375,14 +353,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 id="panel-agua"
                 className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
               >
-                <button
-                  type="button"
-                  onClick={() => go("/area/agua")}
-                  className={subItemClass("/area/agua")}
-                >
-                  Panel
-                </button>
-
                 <button
                   type="button"
                   onClick={() => go("/agua/informe/bomba")}
@@ -417,7 +387,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             <button
               type="button"
               onClick={() => {
-                openOnly(openIndustria ? null : "industria");
+                openOnly("industria");
               }}
               className={itemClass(isActive("/industria"))}
               aria-expanded={openIndustria}
@@ -434,14 +404,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 id="panel-industria"
                 className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
               >
-                <button
-                  type="button"
-                  onClick={() => go("/area/industria")}
-                  className={subItemClass("/area/industria")}
-                >
-                  Panel
-                </button>
-
                 <button
                   type="button"
                   onClick={() => go("/industria/informe/bomba")}
@@ -468,7 +430,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             <button
               type="button"
               onClick={() => {
-                openOnly(openPetroleo ? null : "petroleo");
+                openOnly("petroleo");
               }}
               className={itemClass(isActive("/petroleo"))}
               aria-expanded={openPetroleo}
@@ -485,14 +447,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 id="panel-petroleo"
                 className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
               >
-                <button
-                  type="button"
-                  onClick={() => go("/area/petroleo")}
-                  className={subItemClass("/area/petroleo")}
-                >
-                  Panel
-                </button>
-
                 <button
                   type="button"
                   onClick={() => go("/petroleo/informe/bomba")}
@@ -527,7 +481,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             <button
               type="button"
               onClick={() => {
-                openOnly(openOperaciones ? null : "operaciones");
+                openOnly("operaciones");
               }}
               className={itemClass(isActive("/operaciones"))}
               aria-expanded={openOperaciones}
@@ -545,14 +499,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 id="panel-operaciones"
                 className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
               >
-                <button
-                  type="button"
-                  onClick={() => go("/operaciones")}
-                  className={subItemClass("/operaciones")}
-                >
-                  Panel
-                </button>
-
                 <button
                   type="button"
                   onClick={() => go("/operaciones/registro")}
@@ -587,7 +533,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             <button
               type="button"
               onClick={() => {
-                openOnly(openRepositorios ? null : "repositorios");
+                openOnly("repositorios");
               }}
               className={itemClass(isActive("/repositorios"))}
               aria-expanded={openRepositorios}
@@ -655,20 +601,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
             {openSidebar && openRepositorios && (
               <>
-                <div
-                  id="panel-repos"
-                  className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3"
-                >
-                  <button
-                    type="button"
-                    onClick={() => go("/repositorios")}
-                    className={subItemClass("/repositorios")}
-                  >
-                    Panel
-                  </button>
-                </div>
-
-                <div className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
+                <div id="panel-repos" className="ml-6 mt-2 space-y-1 border-l border-white/10 pl-3">
                   <button
                     type="button"
                     onClick={() => go("/repositorios/manuales-tecnicos")}
