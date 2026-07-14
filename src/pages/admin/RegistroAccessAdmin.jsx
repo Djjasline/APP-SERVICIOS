@@ -54,7 +54,7 @@ const TIPOS = [
 const emptyForm = {
   grantee_user_id: "",
   owner_user_id: "",
-  area: "vehiculos",
+  area: "todos",
   tipo: "todos",
   can_view: true,
   can_edit: false,
@@ -150,6 +150,14 @@ export default function RegistroAccessAdmin() {
   const handleChange = (field, value) => {
     setMessage("");
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSpecificScopeChange = (field, checked, fallbackValue) => {
+    setMessage("");
+    setForm((prev) => ({
+      ...prev,
+      [field]: checked ? fallbackValue : "todos",
+    }));
   };
 
   const handleNotificationChange = (field, value) => {
@@ -368,12 +376,22 @@ export default function RegistroAccessAdmin() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <label className="space-y-1 text-sm">
-            <span className="font-medium">Área</span>
+          <div className="space-y-2 text-sm">
+            <label className="inline-flex items-center gap-2 font-medium">
+              <input
+                type="checkbox"
+                checked={form.area !== "todos"}
+                onChange={(event) => handleSpecificScopeChange("area", event.target.checked, "vehiculos")}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              Área específica
+            </label>
+
             <select
               value={form.area}
               onChange={(event) => handleChange("area", event.target.value)}
-              className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
+              disabled={form.area === "todos"}
+              className={`w-full rounded-lg border px-3 py-2 text-sm disabled:opacity-60 ${inputClass}`}
             >
               {AREAS.map((area) => (
                 <option key={area.value} value={area.value}>
@@ -381,14 +399,29 @@ export default function RegistroAccessAdmin() {
                 </option>
               ))}
             </select>
-          </label>
+            {form.area === "todos" && (
+              <p className={isLight ? "text-xs text-slate-500" : "text-xs text-white/60"}>
+                Sin marcar: aplica a todas las áreas.
+              </p>
+            )}
+          </div>
 
-          <label className="space-y-1 text-sm">
-            <span className="font-medium">Formato</span>
+          <div className="space-y-2 text-sm">
+            <label className="inline-flex items-center gap-2 font-medium">
+              <input
+                type="checkbox"
+                checked={form.tipo !== "todos"}
+                onChange={(event) => handleSpecificScopeChange("tipo", event.target.checked, "informe")}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              Formato específico
+            </label>
+
             <select
               value={form.tipo}
               onChange={(event) => handleChange("tipo", event.target.value)}
-              className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
+              disabled={form.tipo === "todos"}
+              className={`w-full rounded-lg border px-3 py-2 text-sm disabled:opacity-60 ${inputClass}`}
             >
               {TIPOS.map((tipo) => (
                 <option key={tipo.value} value={tipo.value}>
@@ -396,7 +429,12 @@ export default function RegistroAccessAdmin() {
                 </option>
               ))}
             </select>
-          </label>
+            {form.tipo === "todos" && (
+              <p className={isLight ? "text-xs text-slate-500" : "text-xs text-white/60"}>
+                Sin marcar: aplica a todos los formatos.
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-4 text-sm">
