@@ -390,11 +390,14 @@ const IntervalosBox = ({ intro, tableText, note, onIntroChange, onTableChange, o
 
 const SignatureField = ({ label, value, onChange, signature, onSignatureChange }) => {
   const signatureRef = useRef(null);
+  const loadedSignatureRef = useRef("");
 
   useEffect(() => {
     if (!signatureRef.current) return;
+    if ((signature || "") === loadedSignatureRef.current) return;
     signatureRef.current.clear();
     if (signature) signatureRef.current.fromDataURL(signature);
+    loadedSignatureRef.current = signature || "";
   }, [signature]);
 
   const handleBegin = () => {
@@ -405,11 +408,14 @@ const SignatureField = ({ label, value, onChange, signature, onSignatureChange }
   const handleEnd = () => {
     document.body.style.overflow = "";
     if (!signatureRef.current || signatureRef.current.isEmpty()) return;
-    onSignatureChange(signatureRef.current.toDataURL("image/png"));
+    const dataUrl = signatureRef.current.toDataURL("image/png");
+    loadedSignatureRef.current = dataUrl;
+    onSignatureChange(dataUrl);
   };
 
   const clearSignature = () => {
     signatureRef.current?.clear();
+    loadedSignatureRef.current = "";
     onSignatureChange("");
   };
 
