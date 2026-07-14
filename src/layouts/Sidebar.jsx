@@ -266,6 +266,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             type="button"
             onClick={() => {
               openOnly("vehiculos");
+              go("/area/vehiculos");
             }}
             className={itemClass(isActive(["/vehiculos", "/area/vehiculos", "/informe", "/inspeccion", "/mantenimiento", "/protocolos", "/configurador"]))}
             aria-expanded={openVehiculos}
@@ -337,6 +338,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               type="button"
               onClick={() => {
                 openOnly("agua");
+                go("/area/agua");
               }}
               className={itemClass(isActive("/agua"))}
               aria-expanded={openAgua}
@@ -388,6 +390,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               type="button"
               onClick={() => {
                 openOnly("industria");
+                go("/area/industria");
               }}
               className={itemClass(isActive("/industria"))}
               aria-expanded={openIndustria}
@@ -431,6 +434,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               type="button"
               onClick={() => {
                 openOnly("petroleo");
+                go("/area/petroleo");
               }}
               className={itemClass(isActive("/petroleo"))}
               aria-expanded={openPetroleo}
@@ -482,6 +486,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               type="button"
               onClick={() => {
                 openOnly("operaciones");
+                go("/operaciones");
               }}
               className={itemClass(isActive("/operaciones"))}
               aria-expanded={openOperaciones}
@@ -534,6 +539,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               type="button"
               onClick={() => {
                 openOnly("repositorios");
+                go("/repositorios");
               }}
               className={itemClass(isActive("/repositorios"))}
               aria-expanded={openRepositorios}
