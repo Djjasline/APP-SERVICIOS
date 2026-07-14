@@ -681,6 +681,56 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
             )}
           </div>
         )}
+
+        {openSidebar && (
+          <div className="mt-4 rounded-2xl border border-white/20 bg-white p-3 text-slate-800 shadow-lg">
+            <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+              <img
+                src="/astap-logo.jpg"
+                alt="ASTAP"
+                className="h-9 w-9 rounded-lg object-contain shadow-sm"
+              />
+              <div className="min-w-0">
+                <p className="truncate text-[11px] font-bold leading-tight text-slate-900">
+                  ASTAP CIA. LTDA.
+                </p>
+                <p className="text-[10px] leading-tight text-slate-500">
+                  Servicios técnicos especializados
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-3 flex gap-3">
+              <a
+                href="https://www.astap.com"
+                target="_blank"
+                rel="noreferrer"
+                className="relative shrink-0 rounded-lg bg-white p-1 shadow"
+                aria-label="Abrir sitio web ASTAP"
+              >
+                <img
+                  src="/astap-qr.svg"
+                  alt="Código QR del sitio web ASTAP"
+                  className="h-20 w-20"
+                />
+                <span className="absolute left-1/2 top-1/2 flex h-5 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow">
+                  <img src="/astap-logo.jpg" alt="" className="h-4 w-4 rounded-full object-contain" />
+                </span>
+              </a>
+
+              <address className="not-italic text-[10px] leading-4 text-slate-600">
+                <strong className="block text-[11px] text-slate-900">Contacto ASTAP</strong>
+                Naciones Unidas 1084 y Amazonas<br />
+                Quito, Ecuador<br />
+                Cel: 099 851 1717<br />
+                Teléfono: 02-22262154<br />
+                <a href="https://www.astap.com" target="_blank" rel="noreferrer" className="font-semibold text-red-600 hover:underline">
+                  www.astap.com
+                </a>
+              </address>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* FOOTER */}
