@@ -56,6 +56,26 @@ function playNotificationSound() {
   }
 }
 
+async function forceAppReload() {
+  try {
+    if ("serviceWorker" in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.update()));
+    }
+
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    }
+  } catch (error) {
+    console.warn("No se pudo limpiar caché antes de recargar:", error);
+  } finally {
+    const url = new URL(window.location.href);
+    url.searchParams.set("reload", Date.now().toString());
+    window.location.replace(url.toString());
+  }
+}
+
 export default function MainLayout() {
   const [openSidebar, setOpenSidebar] = useState(true);
   const [openMenu, setOpenMenu] = useState(false);
@@ -363,6 +383,14 @@ export default function MainLayout() {
                 ASTAP
               </span>
             </div>
+            <button
+              type="button"
+              onClick={forceAppReload}
+              className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-red-700 active:scale-95"
+              title="Recargar la aplicación"
+            >
+              Recargar
+            </button>
           </div>
 
           {/* ================= AREA DERECHA: NOTIFICACIONES + USUARIO ================= */}
