@@ -6,6 +6,7 @@ import { getUnreadAppUpdatesCount } from "@/services/appUpdatesService";
 import { getUnreadMessageCounts } from "@/services/chatService";
 import { supabase } from "@/lib/supabase";
 import {
+  LayoutDashboard,
   Truck,
   Droplet,
   Factory,
@@ -260,6 +261,19 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
       {/* CONTENIDO */}
       <div className="flex-1 p-3 space-y-2 text-sm overflow-y-auto">
+        {puedeVerTodo && (
+          <button
+            type="button"
+            onClick={() => go("/")}
+            className={itemClass(isActive("/"))}
+            aria-current={isActive("/") ? "page" : undefined}
+          >
+            <LayoutDashboard size={20} className={iconClass} />
+            {openSidebar && "Menú principal"}
+            {tooltip("Menú principal")}
+          </button>
+        )}
+
         {/* VEHÍCULOS */}
         <div>
           <button
