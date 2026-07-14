@@ -11,7 +11,7 @@ const S = {
     width: "210mm",
     minHeight: "297mm",
     margin: "0 auto",
-    padding: "12mm",
+    padding: "10mm",
     background: "#fff",
     color: "#111",
     fontFamily: "Arial, Helvetica, sans-serif",
@@ -25,21 +25,20 @@ const S = {
 
 function Header({ data }) {
   return (
-    <table style={{ ...S.table, marginBottom: 10 }}>
+    <table style={{ ...S.table, marginBottom: 8 }}>
       <tbody>
         <tr>
-          <td rowSpan={3} style={{ ...S.cell, width: "22%", textAlign: "center" }}>
-            <img src="/astap-logo.jpg" alt="ASTAP" style={{ width: 76, maxHeight: 58, objectFit: "contain" }} />
+          <td rowSpan={3} style={{ ...S.cell, width: "24%", textAlign: "center", verticalAlign: "middle" }}>
+            <img src="/astap-logo.jpg" alt="ASTAP" style={{ width: 88, maxHeight: 66, objectFit: "contain" }} />
           </td>
-          <td rowSpan={3} style={{ ...S.cell, width: "46%", textAlign: "center", fontWeight: 700 }}>
-            <div>ASTAP CIA. LTDA.</div>
-            <div style={{ fontStyle: "italic", marginTop: 4 }}>{data.titulo || "Informe técnico de visita en campo"}</div>
+          <td rowSpan={3} style={{ ...S.cell, width: "46%", textAlign: "center", fontWeight: 700, verticalAlign: "middle" }}>
+            <div style={{ fontSize: 13 }}>ASTAP CIA. LTDA.</div>
+            <div style={{ fontStyle: "italic", marginTop: 4, fontSize: 12 }}>{data.titulo || "Informe técnico de visita en campo"}</div>
           </td>
-          <td style={{ ...S.cell, width: "16%", fontWeight: 700, textAlign: "right" }}>{data.codigoDocumento || "-"}</td>
-          <td style={{ ...S.cell, width: "16%" }} />
+          <td colSpan={2} style={{ ...S.cell, width: "30%", fontWeight: 700, textAlign: "center", fontSize: 13 }}>{data.codigoDocumento || "-"}</td>
         </tr>
         <tr>
-          <td style={{ ...S.cell, fontWeight: 700, textAlign: "right" }}>No. Revisión</td>
+          <td style={{ ...S.cell, width: "15%", fontWeight: 700, textAlign: "right" }}>No. Revisión</td>
           <td style={S.cell}>{data.revision || "-"}</td>
         </tr>
         <tr>
@@ -51,8 +50,31 @@ function Header({ data }) {
   );
 }
 
+function ClientInfoTable({ data }) {
+  return (
+    <table style={{ ...S.table, marginBottom: 0 }}>
+      <tbody>
+        <tr>
+          <td style={{ ...S.headerCell, width: "18%" }}>CLIENTE:</td>
+          <td style={{ ...S.cell, width: "34%" }}>{data.cliente}</td>
+          <td style={{ ...S.headerCell, width: "18%" }}>MODELOS:</td>
+          <td style={{ ...S.cell, width: "30%" }}>{data.modelos}</td>
+        </tr>
+        <tr>
+          <td style={S.headerCell}>UBICACIÓN:</td>
+          <td colSpan={3} style={S.cell}>{data.ubicacion}</td>
+        </tr>
+        <tr>
+          <td style={S.headerCell}>MARCA:</td>
+          <td colSpan={3} style={S.cell}>{data.marca}</td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
 function SectionTitle({ children }) {
-  return <div style={{ border: "1px solid #111", padding: 4, fontWeight: 700, textAlign: "center", background: "#eee", marginTop: 8 }}>{children}</div>;
+  return <div style={{ border: "1px solid #111", padding: 4, fontWeight: 700, textAlign: "center", background: "#eee", marginTop: 0 }}>{children}</div>;
 }
 
 function TextBlock({ children }) {
@@ -194,6 +216,7 @@ function RepuestoTable({ text }) {
                   fontSize: 9,
                   textAlign: cellIndex === 1 ? "left" : "center",
                   verticalAlign: "middle",
+                  fontWeight: rowIndex === 0 ? 700 : 500,
                 }}
               >
                 {cell || " "}
@@ -271,8 +294,8 @@ function SignatureBlock({ data }) {
         </tr>
         <tr>
           {signatures.map(([label, , signature]) => (
-            <td key={`${label}-firma`} style={{ ...S.cell, height: 78, textAlign: "center", verticalAlign: "middle" }}>
-              {signature && <img src={signature} alt={`Firma ${label}`} style={{ maxWidth: "95%", maxHeight: 70, objectFit: "contain" }} />}
+            <td key={`${label}-firma`} style={{ ...S.cell, height: 78, textAlign: "center", verticalAlign: "middle", padding: 0 }}>
+              {signature && <img src={signature} alt={`Firma ${label}`} style={{ maxWidth: "95%", maxHeight: 76, objectFit: "contain" }} />}
             </td>
           ))}
         </tr>
@@ -338,13 +361,7 @@ export default function VisitaCampoPDF({ allowDownload = true }) {
 
       <div id="visita-campo-pdf" style={S.page}>
         <Header data={data} />
-
-        <table style={S.table}>
-          <tbody>
-            <tr><td style={{ ...S.headerCell, width: "18%" }}>CLIENTE:</td><td style={S.cell}>{data.cliente}</td><td style={{ ...S.headerCell, width: "18%" }}>MODELOS:</td><td style={S.cell}>{data.modelos}</td></tr>
-            <tr><td style={S.headerCell}>UBICACIÓN:</td><td style={S.cell}>{data.ubicacion}</td><td style={S.headerCell}>MARCA:</td><td style={S.cell}>{data.marca}</td></tr>
-          </tbody>
-        </table>
+        <ClientInfoTable data={data} />
 
         <SectionTitle>Antecedentes</SectionTitle>
         <TextBlock>{data.antecedentes}</TextBlock>
