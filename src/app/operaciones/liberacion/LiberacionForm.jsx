@@ -218,7 +218,7 @@ pendientes.push({
             <img src="/astap-logo.jpg" className="w-14 mr-4" />
             <div className="flex-1 text-center">
               <h1 className="font-bold text-sm">
-                FORMATO PARA INSPECCIÓN CAMIONETAS
+                AUTORIZACIÓN DE USO DE VEHÍCULO PARA REFINERÍA
               </h1>
               <p className="text-xs">Vehículo liviano menor a 4500kg</p>
             </div>

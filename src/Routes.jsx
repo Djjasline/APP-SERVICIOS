@@ -305,6 +305,7 @@ export default function RoutesApp() {
 
             <Route path="/operaciones/liberacion" element={<TechRoute><LiberacionHome /></TechRoute>} />
             <Route path="/operaciones/liberacion/nuevo" element={<TechRoute><LiberacionForm /></TechRoute>} />
+            <Route path="/operaciones/liberacion/pdf/:id" element={<TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/liberacion"><LiberacionDetalle pdfMode /></RecordPermissionRoute></TechRoute>} />
             <Route path="/operaciones/liberacion/:id" element={<TechRoute><LiberacionDetalle /></TechRoute>} />
 
             <Route path="/operaciones/recepcion" element={<TechRoute><RecepcionHome /></TechRoute>} />

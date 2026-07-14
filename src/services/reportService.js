@@ -106,7 +106,7 @@ function getNombreFormulario(tipo) {
     case "recepcion":
       return "Bitácora y control vehicular";
     case "liberacion":
-      return "Liberación";
+      return "Autorización de uso de vehículo para refinería";
     default:
       return "Formulario";
   }

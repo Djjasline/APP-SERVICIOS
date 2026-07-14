@@ -47,7 +47,7 @@ const TIPOS = [
   { value: "protocolo:camara-vcam6", label: "Protocolo - Cámara V-Cam6" },
   { value: "registro", label: "Registro de herramientas" },
   { value: "recepcion", label: "Bitácora y control vehicular" },
-  { value: "liberacion", label: "Liberación" },
+  { value: "liberacion", label: "Autorización de uso de vehículo para refinería" },
   { value: "visita_campo", label: "Visita de campo" },
 ];
 

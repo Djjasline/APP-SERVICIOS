@@ -69,7 +69,7 @@ export default function PanelServicios() {
       id: "operaciones",
       titulo: "Operaciones",
       descripcion:
-        "Control operativo de recepción, herramientas y liberación.",
+        "Control operativo de recepción, herramientas y autorización vehicular.",
       icon: <Settings size={28} />,
       color: "bg-gray-800",
       ruta: "/operaciones",

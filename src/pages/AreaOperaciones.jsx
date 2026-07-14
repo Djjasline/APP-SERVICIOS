@@ -23,8 +23,8 @@ export default function AreaOperaciones() {
     ruta: "/operaciones/registro",
   },
   {
-    titulo: "Liberación",
-    descripcion: "Liberación y cierre de equipos, vehículos y maquinaria.",
+    titulo: "Autorización de uso de vehículo para refinería",
+    descripcion: "Control de autorización e inspección para uso de vehículos en refinería.",
     icono: <Inbox size={20} />,
     color: "bg-green-600",
     ruta: "/operaciones/liberacion",

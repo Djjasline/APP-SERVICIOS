@@ -53,7 +53,7 @@ export default function LiberacionHome() {
   const open = (r) => navigate(`/operaciones/liberacion/${r.id}`);
 
   const remove = async (id) => {
-    if (!confirm("¿Eliminar liberación?")) return;
+    if (!confirm("¿Eliminar esta autorización?")) return;
 
    await supabase
   .from("registros")
@@ -69,14 +69,14 @@ export default function LiberacionHome() {
       return;
     }
 
-    if (!confirm("¿Duplicar esta liberación como borrador?")) return;
+    if (!confirm("¿Duplicar esta autorización como borrador?")) return;
 
     try {
       const duplicated = await duplicateRecordAsDraft(record, user);
       navigate(`/operaciones/liberacion/${duplicated.id}`);
     } catch (error) {
-      console.error("Error duplicando liberación:", error);
-      alert("No se pudo duplicar la liberación.");
+      console.error("Error duplicando autorización:", error);
+      alert("No se pudo duplicar la autorización.");
     }
   };
 
@@ -87,7 +87,7 @@ export default function LiberacionHome() {
       {/* HEADER */}
 <div className="flex flex-wrap justify-between items-center gap-3">
   <h1 className="text-lg font-semibold text-gray-900">
-    Historial de liberaciones
+    Historial de autorizaciones de uso de vehículo para refinería
   </h1>
 
   <div className="flex gap-2">
@@ -104,7 +104,7 @@ export default function LiberacionHome() {
       onClick={() => navigate("/operaciones/liberacion/nuevo")}
       className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
     >
-      + Nueva liberación
+      + Nueva autorización
     </button>
   </div>
 </div>
@@ -175,7 +175,7 @@ export default function LiberacionHome() {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan="5" className="text-center py-6 text-gray-500">
-                  No hay liberaciones registradas
+                  No hay autorizaciones registradas
                 </td>
               </tr>
             )}

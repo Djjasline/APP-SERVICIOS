@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 
-export default function LiberacionDetalle() {
+export default function LiberacionDetalle({ pdfMode = false, allowDownload = true }) {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -38,14 +38,18 @@ export default function LiberacionDetalle() {
   }
 
   const data = registro.data || {};
+  const titulo = "AUTORIZACIÓN DE USO DE VEHÍCULO PARA REFINERÍA";
 
   return (
     <div className="p-6 bg-slate-100 min-h-screen">
+      {pdfMode && (
+        <style>{`@media print { .no-print { display: none !important; } body { background: #fff !important; } }`}</style>
+      )}
 
       <div className="max-w-[794px] mx-auto bg-white p-6 shadow border space-y-4">
 
         <h1 className="text-lg font-bold text-center">
-          Detalle de Liberación
+          {pdfMode ? titulo : `Detalle de ${titulo}`}
         </h1>
 
         {/* DATOS */}
@@ -96,20 +100,31 @@ export default function LiberacionDetalle() {
         )}
 
         {/* BOTONES */}
-        <div className="flex justify-between mt-6">
+        <div className="no-print flex justify-between mt-6">
           <button
-  onClick={() => navigate("/operaciones/liberacion")}
-  className="btn-volver-orange"
->
-  Volver
-</button>
+            onClick={() => navigate("/operaciones/liberacion")}
+            className="btn-volver-orange"
+          >
+            Volver
+          </button>
 
-         <button
-  onClick={() => navigate(`/operaciones/liberacion/pdf/${id}`)}
-  className="px-4 py-2 bg-blue-600 text-white rounded"
->
-  Descargar PDF
-</button>
+          {pdfMode ? (
+            allowDownload && (
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2 bg-blue-600 text-white rounded"
+              >
+                Descargar PDF
+              </button>
+            )
+          ) : (
+            <button
+              onClick={() => navigate(`/operaciones/liberacion/pdf/${id}`)}
+              className="px-4 py-2 bg-blue-600 text-white rounded"
+            >
+              Ver PDF
+            </button>
+          )}
         </div>
 
       </div>

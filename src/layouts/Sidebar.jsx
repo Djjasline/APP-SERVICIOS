@@ -539,7 +539,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/operaciones/liberacion")}
                   className={subItemClass("/operaciones/liberacion")}
                 >
-                  Liberación
+                  Autorización de uso de vehículo para refinería
                 </button>
               </div>
             )}
