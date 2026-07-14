@@ -196,6 +196,20 @@ const EquipmentSummaryPreview = ({ intro, tableText }) => {
   );
 };
 
+const PartsIntroBox = ({ value, onChange }) => (
+  <section className="overflow-hidden rounded border border-slate-900 bg-white text-slate-950">
+    <h2 className="border-b border-slate-900 px-3 py-1 text-center text-xs font-bold">
+      Lista de partes recomendada por el fabricante- FLOWSERVE
+    </h2>
+    <AutoTextarea
+      rows={4}
+      className="w-full resize-none border-0 px-8 py-3 text-sm font-semibold leading-relaxed text-slate-900 outline-none"
+      value={value}
+      onChange={onChange}
+    />
+  </section>
+);
+
 export default function VisitaCampoForm() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -350,7 +364,7 @@ export default function VisitaCampoForm() {
         <EquipmentSummaryPreview intro={data.equiposIntro} tableText={data.equiposTabla} />
       </section>
 
-      <label className={labelClass}>Introducción lista de partes<AutoTextarea rows={3} className={inputClass} value={data.partesIntro} onChange={(e) => set("partesIntro", e.target.value)} /></label>
+      <PartsIntroBox value={data.partesIntro} onChange={(e) => set("partesIntro", e.target.value)} />
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">

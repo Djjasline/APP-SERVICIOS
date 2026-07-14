@@ -44,7 +44,7 @@ export const defaultVisitaCampoData = {
   equiposTabla:
     "ESTACIÓN\tGRUPO DE BOMBA\tMODELO DE BOMBA\tSERIE\tTOTAL\nSACHA NORTE 1\t2\t2K6x4-13RV\t0508-8900 C, 1209-3290B, 0208-4617B, 418744, 0208-4617C\t5\nSACHA NORTE 1\t2\t6X4-13A\t258661, 260357\t2\nSACHA NORTE 1\t3\t3K8x6-14ARV\t456300, 442430\t2\nSACHA NORTE 2\t3\t3K8x6-14A\t427913, N/D\t2\nSACHA CENTRAL\t1\t1Kx1.5\t427841\t1\nSACHA CENTRAL\tMM\t10x14x20 MM\t95SH1772\t1\nPAD 470\t2\t2K6x4-13ARV\t0508-8899D, N/D\t2\nPOZO 65\t2\t2K3x2-10RV\t0508-8895C\t1\nSACHA SUR\t3\t2K4X3-10\t401035, 0508-8898 G\t2\nPAD 310\tGT\t3GT\tN/D, N/D\t2",
   partesIntro:
-    "A partir de la documentación técnica de Flowserve y los resultados operativos de la inspección, es recomendable la gestión de un inventario de repuestos críticos para asegurar la máxima disponibilidad y confiabilidad de los equipos.",
+    "A partir de la documentación técnica de Flowserve para la línea Durco y los resultados operativos de la inspección, es recomendable la gestión de un inventario de repuestos críticos. Esta medida busca asegurar la máxima disponibilidad y confiabilidad de los equipos, para que de esa manera se garantice una acción inmediata frente a un mantenimiento preventivo o correctivo.",
   repuestos: [
     {
       titulo: "Durco Grupo 1",

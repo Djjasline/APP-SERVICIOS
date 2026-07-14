@@ -154,6 +154,25 @@ function EquipmentSummaryTable({ intro, text }) {
   );
 }
 
+function PartsIntroBox({ text }) {
+  return (
+    <table style={{ ...S.table, marginTop: 8, breakInside: "avoid", pageBreakInside: "avoid" }}>
+      <tbody>
+        <tr>
+          <td style={{ ...S.cell, padding: 4, textAlign: "center", fontWeight: 700 }}>
+            Lista de partes recomendada por el fabricante- FLOWSERVE
+          </td>
+        </tr>
+        <tr>
+          <td style={{ ...S.cell, padding: "10px 28px", whiteSpace: "pre-line", textAlign: "justify", fontWeight: 600 }}>
+            {text}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
 function BulletList({ items }) {
   return (
     <ul style={{ margin: "8px 0 0 18px", padding: 0 }}>
@@ -237,8 +256,7 @@ export default function VisitaCampoPDF({ allowDownload = true }) {
         <Header data={data} />
         <EquipmentSummaryTable intro={data.equiposIntro} text={data.equiposTabla} />
 
-        <SectionTitle>Lista de partes recomendada por el fabricante - FLOWSERVE</SectionTitle>
-        <TextBlock>{data.partesIntro}</TextBlock>
+        <PartsIntroBox text={data.partesIntro} />
 
         {(data.repuestos || []).map((grupo, index) => (
           <div key={index} style={{ breakInside: "avoid", pageBreakInside: "avoid", marginTop: 12 }}>
