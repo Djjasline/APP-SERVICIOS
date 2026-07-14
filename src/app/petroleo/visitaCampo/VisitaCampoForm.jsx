@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
@@ -7,6 +7,35 @@ import { listToText, textToList } from "./tableUtils";
 
 const inputClass = "w-full rounded border border-gray-300 px-3 py-2 text-sm";
 const labelClass = "space-y-1 text-xs font-semibold uppercase tracking-wide text-gray-500";
+
+const AutoTextarea = ({ value, onChange, className = "", rows = 3, ...props }) => {
+  const ref = useRef(null);
+
+  const resize = () => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  };
+
+  useEffect(() => {
+    resize();
+  }, [value]);
+
+  return (
+    <textarea
+      ref={ref}
+      rows={rows}
+      value={value || ""}
+      onChange={(event) => {
+        onChange?.(event);
+        requestAnimationFrame(resize);
+      }}
+      className={`${className} overflow-hidden`}
+      {...props}
+    />
+  );
+};
 
 export default function VisitaCampoForm() {
   const navigate = useNavigate();
@@ -121,24 +150,24 @@ export default function VisitaCampoForm() {
         <label className={`${labelClass} md:col-span-3`}>Modelos<input className={inputClass} value={data.modelos} onChange={(e) => set("modelos", e.target.value)} /></label>
       </section>
 
-      <label className={labelClass}>Antecedentes<textarea rows={7} className={inputClass} value={data.antecedentes} onChange={(e) => set("antecedentes", e.target.value)} /></label>
-      <label className={labelClass}>Objetivos<textarea rows={6} className={inputClass} value={listToText(data.objetivos)} onChange={(e) => set("objetivos", textToList(e.target.value))} /></label>
-      <label className={labelClass}>Lugar de ubicación del equipo<textarea rows={4} className={inputClass} value={data.descripcionLugar} onChange={(e) => set("descripcionLugar", e.target.value)} /></label>
+      <label className={labelClass}>Antecedentes<AutoTextarea rows={7} className={inputClass} value={data.antecedentes} onChange={(e) => set("antecedentes", e.target.value)} /></label>
+      <label className={labelClass}>Objetivos de la asistencia en campo<AutoTextarea rows={6} className={inputClass} value={listToText(data.objetivos)} onChange={(e) => set("objetivos", textToList(e.target.value))} /></label>
+      <label className={labelClass}>Lugar de ubicación del equipo<AutoTextarea rows={4} className={inputClass} value={data.descripcionLugar} onChange={(e) => set("descripcionLugar", e.target.value)} /></label>
 
       <section className="space-y-3">
         <h2 className="font-semibold">Descripción de actividades</h2>
         {data.actividades.map((actividad, index) => (
           <div key={index} className="rounded border bg-gray-50 p-3 space-y-2">
             <input className={inputClass} value={actividad.titulo} onChange={(e) => setData((prev) => ({ ...prev, actividades: prev.actividades.map((item, itemIndex) => itemIndex === index ? { ...item, titulo: e.target.value } : item) }))} />
-            <textarea rows={3} className={inputClass} value={actividad.detalle} onChange={(e) => setData((prev) => ({ ...prev, actividades: prev.actividades.map((item, itemIndex) => itemIndex === index ? { ...item, detalle: e.target.value } : item) }))} />
+            <AutoTextarea rows={3} className={inputClass} value={actividad.detalle} onChange={(e) => setData((prev) => ({ ...prev, actividades: prev.actividades.map((item, itemIndex) => itemIndex === index ? { ...item, detalle: e.target.value } : item) }))} />
           </div>
         ))}
       </section>
 
-      <label className={labelClass}>Tabla resumen de equipos<textarea rows={12} className={`${inputClass} font-mono`} value={data.equiposTabla} onChange={(e) => set("equiposTabla", e.target.value)} /></label>
+      <label className={labelClass}>Tabla resumen de equipos<AutoTextarea rows={12} className={`${inputClass} font-mono`} value={data.equiposTabla} onChange={(e) => set("equiposTabla", e.target.value)} /></label>
       <p className="text-xs text-gray-500">Usa tabulaciones entre columnas. La primera línea es encabezado.</p>
 
-      <label className={labelClass}>Introducción lista de partes<textarea rows={3} className={inputClass} value={data.partesIntro} onChange={(e) => set("partesIntro", e.target.value)} /></label>
+      <label className={labelClass}>Introducción lista de partes<AutoTextarea rows={3} className={inputClass} value={data.partesIntro} onChange={(e) => set("partesIntro", e.target.value)} /></label>
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
@@ -152,20 +181,20 @@ export default function VisitaCampoForm() {
               <button type="button" onClick={() => removeRepuesto(index)} className="rounded bg-red-600 px-3 text-sm text-white">Eliminar</button>
             </div>
             <input className={inputClass} value={grupo.caption} onChange={(e) => updateRepuesto(index, "caption", e.target.value)} />
-            <textarea rows={7} className={`${inputClass} font-mono`} value={grupo.rows} onChange={(e) => updateRepuesto(index, "rows", e.target.value)} />
+            <AutoTextarea rows={7} className={`${inputClass} font-mono`} value={grupo.rows} onChange={(e) => updateRepuesto(index, "rows", e.target.value)} />
           </div>
         ))}
       </section>
 
-      <label className={labelClass}>Intervalos API 610 / ANSI B73.1<textarea rows={7} className={`${inputClass} font-mono`} value={data.intervalosTabla} onChange={(e) => set("intervalosTabla", e.target.value)} /></label>
-      <label className={labelClass}>Nota de intervalos<textarea rows={4} className={inputClass} value={data.notaIntervalos} onChange={(e) => set("notaIntervalos", e.target.value)} /></label>
-      <label className={labelClass}>Conclusiones<textarea rows={6} className={inputClass} value={listToText(data.conclusiones)} onChange={(e) => set("conclusiones", textToList(e.target.value))} /></label>
-      <label className={labelClass}>Recomendaciones<textarea rows={6} className={inputClass} value={listToText(data.recomendaciones)} onChange={(e) => set("recomendaciones", textToList(e.target.value))} /></label>
+      <label className={labelClass}>Intervalos API 610 / ANSI B73.1<AutoTextarea rows={7} className={`${inputClass} font-mono`} value={data.intervalosTabla} onChange={(e) => set("intervalosTabla", e.target.value)} /></label>
+      <label className={labelClass}>Nota de intervalos<AutoTextarea rows={4} className={inputClass} value={data.notaIntervalos} onChange={(e) => set("notaIntervalos", e.target.value)} /></label>
+      <label className={labelClass}>Conclusiones<AutoTextarea rows={6} className={inputClass} value={listToText(data.conclusiones)} onChange={(e) => set("conclusiones", textToList(e.target.value))} /></label>
+      <label className={labelClass}>Recomendaciones<AutoTextarea rows={6} className={inputClass} value={listToText(data.recomendaciones)} onChange={(e) => set("recomendaciones", textToList(e.target.value))} /></label>
 
       <section className="grid gap-3 md:grid-cols-3">
-        <label className={labelClass}>Realizado por<textarea rows={4} className={inputClass} value={data.realizadoPor} onChange={(e) => set("realizadoPor", e.target.value)} /></label>
-        <label className={labelClass}>Revisado por<textarea rows={4} className={inputClass} value={data.revisadoPor} onChange={(e) => set("revisadoPor", e.target.value)} /></label>
-        <label className={labelClass}>Recibido por<textarea rows={4} className={inputClass} value={data.recibidoPor} onChange={(e) => set("recibidoPor", e.target.value)} /></label>
+        <label className={labelClass}>Realizado por<AutoTextarea rows={4} className={inputClass} value={data.realizadoPor} onChange={(e) => set("realizadoPor", e.target.value)} /></label>
+        <label className={labelClass}>Revisado por<AutoTextarea rows={4} className={inputClass} value={data.revisadoPor} onChange={(e) => set("revisadoPor", e.target.value)} /></label>
+        <label className={labelClass}>Recibido por<AutoTextarea rows={4} className={inputClass} value={data.recibidoPor} onChange={(e) => set("recibidoPor", e.target.value)} /></label>
       </section>
 
       <div className="flex flex-col gap-3 border-t pt-4 md:flex-row md:justify-between">

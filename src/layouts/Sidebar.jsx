@@ -508,6 +508,14 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 >
                   Informe de válvulas
                 </button>
+
+                <button
+                  type="button"
+                  onClick={() => go("/petroleo/visita-campo")}
+                  className={subItemClass("/petroleo/visita-campo")}
+                >
+                  Visita en campo
+                </button>
               </div>
             )}
           </div>
