@@ -104,7 +104,7 @@ export default function Login() {
               onClick={() => setShowPassword((value) => !value)}
               disabled={loading}
               aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-              className="absolute inset-y-0 right-0 flex items-center px-3 text-white/80 hover:text-white disabled:opacity-50"
+              className="absolute inset-y-0 right-0 flex items-center px-3 text-lime-400 drop-shadow-[0_0_6px_rgba(163,230,53,0.9)] hover:text-lime-300 disabled:opacity-50"
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
