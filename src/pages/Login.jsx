@@ -52,9 +52,10 @@ export default function Login() {
   };
 
   return (
-    <div className="login-bg relative h-screen w-full flex items-center justify-center overflow-hidden px-4">
+    <div className="login-bg relative min-h-screen w-full flex items-center justify-center overflow-x-hidden overflow-y-auto px-4 py-6">
+      <div className="relative z-10 flex w-full max-w-5xl flex-col items-center justify-center gap-5 lg:flex-row lg:items-stretch">
       {/* 💎 CARD GLASS */}
-      <main id="acceso" className="relative z-10 w-[350px] p-8 rounded-2xl 
+      <main id="acceso" className="w-[350px] p-8 rounded-2xl
         backdrop-blur-xl bg-white/10 border border-white/20 
         shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
 
@@ -140,6 +141,56 @@ export default function Login() {
         </nav>
 
       </main>
+
+      <aside className="w-[350px] rounded-2xl border border-white/25 bg-white/90 p-5 text-slate-900 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+        <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
+          <img
+            src="/astap-logo.jpg"
+            alt="ASTAP"
+            className="h-12 w-12 rounded-lg bg-white object-contain shadow-sm"
+          />
+
+          <div>
+            <p className="text-sm font-bold uppercase tracking-wide text-slate-900">
+              ASTAP CIA. LTDA.
+            </p>
+            <p className="text-xs text-slate-500">
+              Servicios técnicos especializados
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+          <a
+            href="https://www.astap.com"
+            target="_blank"
+            rel="noreferrer"
+            className="relative rounded-xl bg-white p-2 shadow-md transition hover:scale-[1.02]"
+            aria-label="Abrir sitio web ASTAP"
+          >
+            <img
+              src="/astap-qr.svg"
+              alt="Código QR del sitio web ASTAP"
+              className="h-32 w-32"
+            />
+            <span className="absolute left-1/2 top-1/2 flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow">
+              <img src="/astap-logo.jpg" alt="" className="h-5 w-5 rounded-full object-contain" />
+            </span>
+          </a>
+
+          <address className="not-italic text-sm leading-6 text-slate-700">
+            <strong className="block text-slate-900">Contacto ASTAP</strong>
+            Naciones Unidas 1084 y Amazonas<br />
+            Quito, Ecuador<br />
+            Cel: 099 851 1717<br />
+            Teléfono: 02-22262154<br />
+            <a href="https://www.astap.com" target="_blank" rel="noreferrer" className="font-semibold text-red-600 hover:underline">
+              www.astap.com
+            </a>
+          </address>
+        </div>
+      </aside>
+      </div>
     </div>
   );
 }
