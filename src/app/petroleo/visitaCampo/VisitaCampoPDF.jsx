@@ -254,6 +254,38 @@ function IntervalosBox({ intro, tableText, note }) {
   );
 }
 
+function SignatureBlock({ data }) {
+  const signatures = [
+    ["REALIZADO POR", data.realizadoPor],
+    ["REVISADO POR", data.revisadoPor],
+    ["RECIBIDO POR", data.recibidoPor],
+  ];
+
+  return (
+    <table style={{ ...S.table, marginTop: 28 }}>
+      <tbody>
+        <tr>
+          {signatures.map(([label]) => (
+            <td key={label} style={{ ...S.headerCell, textAlign: "center" }}>{label}</td>
+          ))}
+        </tr>
+        <tr>
+          {signatures.map(([label]) => (
+            <td key={`${label}-firma`} style={{ ...S.cell, height: 78, verticalAlign: "middle" }} />
+          ))}
+        </tr>
+        <tr>
+          {signatures.map(([label, value]) => (
+            <td key={`${label}-texto`} style={{ ...S.cell, height: 58, whiteSpace: "pre-line", textAlign: "center", verticalAlign: "middle", fontWeight: 600 }}>
+              {value}
+            </td>
+          ))}
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
 function BulletList({ items }) {
   return (
     <ul style={{ margin: "8px 0 0 18px", padding: 0 }}>
@@ -363,16 +395,7 @@ export default function VisitaCampoPDF({ allowDownload = true }) {
         <SectionTitle>Recomendaciones</SectionTitle>
         <div style={{ border: "1px solid #111", borderTop: 0, padding: 10 }}><BulletList items={data.recomendaciones} /></div>
 
-        <table style={{ ...S.table, marginTop: 28 }}>
-          <tbody>
-            <tr><td style={S.headerCell}>REALIZADO POR</td><td style={S.headerCell}>REVISADO POR</td><td style={S.headerCell}>RECIBIDO POR</td></tr>
-            <tr>
-              <td style={{ ...S.cell, height: 80, whiteSpace: "pre-line", textAlign: "center", verticalAlign: "bottom" }}>{data.realizadoPor}</td>
-              <td style={{ ...S.cell, height: 80, whiteSpace: "pre-line", textAlign: "center", verticalAlign: "bottom" }}>{data.revisadoPor}</td>
-              <td style={{ ...S.cell, height: 80, whiteSpace: "pre-line", textAlign: "center", verticalAlign: "bottom" }}>{data.recibidoPor}</td>
-            </tr>
-          </tbody>
-        </table>
+        <SignatureBlock data={data} />
       </div>
     </div>
   );

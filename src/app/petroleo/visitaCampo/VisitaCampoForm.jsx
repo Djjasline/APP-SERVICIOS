@@ -387,6 +387,16 @@ const IntervalosBox = ({ intro, tableText, note, onIntroChange, onTableChange, o
   </section>
 );
 
+const SignatureField = ({ label, value, onChange }) => (
+  <div className="space-y-2 rounded border border-slate-300 bg-white p-3">
+    <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</div>
+    <div className="flex h-24 items-center justify-center rounded border border-slate-400 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-400">
+      Firma
+    </div>
+    <AutoTextarea rows={4} className={inputClass} value={value} onChange={onChange} />
+  </div>
+);
+
 export default function VisitaCampoForm() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -634,9 +644,9 @@ export default function VisitaCampoForm() {
       <label className={labelClass}>Recomendaciones<AutoTextarea rows={6} className={inputClass} value={listToText(data.recomendaciones)} onChange={(e) => set("recomendaciones", textToList(e.target.value))} /></label>
 
       <section className="grid gap-3 md:grid-cols-3">
-        <label className={labelClass}>Realizado por<AutoTextarea rows={4} className={inputClass} value={data.realizadoPor} onChange={(e) => set("realizadoPor", e.target.value)} /></label>
-        <label className={labelClass}>Revisado por<AutoTextarea rows={4} className={inputClass} value={data.revisadoPor} onChange={(e) => set("revisadoPor", e.target.value)} /></label>
-        <label className={labelClass}>Recibido por<AutoTextarea rows={4} className={inputClass} value={data.recibidoPor} onChange={(e) => set("recibidoPor", e.target.value)} /></label>
+        <SignatureField label="Realizado por" value={data.realizadoPor} onChange={(e) => set("realizadoPor", e.target.value)} />
+        <SignatureField label="Revisado por" value={data.revisadoPor} onChange={(e) => set("revisadoPor", e.target.value)} />
+        <SignatureField label="Recibido por" value={data.recibidoPor} onChange={(e) => set("recibidoPor", e.target.value)} />
       </section>
 
       <div className="flex flex-col gap-3 border-t pt-4 md:flex-row md:justify-between">
