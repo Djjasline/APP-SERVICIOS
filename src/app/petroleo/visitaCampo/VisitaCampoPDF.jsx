@@ -80,6 +80,67 @@ function RenderTable({ text }) {
   );
 }
 
+const getStationRowSpan = (rows, rowIndex) => {
+  const station = rows[rowIndex]?.[0];
+  if (!station) return 1;
+  if (rowIndex > 0 && rows[rowIndex - 1]?.[0] === station) return 0;
+
+  let span = 1;
+  for (let i = rowIndex + 1; i < rows.length; i += 1) {
+    if (rows[i]?.[0] !== station) break;
+    span += 1;
+  }
+
+  return span;
+};
+
+function EquipmentSummaryTable({ intro, text }) {
+  const rows = parseTableText(text);
+  if (rows.length === 0) return null;
+
+  const header = rows[0];
+  const body = rows.slice(1);
+  const widths = ["18%", "14%", "19%", "39%", "10%"];
+
+  return (
+    <table style={{ ...S.table, marginTop: 8, breakInside: "avoid", pageBreakInside: "avoid" }}>
+      <tbody>
+        <tr>
+          <td colSpan={5} style={{ ...S.headerCell, textAlign: "center" }}>Tabla resumen de equipos centrífugos</td>
+        </tr>
+        {intro && (
+          <tr>
+            <td colSpan={5} style={{ ...S.cell, padding: 8, fontWeight: 600, textAlign: "justify", whiteSpace: "pre-line" }}>{intro}</td>
+          </tr>
+        )}
+        <tr>
+          {header.map((cell, index) => (
+            <td key={index} style={{ ...S.headerCell, width: widths[index], textAlign: "center", textTransform: "uppercase" }}>{cell}</td>
+          ))}
+        </tr>
+        {body.map((row, rowIndex) => {
+          const stationSpan = getStationRowSpan(body, rowIndex);
+
+          return (
+            <tr key={`${rowIndex}-${row.join("-")}`}>
+              {stationSpan > 0 && (
+                <td rowSpan={stationSpan} style={{ ...S.cell, width: widths[0], textAlign: "center", fontWeight: 700, textTransform: "uppercase", verticalAlign: "middle" }}>
+                  {row[0]}
+                </td>
+              )}
+              {row.slice(1).map((cell, cellIndex) => (
+                <td key={cellIndex} style={{ ...S.cell, width: widths[cellIndex + 1], textAlign: cellIndex === 2 ? "left" : "center", verticalAlign: "middle" }}>
+                  {cell || " "}
+                </td>
+              ))}
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+}
+
 function BulletList({ items }) {
   return (
     <ul style={{ margin: "8px 0 0 18px", padding: 0 }}>
@@ -161,9 +222,7 @@ export default function VisitaCampoPDF({ allowDownload = true }) {
         </div>
 
         <Header data={data} />
-        <SectionTitle>Tabla resumen de equipos centrífugos</SectionTitle>
-        <TextBlock>{data.equiposIntro}</TextBlock>
-        <RenderTable text={data.equiposTabla} />
+        <EquipmentSummaryTable intro={data.equiposIntro} text={data.equiposTabla} />
 
         <SectionTitle>Lista de partes recomendada por el fabricante - FLOWSERVE</SectionTitle>
         <TextBlock>{data.partesIntro}</TextBlock>

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { createEmptyVisitaCampoData } from "./visitaCampoData";
-import { listToText, textToList } from "./tableUtils";
+import { listToText, parseTableText, textToList } from "./tableUtils";
 
 const inputClass = "w-full rounded border border-gray-300 px-3 py-2 text-sm";
 const labelClass = "space-y-1 text-xs font-semibold uppercase tracking-wide text-gray-500";
@@ -34,6 +34,72 @@ const AutoTextarea = ({ value, onChange, className = "", rows = 3, ...props }) =
       className={`${className} overflow-hidden`}
       {...props}
     />
+  );
+};
+
+const getStationRowSpan = (rows, rowIndex) => {
+  const station = rows[rowIndex]?.[0];
+  if (!station) return 1;
+  if (rowIndex > 0 && rows[rowIndex - 1]?.[0] === station) return 0;
+
+  let span = 1;
+  for (let i = rowIndex + 1; i < rows.length; i += 1) {
+    if (rows[i]?.[0] !== station) break;
+    span += 1;
+  }
+
+  return span;
+};
+
+const EquipmentSummaryPreview = ({ intro, tableText }) => {
+  const rows = parseTableText(tableText);
+  const header = rows[0] || [];
+  const body = rows.slice(1);
+
+  return (
+    <div className="overflow-x-auto rounded border border-slate-900 bg-white text-[11px] text-slate-950">
+      <table className="w-full min-w-[780px] border-collapse">
+        <tbody>
+          <tr>
+            <th colSpan={5} className="border border-slate-900 bg-slate-100 px-2 py-1 text-center font-bold">
+              Tabla resumen de equipos centrífugos
+            </th>
+          </tr>
+          <tr>
+            <td colSpan={5} className="border border-slate-900 px-3 py-2 text-justify font-semibold">
+              {intro}
+            </td>
+          </tr>
+          {header.length > 0 && (
+            <tr className="bg-slate-100 text-center font-bold uppercase">
+              {header.map((cell, index) => (
+                <th key={index} className="border border-slate-900 px-2 py-1">
+                  {cell}
+                </th>
+              ))}
+            </tr>
+          )}
+          {body.map((row, rowIndex) => {
+            const stationSpan = getStationRowSpan(body, rowIndex);
+
+            return (
+              <tr key={`${rowIndex}-${row.join("-")}`} className="align-middle">
+                {stationSpan > 0 && (
+                  <td rowSpan={stationSpan} className="border border-slate-900 px-2 py-1 text-center font-bold uppercase">
+                    {row[0]}
+                  </td>
+                )}
+                {row.slice(1).map((cell, cellIndex) => (
+                  <td key={cellIndex} className={`border border-slate-900 px-2 py-1 ${cellIndex === 2 ? "text-left" : "text-center"}`}>
+                    {cell || " "}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
@@ -180,8 +246,13 @@ export default function VisitaCampoForm() {
         </div>
       </section>
 
-      <label className={labelClass}>Tabla resumen de equipos<AutoTextarea rows={12} className={`${inputClass} font-mono`} value={data.equiposTabla} onChange={(e) => set("equiposTabla", e.target.value)} /></label>
-      <p className="text-xs text-gray-500">Usa tabulaciones entre columnas. La primera línea es encabezado.</p>
+      <section className="space-y-3 rounded-xl border border-slate-300 bg-white p-4 shadow-sm">
+        <h2 className="text-center text-sm font-semibold text-slate-900">Tabla resumen de equipos centrífugos</h2>
+        <label className={labelClass}>Texto introductorio<AutoTextarea rows={3} className={inputClass} value={data.equiposIntro} onChange={(e) => set("equiposIntro", e.target.value)} /></label>
+        <label className={labelClass}>Datos de la tabla<AutoTextarea rows={12} className={`${inputClass} font-mono`} value={data.equiposTabla} onChange={(e) => set("equiposTabla", e.target.value)} /></label>
+        <p className="text-xs text-gray-500">Usa tabulaciones entre columnas. La primera línea es encabezado.</p>
+        <EquipmentSummaryPreview intro={data.equiposIntro} tableText={data.equiposTabla} />
+      </section>
 
       <label className={labelClass}>Introducción lista de partes<AutoTextarea rows={3} className={inputClass} value={data.partesIntro} onChange={(e) => set("partesIntro", e.target.value)} /></label>
 
