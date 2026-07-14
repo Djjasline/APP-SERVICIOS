@@ -96,6 +96,11 @@ export const defaultVisitaCampoData = {
   realizadoPor: "Sebastián Patiño\nDiv. Gas y Petróleo\nASTAP Cía. Ltda.",
   revisadoPor: "Jorge Astudillo\nLíder de la Div. Gas y Petróleo\nASTAP Cía. Ltda.",
   recibidoPor: "Carlos Luna/Hólger Jimenez\nSupervisor Mecánico\nEP Petroecuador",
+  firmas: {
+    realizado: "",
+    revisado: "",
+    recibido: "",
+  },
 };
 
 export function createEmptyVisitaCampoData() {

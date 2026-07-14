@@ -256,9 +256,9 @@ function IntervalosBox({ intro, tableText, note }) {
 
 function SignatureBlock({ data }) {
   const signatures = [
-    ["REALIZADO POR", data.realizadoPor],
-    ["REVISADO POR", data.revisadoPor],
-    ["RECIBIDO POR", data.recibidoPor],
+    ["REALIZADO POR", data.realizadoPor, data.firmas?.realizado],
+    ["REVISADO POR", data.revisadoPor, data.firmas?.revisado],
+    ["RECIBIDO POR", data.recibidoPor, data.firmas?.recibido],
   ];
 
   return (
@@ -270,8 +270,10 @@ function SignatureBlock({ data }) {
           ))}
         </tr>
         <tr>
-          {signatures.map(([label]) => (
-            <td key={`${label}-firma`} style={{ ...S.cell, height: 78, verticalAlign: "middle" }} />
+          {signatures.map(([label, , signature]) => (
+            <td key={`${label}-firma`} style={{ ...S.cell, height: 78, textAlign: "center", verticalAlign: "middle" }}>
+              {signature && <img src={signature} alt={`Firma ${label}`} style={{ maxWidth: "95%", maxHeight: 70, objectFit: "contain" }} />}
+            </td>
           ))}
         </tr>
         <tr>

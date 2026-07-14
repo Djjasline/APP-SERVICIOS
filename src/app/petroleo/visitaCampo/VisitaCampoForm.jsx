@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import imageCompression from "browser-image-compression";
+import SignatureCanvas from "react-signature-canvas";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { uploadRegistroImage } from "@/utils/storage";
@@ -387,15 +388,54 @@ const IntervalosBox = ({ intro, tableText, note, onIntroChange, onTableChange, o
   </section>
 );
 
-const SignatureField = ({ label, value, onChange }) => (
-  <div className="space-y-2 rounded border border-slate-300 bg-white p-3">
-    <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</div>
-    <div className="flex h-24 items-center justify-center rounded border border-slate-400 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-400">
-      Firma
+const SignatureField = ({ label, value, onChange, signature, onSignatureChange }) => {
+  const signatureRef = useRef(null);
+
+  useEffect(() => {
+    if (!signatureRef.current) return;
+    signatureRef.current.clear();
+    if (signature) signatureRef.current.fromDataURL(signature);
+  }, [signature]);
+
+  const handleBegin = () => {
+    document.activeElement?.blur();
+    document.body.style.overflow = "hidden";
+  };
+
+  const handleEnd = () => {
+    document.body.style.overflow = "";
+    if (!signatureRef.current || signatureRef.current.isEmpty()) return;
+    onSignatureChange(signatureRef.current.toDataURL("image/png"));
+  };
+
+  const clearSignature = () => {
+    signatureRef.current?.clear();
+    onSignatureChange("");
+  };
+
+  return (
+    <div className="space-y-2 rounded border border-slate-300 bg-white p-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</div>
+        <button type="button" onClick={clearSignature} className="text-xs font-semibold text-red-600 hover:underline">
+          Borrar firma
+        </button>
+      </div>
+      <div className="h-28 rounded border border-slate-400 bg-white">
+        <SignatureCanvas
+          ref={signatureRef}
+          penColor="black"
+          minWidth={0.5}
+          maxWidth={1.8}
+          onBegin={handleBegin}
+          onEnd={handleEnd}
+          canvasProps={{ className: "h-full w-full touch-none" }}
+        />
+      </div>
+      <AutoTextarea rows={4} className={inputClass} value={value} onChange={onChange} />
     </div>
-    <AutoTextarea rows={4} className={inputClass} value={value} onChange={onChange} />
-  </div>
-);
+  );
+};
 
 export default function VisitaCampoForm() {
   const navigate = useNavigate();
@@ -439,6 +479,7 @@ export default function VisitaCampoForm() {
   }, [id, navigate, superAdminActivo, user?.id]);
 
   const set = (field, value) => setData((prev) => ({ ...prev, [field]: value }));
+  const setFirma = (field, value) => setData((prev) => ({ ...prev, firmas: { ...(prev.firmas || {}), [field]: value } }));
 
   const updateRepuesto = (index, field, value) => {
     setData((prev) => ({
@@ -644,9 +685,9 @@ export default function VisitaCampoForm() {
       <label className={labelClass}>Recomendaciones<AutoTextarea rows={6} className={inputClass} value={listToText(data.recomendaciones)} onChange={(e) => set("recomendaciones", textToList(e.target.value))} /></label>
 
       <section className="grid gap-3 md:grid-cols-3">
-        <SignatureField label="Realizado por" value={data.realizadoPor} onChange={(e) => set("realizadoPor", e.target.value)} />
-        <SignatureField label="Revisado por" value={data.revisadoPor} onChange={(e) => set("revisadoPor", e.target.value)} />
-        <SignatureField label="Recibido por" value={data.recibidoPor} onChange={(e) => set("recibidoPor", e.target.value)} />
+        <SignatureField label="Realizado por" value={data.realizadoPor} onChange={(e) => set("realizadoPor", e.target.value)} signature={data.firmas?.realizado} onSignatureChange={(value) => setFirma("realizado", value)} />
+        <SignatureField label="Revisado por" value={data.revisadoPor} onChange={(e) => set("revisadoPor", e.target.value)} signature={data.firmas?.revisado} onSignatureChange={(value) => setFirma("revisado", value)} />
+        <SignatureField label="Recibido por" value={data.recibidoPor} onChange={(e) => set("recibidoPor", e.target.value)} signature={data.firmas?.recibido} onSignatureChange={(value) => setFirma("recibido", value)} />
       </section>
 
       <div className="flex flex-col gap-3 border-t pt-4 md:flex-row md:justify-between">
