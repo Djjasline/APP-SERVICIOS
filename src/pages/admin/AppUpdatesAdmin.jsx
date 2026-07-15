@@ -23,7 +23,7 @@ export default function AppUpdatesAdmin() {
       setUpdates(data);
     } catch (err) {
       console.error(err);
-      setError("No se pudieron cargar los boletines. Verifica que el SQL esté aplicado en Supabase.");
+      setError("No se pudo cargar el control de cambios. Verifica que el SQL esté aplicado en Supabase.");
     } finally {
       setLoading(false);
     }
@@ -36,32 +36,32 @@ export default function AppUpdatesAdmin() {
       await loadUpdates();
     } catch (err) {
       console.error(err);
-      setError("No se pudo actualizar el estado del boletín.");
+      setError("No se pudo actualizar el estado del control de cambios.");
     }
   };
 
   return (
     <div className={`space-y-6 ${isLight ? "text-slate-900" : "text-white"}`}>
       <div>
-        <h1 className="text-2xl font-semibold">Boletines de actualización</h1>
+        <h1 className="text-2xl font-semibold">Control de cambios</h1>
         <p className={`mt-1 text-sm ${isLight ? "text-slate-600" : "text-slate-300"}`}>
-          Historial de boletines generados automáticamente cuando se publican cambios en GitHub.
+          Historial de cambios publicados en la aplicación.
         </p>
       </div>
 
       <div className={`rounded-xl border p-4 text-sm ${isLight ? "border-blue-200 bg-blue-50 text-blue-800" : "border-blue-400/30 bg-blue-500/10 text-blue-100"}`}>
-        Los boletines se crean automáticamente con cada push a <strong>main</strong>. Esta pantalla solo permite revisar el historial y ocultar/reactivar publicaciones.
+        El control de cambios se crea automáticamente con cada publicación en <strong>main</strong>. Esta pantalla permite revisar el historial y ocultar/reactivar publicaciones.
       </div>
 
       {error && <div className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
 
       <section className={`rounded-xl border p-4 shadow-sm ${isLight ? "border-slate-200 bg-white" : "border-white/10 bg-white/5"}`}>
-        <h2 className="font-semibold">Historial de boletines</h2>
+        <h2 className="font-semibold">Historial de cambios</h2>
 
         {loading ? (
           <p className={`mt-3 text-sm ${isLight ? "text-slate-500" : "text-slate-300"}`}>Cargando...</p>
         ) : updates.length === 0 ? (
-          <p className={`mt-3 text-sm ${isLight ? "text-slate-500" : "text-slate-300"}`}>Aún no hay boletines.</p>
+          <p className={`mt-3 text-sm ${isLight ? "text-slate-500" : "text-slate-300"}`}>Aún no hay cambios publicados.</p>
         ) : (
           <div className="mt-4 space-y-3">
             {updates.map((update) => (

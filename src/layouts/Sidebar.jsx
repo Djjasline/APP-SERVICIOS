@@ -595,7 +595,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   <span className="inline-flex w-full items-center justify-between gap-2">
                     <span className="inline-flex items-center gap-2">
                       <Megaphone size={14} />
-                      Boletines
+                      Control de cambios
                     </span>
                     {unreadBulletins > 0 && (
                       <span className="min-w-5 rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">

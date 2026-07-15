@@ -143,7 +143,7 @@ export default function NotificationsPage() {
     { key: "unread", label: "No leídas", count: items.filter((item) => !item.read).length },
     { key: "read", label: "Leídas", count: items.filter((item) => item.read).length },
     { key: "chat", label: "Chat", count: items.filter((item) => item.record_type === "chat").length },
-    { key: "updates", label: "Boletines", count: items.filter((item) => item.isAppUpdate).length },
+    { key: "updates", label: "Control de cambios", count: items.filter((item) => item.isAppUpdate).length },
     { key: "records", label: "Registros", count: items.filter((item) => !item.isAppUpdate && item.record_type !== "chat").length },
   ];
 
@@ -312,7 +312,7 @@ export default function NotificationsPage() {
 
                 {n.isAppUpdate && (
                   <div className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${isLight ? "bg-purple-100 text-purple-700" : "bg-purple-500/20 text-purple-200"}`}>
-                    Boletín de actualización
+                    Control de cambios
                   </div>
                 )}
 
