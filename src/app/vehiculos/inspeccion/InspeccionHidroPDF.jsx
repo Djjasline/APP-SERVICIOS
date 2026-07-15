@@ -163,7 +163,7 @@ setReport({
 
   if (!report) return (<div className="p-6 text-center"><p>No se encontró la inspección.</p><button onClick={() => navigate("/vehiculos/inspeccion")} className="btn-volver-orange mt-4">Volver</button></div>);
 
-  if (report.estado !== "completado") return (<div className="p-6 text-center"><p>Esta inspección no está completada.</p><button onClick={() => navigate("/vehiculos/inspeccion")} className="btn-volver-orange mt-4">Volver</button></div>);
+  if (report.estado !== "completado" && allowDownload) return (<div className="p-6 text-center"><p>Esta inspección no está completada.</p><button onClick={() => navigate("/vehiculos/inspeccion")} className="btn-volver-orange mt-4">Volver</button></div>);
 
   const { data: d } = report;
 

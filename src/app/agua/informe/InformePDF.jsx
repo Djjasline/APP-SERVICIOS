@@ -77,7 +77,7 @@ export default function InformePDF({
   =========================== */
   const estadoNormalizado = report?.estado || report?.data?.estado || "";
 
-  if (estadoNormalizado.toLowerCase() !== "completado") {
+  if (estadoNormalizado.toLowerCase() !== "completado" && allowDownload) {
     return (
       <div className="p-6 text-center">
         <p>Este informe no está completado.</p>

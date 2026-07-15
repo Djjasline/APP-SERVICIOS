@@ -144,7 +144,7 @@ setReport({ estado: data.estado, data: data.data });
   }, [id]);
 
   if (!report) return (<div className="p-6 text-center"><p>No se encontró la inspección.</p><button onClick={() => navigate("/vehiculos/inspeccion")} className="btn-volver-orange mt-4">Volver</button></div>);
-  if (report.estado !== "completado") return (<div className="p-6 text-center"><p>Esta inspección no está completada.</p><button onClick={() => navigate("/vehiculos/inspeccion")} className="btn-volver-orange mt-4">Volver</button></div>);
+  if (report.estado !== "completado" && allowDownload) return (<div className="p-6 text-center"><p>Esta inspección no está completada.</p><button onClick={() => navigate("/vehiculos/inspeccion")} className="btn-volver-orange mt-4">Volver</button></div>);
 
   const { data: d } = report;
   const handlePrint = () => { const cliente = (d.cliente||"cliente").replace(/\s+/g,"-"); const pedido = (d.pedidoDemanda||"pedido").replace(/\s+/g,""); const codigo = (d.codInf||"000").replace(/\s+/g,""); printPdf("pdf-content", `Inspeccion_Camara_${cliente}_${pedido}_${codigo}_ASTAP`); };

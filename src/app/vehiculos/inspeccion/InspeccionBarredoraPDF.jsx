@@ -264,7 +264,7 @@ export default function InspeccionBarredoraPDF({ variant = "pelican", allowDownl
     </div>
   );
 
-  if (report.estado !== "completado") return (
+  if (report.estado !== "completado" && allowDownload) return (
     <div className="p-6 text-center">
       <p>Esta inspección no está completada.</p>
       <button onClick={() => navigate("/vehiculos/inspeccion")} className="btn-volver-orange mt-4">

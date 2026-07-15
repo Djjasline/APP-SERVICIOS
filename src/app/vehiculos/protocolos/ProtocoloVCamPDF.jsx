@@ -91,7 +91,7 @@ export default function ProtocoloVCamPDF({ allowDownload = true, backPath = "/ve
   }, [id]);
 
   if (!record) return <div className="p-6 text-center"><p>No se encontró el protocolo VCAM.</p><button onClick={() => navigate(backPath)} className="btn-volver-orange mt-4">Volver</button></div>;
-  if (record.estado !== "completado") return <div className="p-6 text-center"><p>Este protocolo no está completado.</p><button onClick={() => navigate(backPath)} className="btn-volver-orange mt-4">Volver</button></div>;
+  if (record.estado !== "completado" && allowDownload) return <div className="p-6 text-center"><p>Este protocolo no está completado.</p><button onClick={() => navigate(backPath)} className="btn-volver-orange mt-4">Volver</button></div>;
 
   const d = record.data || {};
   const handlePrint = () => {

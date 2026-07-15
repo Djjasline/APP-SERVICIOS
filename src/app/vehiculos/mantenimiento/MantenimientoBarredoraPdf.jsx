@@ -277,7 +277,7 @@ export default function MantenimientoBarredoraPDF({ variant = "pelican", allowDo
     </div>
   );
 
-  if (report.estado !== "completado") return (
+  if (report.estado !== "completado" && allowDownload) return (
     <div className="p-6 text-center">
       <p>Este mantenimiento no está completado aún.</p>
       <button onClick={() => navigate("/mantenimiento")} className="btn-volver-orange mt-4">
