@@ -8,12 +8,16 @@ export default function CardModulo({
   color = "bg-blue-600",
   icono = null,
   badge = null,
+  disabled = false,
+  disabledLabel = "Acceso restringido",
 }) {
   const navigate = useNavigate();
 
   const esExterno = ruta?.startsWith("http");
 
   const handleClick = () => {
+    if (disabled) return;
+
     if (esExterno) {
       window.open(ruta, "_blank", "noopener,noreferrer");
     } else {
@@ -22,7 +26,7 @@ export default function CardModulo({
   };
 
   return (
-    <div className="bg-white p-5 rounded-xl shadow flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition duration-300">
+    <div className={`bg-white p-5 rounded-xl shadow flex flex-col justify-between transition duration-300 ${disabled ? "opacity-75" : "hover:shadow-xl hover:-translate-y-1"}`}>
 
       {/* TOP */}
       <div className="space-y-2">
@@ -57,9 +61,10 @@ export default function CardModulo({
       {/* BOTÓN */}
       <button
         onClick={handleClick}
-        className={`mt-4 ${color} text-white py-3 rounded-lg text-sm font-medium hover:opacity-90 transition`}
+        disabled={disabled}
+        className={`mt-4 ${disabled ? "bg-slate-400 cursor-not-allowed" : color} text-white py-3 rounded-lg text-sm font-medium hover:opacity-90 transition`}
       >
-        {esExterno ? "Abrir" : "Ir"}
+        {disabled ? disabledLabel : esExterno ? "Abrir" : "Ir"}
       </button>
     </div>
   );

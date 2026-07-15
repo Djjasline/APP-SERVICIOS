@@ -333,12 +333,13 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
               <button
                 type="button"
-                onClick={() => go("/vehiculos/configurador")}
-                className={subItemClass("/vehiculos/configurador")}
+                disabled
+                title="Acceso restringido hasta nueva orden"
+                className={`${subItemClass("/vehiculos/configurador")} cursor-not-allowed opacity-50`}
               >
                 <span className="inline-flex items-center gap-2">
                   <SlidersHorizontal size={14} />
-                  Configurador 🚧
+                  Configurador 🚧 · 20%
                 </span>
               </button>
             </div>

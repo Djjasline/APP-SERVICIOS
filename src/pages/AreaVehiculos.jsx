@@ -65,11 +65,13 @@ export default function AreaVehiculos() {
 />
 
 <CardModulo
-  titulo="Configurador 🚧"
-  descripcion="Configurador técnico de equipos, esquemas, capas y revisión. En construcción."
+  titulo="Configurador 🚧 · 20% de avance"
+  descripcion="Configurador técnico de equipos, esquemas, capas y revisión. Acceso restringido hasta nueva orden."
   ruta="/vehiculos/configurador"
   color="bg-orange-600"
   icono={<SlidersHorizontal size={20} />}
+  disabled
+  disabledLabel="Acceso restringido"
 />
 
       </div>
