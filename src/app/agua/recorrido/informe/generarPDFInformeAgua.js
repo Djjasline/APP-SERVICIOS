@@ -443,12 +443,12 @@ export const generarPDFInformeAgua = async (data = {}) => {
   if (hasFirmas) {
     const lastPage = doc.internal.getNumberOfPages();
     doc.setPage(lastPage);
-    y = addPageIfNeeded(doc, y, 50);
+    y = addPageIfNeeded(doc, y, 60);
     y = sectionHeader(doc, y, "Firmas");
     y += 8;
 
-    const firmaW  = 70;
-    const firmaH  = 28;
+    const firmaW  = 72;
+    const firmaH  = 36;
     const xTecn   = margin;
     const xSuperv = w - margin - firmaW;
 

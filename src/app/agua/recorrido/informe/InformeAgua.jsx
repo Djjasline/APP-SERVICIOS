@@ -46,6 +46,11 @@ const updateAtPath = (setter, path, val) => {
   });
 };
 
+const getSignatureDataUrl = (signatureRef, fallback = "") => {
+  if (!signatureRef.current || signatureRef.current.isEmpty()) return fallback;
+  return signatureRef.current.getTrimmedCanvas().toDataURL("image/png");
+};
+
 // ── sub-componentes de celda ────────────────────────────
 const Field = ({ label, children, className = "" }) => (
   <div className={`ia-field ${className}`}>
@@ -700,14 +705,14 @@ const Styles = () => (
       border: 1px solid #e5e7eb;
       border-radius: 6px;
       overflow: hidden;
-      background: #fafafa;
+      background: #fff;
     }
     .ia-firma-img {
       width: 100%;
-      height: 80px;
+      height: 120px;
       object-fit: contain;
       display: block;
-      background: #fafafa;
+      background: #fff;
       touch-action: none;
     }
     .ia-firma-limpiar {
@@ -816,14 +821,8 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
   };
 
   const buildPayload = () => {
-    const tecnico =
-      firmaTecnicoRef.current && !firmaTecnicoRef.current.isEmpty()
-        ? firmaTecnicoRef.current.toDataURL("image/png")
-        : data.firmas.tecnico || "";
-    const supervisor =
-      firmaSupervisorRef.current && !firmaSupervisorRef.current.isEmpty()
-        ? firmaSupervisorRef.current.toDataURL("image/png")
-        : data.firmas.supervisor || "";
+    const tecnico = getSignatureDataUrl(firmaTecnicoRef, data.firmas.tecnico || "");
+    const supervisor = getSignatureDataUrl(firmaSupervisorRef, data.firmas.supervisor || "");
 
     return { ...data, firmas: { tecnico, supervisor } };
   };
@@ -1112,7 +1111,7 @@ navigate("/agua/recorrido/informe");
                         maxWidth={1.8}
                         onBegin={handleFirmaBegin}
                         onEnd={handleFirmaEnd}
-                        canvasProps={{ width: 380, height: 80, className: "ia-firma-img" }}
+                        canvasProps={{ width: 420, height: 120, className: "ia-firma-img" }}
                       />
                     </div>
                   )}
@@ -1146,7 +1145,7 @@ navigate("/agua/recorrido/informe");
                         maxWidth={1.8}
                         onBegin={handleFirmaBegin}
                         onEnd={handleFirmaEnd}
-                        canvasProps={{ width: 380, height: 80, className: "ia-firma-img" }}
+                        canvasProps={{ width: 420, height: 120, className: "ia-firma-img" }}
                       />
                     </div>
                   )}

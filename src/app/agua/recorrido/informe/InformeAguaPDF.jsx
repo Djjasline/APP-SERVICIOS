@@ -336,10 +336,10 @@ export default function InformeAguaPDF({ allowDownload = true }) {
                 <img
                   src={d.firmas.tecnico}
                   alt="Firma técnico"
-                  className="h-20 object-contain mx-auto"
+                  className="h-28 w-full object-contain mx-auto"
                 />
               ) : (
-                <div className="h-20 flex items-center justify-center text-sm text-gray-400">
+                <div className="h-28 flex items-center justify-center text-sm text-gray-400">
                   Sin firma
                 </div>
               )}
@@ -353,10 +353,10 @@ export default function InformeAguaPDF({ allowDownload = true }) {
                 <img
                   src={d.firmas.supervisor}
                   alt="Firma supervisor"
-                  className="h-20 object-contain mx-auto"
+                  className="h-28 w-full object-contain mx-auto"
                 />
               ) : (
-                <div className="h-20 flex items-center justify-center text-sm text-gray-400">
+                <div className="h-28 flex items-center justify-center text-sm text-gray-400">
                   Sin firma
                 </div>
               )}
