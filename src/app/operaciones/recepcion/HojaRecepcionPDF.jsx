@@ -57,7 +57,7 @@ export default function HojaRecepcionPDF({ allowDownload = true }) {
   }
 
   return (
-    <div className="p-4 max-w-[1080px] mx-auto space-y-3 bg-white">
+    <div className="recepcion-page p-4 max-w-[794px] mx-auto space-y-3 bg-white">
       <div className="no-print flex flex-wrap justify-between gap-2">
         <button
           type="button"
@@ -88,7 +88,7 @@ export default function HojaRecepcionPDF({ allowDownload = true }) {
         )}
       </div>
 
-      <div className="overflow-x-auto bg-white shadow border p-2">
+      <div className="recepcion-sheet-wrap overflow-hidden bg-white shadow border p-2">
         <ControlVehicularSheet
           data={data}
           setData={() => {}}

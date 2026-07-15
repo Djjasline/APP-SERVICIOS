@@ -15,7 +15,21 @@ import {
   documentosVehiculo,
 } from "./recepcionSchema";
 
-const COL_WIDTHS = [172, 126, 25, 27, 160, 41, 39, 190, 25, 23, 41, 98, 31];
+const COL_WIDTHS = [
+  "17.23%",
+  "12.63%",
+  "2.51%",
+  "2.71%",
+  "16.03%",
+  "4.11%",
+  "3.91%",
+  "19.04%",
+  "2.51%",
+  "2.3%",
+  "4.11%",
+  "9.82%",
+  "3.1%",
+];
 
 const mergeDeep = (base, value) => {
   if (Array.isArray(base)) return Array.isArray(value) ? value : [...base];
@@ -395,17 +409,19 @@ const SignatureBox = ({ dataUrl, canvasRef, readOnly = false }) => {
 const SheetStyles = () => (
   <style>{`
     .control-sheet {
-      width: 1060px;
+      width: 100%;
+      max-width: 794px;
+      box-sizing: border-box;
       background: #fff;
       color: #000;
       font-family: Calibri, Arial, sans-serif;
-      font-size: 12px;
+      font-size: 9px;
       line-height: 1.15;
       box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
     }
 
     .control-sheet table {
-      width: 1060px;
+      width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
     }
@@ -415,13 +431,14 @@ const SheetStyles = () => (
       padding: 0;
       vertical-align: middle;
       overflow: hidden;
+      min-width: 0;
     }
 
     .sheet-title {
       position: relative;
-      height: 42px;
+      height: 36px;
       text-align: center;
-      font-size: 24px;
+      font-size: 16px;
       font-weight: 700;
       letter-spacing: 0;
       background: #f8fafc;
@@ -431,15 +448,15 @@ const SheetStyles = () => (
       position: absolute;
       right: 16px;
       top: 4px;
-      height: 34px;
-      max-width: 90px;
+      height: 28px;
+      max-width: 74px;
       object-fit: contain;
     }
 
     .section-title {
       height: 21px;
       padding-left: 4px !important;
-      font-size: 14px;
+      font-size: 10px;
       font-weight: 700;
       text-align: left;
       background: #dbeafe;
@@ -447,21 +464,21 @@ const SheetStyles = () => (
     }
 
     .cell-label {
-      padding: 2px 4px !important;
-      font-size: 12px;
+      padding: 1px 3px !important;
+      font-size: 8px;
       white-space: normal;
     }
 
     .cell-label-center {
-      padding: 2px 4px !important;
+      padding: 1px 3px !important;
       text-align: center;
-      font-size: 12px;
+      font-size: 8px;
       white-space: normal;
     }
 
     .small-center {
       text-align: center;
-      font-size: 10px;
+      font-size: 7px;
       padding: 1px !important;
     }
 
@@ -482,6 +499,7 @@ const SheetStyles = () => (
       font: inherit;
       text-align: center;
       padding: 1px 3px;
+      min-width: 0;
     }
 
     .sheet-textarea {
@@ -604,7 +622,7 @@ const SheetStyles = () => (
   color: #1e3a8a;
   padding: 5px 8px;
   border-radius: 5px;
-  font-size: 11px;
+  font-size: 9px;
   line-height: 1.35;
 }
 
@@ -675,6 +693,11 @@ const SheetStyles = () => (
     }
 
     @media print {
+      @page {
+        size: A4 portrait;
+        margin: 8mm;
+      }
+
       .no-print {
         display: none !important;
       }
@@ -683,11 +706,22 @@ const SheetStyles = () => (
         background: #fff !important;
       }
 
+      .recepcion-page {
+        max-width: none !important;
+        padding: 0 !important;
+      }
+
+      .recepcion-sheet-wrap {
+        border: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+      }
+
       .control-sheet {
+        width: 100% !important;
+        max-width: none !important;
         box-shadow: none !important;
         margin: 0 !important;
-        transform: scale(0.74);
-        transform-origin: top left;
       }
     }
   `}</style>
@@ -1197,7 +1231,7 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
   };
 
   return (
-    <div className="p-4 max-w-[1080px] mx-auto space-y-3">
+    <div className="recepcion-page p-4 max-w-[794px] mx-auto space-y-3">
       <BannerAutoguardado
       clave={claveAutoguardado}
       onRestaurar={(datosGuardados) => setData(datosGuardados)}
@@ -1281,7 +1315,7 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
         Completa datos de entrega, documentos, kilometraje y combustible. En daños de carrocería puedes subir fotos, marcar puntos sobre la imagen y describir cada novedad antes de guardar o descargar el PDF.
       </div>
 
-      <div className="overflow-x-auto bg-white shadow border p-2">
+      <div className="recepcion-sheet-wrap overflow-hidden bg-white shadow border p-2">
         <ControlVehicularSheet
   data={data}
   setData={setData}
