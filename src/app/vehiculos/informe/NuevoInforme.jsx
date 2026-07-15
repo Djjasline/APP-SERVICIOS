@@ -104,6 +104,8 @@ export default function NuevoInforme() {
       tecnico: "",
       cliente: "",
       clienteCedula: "",
+      autorizadoPorActivo: false,
+      autorizadoPorNombre: "",
     },
   };
 
@@ -259,6 +261,8 @@ useEffect(() => {
           tecnico: report.data?.firmas?.tecnico || "",
           cliente: report.data?.firmas?.cliente || "",
           clienteCedula: report.data?.firmas?.clienteCedula || "",
+          autorizadoPorActivo: Boolean(report.data?.firmas?.autorizadoPorActivo),
+          autorizadoPorNombre: report.data?.firmas?.autorizadoPorNombre || "",
         },
       };
 
@@ -605,6 +609,8 @@ const estadoFinal =
           tecnico: firmaTecnicoFinal,
           cliente: firmaClienteFinal,
           clienteCedula: data.firmas?.clienteCedula || "",
+          autorizadoPorActivo: Boolean(data.firmas?.autorizadoPorActivo),
+          autorizadoPorNombre: data.firmas?.autorizadoPorNombre || "",
         },
       };
 
@@ -1231,6 +1237,27 @@ const estadoFinal =
         </button>
 
        {/* ── FIRMAS ── */}
+<div className="mb-3 rounded border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-slate-800">
+  <label className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+    <span className="flex items-center gap-2 font-semibold">
+      <input
+        type="checkbox"
+        checked={Boolean(data.firmas?.autorizadoPorActivo)}
+        onChange={(e) => {
+          update(["firmas", "autorizadoPorActivo"], e.target.checked);
+          if (!e.target.checked) update(["firmas", "autorizadoPorNombre"], "");
+        }}
+        className="h-4 w-4"
+      />
+      Autorizado por
+    </span>
+
+    <span className="text-xs text-slate-600">
+      Opcional: agrega un recuadro para firma física en el PDF.
+    </span>
+  </label>
+</div>
+
 <table className="pdf-table w-full">
   <thead>
     <tr>
@@ -1346,6 +1373,30 @@ onEnd={() => {
         </div>
       </td>
     </tr>
+    {data.firmas?.autorizadoPorActivo && (
+      <tr>
+        <td colSpan={2} className="align-top" style={{ height: 220 }}>
+          <div className="mx-auto max-w-[420px]">
+            <div className="mb-2 text-center text-xs font-bold uppercase">
+              AUTORIZADO POR
+            </div>
+            <div className="flex h-[120px] items-center justify-center rounded border bg-white text-xs text-slate-400">
+              Espacio para firma en PDF impreso
+            </div>
+
+            <div className="mt-2 space-y-1 text-center">
+              <input
+                className="pdf-input w-full"
+                value={data.firmas?.autorizadoPorNombre || ""}
+                onChange={(e) => update(["firmas", "autorizadoPorNombre"], e.target.value)}
+                placeholder="Nombre de quien autoriza"
+              />
+              <div className="text-xs font-semibold">Firma Autorizado por</div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    )}
   </tbody>
 </table>
 

@@ -506,6 +506,45 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
       </tr>
     </tbody>
   </table>
+
+  {data.firmas?.autorizadoPorActivo && (
+    <table style={{ ...S.tbl, marginTop: 10, width: "60%", marginLeft: "auto", marginRight: "auto" }}>
+      <thead>
+        <tr>
+          <th style={S.th}>AUTORIZADO POR</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td
+            style={{
+              ...S.cell,
+              height: 120,
+              textAlign: "center",
+              verticalAlign: "bottom",
+              padding: 8,
+            }}
+          >
+            <div style={{ height: 78 }} />
+            <div
+              style={{
+                borderTop: "1px solid #111827",
+                paddingTop: 8,
+                fontSize: 12,
+                fontWeight: 700,
+              }}
+            >
+              {data.firmas?.autorizadoPorNombre || "—"}
+            </div>
+            <div style={{ marginTop: 4, fontSize: 11 }}>
+              Firma Autorizado por
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  )}
 </div>
       </div>
       {/* ── fin #pdf-content ── */}
