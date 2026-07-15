@@ -52,7 +52,7 @@ export default function AreaAgua() {
     <>
       Informe de recorrido
       <span className="ml-2 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-800">
-        70% de avance
+        🚧 · 70% de avance
       </span>
     </>
   )}
