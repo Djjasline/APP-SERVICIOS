@@ -146,7 +146,7 @@ function SeccionTable({ sec, items, extras = [] }) {
 /* ══════════════════════════════
    COMPONENTE PRINCIPAL
 ══════════════════════════════ */
-export default function MantenimientoVCamPDF() {
+export default function MantenimientoVCamPDF({ allowDownload = true }) {
   const navigate = useNavigate();
   const { id }   = useParams();
   const [report, setReport] = useState(null);
@@ -378,7 +378,7 @@ export default function MantenimientoVCamPDF() {
       {/* ── BOTONES ── */}
       <div className="no-print" style={{ display: "flex", justifyContent: "space-between", maxWidth: 794, margin: "24px auto 0" }}>
         <button onClick={() => navigate("/mantenimiento")} className="btn-volver-orange px-6">Volver</button>
-        <button onClick={handlePrint} className="bg-green-600 text-white px-6 py-2 rounded">Descargar PDF</button>
+        {allowDownload && <button onClick={handlePrint} className="bg-green-600 text-white px-6 py-2 rounded">Descargar PDF</button>}
       </div>
     </div>
   );

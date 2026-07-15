@@ -206,6 +206,7 @@ export default function ProtocolosHome() {
                   <span className={`mt-1 inline-block px-2 py-0.5 rounded text-white text-[10px] ${item.estado === "completado" ? "bg-green-600" : "bg-yellow-500"}`}>{item.estado === "completado" ? "Completado" : "Borrador"}</span>
                 </div>
                 <div className="flex gap-3 text-xs shrink-0">
+                  <button onClick={() => navigate(`/vehiculos/protocolos/${protocol.path}/ver/${item.id}`)} className="font-semibold text-slate-600 hover:underline">Ver</button>
                   {item.estado === "completado" && canDownload(item) && <button onClick={() => navigate(`/vehiculos/protocolos/${protocol.path}/${item.id}/pdf`)} className="text-green-600 font-semibold hover:underline">PDF</button>}
                   {canEdit(item) && <button onClick={() => navigate(`/vehiculos/protocolos/${protocol.path}/${item.id}`)} className="text-blue-600 hover:underline">Abrir</button>}
                   {canEdit(item) && <button onClick={() => handleDuplicate(item)} className="font-semibold text-amber-600 hover:underline">Duplicar</button>}

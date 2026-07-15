@@ -246,7 +246,7 @@ function SeccionTable({ sec, items, extras = [] }) {
 /* ══════════════════════════════
    COMPONENTE PRINCIPAL
 ══════════════════════════════ */
-export default function MantenimientoBarredoraPDF({ variant = "pelican" }) {
+export default function MantenimientoBarredoraPDF({ variant = "pelican", allowDownload = true }) {
   const variantConfig = barredoraPdfVariants[variant] || barredoraPdfVariants.pelican;
   const navigate = useNavigate();
   const { id }   = useParams();
@@ -551,9 +551,11 @@ export default function MantenimientoBarredoraPDF({ variant = "pelican" }) {
         <button onClick={() => navigate("/mantenimiento")} className="btn-volver-orange px-6">
           Volver
         </button>
-        <button onClick={handlePrint} className="bg-green-600 text-white px-6 py-2 rounded">
-          Descargar PDF
-        </button>
+        {allowDownload && (
+          <button onClick={handlePrint} className="bg-green-600 text-white px-6 py-2 rounded">
+            Descargar PDF
+          </button>
+        )}
       </div>
     </div>
   );

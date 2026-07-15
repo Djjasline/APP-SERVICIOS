@@ -243,11 +243,20 @@ export default function LiberacionHome() {
 
                 <td className="px-4 py-2 text-right space-x-2">
                   <button
-                    onClick={() => open(r)}
-                    className="text-blue-600 hover:underline"
+                    onClick={() => navigate(`/operaciones/liberacion/ver/${r.id}`)}
+                    className="font-semibold text-slate-600 hover:underline"
                   >
-                    Abrir
+                    Ver
                   </button>
+
+                  {canEdit(r) && (
+                    <button
+                      onClick={() => open(r)}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Abrir
+                    </button>
+                  )}
 
                   {canEdit(r) && (
                     <button

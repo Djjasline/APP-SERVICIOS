@@ -246,6 +246,13 @@ export default function InformeAguaHome() {
                     </td>
 
                     <td className="px-4 py-3 text-right space-x-3 whitespace-nowrap">
+                      <button
+                        onClick={() => navigate(`/agua/recorrido/informe/ver/${r.id}`)}
+                        className="font-semibold text-slate-600 hover:underline text-xs"
+                      >
+                        Ver
+                      </button>
+
                       {canEdit(r) && (
                         <button
                           onClick={() => navigate(`/agua/recorrido/informe/${r.id}`)}

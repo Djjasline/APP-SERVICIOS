@@ -506,6 +506,13 @@ export default function IndexInspeccion() {
               </div>
 
               <div className="flex gap-3 text-xs shrink-0">
+                <button
+                  onClick={() => navigate(`/vehiculos/inspeccion/${item.subtipo}/ver/${item.id}`)}
+                  className="font-semibold text-slate-600 hover:underline"
+                >
+                  Ver
+                </button>
+
                 {item.estado === "completado" && canDownloadInspection(item) && (
                   <button
                     onClick={() => handleGeneratePdf(item)}

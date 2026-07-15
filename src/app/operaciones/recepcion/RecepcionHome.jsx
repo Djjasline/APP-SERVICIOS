@@ -261,6 +261,13 @@ export default function RecepcionHome() {
                     </td>
 
                     <td className="px-4 py-2 text-right space-x-2 whitespace-nowrap">
+                      <button
+                        onClick={() => navigate(`/operaciones/recepcion/ver/${r.id}`)}
+                        className="font-semibold text-slate-600 hover:underline"
+                      >
+                        Ver
+                      </button>
+
                       {canEdit(r) && (
                         <button
                           onClick={() => navigate(`/operaciones/recepcion/${r.id}`)}
@@ -278,13 +285,6 @@ export default function RecepcionHome() {
                           Duplicar
                         </button>
                       )}
-
-                      <button
-                        onClick={() => navigate(`/operaciones/recepcion/${r.id}/pdf`)}
-                        className="text-indigo-600 hover:underline font-semibold"
-                      >
-                        Vista previa
-                      </button>
 
                       {canDownload(r) && (
                         <button

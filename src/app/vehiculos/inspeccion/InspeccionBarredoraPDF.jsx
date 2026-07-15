@@ -216,7 +216,7 @@ const barredoraVariants = {
   },
 };
 
-export default function InspeccionBarredoraPDF({ variant = "pelican" }) {
+export default function InspeccionBarredoraPDF({ variant = "pelican", allowDownload = true }) {
   const variantConfig = barredoraVariants[variant] || barredoraVariants.pelican;
   const navigate = useNavigate();
   const { id }   = useParams();
@@ -696,12 +696,14 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
         >
           Volver
         </button>
-        <button
-          onClick={handlePrint}
-          className="bg-green-600 text-white px-6 py-2 rounded"
-        >
-          Descargar PDF
-        </button>
+        {allowDownload && (
+          <button
+            onClick={handlePrint}
+            className="bg-green-600 text-white px-6 py-2 rounded"
+          >
+            Descargar PDF
+          </button>
+        )}
       </div>
     </div>
   );

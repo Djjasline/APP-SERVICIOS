@@ -19,7 +19,7 @@ const mergeDeep = (base, value) => {
   return merged;
 };
 
-export default function HojaRecepcionPDF() {
+export default function HojaRecepcionPDF({ allowDownload = true }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(cloneRecepcionSchema());
@@ -67,23 +67,25 @@ export default function HojaRecepcionPDF() {
           Volver
         </button>
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="border px-4 py-2 rounded text-sm hover:bg-gray-50"
-          >
-            Imprimir
-          </button>
+        {allowDownload && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="border px-4 py-2 rounded text-sm hover:bg-gray-50"
+            >
+              Imprimir
+            </button>
 
-          <button
-            type="button"
-            onClick={() => generarPDFRecepcion(data)}
-            className="bg-green-600 text-white px-4 py-2 rounded text-sm"
-          >
-            Descargar PDF
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => generarPDFRecepcion(data)}
+              className="bg-green-600 text-white px-4 py-2 rounded text-sm"
+            >
+              Descargar PDF
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="overflow-x-auto bg-white shadow border p-2">

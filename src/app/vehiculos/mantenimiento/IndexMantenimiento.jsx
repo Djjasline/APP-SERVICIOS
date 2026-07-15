@@ -426,6 +426,15 @@ export default function IndexMantenimiento() {
                   </div>
 
                   <div className="flex gap-3 text-sm">
+                    <button
+                      onClick={() =>
+                        navigate(`/vehiculos/mantenimiento/${item.subtipo}/ver/${item.id}`)
+                      }
+                      className="font-semibold text-slate-600 hover:underline"
+                    >
+                      Ver
+                    </button>
+
                     {canEditMaintenance(item) && (
                       <button
                         onClick={() =>

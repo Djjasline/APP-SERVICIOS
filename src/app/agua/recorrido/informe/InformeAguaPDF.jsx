@@ -22,7 +22,7 @@ const mergeDeep = (base, value) => {
   return merged;
 };
 
-export default function InformeAguaPDF() {
+export default function InformeAguaPDF({ allowDownload = true }) {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -124,13 +124,15 @@ export default function InformeAguaPDF() {
               ← Volver
             </button>
 
-            <button
-              type="button"
-              onClick={handleDownload}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium"
-            >
-              Descargar PDF
-            </button>
+            {allowDownload && (
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium"
+              >
+                Descargar PDF
+              </button>
+            )}
           </div>
         </div>
 

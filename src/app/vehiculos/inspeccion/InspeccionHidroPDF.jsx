@@ -124,7 +124,7 @@ const secciones = [
   { titulo: "D) SISTEMA DE SUCCIÓN", items: [["D.1","Sellos del tanque de desperdicios"],["D.2","Interior del tanque de desechos"],["D.3","Microfiltro de succión"],["D.4","Tapón de drenaje del filtro de succión"],["D.5","Mangueras de succión"],["D.6","Seguros de compuerta"],["D.7","Sistema de desfogue"],["D.8","Válvulas de alivio Kunkle"],["D.9","Operación del soplador"]] },
 ];
 
-export default function InspeccionHidroPDF() {
+export default function InspeccionHidroPDF({ allowDownload = true }) {
   const navigate = useNavigate();
   const { id } = useParams();
   const [report, setReport] = useState(null);
@@ -543,7 +543,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
       {/* BOTONES */}
       <div className="no-print" style={{ display: "flex", justifyContent: "space-between", maxWidth: 794, margin: "24px auto 0" }}>
         <button onClick={() => navigate("/vehiculos/inspeccion")} className="btn-volver-orange px-6">Volver</button>
-        <button onClick={handlePrint} className="bg-green-600 text-white px-6 py-2 rounded">Descargar PDF</button>
+        {allowDownload && <button onClick={handlePrint} className="bg-green-600 text-white px-6 py-2 rounded">Descargar PDF</button>}
       </div>
     </div>
   );
