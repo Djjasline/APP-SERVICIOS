@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import {
   getNotifications,
@@ -45,6 +45,9 @@ export default function NotificationsPage() {
   const { email, user } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [markingVisible, setMarkingVisible] = useState(false);
   const navigate = useNavigate();
   const { isLight } = useTheme();
 
@@ -110,6 +113,40 @@ export default function NotificationsPage() {
     };
   }, [email]);
 
+  const filteredItems = useMemo(() => {
+    const q = search.trim().toLowerCase();
+
+    return items.filter((item) => {
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "unread" && !item.read) ||
+        (filter === "read" && item.read) ||
+        (filter === "chat" && item.record_type === "chat") ||
+        (filter === "updates" && item.isAppUpdate) ||
+        (filter === "records" && !item.isAppUpdate && item.record_type !== "chat");
+
+      if (!matchesFilter) return false;
+      if (!q) return true;
+
+      return [item.title, item.message, item.record_type, item.created_at]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(q);
+    });
+  }, [items, filter, search]);
+
+  const unreadVisibleCount = filteredItems.filter((item) => !item.read).length;
+
+  const filterButtons = [
+    { key: "all", label: "Todos", count: items.length },
+    { key: "unread", label: "No leídas", count: items.filter((item) => !item.read).length },
+    { key: "read", label: "Leídas", count: items.filter((item) => item.read).length },
+    { key: "chat", label: "Chat", count: items.filter((item) => item.record_type === "chat").length },
+    { key: "updates", label: "Boletines", count: items.filter((item) => item.isAppUpdate).length },
+    { key: "records", label: "Registros", count: items.filter((item) => !item.isAppUpdate && item.record_type !== "chat").length },
+  ];
+
   const handleMarkRead = async (id) => {
     const item = items.find((notification) => notification.id === id);
 
@@ -135,6 +172,33 @@ export default function NotificationsPage() {
         return next;
       });
     }
+  };
+
+  const handleMarkVisibleRead = async () => {
+    const unreadVisible = filteredItems.filter((item) => !item.read);
+    if (!unreadVisible.length || markingVisible) return;
+
+    setMarkingVisible(true);
+
+    const results = await Promise.all(
+      unreadVisible.map(async (item) => {
+        if (item.isAppUpdate) {
+          const ok = await markAppUpdateRead(user?.id, item.update_id || item.id);
+          return ok ? item.id : null;
+        }
+
+        const ok = await markNotificationRead(item.id);
+        return ok ? item.id : null;
+      })
+    );
+
+    const readIds = new Set(results.filter(Boolean));
+
+    if (readIds.size > 0) {
+      setItemsAndBadge((prev) => prev.map((item) => (readIds.has(item.id) ? { ...item, read: true } : item)));
+    }
+
+    setMarkingVisible(false);
   };
 
   const updateReadState = (id) => {
@@ -166,6 +230,54 @@ export default function NotificationsPage() {
         Notificaciones
       </h1>
 
+      <div className={`mb-4 rounded-xl border p-3 ${isLight ? "border-slate-200 bg-white" : "border-white/10 bg-white/5"}`}>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Buscar por mensaje, título, chat o registro..."
+            className={`w-full rounded-lg border px-3 py-2 text-sm outline-none lg:max-w-md ${
+              isLight
+                ? "border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400"
+                : "border-white/10 bg-slate-950/40 text-white placeholder:text-slate-400"
+            }`}
+          />
+
+          <button
+            type="button"
+            onClick={handleMarkVisibleRead}
+            disabled={unreadVisibleCount === 0 || markingVisible}
+            className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+              unreadVisibleCount === 0 || markingVisible
+                ? "cursor-not-allowed bg-slate-200 text-slate-500"
+                : "bg-green-600 text-white hover:bg-green-700"
+            }`}
+          >
+            {markingVisible ? "Marcando..." : `Marcar visibles como leído (${unreadVisibleCount})`}
+          </button>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {filterButtons.map((button) => (
+            <button
+              key={button.key}
+              type="button"
+              onClick={() => setFilter(button.key)}
+              className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                filter === button.key
+                  ? "bg-blue-600 text-white"
+                  : isLight
+                  ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  : "bg-white/10 text-slate-200 hover:bg-white/15"
+              }`}
+            >
+              {button.label} ({button.count})
+            </button>
+          ))}
+        </div>
+      </div>
+
       {loading ? (
         <p className={`text-sm ${isLight ? "text-slate-600" : "text-white"}`}>
           Cargando...
@@ -174,9 +286,13 @@ export default function NotificationsPage() {
         <p className={`text-sm ${isLight ? "text-slate-600" : "text-white"}`}>
           No tienes notificaciones.
         </p>
+      ) : filteredItems.length === 0 ? (
+        <p className={`text-sm ${isLight ? "text-slate-600" : "text-white"}`}>
+          No hay notificaciones con esos filtros.
+        </p>
       ) : (
         <ul className="space-y-3">
-          {items.map((n) => (
+          {filteredItems.map((n) => (
             <li
               key={n.id}
               className={`p-3 border rounded-lg flex justify-between items-start ${
