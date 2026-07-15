@@ -204,6 +204,8 @@ estadoEquipo: {
       tecnico: "",
       cliente: "",
       clienteCedula: "",
+      autorizadoPorActivo: false,
+      autorizadoPorNombre: "",
     },
   };
 
@@ -697,6 +699,8 @@ const save = async () => {
       ...data.firmas,
       tecnico: firmaTecnico,
       cliente: firmaCliente,
+      autorizadoPorActivo: Boolean(data.firmas?.autorizadoPorActivo),
+      autorizadoPorNombre: data.firmas?.autorizadoPorNombre || "",
     },
   };
 
@@ -1616,6 +1620,30 @@ const save = async () => {
           >+ Agregar conclusión técnica / recomendación accionable</button>
 
           {/* ── FIRMAS ── */}
+          <div className="mb-3 rounded border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-slate-800">
+            <label className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <span className="flex items-center gap-2 font-semibold">
+                <input
+                  type="checkbox"
+                  checked={Boolean(data.firmas?.autorizadoPorActivo)}
+                  onChange={(e) => {
+                    set("firmas", {
+                      ...data.firmas,
+                      autorizadoPorActivo: e.target.checked,
+                      autorizadoPorNombre: e.target.checked ? data.firmas?.autorizadoPorNombre || "" : "",
+                    });
+                  }}
+                  className="h-4 w-4"
+                />
+                Autorizado por
+              </span>
+
+              <span className="text-xs text-slate-600">
+                Opcional: agrega un recuadro para firma física en el PDF.
+              </span>
+            </label>
+          </div>
+
           <table className="w-full text-sm border-collapse border">
             <thead>
               <tr className="bg-gray-100">
@@ -1667,6 +1695,29 @@ const save = async () => {
                   </div>
                 </td>
               </tr>
+              {data.firmas?.autorizadoPorActivo && (
+                <tr>
+                  <td colSpan={2} className="border p-3 align-top" style={{ height: 220 }}>
+                    <div className="mx-auto max-w-[420px]">
+                      <div className="mb-2 text-center text-xs font-bold uppercase">
+                        AUTORIZADO POR
+                      </div>
+                      <div className="flex h-[120px] items-center justify-center rounded border bg-white text-xs text-slate-400">
+                        Espacio para firma en PDF impreso
+                      </div>
+                      <div className="mt-2 space-y-1 text-center">
+                        <input
+                          className="w-full rounded border p-1 text-xs"
+                          value={data.firmas?.autorizadoPorNombre || ""}
+                          onChange={(e) => set("firmas", { ...data.firmas, autorizadoPorNombre: e.target.value })}
+                          placeholder="Nombre de quien autoriza"
+                        />
+                        <div className="text-xs font-semibold">Firma Autorizado por</div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
 

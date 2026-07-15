@@ -690,11 +690,58 @@ export default function VisitaCampoForm() {
       <label className={labelClass}>Conclusiones<AutoTextarea rows={6} className={inputClass} value={listToText(data.conclusiones)} onChange={(e) => set("conclusiones", textToList(e.target.value))} /></label>
       <label className={labelClass}>Recomendaciones<AutoTextarea rows={6} className={inputClass} value={listToText(data.recomendaciones)} onChange={(e) => set("recomendaciones", textToList(e.target.value))} /></label>
 
+      <div className="rounded border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-slate-800">
+        <label className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <span className="flex items-center gap-2 font-semibold">
+            <input
+              type="checkbox"
+              checked={Boolean(data.firmas?.autorizadoPorActivo)}
+              onChange={(event) => {
+                const checked = event.target.checked;
+                setData((prev) => ({
+                  ...prev,
+                  firmas: {
+                    ...(prev.firmas || {}),
+                    autorizadoPorActivo: checked,
+                    autorizadoPorNombre: checked ? prev.firmas?.autorizadoPorNombre || "" : "",
+                  },
+                }));
+              }}
+              className="h-4 w-4"
+            />
+            Autorizado por
+          </span>
+          <span className="text-xs text-slate-600">
+            Opcional: agrega un recuadro para firma física en el PDF.
+          </span>
+        </label>
+      </div>
+
       <section className="grid gap-3 md:grid-cols-3">
         <SignatureField label="Realizado por" value={data.realizadoPor} onChange={(e) => set("realizadoPor", e.target.value)} signature={data.firmas?.realizado} onSignatureChange={(value) => setFirma("realizado", value)} />
         <SignatureField label="Revisado por" value={data.revisadoPor} onChange={(e) => set("revisadoPor", e.target.value)} signature={data.firmas?.revisado} onSignatureChange={(value) => setFirma("revisado", value)} />
         <SignatureField label="Recibido por" value={data.recibidoPor} onChange={(e) => set("recibidoPor", e.target.value)} signature={data.firmas?.recibido} onSignatureChange={(value) => setFirma("recibido", value)} />
       </section>
+
+      {data.firmas?.autorizadoPorActivo && (
+        <section className="mx-auto w-full max-w-lg rounded border border-slate-300 bg-white p-3">
+          <div className="mb-2 text-center text-xs font-bold uppercase tracking-wide text-gray-500">
+            Autorizado por
+          </div>
+          <div className="flex h-28 items-center justify-center rounded border border-slate-400 bg-white text-xs text-slate-400">
+            Espacio para firma en PDF impreso
+          </div>
+          <input
+            className={`${inputClass} mt-2 text-center`}
+            value={data.firmas?.autorizadoPorNombre || ""}
+            onChange={(event) => setFirma("autorizadoPorNombre", event.target.value)}
+            placeholder="Nombre de quien autoriza"
+          />
+          <div className="mt-1 text-center text-xs font-semibold text-slate-700">
+            Firma Autorizado por
+          </div>
+        </section>
+      )}
 
       <div className="flex flex-col gap-3 border-t pt-4 md:flex-row md:justify-between">
         <button type="button" onClick={() => navigate("/petroleo/visita-campo")} className="btn-volver-orange px-6">Volver</button>

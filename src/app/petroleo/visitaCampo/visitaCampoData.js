@@ -100,6 +100,8 @@ export const defaultVisitaCampoData = {
     realizado: "",
     revisado: "",
     recibido: "",
+    autorizadoPorActivo: false,
+    autorizadoPorNombre: "",
   },
 };
 

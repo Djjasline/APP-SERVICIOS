@@ -285,29 +285,52 @@ function SignatureBlock({ data }) {
   ];
 
   return (
-    <table style={{ ...S.table, marginTop: 28 }}>
-      <tbody>
-        <tr>
-          {signatures.map(([label]) => (
-            <td key={label} style={{ ...S.headerCell, textAlign: "center" }}>{label}</td>
-          ))}
-        </tr>
-        <tr>
-          {signatures.map(([label, , signature]) => (
-            <td key={`${label}-firma`} style={{ ...S.cell, height: 78, textAlign: "center", verticalAlign: "middle", padding: 0 }}>
-              {signature && <img src={signature} alt={`Firma ${label}`} style={{ maxWidth: "95%", maxHeight: 76, objectFit: "contain" }} />}
-            </td>
-          ))}
-        </tr>
-        <tr>
-          {signatures.map(([label, value]) => (
-            <td key={`${label}-texto`} style={{ ...S.cell, height: 58, whiteSpace: "pre-line", textAlign: "center", verticalAlign: "middle", fontWeight: 600 }}>
-              {value}
-            </td>
-          ))}
-        </tr>
-      </tbody>
-    </table>
+    <div style={{ marginTop: 28 }}>
+      <table style={S.table}>
+        <tbody>
+          <tr>
+            {signatures.map(([label]) => (
+              <td key={label} style={{ ...S.headerCell, textAlign: "center" }}>{label}</td>
+            ))}
+          </tr>
+          <tr>
+            {signatures.map(([label, , signature]) => (
+              <td key={`${label}-firma`} style={{ ...S.cell, height: 78, textAlign: "center", verticalAlign: "middle", padding: 0 }}>
+                {signature && <img src={signature} alt={`Firma ${label}`} style={{ maxWidth: "95%", maxHeight: 76, objectFit: "contain" }} />}
+              </td>
+            ))}
+          </tr>
+          <tr>
+            {signatures.map(([label, value]) => (
+              <td key={`${label}-texto`} style={{ ...S.cell, height: 58, whiteSpace: "pre-line", textAlign: "center", verticalAlign: "middle", fontWeight: 600 }}>
+                {value}
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+
+      {data.firmas?.autorizadoPorActivo && (
+        <table style={{ ...S.table, width: "60%", margin: "10px auto 0" }}>
+          <tbody>
+            <tr>
+              <td style={{ ...S.headerCell, textAlign: "center" }}>AUTORIZADO POR</td>
+            </tr>
+            <tr>
+              <td style={{ ...S.cell, height: 112, textAlign: "center", verticalAlign: "bottom", padding: 8 }}>
+                <div style={{ height: 70 }} />
+                <div style={{ borderTop: "1px solid #111", paddingTop: 8, fontWeight: 700 }}>
+                  {data.firmas?.autorizadoPorNombre || "—"}
+                </div>
+                <div style={{ marginTop: 4, fontSize: 10 }}>
+                  Firma Autorizado por
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      )}
+    </div>
   );
 }
 
