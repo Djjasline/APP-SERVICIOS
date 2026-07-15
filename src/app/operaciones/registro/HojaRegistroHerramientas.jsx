@@ -265,6 +265,54 @@ const handleSubmit = async (e) => {
     </label>
   );
 
+  const SignatureField = ({ title, label, dataUrl, canvasRef, onClear }) => (
+    <div className={`overflow-hidden rounded-lg border ${isLight ? "border-slate-300 bg-white" : "border-white/15 bg-slate-950/50"}`}>
+      <div className={`border-b px-3 py-2 text-center text-xs font-bold ${isLight ? "border-slate-300 bg-blue-50 text-slate-900" : "border-white/15 bg-white/10 text-white"}`}>
+        {title}
+      </div>
+
+      <div className="p-3">
+        <div className="flex h-32 items-center justify-center rounded border border-slate-300 bg-white">
+          {isLocked ? (
+            dataUrl ? (
+              <img
+                src={dataUrl}
+                alt={label}
+                className="max-h-28 max-w-full object-contain"
+              />
+            ) : (
+              <span className="text-sm text-slate-400">-</span>
+            )
+          ) : (
+            <SignatureCanvas
+              ref={canvasRef}
+              penColor="black"
+              minWidth={0.5}
+              maxWidth={1.8}
+              onBegin={handleSignatureBegin}
+              onEnd={handleSignatureEnd}
+              canvasProps={{ className: "h-32 w-full touch-none bg-white" }}
+            />
+          )}
+        </div>
+
+        <div className={`mt-2 border-t pt-2 text-center text-xs font-semibold ${isLight ? "border-slate-300 text-slate-900" : "border-white/20 text-white"}`}>
+          {label}
+        </div>
+
+        {!isLocked && (
+          <button
+            type="button"
+            onClick={onClear}
+            className="mt-2 text-xs text-red-500 hover:underline"
+          >
+            Limpiar
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -497,55 +545,31 @@ const handleSubmit = async (e) => {
       </div>
 
       {/* ================= FIRMAS ================= */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <div>
-          <p className="font-semibold mb-1 text-sm">Firma Responsable</p>
-          <SignatureCanvas
-            ref={firmaResponsableRef}
-            penColor="black"
-            minWidth={0.5}
-            maxWidth={1.8}
-            onBegin={handleSignatureBegin}
-            onEnd={handleSignatureEnd}
-            canvasProps={{ className: "border w-full h-32 rounded bg-white touch-none" }}
-          />
-          {!isLocked && (
-            <button
-              type="button"
-              onClick={() => {
-                firmaResponsableRef.current?.clear();
-                setFormData((prev) => ({ ...prev, firmas: { ...(prev.firmas || {}), responsable: "" } }));
-              }}
-              className="text-xs text-red-500 mt-1 hover:underline"
-            >
-              Limpiar
-            </button>
-          )}
-        </div>
+      <div className="space-y-2">
+        <h2 className="text-sm font-semibold">Firmas</h2>
 
-        <div>
-          <p className="font-semibold mb-1 text-sm">Firma Aprobador</p>
-          <SignatureCanvas
-            ref={firmaAprobadorRef}
-            penColor="black"
-            minWidth={0.5}
-            maxWidth={1.8}
-            onBegin={handleSignatureBegin}
-            onEnd={handleSignatureEnd}
-            canvasProps={{ className: "border w-full h-32 rounded bg-white touch-none" }}
+        <div className="grid gap-4 md:grid-cols-2">
+          <SignatureField
+            title="Responsable"
+            label="Firma Responsable"
+            dataUrl={formData.firmas?.responsable}
+            canvasRef={firmaResponsableRef}
+            onClear={() => {
+              firmaResponsableRef.current?.clear();
+              setFormData((prev) => ({ ...prev, firmas: { ...(prev.firmas || {}), responsable: "" } }));
+            }}
           />
-          {!isLocked && (
-            <button
-              type="button"
-              onClick={() => {
-                firmaAprobadorRef.current?.clear();
-                setFormData((prev) => ({ ...prev, firmas: { ...(prev.firmas || {}), aprobador: "" } }));
-              }}
-              className="text-xs text-red-500 mt-1 hover:underline"
-            >
-              Limpiar
-            </button>
-          )}
+
+          <SignatureField
+            title="Aprobador / Recepción"
+            label="Firma Aprobador / Recepción"
+            dataUrl={formData.firmas?.aprobador}
+            canvasRef={firmaAprobadorRef}
+            onClear={() => {
+              firmaAprobadorRef.current?.clear();
+              setFormData((prev) => ({ ...prev, firmas: { ...(prev.firmas || {}), aprobador: "" } }));
+            }}
+          />
         </div>
       </div>
 

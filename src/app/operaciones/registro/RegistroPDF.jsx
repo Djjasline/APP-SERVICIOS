@@ -358,41 +358,45 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
           <thead>
             <tr className="bg-blue-50">
               <th className="border border-neutral-900 p-2">Responsable</th>
-              <th className="border border-neutral-900 p-2">Aprobador / Recepcion</th>
+              <th className="border border-neutral-900 p-2">Aprobador / Recepción</th>
             </tr>
           </thead>
 
           <tbody>
             <tr>
-              <td className="h-36 border border-neutral-900 p-2 text-center align-middle">
-                {firmas.responsable ? (
-                  <img
-                    src={firmas.responsable}
-                    alt="Firma responsable"
-                    className="mx-auto max-h-28 object-contain"
-                  />
-                ) : (
-                  <div className="flex h-28 items-center justify-center">-</div>
-                )}
+              <td className="h-32 border border-neutral-900 p-3 text-center align-middle">
+                <div className="flex h-24 items-center justify-center">
+                  {firmas.responsable ? (
+                    <img
+                      src={firmas.responsable}
+                      alt="Firma responsable"
+                      className="max-h-24 max-w-full object-contain"
+                    />
+                  ) : (
+                    <span>-</span>
+                  )}
+                </div>
 
                 <div className="mt-2 border-t pt-2 text-xs font-semibold">
                   Firma Responsable
                 </div>
               </td>
 
-              <td className="h-36 border border-neutral-900 p-2 text-center align-middle">
-                {firmas.aprobador ? (
-                  <img
-                    src={firmas.aprobador}
-                    alt="Firma aprobador"
-                    className="mx-auto max-h-28 object-contain"
-                  />
-                ) : (
-                  <div className="flex h-28 items-center justify-center">-</div>
-                )}
+              <td className="h-32 border border-neutral-900 p-3 text-center align-middle">
+                <div className="flex h-24 items-center justify-center">
+                  {firmas.aprobador ? (
+                    <img
+                      src={firmas.aprobador}
+                      alt="Firma aprobador"
+                      className="max-h-24 max-w-full object-contain"
+                    />
+                  ) : (
+                    <span>-</span>
+                  )}
+                </div>
 
                 <div className="mt-2 border-t pt-2 text-xs font-semibold">
-                  Firma Aprobador / Recepcion
+                  Firma Aprobador / Recepción
                 </div>
               </td>
             </tr>
