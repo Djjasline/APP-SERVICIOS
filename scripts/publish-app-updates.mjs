@@ -86,6 +86,11 @@ function firstLine(message) {
 
 const FRIENDLY_UPDATES = [
   {
+    match: "agregar encuesta de satisfaccion en construccion",
+    title: "Control de cambios: encuesta de satisfacción",
+    message: "Se agregó el acceso en construcción a la encuesta de satisfacción para Agua, Industria, Petróleo y Vehículos Especiales.",
+  },
+  {
     match: "remove public mobile contact",
     title: "Control de cambios: contacto público",
     message: "Se quitó el número celular del contacto visible y se dejó solo el teléfono principal de ASTAP.",

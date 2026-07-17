@@ -1,6 +1,6 @@
 import CardModulo from "@/components/CardModulo";
 import { useTheme } from "@/context/ThemeContext";
-import { FileText, ClipboardCheck } from "lucide-react";
+import { FileText, ClipboardCheck, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaAgua() {
@@ -61,6 +61,15 @@ export default function AreaAgua() {
   color="bg-yellow-600"
   icono={<ClipboardCheck size={20} />}
 />
+
+        <CardModulo
+          titulo="Encuesta de satisfacción"
+          descripcion="Módulo en construcción para medir la satisfacción del cliente por cada servicio de campo."
+          ruta="/agua/encuesta-satisfaccion"
+          color="bg-orange-600"
+          icono={<Star size={20} />}
+          badge="En construcción"
+        />
 
       </div>
     </div>

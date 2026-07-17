@@ -1,7 +1,7 @@
 import CardModulo from "@/components/CardModulo";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { useTheme } from "@/context/ThemeContext";
-import { FileText, ClipboardCheck, Wrench, SlidersHorizontal } from "lucide-react";
+import { FileText, ClipboardCheck, Wrench, SlidersHorizontal, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaVehiculos() {
@@ -65,6 +65,15 @@ export default function AreaVehiculos() {
   icono={<SlidersHorizontal size={20} />}
   disabled
   disabledLabel="Acceso restringido"
+/>
+
+<CardModulo
+  titulo="Encuesta de satisfacción"
+  descripcion="Módulo en construcción para medir la satisfacción del cliente por cada servicio de campo."
+  ruta="/vehiculos/encuesta-satisfaccion"
+  color="bg-orange-600"
+  icono={<Star size={20} />}
+  badge="En construcción"
 />
 
       </div>

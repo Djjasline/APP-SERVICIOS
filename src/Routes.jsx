@@ -15,6 +15,7 @@ const AreaIndustria = lazy(() => import("./pages/AreaIndustria"));
 const AreaPetroleo = lazy(() => import("./pages/AreaPetroleo"));
 const AreaOperaciones = lazy(() => import("./pages/AreaOperaciones"));
 const AreaRepositorios = lazy(() => import("./pages/AreaRepositorios"));
+const EncuestaSatisfaccionConstruccion = lazy(() => import("./pages/EncuestaSatisfaccionConstruccion"));
 const InformeHome = lazy(() => import("./app/vehiculos/informe/InformeHome"));
 const NuevoInforme = lazy(() => import("./app/vehiculos/informe/NuevoInforme"));
 const InformePDF = lazy(() => import("./app/vehiculos/informe/InformePDF"));
@@ -146,6 +147,11 @@ export default function RoutesApp() {
             <Route path="/area/petroleo" element={<TechRoute><AreaPetroleo /></TechRoute>} />
             <Route path="/operaciones" element={<TechRoute><AreaOperaciones /></TechRoute>} />
             <Route path="/repositorios" element={<TechRoute><AreaRepositorios /></TechRoute>} />
+
+            <Route path="/vehiculos/encuesta-satisfaccion" element={<VehiculosRoute><EncuestaSatisfaccionConstruccion areaLabel="Vehículos Especiales" backPath="/area/vehiculos" /></VehiculosRoute>} />
+            <Route path="/agua/encuesta-satisfaccion" element={<TechRoute><EncuestaSatisfaccionConstruccion areaLabel="Agua y Saneamiento" backPath="/area/agua" /></TechRoute>} />
+            <Route path="/industria/encuesta-satisfaccion" element={<TechRoute><EncuestaSatisfaccionConstruccion areaLabel="Industria" backPath="/area/industria" /></TechRoute>} />
+            <Route path="/petroleo/encuesta-satisfaccion" element={<TechRoute><EncuestaSatisfaccionConstruccion areaLabel="Petróleo y Energía" backPath="/area/petroleo" /></TechRoute>} />
 
             <Route path="/notifications" element={<TechRoute><NotificationsPage /></TechRoute>} />
             <Route path="/chat" element={<TechRoute><ChatInterno /></TechRoute>} />

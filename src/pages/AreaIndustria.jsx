@@ -1,6 +1,6 @@
 import CardModulo from "@/components/CardModulo";
 import { useTheme } from "@/context/ThemeContext";
-import { FileText } from "lucide-react";
+import { FileText, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaIndustria() {
@@ -40,6 +40,15 @@ export default function AreaIndustria() {
           ruta="/industria/informe/valvula"
           color="bg-orange-600"
           icono={<FileText size={20} />}
+        />
+
+        <CardModulo
+          titulo="Encuesta de satisfacción"
+          descripcion="Módulo en construcción para medir la satisfacción del cliente por cada servicio de campo."
+          ruta="/industria/encuesta-satisfaccion"
+          color="bg-orange-600"
+          icono={<Star size={20} />}
+          badge="En construcción"
         />
       </div>
     </div>
