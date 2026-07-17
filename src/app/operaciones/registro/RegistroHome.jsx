@@ -129,8 +129,8 @@ export default function RegistroHome() {
   };
 
   return (
-    <div className={`min-h-screen px-4 py-8 ${isLight ? "bg-slate-50" : "bg-transparent"}`}>
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className={`${isLight ? "rounded-2xl bg-white p-6 shadow" : "px-4 py-8"}`}>
+      <div className={`${isLight ? "space-y-6" : "max-w-6xl mx-auto space-y-6"}`}>
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
           <div>
             <h1 className={`text-2xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
@@ -197,7 +197,7 @@ export default function RegistroHome() {
                   key={item.id}
                   className={`border rounded-lg p-4 flex flex-col gap-4 md:flex-row md:justify-between md:items-start shadow-sm hover:shadow-md transition-shadow ${
                     isLight
-                      ? "bg-white border-slate-200"
+                      ? "bg-white border-slate-200 hover:bg-slate-50"
                       : "bg-white/10 border-white/10"
                   }`}
                 >

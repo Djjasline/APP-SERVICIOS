@@ -316,7 +316,7 @@ const handleSubmit = async (e) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className={`max-w-5xl mx-auto my-6 shadow rounded-xl p-6 space-y-6 ${pageClass}`}
+      className={`${isLight ? "" : "max-w-5xl mx-auto my-6"} shadow rounded-xl p-6 space-y-6 ${pageClass}`}
     >
       {/* HEADER */}
       <div className="flex justify-between items-center flex-wrap gap-2">
