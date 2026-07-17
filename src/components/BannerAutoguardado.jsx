@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { leerBorrador, limpiarBorrador } from "@/hooks/useAutoguardado";
+import { leerMejorBorrador, limpiarBorrador, permitirSincronizarBorrador } from "@/hooks/useAutoguardado";
 import { RotateCcw, X, Clock } from "lucide-react";
 
 /**
  * BannerAutoguardado
  * ------------------
- * Muestra un banner cuando existe un borrador guardado en localStorage.
+ * Muestra un banner cuando existe un borrador guardado local o remoto.
  * El usuario puede restaurarlo o descartarlo.
  *
  * @param {string}    clave        - Misma clave usada en useAutoguardado
@@ -23,15 +23,29 @@ export default function BannerAutoguardado({ clave, onRestaurar, isEditing }) {
     if (!clave) return;
     // Solo mostrar banner en formularios nuevos (no en edición de registros existentes)
     if (isEditing) return;
-    const encontrado = leerBorrador(clave, scope);
-    if (encontrado) {
-      setBorrador(encontrado);
-      setVisible(true);
-    }
+
+    let cancelled = false;
+
+    leerMejorBorrador(clave, scope).then((encontrado) => {
+      if (cancelled) return;
+
+      if (encontrado) {
+        setBorrador(encontrado);
+        setVisible(true);
+      } else {
+        setBorrador(null);
+        setVisible(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [clave, isEditing, scope]);
 
   const handleRestaurar = () => {
     if (borrador?.datos) {
+      permitirSincronizarBorrador(clave, scope);
       onRestaurar(borrador.datos);
     }
     setVisible(false);
