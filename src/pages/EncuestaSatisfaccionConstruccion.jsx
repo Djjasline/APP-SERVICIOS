@@ -45,7 +45,7 @@ export default function EncuestaSatisfaccionConstruccion({ areaLabel, backPath }
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className={`text-sm font-semibold uppercase tracking-[0.24em] ${isLight ? "text-orange-600" : "text-orange-300"}`}>
-            Módulo en construcción
+            Módulo en construcción · 95% de avance
           </p>
           <h1 className="mt-2 text-3xl font-bold">Encuesta de satisfacción del cliente</h1>
           <p className={`mt-2 max-w-2xl text-sm ${isLight ? "text-slate-600" : "text-slate-300"}`}>
@@ -74,7 +74,7 @@ export default function EncuestaSatisfaccionConstruccion({ areaLabel, backPath }
             </div>
 
             <span className="inline-flex w-fit rounded-full bg-yellow-100 px-4 py-2 text-sm font-semibold text-yellow-800">
-              Próximamente
+              🚧 · 95% de avance
             </span>
           </div>
         </div>

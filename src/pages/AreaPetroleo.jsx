@@ -61,7 +61,7 @@ export default function AreaPetroleo() {
           ruta="/petroleo/encuesta-satisfaccion"
           color="bg-orange-600"
           icono={<Star size={20} />}
-          badge="En construcción"
+          badge="🚧 · 95% de avance"
         />
       </div>
     </div>

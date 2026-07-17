@@ -86,6 +86,11 @@ function firstLine(message) {
 
 const FRIENDLY_UPDATES = [
   {
+    match: "marcar encuesta clientes al 95 por ciento",
+    title: "Control de cambios: encuesta de satisfacción",
+    message: "La encuesta de satisfacción del cliente ahora muestra 95% de avance en las áreas habilitadas.",
+  },
+  {
     match: "conectar encuestas a informes",
     title: "Control de cambios: encuestas vinculadas",
     message: "Se conectó la encuesta de satisfacción a informes completados, con enlace público para respuesta del cliente.",
