@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import {
   canAccessRecord,
@@ -27,7 +26,6 @@ const StatusBadge = ({ estado }) => {
 export default function RegistroHome() {
   const navigate = useNavigate();
   const { user, isSuperAdmin, isSupervisorOperaciones } = useAuth();
-  const { isLight } = useTheme();
   const [registros, setRegistros] = useState([]);
   const [accessPermissions, setAccessPermissions] = useState([]);
   const [filter, setFilter] = useState("todas");
@@ -129,14 +127,13 @@ export default function RegistroHome() {
   };
 
   return (
-    <div className={`${isLight ? "rounded-2xl bg-white p-6 shadow" : "px-4 py-8"}`}>
-      <div className={`${isLight ? "space-y-6" : "max-w-6xl mx-auto space-y-6"}`}>
+    <div className="bg-white rounded-2xl p-6 shadow space-y-6">
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
           <div>
-            <h1 className={`text-2xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
+            <h1 className="text-lg font-semibold text-gray-900">
               {OPERACIONES_TEXT.registro.title}
             </h1>
-            <p className={`mt-1 text-sm ${isLight ? "text-slate-600" : "text-white/70"}`}>
+            <p className="mt-1 text-sm text-gray-600">
               {OPERACIONES_TEXT.registro.description}
             </p>
           </div>
@@ -167,10 +164,8 @@ export default function RegistroHome() {
               onClick={() => setFilter(f)}
               className={`px-3 py-1 rounded border ${
                 filter === f
-                  ? "bg-slate-900 text-white"
-                  : isLight
-                  ? "bg-white text-slate-600 hover:bg-slate-100"
-                  : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                  ? "bg-gray-200 text-gray-900"
+                  : "text-gray-600 hover:bg-gray-100"
               }`}
             >
               {f}
@@ -179,9 +174,9 @@ export default function RegistroHome() {
         </div>
 
         {loading ? (
-          <p className={`text-sm ${isLight ? "text-gray-400" : "text-white/60"}`}>Cargando registros...</p>
+          <p className="text-sm text-gray-500">Cargando registros...</p>
         ) : filtered.length === 0 ? (
-          <p className={`text-sm ${isLight ? "text-gray-500" : "text-white/60"}`}>No hay registros aún.</p>
+          <p className="text-sm text-gray-500">No hay registros aún.</p>
         ) : (
           <ul className="space-y-3">
             {filtered.map((item) => {
@@ -195,14 +190,10 @@ export default function RegistroHome() {
               return (
                 <li
                   key={item.id}
-                  className={`border rounded-lg p-4 flex flex-col gap-4 md:flex-row md:justify-between md:items-start shadow-sm hover:shadow-md transition-shadow ${
-                    isLight
-                      ? "bg-white border-slate-200 hover:bg-slate-50"
-                      : "bg-white/10 border-white/10"
-                  }`}
+                  className="border border-slate-200 rounded-lg p-4 flex flex-col gap-4 md:flex-row md:justify-between md:items-start shadow-sm transition hover:bg-slate-50"
                 >
                   <div className="space-y-1">
-                    <p className={`font-medium text-sm ${isLight ? "text-slate-900" : "text-white"}`}>
+                    <p className="font-medium text-sm text-slate-900">
                       <span className={`font-semibold ${item.estado === "completado" ? "text-green-700" : "text-yellow-700"}`}>
                         {item.estado === "completado" ? "REGISTRO CERRADO" : "EN CAMPO"}
                       </span>
@@ -211,12 +202,12 @@ export default function RegistroHome() {
                     </p>
 
                     {pedido && (
-                      <p className={`text-xs ${isLight ? "text-slate-500" : "text-white/60"}`}>
+                      <p className="text-xs text-slate-500">
                         Pedido: {pedido}
                       </p>
                     )}
 
-                    <p className={`text-xs ${isLight ? "text-slate-500" : "text-white/60"}`}>
+                    <p className="text-xs text-slate-500">
                       {total} herramienta{total !== 1 ? "s" : ""}
                     </p>
 
@@ -232,7 +223,7 @@ export default function RegistroHome() {
                       </p>
                     )}
 
-                    <p className={`text-xs ${isLight ? "text-gray-400" : "text-white/50"}`}>
+                    <p className="text-xs text-gray-400">
                       {new Date(item.created_at || item.createdAt).toLocaleString()}
                     </p>
                   </div>
@@ -240,10 +231,10 @@ export default function RegistroHome() {
                   <div className="flex flex-wrap items-center gap-3 md:ml-4 flex-shrink-0">
                     <StatusBadge estado={item.estado} />
 
-                    <button
-                      onClick={() => navigate(`/operaciones/registro/ver/${item.id}`)}
-                      className={`text-xs font-semibold hover:underline ${isLight ? "text-slate-600" : "text-white/70"}`}
-                    >
+                      <button
+                        onClick={() => navigate(`/operaciones/registro/ver/${item.id}`)}
+                        className="text-xs font-semibold text-slate-600 hover:underline"
+                      >
                       Ver
                     </button>
 
@@ -288,7 +279,6 @@ export default function RegistroHome() {
             })}
           </ul>
         )}
-      </div>
     </div>
   );
 }

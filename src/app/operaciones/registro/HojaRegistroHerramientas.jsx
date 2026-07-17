@@ -7,14 +7,12 @@ import { TECHNICIANS } from "@/data/technicians";
 import { getRegistroById, updateRegistro, } from "@/utils/registroStorage";
 import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";
-import { useTheme } from "@/context/ThemeContext";
 
 export default function HojaRegistroHerramientas() {
   const { id } = useParams();
   const isEditing = !!id;
   const claveAutoguardado = `registro_herramientas_${id ?? "new"}`;
   const navigate = useNavigate();
-  const { isLight } = useTheme();
 
   const firmaResponsableRef = useRef(null);
   const firmaAprobadorRef = useRef(null);
@@ -239,24 +237,11 @@ const handleSubmit = async (e) => {
   };
 
   /* ================= RENDER ================= */
-  const pageClass = isLight
-    ? "bg-white text-slate-900"
-    : "bg-slate-900/95 text-white border border-white/10";
-
-  const cardClass = isLight
-    ? "bg-white border-slate-200"
-    : "bg-white/10 border-white/10";
-
-  const sectionClass = isLight
-    ? "bg-slate-50 border-slate-200"
-    : "bg-slate-950/40 border-white/10";
-
-  const inputClass = isLight
-    ? "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 disabled:bg-slate-100 disabled:text-slate-500"
-    : "bg-slate-950/70 border-white/20 text-white placeholder:text-white/40 disabled:bg-white/5 disabled:text-white/40";
-
-  const labelClass = isLight ? "text-slate-700" : "text-white/80";
-  const mutedClass = isLight ? "text-slate-500" : "text-white/60";
+  const cardClass = "bg-white border-slate-200";
+  const sectionClass = "bg-slate-50 border-slate-200";
+  const inputClass = "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 disabled:bg-slate-100 disabled:text-slate-500";
+  const labelClass = "text-slate-700";
+  const mutedClass = "text-slate-500";
 
   const Field = ({ label, children }) => (
     <label className="space-y-1 text-xs">
@@ -266,8 +251,8 @@ const handleSubmit = async (e) => {
   );
 
   const SignatureField = ({ title, label, dataUrl, canvasRef, onClear }) => (
-    <div className={`overflow-hidden rounded-lg border ${isLight ? "border-slate-300 bg-white" : "border-white/15 bg-slate-950/50"}`}>
-      <div className={`border-b px-3 py-2 text-center text-xs font-bold ${isLight ? "border-slate-300 bg-blue-50 text-slate-900" : "border-white/15 bg-white/10 text-white"}`}>
+    <div className="overflow-hidden rounded-lg border border-slate-300 bg-white">
+      <div className="border-b border-slate-300 bg-blue-50 px-3 py-2 text-center text-xs font-bold text-slate-900">
         {title}
       </div>
 
@@ -296,7 +281,7 @@ const handleSubmit = async (e) => {
           )}
         </div>
 
-        <div className={`mt-2 border-t pt-2 text-center text-xs font-semibold ${isLight ? "border-slate-300 text-slate-900" : "border-white/20 text-white"}`}>
+        <div className="mt-2 border-t border-slate-300 pt-2 text-center text-xs font-semibold text-slate-900">
           {label}
         </div>
 
@@ -316,7 +301,7 @@ const handleSubmit = async (e) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className={`${isLight ? "" : "max-w-5xl mx-auto my-6"} shadow rounded-xl p-6 space-y-6 ${pageClass}`}
+      className="bg-white text-slate-900 rounded-2xl p-6 shadow space-y-6"
     >
       {/* HEADER */}
       <div className="flex justify-between items-center flex-wrap gap-2">
@@ -467,7 +452,7 @@ const handleSubmit = async (e) => {
                     </Field>
 
                     <Field label="Foto antes">
-                      <div className={`rounded border p-3 ${isLight ? "bg-white border-slate-200" : "bg-slate-950/60 border-white/10"}`}>
+                      <div className="rounded border border-slate-200 bg-white p-3">
                         <ImagenCell item={item} campo="imagenSalidaUrl" label="Foto antes" />
                       </div>
                     </Field>
@@ -522,7 +507,7 @@ const handleSubmit = async (e) => {
                     </Field>
 
                     <Field label="Foto después">
-                      <div className={`rounded border p-3 ${isLight ? "bg-white border-slate-200" : "bg-slate-950/60 border-white/10"}`}>
+                      <div className="rounded border border-slate-200 bg-white p-3">
                         <ImagenCell item={item} campo="imagenIngresoUrl" label="Foto después" />
                       </div>
                     </Field>
