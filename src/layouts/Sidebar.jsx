@@ -349,7 +349,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                     : `${subItemClass("/vehiculos/configurador")} cursor-not-allowed opacity-50`
                 }
               >
-                {subLabel(SlidersHorizontal, "Configurador 🚧 · 20%")}
+                {subLabel(SlidersHorizontal, "Configurador 🚧 · 55%")}
               </button>
             </div>
           )}
