@@ -5,11 +5,12 @@ import { useTheme } from "@/context/ThemeContext";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 
 const MODELS = [
-  { id: "2100i", name: "2100i", family: "Vactor", basePrice: 340000, image: "/hidro-base.png" },
-  { id: "ramjet", name: "Ramjet", family: "Vactor", basePrice: 185000, image: "/sistema-de-agua.png" },
-  { id: "impact", name: "Impact", family: "Elgin", basePrice: 220000, image: "/barredora-base.png" },
-  { id: "global", name: "Global", family: "Vactor", basePrice: 315000, image: "/sistema-de-vacio.png" },
-  { id: "water-recycler", name: "Water Recycler", family: "Vactor", basePrice: 410000, image: "/sistema-hidraulico.png" },
+  { id: "2100i", name: "2100i", family: "Vactor", basePrice: 340000, image: "/hidro-base.png", note: "Imagen referencial Vactor 2100i" },
+  { id: "water-recycler", name: "Water Recycler", family: "Vactor", basePrice: 410000, image: "/hidro-base.png", note: "Imagen referencial Vactor" },
+  { id: "ramjet-truck", name: "Ramjet Truck Series", family: "Vactor", basePrice: 185000, image: "/hidro-base.png", note: "Imagen referencial Vactor" },
+  { id: "ramjet-trailer", name: "Ramjet Trailer Jetter", family: "Vactor", basePrice: 165000, image: "/hidro-base.png", note: "Imagen referencial Vactor" },
+  { id: "2100i-cb", name: "2100i CB", family: "Vactor", basePrice: 355000, image: "/hidro-base.png", note: "Imagen referencial Vactor" },
+  { id: "truvac", name: "Vacuum Excavation by TRUVAC", family: "Vactor", basePrice: 325000, image: "/hidro-base.png", note: "Imagen referencial Vactor" },
 ];
 
 const TABS = [
@@ -270,9 +271,9 @@ export default function ConfiguradorHome() {
       <section className={`rounded-2xl border p-4 shadow-sm ${isLight ? "border-slate-200 bg-white" : "border-white/10 bg-white/5"}`}>
         <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
           <Truck size={18} className="text-blue-600" />
-          <h2 className="font-semibold">Configurar Vactor / Elgin</h2>
+          <h2 className="font-semibold">Configurar línea Vactor</h2>
         </div>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {MODELS.map((model) => (
             <button
               key={model.id}
@@ -286,11 +287,12 @@ export default function ConfiguradorHome() {
                   : "border-white/10 bg-white/5 hover:border-blue-300/40"
               }`}
             >
-              <div className="flex h-24 items-center justify-center rounded-xl bg-white p-2">
-                <img src={model.image} alt={model.name} className="max-h-20 object-contain" />
+              <div className="flex h-32 items-center justify-center overflow-hidden rounded-xl bg-white p-2">
+                <img src={model.image} alt={`Equipo Vactor ${model.name}`} className="h-full w-full object-contain" />
               </div>
               <p className={`mt-3 font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>{model.name}</p>
               <p className="text-xs text-blue-600">{model.family}</p>
+              <p className="mt-1 text-[11px] text-slate-400">{model.note}</p>
               <p className="mt-1 text-xs text-slate-500">Base {money(model.basePrice)}</p>
             </button>
           ))}
