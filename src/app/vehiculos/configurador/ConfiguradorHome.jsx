@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Calculator, CheckCircle2, Download, ExternalLink, FileText, Save, ShieldCheck, Truck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -8,6 +8,8 @@ import { downloadConfiguratorPdf } from "./configuratorPdf";
 import { saveConfiguratorQuote } from "@/services/configuratorQuoteService";
 
 const VACTOR_LINE_IMAGE = "/vactor-linea.png.png";
+const SPRITE_COLUMNS = 4;
+const SPRITE_ROWS = 2;
 
 const MODELS = [
   { id: "2100i", name: "2100i", family: "Vactor", basePrice: 340000, fallbackImage: "/hidro-base.png", sprite: { col: 0, row: 0 } },
@@ -430,27 +432,65 @@ export default function ConfiguradorHome() {
 
 function ProductImage({ model }) {
   const [fallback, setFallback] = useState(false);
+  const [imageSrc, setImageSrc] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    const image = new Image();
+
+    image.onload = () => {
+      if (cancelled) return;
+      const cellWidth = image.naturalWidth / SPRITE_COLUMNS;
+      const cellHeight = image.naturalHeight / SPRITE_ROWS;
+      const cropHeight = cellHeight * (model.sprite.row === 0 ? 0.72 : 0.6);
+      const canvas = document.createElement("canvas");
+      canvas.width = cellWidth;
+      canvas.height = cropHeight;
+      const context = canvas.getContext("2d");
+
+      context.drawImage(
+        image,
+        model.sprite.col * cellWidth,
+        model.sprite.row * cellHeight,
+        cellWidth,
+        cropHeight,
+        0,
+        0,
+        cellWidth,
+        cropHeight
+      );
+
+      setImageSrc(canvas.toDataURL("image/png"));
+    };
+
+    image.onerror = () => {
+      if (!cancelled) setFallback(true);
+    };
+
+    setFallback(false);
+    setImageSrc("");
+    image.src = VACTOR_LINE_IMAGE;
+
+    return () => {
+      cancelled = true;
+    };
+  }, [model.sprite.col, model.sprite.row]);
 
   if (fallback) {
     return (
-      <div className="flex h-32 items-center justify-center overflow-hidden rounded-xl bg-white p-2">
+      <div className="flex h-36 items-center justify-center overflow-hidden rounded-xl bg-white p-2">
         <img src={model.fallbackImage} alt={`Equipo Vactor ${model.name}`} className="h-full w-full object-contain" />
       </div>
     );
   }
 
-  const translateX = model.sprite.col * -25;
-  const translateY = model.sprite.row * -50;
-
   return (
-    <div className="relative h-32 overflow-hidden rounded-xl bg-white">
-      <img
-        src={VACTOR_LINE_IMAGE}
-        alt={`Equipo Vactor ${model.name}`}
-        onError={() => setFallback(true)}
-        className="absolute left-0 top-0 h-[200%] w-[400%] max-w-none"
-        style={{ transform: `translate(${translateX}%, ${translateY}%)` }}
-      />
+    <div className="flex h-36 items-center justify-center overflow-hidden rounded-xl bg-white p-2">
+      {imageSrc ? (
+        <img src={imageSrc} alt={`Equipo Vactor ${model.name}`} className="h-full w-full object-contain" />
+      ) : (
+        <div className="h-full w-full animate-pulse rounded-lg bg-slate-100" />
+      )}
     </div>
   );
 }

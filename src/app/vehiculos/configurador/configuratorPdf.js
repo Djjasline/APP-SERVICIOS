@@ -5,6 +5,8 @@ const PAGE_HEIGHT = 297;
 const MARGIN = 14;
 const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
 const VACTOR_LINE_IMAGE = "/vactor-linea.png.png";
+const SPRITE_COLUMNS = 4;
+const SPRITE_ROWS = 2;
 
 const money = (value) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(value) || 0);
@@ -45,10 +47,9 @@ async function getModelImageDataUrl(model) {
   try {
     if (model?.sprite) {
       const image = await loadImage(VACTOR_LINE_IMAGE);
-      const cols = 4;
-      const rows = 2;
-      const cropWidth = image.naturalWidth / cols;
-      const cropHeight = image.naturalHeight / rows;
+      const cropWidth = image.naturalWidth / SPRITE_COLUMNS;
+      const cellHeight = image.naturalHeight / SPRITE_ROWS;
+      const cropHeight = cellHeight * (model.sprite.row === 0 ? 0.72 : 0.6);
       const canvas = document.createElement("canvas");
       canvas.width = cropWidth;
       canvas.height = cropHeight;
@@ -57,7 +58,7 @@ async function getModelImageDataUrl(model) {
       context.drawImage(
         image,
         model.sprite.col * cropWidth,
-        model.sprite.row * cropHeight,
+        model.sprite.row * cellHeight,
         cropWidth,
         cropHeight,
         0,
