@@ -41,7 +41,7 @@ export default function AreaPetroleo() {
 
         <CardModulo
           titulo="Informe de bombas"
-          descripcion="Informe para levantamiento de estado actual, instalación o inspección de bombas"
+          descripcion="Informe para levantamiento de estado actual o inspección de bombas"
           ruta="/petroleo/informe/bomba"
           color="bg-blue-600"
           icono={<FileText size={20} />}
@@ -49,7 +49,7 @@ export default function AreaPetroleo() {
 
         <CardModulo
           titulo="Informe de válvulas"
-          descripcion="Informe para levantamiento de estado actual, instalación o inspección de válvulas"
+          descripcion="Informe para levantamiento de estado actual o inspección de válvulas"
           ruta="/petroleo/informe/valvula"
           color="bg-cyan-600"
           icono={<FileText size={20} />}

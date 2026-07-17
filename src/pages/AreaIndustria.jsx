@@ -28,7 +28,7 @@ export default function AreaIndustria() {
       <div className="grid md:grid-cols-2 gap-6">
         <CardModulo
           titulo="Informe de bombas"
-          descripcion="Informe para levantamiento de estado actual, instalación o inspección de bombas"
+          descripcion="Informe para levantamiento de estado actual o inspección de bombas"
           ruta="/industria/informe/bomba"
           color="bg-slate-700"
           icono={<FileText size={20} />}
@@ -36,7 +36,7 @@ export default function AreaIndustria() {
 
         <CardModulo
           titulo="Informe de válvulas"
-          descripcion="Informe para levantamiento de estado actual, instalación o inspección de válvulas"
+          descripcion="Informe para levantamiento de estado actual o inspección de válvulas"
           ruta="/industria/informe/valvula"
           color="bg-orange-600"
           icono={<FileText size={20} />}
