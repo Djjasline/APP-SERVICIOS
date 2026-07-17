@@ -6,6 +6,56 @@ function cleanUpdateId(value) {
 
 const FRIENDLY_UPDATES = [
   {
+    match: "remove public mobile contact",
+    title: "Control de cambios: contacto público",
+    message: "Se quitó el número celular del contacto visible y se dejó solo el teléfono principal de ASTAP.",
+  },
+  {
+    match: "improve initial app paint",
+    title: "Control de cambios: carga inicial",
+    message: "Se mejoró la primera carga de la aplicación para mostrar contenido más rápido.",
+  },
+  {
+    match: "improve app security and loading",
+    title: "Control de cambios: seguridad y carga",
+    message: "Se reforzó la privacidad de la app y se optimizó la carga de pantallas y archivos pesados.",
+  },
+  {
+    match: "use user profiles in history filters",
+    title: "Control de cambios: filtros de historial",
+    message: "Los historiales ahora usan los usuarios registrados para filtrar por técnico o responsable.",
+  },
+  {
+    match: "use technician selects in histories",
+    title: "Control de cambios: filtros de técnicos",
+    message: "Los historiales ahora muestran listas desplegables para seleccionar técnicos.",
+  },
+  {
+    match: "rename repository vehicle sections",
+    title: "Control de cambios: repositorios de vehículos",
+    message: "Se actualizaron los nombres de las secciones técnicas y de entrenamiento de vehículos especiales.",
+  },
+  {
+    match: "fix tool register light layout",
+    title: "Control de cambios: registro de herramientas",
+    message: "Se corrigió la presentación clara del registro de salida e ingreso de herramientas.",
+  },
+  {
+    match: "align tool register light theme",
+    title: "Control de cambios: registro de herramientas",
+    message: "Se alineó el registro de herramientas con el estilo claro usado en Operaciones.",
+  },
+  {
+    match: "organize admin options menu",
+    title: "Control de cambios: menú administrativo",
+    message: "Las opciones del administrador quedaron organizadas en un menú interno.",
+  },
+  {
+    match: "add admin success dashboard",
+    title: "Control de cambios: panel administrativo",
+    message: "Se agregó un dashboard administrativo con métricas, filtros, gráficos y exportación CSV.",
+  },
+  {
     match: "add notification filters and read actions",
     title: "Control de cambios: mejoras en notificaciones",
     message: "Se agregó un buscador, filtros por tipo y una opción para marcar varios avisos como leídos.",
@@ -67,6 +117,41 @@ function stripTechnicalReferences(value) {
     .trim();
 }
 
+function getChangeCount(title) {
+  const match = String(title || "").match(/(?:Actualizaci[oó]n de la app|Control de cambios):\s*(\d+)\s+cambios/i);
+  return match ? Number(match[1]) : 0;
+}
+
+function getSubjectFromTitle(title) {
+  const cleanTitle = stripTechnicalReferences(title);
+
+  if (/^Actualizaci[oó]n:\s*/i.test(cleanTitle)) {
+    return cleanTitle.replace(/^Actualizaci[oó]n:\s*/i, "").trim();
+  }
+
+  return "";
+}
+
+function genericFriendlyUpdate(update) {
+  const count = getChangeCount(update?.title);
+
+  if (count > 1) {
+    return {
+      title: `Control de cambios: ${count} cambios publicados`,
+      message: `Se publicaron ${count} mejoras en la aplicación.`,
+    };
+  }
+
+  const subject = getSubjectFromTitle(update?.title).toLowerCase();
+  const known = FRIENDLY_UPDATES.find((item) => subject.includes(item.match));
+  if (known) return known;
+
+  return {
+    title: "Control de cambios: actualización publicada",
+    message: "Se publicó una mejora en la aplicación.",
+  };
+}
+
 function friendlyUpdate(update) {
   const rawTitle = stripTechnicalReferences(update?.title);
   const rawMessage = stripTechnicalReferences(update?.message);
@@ -75,16 +160,13 @@ function friendlyUpdate(update) {
 
   if (known) return known;
 
-  const fallbackMessage = rawMessage
-    .replace(/^Se publicó una nueva versión de la app con estos cambios:\s*-?\s*/i, "")
-    .replace(/^Actualización:\s*/i, "")
-    .trim();
+  if (/^Actualizaci[oó]n/i.test(rawTitle)) {
+    return genericFriendlyUpdate(update);
+  }
 
   return {
-    title: rawTitle.replace(/^Actualización:/i, "Control de cambios:") || "Control de cambios",
-    message: fallbackMessage
-      ? `Se actualizó la app: ${fallbackMessage}`
-      : "Se publicó una mejora en la app.",
+    title: rawTitle.replace(/^Actualizaci[oó]n:/i, "Control de cambios:") || "Control de cambios",
+    message: rawMessage || "Se publicó una mejora en la aplicación.",
   };
 }
 

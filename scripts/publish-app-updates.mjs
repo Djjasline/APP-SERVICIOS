@@ -84,18 +84,77 @@ function firstLine(message) {
   return String(message || "").split("\n")[0].trim();
 }
 
+const FRIENDLY_UPDATES = [
+  {
+    match: "remove public mobile contact",
+    title: "Control de cambios: contacto público",
+    message: "Se quitó el número celular del contacto visible y se dejó solo el teléfono principal de ASTAP.",
+  },
+  {
+    match: "improve initial app paint",
+    title: "Control de cambios: carga inicial",
+    message: "Se mejoró la primera carga de la aplicación para mostrar contenido más rápido.",
+  },
+  {
+    match: "improve app security and loading",
+    title: "Control de cambios: seguridad y carga",
+    message: "Se reforzó la privacidad de la app y se optimizó la carga de pantallas y archivos pesados.",
+  },
+  {
+    match: "use user profiles in history filters",
+    title: "Control de cambios: filtros de historial",
+    message: "Los historiales ahora usan los usuarios registrados para filtrar por técnico o responsable.",
+  },
+  {
+    match: "use technician selects in histories",
+    title: "Control de cambios: filtros de técnicos",
+    message: "Los historiales ahora muestran listas desplegables para seleccionar técnicos.",
+  },
+  {
+    match: "rename repository vehicle sections",
+    title: "Control de cambios: repositorios de vehículos",
+    message: "Se actualizaron los nombres de las secciones técnicas y de entrenamiento de vehículos especiales.",
+  },
+  {
+    match: "fix tool register light layout",
+    title: "Control de cambios: registro de herramientas",
+    message: "Se corrigió la presentación clara del registro de salida e ingreso de herramientas.",
+  },
+  {
+    match: "align tool register light theme",
+    title: "Control de cambios: registro de herramientas",
+    message: "Se alineó el registro de herramientas con el estilo claro usado en Operaciones.",
+  },
+  {
+    match: "organize admin options menu",
+    title: "Control de cambios: menú administrativo",
+    message: "Las opciones del administrador quedaron organizadas en un menú interno.",
+  },
+  {
+    match: "add admin success dashboard",
+    title: "Control de cambios: panel administrativo",
+    message: "Se agregó un dashboard administrativo con métricas, filtros, gráficos y exportación CSV.",
+  },
+];
+
+function friendlyCommit(commit) {
+  const subject = firstLine(commit?.message).toLowerCase();
+  return FRIENDLY_UPDATES.find((item) => subject.includes(item.match)) || null;
+}
+
 function buildTitle(commits) {
-  if (commits.length === 1) return `Actualización: ${firstLine(commits[0].message)}`;
-  return `Actualización de la app: ${commits.length} cambios publicados`;
+  if (commits.length === 1) {
+    return friendlyCommit(commits[0])?.title || "Control de cambios: actualización publicada";
+  }
+
+  return `Control de cambios: ${commits.length} cambios publicados`;
 }
 
 function buildMessage(commits) {
-  const lines = commits.map((commit) => {
-    const subject = firstLine(commit.message) || "Cambio publicado";
-    const shortSha = String(commit.id || "").slice(0, 7);
-    const commitUrl = repository && commit.id ? `${serverUrl}/${repository}/commit/${commit.id}` : commit.url;
-    return `- ${subject}${shortSha ? ` (${shortSha})` : ""}${commitUrl ? `\n  ${commitUrl}` : ""}`;
-  });
+  if (commits.length === 1) {
+    return friendlyCommit(commits[0])?.message || "Se publicó una mejora en la aplicación.";
+  }
 
+  const lines = commits.map((commit) => `- ${friendlyCommit(commit)?.message || "Mejora publicada en la aplicación."}`);
   return `Se publicó una nueva versión de la app con estos cambios:\n${lines.join("\n")}`;
 }
