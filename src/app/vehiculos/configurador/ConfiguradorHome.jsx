@@ -1,8 +1,13 @@
 import { useMemo, useState } from "react";
-import { Calculator, CheckCircle2, FileText, Save, ShieldCheck, Truck } from "lucide-react";
+import { Calculator, CheckCircle2, Download, ExternalLink, FileText, Save, ShieldCheck, Truck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
+import { downloadConfiguratorPdf } from "./configuratorPdf";
+import { saveConfiguratorQuote } from "@/services/configuratorQuoteService";
+
+const VACTOR_LINE_IMAGE = "/vactor-linea.png.png";
 
 const MODELS = [
   { id: "2100i", name: "2100i", family: "Vactor", basePrice: 340000, fallbackImage: "/hidro-base.png", sprite: { col: 0, row: 0 } },
@@ -182,12 +187,16 @@ function getOptionPrice(key, selected) {
 
 export default function ConfiguradorHome() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { isLight } = useTheme();
   const [selectedModelId, setSelectedModelId] = useState("2100i");
   const [activeTab, setActiveTab] = useState("basic");
   const [config, setConfig] = useState(DEFAULT_CONFIG);
   const [toggles, setToggles] = useState(DEFAULT_TOGGLES);
   const [savedMessage, setSavedMessage] = useState("");
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [quote, setQuote] = useState({
     number: `ASTAP-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`,
     customer: "Cliente por definir",
@@ -228,8 +237,44 @@ export default function ConfiguradorHome() {
   const updateConfig = (key, value) => setConfig((prev) => ({ ...prev, [key]: value }));
   const updateToggle = (key) => setToggles((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  const saveDraft = () => {
-    const payload = { quote, selectedModelId, config, toggles, priceSummary, savedAt: new Date().toISOString() };
+  const quotePayload = useMemo(
+    () => ({ quote, selectedModelId, selectedModel, config, toggles, priceSummary, items: configuredItems }),
+    [config, configuredItems, priceSummary, quote, selectedModel, selectedModelId, toggles]
+  );
+
+  const saveQuote = async () => {
+    setSaving(true);
+    setSavedMessage("");
+    setErrorMessage("");
+    setPdfUrl("");
+
+    try {
+      const payload = { ...quotePayload, savedAt: new Date().toISOString(), createdBy: user?.email || user?.id || "" };
+      localStorage.setItem("astap-configurador-draft", JSON.stringify(payload));
+      const saved = await saveConfiguratorQuote(payload);
+      setPdfUrl(saved?.pdf_url || "");
+      setSavedMessage("Cotización guardada en Supabase y PDF generado correctamente.");
+      setActiveTab("review");
+    } catch (error) {
+      console.error("Error guardando cotización Vactor:", error);
+      setErrorMessage(error?.message || "No se pudo guardar la cotización en Supabase.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const downloadPdf = async () => {
+    setErrorMessage("");
+    try {
+      await downloadConfiguratorPdf(quotePayload);
+    } catch (error) {
+      console.error("Error generando PDF Vactor:", error);
+      setErrorMessage("No se pudo generar el PDF localmente.");
+    }
+  };
+
+  const saveLocalDraft = () => {
+    const payload = { ...quotePayload, savedAt: new Date().toISOString() };
     localStorage.setItem("astap-configurador-draft", JSON.stringify(payload));
     setSavedMessage("Configuración guardada localmente para revisión.");
   };
@@ -357,15 +402,27 @@ export default function ConfiguradorHome() {
             <button type="button" onClick={() => setActiveTab("review")} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
               Revisar
             </button>
-            <button type="button" onClick={saveDraft} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-              <Save size={16} /> Guardar
+            <button type="button" onClick={saveQuote} disabled={saving} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60">
+              <Save size={16} /> {saving ? "Guardando..." : "Guardar en Supabase"}
+            </button>
+            <button type="button" onClick={downloadPdf} className="inline-flex items-center gap-2 rounded-lg border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50">
+              <Download size={16} /> Descargar PDF
+            </button>
+            <button type="button" onClick={saveLocalDraft} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+              Guardar local
             </button>
             <button type="button" onClick={() => navigate("/area/vehiculos")} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
               Cancelar
             </button>
           </div>
         </div>
-        {savedMessage && <p className="px-4 pb-4 text-sm font-semibold text-green-700">{savedMessage}</p>}
+        {savedMessage && <p className="px-4 pb-2 text-sm font-semibold text-green-700">{savedMessage}</p>}
+        {errorMessage && <p className="px-4 pb-2 text-sm font-semibold text-red-700">{errorMessage}</p>}
+        {pdfUrl && (
+          <a href={pdfUrl} target="_blank" rel="noreferrer" className="mx-4 mb-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:underline">
+            <ExternalLink size={15} /> Abrir PDF guardado en Supabase
+          </a>
+        )}
       </section>
     </div>
   );
@@ -388,7 +445,7 @@ function ProductImage({ model }) {
   return (
     <div className="relative h-32 overflow-hidden rounded-xl bg-white">
       <img
-        src="/vactor-linea.png"
+        src={VACTOR_LINE_IMAGE}
         alt={`Equipo Vactor ${model.name}`}
         onError={() => setFallback(true)}
         className="absolute left-0 top-0 h-[200%] w-[400%] max-w-none"
