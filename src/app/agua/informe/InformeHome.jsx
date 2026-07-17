@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
 import CustomerSurveyLink from "@/components/CustomerSurveyLink";
+import { formatPersonName } from "@/utils/nameFormat";
 
 const informeTipos = {
   bomba: {
@@ -345,7 +346,7 @@ export default function InformeHome({
                 </span>
                 {superAdminActivo && (
                   <span className="text-[11px] text-gray-500">
-                    Usuario: {r.data?.tecnicoNombre || "Sin técnico"}
+                    Usuario: {formatPersonName(r.data?.tecnicoNombre) || "Sin técnico"}
                   </span>
                 )}
                 <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${r.estado === "completado" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-700"}`}>

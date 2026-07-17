@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { getAccessProfiles } from "@/services/accessControlService";
+import { formatUserDisplayName } from "@/utils/nameFormat";
 
 const normalize = (value) => String(value || "").trim().toLowerCase();
 
 export function getUserOptionLabel(user) {
-  return user?.full_name || user?.email || user?.id || "Usuario";
+  return formatUserDisplayName(user);
 }
 
 export function recordMatchesUser(record, user) {

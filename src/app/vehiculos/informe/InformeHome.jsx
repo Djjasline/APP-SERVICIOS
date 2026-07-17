@@ -13,6 +13,7 @@ import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
 import CustomerSurveyLink from "@/components/CustomerSurveyLink";
+import { formatPersonName } from "@/utils/nameFormat";
 
 export default function InformeHome() {
   const navigate = useNavigate();
@@ -409,7 +410,7 @@ export default function InformeHome() {
 
                 {puedeVerTodoVehiculos && (
                   <span className="text-[11px] text-gray-500">
-                    Usuario: {r.data?.tecnicoNombre || "Sin técnico"}{" "}
+                    Usuario: {formatPersonName(r.data?.tecnicoNombre) || "Sin técnico"}{" "}
                     {r.data?.tecnicoCorreo ? `(${r.data.tecnicoCorreo})` : ""}
                   </span>
                 )}

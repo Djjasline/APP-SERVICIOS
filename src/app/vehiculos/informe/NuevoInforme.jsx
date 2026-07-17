@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabase";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
+import { formatPersonName } from "@/utils/nameFormat";
 import ReportHeader from "@/components/report/ReportHeader";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 
@@ -1293,7 +1294,7 @@ onEnd={() => {
 
         <div className="mt-2 text-sm text-center">
           <div className="font-medium">
-            {data.tecnicoNombre || "—"}
+            {formatPersonName(data.tecnicoNombre) || "—"}
           </div>
         </div>
 

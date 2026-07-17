@@ -10,6 +10,7 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
+import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import InspectionChecklistRow from "@/components/InspectionChecklistRow";
@@ -1210,7 +1211,7 @@ setTimeout(() => {
 }}
                       canvasProps={{ className:"w-full h-full touch-none" }} />
                   </div>
-                  <div className="mt-2 text-sm text-center font-medium">{data.tecnicoNombre || "—"}</div>
+                  <div className="mt-2 text-sm text-center font-medium">{formatPersonName(data.tecnicoNombre) || "—"}</div>
                   <div className="text-center">
                     <button type="button" 
                        onClick={() => {

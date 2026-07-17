@@ -12,6 +12,7 @@ import {
   mergeRecords,
 } from "@/services/accessControlService";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
+import { formatPersonName } from "@/utils/nameFormat";
 
 const PROTOCOLS = [
   {
@@ -213,7 +214,7 @@ export default function ProtocolosHome() {
                   <p className="text-[10px] text-gray-400 mb-1 uppercase">{protocol.label} - {item.estado}</p>
                   <p className="font-semibold text-gray-900">{item.data?.cliente || "Sin cliente"}</p>
                   <p className="text-xs text-gray-600">Equipo: <strong>{item.data?.equipoNo || "-"}</strong> | Código: <strong>{item.data?.codInf || "-"}</strong></p>
-                  <p className="text-xs text-gray-500">Pedido: <strong>{item.data?.pedidoDemanda || "-"}</strong> | Técnico: <strong>{item.data?.tecnicoNombre || "-"}</strong></p>
+                  <p className="text-xs text-gray-500">Pedido: <strong>{item.data?.pedidoDemanda || "-"}</strong> | Técnico: <strong>{formatPersonName(item.data?.tecnicoNombre) || "-"}</strong></p>
                   <p className="text-xs text-gray-400">{new Date(item.updated_at || item.created_at).toLocaleString()}</p>
                   <span className={`mt-1 inline-block px-2 py-0.5 rounded text-white text-[10px] ${item.estado === "completado" ? "bg-green-600" : "bg-yellow-500"}`}>{item.estado === "completado" ? "Completado" : "Borrador"}</span>
                 </div>

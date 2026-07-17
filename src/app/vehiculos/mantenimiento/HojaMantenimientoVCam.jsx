@@ -11,6 +11,7 @@ import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
+import { formatPersonName } from "@/utils/nameFormat";
 import ObservationImageField from "@/components/ObservationImageField";
 import ReportCodeInput from "@/components/ReportCodeInput";
 
@@ -964,7 +965,7 @@ const result = await saveOrUpdateReport({
 }}
                       canvasProps={{ className: "w-full h-full touch-none" }} />
                   </div>
-                  <div className="mt-2 text-sm text-center font-medium">{data.tecnicoNombre || "—"}</div>
+                  <div className="mt-2 text-sm text-center font-medium">{formatPersonName(data.tecnicoNombre) || "—"}</div>
                   <div className="text-center">
                     <button type="button" 
                        onClick={() => {

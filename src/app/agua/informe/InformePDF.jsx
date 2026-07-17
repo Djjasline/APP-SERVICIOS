@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
+import { formatPersonName } from "@/utils/nameFormat";
 
 const S = {
   tbl: { width: "100%", borderCollapse: "collapse", fontSize: 10 },
@@ -192,7 +193,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
                 ["CONTACTO", data.contacto],
                 ["TELÉFONO", data.telefono],
                 ["CORREO", data.correo],
-                ["TÉCNICO RESPONSABLE", data.tecnicoNombre],
+                ["TÉCNICO RESPONSABLE", formatPersonName(data.tecnicoNombre)],
                 ["TELÉFONO TÉCNICO", data.tecnicoTelefono],
                 ["CORREO TÉCNICO", data.tecnicoCorreo],
                 ["FECHA DE SERVICIO", data.fechaServicio],
@@ -497,7 +498,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
                   )}
 
                   <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>
-                    {data.tecnicoNombre || "—"}
+                    {formatPersonName(data.tecnicoNombre) || "—"}
                   </div>
                 </td>
 

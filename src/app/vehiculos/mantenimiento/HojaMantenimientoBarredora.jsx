@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import imageCompression from "browser-image-compression";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
+import { formatPersonName } from "@/utils/nameFormat";
 import ObservationImageField from "@/components/ObservationImageField";
 import ReportCodeInput from "@/components/ReportCodeInput";
 
@@ -1232,7 +1233,7 @@ const result = await saveOrUpdateReport({
                     />
                   </div>
                   <div className="mt-2 text-sm text-center font-medium">
-                    {data.tecnicoNombre || "—"}
+                    {formatPersonName(data.tecnicoNombre) || "—"}
                   </div>
                   <div className="text-center">
                     <button type="button" 

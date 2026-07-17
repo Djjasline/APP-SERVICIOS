@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { printPdf } from "@/utils/printPdf";
+import { formatPersonName } from "@/utils/nameFormat";
 import {
   CHECKLIST_SECCIONES,
   EPP_SECTION_IMAGE,
@@ -234,7 +235,7 @@ export default function ProtocoloVactorPDF({ allowDownload = true, backPath = "/
         <div className="no-break">
           <p style={S.sectionTitle}>1. Datos generales del equipo</p>
           <table style={S.tbl}><tbody>
-            {[["CLIENTE", d.cliente], ["EQUIPO No.", d.equipoNo], ["HORÓMETRO", d.horometro], ["MODELO", d.modelo], ["SERIE", d.serie], ["TIPO DE MANTENIMIENTO", d.tipoMantenimiento], ["TÉCNICO RESPONSABLE", d.tecnicoNombre], ["CORREO TÉCNICO", d.tecnicoCorreo]].map(([label, value]) => (
+            {[["CLIENTE", d.cliente], ["EQUIPO No.", d.equipoNo], ["HORÓMETRO", d.horometro], ["MODELO", d.modelo], ["SERIE", d.serie], ["TIPO DE MANTENIMIENTO", d.tipoMantenimiento], ["TÉCNICO RESPONSABLE", formatPersonName(d.tecnicoNombre)], ["CORREO TÉCNICO", d.tecnicoCorreo]].map(([label, value]) => (
               <tr key={label}><td style={S.label}>{label}</td><td style={S.cell}>{value || "-"}</td></tr>
             ))}
           </tbody></table>
@@ -320,7 +321,7 @@ export default function ProtocoloVactorPDF({ allowDownload = true, backPath = "/
         <div className="no-break">
           <p style={S.sectionTitle}>6. Registro y aprobación</p>
           <table style={S.tbl}><tbody>
-            {[["FECHA", d.aprobacion?.fecha], ["HORÓMETRO", d.aprobacion?.horometro], ["PRÓXIMO MANTENIMIENTO", d.aprobacion?.proximoMantenimiento], ["TÉCNICO RESPONSABLE", d.aprobacion?.tecnicoResponsable || d.tecnicoNombre], ["FIRMA", d.aprobacion?.firma || d.tecnicoFirma]].map(([label, value]) => (
+            {[["FECHA", d.aprobacion?.fecha], ["HORÓMETRO", d.aprobacion?.horometro], ["PRÓXIMO MANTENIMIENTO", d.aprobacion?.proximoMantenimiento], ["TÉCNICO RESPONSABLE", formatPersonName(d.aprobacion?.tecnicoResponsable || d.tecnicoNombre)], ["FIRMA", d.aprobacion?.firma || d.tecnicoFirma]].map(([label, value]) => (
               <tr key={label}><td style={S.label}>{label}</td><td style={S.cell}>{value || "-"}</td></tr>
             ))}
           </tbody></table>

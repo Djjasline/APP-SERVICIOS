@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf"; // ← ajusta la ruta a tu proyecto
 import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
+import { formatPersonName } from "@/utils/nameFormat";
 
 export default function InformePDF({ allowDownload = true, backPath = "/informe" }) {
   const navigate = useNavigate();
@@ -267,7 +268,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                 ["CONTACTO",            data.contacto],
                 ["TELÉFONO",            data.telefono],
                 ["CORREO",              data.correo],
-                ["TÉCNICO RESPONSABLE", data.tecnicoNombre],
+                ["TÉCNICO RESPONSABLE", formatPersonName(data.tecnicoNombre)],
                 ["TELÉFONO TÉCNICO",    data.tecnicoTelefono],
                 ["CORREO TÉCNICO",      data.tecnicoCorreo],
                 ["FECHA DE SERVICIO",   data.fechaServicio],
@@ -455,7 +456,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
     fontWeight: 700,
   }}
 >
-  {data.tecnicoNombre || "—"}
+  {formatPersonName(data.tecnicoNombre) || "—"}
 </div>
         </td>
 

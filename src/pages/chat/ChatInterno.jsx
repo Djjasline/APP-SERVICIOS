@@ -4,6 +4,7 @@ import { Send, MessageCircle, Search, UserCircle2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { formatUserDisplayName } from "@/utils/nameFormat";
 import {
   getChatUsers,
   getMessages,
@@ -14,7 +15,7 @@ import {
 } from "@/services/chatService";
 
 function displayName(user) {
-  return user?.full_name || user?.email || "Usuario";
+  return formatUserDisplayName(user);
 }
 
 function initials(user) {

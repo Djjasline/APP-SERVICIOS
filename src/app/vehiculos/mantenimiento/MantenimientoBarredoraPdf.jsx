@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
 import ObservationImagesPdf from "@/components/ObservationImagesPdf";
 import { PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
+import { formatPersonName } from "@/utils/nameFormat";
 
 /* ══════════════════════════════
    ESTILOS — IDÉNTICOS A HYDRO
@@ -369,7 +370,7 @@ export default function MantenimientoBarredoraPDF({ variant = "pelican", allowDo
                 ["CONTACTO",            d.contacto],
                 ["TELÉFONO",            d.telefono],
                 ["CORREO",              d.correo],
-                ["TÉCNICO RESPONSABLE", d.tecnicoNombre],
+                ["TÉCNICO RESPONSABLE", formatPersonName(d.tecnicoNombre)],
                 ["TELÉFONO TÉCNICO",    d.tecnicoTelefono],
                 ["CORREO TÉCNICO",      d.tecnicoCorreo],
                 ["FECHA DE SERVICIO",   d.fechaServicio],
@@ -503,7 +504,7 @@ export default function MantenimientoBarredoraPDF({ variant = "pelican", allowDo
                     )}
                   </div>
                   <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase" }}>
-                    {d.tecnicoNombre || "—"}
+                    {formatPersonName(d.tecnicoNombre) || "—"}
                   </div>
                 </td>
 

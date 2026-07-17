@@ -13,6 +13,7 @@ import {
 } from "@/services/accessControlService";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
+import { formatPersonName } from "@/utils/nameFormat";
 
 const tipos = [
   {
@@ -425,12 +426,12 @@ export default function IndexMantenimiento() {
                     </p>
 
                     <p className="text-xs text-gray-500">
-                      Técnico: <strong>{d.tecnicoNombre || "—"}</strong>
+                      Técnico: <strong>{formatPersonName(d.tecnicoNombre) || "—"}</strong>
                     </p>
 
                     {puedeVerTodoVehiculos && (
                       <p className="text-[11px] text-gray-400">
-                        Usuario: {d.tecnicoNombre || "Sin técnico"}{" "}
+                        Usuario: {formatPersonName(d.tecnicoNombre) || "Sin técnico"}{" "}
                         {d.tecnicoCorreo ? `(${d.tecnicoCorreo})` : ""}
                       </p>
                     )}

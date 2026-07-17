@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { formatPersonName } from "@/utils/nameFormat";
 
 export const SURVEY_STATUS_LABELS = {
   pendiente: "Pendiente",
@@ -24,7 +25,7 @@ function buildSurveyPayload(record, userId) {
     subtipo: record.subtipo || data.tipoInforme || null,
     report_code: data.codInf || data.codigo || data.pedidoDemanda || record.id,
     client_name: data.cliente || data.contacto || data.empresa || "Sin cliente",
-    technician_name: data.tecnicoNombre || data.tecnicoResponsable || data.responsable || null,
+    technician_name: formatPersonName(data.tecnicoNombre || data.tecnicoResponsable || data.responsable) || null,
     service_date: safeDate(data.fecha || data.fechaServicio || data.fechaMantenimiento || record.updated_at || record.created_at),
     created_by: userId || null,
     status: "pendiente",

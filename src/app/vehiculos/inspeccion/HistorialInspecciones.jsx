@@ -13,6 +13,7 @@ import {
 } from "@/services/accessControlService";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
+import { formatPersonName } from "@/utils/nameFormat";
 
 export default function IndexInspeccion() {
   const navigate = useNavigate();
@@ -480,9 +481,7 @@ export default function IndexInspeccion() {
                 <p className="text-xs text-gray-500">
                   Técnico:{" "}
                   <strong>
-                    {item.data?.tecnicoNombre ||
-                      item.data?.tecnicoResponsable ||
-                      "—"}
+                    {formatPersonName(item.data?.tecnicoNombre || item.data?.tecnicoResponsable) || "—"}
                   </strong>
                 </p>
 
@@ -493,9 +492,7 @@ export default function IndexInspeccion() {
                 {puedeVerTodoVehiculos && (
                   <p className="text-[10px] text-gray-400">
                     Usuario:{" "}
-                    {item.data?.tecnicoNombre ||
-                      item.data?.tecnicoResponsable ||
-                      "Sin técnico"}{" "}
+                    {formatPersonName(item.data?.tecnicoNombre || item.data?.tecnicoResponsable) || "Sin técnico"}{" "}
                     {item.data?.tecnicoCorreo
                       ? `(${item.data.tecnicoCorreo})`
                       : ""}

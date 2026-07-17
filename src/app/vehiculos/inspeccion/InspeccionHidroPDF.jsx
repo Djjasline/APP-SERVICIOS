@@ -5,6 +5,7 @@ import { printPdf } from "@/utils/printPdf";
 import ObservationImagesPdf from "@/components/ObservationImagesPdf";
 import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
+import { formatPersonName } from "@/utils/nameFormat";
 
 const inspectionDescription =
   "Inspección técnica del módulo hidrosuccionador y sus sistemas, no incluye servicios de chasis.";
@@ -208,7 +209,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
         <div className="no-break">
           <p style={S.sectionTitle}>DATOS DEL SERVICIO</p>
           <table style={S.tbl}><tbody>
-            {[["CLIENTE",d.cliente],["DIRECCIÓN",d.direccion],["CONTACTO",d.contacto],["TELÉFONO",d.telefono],["CORREO",d.correo],["TÉCNICO RESPONSABLE",d.tecnicoNombre],["TELÉFONO TÉCNICO",d.tecnicoTelefono],["CORREO TÉCNICO",d.tecnicoCorreo],["FECHA DE SERVICIO",d.fechaServicio]].map(([l,v],i)=>(
+            {[["CLIENTE",d.cliente],["DIRECCIÓN",d.direccion],["CONTACTO",d.contacto],["TELÉFONO",d.telefono],["CORREO",d.correo],["TÉCNICO RESPONSABLE",formatPersonName(d.tecnicoNombre)],["TELÉFONO TÉCNICO",d.tecnicoTelefono],["CORREO TÉCNICO",d.tecnicoCorreo],["FECHA DE SERVICIO",d.fechaServicio]].map(([l,v],i)=>(
               <tr key={i}><td style={S.label}>{l}</td><td style={S.cell}>{v||"—"}</td></tr>
             ))}
           </tbody></table>
@@ -471,7 +472,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
                       textTransform: "uppercase",
                     }}
                   >
-                    {d.tecnicoNombre || "—"}
+            {formatPersonName(d.tecnicoNombre) || "—"}
                   </div>
                 </td>
 

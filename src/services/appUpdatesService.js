@@ -6,6 +6,11 @@ function cleanUpdateId(value) {
 
 const FRIENDLY_UPDATES = [
   {
+    match: "normalizar nombres de usuarios en chat e informes",
+    title: "Control de cambios: nombres de usuarios",
+    message: "Los nombres de usuarios en chat e informes ahora se muestran con inicial mayúscula en nombre y apellido.",
+  },
+  {
     match: "marcar encuesta clientes al 95 por ciento",
     title: "Control de cambios: encuesta de satisfacción",
     message: "La encuesta de satisfacción del cliente ahora muestra 95% de avance en las áreas habilitadas.",

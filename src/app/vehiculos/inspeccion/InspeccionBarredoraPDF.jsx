@@ -5,6 +5,7 @@ import { printPdf } from "@/utils/printPdf";
 import ObservationImagesPdf from "@/components/ObservationImagesPdf";
 import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
+import { formatPersonName } from "@/utils/nameFormat";
 
 /* ══════════════════════════════
    ESTILOS — COMPACTOS PDF
@@ -360,7 +361,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                 ["CONTACTO",             d.contacto],
                 ["TELÉFONO",             d.telefono],
                 ["CORREO",               d.correo],
-                ["TÉCNICO RESPONSABLE",  d.tecnicoNombre],
+                ["TÉCNICO RESPONSABLE",  formatPersonName(d.tecnicoNombre)],
                 ["TELÉFONO TÉCNICO",     d.tecnicoTelefono],
                 ["CORREO TÉCNICO",       d.tecnicoCorreo],
                 ["FECHA DE SERVICIO",    d.fechaServicio],
@@ -620,7 +621,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                       textTransform: "uppercase",
                     }}
                   >
-                    {d.tecnicoNombre || "—"}
+                    {formatPersonName(d.tecnicoNombre) || "—"}
                   </div>
                 </td>
 

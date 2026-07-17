@@ -10,6 +10,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
+import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
 
 /* ─────────────────────────────────────────
@@ -1665,7 +1666,7 @@ const save = async () => {
                       canvasProps={{ className: "w-full h-full touch-none" }}
                     />
                   </div>
-                  <div className="text-center font-medium text-sm mt-2">{data.tecnicoNombre || "—"}</div>
+                  <div className="text-center font-medium text-sm mt-2">{formatPersonName(data.tecnicoNombre) || "—"}</div>
                   <div className="text-center">
                     <button type="button" onClick={() => { sigTecnico.current?.clear(); set("firmas", { ...data.firmas, tecnico: "" }); }}
                       className="text-xs text-red-600 hover:underline">Borrar firma</button>

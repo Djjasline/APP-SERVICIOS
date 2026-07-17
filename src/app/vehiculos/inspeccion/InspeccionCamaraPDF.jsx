@@ -5,6 +5,7 @@ import { printPdf } from "@/utils/printPdf";
 import ObservationImagesPdf from "@/components/ObservationImagesPdf";
 import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
+import { formatPersonName } from "@/utils/nameFormat";
 
 const S = {
   tbl: {
@@ -170,7 +171,7 @@ setReport({ estado: data.estado, data: data.data });
         <div className="no-break">
           <p style={S.sectionTitle}>DATOS DEL SERVICIO</p>
           <table style={S.tbl}><tbody>
-            {[["CLIENTE",d.cliente],["DIRECCIÓN",d.direccion],["CONTACTO",d.contacto],["TELÉFONO",d.telefono],["CORREO",d.correo],["TÉCNICO RESPONSABLE",d.tecnicoNombre],["TELÉFONO TÉCNICO",d.tecnicoTelefono],["CORREO TÉCNICO",d.tecnicoCorreo],["FECHA DE SERVICIO",d.fechaServicio]].map(([l,v],i)=>(<tr key={i}><td style={S.label}>{l}</td><td style={S.cell}>{v||"—"}</td></tr>))}
+            {[["CLIENTE",d.cliente],["DIRECCIÓN",d.direccion],["CONTACTO",d.contacto],["TELÉFONO",d.telefono],["CORREO",d.correo],["TÉCNICO RESPONSABLE",formatPersonName(d.tecnicoNombre)],["TELÉFONO TÉCNICO",d.tecnicoTelefono],["CORREO TÉCNICO",d.tecnicoCorreo],["FECHA DE SERVICIO",d.fechaServicio]].map(([l,v],i)=>(<tr key={i}><td style={S.label}>{l}</td><td style={S.cell}>{v||"—"}</td></tr>))}
           </tbody></table>
         </div>
 <div className="no-break">
@@ -358,7 +359,7 @@ setReport({ estado: data.estado, data: data.data });
             />
           )}
           <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700 }}>
-            {d.tecnicoNombre || "—"}
+            {formatPersonName(d.tecnicoNombre) || "—"}
           </div>
         </td>
 

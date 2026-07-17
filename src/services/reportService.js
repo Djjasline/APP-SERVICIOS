@@ -2,6 +2,7 @@ import { supabase } from "../lib/supabase";
 import { createNotification } from "./notificationService";
 import { getNotificationRecipientsForRecord } from "./notificationRecipientService";
 import { hasReportCodeSequence, normalizeReportCodeValue, reserveNextReportCode } from "./reportCodeService";
+import { formatPersonName } from "@/utils/nameFormat";
 
 export const saveOrUpdateReport = async ({
   id = null,
@@ -128,7 +129,7 @@ async function notifyConfiguredRecipients(result, user) {
     const statusLabel = result.estado === "completado" ? "completado" : "borrador";
     const clientName = result.data?.cliente || result.data?.conductor || result.data?.equipo || "Sin cliente";
     const code = result.data?.codInf || result.data?.codigo || result.data?.pedidoDemanda || result.id;
-    const technician = result.data?.tecnicoNombre || user.email || "Sin técnico";
+    const technician = formatPersonName(result.data?.tecnicoNombre) || user.email || "Sin técnico";
 
     await Promise.all(
       recipients.map((recipient_email) =>

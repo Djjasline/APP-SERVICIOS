@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { printPdf } from "@/utils/printPdf";
+import { formatPersonName } from "@/utils/nameFormat";
 import {
   CHECKLIST_SECCIONES,
   EPP_ITEMS,
@@ -129,7 +130,7 @@ export default function ProtocoloVCamPDF({ allowDownload = true, backPath = "/op
         <div className="no-break">
           <p style={S.sectionTitle}>1. Datos generales del equipo</p>
           <table style={S.tbl}><tbody>
-            {[["CLIENTE", d.cliente], ["EQUIPO No.", d.equipoNo], ["MODELO", d.modelo], ["SERIE MÓDULO", d.serieModulo], ["SERIE CARRETE", d.serieCarrete], ["SERIE CABEZAL", d.serieCabezal], ["LONGITUD CABLE", d.longitudCable], ["VERSIÓN SOFTWARE", d.versionSoftware], ["ACCESORIOS", d.accesorios], ["TÉCNICO RESPONSABLE", d.tecnicoNombre], ["CORREO TÉCNICO", d.tecnicoCorreo]].map(([label, value]) => <tr key={label}><td style={S.label}>{label}</td><td style={S.cell}>{value || "-"}</td></tr>)}
+            {[["CLIENTE", d.cliente], ["EQUIPO No.", d.equipoNo], ["MODELO", d.modelo], ["SERIE MÓDULO", d.serieModulo], ["SERIE CARRETE", d.serieCarrete], ["SERIE CABEZAL", d.serieCabezal], ["LONGITUD CABLE", d.longitudCable], ["VERSIÓN SOFTWARE", d.versionSoftware], ["ACCESORIOS", d.accesorios], ["TÉCNICO RESPONSABLE", formatPersonName(d.tecnicoNombre)], ["CORREO TÉCNICO", d.tecnicoCorreo]].map(([label, value]) => <tr key={label}><td style={S.label}>{label}</td><td style={S.cell}>{value || "-"}</td></tr>)}
           </tbody></table>
         </div>
 
@@ -176,7 +177,7 @@ export default function ProtocoloVCamPDF({ allowDownload = true, backPath = "/op
           </tr></tbody></table>
         </div>
 
-        <div className="no-break"><p style={S.sectionTitle}>6. Registro y aprobación</p><table style={S.tbl}><tbody>{[["FECHA", d.aprobacion?.fecha], ["PRÓXIMO MANTENIMIENTO", d.aprobacion?.proximoMantenimiento], ["TÉCNICO RESPONSABLE", d.aprobacion?.tecnicoResponsable || d.tecnicoNombre], ["FIRMA", d.aprobacion?.firma || d.tecnicoFirma]].map(([label, value]) => <tr key={label}><td style={S.label}>{label}</td><td style={S.cell}>{value || "-"}</td></tr>)}</tbody></table></div>
+        <div className="no-break"><p style={S.sectionTitle}>6. Registro y aprobación</p><table style={S.tbl}><tbody>{[["FECHA", d.aprobacion?.fecha], ["PRÓXIMO MANTENIMIENTO", d.aprobacion?.proximoMantenimiento], ["TÉCNICO RESPONSABLE", formatPersonName(d.aprobacion?.tecnicoResponsable || d.tecnicoNombre)], ["FIRMA", d.aprobacion?.firma || d.tecnicoFirma]].map(([label, value]) => <tr key={label}><td style={S.label}>{label}</td><td style={S.cell}>{value || "-"}</td></tr>)}</tbody></table></div>
       </div>
     </div>
   );

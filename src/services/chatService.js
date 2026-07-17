@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { createUserNotifications } from "@/services/notificationService";
+import { formatUserDisplayName } from "@/utils/nameFormat";
 
 export async function getChatUsers(currentUserId) {
   let query = supabase
@@ -122,8 +123,7 @@ export async function sendMessage(conversationId, senderId, body) {
         .eq("id", senderId)
         .maybeSingle();
 
-      const senderName =
-        senderProfile?.full_name || senderProfile?.email || "ASTAP";
+      const senderName = formatUserDisplayName(senderProfile, "ASTAP");
 
       const { data: recipientProfiles } = await supabase
         .from("profiles")

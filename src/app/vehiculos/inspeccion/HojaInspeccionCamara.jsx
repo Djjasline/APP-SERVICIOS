@@ -10,6 +10,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { useAuth } from "@/context/AuthContext";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
+import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import InspectionChecklistRow from "@/components/InspectionChecklistRow";
@@ -1097,7 +1098,7 @@ const result = await saveOrUpdateReport({
                     />
                   </div>
                   <div className="mt-2 text-sm text-center font-medium">
-                    {data.tecnicoNombre || "—"}
+                    {formatPersonName(data.tecnicoNombre) || "—"}
                   </div>
                   <div className="text-center">
                     <button
