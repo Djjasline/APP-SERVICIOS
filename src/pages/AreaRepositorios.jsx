@@ -28,7 +28,7 @@ export default function AreaRepositorios() {
         />
 
         <CardModulo
-          titulo="Marcas y productos"
+          titulo="Portales de nuestras marcas y productos"
           descripcion="Accesos rápidos a fabricantes, productos y documentación pública de equipos relacionados."
           ruta="/repositorios/marcas-productos"
           color="bg-purple-700"

@@ -661,7 +661,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 >
                   <span className="inline-flex items-center gap-2">
                     <Tags size={14} />
-                    Marcas y productos
+                    Portales de nuestras marcas y productos
                   </span>
                 </button>
 
