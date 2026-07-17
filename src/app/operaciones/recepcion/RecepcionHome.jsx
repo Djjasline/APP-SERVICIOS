@@ -1,7 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { generarPDFRecepcion } from "./generarPDFRecepcion";
 import { useAuth } from "@/context/AuthContext";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
@@ -122,6 +121,11 @@ export default function RecepcionHome() {
       console.error("Error duplicando bitácora:", error);
       alert("No se pudo duplicar la bitácora.");
     }
+  };
+
+  const downloadPdf = async (data) => {
+    const { generarPDFRecepcion } = await import("./generarPDFRecepcion");
+    await generarPDFRecepcion(data);
   };
 
   return (
@@ -294,7 +298,7 @@ export default function RecepcionHome() {
 
                       {canDownload(r) && (
                         <button
-                          onClick={() => generarPDFRecepcion(r.data || {})}
+                          onClick={() => downloadPdf(r.data || {})}
                           className="text-green-600 hover:underline"
                         >
                           Descargar PDF

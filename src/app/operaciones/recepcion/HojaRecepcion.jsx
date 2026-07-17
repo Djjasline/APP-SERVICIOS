@@ -7,7 +7,6 @@ import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";
 import { supabase } from "@/lib/supabase";
-import { generarPDFRecepcion } from "./generarPDFRecepcion";
 import { useAuth } from "@/context/AuthContext";
 import {
   checklistVehiculo,
@@ -1190,6 +1189,7 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
 
   const handlePDF = async () => {
     try {
+      const { generarPDFRecepcion } = await import("./generarPDFRecepcion");
       await generarPDFRecepcion(buildPayload());
     } catch (error) {
       console.error("Error generando PDF:", error);

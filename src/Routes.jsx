@@ -1,99 +1,71 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 
-// 🔐 AUTH
-import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleRoute from "./components/RoleRoute";
 import RecordPermissionRoute from "./components/RecordPermissionRoute";
-import { AuthProvider } from "./context/AuthContext";
 
-// 🧩 LAYOUT
-import MainLayout from "./layouts/MainLayout";
-
-// ================= PANEL =================
-import PanelServicios from "./pages/PanelServicios";
-
-// ================= PERFIL =================
-import Perfil from "./pages/Perfil";
-
-// ================= ÁREAS =================
-import AreaVehiculos from "./pages/AreaVehiculos";
-import AreaAgua from "./pages/AreaAgua";
-import AreaIndustria from "./pages/AreaIndustria";
-import AreaPetroleo from "./pages/AreaPetroleo";
-import AreaOperaciones from "./pages/AreaOperaciones";
-import AreaRepositorios from "./pages/AreaRepositorios";
-
-// ================= INFORMES VEHÍCULOS =================
-import InformeHome from "./app/vehiculos/informe/InformeHome";
-import NuevoInforme from "./app/vehiculos/informe/NuevoInforme";
-import InformePDF from "./app/vehiculos/informe/InformePDF";
-
-// ================= INFORMES AGUA =================
-import AguaInformeHome from "./app/agua/informe/InformeHome";
-import AguaNuevoInforme from "./app/agua/informe/NuevoInforme";
-import AguaInformePDF from "./app/agua/informe/InformePDF";
-import InformeAguaRoutes from "@/app/agua/recorrido/informe/InformeAguaRoutes";
-
-// ================= INFORMES PETRÓLEO =================
-import PetroleoInformeHome from "./app/petroleo/informe/InformeHome";
-import PetroleoNuevoInforme from "./app/petroleo/informe/NuevoInforme";
-import PetroleoInformePDF from "./app/petroleo/informe/InformePDF";
-import VisitaCampoHome from "./app/petroleo/visitaCampo/VisitaCampoHome";
-import VisitaCampoForm from "./app/petroleo/visitaCampo/VisitaCampoForm";
-import VisitaCampoPDF from "./app/petroleo/visitaCampo/VisitaCampoPDF";
-
-// ================= INSPECCIONES =================
-import HistorialInspecciones from "./app/vehiculos/inspeccion/HistorialInspecciones";
-import HojaInspeccionHidro from "./app/vehiculos/inspeccion/HojaInspeccionHidro";
-import HojaInspeccionBarredora from "./app/vehiculos/inspeccion/HojaInspeccionBarredora";
-import HojaInspeccionCamara from "./app/vehiculos/inspeccion/HojaInspeccionCamara";
-import InspeccionHidroPDF from "./app/vehiculos/inspeccion/InspeccionHidroPDF";
-import InspeccionBarredoraPDF from "./app/vehiculos/inspeccion/InspeccionBarredoraPDF";
-import InspeccionCamaraPDF from "./app/vehiculos/inspeccion/InspeccionCamaraPDF";
-
-// ================= MANTENIMIENTO =================
-import IndexMantenimiento from "./app/vehiculos/mantenimiento/IndexMantenimiento";
-import HojaMantenimientoHidro from "./app/vehiculos/mantenimiento/HojaMantenimientoHidro";
-import HojaMantenimientoBarredora from "./app/vehiculos/mantenimiento/HojaMantenimientoBarredora";
-import HojaMantenimientoVCam from "./app/vehiculos/mantenimiento/HojaMantenimientoVCam";
-import MantenimientoHidroPDF from "./app/vehiculos/mantenimiento/MantenimientoHidroPdf";
-import MantenimientoBarredoraPDF from "./app/vehiculos/mantenimiento/MantenimientoBarredoraPdf";
-import MantenimientoVCamPDF from "./app/vehiculos/mantenimiento/MantenimientoVCamPdf";
-
-// ================= PROTOCOLOS =================
-import ProtocolosHome from "./app/vehiculos/protocolos/ProtocolosHome";
-import ProtocoloVactorForm from "./app/vehiculos/protocolos/ProtocoloVactorForm";
-import ProtocoloVactorPDF from "./app/vehiculos/protocolos/ProtocoloVactorPDF";
-import ProtocoloVCamForm from "./app/vehiculos/protocolos/ProtocoloVCamForm";
-import ProtocoloVCamPDF from "./app/vehiculos/protocolos/ProtocoloVCamPDF";
-import ConfiguradorHome from "./app/vehiculos/configurador/ConfiguradorHome";
-
-// ================= REPOSITORIOS =================
-import ManualesTecnicos from "./app/repositorios/ManualesTecnicos";
-import DocumotoElgin from "./app/repositorios/DocumotoElgin";
-import MarcasProductos from "./app/repositorios/MarcasProductos";
-import EntrenamientoVehiculos from "./app/repositorios/EntrenamientoVehiculos";
-import BaseDatos from "./app/repositorios/BaseDatos";
-
-// ================= OPERACIONES =================
-import LiberacionHome from "./app/operaciones/liberacion/LiberacionHome";
-import LiberacionForm from "./app/operaciones/liberacion/LiberacionForm";
-import LiberacionDetalle from "./app/operaciones/liberacion/LiberacionDetalle";
-
-import RecepcionHome from "./app/operaciones/recepcion/RecepcionHome";
-import HojaRecepcion from "./app/operaciones/recepcion/HojaRecepcion";
-import HojaRecepcionPDF from "./app/operaciones/recepcion/HojaRecepcionPDF";
-
-import RegistroHome from "./app/operaciones/registro/RegistroHome";
-import HojaRegistroHerramientas from "./app/operaciones/registro/HojaRegistroHerramientas";
-import RegistroPDF from "./app/operaciones/registro/RegistroPDF";
-
-// ================= NOTIFICACIONES =================
-import NotificationsPage from "./pages/Notifications";
-import ChatInterno from "./pages/chat/ChatInterno";
-import RegistroAccessAdmin from "./pages/admin/RegistroAccessAdmin";
-import AppUpdatesAdmin from "./pages/admin/AppUpdatesAdmin";
+const Login = lazy(() => import("./pages/Login"));
+const MainLayout = lazy(() => import("./layouts/MainLayout"));
+const PanelServicios = lazy(() => import("./pages/PanelServicios"));
+const Perfil = lazy(() => import("./pages/Perfil"));
+const AreaVehiculos = lazy(() => import("./pages/AreaVehiculos"));
+const AreaAgua = lazy(() => import("./pages/AreaAgua"));
+const AreaIndustria = lazy(() => import("./pages/AreaIndustria"));
+const AreaPetroleo = lazy(() => import("./pages/AreaPetroleo"));
+const AreaOperaciones = lazy(() => import("./pages/AreaOperaciones"));
+const AreaRepositorios = lazy(() => import("./pages/AreaRepositorios"));
+const InformeHome = lazy(() => import("./app/vehiculos/informe/InformeHome"));
+const NuevoInforme = lazy(() => import("./app/vehiculos/informe/NuevoInforme"));
+const InformePDF = lazy(() => import("./app/vehiculos/informe/InformePDF"));
+const AguaInformeHome = lazy(() => import("./app/agua/informe/InformeHome"));
+const AguaNuevoInforme = lazy(() => import("./app/agua/informe/NuevoInforme"));
+const AguaInformePDF = lazy(() => import("./app/agua/informe/InformePDF"));
+const InformeAguaRoutes = lazy(() => import("@/app/agua/recorrido/informe/InformeAguaRoutes"));
+const PetroleoInformeHome = lazy(() => import("./app/petroleo/informe/InformeHome"));
+const PetroleoNuevoInforme = lazy(() => import("./app/petroleo/informe/NuevoInforme"));
+const PetroleoInformePDF = lazy(() => import("./app/petroleo/informe/InformePDF"));
+const VisitaCampoHome = lazy(() => import("./app/petroleo/visitaCampo/VisitaCampoHome"));
+const VisitaCampoForm = lazy(() => import("./app/petroleo/visitaCampo/VisitaCampoForm"));
+const VisitaCampoPDF = lazy(() => import("./app/petroleo/visitaCampo/VisitaCampoPDF"));
+const HistorialInspecciones = lazy(() => import("./app/vehiculos/inspeccion/HistorialInspecciones"));
+const HojaInspeccionHidro = lazy(() => import("./app/vehiculos/inspeccion/HojaInspeccionHidro"));
+const HojaInspeccionBarredora = lazy(() => import("./app/vehiculos/inspeccion/HojaInspeccionBarredora"));
+const HojaInspeccionCamara = lazy(() => import("./app/vehiculos/inspeccion/HojaInspeccionCamara"));
+const InspeccionHidroPDF = lazy(() => import("./app/vehiculos/inspeccion/InspeccionHidroPDF"));
+const InspeccionBarredoraPDF = lazy(() => import("./app/vehiculos/inspeccion/InspeccionBarredoraPDF"));
+const InspeccionCamaraPDF = lazy(() => import("./app/vehiculos/inspeccion/InspeccionCamaraPDF"));
+const IndexMantenimiento = lazy(() => import("./app/vehiculos/mantenimiento/IndexMantenimiento"));
+const HojaMantenimientoHidro = lazy(() => import("./app/vehiculos/mantenimiento/HojaMantenimientoHidro"));
+const HojaMantenimientoBarredora = lazy(() => import("./app/vehiculos/mantenimiento/HojaMantenimientoBarredora"));
+const HojaMantenimientoVCam = lazy(() => import("./app/vehiculos/mantenimiento/HojaMantenimientoVCam"));
+const MantenimientoHidroPDF = lazy(() => import("./app/vehiculos/mantenimiento/MantenimientoHidroPdf"));
+const MantenimientoBarredoraPDF = lazy(() => import("./app/vehiculos/mantenimiento/MantenimientoBarredoraPdf"));
+const MantenimientoVCamPDF = lazy(() => import("./app/vehiculos/mantenimiento/MantenimientoVCamPdf"));
+const ProtocolosHome = lazy(() => import("./app/vehiculos/protocolos/ProtocolosHome"));
+const ProtocoloVactorForm = lazy(() => import("./app/vehiculos/protocolos/ProtocoloVactorForm"));
+const ProtocoloVactorPDF = lazy(() => import("./app/vehiculos/protocolos/ProtocoloVactorPDF"));
+const ProtocoloVCamForm = lazy(() => import("./app/vehiculos/protocolos/ProtocoloVCamForm"));
+const ProtocoloVCamPDF = lazy(() => import("./app/vehiculos/protocolos/ProtocoloVCamPDF"));
+const ConfiguradorHome = lazy(() => import("./app/vehiculos/configurador/ConfiguradorHome"));
+const ManualesTecnicos = lazy(() => import("./app/repositorios/ManualesTecnicos"));
+const DocumotoElgin = lazy(() => import("./app/repositorios/DocumotoElgin"));
+const MarcasProductos = lazy(() => import("./app/repositorios/MarcasProductos"));
+const EntrenamientoVehiculos = lazy(() => import("./app/repositorios/EntrenamientoVehiculos"));
+const BaseDatos = lazy(() => import("./app/repositorios/BaseDatos"));
+const LiberacionHome = lazy(() => import("./app/operaciones/liberacion/LiberacionHome"));
+const LiberacionForm = lazy(() => import("./app/operaciones/liberacion/LiberacionForm"));
+const LiberacionDetalle = lazy(() => import("./app/operaciones/liberacion/LiberacionDetalle"));
+const RecepcionHome = lazy(() => import("./app/operaciones/recepcion/RecepcionHome"));
+const HojaRecepcion = lazy(() => import("./app/operaciones/recepcion/HojaRecepcion"));
+const HojaRecepcionPDF = lazy(() => import("./app/operaciones/recepcion/HojaRecepcionPDF"));
+const RegistroHome = lazy(() => import("./app/operaciones/registro/RegistroHome"));
+const HojaRegistroHerramientas = lazy(() => import("./app/operaciones/registro/HojaRegistroHerramientas"));
+const RegistroPDF = lazy(() => import("./app/operaciones/registro/RegistroPDF"));
+const NotificationsPage = lazy(() => import("./pages/Notifications"));
+const ChatInterno = lazy(() => import("./pages/chat/ChatInterno"));
+const RegistroAccessAdmin = lazy(() => import("./pages/admin/RegistroAccessAdmin"));
+const AppUpdatesAdmin = lazy(() => import("./pages/admin/AppUpdatesAdmin"));
 
 const TechRoute = ({ children }) => (
   <RoleRoute
@@ -154,6 +126,7 @@ function RegistroRedirect() {
 export default function RoutesApp() {
   return (
     <BrowserRouter>
+      <Suspense fallback={<div className="p-6 text-sm text-slate-500">Cargando...</div>}>
         <Routes>
           <Route path="/login" element={<Login />} />
 
@@ -388,6 +361,7 @@ export default function RoutesApp() {
           <Route path="/operaciones/protocolos/vactor/:id/pdf" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/protocolos"><ProtocoloVactorPDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
           <Route path="/operaciones/protocolos/vcam/:id/pdf" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/protocolos"><ProtocoloVCamPDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
         </Routes>
-            </BrowserRouter>
+      </Suspense>
+    </BrowserRouter>
   );
 }
