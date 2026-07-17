@@ -20,7 +20,7 @@ export default function AreaRepositorios() {
 
       <div className="grid md:grid-cols-2 gap-6">
         <CardModulo
-          titulo="Manuales técnicos de vehículos especiales"
+          titulo="Biblioteca técnica del area de vehiculos especiales"
           descripcion="Acceso a manuales técnicos, catálogos y documentación técnica por marca de equipo."
           ruta="/repositorios/manuales-tecnicos"
           color="bg-blue-600"
@@ -36,7 +36,7 @@ export default function AreaRepositorios() {
         />
 
         <CardModulo
-          titulo="Entrenamiento de vehículos especiales"
+          titulo="Portal de entrenamiento de vehículos especiales"
           descripcion="Portal de entrenamiento de barredoras Elgin e hidrosuccionadores Vactor."
           ruta="/repositorios/entrenamiento"
           color="bg-emerald-600"

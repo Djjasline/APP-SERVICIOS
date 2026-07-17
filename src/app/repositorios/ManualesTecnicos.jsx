@@ -32,7 +32,7 @@ export default function ManualesTecnicos() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
           <h2 className={`text-xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
-            Manuales técnicos de vehículos especiales
+            Biblioteca técnica del area de vehiculos especiales
           </h2>
 
           <p className={`text-sm mt-1 ${isLight ? "text-slate-600" : "text-gray-300"}`}>

@@ -15,7 +15,7 @@ export default function EntrenamientoVehiculos() {
           </div>
           <div>
             <h1 className="text-lg font-semibold text-slate-900">
-              Entrenamiento de vehículos especiales
+              Portal de entrenamiento de vehículos especiales
             </h1>
             <p className="text-sm text-slate-600">
               Portal de entrenamiento de barredoras Elgin e hidrosuccionadores Vactor.
