@@ -23,6 +23,7 @@ import {
   MessageCircle,
   Megaphone,
   ShieldCheck,
+  Lock,
   SlidersHorizontal,
   ClipboardList,
   ClipboardCheck,
@@ -621,8 +622,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                     className={subItemClass("/admin/permisos-registros")}
                   >
                     <span className="inline-flex items-center gap-2">
-                      <ShieldCheck size={14} />
-                      Permisos de registros
+                      <Lock size={14} />
+                      Opciones del administrador
                     </span>
                   </button>
                 )}
