@@ -25,6 +25,10 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   ClipboardList,
+  ClipboardCheck,
+  FileText,
+  MapPin,
+  Wrench,
 } from "lucide-react";
 
 export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
@@ -227,6 +231,13 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
         : "text-white/70 hover:text-emerald-50 hover:bg-emerald-400/10"
     }`;
 
+  const subLabel = (Icon, label) => (
+    <span className="inline-flex items-start gap-2">
+      <Icon size={14} className="mt-0.5 shrink-0" />
+      <span>{label}</span>
+    </span>
+  );
+
   const go = (path) => {
     navigate(path);
     if (isMobile) setOpenSidebar(false);
@@ -305,7 +316,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 title={informeGeneralTooltip}
                 aria-label={informeGeneralTooltip}
               >
-                Informe Técnico de Servicio
+                {subLabel(FileText, "Informe Técnico de Servicio")}
               </button>
 
               <button
@@ -313,7 +324,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 onClick={() => go("/vehiculos/inspeccion")}
                 className={subItemClass("/vehiculos/inspeccion")}
               >
-                Informe de Inspección de Equipos
+                {subLabel(ClipboardCheck, "Informe de Inspección de Equipos")}
               </button>
 
               <button
@@ -321,7 +332,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 onClick={() => go("/vehiculos/mantenimiento")}
                 className={subItemClass("/vehiculos/mantenimiento")}
               >
-                Informe de Mantenimiento de Equipos
+                {subLabel(Wrench, "Informe de Mantenimiento de Equipos")}
               </button>
 
               <button
@@ -330,10 +341,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 title="Acceso restringido hasta nueva orden"
                 className={`${subItemClass("/vehiculos/configurador")} cursor-not-allowed opacity-50`}
               >
-                <span className="inline-flex items-center gap-2">
-                  <SlidersHorizontal size={14} />
-                  Configurador 🚧 · 20%
-                </span>
+                {subLabel(SlidersHorizontal, "Configurador 🚧 · 20%")}
               </button>
             </div>
           )}
@@ -368,7 +376,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/agua/informe/bomba")}
                   className={subItemClass("/agua/informe/bomba")}
                 >
-                  Informe de bombas
+                  {subLabel(FileText, "Informe de bombas")}
                 </button>
 
                 <button
@@ -376,7 +384,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/agua/informe/valvula")}
                   className={subItemClass("/agua/informe/valvula")}
                 >
-                  Informe de válvulas
+                  {subLabel(FileText, "Informe de válvulas")}
                 </button>
 
                 <button
@@ -384,7 +392,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/agua/recorrido/informe")}
                   className={subItemClass("/agua/recorrido/informe")}
                 >
-                  Informe de recorrido
+                  {subLabel(ClipboardList, "Informe de recorrido")}
                 </button>
               </div>
             )}
@@ -420,7 +428,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/industria/informe/bomba")}
                   className={subItemClass("/industria/informe/bomba")}
                 >
-                  Informe de bombas
+                  {subLabel(FileText, "Informe de bombas")}
                 </button>
 
                 <button
@@ -428,7 +436,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/industria/informe/valvula")}
                   className={subItemClass("/industria/informe/valvula")}
                 >
-                  Informe de válvulas
+                  {subLabel(FileText, "Informe de válvulas")}
                 </button>
               </div>
             )}
@@ -464,7 +472,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/petroleo/informe/bomba")}
                   className={subItemClass("/petroleo/informe/bomba")}
                 >
-                  Informe de bombas
+                  {subLabel(FileText, "Informe de bombas")}
                 </button>
 
                 <button
@@ -472,7 +480,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/petroleo/informe/valvula")}
                   className={subItemClass("/petroleo/informe/valvula")}
                 >
-                  Informe de válvulas
+                  {subLabel(FileText, "Informe de válvulas")}
                 </button>
 
                 <button
@@ -480,7 +488,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/petroleo/visita-campo")}
                   className={subItemClass("/petroleo/visita-campo")}
                 >
-                  Visita en campo
+                  {subLabel(MapPin, "Visita en campo")}
                 </button>
               </div>
             )}
@@ -517,7 +525,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/operaciones/registro")}
                   className={subItemClass("/operaciones/registro")}
                 >
-                  Registro de salida e ingreso de herramientas
+                  {subLabel(Wrench, "Registro de salida e ingreso de herramientas")}
                 </button>
 
                 <button
@@ -525,7 +533,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/operaciones/recepcion")}
                   className={subItemClass("/operaciones/recepcion")}
                 >
-                  Bitácora y control vehicular
+                  {subLabel(ClipboardList, "Bitácora y control vehicular")}
                 </button>
 
                 <button
@@ -533,7 +541,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/operaciones/liberacion")}
                   className={subItemClass("/operaciones/liberacion")}
                 >
-                  Autorización de uso de vehículo para refinería
+                  {subLabel(ShieldCheck, "Autorización de uso de vehículo para refinería")}
                 </button>
 
                 <button
@@ -541,10 +549,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/operaciones/protocolos")}
                   className={subItemClass("/operaciones/protocolos")}
                 >
-                  <span className="inline-flex items-center gap-2">
-                    <ClipboardList size={14} />
-                    {VEHICULOS_TEXT.protocolos.title}
-                  </span>
+                  {subLabel(ClipboardList, VEHICULOS_TEXT.protocolos.title)}
                 </button>
               </div>
             )}
