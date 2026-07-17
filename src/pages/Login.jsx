@@ -204,7 +204,6 @@ export default function Login() {
             <strong className="block text-slate-900">Contacto ASTAP</strong>
             Naciones Unidas 1084 y Amazonas<br />
             Quito, Ecuador<br />
-            Cel: 099 851 1717<br />
             Teléfono: 02-22262154<br />
             <a href="https://www.astap.com" target="_blank" rel="noreferrer" className="font-semibold text-red-600 hover:underline">
               www.astap.com
