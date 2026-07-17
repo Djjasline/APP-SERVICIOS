@@ -12,6 +12,7 @@ import {
   mergeRecords,
 } from "@/services/accessControlService";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
+import { TECHNICIANS } from "@/data/technicians";
 
 const tipos = [
   {
@@ -347,14 +348,20 @@ export default function IndexMantenimiento() {
             className="border rounded px-3 py-2 text-sm"
           />
 
-          <input
-            placeholder="Técnico..."
+          <select
             value={filters.tecnico}
             onChange={(e) =>
               setFilters((f) => ({ ...f, tecnico: e.target.value }))
             }
             className="border rounded px-3 py-2 text-sm"
-          />
+          >
+            <option value="">Todos los técnicos</option>
+            {TECHNICIANS.map((tech) => (
+              <option key={tech.name} value={tech.name}>
+                {tech.name}
+              </option>
+            ))}
+          </select>
 
           <select
             value={filters.equipo}

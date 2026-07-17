@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
+import { TECHNICIANS } from "@/data/technicians";
 
 export default function InformeHome() {
   const navigate = useNavigate();
@@ -344,15 +345,20 @@ export default function InformeHome() {
           className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm"
         />
 
-        <input
-          type="text"
-          placeholder="Técnico..."
+        <select
           value={filters.tecnico}
           onChange={(e) =>
             setFilters((f) => ({ ...f, tecnico: e.target.value }))
           }
           className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm"
-        />
+        >
+          <option value="">Todos los técnicos</option>
+          {TECHNICIANS.map((tech) => (
+            <option key={tech.name} value={tech.name}>
+              {tech.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* LISTADO */}

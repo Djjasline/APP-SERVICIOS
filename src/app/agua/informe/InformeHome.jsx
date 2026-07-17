@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
+import { TECHNICIANS } from "@/data/technicians";
 
 const informeTipos = {
   bomba: {
@@ -296,13 +297,18 @@ export default function InformeHome({
           onChange={(e) => setFilters((f) => ({ ...f, fecha: e.target.value }))}
           className={`border px-3 py-2 rounded text-sm ${inputClass}`}
         />
-        <input
-          type="text"
-          placeholder="Técnico..."
+        <select
           value={filters.tecnico}
           onChange={(e) => setFilters((f) => ({ ...f, tecnico: e.target.value }))}
           className={`border px-3 py-2 rounded text-sm ${inputClass}`}
-        />
+        >
+          <option value="">Todos los técnicos</option>
+          {TECHNICIANS.map((tech) => (
+            <option key={tech.name} value={tech.name}>
+              {tech.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="space-y-3">

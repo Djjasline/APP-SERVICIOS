@@ -12,6 +12,7 @@ import {
   mergeRecords,
 } from "@/services/accessControlService";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
+import { TECHNICIANS } from "@/data/technicians";
 
 export default function IndexInspeccion() {
   const navigate = useNavigate();
@@ -420,12 +421,18 @@ export default function IndexInspeccion() {
             className="border p-2 rounded text-sm"
           />
 
-          <input
-            placeholder="Técnico..."
+          <select
             value={tecnico}
             onChange={(e) => setTecnico(e.target.value)}
             className="border p-2 rounded text-sm"
-          />
+          >
+            <option value="">Todos los técnicos</option>
+            {TECHNICIANS.map((tech) => (
+              <option key={tech.name} value={tech.name}>
+                {tech.name}
+              </option>
+            ))}
+          </select>
 
           <select
             value={equipo}
