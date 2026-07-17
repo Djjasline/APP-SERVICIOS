@@ -12,11 +12,12 @@ import {
   mergeRecords,
 } from "@/services/accessControlService";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
-import { TECHNICIANS } from "@/data/technicians";
+import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
 
 export default function IndexInspeccion() {
   const navigate = useNavigate();
   const { isLight } = useTheme();
+  const { users: userOptions } = useUserOptions();
 
   const {
     user,
@@ -166,6 +167,8 @@ export default function IndexInspeccion() {
   /* =============================
      FILTRO GLOBAL
   ============================== */
+  const selectedUser = userOptions.find((profile) => profile.id === tecnico);
+
   const filtered = inspections.filter((item) => {
     const cliente = normalize(item.data?.cliente);
 
@@ -175,17 +178,11 @@ export default function IndexInspeccion() {
         item.data?.pedidoDemanda
     );
 
-    const tec = normalize(
-      item.data?.tecnicoNombre ||
-        item.data?.tecnicoResponsable ||
-        item.data?.tecnico
-    );
-
     const sub = normalize(item.subtipo);
 
     const matchSearch = cliente.includes(normalize(search));
     const matchCodigo = cod.includes(normalize(codigo));
-    const matchTecnico = tec.includes(normalize(tecnico));
+    const matchTecnico = recordMatchesUser(item, selectedUser);
 
     const matchFecha = fecha
       ? new Date(item.updated_at || item.created_at)
@@ -426,10 +423,10 @@ export default function IndexInspeccion() {
             onChange={(e) => setTecnico(e.target.value)}
             className="border p-2 rounded text-sm"
           >
-            <option value="">Todos los técnicos</option>
-            {TECHNICIANS.map((tech) => (
-              <option key={tech.name} value={tech.name}>
-                {tech.name}
+            <option value="">Todos los usuarios</option>
+            {userOptions.map((profile) => (
+              <option key={profile.id} value={profile.id}>
+                {getUserOptionLabel(profile)}
               </option>
             ))}
           </select>

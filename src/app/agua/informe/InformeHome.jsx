@@ -10,7 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
-import { TECHNICIANS } from "@/data/technicians";
+import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
 
 const informeTipos = {
   bomba: {
@@ -34,6 +34,7 @@ export default function InformeHome({
 }) {
   const navigate = useNavigate();
   const { user, isSuperAdmin } = useAuth();
+  const { users: userOptions } = useUserOptions();
   const tipoConfig = tipo ? informeTipos[tipo] : null;
   const superAdminActivo =
     typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
@@ -138,6 +139,8 @@ export default function InformeHome({
     );
   };
 
+  const selectedUser = userOptions.find((profile) => profile.id === filters.tecnico);
+
   const filteredReports = reports.filter((r) => {
     const cliente = r.data?.cliente?.toLowerCase() || "";
     const pedido = [
@@ -149,7 +152,6 @@ export default function InformeHome({
       .filter(Boolean)
       .join(" ")
       .toLowerCase();
-    const tecnico = r.data?.tecnicoNombre?.toLowerCase() || "";
     const fecha = r.updated_at || r.created_at;
 
     return (
@@ -158,7 +160,7 @@ export default function InformeHome({
         (filter === "completado" && r.estado === "completado")) &&
       cliente.includes((filters.cliente || "").toLowerCase()) &&
       pedido.includes((filters.pedido || "").toLowerCase()) &&
-      tecnico.includes((filters.tecnico || "").toLowerCase()) &&
+      recordMatchesUser(r, selectedUser) &&
       (!filters.fecha || (fecha && fecha.startsWith(filters.fecha)))
     );
   });
@@ -302,10 +304,10 @@ export default function InformeHome({
           onChange={(e) => setFilters((f) => ({ ...f, tecnico: e.target.value }))}
           className={`border px-3 py-2 rounded text-sm ${inputClass}`}
         >
-          <option value="">Todos los técnicos</option>
-          {TECHNICIANS.map((tech) => (
-            <option key={tech.name} value={tech.name}>
-              {tech.name}
+          <option value="">Todos los usuarios</option>
+          {userOptions.map((profile) => (
+            <option key={profile.id} value={profile.id}>
+              {getUserOptionLabel(profile)}
             </option>
           ))}
         </select>

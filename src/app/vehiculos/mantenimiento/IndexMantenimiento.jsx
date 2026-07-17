@@ -12,7 +12,7 @@ import {
   mergeRecords,
 } from "@/services/accessControlService";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
-import { TECHNICIANS } from "@/data/technicians";
+import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
 
 const tipos = [
   {
@@ -44,6 +44,7 @@ const tipos = [
 export default function IndexMantenimiento() {
   const navigate = useNavigate();
   const { isLight } = useTheme();
+  const { users: userOptions } = useUserOptions();
 
   const {
     user,
@@ -231,22 +232,23 @@ export default function IndexMantenimiento() {
   };
 
   const filtered = useMemo(() => {
+    const selectedUser = userOptions.find((profile) => profile.id === filters.tecnico);
+
     return (items || []).filter((item) => {
       const d = item.data || {};
       const equipo = d.equipo || {};
 
       const cliente = (d.cliente || "").toLowerCase();
       const codigo = `${d.codInf || ""} ${d.pedidoDemanda || ""}`.toLowerCase();
-      const tecnico = (d.tecnicoNombre || "").toLowerCase();
       return (
         (estado === "todos" || item.estado === estado) &&
         cliente.includes(filters.cliente.toLowerCase()) &&
         codigo.includes(filters.codigo.toLowerCase()) &&
-        tecnico.includes(filters.tecnico.toLowerCase()) &&
+        recordMatchesUser(item, selectedUser) &&
         (filters.equipo === "" || item.subtipo === filters.equipo)
       );
     });
-  }, [items, estado, filters]);
+  }, [items, estado, filters, userOptions]);
 
   const renderCard = ({ type, title, desc, btn }) => (
     <div
@@ -355,10 +357,10 @@ export default function IndexMantenimiento() {
             }
             className="border rounded px-3 py-2 text-sm"
           >
-            <option value="">Todos los técnicos</option>
-            {TECHNICIANS.map((tech) => (
-              <option key={tech.name} value={tech.name}>
-                {tech.name}
+            <option value="">Todos los usuarios</option>
+            {userOptions.map((profile) => (
+              <option key={profile.id} value={profile.id}>
+                {getUserOptionLabel(profile)}
               </option>
             ))}
           </select>

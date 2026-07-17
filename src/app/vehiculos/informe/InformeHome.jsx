@@ -11,10 +11,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
-import { TECHNICIANS } from "@/data/technicians";
+import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
 
 export default function InformeHome() {
   const navigate = useNavigate();
+  const { users: userOptions } = useUserOptions();
 
   const {
     user,
@@ -159,6 +160,8 @@ export default function InformeHome() {
   /* ===========================
      FILTROS
   =========================== */
+  const selectedUser = userOptions.find((profile) => profile.id === filters.tecnico);
+
   const filteredReports = reports.filter((r) => {
     const cliente = r.data?.cliente?.toLowerCase() || "";
 
@@ -172,7 +175,6 @@ export default function InformeHome() {
       .join(" ")
       .toLowerCase();
 
-    const tecnico = r.data?.tecnicoNombre?.toLowerCase() || "";
     const fecha = r.updated_at || r.created_at;
 
     return (
@@ -181,7 +183,7 @@ export default function InformeHome() {
         (filter === "completado" && r.estado === "completado")) &&
       cliente.includes((filters.cliente || "").toLowerCase()) &&
       pedido.includes((filters.pedido || "").toLowerCase()) &&
-      tecnico.includes((filters.tecnico || "").toLowerCase()) &&
+      recordMatchesUser(r, selectedUser) &&
       (!filters.fecha || (fecha && fecha.startsWith(filters.fecha)))
     );
   });
@@ -352,10 +354,10 @@ export default function InformeHome() {
           }
           className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded text-sm"
         >
-          <option value="">Todos los técnicos</option>
-          {TECHNICIANS.map((tech) => (
-            <option key={tech.name} value={tech.name}>
-              {tech.name}
+          <option value="">Todos los usuarios</option>
+          {userOptions.map((profile) => (
+            <option key={profile.id} value={profile.id}>
+              {getUserOptionLabel(profile)}
             </option>
           ))}
         </select>
