@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import {
   canAccessRecord,
   getRecordAccessPermissionsForUser,
@@ -130,10 +131,15 @@ export default function RegistroHome() {
   return (
     <div className={`min-h-screen px-4 py-8 ${isLight ? "bg-slate-50" : "bg-transparent"}`}>
       <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3">
-          <h1 className={`text-2xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
-            Registro de salida e ingreso de herramientas
-          </h1>
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
+          <div>
+            <h1 className={`text-2xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
+              {OPERACIONES_TEXT.registro.title}
+            </h1>
+            <p className={`mt-1 text-sm ${isLight ? "text-slate-600" : "text-white/70"}`}>
+              {OPERACIONES_TEXT.registro.description}
+            </p>
+          </div>
 
           <div className="flex flex-wrap gap-2">
             <button

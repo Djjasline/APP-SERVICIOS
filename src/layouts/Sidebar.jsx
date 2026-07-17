@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
+import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { getUnreadAppUpdatesCount } from "@/services/appUpdatesService";
 import { getUnreadMessageCounts } from "@/services/chatService";
 import { supabase } from "@/lib/supabase";
@@ -525,7 +525,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/operaciones/registro")}
                   className={subItemClass("/operaciones/registro")}
                 >
-                  {subLabel(Wrench, "Registro de salida e ingreso de herramientas")}
+                  {subLabel(Wrench, OPERACIONES_TEXT.registro.title)}
                 </button>
 
                 <button
@@ -533,7 +533,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/operaciones/recepcion")}
                   className={subItemClass("/operaciones/recepcion")}
                 >
-                  {subLabel(ClipboardList, "Bitácora y control vehicular")}
+                  {subLabel(ClipboardList, OPERACIONES_TEXT.recepcion.title)}
                 </button>
 
                 <button
@@ -541,7 +541,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/operaciones/liberacion")}
                   className={subItemClass("/operaciones/liberacion")}
                 >
-                  {subLabel(ShieldCheck, "Autorización de uso de vehículo para refinería")}
+                  {subLabel(ShieldCheck, OPERACIONES_TEXT.liberacion.title)}
                 </button>
 
                 <button
@@ -549,7 +549,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   onClick={() => go("/operaciones/protocolos")}
                   className={subItemClass("/operaciones/protocolos")}
                 >
-                  {subLabel(ClipboardList, VEHICULOS_TEXT.protocolos.title)}
+                  {subLabel(ClipboardList, OPERACIONES_TEXT.protocolos.title)}
                 </button>
               </div>
             )}

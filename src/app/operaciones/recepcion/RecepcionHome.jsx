@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { generarPDFRecepcion } from "./generarPDFRecepcion";
 import { useAuth } from "@/context/AuthContext";
+import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import {
   canAccessRecord,
@@ -125,29 +126,34 @@ export default function RecepcionHome() {
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
-      <div className="flex flex-wrap justify-between items-center gap-3">
-  <h1 className="text-lg font-semibold text-gray-900">
-    Bitácora y control vehicular
-  </h1>
+      <div className="flex flex-wrap justify-between items-start gap-3">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900">
+            {OPERACIONES_TEXT.recepcion.title}
+          </h1>
+          <p className="mt-1 text-sm text-gray-600">
+            {OPERACIONES_TEXT.recepcion.description}
+          </p>
+        </div>
 
-  <div className="flex gap-2">
-    <button
-      type="button"
-      onClick={() => navigate("/operaciones")}
-      className="btn-volver-orange py-1"
-    >
-      Volver
-    </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => navigate("/operaciones")}
+            className="btn-volver-orange py-1"
+          >
+            Volver
+          </button>
 
-    <button
-      type="button"
-      onClick={() => navigate("/operaciones/recepcion/new")}
-      className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
-    >
-      + Nueva bitácora vehicular
-    </button>
-  </div>
-</div>
+          <button
+            type="button"
+            onClick={() => navigate("/operaciones/recepcion/new")}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
+          >
+            + Nueva bitácora vehicular
+          </button>
+        </div>
+      </div>
 
       <div className="flex flex-wrap gap-2">
         {["todos", "borrador", "completado"].map((f) => (

@@ -1,5 +1,5 @@
 import CardModulo from "@/components/CardModulo";
-import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
+import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { useTheme } from "@/context/ThemeContext";
 import { ClipboardList, Settings, Wrench, Inbox } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -10,29 +10,29 @@ export default function AreaOperaciones() {
 
  const modulos = [
   {
-    titulo: "Bitácora y control vehicular",
-    descripcion: "Control de salida, uso, retorno y recepción de vehículos.",
+    titulo: OPERACIONES_TEXT.recepcion.title,
+    descripcion: OPERACIONES_TEXT.recepcion.description,
     icono: <Settings size={20} />,
     color: "bg-indigo-600",
     ruta: "/operaciones/recepcion",
   },
   {
-    titulo: "Registro de salida e ingreso de herramientas",
-    descripcion: "Control de salida, retorno y estado de herramientas operativas.",
+    titulo: OPERACIONES_TEXT.registro.title,
+    descripcion: OPERACIONES_TEXT.registro.description,
     icono: <Wrench size={20} />,
     color: "bg-blue-600",
     ruta: "/operaciones/registro",
   },
   {
-    titulo: "Autorización de uso de vehículo para refinería",
-    descripcion: "Control de autorización e inspección para uso de vehículos en refinería.",
+    titulo: OPERACIONES_TEXT.liberacion.title,
+    descripcion: OPERACIONES_TEXT.liberacion.description,
     icono: <Inbox size={20} />,
     color: "bg-green-600",
     ruta: "/operaciones/liberacion",
   },
   {
-    titulo: VEHICULOS_TEXT.protocolos.title,
-    descripcion: VEHICULOS_TEXT.protocolos.description,
+    titulo: OPERACIONES_TEXT.protocolos.title,
+    descripcion: OPERACIONES_TEXT.protocolos.description,
     icono: <ClipboardList size={20} />,
     color: "bg-indigo-600",
     ruta: "/operaciones/protocolos",

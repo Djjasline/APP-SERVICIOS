@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import {
   canAccessRecord,
@@ -113,30 +114,34 @@ export default function LiberacionHome() {
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
 
       {/* HEADER */}
-      {/* HEADER */}
-<div className="flex flex-wrap justify-between items-center gap-3">
-  <h1 className="text-lg font-semibold text-gray-900">
-    Historial de autorizaciones de uso de vehículo para refinería
-  </h1>
+      <div className="flex flex-wrap justify-between items-start gap-3">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900">
+            {OPERACIONES_TEXT.liberacion.title}
+          </h1>
+          <p className="mt-1 text-sm text-gray-600">
+            {OPERACIONES_TEXT.liberacion.description}
+          </p>
+        </div>
 
-  <div className="flex gap-2">
-    <button
-      type="button"
-      onClick={() => navigate("/operaciones")}
-      className="btn-volver-orange py-1"
-    >
-      Volver
-    </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => navigate("/operaciones")}
+            className="btn-volver-orange py-1"
+          >
+            Volver
+          </button>
 
-    <button
-      type="button"
-      onClick={() => navigate("/operaciones/liberacion/nuevo")}
-      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
-    >
-      + Nueva autorización
-    </button>
-  </div>
-</div>
+          <button
+            type="button"
+            onClick={() => navigate("/operaciones/liberacion/nuevo")}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
+          >
+            + Nueva autorización
+          </button>
+        </div>
+      </div>
       {/* FILTROS */}
       <div className="flex gap-2">
         {["todos", "borrador", "completado"].map((f) => (
