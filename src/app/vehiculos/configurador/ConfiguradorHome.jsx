@@ -13,147 +13,147 @@ const MODELS = [
 ];
 
 const TABS = [
-  { id: "basic", label: "Basic Model/Chassis" },
-  { id: "module", label: "Module" },
-  { id: "water", label: "Water System" },
-  { id: "electrical", label: "Electrical" },
-  { id: "paint", label: "Paint" },
-  { id: "accessories", label: "Accessories" },
+  { id: "basic", label: "Modelo base / Chasis" },
+  { id: "module", label: "Módulo" },
+  { id: "water", label: "Sistema de agua" },
+  { id: "electrical", label: "Sistema eléctrico" },
+  { id: "paint", label: "Pintura" },
+  { id: "accessories", label: "Accesorios" },
   { id: "review", label: "Revisión" },
 ];
 
 const SELECT_OPTIONS = {
   vacuumSystem: [
-    ["Roots 824-18 Blower", 0],
-    ["Roots 824-15 Blower", -4500],
-    ["Fan Flushout System", 3800],
+    ["Soplador Roots 824-18", 0],
+    ["Soplador Roots 824-15", -4500],
+    ["Sistema de lavado de ventilador", 3800],
   ],
-  modelType: [["Combo", 0], ["Sewer Cleaner", -15000], ["Recycler", 32000]],
+  modelType: [["Combinado", 0], ["Limpiador de alcantarillado", -15000], ["Reciclador", 32000]],
   waterFlow: [["80.0", 0], ["60.0", -1800], ["100.0", 2400]],
   waterPressure: [["2500", 0], ["2000", -2200], ["3000", 3200]],
   debrisBody: [["10.0", 0], ["12.0", 9500], ["15.0", 18000]],
   waterCapacity: [["1500", 0], ["1000", -6500], ["1300", -2800], ["1800", 7400]],
-  waterTankMaterial: [["Aluminum", 0], ["Stainless Steel", 11500], ["Poly", -3200]],
-  source: [["Customer", 0], ["Factory supplied", 42000]],
+  waterTankMaterial: [["Aluminio", 0], ["Acero inoxidable", 11500], ["Polietileno", -3200]],
+  source: [["Cliente", 0], ["Suministrado por fábrica", 42000]],
   modelYear: [["2027", 0], ["2026", -3000], ["2028", 3500]],
   make: [["International", 0], ["Freightliner", 8500], ["Peterbilt", 18000]],
-  axleType: [["Tandem", 0], ["Single", -9000], ["Tridem or Pusher", 21000]],
-  boom: [["10' Telescoping", 0], ["10' Extendable", 8500], ["Fixed", -3500]],
-  waterRing: [["None", 0], ["Standard", 1600], ["Premium", 2800]],
-  decant: [["None", 0], ["Yes", 4500]],
-  pumpOff: [["None", 0], ["Hydraulic", 6500]],
-  cycloneSeparators: [["None", 0], ["Centrifugal Separators", 7200]],
-  foldingRackDriver: [["Yes", 0], ["No", -900]],
-  foldingRackPassenger: [["Yes", 0], ["No", -900]],
+  axleType: [["Tándem", 0], ["Simple", -9000], ["Tridem o eje auxiliar", 21000]],
+  boom: [["Telescópico 10'", 0], ["Extensible 10'", 8500], ["Fijo", -3500]],
+  waterRing: [["Ninguno", 0], ["Estándar", 1600], ["Premium", 2800]],
+  decant: [["Ninguno", 0], ["Sí", 4500]],
+  pumpOff: [["Ninguno", 0], ["Hidráulico", 6500]],
+  cycloneSeparators: [["Ninguno", 0], ["Separadores centrífugos", 7200]],
+  foldingRackDriver: [["Sí", 0], ["No", -900]],
+  foldingRackPassenger: [["Sí", 0], ["No", -900]],
   driverRackSize: [["8", 0], ["6", -600], ["10", 700]],
   passengerRackSize: [["8", 0], ["6", -600], ["10", 700]],
-  hoseReelCapacity: [["Standard", 0], ["Extended", 4500]],
+  hoseReelCapacity: [["Estándar", 0], ["Extendida", 4500]],
   highPressureHoseReel: [["1", 0], ["2", 5600]],
   rodderHoseType: [["Piranha", 0], ["Premium", 1200]],
   rodderHoseDiameter: [["1/2\"", 0], ["3/4\"", 900]],
   rodderHoseLength: [["500'", 0], ["600'", 1400], ["800'", 3600]],
-  rearArrowboard: [["None", 0], ["LED beacon light", 1450]],
-  frontArrowboard: [["None", 0], ["LED", 1450]],
-  rearBeacons: [["Rear Mounted LED Beacon Light", 0], ["None", -800]],
-  handlight: [["Handlight with retractable reel", 0], ["None", -650]],
-  cameraSystem: [["Rear Only", 0], ["Rear + Side", 2400]],
-  worklightsRear: [["None", 0], ["LED", 1600]],
-  baseColor: [["White", 0], ["Custom", 4500]],
-  stripe: [["Standard", 0], ["Customer supplied", 1300]],
-  bodyDecal: [["Standard", 0], ["Spanish", 420], ["Custom", 1450]],
-  safetyRack: [["None", 0], ["Standard", 1450]],
-  operatorManuals: [["1", 0], ["2", 180], ["Spanish + English", 320]],
-  printedManuals: [["None", 0], ["1 Set", 220]],
-  shipmentManuals: [["Send to Bill to", 0], ["Send with unit", 0]],
-  extendedWarranty: [["None", 0], ["12 months", 6500], ["24 months", 11800]],
-  wirelessRemote: [["None", 0], ["Wireless remote", 8400]],
-  subframeToolboxDriver: [["None", 0], ["48 x 22 x 34", 3200]],
-  subframeToolboxPassenger: [["48 x 22 x 34", 0], ["None", -3200]],
-  frontBumperStorage: [["No", 0], ["Yes", 1700]],
+  rearArrowboard: [["Ninguno", 0], ["Baliza LED", 1450]],
+  frontArrowboard: [["Ninguno", 0], ["LED", 1450]],
+  rearBeacons: [["Baliza LED trasera", 0], ["Ninguno", -800]],
+  handlight: [["Lámpara portátil con carrete retráctil", 0], ["Ninguna", -650]],
+  cameraSystem: [["Solo posterior", 0], ["Posterior + laterales", 2400]],
+  worklightsRear: [["Ninguna", 0], ["LED", 1600]],
+  baseColor: [["Blanco", 0], ["Personalizado", 4500]],
+  stripe: [["Estándar", 0], ["Suministrado por cliente", 1300]],
+  bodyDecal: [["Estándar", 0], ["Español", 420], ["Personalizado", 1450]],
+  safetyRack: [["Ninguno", 0], ["Estándar", 1450]],
+  operatorManuals: [["1", 0], ["2", 180], ["Español + Inglés", 320]],
+  printedManuals: [["Ninguno", 0], ["1 juego", 220]],
+  shipmentManuals: [["Enviar a facturación", 0], ["Enviar con la unidad", 0]],
+  extendedWarranty: [["Ninguna", 0], ["12 meses", 6500], ["24 meses", 11800]],
+  wirelessRemote: [["Ninguno", 0], ["Control remoto inalámbrico", 8400]],
+  subframeToolboxDriver: [["Ninguna", 0], ["48 x 22 x 34", 3200]],
+  subframeToolboxPassenger: [["48 x 22 x 34", 0], ["Ninguna", -3200]],
+  frontBumperStorage: [["No", 0], ["Sí", 1700]],
 };
 
 const SECTIONS = {
   basic: [
     {
-      title: "Quote Number",
+      title: "Número de cotización",
       fields: [
-        ["vacuumSystem", "Vacuum System"],
-        ["modelType", "Model Type"],
-        ["waterFlow", "Water Flow"],
-        ["waterPressure", "Water Pressure"],
-        ["debrisBody", "Debris Body Capacity (cu. yd.)"],
-        ["waterCapacity", "Water Capacity"],
-        ["waterTankMaterial", "Water Tank Material"],
+        ["vacuumSystem", "Sistema de vacío"],
+        ["modelType", "Tipo de modelo"],
+        ["waterFlow", "Caudal de agua"],
+        ["waterPressure", "Presión de agua"],
+        ["debrisBody", "Capacidad de tolva de residuos (yd³)"],
+        ["waterCapacity", "Capacidad de agua"],
+        ["waterTankMaterial", "Material del tanque de agua"],
       ],
-      toggles: [["jetRight", "JetRight Technology", 5800]],
+      toggles: [["jetRight", "Tecnología JetRight", 5800]],
     },
     {
-      title: "Chassis",
+      title: "Chasis",
       fields: [
-        ["source", "Source"],
-        ["modelYear", "Model Year"],
-        ["make", "Make"],
-        ["axleType", "Axle Type"],
+        ["source", "Origen"],
+        ["modelYear", "Año modelo"],
+        ["make", "Marca"],
+        ["axleType", "Tipo de eje"],
       ],
-      toggles: [["alternateFuel", "Alternate Fuel", 12500]],
+      toggles: [["alternateFuel", "Combustible alternativo", 12500]],
     },
   ],
   module: [
     {
-      title: "Boom",
-      fields: [["boom", "Boom"], ["waterRing", "Water Ring"]],
-      toggles: [["grateLiftingHook", "Grate Lifting Hook", 950], ["rotatableInlet", "Rotatable Inlet Hose", 2400]],
+      title: "Brazo de succión",
+      fields: [["boom", "Brazo"], ["waterRing", "Anillo de agua"]],
+      toggles: [["grateLiftingHook", "Gancho levanta rejillas", 950], ["rotatableInlet", "Manguera de entrada rotativa", 2400]],
     },
     {
-      title: "Debris Body",
+      title: "Tolva de residuos",
       fields: [
-        ["decant", "Decant"],
-        ["pumpOff", "Pump Off"],
-        ["cycloneSeparators", "Cyclone Separators"],
-        ["foldingRackDriver", "Folding pipe rack driver side"],
-        ["foldingRackPassenger", "Folding pipe rack passenger side"],
-        ["driverRackSize", "Driver side Pipe Rack Size"],
-        ["passengerRackSize", "Passenger side Pipe Rack Size"],
+        ["decant", "Decantación"],
+        ["pumpOff", "Descarga por bomba"],
+        ["cycloneSeparators", "Separadores ciclónicos"],
+        ["foldingRackDriver", "Porta tubos plegable lado conductor"],
+        ["foldingRackPassenger", "Porta tubos plegable lado pasajero"],
+        ["driverRackSize", "Tamaño porta tubos lado conductor"],
+        ["passengerRackSize", "Tamaño porta tubos lado pasajero"],
       ],
-      toggles: [["digitalDebris", "Digital Debris Body Level Indicator", 1800], ["bodyFlushout", "Body Flushout", 2600], ["tanksJoined", "Tanks Joined", 3900], ["splashShield", "Splash Shield", 1250], ["inspectionPort", "Inspection Port", 750], ["floatBall", "Stainless Steel Float Ball Cage", 1400]],
+      toggles: [["digitalDebris", "Indicador digital de nivel de tolva", 1800], ["bodyFlushout", "Lavado interno de tolva", 2600], ["tanksJoined", "Tanques unidos", 3900], ["splashShield", "Protector contra salpicaduras", 1250], ["inspectionPort", "Puerto de inspección", 750], ["floatBall", "Jaula de bola flotante en acero inoxidable", 1400]],
     },
   ],
   water: [
     {
-      title: "Hose Reel",
-      fields: [["hoseReelCapacity", "Hose Reel Capacity"], ["highPressureHoseReel", "High Pressure Hose Reel"], ["rodderHoseType", "Rodder Hose Type"], ["rodderHoseDiameter", "Rodder Hose Diameter"], ["rodderHoseLength", "Rodder Hose Length"]],
-      toggles: [["hoseReelManualRewind", "Hose reel manual rewind tool", 450], ["wrapHoseReel", "Wrap hose reel for delivery", 350], ["pinchRoller", "Pinch Roller", 950], ["heatedHose", "Heated hose reel", 4200]],
+      title: "Carrete de manguera",
+      fields: [["hoseReelCapacity", "Capacidad del carrete"], ["highPressureHoseReel", "Carrete de alta presión"], ["rodderHoseType", "Tipo de manguera de limpieza"], ["rodderHoseDiameter", "Diámetro de manguera"], ["rodderHoseLength", "Longitud de manguera"]],
+      toggles: [["hoseReelManualRewind", "Herramienta de rebobinado manual", 450], ["wrapHoseReel", "Envolver carrete para entrega", 350], ["pinchRoller", "Rodillo presor", 950], ["heatedHose", "Carrete calefactado", 4200]],
     },
     {
-      title: "Water Tanks",
+      title: "Tanques de agua",
       fields: [],
-      toggles: [["insulatedWaterTanks", "Insulated Water Tanks", 5200], ["secondAirGap", "Second Air Gap", 900], ["gravityFill", "Gravity Fill", 850], ["frontRearHandguns", "Front and Rear Handgun Couplers", 1350], ["lavalSeparator", "Laval Separator", 1800]],
+      toggles: [["insulatedWaterTanks", "Tanques de agua aislados", 5200], ["secondAirGap", "Segunda separación de aire", 900], ["gravityFill", "Llenado por gravedad", 850], ["frontRearHandguns", "Acoples para pistolas frontal y posterior", 1350], ["lavalSeparator", "Separador Laval", 1800]],
     },
   ],
   electrical: [
     {
-      title: "Lighting",
-      fields: [["rearArrowboard", "Rear arrowboard"], ["frontArrowboard", "Front arrowboard"], ["rearBeacons", "Rear beacons"], ["handlight", "Handlight"], ["cameraSystem", "Camera System"], ["worklightsRear", "Worklights, Rear"]],
-      toggles: [["midshipTurnSignals", "Midship turn signals", 850], ["additionalHandlight", "Additional handlight connected", 620], ["worklightsPassenger", "Worklights, passenger side", 1150], ["worklightsDriver", "Worklights, driver side", 1150], ["hoseReelWorklights", "Worklights, hose reel cassette", 1250]],
+      title: "Iluminación",
+      fields: [["rearArrowboard", "Flecha direccional trasera"], ["frontArrowboard", "Flecha direccional frontal"], ["rearBeacons", "Balizas traseras"], ["handlight", "Lámpara portátil"], ["cameraSystem", "Sistema de cámaras"], ["worklightsRear", "Luces de trabajo posteriores"]],
+      toggles: [["midshipTurnSignals", "Luces direccionales centrales", 850], ["additionalHandlight", "Lámpara portátil adicional conectada", 620], ["worklightsPassenger", "Luces de trabajo lado pasajero", 1150], ["worklightsDriver", "Luces de trabajo lado conductor", 1150], ["hoseReelWorklights", "Luces de trabajo en cassette del carrete", 1250]],
     },
   ],
   paint: [
     {
-      title: "Paint",
-      fields: [["baseColor", "Main Color"], ["stripe", "Striping"], ["bodyDecal", "Body Decal"]],
-      toggles: [["cabColorMatch", "Cab Color Match", 2400], ["clearCoat", "Clear Coat", 3200], ["specialDecals", "Special Decals", 1450]],
+      title: "Pintura",
+      fields: [["baseColor", "Color principal"], ["stripe", "Franja decorativa"], ["bodyDecal", "Calcomanía de carrocería"]],
+      toggles: [["cabColorMatch", "Igualar color de cabina", 2400], ["clearCoat", "Capa transparente", 3200], ["specialDecals", "Calcomanías especiales", 1450]],
     },
   ],
   accessories: [
     {
-      title: "Misc",
-      fields: [["safetyRack", "Safety cone storage rack"], ["operatorManuals", "Operator Manuals"], ["printedManuals", "Printed Manuals"], ["shipmentManuals", "Shipment of Manuals"], ["extendedWarranty", "Extended Warranty"], ["wirelessRemote", "Wireless Remote"]],
-      toggles: [["spanishDecals", "Spanish Decals", 420], ["spanishManuals", "Spanish Manuals", 320], ["waterCooler", "Water Cooler Storage Rack", 950], ["hydraulicToolPkg", "Hydraulic tool pkg", 6500], ["remotePendant", "Remote Corded Pendant", 1800], ["wheelChocks", "Wheel Chocks and Holders", 700]],
+      title: "Varios",
+      fields: [["safetyRack", "Porta conos de seguridad"], ["operatorManuals", "Manuales de operador"], ["printedManuals", "Manuales impresos"], ["shipmentManuals", "Envío de manuales"], ["extendedWarranty", "Garantía extendida"], ["wirelessRemote", "Control remoto inalámbrico"]],
+      toggles: [["spanishDecals", "Calcomanías en español", 420], ["spanishManuals", "Manuales en español", 320], ["waterCooler", "Soporte para enfriador de agua", 950], ["hydraulicToolPkg", "Paquete de herramientas hidráulicas", 6500], ["remotePendant", "Control remoto con cable", 1800], ["wheelChocks", "Cuñas de rueda y soportes", 700]],
     },
     {
-      title: "Toolbox",
-      fields: [["subframeToolboxDriver", "Subframe toolbox Driver Side"], ["subframeToolboxPassenger", "Subframe toolbox Passenger Side"], ["frontBumperStorage", "Front Bumper Storage"]],
-      toggles: [["frontHoseStorage", "Front hose reel storage", 1200], ["longHandleToolStorage", "Long Handle Tool Storage", 900]],
+      title: "Cajas de herramientas",
+      fields: [["subframeToolboxDriver", "Caja bajo bastidor lado conductor"], ["subframeToolboxPassenger", "Caja bajo bastidor lado pasajero"], ["frontBumperStorage", "Almacenamiento en parachoques frontal"]],
+      toggles: [["frontHoseStorage", "Almacenamiento frontal para manguera", 1200], ["longHandleToolStorage", "Almacenamiento para herramientas de mango largo", 900]],
     },
   ],
 };
@@ -190,7 +190,6 @@ export default function ConfiguradorHome() {
     customer: "Cliente por definir",
     endCustomer: "Cliente final",
     salesPerson: "ASTAP",
-    currency: "USD",
   });
 
   const selectedModel = MODELS.find((model) => model.id === selectedModelId) || MODELS[0];
@@ -271,7 +270,7 @@ export default function ConfiguradorHome() {
       <section className={`rounded-2xl border p-4 shadow-sm ${isLight ? "border-slate-200 bg-white" : "border-white/10 bg-white/5"}`}>
         <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
           <Truck size={18} className="text-blue-600" />
-          <h2 className="font-semibold">Configure Vactor / Elgin</h2>
+          <h2 className="font-semibold">Configurar Vactor / Elgin</h2>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {MODELS.map((model) => (
@@ -301,10 +300,10 @@ export default function ConfiguradorHome() {
       <section className={`rounded-2xl border shadow-sm ${isLight ? "border-slate-200 bg-white" : "border-white/10 bg-white/5"}`}>
         <div className="flex flex-col gap-3 border-b border-red-200 p-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <TextInput label="Quote No." value={quote.number} onChange={(value) => updateQuote("number", value)} />
-            <TextInput label="Customer" value={quote.customer} onChange={(value) => updateQuote("customer", value)} />
-            <TextInput label="End Customer" value={quote.endCustomer} onChange={(value) => updateQuote("endCustomer", value)} />
-            <TextInput label="Sales Person" value={quote.salesPerson} onChange={(value) => updateQuote("salesPerson", value)} />
+            <TextInput label="Cotización No." value={quote.number} onChange={(value) => updateQuote("number", value)} />
+            <TextInput label="Cliente" value={quote.customer} onChange={(value) => updateQuote("customer", value)} />
+            <TextInput label="Cliente final" value={quote.endCustomer} onChange={(value) => updateQuote("endCustomer", value)} />
+            <TextInput label="Vendedor" value={quote.salesPerson} onChange={(value) => updateQuote("salesPerson", value)} />
           </div>
           <div className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-white">
             <Calculator size={18} />
@@ -354,13 +353,13 @@ export default function ConfiguradorHome() {
           </div>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={() => setActiveTab("review")} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-              Update
+              Revisar
             </button>
             <button type="button" onClick={saveDraft} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-              <Save size={16} /> Save
+              <Save size={16} /> Guardar
             </button>
             <button type="button" onClick={() => navigate("/area/vehiculos")} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-              Cancel
+              Cancelar
             </button>
           </div>
         </div>
@@ -426,14 +425,14 @@ function ReviewPanel({ quote, selectedModel, priceSummary, items }) {
     <div className="space-y-5">
       <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <h3 className="flex items-center gap-2 font-bold text-slate-900"><FileText size={18} /> Transaction Header Details</h3>
+          <h3 className="flex items-center gap-2 font-bold text-slate-900"><FileText size={18} /> Datos generales de la cotización</h3>
           <div className="mt-3 grid gap-2 text-sm md:grid-cols-2">
-            <p><strong>Quote:</strong> {quote.number}</p>
-            <p><strong>Model:</strong> {selectedModel.name}</p>
-            <p><strong>Customer:</strong> {quote.customer}</p>
-            <p><strong>End Customer:</strong> {quote.endCustomer}</p>
-            <p><strong>Sales Person:</strong> {quote.salesPerson}</p>
-            <p><strong>Status:</strong> In Progress</p>
+            <p><strong>Cotización:</strong> {quote.number}</p>
+            <p><strong>Modelo:</strong> {selectedModel.name}</p>
+            <p><strong>Cliente:</strong> {quote.customer}</p>
+            <p><strong>Cliente final:</strong> {quote.endCustomer}</p>
+            <p><strong>Vendedor:</strong> {quote.salesPerson}</p>
+            <p><strong>Estado:</strong> En progreso</p>
           </div>
         </div>
         <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-blue-900">
