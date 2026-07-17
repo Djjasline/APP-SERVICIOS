@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
+import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 
 export default function InformeHome() {
   const navigate = useNavigate();
@@ -248,10 +249,15 @@ export default function InformeHome() {
   return (
     <div className="bg-white rounded-2xl p-6 shadow space-y-6">
       {/* HEADER */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-lg font-semibold text-gray-900">
-          Informe Técnico de Servicio
-        </h1>
+      <div className="flex justify-between items-start gap-4">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900">
+            {VEHICULOS_TEXT.informe.title}
+          </h1>
+          <p className="mt-1 text-sm text-gray-600">
+            {VEHICULOS_TEXT.informe.description}
+          </p>
+        </div>
 
         <div className="flex items-center gap-3">
           <button

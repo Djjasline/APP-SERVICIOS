@@ -1,6 +1,7 @@
 import { Construction, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/context/ThemeContext";
+import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 
 export default function ConfiguradorHome() {
   const navigate = useNavigate();
@@ -11,10 +12,10 @@ export default function ConfiguradorHome() {
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className={`text-xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
-            Configurador 🚧 · 20% de avance
+            {VEHICULOS_TEXT.configurador.title}
           </h1>
           <p className={`text-sm ${isLight ? "text-slate-600" : "text-slate-300"}`}>
-            Módulo para configuración técnica de equipos, esquemas, capas, opciones y revisión.
+            {VEHICULOS_TEXT.configurador.description}
           </p>
         </div>
 

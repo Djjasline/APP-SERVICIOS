@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllInspections, createInspection } from "@/utils/inspectionStorage";
+import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 
 /* =========================
    Badge visual de estado
@@ -189,8 +190,11 @@ export default function IndexInspeccion() {
         </button>
 
         <h1 className="text-2xl font-semibold text-slate-900">
-          Inspección y valoración
+          {VEHICULOS_TEXT.inspeccion.title}
         </h1>
+        <p className="text-sm text-slate-600">
+          {VEHICULOS_TEXT.inspeccion.description}
+        </p>
 
         <div className="grid md:grid-cols-4 gap-6">
           <Card

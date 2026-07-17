@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import {
   canAccessRecord,
   getPermittedOwnerEmails,
@@ -158,8 +159,8 @@ export default function ProtocolosHome() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className={`text-xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>Protocolos</h1>
-          <p className={`text-sm ${isLight ? "text-slate-600" : "text-slate-300"}`}>Protocolos técnicos para vehículos especiales.</p>
+          <h1 className={`text-xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>{VEHICULOS_TEXT.protocolos.title}</h1>
+          <p className={`text-sm ${isLight ? "text-slate-600" : "text-slate-300"}`}>{VEHICULOS_TEXT.protocolos.description}</p>
         </div>
         <button onClick={() => navigate("/area/vehiculos")} className="btn-volver-orange">Volver</button>
       </div>

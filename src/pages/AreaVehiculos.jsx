@@ -58,16 +58,16 @@ export default function AreaVehiculos() {
 />
 
 <CardModulo
-  titulo="Protocolos"
-  descripcion="Protocolos técnicos para procedimientos, mantenimiento y verificación de equipos."
+  titulo={VEHICULOS_TEXT.protocolos.title}
+  descripcion={VEHICULOS_TEXT.protocolos.description}
   ruta="/vehiculos/protocolos"
   color="bg-indigo-600"
   icono={<ClipboardList size={20} />}
 />
 
 <CardModulo
-  titulo="Configurador 🚧 · 20% de avance"
-  descripcion="Configurador técnico de equipos, esquemas, capas y revisión. Acceso restringido hasta nueva orden."
+  titulo={VEHICULOS_TEXT.configurador.title}
+  descripcion={VEHICULOS_TEXT.configurador.description}
   ruta="/vehiculos/configurador"
   color="bg-orange-600"
   icono={<SlidersHorizontal size={20} />}
