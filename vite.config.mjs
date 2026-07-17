@@ -28,17 +28,29 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes("node_modules")) return undefined;
 
+          if (id.includes("lucide-react")) {
+            return "vendor-icons";
+          }
+
+          if (id.includes("framer-motion")) {
+            return "vendor-motion";
+          }
+
+          if (id.includes("react-signature-canvas")) {
+            return "vendor-signature";
+          }
+
+          if (id.includes("@radix-ui")) {
+            return "vendor-ui";
+          }
+
           if (
             id.includes("react") ||
             id.includes("react-dom") ||
             id.includes("react-router-dom") ||
             id.includes("scheduler") ||
             id.includes("redux") ||
-            id.includes("@reduxjs") ||
-            id.includes("@radix-ui") ||
-            id.includes("lucide-react") ||
-            id.includes("framer-motion") ||
-            id.includes("react-signature-canvas")
+            id.includes("@reduxjs")
           ) {
             return "vendor-react";
           }

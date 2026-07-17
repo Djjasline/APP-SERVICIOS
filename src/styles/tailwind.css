@@ -290,6 +290,12 @@ html[data-theme="dark"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-contai
     linear-gradient(135deg, #0f172a 0%, #1e1b4b 46%, #111827 100%);
 }
 
+.app-loading-shell {
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.45), transparent 28rem),
+    linear-gradient(135deg, #0f172a 0%, #111827 100%);
+}
+
 @media (min-width: 768px) {
   .login-bg {
     background-image:

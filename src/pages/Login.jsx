@@ -1,7 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+
+function EyeIcon({ hidden }) {
+  return hidden ? (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C7 20 2.73 16.89 1 12a18.45 18.45 0 0 1 5.06-6.06" />
+      <path d="M9.9 4.24A10.75 10.75 0 0 1 12 4c5 0 9.27 3.11 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+      <path d="M14.12 14.12A3 3 0 0 1 9.88 9.88" />
+      <path d="M1 1l22 22" />
+    </svg>
+  ) : (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
 
 function getLoginErrorMessage(message = "") {
   const normalized = message.toLowerCase();
@@ -107,7 +122,7 @@ export default function Login() {
               aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               className="absolute inset-y-0 right-0 flex items-center px-3 text-lime-400 drop-shadow-[0_0_6px_rgba(163,230,53,0.9)] hover:text-lime-300 disabled:opacity-50"
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              <EyeIcon hidden={showPassword} />
             </button>
           </div>
 
@@ -147,6 +162,9 @@ export default function Login() {
           <img
             src="/astap-logo.jpg"
             alt="ASTAP"
+            width="48"
+            height="48"
+            decoding="async"
             className="h-12 w-12 rounded-lg bg-white object-contain shadow-sm"
           />
 
@@ -171,10 +189,14 @@ export default function Login() {
             <img
               src="/astap-qr.svg"
               alt="Código QR del sitio web ASTAP"
+              width="128"
+              height="128"
+              loading="lazy"
+              decoding="async"
               className="h-32 w-32"
             />
             <span className="absolute left-1/2 top-1/2 flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow">
-              <img src="/astap-logo.jpg" alt="" className="h-5 w-5 rounded-full object-contain" />
+              <img src="/astap-logo.jpg" alt="" width="20" height="20" loading="lazy" decoding="async" className="h-5 w-5 rounded-full object-contain" />
             </span>
           </a>
 

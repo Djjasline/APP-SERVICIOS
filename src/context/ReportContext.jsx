@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 const ReportContext = createContext(null);
@@ -27,10 +27,6 @@ export const ReportProvider = ({ children }) => {
 
     setReports(data || []);
   };
-
-  useEffect(() => {
-    fetchReports();
-  }, []);
 
   /* ================= NEW ================= */
   const startNewReport = () => {
