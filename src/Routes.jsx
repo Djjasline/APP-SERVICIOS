@@ -298,13 +298,13 @@ export default function RoutesApp() {
             <Route path="/vehiculos/mantenimiento/vcam/ver/:id" element={<VehiculosRoute><RecordPermissionRoute action="view" fallback="/vehiculos/mantenimiento"><MantenimientoVCamPDF allowDownload={false} /></RecordPermissionRoute></VehiculosRoute>} />
             <Route path="/vehiculos/mantenimiento/vcam/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/mantenimiento"><HojaMantenimientoVCam /></RecordPermissionRoute></VehiculosRoute>} />
 
-            <Route path="/vehiculos/protocolos" element={<VehiculosRoute><ProtocolosHome /></VehiculosRoute>} />
-            <Route path="/vehiculos/protocolos/vactor/new" element={<VehiculosRoute><ProtocoloVactorForm /></VehiculosRoute>} />
-            <Route path="/vehiculos/protocolos/vactor/ver/:id" element={<VehiculosRoute><RecordPermissionRoute action="view" fallback="/vehiculos/protocolos"><ProtocoloVactorPDF allowDownload={false} backPath="/vehiculos/protocolos" /></RecordPermissionRoute></VehiculosRoute>} />
-            <Route path="/vehiculos/protocolos/vactor/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/protocolos"><ProtocoloVactorForm /></RecordPermissionRoute></VehiculosRoute>} />
-            <Route path="/vehiculos/protocolos/vcam/new" element={<VehiculosRoute><ProtocoloVCamForm /></VehiculosRoute>} />
-            <Route path="/vehiculos/protocolos/vcam/ver/:id" element={<VehiculosRoute><RecordPermissionRoute action="view" fallback="/vehiculos/protocolos"><ProtocoloVCamPDF allowDownload={false} backPath="/vehiculos/protocolos" /></RecordPermissionRoute></VehiculosRoute>} />
-            <Route path="/vehiculos/protocolos/vcam/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/protocolos"><ProtocoloVCamForm /></RecordPermissionRoute></VehiculosRoute>} />
+            <Route path="/vehiculos/protocolos" element={<Navigate to="/operaciones/protocolos" replace />} />
+            <Route path="/vehiculos/protocolos/vactor/new" element={<Navigate to="/operaciones/protocolos/vactor/new" replace />} />
+            <Route path="/vehiculos/protocolos/vactor/ver/:id" element={<TechRoute><RecordPermissionRoute action="view" fallback="/operaciones/protocolos"><ProtocoloVactorPDF allowDownload={false} backPath="/operaciones/protocolos" /></RecordPermissionRoute></TechRoute>} />
+            <Route path="/vehiculos/protocolos/vactor/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/operaciones/protocolos"><ProtocoloVactorForm /></RecordPermissionRoute></TechRoute>} />
+            <Route path="/vehiculos/protocolos/vcam/new" element={<Navigate to="/operaciones/protocolos/vcam/new" replace />} />
+            <Route path="/vehiculos/protocolos/vcam/ver/:id" element={<TechRoute><RecordPermissionRoute action="view" fallback="/operaciones/protocolos"><ProtocoloVCamPDF allowDownload={false} backPath="/operaciones/protocolos" /></RecordPermissionRoute></TechRoute>} />
+            <Route path="/vehiculos/protocolos/vcam/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/operaciones/protocolos"><ProtocoloVCamForm /></RecordPermissionRoute></TechRoute>} />
             <Route path="/vehiculos/configurador" element={<VehiculosRoute><ConfiguradorHome /></VehiculosRoute>} />
 
             <Route path="/liberacion" element={<Navigate to="/operaciones/liberacion" replace />} />
@@ -335,6 +335,14 @@ export default function RoutesApp() {
             <Route path="/operaciones/registro/ver/:id" element={<TechRoute><RecordPermissionRoute action="view" fallback="/operaciones/registro"><RegistroPDF allowDownload={false} backPath="/operaciones/registro" /></RecordPermissionRoute></TechRoute>} />
             <Route path="/operaciones/registro/pdf/:id" element={<TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/registro"><RegistroPDF /></RecordPermissionRoute></TechRoute>} />
             <Route path="/operaciones/registro/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/operaciones/registro"><HojaRegistroHerramientas /></RecordPermissionRoute></TechRoute>} />
+
+            <Route path="/operaciones/protocolos" element={<TechRoute><ProtocolosHome /></TechRoute>} />
+            <Route path="/operaciones/protocolos/vactor/new" element={<TechRoute><ProtocoloVactorForm /></TechRoute>} />
+            <Route path="/operaciones/protocolos/vactor/ver/:id" element={<TechRoute><RecordPermissionRoute action="view" fallback="/operaciones/protocolos"><ProtocoloVactorPDF allowDownload={false} backPath="/operaciones/protocolos" /></RecordPermissionRoute></TechRoute>} />
+            <Route path="/operaciones/protocolos/vactor/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/operaciones/protocolos"><ProtocoloVactorForm /></RecordPermissionRoute></TechRoute>} />
+            <Route path="/operaciones/protocolos/vcam/new" element={<TechRoute><ProtocoloVCamForm /></TechRoute>} />
+            <Route path="/operaciones/protocolos/vcam/ver/:id" element={<TechRoute><RecordPermissionRoute action="view" fallback="/operaciones/protocolos"><ProtocoloVCamPDF allowDownload={false} backPath="/operaciones/protocolos" /></RecordPermissionRoute></TechRoute>} />
+            <Route path="/operaciones/protocolos/vcam/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/operaciones/protocolos"><ProtocoloVCamForm /></RecordPermissionRoute></TechRoute>} />
 
             <Route path="/repositorios/documentos" element={<TechRoute><AreaRepositorios /></TechRoute>} />
             <Route path="/repositorios/pdf" element={<TechRoute><AreaRepositorios /></TechRoute>} />
@@ -375,8 +383,10 @@ export default function RoutesApp() {
           <Route path="/vehiculos/mantenimiento/barredora-road-wizard/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoBarredoraPDF variant="roadWizard" /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/vehiculos/mantenimiento/vcam/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/mantenimiento"><MantenimientoVCamPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
 
-          <Route path="/vehiculos/protocolos/vactor/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/protocolos"><ProtocoloVactorPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
-          <Route path="/vehiculos/protocolos/vcam/:id/pdf" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/protocolos"><ProtocoloVCamPDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/protocolos/vactor/:id/pdf" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/protocolos"><ProtocoloVactorPDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/protocolos/vcam/:id/pdf" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/protocolos"><ProtocoloVCamPDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
+          <Route path="/operaciones/protocolos/vactor/:id/pdf" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/protocolos"><ProtocoloVactorPDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
+          <Route path="/operaciones/protocolos/vcam/:id/pdf" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/protocolos"><ProtocoloVCamPDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
         </Routes>
             </BrowserRouter>
   );

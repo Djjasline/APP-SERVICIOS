@@ -15,9 +15,9 @@ export const VEHICULOS_TEXT = {
       "Mantenimiento preventivo y correctivo de equipos como Barredoras, Hidrosuccionadores y Cámaras de inspección.",
   },
   protocolos: {
-    title: "Protocolos",
+    title: "Protocolo de Verificación de Servicios",
     description:
-      "Protocolos técnicos para procedimientos, mantenimiento y verificación de equipos.",
+      "Evaluación técnica y operativa previa al servicio, orientada a verificar conocimientos, capacidades del técnico y conformidad de las actividades a ejecutar.",
   },
   configurador: {
     title: "Configurador 🚧 · 20% de avance",

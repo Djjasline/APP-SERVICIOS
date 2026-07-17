@@ -48,6 +48,8 @@ function prepareDuplicatedData(record, user) {
 }
 
 function resolveRecordArea(record) {
+  if (record?.tipo === "protocolo") return "operaciones";
+
   if (record?.area || record?.data?.area) return record.area || record.data.area;
 
   if (["registro", "recepcion", "liberacion"].includes(record?.tipo)) {

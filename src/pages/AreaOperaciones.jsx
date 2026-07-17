@@ -1,6 +1,7 @@
 import CardModulo from "@/components/CardModulo";
+import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { useTheme } from "@/context/ThemeContext";
-import { Settings, Wrench, Inbox } from "lucide-react";
+import { ClipboardList, Settings, Wrench, Inbox } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaOperaciones() {
@@ -29,6 +30,13 @@ export default function AreaOperaciones() {
     color: "bg-green-600",
     ruta: "/operaciones/liberacion",
   },
+  {
+    titulo: VEHICULOS_TEXT.protocolos.title,
+    descripcion: VEHICULOS_TEXT.protocolos.description,
+    icono: <ClipboardList size={20} />,
+    color: "bg-indigo-600",
+    ruta: "/operaciones/protocolos",
+  },
 ];
   return (
     <div className="p-6 space-y-6">
@@ -53,7 +61,7 @@ export default function AreaOperaciones() {
       </div>
 
       {/* 🔥 GRID */}
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
 
         {modulos.map((item, index) => (
           <CardModulo

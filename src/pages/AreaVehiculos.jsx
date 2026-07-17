@@ -1,7 +1,7 @@
 import CardModulo from "@/components/CardModulo";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { useTheme } from "@/context/ThemeContext";
-import { FileText, ClipboardCheck, Wrench, ClipboardList, SlidersHorizontal } from "lucide-react";
+import { FileText, ClipboardCheck, Wrench, SlidersHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaVehiculos() {
@@ -55,14 +55,6 @@ export default function AreaVehiculos() {
   ruta="/vehiculos/mantenimiento"
   color="bg-green-600"
   icono={<Wrench size={20} />}
-/>
-
-<CardModulo
-  titulo={VEHICULOS_TEXT.protocolos.title}
-  descripcion={VEHICULOS_TEXT.protocolos.description}
-  ruta="/vehiculos/protocolos"
-  color="bg-indigo-600"
-  icono={<ClipboardList size={20} />}
 />
 
 <CardModulo

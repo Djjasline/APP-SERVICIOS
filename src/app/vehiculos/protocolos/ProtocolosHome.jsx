@@ -35,6 +35,11 @@ const PROTOCOL_BY_SUBTIPO = PROTOCOLS.reduce((acc, item) => {
   return acc;
 }, {});
 
+const PROTOCOL_AREAS = ["operaciones", "vehiculos"];
+const PROTOCOL_BASE_PATH = "/operaciones/protocolos";
+
+const mergeUnique = (...lists) => [...new Set(lists.flat().filter(Boolean))];
+
 export default function ProtocolosHome() {
   const navigate = useNavigate();
   const { isLight } = useTheme();
@@ -60,7 +65,7 @@ export default function ProtocolosHome() {
         supabase
           .from("registros")
           .select("*")
-          .eq("area", "vehiculos")
+          .in("area", PROTOCOL_AREAS)
           .eq("tipo", "protocolo")
           .in("subtipo", PROTOCOLS.map((item) => item.subtipo))
           .order("created_at", { ascending: false });
@@ -73,8 +78,14 @@ export default function ProtocolosHome() {
         data = response.data || [];
         error = response.error;
       } else {
-        const ownerIds = getPermittedOwnerIds(userPermissions, "vehiculos", "protocolo", "view");
-        const ownerEmails = getPermittedOwnerEmails(userPermissions, "vehiculos", "protocolo", "view");
+        const ownerIds = mergeUnique(
+          getPermittedOwnerIds(userPermissions, "operaciones", "protocolo", "view"),
+          getPermittedOwnerIds(userPermissions, "vehiculos", "protocolo", "view")
+        );
+        const ownerEmails = mergeUnique(
+          getPermittedOwnerEmails(userPermissions, "operaciones", "protocolo", "view"),
+          getPermittedOwnerEmails(userPermissions, "vehiculos", "protocolo", "view")
+        );
         const [ownResponse, permittedResponse, permittedByTechResponse] = await Promise.all([
           baseQuery().eq("user_id", user.id),
           ownerIds.length > 0 ? baseQuery().in("user_id", ownerIds) : Promise.resolve({ data: [], error: null }),
@@ -121,7 +132,7 @@ export default function ProtocolosHome() {
       .from("registros")
       .delete()
       .eq("id", item.id)
-      .eq("area", "vehiculos")
+      .in("area", PROTOCOL_AREAS)
       .eq("tipo", "protocolo")
       .eq("subtipo", item.subtipo);
 
@@ -148,7 +159,7 @@ export default function ProtocolosHome() {
     try {
       const duplicated = await duplicateRecordAsDraft(item, user);
       const protocol = PROTOCOL_BY_SUBTIPO[duplicated.subtipo] || PROTOCOLS[0];
-      navigate(`/vehiculos/protocolos/${protocol.path}/${duplicated.id}`);
+      navigate(`${PROTOCOL_BASE_PATH}/${protocol.path}/${duplicated.id}`);
     } catch (error) {
       console.error("Error duplicando protocolo:", error);
       alert("No se pudo duplicar el protocolo.");
@@ -162,11 +173,11 @@ export default function ProtocolosHome() {
           <h1 className={`text-xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>{VEHICULOS_TEXT.protocolos.title}</h1>
           <p className={`text-sm ${isLight ? "text-slate-600" : "text-slate-300"}`}>{VEHICULOS_TEXT.protocolos.description}</p>
         </div>
-        <button onClick={() => navigate("/area/vehiculos")} className="btn-volver-orange">Volver</button>
+        <button onClick={() => navigate("/operaciones")} className="btn-volver-orange">Volver</button>
       </div>
 
-      {superAdminActivo && <div className="rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-2 text-sm text-yellow-800">Modo super administrador: estás viendo todos los protocolos de vehículos.</div>}
-      {!superAdminActivo && supervisorProyectoActivo && <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm text-blue-800">Modo supervisor de proyecto: estás viendo todos los protocolos de vehículos.</div>}
+      {superAdminActivo && <div className="rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-2 text-sm text-yellow-800">Modo super administrador: estás viendo todos los protocolos de operaciones.</div>}
+      {!superAdminActivo && supervisorProyectoActivo && <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm text-blue-800">Modo supervisor de proyecto: estás viendo todos los protocolos de operaciones.</div>}
       {proveedorVehiculosActivo && <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-700">Acceso proveedor: puedes ver tus protocolos y los registros autorizados por administración.</div>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -176,7 +187,7 @@ export default function ProtocolosHome() {
               <h2 className="font-semibold text-gray-900">{protocol.title}</h2>
               <p className="text-sm text-gray-500">{protocol.description}</p>
             </div>
-            <button onClick={() => navigate(`/vehiculos/protocolos/${protocol.path}/new`)} className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm transition">+ Nuevo protocolo</button>
+            <button onClick={() => navigate(`${PROTOCOL_BASE_PATH}/${protocol.path}/new`)} className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm transition">+ Nuevo protocolo</button>
           </div>
         ))}
       </div>
@@ -207,9 +218,9 @@ export default function ProtocolosHome() {
                   <span className={`mt-1 inline-block px-2 py-0.5 rounded text-white text-[10px] ${item.estado === "completado" ? "bg-green-600" : "bg-yellow-500"}`}>{item.estado === "completado" ? "Completado" : "Borrador"}</span>
                 </div>
                 <div className="flex gap-3 text-xs shrink-0">
-                  <button onClick={() => navigate(`/vehiculos/protocolos/${protocol.path}/ver/${item.id}`)} className="font-semibold text-slate-600 hover:underline">Ver</button>
-                  {item.estado === "completado" && canDownload(item) && <button onClick={() => navigate(`/vehiculos/protocolos/${protocol.path}/${item.id}/pdf`)} className="text-green-600 font-semibold hover:underline">PDF</button>}
-                  {canEdit(item) && <button onClick={() => navigate(`/vehiculos/protocolos/${protocol.path}/${item.id}`)} className="text-blue-600 hover:underline">Abrir</button>}
+                  <button onClick={() => navigate(`${PROTOCOL_BASE_PATH}/${protocol.path}/ver/${item.id}`)} className="font-semibold text-slate-600 hover:underline">Ver</button>
+                  {item.estado === "completado" && canDownload(item) && <button onClick={() => navigate(`${PROTOCOL_BASE_PATH}/${protocol.path}/${item.id}/pdf`)} className="text-green-600 font-semibold hover:underline">PDF</button>}
+                  {canEdit(item) && <button onClick={() => navigate(`${PROTOCOL_BASE_PATH}/${protocol.path}/${item.id}`)} className="text-blue-600 hover:underline">Abrir</button>}
                   {canEdit(item) && <button onClick={() => handleDuplicate(item)} className="font-semibold text-amber-600 hover:underline">Duplicar</button>}
                   {(puedeVerTodoVehiculos || isOwn(item)) && <button onClick={() => handleDelete(item)} className="text-red-600 hover:underline">Eliminar</button>}
                 </div>

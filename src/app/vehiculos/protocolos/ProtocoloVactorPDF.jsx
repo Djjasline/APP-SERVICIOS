@@ -154,7 +154,9 @@ function StatusTable({ items, values, includeCantidad = false }) {
   );
 }
 
-export default function ProtocoloVactorPDF({ allowDownload = true, backPath = "/vehiculos/protocolos" }) {
+const PROTOCOL_AREAS = ["operaciones", "vehiculos"];
+
+export default function ProtocoloVactorPDF({ allowDownload = true, backPath = "/operaciones/protocolos" }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [record, setRecord] = useState(null);
@@ -165,7 +167,7 @@ export default function ProtocoloVactorPDF({ allowDownload = true, backPath = "/
         .from("registros")
         .select("*")
         .eq("id", id)
-        .eq("area", "vehiculos")
+        .in("area", PROTOCOL_AREAS)
         .eq("tipo", "protocolo")
         .eq("subtipo", "hidrosuccionador-vactor")
         .maybeSingle();

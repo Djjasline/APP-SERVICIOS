@@ -26,6 +26,9 @@ import {
   SEGURIDAD_ITEMS,
 } from "./protocoloVactorData";
 
+const PROTOCOL_AREAS = ["operaciones", "vehiculos"];
+const PROTOCOL_BASE_PATH = "/operaciones/protocolos";
+
 const emptyData = {
   referenciaContrato: "",
   pedidoDemanda: "",
@@ -161,7 +164,7 @@ export default function ProtocoloVactorForm() {
         .from("registros")
         .select("*")
         .eq("id", id)
-        .eq("area", "vehiculos")
+        .in("area", PROTOCOL_AREAS)
         .eq("tipo", "protocolo")
         .eq("subtipo", "hidrosuccionador-vactor")
         .maybeSingle();
@@ -169,7 +172,7 @@ export default function ProtocoloVactorForm() {
       if (error || !record) {
         console.error("Error cargando protocolo:", error);
         alert("No se pudo cargar el protocolo.");
-        navigate("/vehiculos/protocolos");
+        navigate(PROTOCOL_BASE_PATH);
         return;
       }
 
@@ -223,7 +226,7 @@ export default function ProtocoloVactorForm() {
     try {
       await saveOrUpdateReport({
         id: isEditing ? id : null,
-        area: "vehiculos",
+        area: "operaciones",
         tipo: "protocolo",
         subtipo: "hidrosuccionador-vactor",
         data,
@@ -232,7 +235,7 @@ export default function ProtocoloVactorForm() {
 
       limpiar();
       alert(estado === "completado" ? "Protocolo completado." : "Borrador guardado.");
-      navigate("/vehiculos/protocolos");
+      navigate(PROTOCOL_BASE_PATH);
     } catch (error) {
       console.error(error);
       alert("No se pudo guardar el protocolo. Intenta de nuevo.");
@@ -248,7 +251,7 @@ export default function ProtocoloVactorForm() {
           <h1 className="text-xl font-semibold text-slate-900">{PROTOCOLO_VACTOR_INFO.titulo}</h1>
           <p className="text-sm text-slate-600">{PROTOCOLO_VACTOR_INFO.descripcion}</p>
         </div>
-        <button className="btn-volver-orange" onClick={() => navigate("/vehiculos/protocolos")}>Volver</button>
+        <button className="btn-volver-orange" onClick={() => navigate(PROTOCOL_BASE_PATH)}>Volver</button>
       </div>
 
       <div className="bg-white rounded-xl border shadow-sm p-4 space-y-4">

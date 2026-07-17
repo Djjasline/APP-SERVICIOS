@@ -63,7 +63,9 @@ function StatusTable({ items, values, includeCantidad = false }) {
   );
 }
 
-export default function ProtocoloVCamPDF({ allowDownload = true, backPath = "/vehiculos/protocolos" }) {
+const PROTOCOL_AREAS = ["operaciones", "vehiculos"];
+
+export default function ProtocoloVCamPDF({ allowDownload = true, backPath = "/operaciones/protocolos" }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [record, setRecord] = useState(null);
@@ -74,7 +76,7 @@ export default function ProtocoloVCamPDF({ allowDownload = true, backPath = "/ve
         .from("registros")
         .select("*")
         .eq("id", id)
-        .eq("area", "vehiculos")
+        .in("area", PROTOCOL_AREAS)
         .eq("tipo", "protocolo")
         .eq("subtipo", PROTOCOL_SUBTIPO)
         .maybeSingle();

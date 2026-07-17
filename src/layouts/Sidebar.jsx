@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { getUnreadAppUpdatesCount } from "@/services/appUpdatesService";
 import { getUnreadMessageCounts } from "@/services/chatService";
 import { supabase } from "@/lib/supabase";
@@ -23,6 +24,7 @@ import {
   Megaphone,
   ShieldCheck,
   SlidersHorizontal,
+  ClipboardList,
 } from "lucide-react";
 
 export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
@@ -70,7 +72,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       path.startsWith("/informe") ||
       path.startsWith("/inspeccion") ||
       path.startsWith("/mantenimiento") ||
-      path.startsWith("/protocolos") ||
       path.startsWith("/configurador");
 
     const isAguaPath =
@@ -282,7 +283,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               openOnly("vehiculos");
               go("/area/vehiculos");
             }}
-            className={itemClass(isActive(["/vehiculos", "/area/vehiculos", "/informe", "/inspeccion", "/mantenimiento", "/protocolos", "/configurador"]))}
+            className={itemClass(isActive(["/vehiculos", "/area/vehiculos", "/informe", "/inspeccion", "/mantenimiento", "/configurador"]))}
             aria-expanded={openVehiculos}
             aria-controls="panel-vehiculos"
           >
@@ -321,14 +322,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 className={subItemClass("/vehiculos/mantenimiento")}
               >
                 Informe de Mantenimiento de Equipos
-              </button>
-
-              <button
-                type="button"
-                onClick={() => go("/vehiculos/protocolos")}
-                className={subItemClass("/vehiculos/protocolos")}
-              >
-                Protocolos
               </button>
 
               <button
@@ -541,6 +534,17 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   className={subItemClass("/operaciones/liberacion")}
                 >
                   Autorización de uso de vehículo para refinería
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => go("/operaciones/protocolos")}
+                  className={subItemClass("/operaciones/protocolos")}
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <ClipboardList size={14} />
+                    {VEHICULOS_TEXT.protocolos.title}
+                  </span>
                 </button>
               </div>
             )}
