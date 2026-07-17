@@ -86,6 +86,11 @@ function firstLine(message) {
 
 const FRIENDLY_UPDATES = [
   {
+    match: "conectar encuestas a informes",
+    title: "Control de cambios: encuestas vinculadas",
+    message: "Se conectó la encuesta de satisfacción a informes completados, con enlace público para respuesta del cliente.",
+  },
+  {
     match: "habilitar configurador exclusivo y modelo de encuesta",
     title: "Control de cambios: configurador y encuesta",
     message: "Se habilitó el configurador con acceso exclusivo y se agregó el modelo estructurado de la encuesta de satisfacción.",

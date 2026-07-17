@@ -8,6 +8,7 @@ import { useAuth } from "./context/AuthContext";
 import { isConfiguratorOwner } from "./constants/accessControl";
 
 const Login = lazy(() => import("./pages/Login"));
+const CustomerSurveyPublic = lazy(() => import("./pages/CustomerSurveyPublic"));
 const MainLayout = lazy(() => import("./layouts/MainLayout"));
 const PanelServicios = lazy(() => import("./pages/PanelServicios"));
 const Perfil = lazy(() => import("./pages/Perfil"));
@@ -150,6 +151,7 @@ export default function RoutesApp() {
       <Suspense fallback={<div className="p-6 text-sm text-slate-500">Cargando...</div>}>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/encuesta/cliente/:token" element={<CustomerSurveyPublic />} />
 
           <Route
             element={

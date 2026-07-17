@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
+import CustomerSurveyLink from "@/components/CustomerSurveyLink";
 
 const informeTipos = {
   bomba: {
@@ -351,6 +352,8 @@ export default function InformeHome({
                   {r.estado === "completado" ? "Completado" : "Borrador"}
                 </span>
               </div>
+
+              <CustomerSurveyLink record={r} userId={user?.id} />
             </div>
 
             <div className="flex gap-3 text-sm shrink-0 flex-wrap">
