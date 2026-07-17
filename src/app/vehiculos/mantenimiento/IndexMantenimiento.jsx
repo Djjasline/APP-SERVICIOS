@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import {
   canAccessRecord,
   getPermittedOwnerEmails,
@@ -268,10 +269,15 @@ export default function IndexMantenimiento() {
   return (
     <div className="p-6 space-y-6">
       {/* HEADER */}
-      <div className="flex justify-between items-center">
-        <h1 className={`text-xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
-          Servicio de mantenimiento
-        </h1>
+      <div className="flex justify-between items-start gap-4">
+        <div>
+          <h1 className={`text-xl font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
+            {VEHICULOS_TEXT.mantenimiento.title}
+          </h1>
+          <p className={`mt-1 text-sm ${isLight ? "text-slate-600" : "text-gray-300"}`}>
+            {VEHICULOS_TEXT.mantenimiento.description}
+          </p>
+        </div>
 
         <button
           onClick={() => navigate("/area/vehiculos")}

@@ -1,4 +1,5 @@
 import CardModulo from "@/components/CardModulo";
+import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { useTheme } from "@/context/ThemeContext";
 import { FileText, ClipboardCheck, Wrench, ClipboardList, SlidersHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -33,24 +34,24 @@ export default function AreaVehiculos() {
       <div className="grid md:grid-cols-2 gap-6">
 
         <CardModulo
-  titulo="Informe Técnico de Servicio"
-  descripcion="Instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos."
+  titulo={VEHICULOS_TEXT.informe.title}
+  descripcion={VEHICULOS_TEXT.informe.description}
   ruta="/vehiculos/informe"
   color="bg-blue-600"
   icono={<FileText size={20} />}
 />
 
 <CardModulo
-  titulo="Informe de Inspección de Equipos"
-  descripcion="Evaluación del estado de equipos como Barredoras, Hidrosuccionadores y Cámaras de inspección."
+  titulo={VEHICULOS_TEXT.inspeccion.title}
+  descripcion={VEHICULOS_TEXT.inspeccion.description}
   ruta="/vehiculos/inspeccion"
   color="bg-yellow-600"
   icono={<ClipboardCheck size={20} />}
 />
 
 <CardModulo
-  titulo="Informe de Mantenimiento de Equipos"
-  descripcion="Control de mantenimiento preventivo de equipos."
+  titulo={VEHICULOS_TEXT.mantenimiento.title}
+  descripcion={VEHICULOS_TEXT.mantenimiento.description}
   ruta="/vehiculos/mantenimiento"
   color="bg-green-600"
   icono={<Wrench size={20} />}

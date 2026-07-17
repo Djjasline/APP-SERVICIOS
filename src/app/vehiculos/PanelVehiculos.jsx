@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { FileText, Wrench, Settings } from "lucide-react";
 
 export default function PanelVehiculos() {
@@ -42,22 +43,22 @@ export default function PanelVehiculos() {
 
           <Card
             icon={FileText}
-            title="Informe Técnico de Servicio"
-            desc="Instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos."
+            title={VEHICULOS_TEXT.informe.title}
+            desc={VEHICULOS_TEXT.informe.description}
             onClick={() => navigate("/informe")}
           />
 
           <Card
             icon={Wrench}
-            title="Informe de Inspección de Equipos"
-            desc="Evaluación del estado de equipos y sistemas."
+            title={VEHICULOS_TEXT.inspeccion.title}
+            desc={VEHICULOS_TEXT.inspeccion.description}
             onClick={() => navigate("/inspeccion")}
           />
 
           <Card
             icon={Settings}
-            title="Informe de Mantenimiento de Equipos"
-            desc="Control de mantenimiento preventivo y correctivo."
+            title={VEHICULOS_TEXT.mantenimiento.title}
+            desc={VEHICULOS_TEXT.mantenimiento.description}
             onClick={() => navigate("/mantenimiento")}
           />
 
