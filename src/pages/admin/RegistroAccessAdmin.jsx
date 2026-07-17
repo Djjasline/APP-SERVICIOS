@@ -79,8 +79,32 @@ const emptyCodeCorrectionForm = {
   new_code: "",
 };
 
+const ADMIN_OPTIONS = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    detail: "Indicadores generales y caso de éxito",
+  },
+  {
+    id: "permisos",
+    label: "Permisos",
+    detail: "Acceso a registros de otros usuarios",
+  },
+  {
+    id: "codigos",
+    label: "Códigos",
+    detail: "Secuencias y corrección de códigos",
+  },
+  {
+    id: "notificaciones",
+    label: "Notificaciones",
+    detail: "Destinatarios por área y formato",
+  },
+];
+
 export default function RegistroAccessAdmin() {
   const { isLight } = useTheme();
+  const [activeOption, setActiveOption] = useState("dashboard");
   const [profiles, setProfiles] = useState([]);
   const [permissions, setPermissions] = useState([]);
   const [notificationRules, setNotificationRules] = useState([]);
@@ -329,7 +353,11 @@ export default function RegistroAccessAdmin() {
         </p>
       </div>
 
-      <AdminSuccessDashboard />
+      <AdminOptionsMenu
+        activeOption={activeOption}
+        isLight={isLight}
+        onChange={setActiveOption}
+      />
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -343,6 +371,10 @@ export default function RegistroAccessAdmin() {
         </div>
       )}
 
+      {activeOption === "dashboard" && <AdminSuccessDashboard />}
+
+      {activeOption === "permisos" && (
+        <>
       <form onSubmit={handleSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="space-y-1 text-sm">
@@ -517,7 +549,10 @@ export default function RegistroAccessAdmin() {
           </div>
         )}
       </div>
+        </>
+      )}
 
+      {activeOption === "codigos" && (
       <form onSubmit={handleSequenceSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
         <div>
           <h2 className="font-semibold">Control de secuencias de informes</h2>
@@ -646,7 +681,10 @@ export default function RegistroAccessAdmin() {
           </div>
         )}
       </form>
+      )}
 
+      {activeOption === "notificaciones" && (
+        <>
       <form onSubmit={handleNotificationSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
         <div>
           <h2 className="font-semibold">Destinatarios de notificaciones</h2>
@@ -763,6 +801,38 @@ export default function RegistroAccessAdmin() {
             </table>
           </div>
         )}
+      </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function AdminOptionsMenu({ activeOption, isLight, onChange }) {
+  return (
+    <div className={`rounded-2xl border p-3 shadow-sm ${isLight ? "border-slate-200 bg-white" : "border-white/10 bg-white/10"}`}>
+      <div className="grid gap-2 md:grid-cols-4">
+        {ADMIN_OPTIONS.map((option) => {
+          const active = activeOption === option.id;
+          return (
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => onChange(option.id)}
+              className={`rounded-xl border px-4 py-3 text-left transition ${active
+                ? "border-blue-600 bg-blue-600 text-white shadow"
+                : isLight
+                  ? "border-slate-200 bg-slate-50 text-slate-700 hover:border-blue-200 hover:bg-blue-50"
+                  : "border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
+              }`}
+            >
+              <span className="block text-sm font-bold">{option.label}</span>
+              <span className={`mt-1 block text-xs ${active ? "text-blue-50" : isLight ? "text-slate-500" : "text-white/60"}`}>
+                {option.detail}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
