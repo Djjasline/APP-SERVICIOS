@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleRoute from "./components/RoleRoute";
 import RecordPermissionRoute from "./components/RecordPermissionRoute";
+import { useAuth } from "./context/AuthContext";
+import { isConfiguratorOwner } from "./constants/accessControl";
 
 const Login = lazy(() => import("./pages/Login"));
 const MainLayout = lazy(() => import("./layouts/MainLayout"));
@@ -108,6 +110,24 @@ const VehiculosRoute = ({ children }) => (
     {children}
   </RoleRoute>
 );
+
+const ConfiguradorOwnerRoute = ({ children }) => {
+  const { user, email, loading } = useAuth();
+
+  if (loading) {
+    return <div className="p-6 text-sm text-slate-500">Verificando acceso...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!isConfiguratorOwner(email || user?.email)) {
+    return <Navigate to="/area/vehiculos" replace />;
+  }
+
+  return children;
+};
 
 function LiberacionRedirect() {
   const { id } = useParams();
@@ -284,7 +304,7 @@ export default function RoutesApp() {
             <Route path="/vehiculos/protocolos/vcam/new" element={<Navigate to="/operaciones/protocolos/vcam/new" replace />} />
             <Route path="/vehiculos/protocolos/vcam/ver/:id" element={<TechRoute><RecordPermissionRoute action="view" fallback="/operaciones/protocolos"><ProtocoloVCamPDF allowDownload={false} backPath="/operaciones/protocolos" /></RecordPermissionRoute></TechRoute>} />
             <Route path="/vehiculos/protocolos/vcam/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/operaciones/protocolos"><ProtocoloVCamForm /></RecordPermissionRoute></TechRoute>} />
-            <Route path="/vehiculos/configurador" element={<VehiculosRoute><ConfiguradorHome /></VehiculosRoute>} />
+            <Route path="/vehiculos/configurador" element={<ConfiguradorOwnerRoute><ConfiguradorHome /></ConfiguradorOwnerRoute>} />
 
             <Route path="/liberacion" element={<Navigate to="/operaciones/liberacion" replace />} />
             <Route path="/liberacion/nuevo" element={<Navigate to="/operaciones/liberacion/nuevo" replace />} />

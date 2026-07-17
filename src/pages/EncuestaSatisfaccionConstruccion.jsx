@@ -13,6 +13,33 @@ export default function EncuestaSatisfaccionConstruccion({ areaLabel, backPath }
     "Panel administrativo para revisar resultados antes de ampliar el acceso.",
   ];
 
+  const surveyModel = [
+    {
+      title: "1. Datos del servicio",
+      fields: ["Área", "Tipo de servicio", "Código del informe", "Fecha", "Técnico responsable", "Cliente"],
+    },
+    {
+      title: "2. Datos de quien responde",
+      fields: ["Nombre", "Cargo", "Empresa", "Correo", "Teléfono", "Relación con el servicio"],
+    },
+    {
+      title: "3. Calificación 1 a 5",
+      fields: ["Satisfacción general", "Puntualidad", "Trato del personal", "Calidad técnica", "Claridad de la explicación"],
+    },
+    {
+      title: "4. Preguntas de cierre",
+      fields: ["¿El servicio cumplió lo requerido?", "¿Recomendaría a ASTAP?", "¿Autoriza seguimiento comercial?"],
+    },
+    {
+      title: "5. Comentarios y evidencia",
+      fields: ["Comentario del cliente", "Observaciones internas", "Firma opcional", "Fecha de respuesta"],
+    },
+    {
+      title: "6. Estado administrativo",
+      fields: ["Pendiente", "Enviada", "Respondida", "Revisada", "Requiere seguimiento"],
+    },
+  ];
+
   return (
     <div className={`min-h-[60vh] p-6 ${isLight ? "text-slate-900" : "text-white"}`}>
       <div className="flex items-start justify-between gap-4">
@@ -87,6 +114,42 @@ export default function EncuestaSatisfaccionConstruccion({ areaLabel, backPath }
               {item}
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className={`mt-6 rounded-2xl border p-5 ${isLight ? "border-slate-200 bg-white" : "border-white/10 bg-white/5"}`}>
+        <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="font-semibold">Modelo de estructura propuesto</h2>
+            <p className={`mt-1 text-sm ${isLight ? "text-slate-600" : "text-slate-300"}`}>
+              Así quedaría organizada la encuesta cuando se conecte a cada servicio de campo.
+            </p>
+          </div>
+          <span className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${isLight ? "bg-blue-100 text-blue-700" : "bg-blue-500/20 text-blue-200"}`}>
+            Vista de modelo
+          </span>
+        </div>
+
+        <div className="mt-5 grid gap-4 lg:grid-cols-2">
+          {surveyModel.map((section) => (
+            <article key={section.title} className={`rounded-2xl border p-4 ${isLight ? "border-slate-200 bg-slate-50" : "border-white/10 bg-slate-950/30"}`}>
+              <h3 className="font-semibold">{section.title}</h3>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {section.fields.map((field) => (
+                  <span key={field} className={`rounded-full px-3 py-1 text-xs font-medium ${isLight ? "bg-white text-slate-700 ring-1 ring-slate-200" : "bg-white/10 text-slate-200 ring-1 ring-white/10"}`}>
+                    {field}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className={`mt-5 rounded-2xl border p-4 ${isLight ? "border-orange-200 bg-orange-50 text-orange-900" : "border-orange-400/30 bg-orange-500/10 text-orange-100"}`}>
+          <h3 className="font-semibold">Flujo previsto</h3>
+          <p className="mt-1 text-sm leading-6">
+            El técnico finaliza el informe, el sistema genera un enlace o QR, el cliente responde sin iniciar sesión y administración revisa el resultado asociado al servicio.
+          </p>
         </div>
       </section>
     </div>

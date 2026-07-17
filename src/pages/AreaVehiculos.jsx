@@ -1,12 +1,16 @@
 import CardModulo from "@/components/CardModulo";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
+import { isConfiguratorOwner } from "@/constants/accessControl";
+import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { FileText, ClipboardCheck, Wrench, SlidersHorizontal, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaVehiculos() {
   const { isLight } = useTheme();
+  const { email, user } = useAuth();
   const navigate = useNavigate();
+  const puedeUsarConfigurador = isConfiguratorOwner(email || user?.email);
 
   return (
     <div className="p-6 space-y-6">
@@ -63,8 +67,8 @@ export default function AreaVehiculos() {
   ruta="/vehiculos/configurador"
   color="bg-orange-600"
   icono={<SlidersHorizontal size={20} />}
-  disabled
-  disabledLabel="Acceso restringido"
+  disabled={!puedeUsarConfigurador}
+  disabledLabel="Acceso exclusivo"
 />
 
 <CardModulo

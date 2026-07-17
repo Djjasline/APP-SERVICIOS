@@ -86,6 +86,11 @@ function firstLine(message) {
 
 const FRIENDLY_UPDATES = [
   {
+    match: "habilitar configurador exclusivo y modelo de encuesta",
+    title: "Control de cambios: configurador y encuesta",
+    message: "Se habilitó el configurador con acceso exclusivo y se agregó el modelo estructurado de la encuesta de satisfacción.",
+  },
+  {
     match: "agregar encuesta de satisfaccion en construccion",
     title: "Control de cambios: encuesta de satisfacción",
     message: "Se agregó el acceso en construcción a la encuesta de satisfacción para Agua, Industria, Petróleo y Vehículos Especiales.",

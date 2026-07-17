@@ -1,4 +1,4 @@
-import { Construction, Lock } from "lucide-react";
+import { Construction, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/context/ThemeContext";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
@@ -28,15 +28,15 @@ export default function ConfiguradorHome() {
         </button>
       </div>
 
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900 shadow-sm">
+      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-900 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-start">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white">
-            <Lock size={26} />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white">
+            <ShieldCheck size={26} />
           </div>
           <div className="space-y-2">
-            <h2 className="text-lg font-semibold">Acceso restringido hasta nueva orden</h2>
+            <h2 className="text-lg font-semibold">Acceso exclusivo habilitado</h2>
             <p className="text-sm leading-6">
-              El configurador está en construcción con 20% de avance. El acceso queda limitado temporalmente mientras se completan catálogos, reglas de opciones, dependencias, costos, capas visuales, checks, revisión y generación de resumen técnico.
+              El configurador sigue en construcción con 20% de avance. Por ahora solo está disponible para revisión interna exclusiva mientras se completan catálogos, reglas de opciones, dependencias, costos, capas visuales, checks, revisión y generación de resumen técnico.
             </p>
           </div>
         </div>
@@ -48,7 +48,7 @@ export default function ConfiguradorHome() {
             <Construction size={20} />
           </div>
           <h3 className="font-semibold text-slate-900">Opciones configurables</h3>
-          <p className="mt-1 text-sm text-slate-600">Bloqueado temporalmente.</p>
+          <p className="mt-1 text-sm text-slate-600">Vista previa en construcción.</p>
         </div>
 
         <div className="rounded-xl border bg-white p-4 shadow-sm opacity-60">
@@ -56,7 +56,7 @@ export default function ConfiguradorHome() {
             <Construction size={20} />
           </div>
           <h3 className="font-semibold text-slate-900">Esquemas y capas</h3>
-          <p className="mt-1 text-sm text-slate-600">Bloqueado temporalmente.</p>
+          <p className="mt-1 text-sm text-slate-600">Vista previa en construcción.</p>
         </div>
 
         <div className="rounded-xl border bg-white p-4 shadow-sm opacity-60">
@@ -64,7 +64,7 @@ export default function ConfiguradorHome() {
             <Construction size={20} />
           </div>
           <h3 className="font-semibold text-slate-900">Revisión final</h3>
-          <p className="mt-1 text-sm text-slate-600">Bloqueado temporalmente.</p>
+          <p className="mt-1 text-sm text-slate-600">Vista previa en construcción.</p>
         </div>
       </div>
     </div>

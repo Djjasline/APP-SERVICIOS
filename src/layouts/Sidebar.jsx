@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
+import { isConfiguratorOwner } from "@/constants/accessControl";
 import { getUnreadAppUpdatesCount } from "@/services/appUpdatesService";
 import { getUnreadMessageCounts } from "@/services/chatService";
 import { supabase } from "@/lib/supabase";
@@ -51,6 +52,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const puedeVerTodo = !proveedorSoloVehiculos;
   const superAdminActivo =
     typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
+  const puedeUsarConfigurador = isConfiguratorOwner(user?.email);
   const informeGeneralTooltip =
     "Informe técnico de servicio: instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
 
@@ -338,9 +340,14 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
               <button
                 type="button"
-                disabled
-                title="Acceso restringido hasta nueva orden"
-                className={`${subItemClass("/vehiculos/configurador")} cursor-not-allowed opacity-50`}
+                onClick={() => puedeUsarConfigurador && go("/vehiculos/configurador")}
+                disabled={!puedeUsarConfigurador}
+                title={puedeUsarConfigurador ? "Acceso exclusivo habilitado" : "Acceso exclusivo"}
+                className={
+                  puedeUsarConfigurador
+                    ? subItemClass("/vehiculos/configurador")
+                    : `${subItemClass("/vehiculos/configurador")} cursor-not-allowed opacity-50`
+                }
               >
                 {subLabel(SlidersHorizontal, "Configurador 🚧 · 20%")}
               </button>
