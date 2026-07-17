@@ -251,7 +251,7 @@ export default function IndexInspeccion() {
 
   const handleDelete = async (item) => {
     if (!user?.id) {
-      alert("Usuario no autenticado");
+      alert("Debes iniciar sesión para realizar esta acción.");
       return;
     }
 
@@ -275,7 +275,7 @@ export default function IndexInspeccion() {
 
     if (error) {
       console.error(error);
-      alert("Error eliminando ❌");
+      alert("No se pudo eliminar la inspección. Intenta de nuevo.");
       return;
     }
 

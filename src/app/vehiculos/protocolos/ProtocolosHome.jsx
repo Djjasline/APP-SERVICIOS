@@ -129,7 +129,7 @@ export default function ProtocolosHome() {
     const { error } = await query;
     if (error) {
       console.error(error);
-      alert("Error eliminando protocolo.");
+      alert("No se pudo eliminar el protocolo. Intenta de nuevo.");
       return;
     }
 

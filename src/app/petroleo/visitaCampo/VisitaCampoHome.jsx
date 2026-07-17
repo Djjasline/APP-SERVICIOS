@@ -91,7 +91,7 @@ export default function VisitaCampoHome() {
 
   const duplicateRecord = async (record) => {
     if (!user?.id) {
-      alert("Usuario no autenticado");
+      alert("Debes iniciar sesión para realizar esta acción.");
       return;
     }
 

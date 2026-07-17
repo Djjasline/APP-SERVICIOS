@@ -657,23 +657,23 @@ const handleSubmit = async (e) => {
 
   if (uploading) {
     alert(
-      "Espere que terminen de subir las imágenes"
+      "Espera a que terminen de subir las imágenes."
     );
     return;
   }
 
   if (!data.cliente) {
-    alert("Cliente requerido");
+    alert("Ingresa el cliente antes de guardar.");
     return;
   }
 
   if (!data.tecnicoNombre) {
-    alert("Técnico requerido");
+    alert("Ingresa el técnico responsable antes de guardar.");
     return;
   }
 
   if (!data.fechaServicio) {
-    alert("Fecha requerida");
+    alert("Ingresa la fecha de servicio antes de guardar.");
     return;
   }
 
@@ -753,7 +753,7 @@ setTimeout(() => {
     console.error(err);
 
     setSuccessMsg(
-      "Error guardando inspección ❌"
+      "No se pudo guardar la inspección. Intenta de nuevo."
     );
 
   } finally {

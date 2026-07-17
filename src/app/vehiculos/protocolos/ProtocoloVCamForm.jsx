@@ -193,7 +193,7 @@ export default function ProtocoloVCamForm() {
       navigate("/vehiculos/protocolos");
     } catch (error) {
       console.error(error);
-      alert("Error guardando protocolo VCAM.");
+      alert("No se pudo guardar el protocolo VCAM. Intenta de nuevo.");
     } finally {
       setSaving(false);
     }

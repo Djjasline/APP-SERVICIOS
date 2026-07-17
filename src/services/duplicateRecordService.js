@@ -62,7 +62,7 @@ function resolveRecordArea(record) {
 
 export async function duplicateRecordAsDraft(record, user) {
   if (!record?.id) throw new Error("Registro inválido para duplicar.");
-  if (!user?.id) throw new Error("Usuario no autenticado.");
+  if (!user?.id) throw new Error("Debes iniciar sesión para duplicar este registro.");
 
   const payload = {
     area: resolveRecordArea(record),

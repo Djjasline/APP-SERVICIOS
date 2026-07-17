@@ -19,7 +19,7 @@ export const saveOrUpdateReport = async ({
 
     if (userError || !user) {
       console.error("❌ Error obteniendo usuario:", userError);
-      throw new Error("Usuario no autenticado");
+      throw new Error("Debes iniciar sesión para guardar este registro.");
     }
 
     const reportData = await resolveReportData({ id, data });

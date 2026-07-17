@@ -179,7 +179,7 @@ export default function IndexMantenimiento() {
 
   const handleDelete = async (item) => {
     if (!user?.id) {
-      alert("Usuario no autenticado");
+      alert("Debes iniciar sesión para realizar esta acción.");
       return;
     }
 
@@ -204,7 +204,7 @@ export default function IndexMantenimiento() {
 
     if (error) {
       console.error(error);
-      alert("Error eliminando ❌");
+      alert("No se pudo eliminar el mantenimiento. Intenta de nuevo.");
       return;
     }
 

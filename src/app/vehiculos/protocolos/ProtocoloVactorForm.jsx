@@ -235,7 +235,7 @@ export default function ProtocoloVactorForm() {
       navigate("/vehiculos/protocolos");
     } catch (error) {
       console.error(error);
-      alert("Error guardando protocolo.");
+      alert("No se pudo guardar el protocolo. Intenta de nuevo.");
     } finally {
       setSaving(false);
     }

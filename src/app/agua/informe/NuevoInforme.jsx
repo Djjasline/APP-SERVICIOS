@@ -671,10 +671,10 @@ const validateTechnicalReport = () => {
 
    /* ─── GUARDAR ─── */
 const save = async () => {
-  if (!data.cliente) { alert("Cliente requerido"); return; }
-  if (!data.tecnicoNombre) { alert("Técnico requerido"); return; }
-  if (!data.fechaServicio) { alert("Fecha requerida"); return; }
-  if (uploadingCount > 0) { alert("Espera que terminen las imágenes"); return; }
+  if (!data.cliente) { alert("Ingresa el cliente antes de guardar."); return; }
+  if (!data.tecnicoNombre) { alert("Ingresa el técnico responsable antes de guardar."); return; }
+  if (!data.fechaServicio) { alert("Ingresa la fecha de servicio antes de guardar."); return; }
+  if (uploadingCount > 0) { alert("Espera a que terminen de subir las imágenes."); return; }
 
   const technicalError = validateTechnicalReport();
   if (technicalError) { alert(technicalError); return; }
@@ -722,7 +722,7 @@ const save = async () => {
     setTimeout(() => navigate(`${basePath}/${finalData.tipoInforme}`), 1200);
   } catch (err) {
     console.error(err);
-    setSuccessMsg("Error al guardar ❌");
+    setSuccessMsg("No se pudo guardar. Intenta de nuevo.");
   }
 };
 

@@ -527,7 +527,7 @@ const firmaCliente =
       }, 1200);
     } catch (err) {
       console.error(err);
-      setSuccessMsg("Error al guardar ❌");
+      setSuccessMsg("No se pudo guardar. Intenta de nuevo.");
       setTimeout(() => setSuccessMsg(""), 3000);
     } finally { setGuardando(false); }
   };

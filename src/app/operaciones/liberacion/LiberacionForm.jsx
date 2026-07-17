@@ -148,7 +148,7 @@ await saveOrUpdateReport({
   };
 
  const handleSubmit = async () => {
-  if (!form.estadoFinal) return alert("Selecciona resultado");
+  if (!form.estadoFinal) return alert("Selecciona un resultado antes de guardar.");
 
   let firma = null;
   if (!sigRef.current.isEmpty()) {
@@ -197,7 +197,7 @@ pendientes.push({
 
     localStorage.setItem("pending_registros", JSON.stringify(pendientes));
 
-    alert("Guardado offline");
+    alert("No hay conexión. El registro quedó guardado localmente para sincronizarlo después.");
     navigate("/operaciones/liberacion");
   }
 };

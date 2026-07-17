@@ -634,7 +634,7 @@ const estadoFinal =
       navigate("/vehiculos/informe");
     } catch (error) {
       console.error("❌ Error real al guardar:", error);
-      alert(`Error guardando informe ❌\n${error.message || "Revisa la consola"}`);
+      alert(`No se pudo guardar el informe. ${error.message || "Intenta de nuevo."}`);
     }
   };
 
