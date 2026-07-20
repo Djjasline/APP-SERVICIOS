@@ -97,10 +97,83 @@ const secciones = [
   },
 ];
 
+const piquersaBa2300hSecciones = [
+  {
+    id: "A",
+    titulo: "A) SISTEMA HIDRÁULICO / HIDROSTÁTICO",
+    items: [
+      ["A.1", "Fugas en bombas, motores hidráulicos, mangueras, acoples y cilindros"],
+      ["A.2", "Nivel y condición del aceite hidráulico"],
+      ["A.3", "Estado de filtro hidráulico, indicador de saturación y respiradero del tanque"],
+      ["A.4", "Funcionamiento de tracción hidrostática, avance, retroceso y velocidad"],
+      ["A.5", "Funcionamiento de dirección hidráulica y giro de ruedas"],
+      ["A.6", "Funcionamiento de elevación/descenso y cierre de tolva"],
+    ],
+  },
+  {
+    id: "B",
+    titulo: "B) MOTOR KUBOTA V1505",
+    items: [
+      ["B.1", "Nivel y condición de aceite de motor"],
+      ["B.2", "Fugas de aceite, combustible o refrigerante"],
+      ["B.3", "Estado de filtros de aire, aceite y combustible"],
+      ["B.4", "Estado del radiador, refrigerante, mangueras y abrazaderas"],
+      ["B.5", "Estado de correas, alternador y sistema de carga"],
+      ["B.6", "Arranque, ralentí, humo, vibraciones y ruidos anormales"],
+    ],
+  },
+  {
+    id: "C",
+    titulo: "C) SISTEMA DE BARRIDO Y RECOLECCIÓN",
+    items: [
+      ["C.1", "Estado de cepillo central, segmentos y desgaste uniforme"],
+      ["C.2", "Estado y funcionamiento de cepillos laterales"],
+      ["C.3", "Ajuste, presión y alineación de cepillos"],
+      ["C.4", "Estado de patines, faldones, cauchos y zapatas"],
+      ["C.5", "Funcionamiento de aspiración, turbina y conductos"],
+      ["C.6", "Estado de tolva, tapa, seguros, articulaciones y vaciado"],
+    ],
+  },
+  {
+    id: "D",
+    titulo: "D) AGUA, RIEGO E HIDROLAVADO",
+    items: [
+      ["D.1", "Nivel, estado y fugas en tanque de agua"],
+      ["D.2", "Funcionamiento de bomba de agua y electroválvulas"],
+      ["D.3", "Estado de filtro de agua y líneas de aspersión"],
+      ["D.4", "Funcionamiento de boquillas de riego en cepillos y zona de barrido"],
+      ["D.5", "Estado de manguera, pistola y conexiones de hidrolavado"],
+    ],
+  },
+  {
+    id: "E",
+    titulo: "E) ELÉCTRICO, CABINA Y SEGURIDAD",
+    items: [
+      ["E.1", "Estado de batería, bornes, cableado y fusibles"],
+      ["E.2", "Funcionamiento de tablero, mandos, indicadores y alarmas"],
+      ["E.3", "Funcionamiento de luces, baliza, bocina y señalización"],
+      ["E.4", "Estado de asiento, cinturón, espejos y limpiaparabrisas"],
+      ["E.5", "Funcionamiento de freno de servicio y estacionamiento"],
+      ["E.6", "Parada de emergencia y protecciones de seguridad"],
+    ],
+  },
+  {
+    id: "F",
+    titulo: "F) CHASIS, RUEDAS Y ESTRUCTURA",
+    items: [
+      ["F.1", "Estado de neumáticos, presión, desgaste y tuercas"],
+      ["F.2", "Estado de ejes, rodamientos, bujes y puntos de engrase"],
+      ["F.3", "Condición general de chasis, soportes, tapas y carenados"],
+      ["F.4", "Corrosión, golpes, fisuras o elementos flojos"],
+    ],
+  },
+];
+
 /* ── Lista plana para calcular progreso ── */
 const todosLosItems = [
   ...pruebasPrevias.map(([c]) => c),
   ...secciones.flatMap((s) => s.items.map(([c]) => c)),
+  ...piquersaBa2300hSecciones.flatMap((s) => s.items.map(([c]) => c)),
 ];
 
 const barredoraVariants = {
@@ -121,6 +194,16 @@ const barredoraVariants = {
     imagePath: "/barredora-roadwizard-base.png",
     imageAlt: "Vista general barredora Road Wizard",
     draftKey: "inspeccion_barredora_road_wizard",
+  },
+  piquersaBa2300h: {
+    subtipo: "barredora-piquersa-ba-2300h",
+    routeSegment: "barredora-piquersa-ba-2300h",
+    title: "INFORME DE INSPECCIÓN BARREDORA PIQUERSA BA-2300-H",
+    description: "Inspección técnica de motor Kubota V1505, sistema hidrostático, barrido, tolva y riego.",
+    imagePath: "/barredora-base.png",
+    imageAlt: "Vista general barredora Piquersa BA-2300-H",
+    draftKey: "inspeccion_barredora_piquersa_ba_2300h",
+    sections: piquersaBa2300hSecciones,
   },
 };
 
@@ -228,16 +311,21 @@ const [successMsg, setSuccessMsg]         = useState("");
    const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
 const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
 const [data, setData] = useState(emptyForm);
+const activeSections = variantConfig.sections || secciones;
+const activeItemCodes = [
+  ...pruebasPrevias.map(([c]) => c),
+  ...activeSections.flatMap((s) => s.items.map(([c]) => c)),
+];
 
   // Autoguardado automático cada 15 segundos
   useAutoguardado(claveAutoguardado, data, !isEditing);
 
 /* ── PROGRESO ── */
-const itemsMarcados = todosLosItems.filter(
+const itemsMarcados = activeItemCodes.filter(
   (c) => data.items?.[c]?.estado
 ).length;
 
-const totalItems = todosLosItems.length;
+const totalItems = activeItemCodes.length;
 
 const progresoPct = Math.round(
   (itemsMarcados / totalItems) * 100
@@ -1079,7 +1167,7 @@ setTimeout(() => {
             2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O SISTEMAS
           </h2>
 
-          {secciones.map((sec) => (
+          {activeSections.map((sec) => (
   <section key={sec.id}>
 
     <h3 className="font-bold text-xs border-b pb-1 mb-2">

@@ -162,6 +162,7 @@ export default function IndexInspeccion() {
     hidro: "Hidrosuccionador",
     barredora: "Barredora Pelican",
     "barredora-road-wizard": "Barredora Road Wizard",
+    "barredora-piquersa-ba-2300h": "Barredora Piquersa BA-2300-H",
     camara: "Cámara",
   };
 
@@ -197,7 +198,7 @@ export default function IndexInspeccion() {
     const matchEquipo =
       equipo === "todos"
         ? true
-        : equipo === "barredora" || equipo === "barredora-road-wizard"
+        : equipo === "barredora" || equipo === "barredora-road-wizard" || equipo === "barredora-piquersa-ba-2300h"
         ? sub === equipo
         : sub.includes(equipo);
 
@@ -349,7 +350,7 @@ export default function IndexInspeccion() {
       )}
 
       {/* CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         {renderCard(
           "Hidrosuccionador",
           "Inspección técnica del módulo hidrosuccionador y sus sistemas, no incluye servicios de chasis.",
@@ -369,6 +370,13 @@ export default function IndexInspeccion() {
           "Inspección del módulo barredora Road Wizard incluye motor auxiliar, no incluye servicio de chasis.",
           "barredora-road-wizard",
           "bg-teal-600 hover:bg-teal-700"
+        )}
+
+        {renderCard(
+          "Barredora Piquersa BA-2300-H",
+          "Inspección técnica de motor Kubota V1505, sistema hidrostático, barrido, tolva y riego.",
+          "barredora-piquersa-ba-2300h",
+          "bg-emerald-700 hover:bg-emerald-800"
         )}
 
         {renderCard(
@@ -441,6 +449,7 @@ export default function IndexInspeccion() {
             <option value="hidro">Hidro</option>
             <option value="barredora">Barredora Pelican</option>
             <option value="barredora-road-wizard">Barredora Road Wizard</option>
+            <option value="barredora-piquersa-ba-2300h">Barredora Piquersa BA-2300-H</option>
             <option value="cam">Cámara</option>
           </select>
         </div>

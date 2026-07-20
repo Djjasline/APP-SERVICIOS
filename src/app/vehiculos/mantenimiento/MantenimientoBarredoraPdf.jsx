@@ -164,6 +164,88 @@ const roadWizardSecciones = [
   secciones[3],
 ];
 
+const piquersaBa2300hSecciones = [
+  {
+    titulo: "1. PRUEBAS PREVIAS AL SERVICIO",
+    tipo: "simple",
+    items: [
+      ["1.1", "Encendido de motor Kubota V1505 y verificación de ralentí"],
+      ["1.2", "Funcionamiento de tracción hidrostática, dirección y frenos"],
+      ["1.3", "Funcionamiento de barrido, aspiración, riego y descarga de tolva"],
+      ["1.4", "Revisión de alarmas, luces, baliza, bocina y tablero"],
+    ],
+  },
+  {
+    titulo: "A. MANTENIMIENTO DIARIO / SEMANAL",
+    tipo: "cantidad",
+    items: [
+      ["A.1", "Revisión de niveles: aceite motor, hidráulico, refrigerante, combustible y agua"],
+      ["A.2", "Limpieza de radiador, rejillas, tolva, conductos y zona de aspiración"],
+      ["A.3", "Limpieza/revisión de filtro de agua y boquillas de riego"],
+      ["A.4", "Inspección de cepillos, patines, faldones y desgaste de cauchos"],
+      ["A.5", "Engrase de puntos móviles, articulaciones y bisagras"],
+      ["A.6", "Revisión de neumáticos, presión y tuercas"],
+    ],
+  },
+  {
+    titulo: "B. MOTOR KUBOTA V1505 POR HORAS",
+    tipo: "cantidad",
+    items: [
+      ["B.1", "Cambio de aceite de motor según intervalo de horas"],
+      ["B.2", "Cambio de filtro de aceite de motor"],
+      ["B.3", "Cambio/revisión de filtros de combustible y separador de agua"],
+      ["B.4", "Limpieza o sustitución de filtro de aire primario/secundario"],
+      ["B.5", "Revisión de correas, alternador, bomba de agua y sistema de carga"],
+      ["B.6", "Revisión de refrigerante, radiador, mangueras y abrazaderas"],
+      ["B.7", "Ajuste/revisión general de motor por horas acumuladas"],
+    ],
+  },
+  {
+    titulo: "C. CIRCUITO HIDRÁULICO / HIDROSTÁTICO",
+    tipo: "cantidad",
+    items: [
+      ["C.1", "Cambio o revisión de aceite hidráulico según intervalo"],
+      ["C.2", "Cambio de filtro hidráulico y limpieza del respiradero"],
+      ["C.3", "Inspección de bombas, motores, cilindros, válvulas y acoples"],
+      ["C.4", "Prueba de presión, temperatura y respuesta de tracción hidrostática"],
+      ["C.5", "Revisión de elevación de tolva, dirección y accionamientos hidráulicos"],
+    ],
+  },
+  {
+    titulo: "D. BARRIDO, TOLVA Y CONSUMIBLES",
+    tipo: "cantidad",
+    items: [
+      ["D.1", "Reemplazo o rotación de cepillo central según desgaste"],
+      ["D.2", "Reemplazo de segmentos de cepillos laterales"],
+      ["D.3", "Ajuste de presión, altura y alineación de cepillos"],
+      ["D.4", "Revisión/reemplazo de patines, faldones, cauchos y zapatas"],
+      ["D.5", "Inspección de turbina, conductos de aspiración y sellos"],
+      ["D.6", "Revisión de tolva, compuerta, seguros, bisagras y cilindros"],
+    ],
+  },
+  {
+    titulo: "E. AGUA, ELÉCTRICO Y SEGURIDAD",
+    tipo: "cantidad",
+    items: [
+      ["E.1", "Revisión de bomba de agua, electroválvulas, boquillas y tanque"],
+      ["E.2", "Revisión de hidrolavadora, manguera, pistola y conexiones"],
+      ["E.3", "Revisión de batería, bornes, cableado, fusibles y tablero"],
+      ["E.4", "Prueba de luces, baliza, bocina, alarmas y paro de emergencia"],
+      ["E.5", "Revisión de freno de servicio, freno de estacionamiento y cinturón"],
+    ],
+  },
+  secciones[2],
+  {
+    titulo: "5. PRUEBAS POST SERVICIO",
+    tipo: "simple",
+    items: [
+      ["5.1", "Encendido y prueba dinámica del equipo"],
+      ["5.2", "Funcionamiento de barrido, aspiración, riego y descarga"],
+      ["5.3", "Verificación final de fugas, niveles, ruidos y alarmas"],
+    ],
+  },
+];
+
 const barredoraPdfVariants = {
   pelican: {
     subtipo: "barredora",
@@ -178,6 +260,13 @@ const barredoraPdfVariants = {
     description: "Mantenimiento del módulo barredora Road Wizard incluye motor auxiliar, no incluye servicio de chasis.",
     filePrefix: "Mantenimiento_Barredora_Road_Wizard",
     sections: roadWizardSecciones,
+  },
+  piquersaBa2300h: {
+    subtipo: "barredora-piquersa-ba-2300h",
+    title: "INFORME DE MANTENIMIENTO BARREDORA PIQUERSA BA-2300-H",
+    description: "Mantenimiento preventivo de motor Kubota V1505, sistema hidrostático, barrido, tolva y riego.",
+    filePrefix: "Mantenimiento_Barredora_Piquersa_BA_2300H",
+    sections: piquersaBa2300hSecciones,
   },
 };
 

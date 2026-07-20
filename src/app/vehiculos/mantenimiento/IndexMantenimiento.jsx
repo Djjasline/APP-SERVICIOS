@@ -35,6 +35,12 @@ const tipos = [
     btn: "bg-teal-600 hover:bg-teal-700",
   },
   {
+    type: "barredora-piquersa-ba-2300h",
+    title: "Barredora Piquersa BA-2300-H",
+    desc: "Mantenimiento preventivo de motor Kubota V1505, sistema hidrostático, barrido, tolva y riego.",
+    btn: "bg-emerald-700 hover:bg-emerald-800",
+  },
+  {
     type: "vcam",
     title: "Cámara V-Cam6",
     desc: "Mantenimiento de cámara de inspección",
@@ -310,7 +316,7 @@ export default function IndexMantenimiento() {
       )}
 
       {/* CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         {tipos.map(renderCard)}
       </div>
 
@@ -377,6 +383,7 @@ export default function IndexMantenimiento() {
             <option value="hidro">Hidrosuccionador</option>
             <option value="barredora">Barredora Pelican</option>
             <option value="barredora-road-wizard">Barredora Road Wizard</option>
+            <option value="barredora-piquersa-ba-2300h">Barredora Piquersa BA-2300-H</option>
             <option value="vcam">Cámara V-Cam6</option>
           </select>
         </div>

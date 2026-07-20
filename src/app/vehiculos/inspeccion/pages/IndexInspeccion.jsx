@@ -196,7 +196,7 @@ export default function IndexInspeccion() {
           {VEHICULOS_TEXT.inspeccion.description}
         </p>
 
-        <div className="grid md:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-5 gap-6">
           <Card
             title="Hidrosuccionador"
             type="hidro"
@@ -213,6 +213,12 @@ export default function IndexInspeccion() {
             title="Barredora Road Wizard"
             type="barredora-road-wizard"
             description="Inspección del módulo barredora Road Wizard incluye motor auxiliar, no incluye servicio de chasis."
+          />
+
+          <Card
+            title="Barredora Piquersa BA-2300-H"
+            type="barredora-piquersa-ba-2300h"
+            description="Inspección técnica de motor Kubota V1505, sistema hidrostático, barrido, tolva y riego."
           />
 
           <Card
