@@ -48,6 +48,15 @@ body {
   resize: none;
 }
 
+.auto-resize-input {
+  min-height: 30px;
+  line-height: 1.35;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  resize: none;
+}
+
 /* ══════════════════════════════
    IMPRESIÓN / PDF
 ══════════════════════════════ */

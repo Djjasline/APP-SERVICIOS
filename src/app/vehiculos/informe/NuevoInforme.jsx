@@ -13,6 +13,7 @@ import SignatureCanvas from "react-signature-canvas";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportHeader from "@/components/report/ReportHeader";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
+import AutoResizeInput from "@/components/AutoResizeInput";
 
 const fieldPlaceholders = {
   cliente: "Nombre del cliente",
@@ -665,7 +666,7 @@ const estadoFinal =
             <tr>
               <td className="pdf-label">CLIENTE</td>
               <td>
-                <input
+                <AutoResizeInput
                   className="pdf-input w-full"
                   value={data.cliente}
                   placeholder={fieldPlaceholders.cliente}
@@ -674,7 +675,7 @@ const estadoFinal =
               </td>
               <td className="pdf-label">DIRECCIÓN</td>
               <td>
-                <input
+                <AutoResizeInput
                   className="pdf-input w-full"
                   value={data.direccion}
                   placeholder={fieldPlaceholders.direccion}
@@ -686,7 +687,7 @@ const estadoFinal =
             <tr>
               <td className="pdf-label">CONTACTO</td>
               <td>
-                <input
+                <AutoResizeInput
                   className="pdf-input w-full"
                   value={data.contacto}
                   placeholder={fieldPlaceholders.contacto}
@@ -695,7 +696,7 @@ const estadoFinal =
               </td>
               <td className="pdf-label">TELÉFONO</td>
               <td>
-                <input
+                <AutoResizeInput
                   className="pdf-input w-full"
                   value={data.telefono}
                   placeholder={fieldPlaceholders.telefono}
@@ -707,7 +708,7 @@ const estadoFinal =
             <tr>
               <td className="pdf-label">CORREO</td>
               <td>
-                <input
+                <AutoResizeInput
                   className="pdf-input w-full"
                   value={data.correo}
                   placeholder={fieldPlaceholders.correo}
@@ -748,7 +749,7 @@ const estadoFinal =
             <tr>
               <td className="pdf-label">TELÉFONO TÉCNICO</td>
               <td>
-                <input
+                <AutoResizeInput
                   className="pdf-input w-full bg-gray-100"
                   value={data.tecnicoTelefono}
                   readOnly
@@ -756,7 +757,7 @@ const estadoFinal =
               </td>
               <td className="pdf-label">CORREO TÉCNICO</td>
               <td>
-                <input
+                <AutoResizeInput
                   className="pdf-input w-full bg-gray-100"
                   value={data.tecnicoCorreo}
                   readOnly
@@ -810,7 +811,7 @@ const estadoFinal =
                   <tr key={field[1]}>
                     <td className="pdf-label">{field[0]}</td>
                     <td>
-                      <input
+                      <AutoResizeInput
                         className="pdf-input w-full"
                         value={data.equipo[field[1]]}
                         placeholder={fieldPlaceholders[field[1]] || ""}
@@ -823,7 +824,7 @@ const estadoFinal =
                       <>
                         <td className="pdf-label">{next[0]}</td>
                         <td>
-                          <input
+                          <AutoResizeInput
                             className="pdf-input w-full"
                             value={data.equipo[next[1]]}
                             placeholder={fieldPlaceholders[next[1]] || ""}
@@ -960,7 +961,7 @@ const estadoFinal =
                             <div className="text-sm text-gray-700 pt-2 min-w-[24px]">
                               {pointIndex + 1})
                             </div>
-                            <input
+                            <AutoResizeInput
                               className="pdf-input w-full"
                               placeholder={`Observación punto ${pointIndex + 1}`}
                               value={p.observacion}
@@ -1340,14 +1341,14 @@ onEnd={() => {
         </div>
 
         <div className="mt-2 space-y-1 text-center">
-          <input
+          <AutoResizeInput
             className="pdf-input w-full bg-gray-100"
             value={data.contacto}
             readOnly
             placeholder="Nombre del contacto presente"
           />
 
-          <input
+          <AutoResizeInput
             className="pdf-input w-full"
             value={data.firmas?.clienteCedula || ""}
             onChange={(e) =>
@@ -1386,7 +1387,7 @@ onEnd={() => {
             </div>
 
             <div className="mt-2 space-y-1 text-center">
-              <input
+              <AutoResizeInput
                 className="pdf-input w-full"
                 value={data.firmas?.autorizadoPorNombre || ""}
                 onChange={(e) => update(["firmas", "autorizadoPorNombre"], e.target.value)}

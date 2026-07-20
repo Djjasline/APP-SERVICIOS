@@ -1,3 +1,5 @@
+import AutoResizeInput from "@/components/AutoResizeInput";
+
 export function createDefaultPartsAnnexRows(count = 5) {
   return Array.from({ length: count }, () => ({
     descripcion: "",
@@ -50,7 +52,7 @@ export default function InspectionPartsAnnex({ rows, onChange }) {
             <tr key={index}>
               <td className="text-center font-semibold">{index + 1}</td>
               <td>
-                <input
+                <AutoResizeInput
                   className="pdf-input w-full"
                   value={row.descripcion}
                   placeholder="Descripción de la pieza o ítem requerido"
@@ -58,7 +60,7 @@ export default function InspectionPartsAnnex({ rows, onChange }) {
                 />
               </td>
               <td>
-                <input
+                <AutoResizeInput
                   className="pdf-input w-full"
                   value={row.numeroParte}
                   placeholder="N° parte"
@@ -66,7 +68,7 @@ export default function InspectionPartsAnnex({ rows, onChange }) {
                 />
               </td>
               <td>
-                <input
+                <AutoResizeInput
                   className="pdf-input w-full"
                   value={row.cantidad}
                   placeholder="Cant."

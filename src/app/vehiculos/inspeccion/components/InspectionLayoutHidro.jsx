@@ -1,5 +1,6 @@
 import SignatureCanvas from "react-signature-canvas";
 import ReportCodeInput from "@/components/ReportCodeInput";
+import AutoResizeInput from "@/components/AutoResizeInput";
 
 export default function InspectionLayoutHidro({
   data,
@@ -57,7 +58,7 @@ export default function InspectionLayoutHidro({
                     onChange={(value) => onChange([key], value)}
                   />
                 ) : (
-                  <input
+                  <AutoResizeInput
                     className="pdf-input"
                     value={data[key] || ""}
                     disabled={readOnly}
@@ -84,12 +85,21 @@ export default function InspectionLayoutHidro({
             <tr key={key}>
               <td className="pdf-label">{label}</td>
               <td>
-                <input
-                  className="pdf-input"
-                  value={data[key] || ""}
-                  disabled={readOnly}
-                  onChange={(e) => onChange([key], e.target.value)}
-                />
+                {key === "fechaServicio" ? (
+                  <input
+                    className="pdf-input"
+                    value={data[key] || ""}
+                    disabled={readOnly}
+                    onChange={(e) => onChange([key], e.target.value)}
+                  />
+                ) : (
+                  <AutoResizeInput
+                    className="pdf-input"
+                    value={data[key] || ""}
+                    disabled={readOnly}
+                    onChange={(e) => onChange([key], e.target.value)}
+                  />
+                )}
               </td>
             </tr>
           ))}
@@ -139,7 +149,7 @@ export default function InspectionLayoutHidro({
           {data.estadoEquipoPuntos.map((pt) => (
             <div key={pt.id} className="flex gap-2 mt-1">
               <span>{pt.id})</span>
-              <input
+              <AutoResizeInput
                 className="pdf-input flex-1"
                 value={pt.nota || ""}
                 disabled={readOnly}
@@ -207,7 +217,7 @@ export default function InspectionLayoutHidro({
 
           {/* ===== OBSERVACIÓN ===== */}
           <td>
-            <input
+            <AutoResizeInput
               className="pdf-input"
               value={item.observacion || ""}
               disabled={readOnly}

@@ -12,6 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
+import AutoResizeInput from "@/components/AutoResizeInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import InspectionChecklistRow from "@/components/InspectionChecklistRow";
 
@@ -597,7 +598,7 @@ const result = await saveOrUpdateReport({
                         onChange={(value) => update([key], value)}
                       />
                     ) : (
-                      <input
+                      <AutoResizeInput
                         className="pdf-input w-full"
                         value={data[key]}
                         placeholder={fieldPlaceholders[key] || ""}
@@ -625,7 +626,7 @@ const result = await saveOrUpdateReport({
               <tr>
                 <td className="pdf-label">CLIENTE</td>
                 <td>
-                  <input
+                  <AutoResizeInput
                     className="pdf-input w-full"
                     value={data.cliente}
                     placeholder={fieldPlaceholders.cliente}
@@ -634,7 +635,7 @@ const result = await saveOrUpdateReport({
                 </td>
                 <td className="pdf-label">DIRECCIÓN</td>
                 <td>
-                  <input
+                  <AutoResizeInput
                     className="pdf-input w-full"
                     value={data.direccion}
                     placeholder={fieldPlaceholders.direccion}
@@ -645,7 +646,7 @@ const result = await saveOrUpdateReport({
               <tr>
                 <td className="pdf-label">CONTACTO</td>
                 <td>
-                  <input
+                  <AutoResizeInput
                     className="pdf-input w-full"
                     value={data.contacto}
                     placeholder={fieldPlaceholders.contacto}
@@ -654,7 +655,7 @@ const result = await saveOrUpdateReport({
                 </td>
                 <td className="pdf-label">TELÉFONO</td>
                 <td>
-                  <input
+                  <AutoResizeInput
                     className="pdf-input w-full"
                     value={data.telefono}
                     placeholder={fieldPlaceholders.telefono}
@@ -665,7 +666,7 @@ const result = await saveOrUpdateReport({
               <tr>
                 <td className="pdf-label">CORREO</td>
                 <td>
-                  <input
+                  <AutoResizeInput
                     className="pdf-input w-full"
                     value={data.correo}
                     placeholder={fieldPlaceholders.correo}
@@ -706,7 +707,7 @@ const result = await saveOrUpdateReport({
               <tr>
                 <td className="pdf-label">TELÉFONO TÉCNICO</td>
                 <td>
-                  <input
+                  <AutoResizeInput
                     className="pdf-input w-full bg-gray-100"
                     value={data.tecnicoTelefono}
                     readOnly
@@ -714,7 +715,7 @@ const result = await saveOrUpdateReport({
                 </td>
                 <td className="pdf-label">CORREO TÉCNICO</td>
                 <td>
-                  <input
+                  <AutoResizeInput
                     className="pdf-input w-full bg-gray-100"
                     value={data.tecnicoCorreo}
                     readOnly
@@ -755,7 +756,7 @@ const result = await saveOrUpdateReport({
                 <tr key={idx}>
                   <td className="pdf-label">{l1}</td>
                   <td>
-                    <input
+                    <AutoResizeInput
                       className="pdf-input w-full"
                       value={data.equipo[f1] || ""}
                       placeholder={fieldPlaceholders[f1] || ""}
@@ -766,7 +767,7 @@ const result = await saveOrUpdateReport({
                     <>
                       <td className="pdf-label">{l2}</td>
                       <td>
-                        <input
+                        <AutoResizeInput
                           className="pdf-input w-full"
                           value={data.equipo[f2] || ""}
                           placeholder={fieldPlaceholders[f2] || ""}
@@ -822,7 +823,7 @@ const result = await saveOrUpdateReport({
             {(data.estadoEquipo?.puntosBase || []).map((p, pi) => (
               <div key={p.id} className="flex items-start gap-2">
                 <span className="text-sm text-gray-700 pt-2 min-w-[24px]">{pi + 1})</span>
-                <input
+                <AutoResizeInput
                   className="pdf-input w-full"
                   placeholder={`Observación punto ${pi + 1}`}
                   value={p.observacion}
@@ -917,7 +918,7 @@ const result = await saveOrUpdateReport({
                         <span className="text-sm text-gray-700 pt-2 min-w-[24px]">
                           {pi + 1})
                         </span>
-                        <input
+                        <AutoResizeInput
                           className="pdf-input w-full"
                           placeholder={`Observación punto ${pi + 1}`}
                           value={p.observacion}
@@ -1139,13 +1140,13 @@ const result = await saveOrUpdateReport({
                     />
                   </div>
                   <div className="mt-2 space-y-1 text-center">
-                    <input
+                    <AutoResizeInput
                       className="pdf-input w-full bg-gray-100"
                       value={data.contacto}
                       readOnly
                       placeholder="Nombre del contacto"
                     />
-                    <input
+                    <AutoResizeInput
                       className="pdf-input w-full"
                       value={data.firmas?.clienteCedula || ""}
                       onChange={(e) => update(["firmas", "clienteCedula"], e.target.value)}

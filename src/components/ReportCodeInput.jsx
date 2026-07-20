@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getSuggestedReportCode } from "@/services/reportCodeService";
+import AutoResizeInput from "@/components/AutoResizeInput";
 
 export default function ReportCodeInput({
   value,
@@ -37,7 +38,7 @@ export default function ReportCodeInput({
 
   return (
     <div className="space-y-1">
-      <input
+      <AutoResizeInput
         className={className}
         value={value || ""}
         disabled={disabled}

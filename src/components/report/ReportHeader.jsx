@@ -1,4 +1,5 @@
 import ReportCodeInput from "@/components/ReportCodeInput";
+import AutoResizeInput from "@/components/AutoResizeInput";
 
 export default function ReportHeader({ data, onChange }) {
   const reportDescription =
@@ -71,7 +72,7 @@ export default function ReportHeader({ data, onChange }) {
         <tr>
           <td className="pdf-label">REFERENCIA DE CONTRATO</td>
           <td colSpan={2}>
-            <input
+            <AutoResizeInput
               className="pdf-input w-full"
               value={data.referenciaContrato || ""}
               onChange={(e) =>
@@ -86,7 +87,7 @@ export default function ReportHeader({ data, onChange }) {
         <tr>
           <td className="pdf-label">N° DE PEDIDO / DEMANDA</td>
           <td colSpan={2}>
-            <input
+            <AutoResizeInput
               className="pdf-input w-full"
               value={data.pedidoDemanda || ""}
               onChange={(e) =>
@@ -101,7 +102,7 @@ export default function ReportHeader({ data, onChange }) {
         <tr>
           <td className="pdf-label">DESCRIPCIÓN</td>
           <td colSpan={2}>
-            <input
+            <AutoResizeInput
               className="pdf-input w-full"
               value={data.descripcion || ""}
               onChange={(e) =>

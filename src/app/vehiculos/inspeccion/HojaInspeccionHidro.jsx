@@ -12,6 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
+import AutoResizeInput from "@/components/AutoResizeInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import InspectionChecklistRow from "@/components/InspectionChecklistRow";
 
@@ -592,7 +593,7 @@ const firmaCliente =
                         onChange={(value) => update([key], value)}
                       />
                     ) : (
-                      <input className="pdf-input w-full" value={data[key]} placeholder={fieldPlaceholders[key] || ""} onChange={(e) => update([key], e.target.value)} />
+                      <AutoResizeInput className="pdf-input w-full" value={data[key]} placeholder={fieldPlaceholders[key] || ""} onChange={(e) => update([key], e.target.value)} />
                     )}
                   </td>
                 </tr>
@@ -614,19 +615,19 @@ const firmaCliente =
             <tbody>
               <tr>
                 <td className="pdf-label">CLIENTE</td>
-                <td><input className="pdf-input w-full" value={data.cliente} placeholder={fieldPlaceholders.cliente} onChange={(e) => update(["cliente"], e.target.value)} /></td>
+                <td><AutoResizeInput className="pdf-input w-full" value={data.cliente} placeholder={fieldPlaceholders.cliente} onChange={(e) => update(["cliente"], e.target.value)} /></td>
                 <td className="pdf-label">DIRECCIÓN</td>
-                <td><input className="pdf-input w-full" value={data.direccion} placeholder={fieldPlaceholders.direccion} onChange={(e) => update(["direccion"], e.target.value)} /></td>
+                <td><AutoResizeInput className="pdf-input w-full" value={data.direccion} placeholder={fieldPlaceholders.direccion} onChange={(e) => update(["direccion"], e.target.value)} /></td>
               </tr>
               <tr>
                 <td className="pdf-label">CONTACTO</td>
-                <td><input className="pdf-input w-full" value={data.contacto} placeholder={fieldPlaceholders.contacto} onChange={(e) => update(["contacto"], e.target.value)} /></td>
+                <td><AutoResizeInput className="pdf-input w-full" value={data.contacto} placeholder={fieldPlaceholders.contacto} onChange={(e) => update(["contacto"], e.target.value)} /></td>
                 <td className="pdf-label">TELÉFONO</td>
-                <td><input className="pdf-input w-full" value={data.telefono} placeholder={fieldPlaceholders.telefono} onChange={(e) => update(["telefono"], e.target.value)} /></td>
+                <td><AutoResizeInput className="pdf-input w-full" value={data.telefono} placeholder={fieldPlaceholders.telefono} onChange={(e) => update(["telefono"], e.target.value)} /></td>
               </tr>
               <tr>
                 <td className="pdf-label">CORREO</td>
-                <td><input className="pdf-input w-full" value={data.correo} placeholder={fieldPlaceholders.correo} onChange={(e) => update(["correo"], e.target.value)} /></td>
+                <td><AutoResizeInput className="pdf-input w-full" value={data.correo} placeholder={fieldPlaceholders.correo} onChange={(e) => update(["correo"], e.target.value)} /></td>
                 <td className="pdf-label">TÉCNICO RESPONSABLE</td>
                 <td>
                  <select
@@ -663,9 +664,9 @@ const firmaCliente =
               </tr>
               <tr>
                 <td className="pdf-label">TELÉFONO TÉCNICO</td>
-                <td><input className="pdf-input w-full bg-gray-100" value={data.tecnicoTelefono} readOnly /></td>
+                <td><AutoResizeInput className="pdf-input w-full bg-gray-100" value={data.tecnicoTelefono} readOnly /></td>
                 <td className="pdf-label">CORREO TÉCNICO</td>
-                <td><input className="pdf-input w-full bg-gray-100" value={data.tecnicoCorreo} readOnly /></td>
+                <td><AutoResizeInput className="pdf-input w-full bg-gray-100" value={data.tecnicoCorreo} readOnly /></td>
               </tr>
               <tr>
                 <td className="pdf-label">FECHA DE SERVICIO</td>
@@ -691,8 +692,8 @@ const firmaCliente =
                   const next = arr[idx + 1];
                   rows.push(
                     <tr key={idx}>
-                      {field[0] ? <><td className="pdf-label">{field[0]}</td><td><input className="pdf-input w-full" value={data.equipo[field[1]]||""} placeholder={fieldPlaceholders[field[1]] || ""} onChange={(e) => update(["equipo", field[1]], e.target.value)} /></td></> : <td colSpan={2} />}
-                      {next && next[0] ? <><td className="pdf-label">{next[0]}</td><td><input className="pdf-input w-full" value={data.equipo[next[1]]||""} placeholder={fieldPlaceholders[next[1]] || ""} onChange={(e) => update(["equipo", next[1]], e.target.value)} /></td></> : <td colSpan={2} />}
+                      {field[0] ? <><td className="pdf-label">{field[0]}</td><td><AutoResizeInput className="pdf-input w-full" value={data.equipo[field[1]]||""} placeholder={fieldPlaceholders[field[1]] || ""} onChange={(e) => update(["equipo", field[1]], e.target.value)} /></td></> : <td colSpan={2} />}
+                      {next && next[0] ? <><td className="pdf-label">{next[0]}</td><td><AutoResizeInput className="pdf-input w-full" value={data.equipo[next[1]]||""} placeholder={fieldPlaceholders[next[1]] || ""} onChange={(e) => update(["equipo", next[1]], e.target.value)} /></td></> : <td colSpan={2} />}
                     </tr>
                   );
                 }
@@ -748,7 +749,7 @@ const firmaCliente =
         {pi + 1})
       </span>
 
-      <input
+      <AutoResizeInput
         className="pdf-input w-full"
         placeholder={`Observación punto ${pi + 1}`}
         value={p.observacion}
@@ -815,7 +816,7 @@ const firmaCliente =
                     {(img.puntos||[]).map((p, pi) => (
                       <div key={p.id} className="flex items-start gap-2">
                         <span className="text-sm text-gray-700 pt-2 min-w-[24px]">{pi+1})</span>
-                        <input className="pdf-input w-full" placeholder={`Observación punto ${pi+1}`}
+                        <AutoResizeInput className="pdf-input w-full" placeholder={`Observación punto ${pi+1}`}
                           value={p.observacion} onChange={(e) => updatePointObs(img.id, p.id, e.target.value)} />
                       </div>
                     ))}
@@ -961,8 +962,8 @@ const firmaCliente =
                       canvasProps={{ className:"w-full h-full touch-none" }} />
                   </div>
                   <div className="mt-2 space-y-1 text-center">
-                    <input className="pdf-input w-full bg-gray-100" value={data.contacto} readOnly placeholder="Nombre del contacto" />
-                    <input className="pdf-input w-full"
+                    <AutoResizeInput className="pdf-input w-full bg-gray-100" value={data.contacto} readOnly placeholder="Nombre del contacto" />
+                    <AutoResizeInput className="pdf-input w-full"
                       value={data.firmas?.clienteCedula || ""}
                       onChange={(e) => update(["firmas","clienteCedula"], e.target.value)}
                       placeholder="Número de cédula del cliente" />
