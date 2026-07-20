@@ -14,6 +14,7 @@ import {
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
 import { formatPersonName } from "@/utils/nameFormat";
+import { sortRecordsByRecent } from "@/utils/recordSort";
 
 export default function IndexInspeccion() {
   const navigate = useNavigate();
@@ -81,7 +82,7 @@ export default function IndexInspeccion() {
           .select("*")
           .eq("tipo", "inspeccion")
           .or("area.eq.vehiculos,area.is.null")
-          .order("created_at", { ascending: false });
+          .order("updated_at", { ascending: false });
 
       let data = [];
       let error = null;
@@ -121,7 +122,7 @@ export default function IndexInspeccion() {
         });
       }
 
-      setInspections(data || []);
+      setInspections(sortRecordsByRecent(data || []));
     };
 
     loadInspections();
@@ -171,7 +172,7 @@ export default function IndexInspeccion() {
   ============================== */
   const selectedUser = userOptions.find((profile) => profile.id === tecnico);
 
-  const filtered = inspections.filter((item) => {
+  const filtered = sortRecordsByRecent(inspections.filter((item) => {
     const cliente = normalize(item.data?.cliente);
 
     const cod = normalize(
@@ -210,7 +211,7 @@ export default function IndexInspeccion() {
       matchEstado &&
       matchEquipo
     );
-  });
+  }));
 
   /* =============================
      ACCIONES

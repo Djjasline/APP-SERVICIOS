@@ -8,6 +8,7 @@ import {
 } from "@/services/accessControlService";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { createRegistro, deleteRegistro, getAllRegistros } from "@/utils/registroStorage";
+import { sortRecordsByRecent } from "@/utils/recordSort";
 
 const StatusBadge = ({ estado }) => {
   const styles = {
@@ -48,7 +49,7 @@ export default function RegistroHome() {
         getAllRegistros(),
         getRecordAccessPermissionsForUser(user.id),
       ]);
-      setRegistros(Array.isArray(data) ? data : []);
+      setRegistros(sortRecordsByRecent(Array.isArray(data) ? data : []));
       setAccessPermissions(permissions);
       setLoading(false);
     };
@@ -56,13 +57,9 @@ export default function RegistroHome() {
     loadData();
   }, [user?.id]);
 
-  const filtered = registros
-    .filter((r) => (filter === "todas" ? true : r.estado === filter))
-    .sort(
-      (a, b) =>
-        new Date(b.created_at || b.createdAt) -
-        new Date(a.created_at || a.createdAt)
-    );
+  const filtered = sortRecordsByRecent(
+    registros.filter((r) => (filter === "todas" ? true : r.estado === filter))
+  );
 
   const isOwnRegistro = (item) => item.user_id === user?.id;
 

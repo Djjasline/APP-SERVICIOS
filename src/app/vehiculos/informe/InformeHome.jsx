@@ -14,6 +14,7 @@ import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
 import CustomerSurveyLink from "@/components/CustomerSurveyLink";
 import { formatPersonName } from "@/utils/nameFormat";
+import { sortRecordsByRecent } from "@/utils/recordSort";
 
 export default function InformeHome() {
   const navigate = useNavigate();
@@ -78,7 +79,7 @@ export default function InformeHome() {
             .from("registros")
             .select("*")
             .eq("tipo", "informe")
-            .order("created_at", { ascending: false });
+            .order("updated_at", { ascending: false });
 
         let data = [];
         let error = null;
@@ -117,7 +118,7 @@ export default function InformeHome() {
           );
         });
 
-        setReports(soloVehiculos);
+        setReports(sortRecordsByRecent(soloVehiculos));
       } catch (err) {
         console.error("Error cargando:", err);
         setReports([]);
@@ -164,7 +165,7 @@ export default function InformeHome() {
   =========================== */
   const selectedUser = userOptions.find((profile) => profile.id === filters.tecnico);
 
-  const filteredReports = reports.filter((r) => {
+  const filteredReports = sortRecordsByRecent(reports.filter((r) => {
     const cliente = r.data?.cliente?.toLowerCase() || "";
 
     const pedido = [
@@ -188,7 +189,7 @@ export default function InformeHome() {
       recordMatchesUser(r, selectedUser) &&
       (!filters.fecha || (fecha && fecha.startsWith(filters.fecha)))
     );
-  });
+  }));
 
   /* ===========================
      ABRIR

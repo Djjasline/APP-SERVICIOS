@@ -14,6 +14,7 @@ import {
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
 import { formatPersonName } from "@/utils/nameFormat";
+import { sortRecordsByRecent } from "@/utils/recordSort";
 
 const tipos = [
   {
@@ -149,7 +150,7 @@ export default function IndexMantenimiento() {
         });
       }
 
-      setItems(data || []);
+      setItems(sortRecordsByRecent(data || []));
     };
 
     load();
@@ -241,7 +242,7 @@ export default function IndexMantenimiento() {
   const filtered = useMemo(() => {
     const selectedUser = userOptions.find((profile) => profile.id === filters.tecnico);
 
-    return (items || []).filter((item) => {
+    return sortRecordsByRecent((items || []).filter((item) => {
       const d = item.data || {};
       const equipo = d.equipo || {};
 
@@ -254,7 +255,7 @@ export default function IndexMantenimiento() {
         recordMatchesUser(item, selectedUser) &&
         (filters.equipo === "" || item.subtipo === filters.equipo)
       );
-    });
+    }));
   }, [items, estado, filters, userOptions]);
 
   const renderCard = ({ type, title, desc, btn }) => (

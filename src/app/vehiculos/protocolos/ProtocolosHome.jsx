@@ -13,6 +13,7 @@ import {
 } from "@/services/accessControlService";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { formatPersonName } from "@/utils/nameFormat";
+import { sortRecordsByRecent } from "@/utils/recordSort";
 
 const PROTOCOLS = [
   {
@@ -69,7 +70,7 @@ export default function ProtocolosHome() {
           .in("area", PROTOCOL_AREAS)
           .eq("tipo", "protocolo")
           .in("subtipo", PROTOCOLS.map((item) => item.subtipo))
-          .order("created_at", { ascending: false });
+          .order("updated_at", { ascending: false });
 
       let data = [];
       let error = null;
@@ -107,7 +108,7 @@ export default function ProtocolosHome() {
         data = data.filter((item) => item.user_id === user.id || canAccessRecord({ record: item, userId: user.id, permissions: userPermissions, isSuperAdmin: superAdminActivo, action: "view" }));
       }
 
-      setRecords(data);
+      setRecords(sortRecordsByRecent(data));
     };
 
     load();
@@ -117,14 +118,14 @@ export default function ProtocolosHome() {
   const canEdit = (item) => puedeVerTodoVehiculos || isOwn(item) || canAccessRecord({ record: item, userId: user?.id, permissions, isSuperAdmin: superAdminActivo, action: "edit" });
   const canDownload = (item) => puedeVerTodoVehiculos || isOwn(item) || canAccessRecord({ record: item, userId: user?.id, permissions, isSuperAdmin: superAdminActivo, action: "download" });
 
-  const filtered = records.filter((item) => {
+  const filtered = sortRecordsByRecent(records.filter((item) => {
     const text = [item.data?.cliente, item.data?.equipoNo, item.data?.codInf, item.data?.pedidoDemanda, item.data?.tecnicoNombre]
       .join(" ")
       .toLowerCase();
     const matchSearch = text.includes(search.toLowerCase());
     const matchEstado = estado === "todos" || item.estado === estado;
     return matchSearch && matchEstado;
-  });
+  }));
 
   const handleDelete = async (item) => {
     if (!confirm("¿Eliminar protocolo?")) return;
