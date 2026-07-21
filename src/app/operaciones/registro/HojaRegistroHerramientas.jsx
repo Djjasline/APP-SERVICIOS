@@ -8,6 +8,74 @@ import { getRegistroById, updateRegistro, } from "@/utils/registroStorage";
 import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";
 
+function Field({ label, labelClass, children }) {
+  return (
+    <label className="space-y-1 text-xs">
+      <span className={`font-semibold ${labelClass}`}>{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function SignatureField({
+  title,
+  label,
+  dataUrl,
+  canvasRef,
+  onClear,
+  isLocked,
+  onSignatureBegin,
+  onSignatureEnd,
+}) {
+  return (
+    <div className="overflow-hidden rounded-lg border border-slate-300 bg-white">
+      <div className="border-b border-slate-300 bg-blue-50 px-3 py-2 text-center text-xs font-bold text-slate-900">
+        {title}
+      </div>
+
+      <div className="p-3">
+        <div className="flex h-32 items-center justify-center rounded border border-slate-300 bg-white">
+          {isLocked ? (
+            dataUrl ? (
+              <img
+                src={dataUrl}
+                alt={label}
+                className="max-h-28 max-w-full object-contain"
+              />
+            ) : (
+              <span className="text-sm text-slate-400">-</span>
+            )
+          ) : (
+            <SignatureCanvas
+              ref={canvasRef}
+              penColor="black"
+              minWidth={0.5}
+              maxWidth={1.8}
+              onBegin={onSignatureBegin}
+              onEnd={onSignatureEnd}
+              canvasProps={{ className: "h-32 w-full touch-none bg-white" }}
+            />
+          )}
+        </div>
+
+        <div className="mt-2 border-t border-slate-300 pt-2 text-center text-xs font-semibold text-slate-900">
+          {label}
+        </div>
+
+        {!isLocked && (
+          <button
+            type="button"
+            onClick={onClear}
+            className="mt-2 text-xs text-red-500 hover:underline"
+          >
+            Limpiar
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function HojaRegistroHerramientas() {
   const { id } = useParams();
   const isEditing = !!id;
@@ -243,61 +311,6 @@ const handleSubmit = async (e) => {
   const labelClass = "text-slate-700";
   const mutedClass = "text-slate-500";
 
-  const Field = ({ label, children }) => (
-    <label className="space-y-1 text-xs">
-      <span className={`font-semibold ${labelClass}`}>{label}</span>
-      {children}
-    </label>
-  );
-
-  const SignatureField = ({ title, label, dataUrl, canvasRef, onClear }) => (
-    <div className="overflow-hidden rounded-lg border border-slate-300 bg-white">
-      <div className="border-b border-slate-300 bg-blue-50 px-3 py-2 text-center text-xs font-bold text-slate-900">
-        {title}
-      </div>
-
-      <div className="p-3">
-        <div className="flex h-32 items-center justify-center rounded border border-slate-300 bg-white">
-          {isLocked ? (
-            dataUrl ? (
-              <img
-                src={dataUrl}
-                alt={label}
-                className="max-h-28 max-w-full object-contain"
-              />
-            ) : (
-              <span className="text-sm text-slate-400">-</span>
-            )
-          ) : (
-            <SignatureCanvas
-              ref={canvasRef}
-              penColor="black"
-              minWidth={0.5}
-              maxWidth={1.8}
-              onBegin={handleSignatureBegin}
-              onEnd={handleSignatureEnd}
-              canvasProps={{ className: "h-32 w-full touch-none bg-white" }}
-            />
-          )}
-        </div>
-
-        <div className="mt-2 border-t border-slate-300 pt-2 text-center text-xs font-semibold text-slate-900">
-          {label}
-        </div>
-
-        {!isLocked && (
-          <button
-            type="button"
-            onClick={onClear}
-            className="mt-2 text-xs text-red-500 hover:underline"
-          >
-            Limpiar
-          </button>
-        )}
-      </div>
-    </div>
-  );
-
   return (
     <form
       onSubmit={handleSubmit}
@@ -381,7 +394,7 @@ const handleSubmit = async (e) => {
               <div className={`rounded-xl border p-4 ${sectionClass}`}>
                 <h2 className="mb-3 text-sm font-semibold">Datos de herramienta</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <Field label="Herramienta / Detalle">
+                  <Field label="Herramienta / Detalle" labelClass={labelClass}>
                     <input
                       value={item.detalle}
                       onChange={(e) => updateItem(item.id, "detalle", e.target.value)}
@@ -391,7 +404,7 @@ const handleSubmit = async (e) => {
                     />
                   </Field>
 
-                  <Field label="N° Pedido">
+                  <Field label="N° Pedido" labelClass={labelClass}>
                     <input
                       value={item.pedido}
                       onChange={(e) => updateItem(item.id, "pedido", e.target.value)}
@@ -401,7 +414,7 @@ const handleSubmit = async (e) => {
                     />
                   </Field>
 
-                  <Field label="Cantidad">
+                  <Field label="Cantidad" labelClass={labelClass}>
                     <input
                       value={item.cantidad || ""}
                       onChange={(e) => updateItem(item.id, "cantidad", e.target.value)}
@@ -417,7 +430,7 @@ const handleSubmit = async (e) => {
                 <div className={`rounded-xl border p-4 ${sectionClass}`}>
                   <h2 className="mb-3 text-sm font-semibold">Salida</h2>
                   <div className="space-y-3">
-                    <Field label="Estado salida">
+                    <Field label="Estado salida" labelClass={labelClass}>
                       <input
                         value={item.estadoSalida || ""}
                         onChange={(e) => updateItem(item.id, "estadoSalida", e.target.value)}
@@ -427,7 +440,7 @@ const handleSubmit = async (e) => {
                       />
                     </Field>
 
-                    <Field label="Técnico salida">
+                    <Field label="Técnico salida" labelClass={labelClass}>
                       <select
                         value={item.tecnicoSalida}
                         onChange={(e) => updateItem(item.id, "tecnicoSalida", e.target.value)}
@@ -441,7 +454,7 @@ const handleSubmit = async (e) => {
                       </select>
                     </Field>
 
-                    <Field label="Fecha salida">
+                    <Field label="Fecha salida" labelClass={labelClass}>
                       <input
                         type="date"
                         value={item.fechaSalida || ""}
@@ -451,13 +464,13 @@ const handleSubmit = async (e) => {
                       />
                     </Field>
 
-                    <Field label="Foto antes">
+                    <Field label="Foto antes" labelClass={labelClass}>
                       <div className="rounded border border-slate-200 bg-white p-3">
                         <ImagenCell item={item} campo="imagenSalidaUrl" label="Foto antes" />
                       </div>
                     </Field>
 
-                    <Field label="Observaciones salida">
+                    <Field label="Observaciones salida" labelClass={labelClass}>
                       <textarea
                         value={item.observacionesSalida || ""}
                         onChange={(e) => updateItem(item.id, "observacionesSalida", e.target.value)}
@@ -472,7 +485,7 @@ const handleSubmit = async (e) => {
                 <div className={`rounded-xl border p-4 ${sectionClass}`}>
                   <h2 className="mb-3 text-sm font-semibold">Ingreso</h2>
                   <div className="space-y-3">
-                    <Field label="Estado ingreso">
+                    <Field label="Estado ingreso" labelClass={labelClass}>
                       <input
                         value={item.estadoIngreso || ""}
                         onChange={(e) => updateItem(item.id, "estadoIngreso", e.target.value)}
@@ -482,7 +495,7 @@ const handleSubmit = async (e) => {
                       />
                     </Field>
 
-                    <Field label="Técnico ingreso">
+                    <Field label="Técnico ingreso" labelClass={labelClass}>
                       <select
                         value={item.tecnicoIngreso || ""}
                         onChange={(e) => updateItem(item.id, "tecnicoIngreso", e.target.value)}
@@ -496,7 +509,7 @@ const handleSubmit = async (e) => {
                       </select>
                     </Field>
 
-                    <Field label="Fecha ingreso">
+                    <Field label="Fecha ingreso" labelClass={labelClass}>
                       <input
                         type="date"
                         value={item.fechaIngreso || ""}
@@ -506,13 +519,13 @@ const handleSubmit = async (e) => {
                       />
                     </Field>
 
-                    <Field label="Foto después">
+                    <Field label="Foto después" labelClass={labelClass}>
                       <div className="rounded border border-slate-200 bg-white p-3">
                         <ImagenCell item={item} campo="imagenIngresoUrl" label="Foto después" />
                       </div>
                     </Field>
 
-                    <Field label="Observaciones ingreso">
+                    <Field label="Observaciones ingreso" labelClass={labelClass}>
                       <textarea
                         value={item.observacionesIngreso || ""}
                         onChange={(e) => updateItem(item.id, "observacionesIngreso", e.target.value)}
@@ -539,6 +552,9 @@ const handleSubmit = async (e) => {
             label="Firma Responsable"
             dataUrl={formData.firmas?.responsable}
             canvasRef={firmaResponsableRef}
+            isLocked={isLocked}
+            onSignatureBegin={handleSignatureBegin}
+            onSignatureEnd={handleSignatureEnd}
             onClear={() => {
               firmaResponsableRef.current?.clear();
               setFormData((prev) => ({ ...prev, firmas: { ...(prev.firmas || {}), responsable: "" } }));
@@ -550,6 +566,9 @@ const handleSubmit = async (e) => {
             label="Firma Aprobador / Recepción"
             dataUrl={formData.firmas?.aprobador}
             canvasRef={firmaAprobadorRef}
+            isLocked={isLocked}
+            onSignatureBegin={handleSignatureBegin}
+            onSignatureEnd={handleSignatureEnd}
             onClear={() => {
               firmaAprobadorRef.current?.clear();
               setFormData((prev) => ({ ...prev, firmas: { ...(prev.firmas || {}), aprobador: "" } }));
