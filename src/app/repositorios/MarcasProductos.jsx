@@ -1,6 +1,7 @@
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/context/ThemeContext";
+import { recordResourceUsage } from "@/services/resourceUsageService";
 
 const marcas = [
   {
@@ -118,6 +119,7 @@ export default function MarcasProductos() {
               href={marca.url}
               target="_blank"
               rel="noreferrer"
+              onClick={() => recordResourceUsage({ subtipo: "marcas-productos", label: marca.nombre, url: marca.url })}
               className={`${marca.color} text-white rounded-lg py-2.5 px-4 text-sm font-semibold hover:opacity-90 transition inline-flex items-center justify-center gap-2`}
             >
               Ir

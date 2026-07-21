@@ -15,14 +15,15 @@ import {
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/context/ThemeContext";
 
-const AREA_META = {
+const FORM_AREA_META = {
   vehiculos: { label: "Vehículos Especiales", color: "#0f55ff" },
   agua: { label: "Agua y Saneamiento", color: "#1e88e5" },
   industria: { label: "Industria", color: "#64748b" },
   operaciones: { label: "Operaciones", color: "#16a34a" },
   petroleo: { label: "Petróleo y Energía", color: "#f97316" },
-  repositorios: { label: "Recursos", color: "#7c3aed" },
 };
+
+const RESOURCE_AREA = "repositorios";
 
 const STATUS_META = {
   completado: { label: "Completados", color: "#16a34a" },
@@ -122,7 +123,7 @@ export default function AdminSuccessDashboard() {
         setError("");
         const { data, error: loadError } = await supabase
           .from("registros")
-          .select("id, area, tipo, subtipo, estado, created_at, updated_at")
+          .select("id, user_id, area, tipo, subtipo, estado, data, created_at, updated_at")
           .order("created_at", { ascending: true });
 
         if (loadError) throw loadError;
@@ -147,27 +148,43 @@ export default function AdminSuccessDashboard() {
       return new Date(value) >= start;
     });
 
+    const formRecords = filtered.filter((record) => record.area !== RESOURCE_AREA && record.tipo !== "uso_recurso");
+    const resourceRecords = filtered.filter((record) => record.area === RESOURCE_AREA || record.tipo === "uso_recurso");
+
     const totals = emptyCounts();
-    const areaCounts = Object.fromEntries(Object.keys(AREA_META).map((area) => [area, emptyCounts()]));
+    const areaCounts = Object.fromEntries(Object.keys(FORM_AREA_META).map((area) => [area, emptyCounts()]));
     const dailyMap = new Map();
 
-    filtered.forEach((record) => {
+    formRecords.forEach((record) => {
+      if (!areaCounts[record.area]) return;
+
       const status = getStatus(record);
-      const area = areaCounts[record.area] ? record.area : "repositorios";
       totals[status] += 1;
       totals.total += 1;
-      areaCounts[area][status] += 1;
-      areaCounts[area].total += 1;
+      areaCounts[record.area][status] += 1;
+      areaCounts[record.area].total += 1;
 
       const key = dateKey(getRecordDate(record));
       if (key) dailyMap.set(key, (dailyMap.get(key) || 0) + 1);
     });
 
+    const resourceUsers = new Set(resourceRecords.map((record) => record.user_id).filter(Boolean));
+    const resourceMap = new Map();
+
+    resourceRecords.forEach((record) => {
+      const label = record.data?.recurso || record.subtipo || "Recurso";
+      resourceMap.set(label, (resourceMap.get(label) || 0) + 1);
+    });
+
+    const resourceRows = [...resourceMap.entries()]
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count);
+
     const daily = [...dailyMap.entries()]
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, count]) => ({ date, count }));
 
-    const dates = filtered.map((record) => getRecordDate(record)).filter(Boolean).sort();
+    const dates = formRecords.map((record) => getRecordDate(record)).filter(Boolean).sort();
     const firstDate = dates[0] || null;
     const lastDate = dates[dates.length - 1] || null;
     const periodDays = firstDate && lastDate
@@ -176,9 +193,14 @@ export default function AdminSuccessDashboard() {
     const bestDay = daily.reduce((best, item) => (item.count > (best?.count || 0) ? item : best), null);
 
     return {
-      records: filtered,
+      records: formRecords,
       totals,
-      areaRows: Object.entries(areaCounts).map(([area, counts]) => ({ area, ...AREA_META[area], ...counts })),
+      areaRows: Object.entries(areaCounts).map(([area, counts]) => ({ area, ...FORM_AREA_META[area], ...counts })),
+      resourceUsage: {
+        total: resourceRecords.length,
+        users: resourceUsers.size,
+        rows: resourceRows,
+      },
       daily,
       firstDate,
       lastDate,
@@ -197,6 +219,8 @@ export default function AdminSuccessDashboard() {
       ["Completados", dashboard.totals.completado],
       ["Borradores", dashboard.totals.borrador],
       ["Salidas", dashboard.totals.salida],
+      ["Accesos a Recursos", dashboard.resourceUsage.total],
+      ["Usuarios en Recursos", dashboard.resourceUsage.users],
       [],
       ["Área", "Completados", "Borradores", "Salidas", "Total", "Participación"],
       ...dashboard.areaRows.map((row) => [
@@ -254,12 +278,13 @@ export default function AdminSuccessDashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <MetricCard icon={FileText} label="Informes totales" value={dashboard.totals.total} detail="100% del total" color="bg-blue-600" />
         <MetricCard icon={CheckSquare} label="Completados" value={dashboard.totals.completado} detail={`${percent(dashboard.totals.completado, dashboard.totals.total)} del total`} color="bg-green-600" />
         <MetricCard icon={FileText} label="Borradores" value={dashboard.totals.borrador} detail={`${percent(dashboard.totals.borrador, dashboard.totals.total)} del total`} color="bg-amber-500" />
         <MetricCard icon={ArrowRightFromLine} label="Salidas" value={dashboard.totals.salida} detail={`${percent(dashboard.totals.salida, dashboard.totals.total)} del total`} color="bg-violet-600" />
         <MetricCard icon={Users} label="Áreas activas" value={dashboard.activeAreas} detail="En uso de la plataforma" color="bg-blue-700" />
+        <MetricCard icon={Users} label="Usuarios Recursos" value={dashboard.resourceUsage.users} detail={`${formatNumber(dashboard.resourceUsage.total)} accesos`} color="bg-purple-700" />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.15fr_1.15fr_0.85fr]">
@@ -281,14 +306,17 @@ export default function AdminSuccessDashboard() {
         </Panel>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[0.9fr_1.2fr_0.8fr]">
-        <Panel title="4. Informes por área">
+      <div className="grid gap-4 xl:grid-cols-[0.9fr_0.9fr_1.15fr_0.8fr]">
+        <Panel title="4. Uso de Recursos">
+          <ResourceUsageTable usage={dashboard.resourceUsage} />
+        </Panel>
+        <Panel title="5. Informes por área">
           <DonutChart items={dashboard.areaRows.map((row) => ({ label: row.label, value: row.total, color: row.color }))} total={dashboard.totals.total} />
         </Panel>
-        <Panel title="5. Actividad diaria de informes">
+        <Panel title="6. Actividad diaria de informes">
           <BarChart data={dashboard.daily} />
         </Panel>
-        <Panel title="6. Resumen de impacto">
+        <Panel title="7. Resumen de impacto">
           <ImpactList />
         </Panel>
       </div>
@@ -299,7 +327,7 @@ export default function AdminSuccessDashboard() {
             <Trophy size={30} />
           </div>
           <div>
-            <h3 className="text-sm font-black uppercase text-blue-800">7. Conclusión</h3>
+            <h3 className="text-sm font-black uppercase text-blue-800">8. Conclusión</h3>
             <p className="mt-2 text-sm leading-6 text-slate-700">
               La App Servicios ASTAP permite digitalizar y estandarizar la gestión de informes técnicos, logrando mayor control, eficiencia y trazabilidad en las operaciones.
             </p>
@@ -367,6 +395,42 @@ function AreaTable({ rows, total }) {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function ResourceUsageTable({ usage }) {
+  const rows = usage?.rows || [];
+
+  return (
+    <div className="space-y-4 text-sm text-slate-700">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl bg-purple-50 p-3">
+          <p className="text-[10px] font-black uppercase text-purple-700">Usuarios</p>
+          <p className="text-2xl font-black text-slate-900">{formatNumber(usage?.users)}</p>
+        </div>
+        <div className="rounded-xl bg-purple-50 p-3">
+          <p className="text-[10px] font-black uppercase text-purple-700">Accesos</p>
+          <p className="text-2xl font-black text-slate-900">{formatNumber(usage?.total)}</p>
+        </div>
+      </div>
+
+      {rows.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-slate-200 p-4 text-xs text-slate-500">
+          Sin accesos a recursos registrados en el periodo.
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {rows.slice(0, 5).map((row) => (
+            <div key={row.label} className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 px-3 py-2">
+              <span className="truncate text-xs font-semibold text-slate-700">{row.label}</span>
+              <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-bold text-purple-700">
+                {formatNumber(row.count)}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

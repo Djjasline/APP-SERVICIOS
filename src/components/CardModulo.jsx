@@ -10,6 +10,7 @@ export default function CardModulo({
   badge = null,
   disabled = false,
   disabledLabel = "Acceso restringido",
+  onOpen,
 }) {
   const navigate = useNavigate();
 
@@ -17,6 +18,8 @@ export default function CardModulo({
 
   const handleClick = () => {
     if (disabled) return;
+
+    onOpen?.();
 
     if (esExterno) {
       window.open(ruta, "_blank", "noopener,noreferrer");

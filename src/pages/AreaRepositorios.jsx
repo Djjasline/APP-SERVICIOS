@@ -1,6 +1,10 @@
 import CardModulo from "@/components/CardModulo";
 import { useTheme } from "@/context/ThemeContext";
 import { FileText, Database, Tags, GraduationCap } from "lucide-react";
+import { recordResourceUsage } from "@/services/resourceUsageService";
+
+const TRAINING_URL = "https://fsu.myfslearning.com/student/catalog";
+const TEAMDESK_URL = "https://www.teamdesk.net/secure/db/53431/overview.aspx?t=381285";
 
 export default function AreaRepositorios() {
   const { isLight } = useTheme();
@@ -38,17 +42,19 @@ export default function AreaRepositorios() {
         <CardModulo
           titulo="Portal de entrenamiento de vehículos especiales"
           descripcion="Portal de entrenamiento de barredoras Elgin e hidrosuccionadores Vactor."
-          ruta="/repositorios/entrenamiento"
+          ruta={TRAINING_URL}
           color="bg-emerald-600"
           icono={<GraduationCap size={20} />}
+          onOpen={() => recordResourceUsage({ subtipo: "entrenamiento-vehiculos", label: "Portal de entrenamiento de vehículos especiales", url: TRAINING_URL })}
         />
 
         <CardModulo
           titulo="Base de datos ASTAP"
           descripcion="Acceso a base de datos empresarial ASTAP en TeamDesk."
-          ruta="/repositorios/base-datos"
+          ruta={TEAMDESK_URL}
           color="bg-red-600"
           icono={<Database size={20} />}
+          onOpen={() => recordResourceUsage({ subtipo: "base-datos-astap", label: "Base de datos ASTAP", url: TEAMDESK_URL })}
         />
       </div>
     </div>

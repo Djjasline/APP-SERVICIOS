@@ -6,6 +6,7 @@ import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { isConfiguratorOwner } from "@/constants/accessControl";
 import { getUnreadAppUpdatesCount } from "@/services/appUpdatesService";
 import { getUnreadMessageCounts } from "@/services/chatService";
+import { openExternalResource } from "@/services/resourceUsageService";
 import { supabase } from "@/lib/supabase";
 import {
   LayoutDashboard,
@@ -31,7 +32,12 @@ import {
   FileText,
   MapPin,
   Wrench,
+  ExternalLink,
 } from "lucide-react";
+
+const DOCUMOTO_ELGIN_URL = "https://documoto.digabit.com/ui/home";
+const TRAINING_URL = "https://fsu.myfslearning.com/student/catalog";
+const TEAMDESK_URL = "https://www.teamdesk.net/secure/db/53431/overview.aspx?t=381285";
 
 export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const navigate = useNavigate();
@@ -243,6 +249,11 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
   const go = (path) => {
     navigate(path);
+    if (isMobile) setOpenSidebar(false);
+  };
+
+  const openResource = (resource) => {
+    openExternalResource(resource);
     if (isMobile) setOpenSidebar(false);
   };
 
@@ -653,12 +664,13 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
                 <button
                   type="button"
-                  onClick={() => go("/repositorios/documoto-elgin")}
+                  onClick={() => openResource({ subtipo: "documoto-elgin", label: "Documoto - Elgin", url: DOCUMOTO_ELGIN_URL })}
                   className={subItemClass("/repositorios/documoto-elgin")}
                 >
                   <span className="inline-flex items-center gap-2">
                     <BookOpen size={14} />
                     Documoto - Elgin
+                    <ExternalLink size={12} />
                   </span>
                 </button>
 
@@ -675,23 +687,25 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
                 <button
                   type="button"
-                  onClick={() => go("/repositorios/entrenamiento")}
+                  onClick={() => openResource({ subtipo: "entrenamiento-vehiculos", label: "Portal de entrenamiento de vehículos especiales", url: TRAINING_URL })}
                   className={subItemClass("/repositorios/entrenamiento")}
                 >
                   <span className="inline-flex items-center gap-2">
                     <GraduationCap size={14} />
                     Portal de entrenamiento de vehículos especiales
+                    <ExternalLink size={12} />
                   </span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => go("/repositorios/base-datos")}
+                  onClick={() => openResource({ subtipo: "base-datos-astap", label: "Base de datos ASTAP", url: TEAMDESK_URL })}
                   className={subItemClass("/repositorios/base-datos")}
                 >
                   <span className="inline-flex items-center gap-2">
                     <Database size={14} />
                     Base de datos ASTAP
+                    <ExternalLink size={12} />
                   </span>
                 </button>
                 </div>
