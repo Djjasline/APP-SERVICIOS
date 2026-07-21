@@ -59,8 +59,9 @@ async function main() {
 
   if (!response.ok) {
     const text = await response.text();
-    console.error(`Error publicando boletín (${response.status}): ${text}`);
-    process.exit(1);
+    console.warn(`No se pudo publicar el boletín (${response.status}): ${text}`);
+    console.warn("Se continúa porque el boletín no es crítico para publicar la app.");
+    return;
   }
 
   console.log(`Boletín publicado: ${title}`);
@@ -186,4 +187,9 @@ function buildMessage(commits) {
   return `Se publicó una nueva versión de la app con estos cambios:\n${lines.join("\n")}`;
 }
 
-await main();
+try {
+  await main();
+} catch (error) {
+  console.warn("No se pudo publicar el boletín:", error?.message || error);
+  console.warn("Se continúa porque el boletín no es crítico para publicar la app.");
+}
