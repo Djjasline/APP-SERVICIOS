@@ -8,6 +8,7 @@ import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
+import { formatPersonName } from "@/utils/nameFormat";
 import {
   checklistVehiculo,
   cloneRecepcionSchema,
@@ -1092,7 +1093,10 @@ export default function HojaRecepcion() {
   const claveAutoguardado = `recepcion_${id ?? "new"}`;
   const navigate = useNavigate();
 
-  const { isSuperAdmin, isSupervisorOperaciones } = useAuth();
+  const { email, fullName, isSuperAdmin, isSupervisorOperaciones, user } = useAuth();
+  const conductorAutenticado = formatPersonName(
+    fullName || user?.user_metadata?.full_name || email || user?.email
+  );
 
   const puedeFirmarRecepcion =
     isSuperAdmin || isSupervisorOperaciones;
@@ -1106,6 +1110,15 @@ const [isLocked, setIsLocked] = useState(false);
 
 // Autoguardado automático cada 15 segundos
 useAutoguardado(claveAutoguardado, data, !isLocked);
+  useEffect(() => {
+    if (!conductorAutenticado) return;
+
+    setData((prev) => {
+      if (prev.conductor) return prev;
+      return { ...prev, conductor: conductorAutenticado };
+    });
+  }, [conductorAutenticado, data.conductor]);
+
   useEffect(() => {
     if (!id) return;
 
@@ -1149,6 +1162,7 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
 
     return {
       ...data,
+      conductor: data.conductor || conductorAutenticado,
       firmas: {
         responsable: firmaResponsable,
         recepcionFinal: firmaRecepcion,
