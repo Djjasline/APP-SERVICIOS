@@ -286,7 +286,7 @@ const barredoraVariants = {
     title: "INFORME DE INSPECCIÓN BARREDORA PIQUERSA BA-2300-H",
     description: "Inspección técnica de motor Kubota V1505, sistema hidrostático, barrido, tolva y riego.",
     filePrefix: "Inspeccion_Barredora_Piquersa_BA_2300H",
-    imagePath: "/barredora-base.png",
+    imagePath: "/Barredora-piquersa-BA2300-H.png",
     imageAlt: "Vista general barredora Piquersa BA-2300-H",
     equipmentTitle: "DESCRIPCIÓN DEL EQUIPO — BARREDORA PIQUERSA BA-2300-H",
     sections: piquersaBa2300hSecciones,

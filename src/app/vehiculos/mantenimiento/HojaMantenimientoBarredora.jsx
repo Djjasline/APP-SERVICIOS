@@ -278,7 +278,7 @@ const barredoraMaintenanceVariants = {
     routeSegment: "barredora-piquersa-ba-2300h",
     title: "INFORME DE MANTENIMIENTO BARREDORA PIQUERSA BA-2300-H",
     description: "Mantenimiento preventivo de motor Kubota V1505, sistema hidrostático, barrido, tolva y riego.",
-    imagePath: "/barredora-base.png",
+    imagePath: "/Barredora-piquersa-BA2300-H.png",
     draftKey: "mantenimiento_barredora_piquersa_ba_2300h",
     sections: piquersaBa2300hSecciones,
   },
