@@ -430,8 +430,8 @@ const SheetStyles = () => (
       background: #fff;
       color: #000;
       font-family: Calibri, Arial, sans-serif;
-      font-size: 10px;
-      line-height: 1.15;
+      font-size: 11px;
+      line-height: 1.2;
       box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
     }
 
@@ -453,7 +453,7 @@ const SheetStyles = () => (
       position: relative;
       height: 36px;
       text-align: center;
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 700;
       letter-spacing: 0;
       background: #f8fafc;
@@ -471,7 +471,7 @@ const SheetStyles = () => (
     .section-title {
       height: 21px;
       padding-left: 4px !important;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       text-align: left;
       background: #dbeafe;
@@ -485,20 +485,20 @@ const SheetStyles = () => (
 
     .cell-label {
       padding: 1px 3px !important;
-      font-size: 9px;
+      font-size: 10px;
       white-space: normal;
     }
 
     .cell-label-center {
       padding: 1px 3px !important;
       text-align: center;
-      font-size: 9px;
+      font-size: 10px;
       white-space: normal;
     }
 
     .small-center {
       text-align: center;
-      font-size: 8px;
+      font-size: 9px;
       padding: 1px !important;
     }
 
@@ -518,6 +518,8 @@ const SheetStyles = () => (
       background: transparent;
       color: #000;
       font: inherit;
+      font-size: 12px;
+      line-height: 1.25;
       text-align: center;
       padding: 1px 3px;
       min-width: 0;
@@ -540,6 +542,7 @@ const SheetStyles = () => (
       background: transparent;
       color: #000;
       font-weight: 700;
+      font-size: 12px;
       line-height: 1;
     }
 
