@@ -478,6 +478,11 @@ const SheetStyles = () => (
       color: #0f172a;
     }
 
+    .section-title-center {
+      padding-left: 0 !important;
+      text-align: center;
+    }
+
     .cell-label {
       padding: 1px 3px !important;
       font-size: 8px;
@@ -863,8 +868,8 @@ export function ControlVehicularSheet({
             </tr>
 
             <tr style={{ height: 21 }}>
-              <td colSpan={7} />
-              <td colSpan={4} className="cell-label-center bold">PEDIDO/DEMANDA</td>
+              <td colSpan={7} className="section-title" />
+              <td colSpan={4} className="section-title section-title-center">PEDIDO/DEMANDA</td>
               <td colSpan={2}>
                 <TextCell value={data.pedidoDemanda} readOnly={readOnly} placeholder="Ej: P-23-046" onChange={(v) => setField("pedidoDemanda", v)} />
               </td>
@@ -911,16 +916,16 @@ export function ControlVehicularSheet({
             </tr>
 
             <tr style={{ height: 22 }}>
-              <td className="cell-label">INTERIOR</td>
-              <td className="small-center">SI</td>
-              <td className="small-center">NO</td>
-              <td className="cell-label-center">MOTOR</td>
-              <td className="small-center">SI</td>
-              <td className="small-center">NO</td>
-              <td className="cell-label-center">EXTERIOR</td>
-              <td className="small-center">SI</td>
-              <td className="small-center">NO</td>
-              <td colSpan={3} className="cell-label-center">NIVEL DE COMBUSTIBLE</td>
+              <td className="section-title section-title-center">INTERIOR</td>
+              <td className="section-title section-title-center">SI</td>
+              <td className="section-title section-title-center">NO</td>
+              <td className="section-title section-title-center">MOTOR</td>
+              <td className="section-title section-title-center">SI</td>
+              <td className="section-title section-title-center">NO</td>
+              <td className="section-title section-title-center">EXTERIOR</td>
+              <td className="section-title section-title-center">SI</td>
+              <td className="section-title section-title-center">NO</td>
+              <td colSpan={3} className="section-title section-title-center">NIVEL DE COMBUSTIBLE</td>
             </tr>
 
             {Array.from({ length: 6 }).map((_, index) => {
@@ -1010,7 +1015,7 @@ export function ControlVehicularSheet({
             </tr>
 
             <tr style={{ height: 20 }}>
-              <td colSpan={13} className="cell-label-center" style={{ fontSize: 14 }}>
+              <td colSpan={13} className="section-title section-title-center" style={{ fontSize: 13 }}>
                 DAÑOS DE CARROCERÍA Y COMENTARIOS GENERALES
               </td>
             </tr>
@@ -1027,7 +1032,7 @@ export function ControlVehicularSheet({
             </tr>
 
             <tr style={{ height: 18 }}>
-              <td colSpan={13} className="cell-label">OBSERVACIONES ENTREGA:</td>
+              <td colSpan={13} className="section-title">OBSERVACIONES ENTREGA:</td>
             </tr>
 
             <tr style={{ height: 44 }}>
