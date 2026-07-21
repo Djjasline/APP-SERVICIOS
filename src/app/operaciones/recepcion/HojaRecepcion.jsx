@@ -8,6 +8,7 @@ import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
+import { useTechnicians } from "@/hooks/useTechnicians";
 import { formatPersonName } from "@/utils/nameFormat";
 import {
   checklistVehiculo,
@@ -86,6 +87,20 @@ const TextAreaCell = ({ value, onChange, readOnly = false, placeholder = "Escrib
     onChange={(e) => onChange(e.target.value)}
     className="sheet-textarea"
   />
+);
+
+const SelectCell = ({ value, onChange, options = [], readOnly = false, placeholder = "Seleccione" }) => (
+  <select
+    value={value || ""}
+    disabled={readOnly}
+    onChange={(e) => onChange(e.target.value)}
+    className="sheet-select"
+  >
+    <option value="">{placeholder}</option>
+    {options.map((option) => (
+      <option key={option} value={option}>{option}</option>
+    ))}
+  </select>
 );
 
 const ChoiceCell = ({ value, option, onChange, readOnly = false }) => (
@@ -487,7 +502,8 @@ const SheetStyles = () => (
     }
 
     .sheet-input,
-    .sheet-textarea {
+    .sheet-textarea,
+    .sheet-select {
       width: 100%;
       height: 100%;
       min-height: 21px;
@@ -500,6 +516,10 @@ const SheetStyles = () => (
       text-align: center;
       padding: 1px 3px;
       min-width: 0;
+    }
+
+    .sheet-select {
+      appearance: auto;
     }
 
     .sheet-textarea {
@@ -519,6 +539,7 @@ const SheetStyles = () => (
     }
 
     .choice-cell:disabled,
+    .sheet-select:disabled,
     .sheet-input:read-only,
     .sheet-textarea:read-only {
       cursor: default;
@@ -731,7 +752,8 @@ export function ControlVehicularSheet({
   data,
   setData,
   readOnly = false,
-  canEditConductor = false,
+  conductorOptions = [],
+  loadingConductores = false,
   puedeFirmarRecepcion = false,
   signatureRefs = {},
   registroId = "temp-recepcion",
@@ -743,6 +765,12 @@ export function ControlVehicularSheet({
   const interior = checklistVehiculo.interior;
   const motor = checklistVehiculo.motor;
   const exterior = checklistVehiculo.exterior;
+  const conductores = Array.from(
+    new Set([
+      ...(conductorOptions || []).map((t) => formatPersonName(t.name || t.nombre || t.full_name)),
+      data.conductor,
+    ].filter(Boolean))
+  );
 
   return (
     <>
@@ -776,12 +804,13 @@ export function ControlVehicularSheet({
             <tr style={{ height: 28 }}>
               <td className="cell-label">CONDUCTOR:</td>
               <td colSpan={7}>
-                <TextCell
-  value={data.conductor}
-  readOnly={readOnly || !canEditConductor}
-  placeholder="Nombre del conductor"
-  onChange={(v) => setField("conductor", v)}
-/>
+                <SelectCell
+                  value={data.conductor}
+                  readOnly={readOnly}
+                  options={conductores}
+                  placeholder={loadingConductores ? "Cargando personal..." : "Seleccionar conductor"}
+                  onChange={(v) => setField("conductor", v)}
+                />
               </td>
               <td colSpan={3} className="cell-label">FECHA:</td>
               <td colSpan={2}>
@@ -1094,6 +1123,7 @@ export default function HojaRecepcion() {
   const navigate = useNavigate();
 
   const { email, fullName, isSuperAdmin, isSupervisorOperaciones, user } = useAuth();
+  const { technicians: conductorOptions, loading: loadingConductores } = useTechnicians();
   const conductorAutenticado = formatPersonName(
     fullName || user?.user_metadata?.full_name || email || user?.email
   );
@@ -1334,7 +1364,8 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
   data={data}
   setData={setData}
   readOnly={isLocked}
-  canEditConductor={isSuperAdmin}        
+  conductorOptions={conductorOptions}
+  loadingConductores={loadingConductores}
   puedeFirmarRecepcion={puedeFirmarRecepcion}
           registroId={registroId || "temp-recepcion"}
           signatureRefs={{
