@@ -21,7 +21,7 @@ async function main() {
   const commits = Array.isArray(event.commits) && event.commits.length > 0 ? event.commits : [getCurrentCommit()].filter(Boolean);
   const visibleCommits = commits.filter((commit) => {
     const message = String(commit.message || "");
-    return !/\[(skip bulletin|skip update|no bulletin)\]/i.test(message);
+    return !/\[(skip bulletin|skip update|no bulletin)\]/i.test(message) && !isHiddenInternalProjectCommit(commit);
   });
 
   if (visibleCommits.length === 0) {
@@ -85,6 +85,22 @@ function getCurrentCommit() {
 
 function firstLine(message) {
   return String(message || "").split("\n")[0].trim();
+}
+
+const HIDDEN_INTERNAL_PROJECT_PATHS = ["docs/proyecto-bodega-repuestos.md"];
+const HIDDEN_INTERNAL_PROJECT_SUBJECTS = ["documentar proyecto de bodega y repuestos"];
+
+function isHiddenInternalProjectCommit(commit) {
+  const subject = firstLine(commit?.message).toLowerCase();
+  if (HIDDEN_INTERNAL_PROJECT_SUBJECTS.some((item) => subject.includes(item))) return true;
+
+  const changedFiles = [
+    ...(commit?.added || []),
+    ...(commit?.modified || []),
+    ...(commit?.removed || []),
+  ];
+
+  return changedFiles.some((file) => HIDDEN_INTERNAL_PROJECT_PATHS.includes(file));
 }
 
 const FRIENDLY_UPDATES = [
