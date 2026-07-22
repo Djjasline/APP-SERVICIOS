@@ -114,6 +114,24 @@ const ChoiceCell = ({ value, option, onChange, readOnly = false }) => (
   </button>
 );
 
+const ChecklistColumn = ({ title, items, values = {}, onChange, readOnly = false }) => (
+  <div className="checklist-column">
+    <div className="checklist-column-header">
+      <div>{title}</div>
+      <div>SI</div>
+      <div>NO</div>
+    </div>
+
+    {items.map((item) => (
+      <div key={item.key} className="checklist-row">
+        <div className="checklist-row-label">{item.label}</div>
+        <ChoiceCell value={values[item.key]} option="SI" readOnly={readOnly} onChange={(v) => onChange(item.key, v)} />
+        <ChoiceCell value={values[item.key]} option="NO" readOnly={readOnly} onChange={(v) => onChange(item.key, v)} />
+      </div>
+    ))}
+  </div>
+);
+
 const BooleanChoiceCell = ({ value, onChange, readOnly = false }) => (
   <button
     type="button"
@@ -164,6 +182,7 @@ const DamageArea = ({
   onChange,
   readOnly = false,
   registroId = "temp-recepcion",
+  storageFolder = "danos-carroceria",
 }) => {
 
   const compressImage = async (file) =>
@@ -200,7 +219,7 @@ const addImages = async (files) => {
 const url = await uploadRegistroImage(
   compressedFile,
   registroId || "temp-recepcion",
-  "danos-carroceria"
+  storageFolder
 );
     if (!url) continue;
 
@@ -476,11 +495,35 @@ const SheetStyles = () => (
       text-align: left;
       background: #dbeafe;
       color: #0f172a;
+      text-transform: uppercase;
     }
 
     .section-title-center {
       padding-left: 0 !important;
       text-align: center;
+    }
+
+    .section-title-out {
+      background: #dbeafe;
+      color: #0f172a;
+    }
+
+    .section-title-in {
+      background: #dcfce7;
+      color: #14532d;
+    }
+
+    .section-subtitle {
+      background: #eef2ff;
+      color: #1e3a8a;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .section-subtitle-in {
+      background: #f0fdf4;
+      color: #166534;
     }
 
     .cell-label {
@@ -515,7 +558,7 @@ const SheetStyles = () => (
       border: 0;
       outline: 0;
       resize: none;
-      background: transparent;
+      background: #f8fafc;
       color: #000;
       font: inherit;
       font-size: 12px;
@@ -527,6 +570,13 @@ const SheetStyles = () => (
 
     .sheet-select {
       appearance: auto;
+    }
+
+    .sheet-input:focus,
+    .sheet-textarea:focus,
+    .sheet-select:focus {
+      background: #fff;
+      box-shadow: inset 0 0 0 1px #2563eb;
     }
 
     .sheet-textarea {
@@ -551,6 +601,85 @@ const SheetStyles = () => (
     .sheet-input:read-only,
     .sheet-textarea:read-only {
       cursor: default;
+      background: #f8fafc;
+    }
+
+    .checklist-cell {
+      padding: 0 !important;
+      vertical-align: top !important;
+      background: #fff;
+    }
+
+    .checklist-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      min-height: 100%;
+    }
+
+    .checklist-column {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #334155;
+    }
+
+    .checklist-column:last-child {
+      border-right: 0;
+    }
+
+    .checklist-column-header,
+    .checklist-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 26px 26px;
+      min-height: 24px;
+      border-bottom: 1px solid #334155;
+      align-items: stretch;
+    }
+
+    .checklist-column-header {
+      flex: 0 0 auto;
+      background: #dbeafe;
+      color: #0f172a;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .checklist-column-header > div,
+    .checklist-row > div,
+    .checklist-row > button {
+      border-right: 1px solid #334155;
+    }
+
+    .checklist-column-header > div:last-child,
+    .checklist-row > button:last-child {
+      border-right: 0;
+    }
+
+    .checklist-row-label {
+      display: flex;
+      align-items: center;
+      padding: 2px 4px;
+      font-size: 10px;
+      line-height: 1.15;
+    }
+
+    .checklist-row {
+      flex: 1 1 0;
+    }
+
+    .fuel-check-cell {
+      padding: 0 !important;
+      vertical-align: stretch !important;
+      background: #fff;
+    }
+
+    .fuel-check-title {
+      min-height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid #334155;
     }
 
     .fuel-box {
@@ -573,6 +702,48 @@ const SheetStyles = () => (
     .fuel-range {
       width: 86%;
       height: 12px;
+    }
+
+    .damage-state-grid,
+    .damage-observation-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      padding: 8px;
+      background: #f8fafc;
+    }
+
+    .damage-state-panel,
+    .damage-observation-panel {
+      border: 1px solid #94a3b8;
+      background: #fff;
+    }
+
+    .damage-panel-title,
+    .damage-observation-title {
+      min-height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 6px;
+      background: #dbeafe;
+      color: #0f172a;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      border-bottom: 1px solid #94a3b8;
+    }
+
+    .damage-panel-title-in,
+    .damage-observation-title-in {
+      background: #dcfce7;
+      color: #14532d;
+    }
+
+    .damage-observation-panel .sheet-textarea {
+      min-height: 64px;
+      height: 64px;
+      background: #fff;
     }
 
     .damage-area-photo {
@@ -618,6 +789,10 @@ const SheetStyles = () => (
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
+}
+
+.damage-state-panel .damage-photo-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .damage-photo-card {
   border: 1px solid #d1d5db;
@@ -804,8 +979,8 @@ export function ControlVehicularSheet({
             </tr>
 
             <tr>
-              <td colSpan={13} className="section-title">
-                ENTREGA VEHICULAR
+              <td colSpan={13} className="section-title section-title-out">
+                SALIDA / ENTREGA VEHICULAR
               </td>
             </tr>
 
@@ -871,15 +1046,15 @@ export function ControlVehicularSheet({
             </tr>
 
             <tr style={{ height: 21 }}>
-              <td colSpan={7} className="section-title" />
-              <td colSpan={4} className="section-title section-title-center">PEDIDO/DEMANDA</td>
+              <td colSpan={7} className="section-title section-title-out" />
+              <td colSpan={4} className="section-title section-title-out section-title-center">PEDIDO/DEMANDA</td>
               <td colSpan={2}>
                 <TextCell value={data.pedidoDemanda} readOnly={readOnly} placeholder="Ej: P-23-046" onChange={(v) => setField("pedidoDemanda", v)} />
               </td>
             </tr>
 
             <tr style={{ height: 23 }}>
-              <td rowSpan={13} className="cell-label-center" style={{ fontSize: 16 }}>
+              <td rowSpan={3} className="cell-label-center" style={{ fontSize: 16 }}>
                 DOCUMENTOS Y ESTADO<br />DEL VEHÍCULO:
               </td>
               <td rowSpan={2} className="cell-label">{documentosVehiculo[0].label}</td>
@@ -891,7 +1066,7 @@ export function ControlVehicularSheet({
               <td rowSpan={2} className="cell-label">{documentosVehiculo[2].label}</td>
               <td className="small-center">SI</td>
               <td className="small-center">NO</td>
-              <td colSpan={3} className="cell-label-center">KILOMETROS SALIDA</td>
+              <td colSpan={3} className="section-subtitle section-title-center">KILOMETROS SALIDA</td>
             </tr>
 
             <tr style={{ height: 22 }}>
@@ -918,140 +1093,108 @@ export function ControlVehicularSheet({
               </td>
             </tr>
 
-            <tr style={{ height: 22 }}>
-              <td className="section-title section-title-center">INTERIOR</td>
-              <td className="section-title section-title-center">SI</td>
-              <td className="section-title section-title-center">NO</td>
-              <td className="section-title section-title-center">MOTOR</td>
-              <td className="section-title section-title-center">SI</td>
-              <td className="section-title section-title-center">NO</td>
-              <td className="section-title section-title-center">EXTERIOR</td>
-              <td className="section-title section-title-center">SI</td>
-              <td className="section-title section-title-center">NO</td>
-              <td colSpan={3} className="section-title section-title-center">NIVEL DE COMBUSTIBLE</td>
-            </tr>
-
-            {Array.from({ length: 6 }).map((_, index) => {
-              const interiorItem = interior[index];
-              const motorItem = motor[index];
-              const exteriorItem = exterior[index];
-
-              return (
-                <tr key={interiorItem.key} style={{ height: 21 }}>
-                  <td className="cell-label">{interiorItem.label}</td>
-                  <td>
-                    <ChoiceCell value={data.checklist.interior[interiorItem.key]} option="SI" readOnly={readOnly} onChange={(v) => setNested(["checklist", "interior", interiorItem.key], v)} />
-                  </td>
-                  <td>
-                    <ChoiceCell value={data.checklist.interior[interiorItem.key]} option="NO" readOnly={readOnly} onChange={(v) => setNested(["checklist", "interior", interiorItem.key], v)} />
-                  </td>
-                  <td className="cell-label">{motorItem.label}</td>
-                  <td>
-                    <ChoiceCell value={data.checklist.motor[motorItem.key]} option="SI" readOnly={readOnly} onChange={(v) => setNested(["checklist", "motor", motorItem.key], v)} />
-                  </td>
-                  <td>
-                    <ChoiceCell value={data.checklist.motor[motorItem.key]} option="NO" readOnly={readOnly} onChange={(v) => setNested(["checklist", "motor", motorItem.key], v)} />
-                  </td>
-                  <td className="cell-label">{exteriorItem.label}</td>
-                  <td>
-                    <ChoiceCell value={data.checklist.exterior[exteriorItem.key]} option="SI" readOnly={readOnly} onChange={(v) => setNested(["checklist", "exterior", exteriorItem.key], v)} />
-                  </td>
-                  <td>
-                    <ChoiceCell value={data.checklist.exterior[exteriorItem.key]} option="NO" readOnly={readOnly} onChange={(v) => setNested(["checklist", "exterior", exteriorItem.key], v)} />
-                  </td>
-                  {index === 0 && (
-                    <td colSpan={3} className="cell-label-center">SALIDA</td>
-                  )}
-                  {index === 1 && (
-                    <td colSpan={3} rowSpan={5}>
-                      <FuelGauge
-                        value={data.combustibleSalida}
-                        readOnly={readOnly}
-                        onChange={(v) => setField("combustibleSalida", v)}
-                      />
-                    </td>
-                  )}
-                </tr>
-              );
-            })}
-
-            <tr style={{ height: 21 }}>
-              <td className="cell-label">{interior[6].label}</td>
-              <td>
-                <ChoiceCell value={data.checklist.interior[interior[6].key]} option="SI" readOnly={readOnly} onChange={(v) => setNested(["checklist", "interior", interior[6].key], v)} />
+            <tr>
+              <td colSpan={9} className="checklist-cell">
+                <div className="checklist-grid">
+                  <ChecklistColumn
+                    title="Interior"
+                    items={interior}
+                    values={data.checklist.interior}
+                    readOnly={readOnly}
+                    onChange={(key, v) => setNested(["checklist", "interior", key], v)}
+                  />
+                  <ChecklistColumn
+                    title="Motor"
+                    items={motor}
+                    values={data.checklist.motor}
+                    readOnly={readOnly}
+                    onChange={(key, v) => setNested(["checklist", "motor", key], v)}
+                  />
+                  <ChecklistColumn
+                    title="Exterior"
+                    items={exterior}
+                    values={data.checklist.exterior}
+                    readOnly={readOnly}
+                    onChange={(key, v) => setNested(["checklist", "exterior", key], v)}
+                  />
+                </div>
               </td>
-              <td>
-                <ChoiceCell value={data.checklist.interior[interior[6].key]} option="NO" readOnly={readOnly} onChange={(v) => setNested(["checklist", "interior", interior[6].key], v)} />
+              <td colSpan={3} className="fuel-check-cell">
+                <div className="fuel-check-title section-subtitle section-title-center">NIVEL DE COMBUSTIBLE SALIDA</div>
+                <FuelGauge
+                  value={data.combustibleSalida}
+                  readOnly={readOnly}
+                  onChange={(v) => setField("combustibleSalida", v)}
+                />
               </td>
-              <td colSpan={9} className="cell-label">OBSERVACIONES:</td>
-            </tr>
-
-            <tr style={{ height: 21 }}>
-              <td className="cell-label">{interior[7].label}</td>
-              <td>
-                <ChoiceCell value={data.checklist.interior[interior[7].key]} option="SI" readOnly={readOnly} onChange={(v) => setNested(["checklist", "interior", interior[7].key], v)} />
-              </td>
-              <td>
-                <ChoiceCell value={data.checklist.interior[interior[7].key]} option="NO" readOnly={readOnly} onChange={(v) => setNested(["checklist", "interior", interior[7].key], v)} />
-              </td>
-              <td colSpan={9}>
-                <TextCell value={data.observacionesMotor[0]} readOnly={readOnly} placeholder="Observación del vehículo" onChange={(v) => setNested(["observacionesMotor", 0], v)} />
-              </td>
-            </tr>
-
-            <tr style={{ height: 21 }}>
-              <td className="cell-label">{interior[8].label}</td>
-              <td>
-                <ChoiceCell value={data.checklist.interior[interior[8].key]} option="SI" readOnly={readOnly} onChange={(v) => setNested(["checklist", "interior", interior[8].key], v)} />
-              </td>
-              <td>
-                <ChoiceCell value={data.checklist.interior[interior[8].key]} option="NO" readOnly={readOnly} onChange={(v) => setNested(["checklist", "interior", interior[8].key], v)} />
-              </td>
-              <td colSpan={9}>
-                <TextCell value={data.observacionesMotor[1]} readOnly={readOnly} placeholder="Detalle adicional" onChange={(v) => setNested(["observacionesMotor", 1], v)} />
-              </td>
-            </tr>
-
-            <tr style={{ height: 22 }}>
-              <td colSpan={3} />
-              <td colSpan={9} />
             </tr>
 
             <tr style={{ height: 20 }}>
-              <td colSpan={13} className="section-title section-title-center" style={{ fontSize: 13 }}>
+              <td colSpan={13} className="section-title section-title-out section-title-center" style={{ fontSize: 13 }}>
                 DAÑOS DE CARROCERÍA Y COMENTARIOS GENERALES
               </td>
             </tr>
 
             <tr>
               <td colSpan={13}>
-                <DamageArea
-  imagenes={data.danos.imagenes || []}
-  readOnly={readOnly}
-  registroId={registroId || "temp-recepcion"}
-  onChange={(imagenes) => setNested(["danos", "imagenes"], imagenes)}
-/>
+                <div className="damage-state-grid">
+                  <div className="damage-state-panel">
+                    <div className="damage-panel-title">Salida - Estado de vehículo</div>
+                    <DamageArea
+                      imagenes={data.danos?.imagenes || []}
+                      readOnly={readOnly}
+                      registroId={registroId || "temp-recepcion"}
+                      storageFolder="danos-carroceria-salida"
+                      onChange={(imagenes) => setNested(["danos", "imagenes"], imagenes)}
+                    />
+                  </div>
+                  <div className="damage-state-panel">
+                    <div className="damage-panel-title damage-panel-title-in">Recepción - Estado de vehículo</div>
+                    <DamageArea
+                      imagenes={data.recepcion?.danos?.imagenes || []}
+                      readOnly={readOnly}
+                      registroId={registroId || "temp-recepcion"}
+                      storageFolder="danos-carroceria-recepcion"
+                      onChange={(imagenes) => setNested(["recepcion", "danos", "imagenes"], imagenes)}
+                    />
+                  </div>
+                </div>
               </td>
             </tr>
 
-            <tr style={{ height: 18 }}>
-              <td colSpan={13} className="section-title">OBSERVACIONES ENTREGA:</td>
-            </tr>
-
-            <tr style={{ height: 44 }}>
+            <tr>
               <td colSpan={13}>
-                <TextAreaCell value={data.observacionesEntrega} readOnly={readOnly} placeholder="Observaciones al momento de la entrega" onChange={(v) => setField("observacionesEntrega", v)} />
+                <div className="damage-observation-grid">
+                  <div className="damage-observation-panel">
+                    <div className="damage-observation-title">Observaciones salida</div>
+                    <TextAreaCell
+                      value={data.observacionesEntrega}
+                      readOnly={readOnly}
+                      placeholder="Observaciones de imágenes y estado del vehículo en salida"
+                      onChange={(v) => setField("observacionesEntrega", v)}
+                    />
+                  </div>
+                  <div className="damage-observation-panel">
+                    <div className="damage-observation-title damage-observation-title-in">Observaciones recepción</div>
+                    <TextAreaCell
+                      value={data.observacionesRecepcion}
+                      readOnly={readOnly}
+                      placeholder="Observaciones de imágenes y estado del vehículo en recepción"
+                      onChange={(v) => setField("observacionesRecepcion", v)}
+                    />
+                  </div>
+                </div>
               </td>
             </tr>
 
             <tr style={{ height: 20 }}>
-              <td colSpan={13} className="section-title">
-                RECEPCIÓN VEHICULAR
+              <td colSpan={13} className="section-title section-title-in">
+                INGRESO / RECEPCIÓN VEHICULAR
               </td>
             </tr>
 
             <tr style={{ height: 15 }}>
-              <td rowSpan={4} className="cell-label-center bold">
+              <td rowSpan={4} className="cell-label-center bold section-subtitle-in">
                 NIVEL<br />DE COMBUSTIBLE LLEGADA
               </td>
               <td colSpan={3} rowSpan={4}>
@@ -1062,16 +1205,16 @@ export function ControlVehicularSheet({
                 />
               </td>
               <td rowSpan={4} />
-              <td colSpan={3} rowSpan={4} className="cell-label-center bold">
+              <td colSpan={3} rowSpan={4} className="cell-label-center bold section-subtitle-in">
                 KILÓMETROS<br />DE LLEGADA
                 <TextCell value={data.recepcion.kilometrosLlegada} readOnly={readOnly} placeholder="Km llegada" onChange={(v) => setNested(["recepcion", "kilometrosLlegada"], v)} />
               </td>
-              <td colSpan={5} className="cell-label-center bold">MANTENIMIENTO</td>
+              <td colSpan={5} className="section-subtitle section-subtitle-in section-title-center">MANTENIMIENTO</td>
             </tr>
 
             <tr style={{ height: 14 }}>
-              <td colSpan={3} className="small-center bold">SI</td>
-              <td colSpan={2} className="small-center bold">NO</td>
+              <td colSpan={3} className="section-subtitle section-subtitle-in section-title-center">SI</td>
+              <td colSpan={2} className="section-subtitle section-subtitle-in section-title-center">NO</td>
             </tr>
 
             <tr style={{ height: 18 }}>
@@ -1104,16 +1247,6 @@ export function ControlVehicularSheet({
   canvasRef={signatureRefs.recepcionFinal}
   readOnly={readOnly || !puedeFirmarRecepcion}
 />
-              </td>
-            </tr>
-
-            <tr style={{ height: 18 }}>
-              <td colSpan={13} className="cell-label bold">OBSERVACIONES DE LA RECEPCIÓN:</td>
-            </tr>
-
-            <tr style={{ height: 52 }}>
-              <td colSpan={13}>
-                <TextAreaCell value={data.observacionesRecepcion} readOnly={readOnly} placeholder="Observaciones finales de recepción" onChange={(v) => setField("observacionesRecepcion", v)} />
               </td>
             </tr>
 

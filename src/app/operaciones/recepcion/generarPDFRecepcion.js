@@ -63,6 +63,18 @@ const addText = (doc, text, x, y, w, h, opts = {}) => {
   });
 };
 
+const rectCell = (doc, x, y, w, h, text = "", opts = {}) => {
+  doc.setDrawColor(0, 0, 0);
+  doc.setTextColor(0, 0, 0);
+  if (opts.fillColor) {
+    doc.setFillColor(...opts.fillColor);
+    doc.rect(x, y, w, h, "FD");
+  } else {
+    doc.rect(x, y, w, h);
+  }
+  if (text !== "") addText(doc, text, x, y, w, h, opts);
+};
+
 const cell = (doc, col, span, y, h, text = "", opts = {}) => {
   const x = colX(col);
   const w = colW(col, span);
@@ -83,6 +95,119 @@ const choiceCell = (doc, col, y, h, value, option) => {
     bold: true,
     fontSize: 8,
   });
+};
+
+const drawChoiceBox = (doc, x, y, w, h, value, option) => {
+  rectCell(doc, x, y, w, h, value === option ? "X" : "", {
+    align: "center",
+    bold: true,
+    fontSize: 8,
+  });
+};
+
+const drawChecklistColumn = (doc, x, y, w, h, title, items, values = {}) => {
+  const choiceW = 5.5;
+  const labelW = w - choiceW * 2;
+  const headerH = 5.5;
+  const rowH = (h - headerH) / Math.max(1, items.length);
+
+  rectCell(doc, x, y, labelW, headerH, title, {
+    align: "center",
+    bold: true,
+    fontSize: 7,
+    fillColor: [219, 234, 254],
+  });
+  rectCell(doc, x + labelW, y, choiceW, headerH, "SI", {
+    align: "center",
+    bold: true,
+    fontSize: 6,
+    fillColor: [219, 234, 254],
+  });
+  rectCell(doc, x + labelW + choiceW, y, choiceW, headerH, "NO", {
+    align: "center",
+    bold: true,
+    fontSize: 6,
+    fillColor: [219, 234, 254],
+  });
+
+  items.forEach((item, index) => {
+    const rowY = y + headerH + index * rowH;
+    rectCell(doc, x, rowY, labelW, rowH, item.label, { fontSize: 6.2 });
+    drawChoiceBox(doc, x + labelW, rowY, choiceW, rowH, values?.[item.key], "SI");
+    drawChoiceBox(doc, x + labelW + choiceW, rowY, choiceW, rowH, values?.[item.key], "NO");
+  });
+};
+
+const drawDamagePhotos = async (doc, imagenes, x, y, w, h, emptyText) => {
+  rectCell(doc, x, y, w, h);
+
+  if (!imagenes.length) {
+    addText(doc, emptyText, x, y, w, h, { align: "center", fontSize: 7 });
+    return;
+  }
+
+  const gap = 2;
+  const maxFotos = Math.min(2, imagenes.length);
+  const fotoW = (w - gap * (maxFotos + 1)) / maxFotos;
+  const fotoH = 24;
+  const fotoY = y + 4;
+
+  for (let i = 0; i < maxFotos; i += 1) {
+    const item = imagenes[i];
+    const fotoX = x + gap + i * (fotoW + gap);
+    const imgData = await imageToDataUrl(item.url);
+
+    doc.rect(fotoX, fotoY, fotoW, fotoH);
+
+    if (imgData) {
+      const props = doc.getImageProperties(imgData);
+      const ratio = props.width / props.height;
+      let drawW = fotoW;
+      let drawH = fotoW / ratio;
+
+      if (drawH > fotoH) {
+        drawH = fotoH;
+        drawW = fotoH * ratio;
+      }
+
+      const drawX = fotoX + (fotoW - drawW) / 2;
+      const drawY = fotoY + (fotoH - drawH) / 2;
+      const format = String(imgData).startsWith("data:image/png") ? "PNG" : "JPEG";
+
+      doc.addImage(imgData, format, drawX, drawY, drawW, drawH);
+    } else {
+      addText(doc, "Imagen no disponible", fotoX, fotoY, fotoW, fotoH, {
+        align: "center",
+        fontSize: 6,
+      });
+    }
+
+    (item.puntos || []).forEach((p, pi) => {
+      const px = fotoX + Number(p.x || 0) * fotoW;
+      const py = fotoY + Number(p.y || 0) * fotoH;
+
+      doc.setFillColor(220, 38, 38);
+      doc.setDrawColor(255, 255, 255);
+      doc.circle(px, py, 2.2, "FD");
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(6);
+      doc.text(String(pi + 1), px, py + 0.2, {
+        align: "center",
+        baseline: "middle",
+      });
+
+      doc.setTextColor(0, 0, 0);
+    });
+  }
+
+  if (imagenes.length > maxFotos) {
+    addText(doc, `Se muestran ${maxFotos} de ${imagenes.length} fotografías registradas.`, x, y + h - 5, w, 4, {
+      align: "center",
+      fontSize: 6,
+    });
+  }
 };
 
 const drawGauge = (doc, x, y, w, h, value = 0) => {
@@ -240,7 +365,12 @@ export const generarPDFRecepcion = async (data) => {
   y += 5.5;
 
   const docsTop = y;
-  const docsHeight = 6 + 5.5 + 5.5 + 6 * 5.1 + 3 * 5.1 + 4;
+  const checklistHeight = 5.5 + Math.max(
+    checklistVehiculo.interior.length,
+    checklistVehiculo.motor.length,
+    checklistVehiculo.exterior.length
+  ) * 5.1;
+  const docsHeight = 6 + 5.5 + checklistHeight;
   cell(doc, 0, 1, docsTop, docsHeight, "DOCUMENTOS Y ESTADO\nDEL VEHÍCULO:", {
     align: "center",
     fontSize: 9,
@@ -267,51 +397,25 @@ export const generarPDFRecepcion = async (data) => {
   cell(doc, 10, 3, y, 5.5, data.kilometrosSalida, { align: "center", fontSize: 7 });
   y += 5.5;
 
-  cell(doc, 1, 1, y, 5.5, "INTERIOR", { fontSize: 7.5 });
-  cell(doc, 2, 1, y, 5.5, "SI", { align: "center", fontSize: 6 });
-  cell(doc, 3, 1, y, 5.5, "NO", { align: "center", fontSize: 6 });
-  cell(doc, 4, 1, y, 5.5, "MOTOR", { align: "center", fontSize: 7.5 });
-  cell(doc, 5, 1, y, 5.5, "SI", { align: "center", fontSize: 6 });
-  cell(doc, 6, 1, y, 5.5, "NO", { align: "center", fontSize: 6 });
-  cell(doc, 7, 1, y, 5.5, "EXTERIOR", { align: "center", fontSize: 7.5 });
-  cell(doc, 8, 1, y, 5.5, "SI", { align: "center", fontSize: 6 });
-  cell(doc, 9, 1, y, 5.5, "NO", { align: "center", fontSize: 6 });
-  cell(doc, 10, 3, y, 5.5, "NIVEL DE COMBUSTIBLE", { align: "center", fontSize: 7 });
-  y += 5.5;
+  const checklistX = colX(1);
+  const checklistW = colW(1, 9);
+  const checklistColW = checklistW / 3;
+  const checklistTop = y;
+  drawChecklistColumn(doc, checklistX, checklistTop, checklistColW, checklistHeight, "INTERIOR", checklistVehiculo.interior, data.checklist?.interior);
+  drawChecklistColumn(doc, checklistX + checklistColW, checklistTop, checklistColW, checklistHeight, "MOTOR", checklistVehiculo.motor, data.checklist?.motor);
+  drawChecklistColumn(doc, checklistX + checklistColW * 2, checklistTop, checklistColW, checklistHeight, "EXTERIOR", checklistVehiculo.exterior, data.checklist?.exterior);
 
-  const fuelSalidaTop = y + 5.1;
-  checklistVehiculo.interior.slice(0, 6).forEach((item, index) => {
-    const motor = checklistVehiculo.motor[index];
-    const exterior = checklistVehiculo.exterior[index];
-
-    cell(doc, 1, 1, y, 5.1, item.label, { fontSize: 6.2 });
-    choiceCell(doc, 2, y, 5.1, data.checklist?.interior?.[item.key], "SI");
-    choiceCell(doc, 3, y, 5.1, data.checklist?.interior?.[item.key], "NO");
-    cell(doc, 4, 1, y, 5.1, motor.label, { fontSize: 6.2 });
-    choiceCell(doc, 5, y, 5.1, data.checklist?.motor?.[motor.key], "SI");
-    choiceCell(doc, 6, y, 5.1, data.checklist?.motor?.[motor.key], "NO");
-    cell(doc, 7, 1, y, 5.1, exterior.label, { fontSize: 6.2 });
-    choiceCell(doc, 8, y, 5.1, data.checklist?.exterior?.[exterior.key], "SI");
-    choiceCell(doc, 9, y, 5.1, data.checklist?.exterior?.[exterior.key], "NO");
-
-    if (index === 0) cell(doc, 10, 3, y, 5.1, "SALIDA", { align: "center", fontSize: 7 });
-    y += 5.1;
+  const fuelX = colX(10);
+  const fuelW = colW(10, 3);
+  rectCell(doc, fuelX, y, fuelW, 5.5, "NIVEL DE COMBUSTIBLE SALIDA", {
+    align: "center",
+    bold: true,
+    fontSize: 7,
+    fillColor: [219, 234, 254],
   });
-  cell(doc, 10, 3, fuelSalidaTop, 25.5);
-  drawGauge(doc, colX(10), fuelSalidaTop, colW(10, 3), 25.5, data.combustibleSalida);
-
-  checklistVehiculo.interior.slice(6).forEach((item, index) => {
-    cell(doc, 1, 1, y, 5.1, item.label, { fontSize: 6.2 });
-    choiceCell(doc, 2, y, 5.1, data.checklist?.interior?.[item.key], "SI");
-    choiceCell(doc, 3, y, 5.1, data.checklist?.interior?.[item.key], "NO");
-    cell(doc, 4, 9, y, 5.1, index === 0 ? "OBSERVACIONES:" : data.observacionesMotor?.[index - 1], {
-      fontSize: 6.5,
-    });
-    y += 5.1;
-  });
-  cell(doc, 1, 3, y, 4);
-  cell(doc, 4, 9, y, 4);
-  y += 4;
+  rectCell(doc, fuelX, y + 5.5, fuelW, checklistHeight - 5.5);
+  drawGauge(doc, fuelX, y + 5.5, fuelW, checklistHeight - 5.5, data.combustibleSalida);
+  y += checklistHeight;
 
   cell(doc, 0, 13, y, 6, "DAÑOS DE CARROCERÍA Y COMENTARIOS GENERALES", {
     align: "center",
@@ -320,108 +424,49 @@ export const generarPDFRecepcion = async (data) => {
   });
   y += 6;
 
-  const danosImagenes = data.danos?.imagenes || [];
+  const danosSalida = data.danos?.imagenes || [];
+  const danosRecepcion = data.recepcion?.danos?.imagenes || [];
   const boxX = colX(0);
   const boxW = colW(0, 13);
-  const boxH = 48;
+  const boxGap = 2;
+  const halfW = (boxW - boxGap) / 2;
+  const photosTitleH = 5.5;
+  const photosBoxH = 42;
 
-  cell(doc, 0, 13, y, boxH);
+  rectCell(doc, boxX, y, halfW, photosTitleH, "SALIDA - ESTADO DE VEHÍCULO", {
+    align: "center",
+    bold: true,
+    fontSize: 7.2,
+    fillColor: [219, 234, 254],
+  });
+  rectCell(doc, boxX + halfW + boxGap, y, halfW, photosTitleH, "RECEPCIÓN - ESTADO DE VEHÍCULO", {
+    align: "center",
+    bold: true,
+    fontSize: 7.2,
+    fillColor: [220, 252, 231],
+  });
+  await drawDamagePhotos(doc, danosSalida, boxX, y + photosTitleH, halfW, photosBoxH, "Sin fotografías de salida registradas");
+  await drawDamagePhotos(doc, danosRecepcion, boxX + halfW + boxGap, y + photosTitleH, halfW, photosBoxH, "Sin fotografías de recepción registradas");
+  y += photosTitleH + photosBoxH;
 
-  if (danosImagenes.length === 0) {
-    addText(doc, "Sin fotografías de daños registradas", boxX, y, boxW, boxH, {
-      align: "center",
-      fontSize: 8,
-    });
-  } else {
-    const gap = 2;
-    const maxFotos = Math.min(3, danosImagenes.length);
-    const fotoW = (boxW - gap * (maxFotos + 1)) / maxFotos;
-    const fotoH = 24;
-    const fotoY = y + 3;
+  const obsTitleH = 5.5;
+  const obsH = 16;
+  rectCell(doc, boxX, y, halfW, obsTitleH, "OBSERVACIONES SALIDA", {
+    bold: true,
+    fontSize: 7.2,
+    fillColor: [219, 234, 254],
+  });
+  rectCell(doc, boxX + halfW + boxGap, y, halfW, obsTitleH, "OBSERVACIONES RECEPCIÓN", {
+    bold: true,
+    fontSize: 7.2,
+    fillColor: [220, 252, 231],
+  });
+  y += obsTitleH;
+  rectCell(doc, boxX, y, halfW, obsH, data.observacionesEntrega, { fontSize: 7 });
+  rectCell(doc, boxX + halfW + boxGap, y, halfW, obsH, data.observacionesRecepcion, { fontSize: 7 });
+  y += obsH;
 
-    for (let i = 0; i < maxFotos; i += 1) {
-      const item = danosImagenes[i];
-      const fotoX = boxX + gap + i * (fotoW + gap);
-      const imgData = await imageToDataUrl(item.url);
-
-      doc.rect(fotoX, fotoY, fotoW, fotoH);
-
-      if (imgData) {
-        const props = doc.getImageProperties(imgData);
-        const ratio = props.width / props.height;
-        let drawW = fotoW;
-        let drawH = fotoW / ratio;
-
-        if (drawH > fotoH) {
-          drawH = fotoH;
-          drawW = fotoH * ratio;
-        }
-
-        const drawX = fotoX + (fotoW - drawW) / 2;
-        const drawY = fotoY + (fotoH - drawH) / 2;
-        const format = String(imgData).startsWith("data:image/png") ? "PNG" : "JPEG";
-
-        doc.addImage(imgData, format, drawX, drawY, drawW, drawH);
-      } else {
-        addText(doc, "Imagen no disponible", fotoX, fotoY, fotoW, fotoH, {
-          align: "center",
-          fontSize: 6,
-        });
-      }
-
-      (item.puntos || []).forEach((p, pi) => {
-        const px = fotoX + Number(p.x || 0) * fotoW;
-        const py = fotoY + Number(p.y || 0) * fotoH;
-
-        doc.setFillColor(220, 38, 38);
-        doc.setDrawColor(255, 255, 255);
-        doc.circle(px, py, 2.2, "FD");
-
-        doc.setTextColor(255, 255, 255);
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(6);
-        doc.text(String(pi + 1), px, py + 0.2, {
-          align: "center",
-          baseline: "middle",
-        });
-
-        doc.setTextColor(0, 0, 0);
-      });
-
-      let obsY = fotoY + fotoH + 4;
-
-      (item.puntos || []).forEach((p, pi) => {
-        const texto = `${pi + 1}) ${p.observacion || "—"}`;
-        const lines = doc.splitTextToSize(texto, fotoW - 1);
-
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(5.5);
-        doc.text(lines, fotoX, obsY);
-
-        obsY += lines.length * 2.4;
-      });
-    }
-
-    if (danosImagenes.length > maxFotos) {
-      addText(
-        doc,
-        `Se muestran ${maxFotos} de ${danosImagenes.length} fotografías registradas.`,
-        boxX,
-        y + boxH - 5,
-        boxW,
-        4,
-        { align: "center", fontSize: 6 }
-      );
-    }
-  }
-
-  y += boxH;
-  cell(doc, 0, 13, y, 5.5, "OBSERVACIONES ENTREGA:", { fontSize: 7.5 });
-  y += 5.5;
-  cell(doc, 0, 13, y, 16, data.observacionesEntrega, { fontSize: 7 });
-  y += 16;
-
-  cell(doc, 0, 13, y, 6, "RECEPCIÓN VEHICULAR", { bold: true, fontSize: 9, fillColor: [219, 234, 254] });
+  cell(doc, 0, 13, y, 6, "INGRESO / RECEPCIÓN VEHICULAR", { bold: true, fontSize: 9, fillColor: [220, 252, 231] });
   y += 6;
 
   cell(doc, 0, 1, y, 18, "NIVEL\nDE COMBUSTIBLE LLEGADA", {
@@ -467,14 +512,6 @@ export const generarPDFRecepcion = async (data) => {
     doc.addImage(data.firmas.recepcionFinal, "PNG", colX(8) + 2, y + 2, colW(8, 5) - 4, 14);
   }
   y += 18;
-
-  cell(doc, 0, 13, y, 5.5, "OBSERVACIONES DE LA RECEPCIÓN:", {
-    bold: true,
-    fontSize: 7.5,
-  });
-  y += 5.5;
-  cell(doc, 0, 13, y, 14, data.observacionesRecepcion, { fontSize: 7 });
-  y += 14;
 
   doc.save("hoja_control_vehicular.pdf");
 };

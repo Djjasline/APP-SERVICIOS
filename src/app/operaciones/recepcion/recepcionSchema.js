@@ -99,6 +99,9 @@ export const recepcionSchema = {
     combustibleLlegada: 1,
     kilometrosLlegada: "",
     mantenimiento: "",
+    danos: {
+      imagenes: [],
+    },
   },
 
   firmas: {
