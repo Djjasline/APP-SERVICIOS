@@ -92,6 +92,10 @@ The app is built with responsive design using Tailwind CSS breakpoints.
 Build the application for production:
 npm run build
 
+## Proyectos Documentales
+
+- [Control de bodega y despacho de repuestos](docs/proyecto-bodega-repuestos.md)
+
 ## 🙏 Acknowledgments
 
 - Built with Rocket.new
