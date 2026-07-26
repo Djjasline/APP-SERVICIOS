@@ -79,6 +79,22 @@ const todosLosItems = [
 /* ── IMAGEN BASE CÁMARA ── */
 const EQUIPO_IMG_PATH = "/estado-equipo-camara.png";
 
+const addBaseImage = () => {
+  const actuales = data.estadoEquipo?.imagenes || [];
+  if (actuales.length >= 12) { alert("Máximo 12 fotografías"); return; }
+  if (actuales.some((img) => img.url === EQUIPO_IMG_PATH)) return;
+  setData((prev) => ({
+    ...prev,
+    estadoEquipo: {
+      ...prev.estadoEquipo,
+      imagenes: [
+        ...(prev.estadoEquipo?.imagenes || []),
+        { id: `base-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, url: EQUIPO_IMG_PATH, puntos: [] },
+      ],
+    },
+  }));
+};
+
 const fieldPlaceholders = {
   referenciaContrato: "Ej: información dada por el asesor comercial, gestor interno del área de operaciones o dentro de la base de datos",
   pedidoDemanda: "Ej: P-23-046 o D-45821",
@@ -398,43 +414,6 @@ const removeEstadoImg = (imgId) => {
                 ),
               }
             : img
-        ),
-      },
-    }));
-
-  /* ── PUNTOS SOBRE PLANTILLA BASE ── */
-  const handleBaseImageClick = (e) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const x = Number(((e.clientX - r.left) / r.width).toFixed(4));
-    const y = Number(((e.clientY - r.top) / r.height).toFixed(4));
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        puntosBase: [
-          ...(prev.estadoEquipo?.puntosBase || []),
-          { id: `base-${Date.now()}`, x, y, observacion: "" },
-        ],
-      },
-    }));
-  };
-
-  const removeBasePoint = (ptId) =>
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        puntosBase: (prev.estadoEquipo?.puntosBase || []).filter((p) => p.id !== ptId),
-      },
-    }));
-
-  const updateBasePointObs = (ptId, value) =>
-    setData((prev) => ({
-      ...prev,
-      estadoEquipo: {
-        ...prev.estadoEquipo,
-        puntosBase: (prev.estadoEquipo?.puntosBase || []).map((p) =>
-          p.id === ptId ? { ...p, observacion: value } : p
         ),
       },
     }));
@@ -786,56 +765,12 @@ const result = await saveOrUpdateReport({
           {/* ══ 4. ESTADO DEL EQUIPO ══ */}
           <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
 
-          {/* ── PLANTILLA BASE ── */}
-          <div className="border rounded bg-gray-50 p-3 mb-4 space-y-3">
-            <div className="text-xs font-semibold text-gray-600">Vista general del equipo</div>
-
-            <div
-              className="relative border rounded overflow-hidden bg-white cursor-crosshair"
-              onClick={handleBaseImageClick}
-            >
-              <img
-                src={EQUIPO_IMG_PATH}
-                alt="Vista general cámara V-CAM6"
-                className="w-full max-h-[420px] object-contain"
-              />
-              {(data.estadoEquipo?.puntosBase || []).map((p, pi) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); removeBasePoint(p.id); }}
-                  className="absolute w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow text-[10px] text-white font-bold flex items-center justify-center"
-                  style={{
-                    left: `${p.x * 100}%`,
-                    top: `${p.y * 100}%`,
-                    transform: "translate(-50%,-50%)",
-                  }}
-                >
-                  {pi + 1}
-                </button>
-              ))}
-            </div>
-
-            <p className="text-[11px] text-gray-500">
-              Toque la imagen para agregar novedades generales. Toque el número para eliminar.
-            </p>
-
-            {(data.estadoEquipo?.puntosBase || []).map((p, pi) => (
-              <div key={p.id} className="flex items-start gap-2">
-                <span className="text-sm text-gray-700 pt-2 min-w-[24px]">{pi + 1})</span>
-                <AutoResizeInput
-                  className="pdf-input w-full"
-                  placeholder={`Observación punto ${pi + 1}`}
-                  value={p.observacion}
-                  onChange={(e) => updateBasePointObs(p.id, e.target.value)}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* ── FOTOGRAFÍAS ADICIONALES ── */}
           <div className="border rounded bg-white p-3 space-y-4 print:block">
             <div className="flex gap-2">
+              <button type="button" onClick={addBaseImage}
+                className="bg-indigo-600 text-white text-xs px-3 py-2 rounded hover:bg-indigo-700 transition">
+                🧩 Usar imagen base
+              </button>
               <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer hover:bg-gray-700">
                 📁 Subir fotografías
                 <input
