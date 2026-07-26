@@ -9,7 +9,7 @@ export default function ObservationImagesPdf({ images = [] }) {
           key={`${url}-${index}`}
           src={url}
           alt={`Evidencia observación ${index + 1}`}
-          style={{ width: "100%", height: 48, objectFit: "cover", border: "1px solid #d1d5db", borderRadius: 4 }}
+          style={{ width: "100%", height: "5cm", objectFit: "contain", border: "1px solid #d1d5db", borderRadius: 4 }}
         />
       ))}
     </div>
