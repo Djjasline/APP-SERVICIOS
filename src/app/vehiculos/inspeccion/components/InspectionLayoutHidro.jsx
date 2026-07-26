@@ -165,6 +165,9 @@ export default function InspectionLayoutHidro({
  {/* ================= CHECKLIST ================= */}
 <section>
   <h3 className="font-semibold mb-2">Evaluación de sistemas</h3>
+  <p className="text-[11px] text-gray-500 -mt-1 mb-1">
+    SI = Funciona correctamente | NO = Presenta falla
+  </p>
 
   <table className="pdf-table">
     <thead>

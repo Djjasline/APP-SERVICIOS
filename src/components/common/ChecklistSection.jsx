@@ -31,6 +31,9 @@ export default function ChecklistSection({
   return (
     <section className="bg-white border rounded-xl p-6 space-y-3">
       <h2 className="text-lg font-semibold">{title}</h2>
+      <p className="text-[11px] text-gray-500 -mt-2">
+        SI = Funciona correctamente | NO = Presenta falla
+      </p>
 
       <table className="w-full border border-collapse text-sm">
         <thead className="bg-gray-100">
