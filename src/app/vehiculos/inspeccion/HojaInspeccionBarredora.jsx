@@ -21,9 +21,9 @@ import InspectionChecklistRow from "@/components/InspectionChecklistRow";
    PRUEBAS PREVIAS AL SERVICIO
 ============================= */
 const pruebasPrevias = [
-  ["1.1", "Prueba de encendido general del equipo"],
-  ["1.2", "Verificación de funcionamiento de controles principales"],
-  ["1.3", "Revisión de alarmas o mensajes de fallo"],
+  ["1.1", "¿El equipo enciende y arranca sin dificultad?"],
+  ["1.2", "¿Los controles principales (mando de barrido, aspiración, luces) responden correctamente?"],
+  ["1.3", "¿Se encuentran alarmas activas o mensajes de error en el panel?"],
 ];
 
 /* =============================
@@ -34,66 +34,66 @@ const secciones = [
     id: "A",
     titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
     items: [
-      ["A.1", "Fugas de aceite hidráulico (mangueras, acoples, bancos, cilindros y solenoides)"],
-      ["A.2", "Nivel de aceite del tanque AW68, ¿se visualiza la mirilla?"],
-      ["A.3", "Fugas de aceite en motores de cepillos"],
-      ["A.4", "Fugas de aceite en motor de banda"],
-      ["A.5", "Fugas de bombas hidráulicas"],
-      ["A.6", "Fugas en motor John Deere"],
+      ["A.1", "¿Se detectan fugas de aceite en mangueras, acoples, bancos, cilindros o solenoides?"],
+      ["A.2", "¿El nivel de aceite AW68 del tanque es correcto y se visualiza la mirilla?"],
+      ["A.3", "¿Se presentan fugas de aceite en los motores de los cepillos?"],
+      ["A.4", "¿Se detectan fugas de aceite en el motor de la banda?"],
+      ["A.5", "¿Existen fugas de aceite en las bombas hidráulicas?"],
+      ["A.6", "¿Se detectan fugas de aceite en el motor John Deere?"],
     ],
   },
   {
     id: "B",
     titulo: "B) SISTEMA DE CONTROL DE POLVO (AGUA)",
     items: [
-      ["B.1", "Inspección de fugas de agua (mangueras, acoples)"],
-      ["B.2", "Estado del filtro para agua"],
-      ["B.3", "Estado de válvulas check"],
-      ["B.4", "Estado de solenoides de apertura de agua"],
-      ["B.5", "Estado de la bomba eléctrica de agua"],
-      ["B.6", "Estado de los aspersores de cepillos"],
-      ["B.7", "Estado de la manguera de carga de agua hidrante"],
-      ["B.8", "Inspección del medidor de nivel del tanque"],
-      ["B.9", "Inspección del sistema de llenado de agua"],
+      ["B.1", "¿Se detectan fugas de agua en mangueras o acoples del sistema?"],
+      ["B.2", "¿El filtro de agua se encuentra limpio y en buen estado?"],
+      ["B.3", "¿Las válvulas check funcionan correctamente y sellan bien?"],
+      ["B.4", "¿Los solenoides de apertura de agua responden al activar el sistema?"],
+      ["B.5", "¿La bomba eléctrica de agua funciona sin ruidos anormales?"],
+      ["B.6", "¿Los aspersores de los cepillos rocían uniformemente y sin obstrucciones?"],
+      ["B.7", "¿La manguera de carga de agua hidrante está en buen estado?"],
+      ["B.8", "¿El medidor del nivel del tanque de agua indica correctamente?"],
+      ["B.9", "¿El sistema de llenado de agua funciona sin fugas ni obstrucciones?"],
     ],
   },
   {
     id: "C",
     titulo: "C) SISTEMA ELÉCTRICO Y ELECTRÓNICO",
     items: [
-      ["C.1", "Inspección visual de conectores de bancos de control"],
-      ["C.2", "Evaluar funcionamiento al encender el equipo"],
-      ["C.3", "Estado del tablero de control de cabina"],
-      ["C.4", "Inspección de batería"],
-      ["C.5", "Inspección de luces externas"],
-      ["C.6", "Diagnóstico con service tool (opcional)"],
-      ["C.7", "Estado del limpia parabrisas"],
-      ["C.8", "Conexiones externas (GPS / radio)"],
+      ["C.1", "¿Los conectores de bancos de control están firmes, limpios y sin corrosión?"],
+      ["C.2", "¿Al encender el equipo todos los sistemas arrancan sin errores?"],
+      ["C.3", "¿El tablero de control de cabina muestra lecturas correctas y sin daños?"],
+      ["C.4", "¿La batería carga adecuadamente y los bornes están limpios?"],
+      ["C.5", "¿Las luces externas (trabajo, marcha, freno) encienden correctamente?"],
+      ["C.6", "¿Se detectan códigos de error con el service tool (opcional)?"],
+      ["C.7", "¿El limpia parabrisas funciona y el limpiaparabrisas está en buen estado?"],
+      ["C.8", "¿Los equipos externos (GPS/radio) están conectados y operativos?"],
     ],
   },
   {
     id: "D",
     titulo: "D) SISTEMA DE RECOLECCIÓN",
     items: [
-      ["D.1", "Estado de la banda"],
-      ["D.2", "Estado de las cerdas de los cepillos"],
-      ["D.3", "Estado de la tolva"],
-      ["D.4", "Funcionamiento de la tolva"],
-      ["D.5", "Funcionamiento de la banda"],
-      ["D.6", "Estado de zapatas de arrastre"],
+      ["D.1", "¿La banda de recolección está en buen estado, sin grietas ni desgaste excesivo?"],
+      ["D.2", "¿Las cerdas de los cepillos tienen buena longitud y desgaste uniforme?"],
+      ["D.3", "¿La tolva presenta fisuras, deformaciones o acumulación de residuos?"],
+      ["D.4", "¿La tolva sube, baja y se vacía correctamente sin atascos?"],
+      ["D.5", "¿La banda de transportación funciona sin deslizamiento ni ruidos anormales?"],
+      ["D.6", "¿Las zapatas de arrastre están en buen estado y ajustadas?"],
     ],
   },
   {
     id: "E",
     titulo: "E) MOTOR JOHN DEERE",
     items: [
-      ["E.1", "Estado de filtros de aire 1° y 2°"],
-      ["E.2", "Filtro combustible trampa de agua"],
-      ["E.3", "Filtro de combustible"],
-      ["E.4", "Filtro de aceite"],
-      ["E.5", "Nivel de aceite de motor"],
-      ["E.6", "Estado y nivel del refrigerante"],
-      ["E.7", "Filtro A/C cabina"],
+      ["E.1", "¿Los filtros de aire 1° y 2° están limpios y sin obstrucciones?"],
+      ["E.2", "¿El filtro de combustible trampa de agua está limpio y sin acumulación de agua?"],
+      ["E.3", "¿El filtro de combustible está limpio y en buen estado?"],
+      ["E.4", "¿El filtro de aceite se encuentra en buen estado?"],
+      ["E.5", "¿El nivel de aceite de motor es correcto según la mirilla?"],
+      ["E.6", "¿El estado y nivel del refrigerante son correctos y sin fugas?"],
+      ["E.7", "¿El filtro A/C de cabina está limpio y sin obstrucciones?"],
     ],
   },
 ];
@@ -1147,10 +1147,13 @@ setTimeout(() => {
           </div>
 
 
-         {/* ══ 5. PRUEBAS PREVIAS ══ */}
+          {/* ══ 5. PRUEBAS PREVIAS ══ */}
           <h3 className="font-bold text-xs border-b pb-1">
             1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
           </h3>
+          <p className="text-[11px] text-gray-500 -mt-1 mb-1">
+            SI = Funciona correctamente | NO = Presenta falla | N/A = No aplica al equipo
+          </p>
           <table className="pdf-table w-full">
             <thead><tr>
               <th className="text-left" style={{ width:50 }}>ÍTEM</th>
@@ -1167,6 +1170,9 @@ setTimeout(() => {
           <h2 className="font-semibold text-sm px-1">
             2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O SISTEMAS
           </h2>
+          <p className="text-[11px] text-gray-500 px-1 -mt-1">
+            SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo
+          </p>
 
           {activeSections.map((sec) => (
   <section key={sec.id}>
