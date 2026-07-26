@@ -851,6 +851,9 @@ const firmaCliente =
           {secciones.map((sec) => (
             <section key={sec.id}>
               <h3 className="font-bold text-xs border-b pb-1 mb-2">{sec.titulo}</h3>
+              <p className="text-[11px] text-gray-500 -mt-1 mb-1">
+                SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo
+              </p>
               <table className="pdf-table w-full">
                 <thead><tr>
                   <th className="text-left" style={{ width:50 }}>ÍTEM</th>

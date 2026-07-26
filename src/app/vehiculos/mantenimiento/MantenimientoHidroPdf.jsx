@@ -420,11 +420,9 @@ export default function MantenimientoHidroPDF({ allowDownload = true }) {
           return (
             <div key={i}>
               <p style={{ ...S.sectionTitle, marginTop: i === 0 ? 0 : 10 }}>{sec.titulo}</p>
-              {i === 0 && (
-                <p style={{ fontSize: 8.5, color: "#6b7280", margin: "2px 0 4px", fontStyle: "italic" }}>
-                  SI = Funciona correctamente | NO = Presenta falla
-                </p>
-              )}
+              <p style={{ fontSize: 8.5, color: "#6b7280", margin: "2px 0 4px", fontStyle: "italic" }}>
+                SI = Funciona correctamente | NO = Presenta falla
+              </p>
               <SeccionTable
   sec={sec}
   items={d.items}

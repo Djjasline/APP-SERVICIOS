@@ -333,11 +333,9 @@ setReport({ estado: data.estado, data: data.data });
         {secciones.map((sec, i) => (
           <div key={i}>
             <p style={S.sectionTitle}>{sec.titulo}</p>
-            {i === 0 && (
-              <p style={{ fontSize: 8.5, color: "#6b7280", margin: "2px 0 4px", fontStyle: "italic" }}>
-                SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo
-              </p>
-            )}
+            <p style={{ fontSize: 8.5, color: "#6b7280", margin: "2px 0 4px", fontStyle: "italic" }}>
+              SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo
+            </p>
             <ChecklistTable items={sec.items} data={d} />
           </div>
         ))}
