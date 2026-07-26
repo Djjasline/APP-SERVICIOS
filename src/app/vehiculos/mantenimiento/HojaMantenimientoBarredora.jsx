@@ -1157,9 +1157,14 @@ const result = await saveOrUpdateReport({
   )}
 </div>
           {/* ══ 5. SECCIONES DE MANTENIMIENTO ══ */}
-          {activeSections.map((sec) => (
+          {activeSections.map((sec, i) => (
             <section key={sec.id}>
               <h3 className="font-bold text-xs border-b pb-1 mb-2">{sec.titulo}</h3>
+              {i === 0 && (
+                <p className="text-[11px] text-gray-500 -mt-1 mb-1">
+                  SI = Funciona correctamente | NO = Presenta falla
+                </p>
+              )}
               <table className="pdf-table w-full">
                 <thead>
                   <tr>

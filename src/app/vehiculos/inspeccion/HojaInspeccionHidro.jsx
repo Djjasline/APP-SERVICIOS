@@ -830,6 +830,9 @@ const firmaCliente =
           <h3 className="font-bold text-xs border-b pb-1">
             1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
           </h3>
+          <p className="text-[11px] text-gray-500 -mt-1 mb-1">
+            SI = Funciona correctamente | NO = Presenta falla | N/A = No aplica al equipo
+          </p>
           <table className="pdf-table w-full">
             <thead><tr>
               <th className="text-left" style={{ width:50 }}>ÍTEM</th>
@@ -842,6 +845,9 @@ const firmaCliente =
 
           {/* ══ 6. SECCIONES A–D ══ */}
           <h3 className="font-bold text-xs border-b pb-1">2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O SISTEMAS</h3>
+          <p className="text-[11px] text-gray-500 px-1 -mt-1">
+            SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo
+          </p>
           {secciones.map((sec) => (
             <section key={sec.id}>
               <h3 className="font-bold text-xs border-b pb-1 mb-2">{sec.titulo}</h3>

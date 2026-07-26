@@ -325,11 +325,19 @@ setReport({ estado: data.estado, data: data.data });
 </div>
 
         <p style={{ ...S.sectionTitle, marginTop:0 }}>1. PRUEBAS PREVIAS AL SERVICIO</p>
+        <p style={{ fontSize: 8.5, color: "#6b7280", margin: "2px 0 4px", fontStyle: "italic" }}>
+          SI = Funciona correctamente | NO = Presenta falla | N/A = No aplica al equipo
+        </p>
         <ChecklistTable items={pruebasPrevias} data={d} />
 
         {secciones.map((sec, i) => (
           <div key={i}>
             <p style={S.sectionTitle}>{sec.titulo}</p>
+            {i === 0 && (
+              <p style={{ fontSize: 8.5, color: "#6b7280", margin: "2px 0 4px", fontStyle: "italic" }}>
+                SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo
+              </p>
+            )}
             <ChecklistTable items={sec.items} data={d} />
           </div>
         ))}
