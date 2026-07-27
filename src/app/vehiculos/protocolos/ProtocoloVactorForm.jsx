@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { saveOrUpdateReport } from "@/services/reportService";
 import ReportCodeInput from "@/components/ReportCodeInput";
+import AutoResizeInput from "@/components/AutoResizeInput";
 import { leerBorrador, useAutoguardado } from "@/hooks/useAutoguardado";
 import {
   buildInitialBooleanMap,
@@ -292,7 +293,7 @@ export default function ProtocoloVactorForm() {
                   {["cumple", "noCumple", "na"].map((estado) => (
                     <td key={estado} className="border p-2 text-center"><input type="radio" name={`prueba-previa-${codigo}`} checked={data.pruebasPrevias?.[codigo]?.estado === estado} onChange={() => setStatusItem("pruebasPrevias", codigo, "estado", estado)} /></td>
                   ))}
-                  <td className="border p-2"><input className="w-full border rounded px-2 py-1" value={data.pruebasPrevias?.[codigo]?.observacion || ""} onChange={(e) => setStatusItem("pruebasPrevias", codigo, "observacion", e.target.value)} /></td>
+                  <td className="border p-2"><AutoResizeInput className="w-full border rounded px-2 py-1 text-sm" value={data.pruebasPrevias?.[codigo]?.observacion || ""} onChange={(e) => setStatusItem("pruebasPrevias", codigo, "observacion", e.target.value)} /></td>
                 </tr>
               ))}
             </tbody>
@@ -314,7 +315,7 @@ export default function ProtocoloVactorForm() {
                   {["cumple", "noCumple", "na"].map((estado) => (
                     <td key={estado} className="border p-2 text-center"><input type="radio" name={`recambio-${codigo}`} checked={data.recambios?.[codigo]?.estado === estado} onChange={() => setStatusItem("recambios", codigo, "estado", estado)} /></td>
                   ))}
-                  <td className="border p-2"><input className="w-full border rounded px-2 py-1" value={data.recambios?.[codigo]?.observacion || ""} onChange={(e) => setStatusItem("recambios", codigo, "observacion", e.target.value)} /></td>
+                  <td className="border p-2"><AutoResizeInput className="w-full border rounded px-2 py-1 text-sm" value={data.recambios?.[codigo]?.observacion || ""} onChange={(e) => setStatusItem("recambios", codigo, "observacion", e.target.value)} /></td>
                 </tr>
               ))}
             </tbody>
@@ -363,7 +364,7 @@ export default function ProtocoloVactorForm() {
                     {["cumple", "noCumple", "na"].map((estado) => (
                       <td key={estado} className="border p-2 text-center"><input type="radio" name={codigo} checked={data.checklist?.[codigo]?.estado === estado} onChange={() => setChecklist(codigo, "estado", estado)} /></td>
                     ))}
-                    <td className="border p-2"><input className="w-full border rounded px-2 py-1" value={data.checklist?.[codigo]?.observacion || ""} onChange={(e) => setChecklist(codigo, "observacion", e.target.value)} /></td>
+                    <td className="border p-2"><AutoResizeInput className="w-full border rounded px-2 py-1 text-sm" value={data.checklist?.[codigo]?.observacion || ""} onChange={(e) => setChecklist(codigo, "observacion", e.target.value)} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -382,7 +383,7 @@ export default function ProtocoloVactorForm() {
         <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2">
           <h2 className="font-semibold text-slate-900">5. Resultado general</h2>
           {["cumple", "noCumple", "na"].map((value) => <label key={value} className="flex gap-2 text-sm"><input type="radio" name="resultado" checked={data.resultadoGeneral === value} onChange={() => set("resultadoGeneral", value)} /> {value === "cumple" ? "Cumple" : value === "noCumple" ? "No cumple" : "N/A"}</label>)}
-          <textarea className={`${inputClass} min-h-24`} placeholder="Observaciones generales" value={data.observacionesGenerales} onChange={(e) => set("observacionesGenerales", e.target.value)} />
+          <AutoResizeInput className={`${inputClass} min-h-24`} placeholder="Observaciones generales" value={data.observacionesGenerales} onChange={(e) => set("observacionesGenerales", e.target.value)} />
         </div>
         <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2">
           <h2 className="font-semibold text-slate-900">Técnico responsable</h2>

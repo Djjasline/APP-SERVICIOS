@@ -4,6 +4,7 @@ import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
+import AutoResizeInput from "@/components/AutoResizeInput";
 
 const checklist = {
   "Sistema Mecánico": [
@@ -302,13 +303,10 @@ pendientes.push({
         ))}
 
         {/* OBSERVACIONES */}
-        <textarea
+        <AutoResizeInput
+          value={form.observaciones || ""}
           placeholder="Observaciones"
           className="border w-full p-2 mt-4 resize-none"
-          onInput={(e) => {
-            e.target.style.height = "auto";
-            e.target.style.height = e.target.scrollHeight + "px";
-          }}
           onChange={(e) => setForm({ ...form, observaciones: e.target.value })}
         />
 

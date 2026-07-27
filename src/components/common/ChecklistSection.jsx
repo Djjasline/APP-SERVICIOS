@@ -1,4 +1,5 @@
 import React from "react";
+import AutoResizeInput from "@/components/AutoResizeInput";
 
 export default function ChecklistSection({
   title,
@@ -93,7 +94,7 @@ export default function ChecklistSection({
                 </td>
 
                 <td className="border p-1">
-                  <input
+                  <AutoResizeInput
                     className="w-full border px-1"
                     value={row.observacion || ""}
                     placeholder="Observación o novedad detectada"

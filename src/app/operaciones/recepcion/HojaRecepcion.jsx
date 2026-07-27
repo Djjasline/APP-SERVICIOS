@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
+import AutoResizeInput from "@/components/AutoResizeInput";
 import { useNavigate, useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { saveOrUpdateReport } from "@/services/reportService";
@@ -80,7 +81,7 @@ const TextCell = ({ value, onChange, type = "text", readOnly = false, placeholde
 );
 
 const TextAreaCell = ({ value, onChange, readOnly = false, placeholder = "Escriba observaciones" }) => (
-  <textarea
+  <AutoResizeInput
     value={value || ""}
     readOnly={readOnly}
     placeholder={placeholder}
@@ -742,7 +743,6 @@ const SheetStyles = () => (
 
     .damage-observation-panel .sheet-textarea {
       min-height: 64px;
-      height: 64px;
       background: #fff;
     }
 

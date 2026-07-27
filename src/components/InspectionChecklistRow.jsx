@@ -1,4 +1,5 @@
 import ObservationImageField from "@/components/ObservationImageField";
+import AutoResizeInput from "@/components/AutoResizeInput";
 
 export default function InspectionChecklistRow({
   codigo,
@@ -25,12 +26,13 @@ export default function InspectionChecklistRow({
           />
         </td>
       ))}
-      <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
-        <textarea
+      <td style={{ border: "1px solid #d1d5db", padding: "4px 6px", verticalAlign: "top" }}>
+        <AutoResizeInput
           value={current.observacion || ""}
+          rows={2}
           onChange={(event) => onItemChange(codigo, "observacion", event.target.value)}
           placeholder="Hallazgo observable, condición encontrada, medición o evidencia. Evite frases vagas."
-          className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
+          className="observation-text-input block w-full border-0 outline-none text-xs leading-snug p-1 overflow-hidden resize-none min-h-[52px]"
         />
         <ObservationImageField
           value={current.imagenes || []}

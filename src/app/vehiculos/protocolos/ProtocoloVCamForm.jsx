@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { saveOrUpdateReport } from "@/services/reportService";
 import ReportCodeInput from "@/components/ReportCodeInput";
+import AutoResizeInput from "@/components/AutoResizeInput";
 import { leerBorrador, useAutoguardado } from "@/hooks/useAutoguardado";
 import {
   buildInitialBooleanMap,
@@ -107,7 +108,7 @@ function StatusTable({ title, items, values, onChange, includeCantidad = false }
                 {["cumple", "noCumple", "na"].map((estado) => (
                   <td key={estado} className="border p-2 text-center"><input type="radio" name={`${title}-${codigo}`} checked={values?.[codigo]?.estado === estado} onChange={() => onChange(codigo, "estado", estado)} /></td>
                 ))}
-                <td className="border p-2"><input className="w-full border rounded px-2 py-1" value={values?.[codigo]?.observacion || ""} onChange={(e) => onChange(codigo, "observacion", e.target.value)} /></td>
+                <td className="border p-2"><AutoResizeInput className="w-full border rounded px-2 py-1 text-sm" value={values?.[codigo]?.observacion || ""} onChange={(e) => onChange(codigo, "observacion", e.target.value)} /></td>
               </tr>
             ))}
           </tbody>
@@ -268,7 +269,7 @@ export default function ProtocoloVCamForm() {
                     {["cumple", "noCumple", "na"].map((estado) => (
                       <td key={estado} className="border p-2 text-center"><input type="radio" name={codigo} checked={data.checklist?.[codigo]?.estado === estado} onChange={() => setStatusItem("checklist", codigo, "estado", estado)} /></td>
                     ))}
-                    <td className="border p-2"><input className="w-full border rounded px-2 py-1" value={data.checklist?.[codigo]?.observacion || ""} onChange={(e) => setStatusItem("checklist", codigo, "observacion", e.target.value)} /></td>
+                    <td className="border p-2"><AutoResizeInput className="w-full border rounded px-2 py-1 text-sm" value={data.checklist?.[codigo]?.observacion || ""} onChange={(e) => setStatusItem("checklist", codigo, "observacion", e.target.value)} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -279,7 +280,7 @@ export default function ProtocoloVCamForm() {
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2"><h2 className="font-semibold text-slate-900">4. Pruebas finales</h2>{PRUEBAS_FINALES.map(([key, label]) => <label key={key} className="flex gap-2 text-sm"><input type="checkbox" checked={!!data.pruebasFinales[key]} onChange={(e) => setNested("pruebasFinales", key, e.target.checked)} /> {label}</label>)}</div>
-        <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2"><h2 className="font-semibold text-slate-900">5. Resultado general</h2>{["cumple", "noCumple", "na"].map((value) => <label key={value} className="flex gap-2 text-sm"><input type="radio" name="resultado" checked={data.resultadoGeneral === value} onChange={() => set("resultadoGeneral", value)} /> {value === "cumple" ? "Cumple" : value === "noCumple" ? "No cumple" : "N/A"}</label>)}<textarea className={`${inputClass} min-h-24`} placeholder="Observaciones generales" value={data.observacionesGenerales} onChange={(e) => set("observacionesGenerales", e.target.value)} /></div>
+        <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2"><h2 className="font-semibold text-slate-900">5. Resultado general</h2>{["cumple", "noCumple", "na"].map((value) => <label key={value} className="flex gap-2 text-sm"><input type="radio" name="resultado" checked={data.resultadoGeneral === value} onChange={() => set("resultadoGeneral", value)} /> {value === "cumple" ? "Cumple" : value === "noCumple" ? "No cumple" : "N/A"}</label>)}<AutoResizeInput className={`${inputClass} min-h-24`} placeholder="Observaciones generales" value={data.observacionesGenerales} onChange={(e) => set("observacionesGenerales", e.target.value)} /></div>
         <div className="bg-white rounded-xl border shadow-sm p-4 space-y-2"><h2 className="font-semibold text-slate-900">Técnico responsable</h2><input className={inputClass} placeholder="Nombre" value={data.tecnicoNombre} onChange={(e) => set("tecnicoNombre", e.target.value)} /><input className={inputClass} placeholder="Correo" value={data.tecnicoCorreo} onChange={(e) => set("tecnicoCorreo", e.target.value)} /><input className={inputClass} placeholder="Firma / iniciales" value={data.tecnicoFirma} onChange={(e) => set("tecnicoFirma", e.target.value)} /></div>
       </section>
 

@@ -946,7 +946,7 @@ const result = await saveOrUpdateReport({
                 <tr key={i}>
                   <td style={{ textAlign: "center" }}>{i + 1}</td>
                   <td>
-                    <textarea
+                    <AutoResizeInput
                       className="pdf-textarea w-full resize-none"
                       rows={3}
                       style={{ minHeight: 70 }}
@@ -957,7 +957,7 @@ const result = await saveOrUpdateReport({
                   </td>
                   <td style={{ textAlign: "center" }}>{i + 1}</td>
                   <td>
-                    <textarea
+                    <AutoResizeInput
                       className="pdf-textarea w-full resize-none"
                       rows={3}
                       style={{ minHeight: 70 }}
@@ -999,19 +999,9 @@ const result = await saveOrUpdateReport({
           <h3 className="font-bold text-sm border-b pb-1">
             NOTA / OBSERVACIÓN FINAL DEL TÉCNICO
           </h3>
-          <textarea
+          <AutoResizeInput
             value={data.notaFinal || ""}
-            onChange={(e) => {
-              update(["notaFinal"], e.target.value);
-              e.target.style.height = "auto";
-              e.target.style.height = e.target.scrollHeight + "px";
-            }}
-            ref={(el) => {
-              if (el) {
-                el.style.height = "auto";
-                el.style.height = el.scrollHeight + "px";
-              }
-            }}
+            onChange={(e) => update(["notaFinal"], e.target.value)}
             placeholder="Escriba aquí cualquier observación general..."
             className="w-full border rounded p-2 text-sm outline-none overflow-hidden resize-none min-h-[80px]"
           />

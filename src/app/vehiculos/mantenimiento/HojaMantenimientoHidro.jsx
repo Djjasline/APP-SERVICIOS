@@ -922,7 +922,7 @@ const result = await saveOrUpdateReport({
                 </td>
 
                 <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
-  <textarea
+  <AutoResizeInput
     value={extra.observacion}
     onChange={(e) => updateExtra(index, "observacion", e.target.value)}
     placeholder="Observaciones..."
@@ -990,19 +990,9 @@ const result = await saveOrUpdateReport({
                   </td>
 
                   <td style={{ border: "1px solid #d1d5db", padding: "2px 4px" }}>
-                    <textarea
+                    <AutoResizeInput
                       value={data.items?.[codigo]?.observacion || ""}
-                      onChange={(e) => {
-                        handleItem(codigo, "observacion", e.target.value);
-                        e.target.style.height = "auto";
-                        e.target.style.height = e.target.scrollHeight + "px";
-                      }}
-                      ref={(el) => {
-                        if (el) {
-                          el.style.height = "auto";
-                          el.style.height = el.scrollHeight + "px";
-                        }
-                      }}
+                      onChange={(e) => handleItem(codigo, "observacion", e.target.value)}
                       placeholder="Observación o novedad detectada"
                       className="w-full border-0 outline-none text-xs p-1 overflow-hidden resize-none min-h-[34px]"
                     />
@@ -1037,19 +1027,9 @@ const result = await saveOrUpdateReport({
           <h3 className="font-bold text-sm border-b pb-1">
             NOTA FINAL TECNICA DEL MANTENIMIENTO
           </h3>
-          <textarea
+          <AutoResizeInput
             value={data.notaFinal || ""}
-            onChange={(e) => {
-              update(["notaFinal"], e.target.value);
-              e.target.style.height = "auto";
-              e.target.style.height = e.target.scrollHeight + "px";
-            }}
-            ref={(el) => {
-              if (el) {
-                el.style.height = "auto";
-                el.style.height = el.scrollHeight + "px";
-              }
-            }}
+            onChange={(e) => update(["notaFinal"], e.target.value)}
             placeholder="Resuma el estado final del equipo, trabajos realizados, hallazgos relevantes y acción recomendada..."
             className="w-full border rounded p-2 text-sm outline-none overflow-hidden resize-none min-h-[80px]"
           />

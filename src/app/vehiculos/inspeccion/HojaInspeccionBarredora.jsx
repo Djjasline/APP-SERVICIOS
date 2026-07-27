@@ -1159,11 +1159,11 @@ setTimeout(() => {
               {data.conclusiones.map((_, i) => (
                 <tr key={i}>
                   <td style={{ textAlign:"center" }}>{i+1}</td>
-                  <td><textarea className="pdf-textarea w-full resize-none" rows={3} style={{ minHeight:70 }}
+                  <td><AutoResizeInput className="pdf-textarea w-full resize-none" rows={3} style={{ minHeight:70 }}
                     placeholder="Conclusión: qué significa lo encontrado, causa probable, si quedó operativo, riesgo y si requiere intervención"
                     value={data.conclusiones[i]} onChange={(e) => update(["conclusiones", i], e.target.value)} /></td>
                   <td style={{ textAlign:"center" }}>{i+1}</td>
-                  <td><textarea className="pdf-textarea w-full resize-none" rows={3} style={{ minHeight:70 }}
+                  <td><AutoResizeInput className="pdf-textarea w-full resize-none" rows={3} style={{ minHeight:70 }}
                     placeholder="Recomendación: acción concreta, prioridad, plazo y repuesto/servicio a cotizar si aplica"
                     value={data.recomendaciones[i]||""} onChange={(e) => update(["recomendaciones", i], e.target.value)} /></td>
                   {data.conclusiones.length > 1 && (
@@ -1187,14 +1187,9 @@ setTimeout(() => {
 
            {/* ══ 8. NOTA FINAL ══ */}
           <h3 className="font-bold text-sm border-b pb-1">NOTA / OBSERVACIÓN FINAL DEL TÉCNICO</h3>
-          <textarea
+          <AutoResizeInput
             value={data.notaFinal || ""}
-            onChange={(e) => {
-              update(["notaFinal"], e.target.value);
-              e.target.style.height = "auto";
-              e.target.style.height = e.target.scrollHeight + "px";
-            }}
-            ref={(el) => { if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; } }}
+            onChange={(e) => update(["notaFinal"], e.target.value)}
             placeholder="Escriba aquí cualquier observación general..."
             className="w-full border rounded p-2 text-sm outline-none overflow-hidden resize-none min-h-[80px]"
           />

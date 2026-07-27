@@ -69,16 +69,35 @@ const Input = ({ value, onChange, type = "text", readOnly = false, placeholder =
   />
 );
 
-const Textarea = ({ value, onChange, readOnly = false, placeholder = "", rows = 3 }) => (
-  <textarea
-    value={value || ""}
-    readOnly={readOnly}
-    rows={rows}
-    placeholder={placeholder}
-    onChange={(e) => onChange?.(e.target.value)}
-    className="ia-textarea"
-  />
-);
+const Textarea = ({ value, onChange, readOnly = false, placeholder = "", rows = 3 }) => {
+  const ref = useRef(null);
+
+  const resize = () => {
+    const element = ref.current;
+    if (!element) return;
+    element.style.height = "auto";
+    element.style.height = `${element.scrollHeight}px`;
+  };
+
+  useEffect(() => {
+    resize();
+  }, [value]);
+
+  return (
+    <textarea
+      ref={ref}
+      value={value || ""}
+      readOnly={readOnly}
+      rows={rows}
+      placeholder={placeholder}
+      onChange={(e) => {
+        onChange?.(e.target.value);
+        requestAnimationFrame(resize);
+      }}
+      className="ia-textarea overflow-hidden"
+    />
+  );
+};
 
 const Toggle = ({ label, value, onChange, readOnly = false }) => (
   <button

@@ -134,27 +134,6 @@ const sigCliente = useRef(null);
 };
 
   /* ===========================
-     AUTO RESIZE TEXTAREA
-  =========================== */
-  const resizeTextarea = (textarea) => {
-    if (!textarea) return;
-    textarea.style.height = "auto";
-    textarea.style.height = `${textarea.scrollHeight}px`;
-  };
-
-  const autoResize = (e) => {
-    resizeTextarea(e.target);
-  };
-
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      document
-        .querySelectorAll("textarea[data-auto-resize='true']")
-        .forEach((textarea) => resizeTextarea(textarea));
-    });
-  }, [data.actividades, data.conclusiones, data.recomendaciones]);
-
-  /* ===========================
      PRELLENAR TÉCNICO LOGUEADO
   =========================== */
  useEffect(() => {
@@ -1003,27 +982,23 @@ const estadoFinal =
                 <td className="text-center align-top">{i + 1}</td>
 
                 <td className="align-top">
-                  <textarea
-                    data-auto-resize="true"
+                  <AutoResizeInput
                     className="pdf-textarea w-full resize-none overflow-hidden"
                     placeholder="Trabajo realizado: qué se hizo, sobre qué componente y con qué objetivo"
                     value={a.titulo}
                     rows={2}
                     style={{ minHeight: "48px" }}
-                    onInput={autoResize}
                     onChange={(e) =>
                       update(["actividades", i, "titulo"], e.target.value)
                     }
                   />
 
-                  <textarea
-                    data-auto-resize="true"
+                  <AutoResizeInput
                     className="pdf-textarea w-full resize-none overflow-hidden mt-2"
                     placeholder="Hallazgo técnico: qué se encontró, cómo se verificó, medición/condición observada, evidencia y efecto operativo"
                     value={a.detalle}
                     rows={6}
                     style={{ minHeight: "150px" }}
-                    onInput={autoResize}
                     onChange={(e) =>
                       update(["actividades", i, "detalle"], e.target.value)
                     }
@@ -1184,14 +1159,12 @@ const estadoFinal =
               <tr key={i}>
                 <td style={{ textAlign: "center" }}>{i + 1}</td>
                 <td>
-                  <textarea
-                    data-auto-resize="true"
+                  <AutoResizeInput
                     className="pdf-textarea w-full resize-none overflow-hidden"
                     placeholder="Conclusión: qué significa lo encontrado, causa probable, si quedó operativo, riesgo y si requiere intervención"
                     value={data.conclusiones[i]}
                     rows={3}
                     style={{ minHeight: "70px" }}
-                    onInput={autoResize}
                     onChange={(e) =>
                       update(["conclusiones", i], e.target.value)
                     }
@@ -1200,14 +1173,12 @@ const estadoFinal =
 
                 <td style={{ textAlign: "center" }}>{i + 1}</td>
                 <td>
-                  <textarea
-                    data-auto-resize="true"
+                  <AutoResizeInput
                     className="pdf-textarea w-full resize-none overflow-hidden"
                     placeholder="Recomendación: acción concreta, prioridad, plazo y repuesto/servicio a cotizar si aplica"
                     value={data.recomendaciones[i]}
                     rows={3}
                     style={{ minHeight: "70px" }}
-                    onInput={autoResize}
                     onChange={(e) =>
                       update(["recomendaciones", i], e.target.value)
                     }

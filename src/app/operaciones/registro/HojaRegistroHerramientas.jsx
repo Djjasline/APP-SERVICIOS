@@ -7,6 +7,7 @@ import { TECHNICIANS } from "@/data/technicians";
 import { getRegistroById, updateRegistro, } from "@/utils/registroStorage";
 import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";
+import AutoResizeInput from "@/components/AutoResizeInput";
 
 function Field({ label, labelClass, children }) {
   return (
@@ -471,7 +472,7 @@ const handleSubmit = async (e) => {
                     </Field>
 
                     <Field label="Observaciones salida" labelClass={labelClass}>
-                      <textarea
+                      <AutoResizeInput
                         value={item.observacionesSalida || ""}
                         onChange={(e) => updateItem(item.id, "observacionesSalida", e.target.value)}
                         disabled={isLocked}
@@ -526,7 +527,7 @@ const handleSubmit = async (e) => {
                     </Field>
 
                     <Field label="Observaciones ingreso" labelClass={labelClass}>
-                      <textarea
+                      <AutoResizeInput
                         value={item.observacionesIngreso || ""}
                         onChange={(e) => updateItem(item.id, "observacionesIngreso", e.target.value)}
                         disabled={isLocked}

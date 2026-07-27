@@ -52,9 +52,15 @@ body {
   min-height: 30px;
   line-height: 1.35;
   overflow: hidden;
+  overflow-y: hidden;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
   resize: none;
+  field-sizing: content;
+}
+
+.observation-text-input:focus {
+  margin-bottom: 10px;
 }
 
 /* ══════════════════════════════

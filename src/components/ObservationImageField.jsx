@@ -55,7 +55,7 @@ export default function ObservationImageField({ value = [], onChange, recordId, 
   };
 
   return (
-    <div className="mt-2 space-y-2">
+    <div className="mt-4 space-y-2 clear-both">
       <div className="flex flex-wrap gap-2">
         <input
           ref={galleryRef}
@@ -101,8 +101,8 @@ export default function ObservationImageField({ value = [], onChange, recordId, 
       {images.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
           {images.map((url, index) => (
-            <div key={`${url}-${index}`} className="relative rounded border bg-white p-1">
-              <img src={url} alt={`Evidencia observación ${index + 1}`} className="h-16 w-full rounded object-cover" />
+            <div key={`${url}-${index}`} className="relative flex h-20 items-center justify-center overflow-hidden rounded border bg-slate-50 p-1">
+              <img src={url} alt={`Evidencia observación ${index + 1}`} className="h-full w-full rounded object-contain" />
               <button
                 type="button"
                 onClick={() => removeImage(index)}
