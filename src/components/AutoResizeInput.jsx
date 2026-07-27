@@ -27,15 +27,17 @@ export default function AutoResizeInput({
       element.clientWidth - (parseFloat(styles.paddingLeft) || 0) - (parseFloat(styles.paddingRight) || 0),
       1
     );
-    const charsPerLine = Math.max(Math.floor(availableWidth / (fontSize * 0.78)), 8);
-    const text = String(element.value || element.placeholder || "");
-    const visualRows = text.split("\n").reduce((total, line) => {
-      return total + Math.max(Math.ceil(line.length / charsPerLine), 1);
-    }, 0);
-    const estimatedHeight = (visualRows + 1) * lineHeight + paddingTop + paddingBottom + borderTop + borderBottom + 6;
+    const charsPerLine = Math.max(Math.floor(availableWidth / (fontSize * 0.62)), 10);
+    const text = String(element.value || "");
+    const visualRows = text
+      ? text.split("\n").reduce((total, line) => {
+          return total + Math.max(Math.ceil(line.length / charsPerLine), 1);
+        }, 0)
+      : Number(element.rows || rows || 1);
+    const estimatedHeight = visualRows * lineHeight + paddingTop + paddingBottom + borderTop + borderBottom + 2;
 
     element.style.height = "auto";
-    const nextHeight = Math.ceil(Math.max(element.scrollHeight, estimatedHeight, minHeight));
+    const nextHeight = Math.ceil(Math.max(text ? element.scrollHeight : 0, estimatedHeight, minHeight));
     element.style.height = `${nextHeight}px`;
     setHeight((current) => (current === nextHeight ? current : nextHeight));
   };

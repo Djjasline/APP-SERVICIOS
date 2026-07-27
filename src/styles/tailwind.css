@@ -209,7 +209,6 @@ select:disabled {
   overflow-wrap: anywhere;
   white-space: pre-wrap;
   resize: none;
-  field-sizing: content;
 }
 
 .observation-text-input:focus {
