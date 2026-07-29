@@ -15,6 +15,11 @@ const compose = (first, second) => (event) => {
   second?.(event);
 };
 
+const stopGesturePropagation = (event) => {
+  event.stopPropagation?.();
+  event.nativeEvent?.stopImmediatePropagation?.();
+};
+
 const SignatureCanvasField = forwardRef(function SignatureCanvasField(
   { canvasProps = {}, onBegin, onEnd, ...props },
   forwardedRef
@@ -118,15 +123,31 @@ const SignatureCanvasField = forwardRef(function SignatureCanvasField(
           minWidth: 0,
           ...style,
         },
-        onPointerDown: compose(() => {
+        onPointerDown: compose((event) => {
+          stopGesturePropagation(event);
           resizeCanvas();
           lockPageScroll();
         }, onPointerDown),
-        onPointerUp: compose(onPointerUp, () => unlockPageScroll()),
-        onPointerCancel: compose(onPointerCancel, () => unlockPageScroll()),
-        onTouchStart: compose(() => lockPageScroll(), onTouchStart),
-        onTouchMove: compose((event) => event.preventDefault(), onTouchMove),
-        onTouchEnd: compose(onTouchEnd, () => unlockPageScroll()),
+        onPointerUp: compose((event) => {
+          stopGesturePropagation(event);
+          onPointerUp?.(event);
+        }, () => unlockPageScroll()),
+        onPointerCancel: compose((event) => {
+          stopGesturePropagation(event);
+          onPointerCancel?.(event);
+        }, () => unlockPageScroll()),
+        onTouchStart: compose((event) => {
+          stopGesturePropagation(event);
+          lockPageScroll();
+        }, onTouchStart),
+        onTouchMove: compose((event) => {
+          stopGesturePropagation(event);
+          event.preventDefault();
+        }, onTouchMove),
+        onTouchEnd: compose((event) => {
+          stopGesturePropagation(event);
+          onTouchEnd?.(event);
+        }, () => unlockPageScroll()),
       }}
     />
   );

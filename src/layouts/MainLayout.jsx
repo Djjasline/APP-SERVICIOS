@@ -13,6 +13,10 @@ import { clearAppBadge, setAppBadgeCount } from "@/utils/appBadge";
 
 const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
 
+const startsOnSignatureCanvas = (event) =>
+  typeof event.target?.closest === "function" &&
+  Boolean(event.target.closest(".signature-pad-canvas"));
+
 function getNotificationPath(notification) {
   if (notification.record_type === "registro" && notification.record_id) {
     return `/operaciones/registro/${notification.record_id}`;
@@ -287,7 +291,14 @@ export default function MainLayout() {
           : "bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b] text-white"
       }`}
       /* ================= SWIPE ================= */
-      onTouchStart={(e) => setTouchStartX(e.touches[0].clientX)}
+      onTouchStart={(e) => {
+        if (startsOnSignatureCanvas(e)) {
+          setTouchStartX(null);
+          return;
+        }
+
+        setTouchStartX(e.touches[0].clientX);
+      }}
       onTouchEnd={(e) => {
         if (!touchStartX) return;
 
