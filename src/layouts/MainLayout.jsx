@@ -12,10 +12,11 @@ import AutoCapitalizeInputs from "@/components/AutoCapitalizeInputs";
 import { clearAppBadge, setAppBadgeCount } from "@/utils/appBadge";
 
 const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
+const signatureGestureSelector = ".signature-pad-canvas, [data-signature-field='true']";
 
 const startsOnSignatureCanvas = (event) =>
   typeof event.target?.closest === "function" &&
-  Boolean(event.target.closest(".signature-pad-canvas"));
+  Boolean(event.target.closest(signatureGestureSelector));
 
 function getNotificationPath(notification) {
   if (notification.record_type === "registro" && notification.record_id) {

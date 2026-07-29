@@ -9,6 +9,11 @@ export default function SignaturePad({
   const canvasRef = useRef(null);
   const [drawing, setDrawing] = useState(false);
 
+  const stopGesturePropagation = (e) => {
+    e?.stopPropagation?.();
+    e?.nativeEvent?.stopImmediatePropagation?.();
+  };
+
   const syncCanvasSize = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -62,6 +67,7 @@ export default function SignaturePad({
   };
 
   const startDraw = (e) => {
+    stopGesturePropagation(e);
     e.preventDefault();
     syncCanvasSize();
     setDrawing(true);
@@ -72,6 +78,7 @@ export default function SignaturePad({
   };
 
   const draw = (e) => {
+    stopGesturePropagation(e);
     if (!drawing) return;
     e.preventDefault();
     const ctx = canvasRef.current.getContext("2d");
@@ -83,7 +90,8 @@ export default function SignaturePad({
     ctx.stroke();
   };
 
-  const endDraw = () => {
+  const endDraw = (e) => {
+    stopGesturePropagation(e);
     if (!drawing) return;
     setDrawing(false);
     const dataUrl = canvasRef.current.toDataURL("image/png");
@@ -113,6 +121,7 @@ export default function SignaturePad({
 
       <canvas
         ref={canvasRef}
+        data-signature-field="true"
         className="signature-pad-canvas border rounded w-full touch-none bg-white"
         onMouseDown={startDraw}
         onMouseMove={draw}

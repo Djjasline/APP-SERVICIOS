@@ -110,6 +110,7 @@ const SignatureCanvasField = forwardRef(function SignatureCanvasField(
       }}
       canvasProps={{
         ...restCanvasProps,
+        "data-signature-field": "true",
         className: `${className} signature-pad-canvas`.trim(),
         style: {
           touchAction: "none",

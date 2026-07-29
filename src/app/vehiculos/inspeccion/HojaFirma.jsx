@@ -13,6 +13,11 @@ export default function HojaFirma() {
   const canvasCli = useRef(null);
   const [drawing, setDrawing] = useState(false);
 
+  const stopGesturePropagation = (e) => {
+    e?.stopPropagation?.();
+    e?.nativeEvent?.stopImmediatePropagation?.();
+  };
+
   const syncCanvasSize = (canvas) => {
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
@@ -59,6 +64,7 @@ export default function HojaFirma() {
   };
 
   const start = (e, canvas) => {
+    stopGesturePropagation(e);
     e.preventDefault();
     syncCanvasSize(canvas);
     const ctx = canvas.getContext("2d");
@@ -71,6 +77,7 @@ export default function HojaFirma() {
   };
 
   const draw = (e, canvas) => {
+    stopGesturePropagation(e);
     if (!drawing) return;
     e.preventDefault();
     const ctx = canvas.getContext("2d");
@@ -79,7 +86,10 @@ export default function HojaFirma() {
     ctx.stroke();
   };
 
-  const end = () => setDrawing(false);
+  const end = (e) => {
+    stopGesturePropagation(e);
+    setDrawing(false);
+  };
 
   const clear = (canvas) => {
     const ctx = canvas.getContext("2d");
@@ -121,6 +131,7 @@ export default function HojaFirma() {
           </p>
           <canvas
             ref={canvasTec}
+            data-signature-field="true"
             className="signature-pad-canvas border w-full bg-white touch-none"
             onPointerDown={(e) => start(e, canvasTec.current)}
             onPointerMove={(e) => draw(e, canvasTec.current)}
@@ -142,6 +153,7 @@ export default function HojaFirma() {
           </p>
           <canvas
             ref={canvasCli}
+            data-signature-field="true"
             className="signature-pad-canvas border w-full bg-white touch-none"
             onPointerDown={(e) => start(e, canvasCli.current)}
             onPointerMove={(e) => draw(e, canvasCli.current)}
