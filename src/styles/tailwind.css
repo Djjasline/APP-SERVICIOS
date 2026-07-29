@@ -215,6 +215,41 @@ select:disabled {
   margin-bottom: 10px;
 }
 
+.signature-pad-canvas {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  height: 120px !important;
+  min-height: 120px !important;
+  max-height: 120px !important;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.pdf-table:has(.signature-pad-canvas) {
+  table-layout: fixed;
+}
+
+.pdf-table:has(.signature-pad-canvas) th,
+.pdf-table:has(.signature-pad-canvas) td {
+  width: 50%;
+  min-width: 0;
+}
+
+.pdf-table:has(.signature-pad-canvas) input,
+.pdf-table:has(.signature-pad-canvas) textarea {
+  max-width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .signature-pad-canvas {
+    height: 112px !important;
+    min-height: 112px !important;
+    max-height: 112px !important;
+  }
+}
+
 /* =============================
    UTILITIES (ASTAP)
 ============================= */

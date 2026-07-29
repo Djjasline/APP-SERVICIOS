@@ -62,17 +62,19 @@ const SignatureCanvasField = forwardRef(function SignatureCanvasField(
     const parent = canvas?.parentElement;
     let observer;
 
+    window.addEventListener("resize", resizeCanvas);
+    window.addEventListener("orientationchange", resizeCanvas);
+
     if (parent && typeof ResizeObserver !== "undefined") {
       observer = new ResizeObserver(resizeCanvas);
       observer.observe(parent);
-    } else {
-      window.addEventListener("resize", resizeCanvas);
     }
 
     return () => {
       cancelAnimationFrame(frame);
       observer?.disconnect();
       window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener("orientationchange", resizeCanvas);
       unlockPageScroll();
     };
   }, [resizeCanvas]);
@@ -116,7 +118,10 @@ const SignatureCanvasField = forwardRef(function SignatureCanvasField(
           minWidth: 0,
           ...style,
         },
-        onPointerDown: compose(() => lockPageScroll(), onPointerDown),
+        onPointerDown: compose(() => {
+          resizeCanvas();
+          lockPageScroll();
+        }, onPointerDown),
         onPointerUp: compose(onPointerUp, () => unlockPageScroll()),
         onPointerCancel: compose(onPointerCancel, () => unlockPageScroll()),
         onTouchStart: compose(() => lockPageScroll(), onTouchStart),

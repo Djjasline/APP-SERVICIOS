@@ -1,8 +1,8 @@
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   getInspectionById,
-  markInspectionCompleted
+  saveInspectionDraft
 } from "@utils/inspectionStorage";
 
 export default function HojaFirma() {
@@ -12,6 +12,40 @@ export default function HojaFirma() {
   const canvasTec = useRef(null);
   const canvasCli = useRef(null);
   const [drawing, setDrawing] = useState(false);
+
+  const syncCanvasSize = (canvas) => {
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const width = Math.round(rect.width || 400);
+    const height = Math.round(rect.height || 120);
+    if (!width || !height || (canvas.width === width && canvas.height === height)) return;
+    const dataUrl = canvas.toDataURL("image/png");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    if (dataUrl) {
+      const img = new Image();
+      img.src = dataUrl;
+      img.onload = () => ctx.drawImage(img, 0, 0, width, height);
+    }
+  };
+
+  useLayoutEffect(() => {
+    const resize = () => {
+      syncCanvasSize(canvasTec.current);
+      syncCanvasSize(canvasCli.current);
+    };
+    const frame = requestAnimationFrame(resize);
+    window.addEventListener("resize", resize);
+    window.addEventListener("orientationchange", resize);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("orientationchange", resize);
+    };
+  }, []);
 
   /* ===============================
      CANVAS HELPERS
@@ -25,6 +59,8 @@ export default function HojaFirma() {
   };
 
   const start = (e, canvas) => {
+    e.preventDefault();
+    syncCanvasSize(canvas);
     const ctx = canvas.getContext("2d");
     const { x, y } = getPos(e, canvas);
     ctx.beginPath();
@@ -36,6 +72,7 @@ export default function HojaFirma() {
 
   const draw = (e, canvas) => {
     if (!drawing) return;
+    e.preventDefault();
     const ctx = canvas.getContext("2d");
     const { x, y } = getPos(e, canvas);
     ctx.lineTo(x, y);
@@ -52,7 +89,7 @@ export default function HojaFirma() {
   /* ===============================
      GUARDAR FIRMAS
   =============================== */
-  const guardarFirmas = () => {
+  const guardarFirmas = async () => {
     const inspection = getInspectionById(id);
     if (!inspection) return;
 
@@ -65,7 +102,7 @@ export default function HojaFirma() {
     };
 
     // Guardamos como BORRADOR (no cambia estado)
-    saveInspectionDraft("hidro", inspection.id, dataActualizada);
+    await saveInspectionDraft("hidro", inspection.id, dataActualizada);
 
     navigate("/inspeccion");
   };
@@ -84,9 +121,7 @@ export default function HojaFirma() {
           </p>
           <canvas
             ref={canvasTec}
-            width={400}
-            height={150}
-            className="border w-full bg-white touch-none"
+            className="signature-pad-canvas border w-full bg-white touch-none"
             onPointerDown={(e) => start(e, canvasTec.current)}
             onPointerMove={(e) => draw(e, canvasTec.current)}
             onPointerUp={end}
@@ -107,9 +142,7 @@ export default function HojaFirma() {
           </p>
           <canvas
             ref={canvasCli}
-            width={400}
-            height={150}
-            className="border w-full bg-white touch-none"
+            className="signature-pad-canvas border w-full bg-white touch-none"
             onPointerDown={(e) => start(e, canvasCli.current)}
             onPointerMove={(e) => draw(e, canvasCli.current)}
             onPointerUp={end}

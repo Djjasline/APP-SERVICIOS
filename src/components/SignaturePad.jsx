@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useLayoutEffect } from "react";
 
 export default function SignaturePad({
   label,
@@ -8,6 +8,37 @@ export default function SignaturePad({
 }) {
   const canvasRef = useRef(null);
   const [drawing, setDrawing] = useState(false);
+
+  const syncCanvasSize = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const width = Math.round(rect.width || 400);
+    const height = Math.round(rect.height || 120);
+    if (!width || !height || (canvas.width === width && canvas.height === height)) return;
+    const dataUrl = canvas.toDataURL("image/png");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    if (dataUrl && value) {
+      const img = new Image();
+      img.src = dataUrl;
+      img.onload = () => ctx.drawImage(img, 0, 0, width, height);
+    }
+  };
+
+  useLayoutEffect(() => {
+    const frame = requestAnimationFrame(syncCanvasSize);
+    window.addEventListener("resize", syncCanvasSize);
+    window.addEventListener("orientationchange", syncCanvasSize);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", syncCanvasSize);
+      window.removeEventListener("orientationchange", syncCanvasSize);
+    };
+  }, [value]);
 
   useEffect(() => {
     if (value && canvasRef.current) {
@@ -32,6 +63,7 @@ export default function SignaturePad({
 
   const startDraw = (e) => {
     e.preventDefault();
+    syncCanvasSize();
     setDrawing(true);
     const ctx = canvasRef.current.getContext("2d");
     const { x, y } = getPos(e);
@@ -81,9 +113,7 @@ export default function SignaturePad({
 
       <canvas
         ref={canvasRef}
-        width={400}
-        height={150}
-        className="border rounded w-full touch-none bg-white"
+        className="signature-pad-canvas border rounded w-full touch-none bg-white"
         onMouseDown={startDraw}
         onMouseMove={draw}
         onMouseUp={endDraw}
