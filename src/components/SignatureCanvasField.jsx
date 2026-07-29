@@ -36,22 +36,24 @@ const SignatureCanvasField = forwardRef(function SignatureCanvasField(
     const canvas = signature?.getCanvas?.();
     if (!canvas) return;
 
-    const parent = canvas.parentElement;
-    const rect = parent?.getBoundingClientRect();
-    const width = Math.round(rect?.width || canvasProps.width || canvas.offsetWidth || 300);
-    const height = Math.round(rect?.height || canvasProps.height || canvas.offsetHeight || 150);
+    const rect = canvas.getBoundingClientRect();
+    const parentRect = canvas.parentElement?.getBoundingClientRect();
+    const width = Math.round(rect.width || parentRect?.width || canvasProps.width || canvas.offsetWidth || 300);
+    const height = Math.round(rect.height || parentRect?.height || canvasProps.height || canvas.offsetHeight || 120);
     if (!width || !height) return;
 
     const nextWidth = Math.round(width);
     const nextHeight = Math.round(height);
     if (canvas.width === nextWidth && canvas.height === nextHeight) return;
-    if (!signature.isEmpty?.()) return;
+
+    const dataUrl = signature.isEmpty?.() ? "" : canvas.toDataURL("image/png");
 
     canvas.width = nextWidth;
     canvas.height = nextHeight;
-    canvas.style.width = `${nextWidth}px`;
-    canvas.style.height = `${nextHeight}px`;
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
     signature.clear?.();
+    if (dataUrl) signature.fromDataURL?.(dataUrl);
   }, [canvasProps.height, canvasProps.width]);
 
   useLayoutEffect(() => {
@@ -110,6 +112,8 @@ const SignatureCanvasField = forwardRef(function SignatureCanvasField(
           display: "block",
           width: "100%",
           height: "100%",
+          maxWidth: "100%",
+          minWidth: 0,
           ...style,
         },
         onPointerDown: compose(() => lockPageScroll(), onPointerDown),
