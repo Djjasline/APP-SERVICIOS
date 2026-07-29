@@ -66,9 +66,9 @@ body {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
-  height: 120px !important;
-  min-height: 120px !important;
-  max-height: 120px !important;
+  height: 200px !important;
+  min-height: 200px !important;
+  max-height: 200px !important;
   box-sizing: border-box;
   background: #fff;
 }
@@ -89,15 +89,36 @@ body {
   min-width: 0;
 }
 
+@media screen {
+  .pdf-table:has(.signature-pad-canvas) tbody tr:first-child td {
+    height: 270px !important;
+  }
+
+  .pdf-table:has(.signature-pad-canvas) td > div:has(.signature-pad-canvas) {
+    height: 200px !important;
+    min-height: 200px !important;
+  }
+}
+
 @media (max-width: 640px) {
   .signature-pad-canvas {
-    height: 112px !important;
-    min-height: 112px !important;
-    max-height: 112px !important;
+    height: 180px !important;
+    min-height: 180px !important;
+    max-height: 180px !important;
+  }
+
+  .pdf-table:has(.signature-pad-canvas) td > div:has(.signature-pad-canvas) {
+    height: 180px !important;
+    min-height: 180px !important;
   }
 }
 
 @media print {
+  .pdf-table:has(.signature-pad-canvas) td > div:has(.signature-pad-canvas) {
+    height: 120px !important;
+    min-height: 120px !important;
+  }
+
   .signature-pad-canvas {
     height: 120px !important;
     min-height: 120px !important;
