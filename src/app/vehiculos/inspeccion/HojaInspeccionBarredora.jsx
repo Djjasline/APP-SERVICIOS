@@ -283,6 +283,8 @@ const emptyForm = {
     tecnico: "",
     cliente: "",
     clienteCedula: "",
+    aprobadoPorActivo: false,
+    aprobadoPorNombre: "",
   },
 };
 
@@ -1194,6 +1196,26 @@ setTimeout(() => {
             className="w-full border rounded p-2 text-sm outline-none overflow-hidden resize-none min-h-[80px]"
           />
 
+          <div className="mb-3 rounded border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-slate-800">
+            <label className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <span className="flex items-center gap-2 font-semibold">
+                <input
+                  type="checkbox"
+                  checked={Boolean(data.firmas?.aprobadoPorActivo)}
+                  onChange={(e) => {
+                    update(["firmas", "aprobadoPorActivo"], e.target.checked);
+                    if (!e.target.checked) update(["firmas", "aprobadoPorNombre"], "");
+                  }}
+                  className="h-4 w-4"
+                />
+                Aprobado por
+              </span>
+              <span className="text-xs text-slate-600">
+                Opcional: agrega un recuadro para firma física en el PDF.
+              </span>
+            </label>
+          </div>
+
           {/* ══ 9. FIRMAS ══ */}
           <table className="pdf-table w-full">
             <thead><tr>
@@ -1269,6 +1291,29 @@ setTimeout(() => {
                   </div>
                 </td>
               </tr>
+              {data.firmas?.aprobadoPorActivo && (
+                <tr>
+                  <td colSpan={2} className="align-top" style={{ height: 220 }}>
+                    <div className="mx-auto max-w-[420px]">
+                      <div className="mb-2 text-center text-xs font-bold uppercase">
+                        APROBADO POR
+                      </div>
+                      <div className="flex h-[120px] items-center justify-center rounded border bg-white text-xs text-slate-400">
+                        Espacio para firma en PDF impreso
+                      </div>
+                      <div className="mt-2 space-y-1 text-center">
+                        <AutoResizeInput
+                          className="pdf-input w-full"
+                          value={data.firmas?.aprobadoPorNombre || ""}
+                          onChange={(e) => update(["firmas", "aprobadoPorNombre"], e.target.value)}
+                          placeholder="Nombre de quien aprueba"
+                        />
+                        <div className="text-xs font-semibold">Firma Aprobado por</div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
 

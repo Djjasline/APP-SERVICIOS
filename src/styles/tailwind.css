@@ -219,9 +219,9 @@ select:disabled {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
-  height: 180px !important;
-  min-height: 180px !important;
-  max-height: 180px !important;
+  height: 120px !important;
+  min-height: 120px !important;
+  max-height: 120px !important;
   box-sizing: border-box;
   background: #fff;
 }
@@ -244,62 +244,9 @@ select:disabled {
 
 @media (max-width: 640px) {
   .signature-pad-canvas {
-    height: 160px !important;
-    min-height: 160px !important;
-    max-height: 160px !important;
-  }
-}
-
-@media screen {
-  .pdf-table:has(.signature-pad-canvas) {
-    display: block;
-    width: 100%;
-  }
-
-  .pdf-table:has(.signature-pad-canvas) thead,
-  .pdf-table:has(.signature-pad-canvas) tbody,
-  .pdf-table:has(.signature-pad-canvas) tr {
-    display: block;
-    width: 100%;
-  }
-
-  .pdf-table:has(.signature-pad-canvas) thead {
-    display: none;
-  }
-
-  .pdf-table:has(.signature-pad-canvas) tbody tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-  }
-
-  .pdf-table:has(.signature-pad-canvas) tbody td {
-    display: block;
-    width: 100% !important;
-    min-width: 0;
-    height: auto !important;
-    padding: 10px !important;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    background: #fff;
-    overflow: visible;
-  }
-
-  .pdf-table:has(.signature-pad-canvas) tbody td::before {
-    display: block;
-    margin-bottom: 8px;
-    color: #111827;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
-  .pdf-table:has(.signature-pad-canvas) tbody td:first-child::before {
-    content: "Firma tecnico ASTAP";
-  }
-
-  .pdf-table:has(.signature-pad-canvas) tbody td:nth-child(2)::before {
-    content: "Firma cliente / contacto";
+    height: 112px !important;
+    min-height: 112px !important;
+    max-height: 112px !important;
   }
 }
 

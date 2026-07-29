@@ -758,6 +758,19 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                   </div>
                 </td>
               </tr>
+              {d.firmas?.aprobadoPorActivo && (
+                <tr>
+                  <td colSpan={2} style={{ ...S.cell, height: 85, textAlign: "center", verticalAlign: "middle", padding: "4px 6px" }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase" }}>APROBADO POR</div>
+                    <div style={{ height: 45, marginTop: 4, border: "1px solid #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af", fontSize: 9 }}>
+                      Espacio para firma en PDF impreso
+                    </div>
+                    <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase" }}>
+                      {d.firmas?.aprobadoPorNombre || "—"}
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
