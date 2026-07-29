@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import imageCompression from "browser-image-compression";
-import SignatureCanvas from "react-signature-canvas";
+import SignatureCanvas from "@/components/SignatureCanvasField";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { uploadRegistroImage } from "@/utils/storage";

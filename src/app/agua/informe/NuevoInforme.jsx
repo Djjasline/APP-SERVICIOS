@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import imageCompression from "browser-image-compression";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import SignatureCanvas from "react-signature-canvas";
+import SignatureCanvas from "@/components/SignatureCanvasField";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";

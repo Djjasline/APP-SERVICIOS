@@ -1,0 +1,126 @@
+import { forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useRef } from "react";
+import ReactSignatureCanvas from "react-signature-canvas";
+
+const lockPageScroll = () => {
+  document.activeElement?.blur();
+  document.body.style.overflow = "hidden";
+};
+
+const unlockPageScroll = () => {
+  document.body.style.overflow = "";
+};
+
+const compose = (first, second) => (event) => {
+  first?.(event);
+  second?.(event);
+};
+
+const SignatureCanvasField = forwardRef(function SignatureCanvasField(
+  { canvasProps = {}, onBegin, onEnd, ...props },
+  forwardedRef
+) {
+  const internalRef = useRef(null);
+
+  useImperativeHandle(forwardedRef, () => ({
+    clear: (...args) => internalRef.current?.clear?.(...args),
+    isEmpty: (...args) => internalRef.current?.isEmpty?.(...args),
+    getCanvas: (...args) => internalRef.current?.getCanvas?.(...args),
+    getTrimmedCanvas: (...args) => internalRef.current?.getTrimmedCanvas?.(...args),
+    getSignaturePad: (...args) => internalRef.current?.getSignaturePad?.(...args),
+    fromDataURL: (...args) => internalRef.current?.fromDataURL?.(...args),
+    toDataURL: (...args) => internalRef.current?.toDataURL?.(...args),
+  }), []);
+
+  const resizeCanvas = useCallback(() => {
+    const signature = internalRef.current;
+    const canvas = signature?.getCanvas?.();
+    if (!canvas) return;
+
+    const parent = canvas.parentElement;
+    const rect = parent?.getBoundingClientRect();
+    const width = Math.round(rect?.width || canvasProps.width || canvas.offsetWidth || 300);
+    const height = Math.round(rect?.height || canvasProps.height || canvas.offsetHeight || 150);
+    if (!width || !height) return;
+
+    const nextWidth = Math.round(width);
+    const nextHeight = Math.round(height);
+    if (canvas.width === nextWidth && canvas.height === nextHeight) return;
+    if (!signature.isEmpty?.()) return;
+
+    canvas.width = nextWidth;
+    canvas.height = nextHeight;
+    canvas.style.width = `${nextWidth}px`;
+    canvas.style.height = `${nextHeight}px`;
+    signature.clear?.();
+  }, [canvasProps.height, canvasProps.width]);
+
+  useLayoutEffect(() => {
+    const frame = requestAnimationFrame(resizeCanvas);
+    const canvas = internalRef.current?.getCanvas?.();
+    const parent = canvas?.parentElement;
+    let observer;
+
+    if (parent && typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(resizeCanvas);
+      observer.observe(parent);
+    } else {
+      window.addEventListener("resize", resizeCanvas);
+    }
+
+    return () => {
+      cancelAnimationFrame(frame);
+      observer?.disconnect();
+      window.removeEventListener("resize", resizeCanvas);
+      unlockPageScroll();
+    };
+  }, [resizeCanvas]);
+
+  const {
+    className = "",
+    style,
+    onPointerDown,
+    onPointerUp,
+    onPointerCancel,
+    onTouchStart,
+    onTouchMove,
+    onTouchEnd,
+    ...restCanvasProps
+  } = canvasProps;
+
+  return (
+    <ReactSignatureCanvas
+      {...props}
+      ref={internalRef}
+      onBegin={(...args) => {
+        lockPageScroll();
+        onBegin?.(...args);
+      }}
+      onEnd={(...args) => {
+        onEnd?.(...args);
+        unlockPageScroll();
+      }}
+      canvasProps={{
+        ...restCanvasProps,
+        className: `${className} signature-pad-canvas`.trim(),
+        style: {
+          touchAction: "none",
+          userSelect: "none",
+          WebkitUserSelect: "none",
+          WebkitTouchCallout: "none",
+          display: "block",
+          width: "100%",
+          height: "100%",
+          ...style,
+        },
+        onPointerDown: compose(() => lockPageScroll(), onPointerDown),
+        onPointerUp: compose(onPointerUp, () => unlockPageScroll()),
+        onPointerCancel: compose(onPointerCancel, () => unlockPageScroll()),
+        onTouchStart: compose(() => lockPageScroll(), onTouchStart),
+        onTouchMove: compose((event) => event.preventDefault(), onTouchMove),
+        onTouchEnd: compose(onTouchEnd, () => unlockPageScroll()),
+      }}
+    />
+  );
+});
+
+export default SignatureCanvasField;

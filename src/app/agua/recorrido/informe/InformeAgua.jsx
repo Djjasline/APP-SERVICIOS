@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useNavigate, useParams } from "react-router-dom";
-import SignatureCanvas from "react-signature-canvas";
+import SignatureCanvas from "@/components/SignatureCanvasField";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { saveOrUpdateReport } from "@/services/reportService";

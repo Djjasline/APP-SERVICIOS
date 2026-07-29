@@ -9,7 +9,7 @@ import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import SignatureCanvas from "react-signature-canvas";
+import SignatureCanvas from "@/components/SignatureCanvasField";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportHeader from "@/components/report/ReportHeader";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";

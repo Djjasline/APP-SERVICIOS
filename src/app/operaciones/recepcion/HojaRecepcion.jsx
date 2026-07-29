@@ -3,7 +3,7 @@ import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import AutoResizeInput from "@/components/AutoResizeInput";
 import { useNavigate, useParams } from "react-router-dom";
-import SignatureCanvas from "react-signature-canvas";
+import SignatureCanvas from "@/components/SignatureCanvasField";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import imageCompression from "browser-image-compression";

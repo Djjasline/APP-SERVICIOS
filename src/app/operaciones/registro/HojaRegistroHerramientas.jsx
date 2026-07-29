@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useParams, useNavigate } from "react-router-dom";
-import SignatureCanvas from "react-signature-canvas";
+import SignatureCanvas from "@/components/SignatureCanvasField";
 import { TECHNICIANS } from "@/data/technicians";
 import { getRegistroById, updateRegistro, } from "@/utils/registroStorage";
 import { uploadRegistroImage } from "@/utils/storage";

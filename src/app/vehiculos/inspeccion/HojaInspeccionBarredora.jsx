@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import imageCompression from "browser-image-compression";
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import SignatureCanvas from "react-signature-canvas";
+import SignatureCanvas from "@/components/SignatureCanvasField";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";

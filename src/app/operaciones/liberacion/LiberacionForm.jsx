@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useNavigate } from "react-router-dom";
-import SignatureCanvas from "react-signature-canvas";
+import SignatureCanvas from "@/components/SignatureCanvasField";
 import AutoResizeInput from "@/components/AutoResizeInput";
 
 const checklist = {

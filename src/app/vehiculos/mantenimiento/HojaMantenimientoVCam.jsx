@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useNavigate, useParams } from "react-router-dom";
-import SignatureCanvas from "react-signature-canvas";
+import SignatureCanvas from "@/components/SignatureCanvasField";
 import imageCompression from "browser-image-compression";
 
 import { useAuth } from "@/context/AuthContext";

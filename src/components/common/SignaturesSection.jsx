@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "react";
-import SignatureCanvas from "react-signature-canvas";
+import SignatureCanvas from "@/components/SignatureCanvasField";
 
 export default function SignaturesSection({ data = {}, onChange }) {
   const tecnicoRef = useRef(null);

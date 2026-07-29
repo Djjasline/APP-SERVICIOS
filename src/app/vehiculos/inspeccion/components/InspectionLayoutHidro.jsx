@@ -1,4 +1,4 @@
-import SignatureCanvas from "react-signature-canvas";
+import SignatureCanvas from "@/components/SignatureCanvasField";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
 
