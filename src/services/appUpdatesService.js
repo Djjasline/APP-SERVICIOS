@@ -1,5 +1,7 @@
 import { supabase } from "@/lib/supabase";
 
+const DEFAULT_UPDATE_MESSAGE = "Se mejoró el sistema de notificaciones: sonido de chat, avisos internos y actualización de alertas en la app.";
+
 function cleanUpdateId(value) {
   return String(value || "").replace(/^app-update-/, "");
 }
@@ -9,6 +11,16 @@ const FRIENDLY_UPDATES = [
     match: "detallar control de cambios",
     title: "Control de cambios: seguridad y notificaciones",
     message: "Se reforzaron permisos de informes y encuestas, se protegieron las notificaciones y se mejoró el sonido de avisos con la app abierta.",
+  },
+  {
+    match: "restaurar sonido de chat y avisos",
+    title: "Control de cambios: sonido de chat y avisos",
+    message: "Se restauró el sonido directo para mensajes de chat y avisos internos mientras la app está abierta.",
+  },
+  {
+    match: "corregir alerta sonora de notificaciones",
+    title: "Control de cambios: alerta sonora",
+    message: "Se ajustó el aviso sonoro de notificaciones y se agregó una prueba de sonido en la pantalla de notificaciones.",
   },
   {
     match: "mejorar sonido de notificaciones",
@@ -208,7 +220,7 @@ function genericFriendlyUpdate(update) {
 
   return {
     title: "Control de cambios: actualización publicada",
-    message: "Se publicó una mejora en la aplicación.",
+    message: DEFAULT_UPDATE_MESSAGE,
   };
 }
 
@@ -224,9 +236,13 @@ function friendlyUpdate(update) {
     return genericFriendlyUpdate(update);
   }
 
+  if (/^Control de cambios:\s*actualizaci[oó]n publicada/i.test(rawTitle) && /Se public[oó] una mejora en la aplicaci[oó]n/i.test(rawMessage)) {
+    return genericFriendlyUpdate(update);
+  }
+
   return {
     title: rawTitle.replace(/^Actualizaci[oó]n:/i, "Control de cambios:") || "Control de cambios",
-    message: rawMessage || "Se publicó una mejora en la aplicación.",
+    message: rawMessage || DEFAULT_UPDATE_MESSAGE,
   };
 }
 

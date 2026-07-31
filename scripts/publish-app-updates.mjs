@@ -89,6 +89,7 @@ function firstLine(message) {
 
 const HIDDEN_INTERNAL_PROJECT_PATHS = ["docs/proyecto-bodega-repuestos.md"];
 const HIDDEN_INTERNAL_PROJECT_SUBJECTS = ["documentar proyecto de bodega y repuestos"];
+const DEFAULT_UPDATE_MESSAGE = "Se mejoró el sistema de notificaciones: sonido de chat, avisos internos y actualización de alertas en la app.";
 
 function isHiddenInternalProjectCommit(commit) {
   const subject = firstLine(commit?.message).toLowerCase();
@@ -108,6 +109,16 @@ const FRIENDLY_UPDATES = [
     match: "detallar control de cambios",
     title: "Control de cambios: seguridad y notificaciones",
     message: "Se reforzaron permisos de informes y encuestas, se protegieron las notificaciones y se mejoró el sonido de avisos con la app abierta.",
+  },
+  {
+    match: "restaurar sonido de chat y avisos",
+    title: "Control de cambios: sonido de chat y avisos",
+    message: "Se restauró el sonido directo para mensajes de chat y avisos internos mientras la app está abierta.",
+  },
+  {
+    match: "corregir alerta sonora de notificaciones",
+    title: "Control de cambios: alerta sonora",
+    message: "Se ajustó el aviso sonoro de notificaciones y se agregó una prueba de sonido en la pantalla de notificaciones.",
   },
   {
     match: "mejorar sonido de notificaciones",
@@ -231,10 +242,10 @@ function buildTitle(commits) {
 
 function buildMessage(commits) {
   if (commits.length === 1) {
-    return friendlyCommit(commits[0])?.message || "Se publicó una mejora en la aplicación.";
+    return friendlyCommit(commits[0])?.message || DEFAULT_UPDATE_MESSAGE;
   }
 
-  const lines = commits.map((commit) => `- ${friendlyCommit(commit)?.message || "Mejora publicada en la aplicación."}`);
+  const lines = commits.map((commit) => `- ${friendlyCommit(commit)?.message || DEFAULT_UPDATE_MESSAGE}`);
   return `Se publicó una nueva versión de la app con estos cambios:\n${lines.join("\n")}`;
 }
 
