@@ -1,4 +1,4 @@
-const CACHE_NAME = "app-servicios-v10";
+const CACHE_NAME = "app-servicios-v11";
 const VAPID_CACHE_NAME = "app-servicios-vapid";
 const VAPID_PUBLIC_KEY_REQUEST = "/__vapid_public_key__";
 
@@ -84,6 +84,8 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
+
+  if (url.origin !== self.location.origin) return;
 
   // Para llamadas a Supabase siempre ir a la red
   if (url.hostname.includes("supabase.co")) return;
