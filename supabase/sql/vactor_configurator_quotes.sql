@@ -43,10 +43,29 @@ values ('informe', 'informe', true)
 on conflict (id) do update set public = true;
 
 drop policy if exists "Usuarios autenticados gestionan PDFs configurador" on storage.objects;
+drop policy if exists "Usuario gestiona PDFs de sus cotizaciones Vactor" on storage.objects;
 
-create policy "Usuarios autenticados gestionan PDFs configurador"
+create policy "Usuario gestiona PDFs de sus cotizaciones Vactor"
   on storage.objects
   for all
   to authenticated
-  using (bucket_id = 'informe' and name like 'configurador/%')
-  with check (bucket_id = 'informe' and name like 'configurador/%');
+  using (
+    bucket_id = 'informe'
+    and (storage.foldername(name))[1] = 'configurador'
+    and exists (
+      select 1
+      from public.vactor_configurator_quotes q
+      where q.id::text = (storage.foldername(name))[2]
+        and q.user_id = auth.uid()
+    )
+  )
+  with check (
+    bucket_id = 'informe'
+    and (storage.foldername(name))[1] = 'configurador'
+    and exists (
+      select 1
+      from public.vactor_configurator_quotes q
+      where q.id::text = (storage.foldername(name))[2]
+        and q.user_id = auth.uid()
+    )
+  );
