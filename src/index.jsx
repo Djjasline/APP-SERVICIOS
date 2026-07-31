@@ -36,10 +36,9 @@ if ("serviceWorker" in navigator) {
       .register("/sw.js")
       .then((registration) => {
         sendVapidPublicKey(registration);
-        console.log("Service Worker registrado correctamente:", registration);
       })
       .catch((error) => {
-        console.log("Error registrando Service Worker:", error);
+        console.error("Error registrando Service Worker:", error);
       });
   });
 }

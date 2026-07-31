@@ -79,7 +79,7 @@ export default function MainLayout() {
   }, [unread]);
 
   useEffect(() => {
-    const unlock = () => unlockNotificationSound();
+    const unlock = () => queueMicrotask(() => unlockNotificationSound());
 
     window.addEventListener("pointerdown", unlock, { once: true });
     window.addEventListener("keydown", unlock, { once: true });
