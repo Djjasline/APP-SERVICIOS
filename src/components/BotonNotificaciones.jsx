@@ -54,8 +54,8 @@ export function BotonNotificaciones() {
         {cargando
           ? "Procesando..."
           : suscrito
-          ? "Notificaciones activas"
-          : "Activar notificaciones"}
+          ? "Activas en este dispositivo"
+          : "Activar en este dispositivo"}
       </button>
 
       {error && (

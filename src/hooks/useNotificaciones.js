@@ -24,6 +24,19 @@ function sendVapidPublicKey(registration) {
   worker?.postMessage({ type: "SET_VAPID_PUBLIC_KEY", key: VAPID_PUBLIC_KEY });
 }
 
+async function getOrCreatePushSubscription(registro) {
+  let suscripcion = await registro.pushManager.getSubscription();
+
+  if (!suscripcion && Notification.permission === "granted" && VAPID_PUBLIC_KEY) {
+    suscripcion = await registro.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+    });
+  }
+
+  return suscripcion;
+}
+
 // ─── Utilidad: convertir clave VAPID a Uint8Array ───────────────────────────
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -87,7 +100,7 @@ export function useNotificaciones() {
     navigator.serviceWorker.ready.then(async (registro) => {
       sendVapidPublicKey(registro);
 
-      const suscripcionExistente = await registro.pushManager.getSubscription();
+      const suscripcionExistente = await getOrCreatePushSubscription(registro);
       if (cancelled) return;
 
       setSuscrito(!!suscripcionExistente);
@@ -133,15 +146,12 @@ export function useNotificaciones() {
       const registro = await navigator.serviceWorker.ready;
 
       // 3. Reutilizar o crear suscripción en el push manager
-      let suscripcion = await registro.pushManager.getSubscription();
+      const suscripcion = await getOrCreatePushSubscription(registro);
 
       if (!suscripcion) {
-        const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
-
-        suscripcion = await registro.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey,
-        });
+        setError("No se pudo crear la suscripción push en este dispositivo.");
+        setCargando(false);
+        return false;
       }
 
       // 4. Guardar en Supabase

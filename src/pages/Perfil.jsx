@@ -293,7 +293,7 @@ export default function Perfil() {
             Notificaciones push
           </label>
           <p className="text-xs text-gray-500">
-            Activa avisos del sistema incluso cuando la app no esté abierta.
+            Activa avisos del sistema en este navegador. Repite la activación en cada celular, tablet o computador que uses.
           </p>
           <BotonNotificaciones />
         </div>

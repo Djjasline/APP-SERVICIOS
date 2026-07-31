@@ -11,6 +11,7 @@ import TechnicalWritingAssistant from "@/components/TechnicalWritingAssistant";
 import AutoCapitalizeInputs from "@/components/AutoCapitalizeInputs";
 import { clearAppBadge, setAppBadgeCount } from "@/utils/appBadge";
 import { playNotificationSound, unlockNotificationSound } from "@/utils/notificationSound";
+import { useNotificaciones } from "@/hooks/useNotificaciones";
 
 const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
 const signatureGestureSelector = ".signature-pad-canvas, [data-signature-field='true']";
@@ -71,6 +72,7 @@ export default function MainLayout() {
   const [usuariosOnline, setUsuariosOnline] = useState({});
   const chatAlertTimer = useRef(null);
   const unreadRef = useRef(0);
+  useNotificaciones();
 
   useEffect(() => {
     unreadRef.current = unread;
