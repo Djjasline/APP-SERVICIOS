@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
-import { Calculator, CheckCircle2, Download, ExternalLink, FileText, Save, ShieldCheck, Truck } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Calculator, CheckCircle2, Download, ExternalLink, Eye, EyeOff, FileText, History, RefreshCw, Save, ShieldCheck, Truck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { downloadConfiguratorPdf } from "./configuratorPdf";
-import { saveConfiguratorQuote } from "@/services/configuratorQuoteService";
+import { getConfiguratorQuoteHistory, saveConfiguratorQuote } from "@/services/configuratorQuoteService";
 
 const VACTOR_LINE_IMAGE = "/vactor-linea.png.png";
 const SPRITE_COLUMNS = 4;
@@ -183,6 +183,11 @@ function money(value) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value || 0);
 }
 
+function formatDate(value) {
+  if (!value) return "-";
+  return new Intl.DateTimeFormat("es-EC", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+}
+
 function getOptionPrice(key, selected) {
   return SELECT_OPTIONS[key]?.find(([label]) => label === selected)?.[1] || 0;
 }
@@ -199,6 +204,10 @@ export default function ConfiguradorHome() {
   const [pdfUrl, setPdfUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [hideValues, setHideValues] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [historyError, setHistoryError] = useState("");
   const [quote, setQuote] = useState({
     number: `ASTAP-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`,
     customer: "Cliente por definir",
@@ -240,9 +249,28 @@ export default function ConfiguradorHome() {
   const updateToggle = (key) => setToggles((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const quotePayload = useMemo(
-    () => ({ quote, selectedModelId, selectedModel, config, toggles, priceSummary, items: configuredItems }),
-    [config, configuredItems, priceSummary, quote, selectedModel, selectedModelId, toggles]
+    () => ({ quote, selectedModelId, selectedModel, config, toggles, priceSummary, items: configuredItems, hideValues }),
+    [config, configuredItems, hideValues, priceSummary, quote, selectedModel, selectedModelId, toggles]
   );
+
+  const loadHistory = useCallback(async () => {
+    setLoadingHistory(true);
+    setHistoryError("");
+
+    try {
+      const rows = await getConfiguratorQuoteHistory();
+      setHistory(rows);
+    } catch (error) {
+      console.error("Error cargando historial del configurador:", error);
+      setHistoryError("No se pudo cargar el historial de cotizaciones.");
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
 
   const saveQuote = async () => {
     setSaving(true);
@@ -255,6 +283,7 @@ export default function ConfiguradorHome() {
       localStorage.setItem("astap-configurador-draft", JSON.stringify(payload));
       const saved = await saveConfiguratorQuote(payload);
       setPdfUrl(saved?.pdf_url || "");
+      if (saved?.id) setHistory((prev) => [saved, ...prev.filter((item) => item.id !== saved.id)].slice(0, 50));
       setSavedMessage("Cotización guardada en Supabase y PDF generado correctamente.");
       setActiveTab("review");
     } catch (error) {
@@ -293,9 +322,23 @@ export default function ConfiguradorHome() {
           </p>
         </div>
 
-        <button type="button" onClick={() => navigate("/area/vehiculos")} className="btn-volver-orange">
-          Volver
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setHideValues((prev) => !prev)}
+            className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition ${
+              hideValues
+                ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                : "border border-slate-300 text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            {hideValues ? <EyeOff size={16} /> : <Eye size={16} />}
+            {hideValues ? "Valores ocultos" : "Ocultar valores"}
+          </button>
+          <button type="button" onClick={() => navigate("/area/vehiculos")} className="btn-volver-orange">
+            Volver
+          </button>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-900 shadow-sm">
@@ -340,7 +383,7 @@ export default function ConfiguradorHome() {
               <p className={`mt-3 font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>{model.name}</p>
               <p className="text-xs text-blue-600">{model.family}</p>
               <p className="mt-1 text-[11px] text-slate-400">Recorte de lámina Vactor</p>
-              <p className="mt-1 text-xs text-slate-500">Base {money(model.basePrice)}</p>
+              {!hideValues && <p className="mt-1 text-xs text-slate-500">Base {money(model.basePrice)}</p>}
             </button>
           ))}
         </div>
@@ -357,8 +400,8 @@ export default function ConfiguradorHome() {
           <div className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-white">
             <Calculator size={18} />
             <div>
-              <p className="text-xs text-slate-300">Total</p>
-              <p className="font-bold">{money(priceSummary.total)}</p>
+              <p className="text-xs text-slate-300">{hideValues ? "Modo visual" : "Total"}</p>
+              <p className="font-bold">{hideValues ? "Sin valores" : money(priceSummary.total)}</p>
             </div>
           </div>
         </div>
@@ -386,11 +429,11 @@ export default function ConfiguradorHome() {
 
         <div className="p-4">
           {activeTab === "review" ? (
-            <ReviewPanel quote={quote} selectedModel={selectedModel} priceSummary={priceSummary} items={configuredItems} />
+            <ReviewPanel quote={quote} selectedModel={selectedModel} priceSummary={priceSummary} items={configuredItems} hideValues={hideValues} />
           ) : (
             <div className="space-y-6">
               {(SECTIONS[activeTab] || []).map((section) => (
-                <ConfigSection key={section.title} section={section} config={config} toggles={toggles} updateConfig={updateConfig} updateToggle={updateToggle} />
+                <ConfigSection key={section.title} section={section} config={config} toggles={toggles} updateConfig={updateConfig} updateToggle={updateToggle} hideValues={hideValues} />
               ))}
             </div>
           )}
@@ -398,7 +441,7 @@ export default function ConfiguradorHome() {
 
         <div className="flex flex-col gap-3 border-t border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-slate-500">
-            Base: <strong>{money(priceSummary.base)}</strong> | Opciones: <strong>{money(priceSummary.options)}</strong>
+            {hideValues ? "Modo visual activo: precios ocultos en pantalla y PDF." : <>Base: <strong>{money(priceSummary.base)}</strong> | Opciones: <strong>{money(priceSummary.options)}</strong></>}
           </div>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={() => setActiveTab("review")} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
@@ -426,6 +469,8 @@ export default function ConfiguradorHome() {
           </a>
         )}
       </section>
+
+      <HistoryPanel history={history} loading={loadingHistory} error={historyError} onRefresh={loadHistory} hideValues={hideValues} />
     </div>
   );
 }
@@ -512,7 +557,7 @@ function TextInput({ label, value, onChange }) {
   );
 }
 
-function ConfigSection({ section, config, toggles, updateConfig, updateToggle }) {
+function ConfigSection({ section, config, toggles, updateConfig, updateToggle, hideValues }) {
   return (
     <section>
       <h3 className="border-b border-red-300 pb-2 text-sm font-bold text-slate-800">▸ {section.title}</h3>
@@ -523,7 +568,7 @@ function ConfigSection({ section, config, toggles, updateConfig, updateToggle })
             <select value={config[key]} onChange={(event) => updateConfig(key, event.target.value)} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-400">
               {(SELECT_OPTIONS[key] || []).map(([option, price]) => (
                 <option key={option} value={option}>
-                  {option}{price ? ` (${money(price)})` : ""}
+                  {option}{!hideValues && price ? ` (${money(price)})` : ""}
                 </option>
               ))}
             </select>
@@ -537,7 +582,7 @@ function ConfigSection({ section, config, toggles, updateConfig, updateToggle })
               <span className={`relative inline-flex h-6 w-11 rounded-full transition ${toggles[key] ? "bg-blue-600" : "bg-slate-200"}`}>
                 <span className={`absolute top-1 h-4 w-4 rounded-full bg-white transition ${toggles[key] ? "left-6" : "left-1"}`} />
               </span>
-              <span className="text-xs text-slate-500">{toggles[key] ? `Incluido ${money(price)}` : "No"}</span>
+              <span className="text-xs text-slate-500">{toggles[key] ? (hideValues ? "Incluido" : `Incluido ${money(price)}`) : "No"}</span>
             </span>
           </button>
         ))}
@@ -546,7 +591,7 @@ function ConfigSection({ section, config, toggles, updateConfig, updateToggle })
   );
 }
 
-function ReviewPanel({ quote, selectedModel, priceSummary, items }) {
+function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues }) {
   return (
     <div className="space-y-5">
       <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
@@ -563,28 +608,101 @@ function ReviewPanel({ quote, selectedModel, priceSummary, items }) {
         </div>
         <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-blue-900">
           <h3 className="flex items-center gap-2 font-bold"><CheckCircle2 size={18} /> Resumen</h3>
-          <p className="mt-3 text-sm">Base: {money(priceSummary.base)}</p>
-          <p className="text-sm">Opciones: {money(priceSummary.options)}</p>
-          <p className="mt-2 text-2xl font-bold">{money(priceSummary.total)}</p>
+          {hideValues ? (
+            <>
+              <p className="mt-3 text-sm">Documento visual sin valores comerciales.</p>
+              <p className="mt-2 text-lg font-bold">Características visibles</p>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 text-sm">Base: {money(priceSummary.base)}</p>
+              <p className="text-sm">Opciones: {money(priceSummary.options)}</p>
+              <p className="mt-2 text-2xl font-bold">{money(priceSummary.total)}</p>
+            </>
+          )}
         </div>
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-slate-200">
-        <div className="grid grid-cols-[1fr_120px] bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
+        <div className={`grid ${hideValues ? "grid-cols-1" : "grid-cols-[1fr_120px]"} bg-slate-900 px-4 py-2 text-sm font-semibold text-white`}>
           <span>Configuración seleccionada</span>
-          <span className="text-right">Impacto</span>
+          {!hideValues && <span className="text-right">Impacto</span>}
         </div>
         {items.length === 0 ? (
           <p className="p-4 text-sm text-slate-500">Sin opciones adicionales seleccionadas.</p>
         ) : (
           items.map((item) => (
-            <div key={`${item.key}-${item.value}`} className="grid grid-cols-[1fr_120px] border-t border-slate-200 px-4 py-2 text-sm">
+            <div key={`${item.key}-${item.value}`} className={`grid ${hideValues ? "grid-cols-1" : "grid-cols-[1fr_120px]"} border-t border-slate-200 px-4 py-2 text-sm`}>
               <span><strong>{item.label}:</strong> {item.value}</span>
-              <span className="text-right font-semibold">{money(item.price)}</span>
+              {!hideValues && <span className="text-right font-semibold">{money(item.price)}</span>}
             </div>
           ))
         )}
       </div>
     </div>
+  );
+}
+
+function HistoryPanel({ history, loading, error, onRefresh, hideValues }) {
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-slate-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="flex items-center gap-2 font-semibold text-slate-900">
+            <History size={18} className="text-blue-600" /> Historial de cotizaciones
+          </h2>
+          <p className="text-sm text-slate-500">Cotizaciones guardadas en Supabase y PDFs generados.</p>
+        </div>
+        <button type="button" onClick={onRefresh} disabled={loading} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60">
+          <RefreshCw size={15} className={loading ? "animate-spin" : ""} /> Actualizar
+        </button>
+      </div>
+
+      {error && <p className="mt-3 text-sm font-semibold text-red-700">{error}</p>}
+
+      <div className="mt-4 overflow-x-auto">
+        {loading && history.length === 0 ? (
+          <p className="text-sm text-slate-500">Cargando historial...</p>
+        ) : history.length === 0 ? (
+          <p className="text-sm text-slate-500">Aún no hay cotizaciones guardadas.</p>
+        ) : (
+          <table className="min-w-full text-left text-sm">
+            <thead className="bg-slate-900 text-white">
+              <tr>
+                <th className="px-3 py-2 font-semibold">Cotización</th>
+                <th className="px-3 py-2 font-semibold">Cliente</th>
+                <th className="px-3 py-2 font-semibold">Modelo</th>
+                {!hideValues && <th className="px-3 py-2 text-right font-semibold">Total</th>}
+                <th className="px-3 py-2 font-semibold">Fecha</th>
+                <th className="px-3 py-2 font-semibold">PDF</th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.map((quote) => (
+                <tr key={quote.id} className="border-b border-slate-200 odd:bg-slate-50">
+                  <td className="px-3 py-2 font-semibold text-slate-900">{quote.quote_number || "-"}</td>
+                  <td className="px-3 py-2 text-slate-700">
+                    <div>{quote.customer || "Cliente por definir"}</div>
+                    {quote.end_customer && <div className="text-xs text-slate-500">Final: {quote.end_customer}</div>}
+                  </td>
+                  <td className="px-3 py-2 text-slate-700">{quote.model_name || "Vactor"}</td>
+                  {!hideValues && <td className="px-3 py-2 text-right font-semibold text-slate-900">{money(quote.price_summary?.total)}</td>}
+                  <td className="px-3 py-2 text-slate-600">{formatDate(quote.created_at)}</td>
+                  <td className="px-3 py-2">
+                    {quote.pdf_url ? (
+                      <a href={quote.pdf_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-blue-700 hover:underline">
+                        <ExternalLink size={14} /> Abrir
+                      </a>
+                    ) : (
+                      <span className="text-slate-400">Sin PDF</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </section>
   );
 }

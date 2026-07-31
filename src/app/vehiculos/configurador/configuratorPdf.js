@@ -119,6 +119,7 @@ function ensurePage(doc, y, required = 18) {
 export async function generateConfiguratorPdf(payload) {
   const doc = new jsPDF("p", "mm", "a4");
   const modelImage = await getModelImageDataUrl(payload.selectedModel);
+  const hideValues = Boolean(payload.hideValues);
 
   addHeader(doc, payload);
 
@@ -137,13 +138,18 @@ export async function generateConfiguratorPdf(payload) {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
   doc.setTextColor(15, 23, 42);
-  doc.text("Resumen económico", MARGIN + 84, y + 19);
+  doc.text(hideValues ? "Resumen técnico" : "Resumen económico", MARGIN + 84, y + 19);
   doc.setFont("helvetica", "normal");
-  doc.text(`Base: ${money(payload.priceSummary.base)}`, MARGIN + 84, y + 26);
-  doc.text(`Opciones: ${money(payload.priceSummary.options)}`, MARGIN + 84, y + 32);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.text(`Total referencial: ${money(payload.priceSummary.total)}`, MARGIN + 84, y + 39);
+  if (hideValues) {
+    doc.text("Documento visual sin valores comerciales.", MARGIN + 84, y + 26);
+    doc.text("Incluye características y opciones seleccionadas.", MARGIN + 84, y + 32);
+  } else {
+    doc.text(`Base: ${money(payload.priceSummary.base)}`, MARGIN + 84, y + 26);
+    doc.text(`Opciones: ${money(payload.priceSummary.options)}`, MARGIN + 84, y + 32);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.text(`Total referencial: ${money(payload.priceSummary.total)}`, MARGIN + 84, y + 39);
+  }
 
   y += 52;
   doc.setFont("helvetica", "bold");
@@ -158,7 +164,7 @@ export async function generateConfiguratorPdf(payload) {
   doc.setFontSize(8);
   doc.text("Detalle", MARGIN + 3, y);
   doc.text("Valor", MARGIN + 104, y);
-  doc.text("Impacto", PAGE_WIDTH - MARGIN - 3, y, { align: "right" });
+  if (!hideValues) doc.text("Impacto", PAGE_WIDTH - MARGIN - 3, y, { align: "right" });
   doc.setTextColor(0, 0, 0);
   y += 6;
 
@@ -175,7 +181,7 @@ export async function generateConfiguratorPdf(payload) {
     doc.setFontSize(8);
     addWrappedText(doc, item.label, MARGIN + 3, y, 92, { fontSize: 8 });
     addWrappedText(doc, item.value, MARGIN + 104, y, 50, { fontSize: 8 });
-    doc.text(money(item.price), PAGE_WIDTH - MARGIN - 3, y, { align: "right" });
+    if (!hideValues) doc.text(money(item.price), PAGE_WIDTH - MARGIN - 3, y, { align: "right" });
     y += 8;
   });
 
@@ -187,7 +193,13 @@ export async function generateConfiguratorPdf(payload) {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(71, 85, 105);
-  doc.text("Valores referenciales sujetos a validación de catálogo, reglas técnicas, disponibilidad y precios finales.", MARGIN, y);
+  doc.text(
+    hideValues
+      ? "Documento visual sin valores comerciales. Características sujetas a validación técnica y disponibilidad."
+      : "Valores referenciales sujetos a validación de catálogo, reglas técnicas, disponibilidad y precios finales.",
+    MARGIN,
+    y
+  );
   doc.text("Generado desde APP Servicios ASTAP.", MARGIN, y + 5);
 
   return doc;

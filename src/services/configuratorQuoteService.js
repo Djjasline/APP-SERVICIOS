@@ -71,3 +71,14 @@ export async function saveConfiguratorQuote(payload) {
   if (updateError) throw updateError;
   return updated;
 }
+
+export async function getConfiguratorQuoteHistory({ limit = 50 } = {}) {
+  const { data, error } = await supabase
+    .from("vactor_configurator_quotes")
+    .select("id, quote_number, customer, end_customer, sales_person, model_name, model_family, price_summary, pdf_url, status, created_at, updated_at")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data || [];
+}
