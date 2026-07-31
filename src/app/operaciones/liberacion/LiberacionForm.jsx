@@ -5,6 +5,7 @@ import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useNavigate } from "react-router-dom";
 import SignatureCanvas from "@/components/SignatureCanvasField";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import { ensureCompletionReady } from "@/utils/completionValidation";
 
 const checklist = {
   "Sistema Mecánico": [
@@ -158,6 +159,17 @@ await saveOrUpdateReport({
 
   const estadoFinal =
     form.estadoFinal === "APROBADO" ? "completado" : "borrador";
+
+  if (!ensureCompletionReady({
+    estado: estadoFinal,
+    title: "registro de liberación",
+    requiredFields: [
+      { label: "Cliente", value: form.cliente },
+      { label: "Conductor", value: form.conductor },
+      { label: "Placa", value: form.placa },
+      { label: "Firma del inspector", value: firma },
+    ],
+  })) return;
 
   const finalData = {
     ...form,

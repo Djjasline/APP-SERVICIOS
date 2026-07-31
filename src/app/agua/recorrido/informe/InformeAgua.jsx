@@ -881,13 +881,11 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
 
   // ── guardar ───────────────────────────────────────────
   const handleGuardar = async () => {
-    const technicalError = validateTechnicalReport();
-    if (technicalError) { alert(technicalError); return; }
-
     setGuardando(true);
     try {
       const payload = buildPayload();
       const completado = Boolean(payload.firmas.tecnico && payload.firmas.supervisor);
+      const technicalWarning = completado ? validateTechnicalReport() : null;
 
       const result = await saveOrUpdateReport({
         id: registroId,
@@ -899,7 +897,7 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
       });
 
       if (result?.id) setRegistroId(result.id);
-     alert("Guardado correctamente");
+      alert(technicalWarning ? `Guardado correctamente.\n\nAviso: ${technicalWarning}` : "Guardado correctamente");
 
       limpiarBorrador(claveAutoguardado);
 navigate("/agua/recorrido/informe");

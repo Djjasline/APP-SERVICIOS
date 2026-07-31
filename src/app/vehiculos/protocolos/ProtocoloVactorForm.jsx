@@ -6,6 +6,7 @@ import { saveOrUpdateReport } from "@/services/reportService";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
 import { leerBorrador, useAutoguardado } from "@/hooks/useAutoguardado";
+import { ensureCompletionReady } from "@/utils/completionValidation";
 import {
   buildInitialBooleanMap,
   buildInitialChecklist,
@@ -218,10 +219,17 @@ export default function ProtocoloVactorForm() {
   };
 
   const save = async (estado) => {
-    if (!data.tecnicoNombre.trim()) {
-      alert("Técnico responsable es obligatorio.");
-      return;
-    }
+    if (!ensureCompletionReady({
+      estado,
+      title: "protocolo",
+      requiredFields: [
+        { label: "Fecha", value: data.aprobacion?.fecha },
+        { label: "Cliente", value: data.cliente },
+        { label: "Equipo No.", value: data.equipoNo },
+        { label: "Técnico responsable", value: data.tecnicoNombre },
+        { label: "Firma / iniciales del técnico", value: data.tecnicoFirma || data.aprobacion?.firma },
+      ],
+    })) return;
 
     setSaving(true);
     try {

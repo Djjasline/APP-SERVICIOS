@@ -13,6 +13,7 @@ import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import { ensureCompletionReady } from "@/utils/completionValidation";
 
 /* ─────────────────────────────────────────
    HELPERS
@@ -655,13 +656,7 @@ const validateTechnicalReport = () => {
 
    /* ─── GUARDAR ─── */
 const save = async () => {
-  if (!data.cliente) { alert("Ingresa el cliente antes de guardar."); return; }
-  if (!data.tecnicoNombre) { alert("Ingresa el técnico responsable antes de guardar."); return; }
-  if (!data.fechaServicio) { alert("Ingresa la fecha de servicio antes de guardar."); return; }
   if (uploadingCount > 0) { alert("Espera a que terminen de subir las imágenes."); return; }
-
-  const technicalError = validateTechnicalReport();
-  if (technicalError) { alert(technicalError); return; }
 
   const firmaTecnico =
     firmaTecnicoEditada &&
@@ -690,6 +685,19 @@ const save = async () => {
 
   const estadoFinal = firmaTecnico ? "completado" : "borrador";
 
+  if (!ensureCompletionReady({
+    estado: estadoFinal,
+    title: "informe",
+    requiredFields: [
+      { label: "Cliente", value: data.cliente },
+      { label: "Técnico responsable", value: data.tecnicoNombre },
+      { label: "Fecha de servicio", value: data.fechaServicio },
+      { label: "Firma del técnico", value: firmaTecnico },
+    ],
+  })) return;
+
+  const technicalWarning = estadoFinal === "completado" ? validateTechnicalReport() : null;
+
   try {
     await saveOrUpdateReport({
       id: isEditing ? id : null,
@@ -700,7 +708,11 @@ const save = async () => {
       estado: estadoFinal,
     });
 
-    setSuccessMsg(isEditing ? "Informe actualizado ✅" : "Informe guardado ✅");
+    setSuccessMsg(
+      technicalWarning
+        ? `Informe guardado ✅ Aviso: ${technicalWarning}`
+        : isEditing ? "Informe actualizado ✅" : "Informe guardado ✅"
+    );
 
       limpiarBorrador(claveAutoguardado);
     setTimeout(() => navigate(`${basePath}/${finalData.tipoInforme}`), 1200);

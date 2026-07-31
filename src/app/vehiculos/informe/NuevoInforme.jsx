@@ -14,6 +14,7 @@ import { formatPersonName } from "@/utils/nameFormat";
 import ReportHeader from "@/components/report/ReportHeader";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import { ensureCompletionReady } from "@/utils/completionValidation";
 
 const fieldPlaceholders = {
   cliente: "Nombre del cliente",
@@ -561,11 +562,6 @@ const validateReport = () => {
       alert("Espera que terminen de subir las imágenes");
       return;
     }
-const error = validateReport();
-if (error) {
-  alert(error);
-  return;
-}
     try {
       const firmaTecnico =
   firmaTecnicoEditada && sigTecnico.current?.isEmpty?.() === false
@@ -582,6 +578,20 @@ const firmaClienteFinal = firmaCliente || data.firmas?.cliente || "";
 
 const estadoFinal =
   firmaTecnicoFinal && firmaClienteFinal ? "completado" : "borrador";
+
+if (!ensureCompletionReady({
+  estado: estadoFinal,
+  title: "informe",
+  requiredFields: [
+    { label: "Cliente", value: data.cliente },
+    { label: "Técnico responsable", value: data.tecnicoNombre },
+    { label: "Fecha de servicio", value: data.fechaServicio },
+    { label: "Firma del técnico", value: firmaTecnicoFinal },
+    { label: "Firma del cliente", value: firmaClienteFinal },
+  ],
+})) return;
+
+const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
 
       const finalData = {
         ...data,
@@ -607,7 +617,9 @@ const estadoFinal =
       limpiarBorrador(claveAutoguardado);
 
       alert(
-        isEditing
+        technicalWarning
+          ? `Informe guardado correctamente ✅\n\nAviso: ${technicalWarning}`
+          : isEditing
           ? "Informe actualizado correctamente ✅"
           : "Informe guardado correctamente ✅"
       );

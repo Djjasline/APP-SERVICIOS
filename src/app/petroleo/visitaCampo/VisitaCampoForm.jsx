@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { uploadRegistroImage } from "@/utils/storage";
 import { saveOrUpdateReport } from "@/services/reportService";
+import { ensureCompletionReady } from "@/utils/completionValidation";
 import { createEmptyVisitaCampoData } from "./visitaCampoData";
 import { listToText, parseTableText, textToList } from "./tableUtils";
 
@@ -532,6 +533,18 @@ export default function VisitaCampoForm() {
 
   const save = async (estado = "borrador") => {
     if (!user?.id) return;
+
+    if (!ensureCompletionReady({
+      estado,
+      title: "informe",
+      requiredFields: [
+        { label: "Fecha", value: data.fecha },
+        { label: "Cliente", value: data.cliente },
+        { label: "Firma de realizado por", value: data.firmas?.realizado },
+        { label: "Firma de recibido por", value: data.firmas?.recibido },
+      ],
+    })) return;
+
     setSaving(true);
 
     try {
