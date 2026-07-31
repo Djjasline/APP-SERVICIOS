@@ -19,7 +19,8 @@ type PushSendResult = {
   statusCode: number | null;
 };
 
-type SupabaseAdminClient = ReturnType<typeof createClient>;
+type SupabaseAdminClient = any;
+type DbRow = Record<string, unknown>;
 
 function scopedTypeMatches(ruleTipo: unknown, recordTipo: unknown, recordSubtipo: unknown) {
   const [tipo, subtipo = ""] = String(ruleTipo || "todos").trim().toLowerCase().split(":");
@@ -101,7 +102,8 @@ async function canSendChatNotification({
 
   if (error) throw error;
 
-  const participantIds = new Set((data || []).map((participant) => String(participant.user_id)));
+  const participants = (data || []) as DbRow[];
+  const participantIds = new Set(participants.map((participant) => String(participant.user_id)));
   if (!participantIds.has(requesterId) || !Array.from(targetUserIds).every((id) => participantIds.has(id))) {
     return false;
   }
@@ -115,7 +117,8 @@ async function canSendChatNotification({
 
   if (profilesError) throw profilesError;
 
-  const participantEmails = new Set((profiles || []).map((profile) => normalizeEmail(profile.email)).filter(Boolean));
+  const participantProfiles = (profiles || []) as DbRow[];
+  const participantEmails = new Set(participantProfiles.map((profile) => normalizeEmail(profile.email)).filter(Boolean));
   return Array.from(targetEmails).every((email) => participantEmails.has(normalizeEmail(email)));
 }
 
@@ -147,7 +150,7 @@ async function requesterCanNotifyRecord({
 
   if (error) throw error;
 
-  return (permissions || []).some((permission) => permissionMatchesRecord(permission, record));
+  return ((permissions || []) as DbRow[]).some((permission) => permissionMatchesRecord(permission, record));
 }
 
 async function canSendRecordNotification({
@@ -190,7 +193,7 @@ async function canSendRecordNotification({
 
   if (rulesError) throw rulesError;
 
-  const matchingRules = (rules || []).filter((rule) => scopeMatches(rule, record));
+  const matchingRules = ((rules || []) as DbRow[]).filter((rule) => scopeMatches(rule, record));
   const allowedUserIds = new Set(matchingRules.map((rule) => String(rule.recipient_user_id || "")).filter(Boolean));
   const allowedEmails = new Set(matchingRules.map((rule) => normalizeEmail(rule.recipient_email)).filter(Boolean));
 
@@ -202,7 +205,7 @@ async function canSendRecordNotification({
 
     if (recipientProfilesError) throw recipientProfilesError;
 
-    (recipientProfiles || [])
+    ((recipientProfiles || []) as DbRow[])
       .map((profile) => normalizeEmail(profile.email))
       .filter(Boolean)
       .forEach((email) => allowedEmails.add(email));
