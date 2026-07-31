@@ -10,10 +10,10 @@ import { supabase } from "@/lib/supabase";
 import TechnicalWritingAssistant from "@/components/TechnicalWritingAssistant";
 import AutoCapitalizeInputs from "@/components/AutoCapitalizeInputs";
 import { clearAppBadge, setAppBadgeCount } from "@/utils/appBadge";
+import { playNotificationSound, unlockNotificationSound } from "@/utils/notificationSound";
 
 const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
 const signatureGestureSelector = ".signature-pad-canvas, [data-signature-field='true']";
-let notificationAudioContext = null;
 
 const startsOnSignatureCanvas = (event) =>
   typeof event.target?.closest === "function" &&
@@ -35,53 +35,6 @@ function getNotificationPath(notification) {
   if (notification.record_type === "chat") return "/chat";
 
   return "/notifications";
-}
-
-function getNotificationAudioContext() {
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContext) return null;
-
-  if (!notificationAudioContext) {
-    notificationAudioContext = new AudioContext();
-  }
-
-  return notificationAudioContext;
-}
-
-async function unlockNotificationSound() {
-  try {
-    const audioContext = getNotificationAudioContext();
-    if (!audioContext) return;
-    if (audioContext.state === "suspended") await audioContext.resume();
-  } catch (error) {
-    console.warn("No se pudo habilitar sonido de notificación:", error);
-  }
-}
-
-async function playNotificationSound() {
-  try {
-    const audioContext = getNotificationAudioContext();
-    if (!audioContext) return;
-    if (audioContext.state === "suspended") await audioContext.resume();
-
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-
-    oscillator.type = "triangle";
-    oscillator.frequency.setValueAtTime(1046, audioContext.currentTime);
-    oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.14);
-    oscillator.frequency.setValueAtTime(1175, audioContext.currentTime + 0.28);
-    gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.35, audioContext.currentTime + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.55);
-
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.58);
-  } catch (error) {
-    console.warn("No se pudo reproducir sonido de notificación:", error);
-  }
 }
 
 async function forceAppReload() {
@@ -251,6 +204,7 @@ export default function MainLayout() {
           filter: "active=eq.true",
         },
         () => {
+          playNotificationSound();
           setUnread((prev) => {
             const next = (prev || 0) + 1;
             setAppBadgeCount(next);

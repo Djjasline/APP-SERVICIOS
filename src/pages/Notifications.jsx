@@ -12,34 +12,9 @@ import {
   getAppUpdates,
   markAppUpdateRead,
 } from "@/services/appUpdatesService";
+import { playNotificationSound } from "@/utils/notificationSound";
 
 const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
-
-async function playTestSound() {
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContext) return false;
-
-  const audioContext = new AudioContext();
-  if (audioContext.state === "suspended") await audioContext.resume();
-
-  const oscillator = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-
-  oscillator.type = "triangle";
-  oscillator.frequency.setValueAtTime(1046, audioContext.currentTime);
-  oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.14);
-  oscillator.frequency.setValueAtTime(1175, audioContext.currentTime + 0.28);
-  gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.35, audioContext.currentTime + 0.02);
-  gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.55);
-
-  oscillator.connect(gain);
-  gain.connect(audioContext.destination);
-  oscillator.start();
-  oscillator.stop(audioContext.currentTime + 0.58);
-
-  return true;
-}
 
 function getNotificationPath(notification) {
   if (notification.record_type === "app_update") return "";
@@ -228,7 +203,7 @@ export default function NotificationsPage() {
   };
 
   const handleTestSound = async () => {
-    const ok = await playTestSound();
+    const ok = await playNotificationSound();
     if (!ok) alert("Tu navegador no permite reproducir sonido en esta página.");
   };
 

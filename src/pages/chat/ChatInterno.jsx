@@ -13,6 +13,7 @@ import {
   markConversationRead,
   sendMessage,
 } from "@/services/chatService";
+import { playNotificationSound } from "@/utils/notificationSound";
 
 function displayName(user) {
   return formatUserDisplayName(user);
@@ -149,6 +150,7 @@ export default function ChatInterno() {
 
         markConversationRead(conversationId, user?.id);
         if (payload.new?.sender_id !== user?.id && usuarioActivo?.id) {
+          playNotificationSound();
           setNoLeidos((prev) => ({ ...prev, [usuarioActivo.id]: 0 }));
         }
       }
@@ -175,7 +177,10 @@ export default function ChatInterno() {
           table: "chat_messages",
         },
         (payload) => {
-          if (payload.new?.sender_id !== user.id) cargarNoLeidos();
+          if (payload.new?.sender_id !== user.id) {
+            if (payload.new?.conversation_id !== conversationId) playNotificationSound();
+            cargarNoLeidos();
+          }
         }
       )
       .subscribe();
@@ -183,7 +188,7 @@ export default function ChatInterno() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [cargarNoLeidos, user?.id]);
+  }, [cargarNoLeidos, conversationId, user?.id]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
