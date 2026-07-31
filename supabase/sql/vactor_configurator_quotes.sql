@@ -29,14 +29,29 @@ create index if not exists vactor_configurator_quotes_quote_number_idx
 
 alter table public.vactor_configurator_quotes enable row level security;
 
-drop policy if exists "Usuario gestiona sus cotizaciones Vactor" on public.vactor_configurator_quotes;
+create or replace function public.is_super_admin_user()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(auth.jwt() ->> 'email', '') = 'smaviles@astap.com'
+    or exists (
+      select 1 from public.profiles
+      where id = auth.uid() and role = 'super_admin'
+    );
+$$;
 
-create policy "Usuario gestiona sus cotizaciones Vactor"
+drop policy if exists "Usuario gestiona sus cotizaciones Vactor" on public.vactor_configurator_quotes;
+drop policy if exists "Usuario o super admin gestiona cotizaciones Vactor" on public.vactor_configurator_quotes;
+
+create policy "Usuario o super admin gestiona cotizaciones Vactor"
   on public.vactor_configurator_quotes
   for all
   to authenticated
-  using (user_id = auth.uid())
-  with check (user_id = auth.uid());
+  using (user_id = auth.uid() or public.is_super_admin_user())
+  with check (user_id = auth.uid() or public.is_super_admin_user());
 
 insert into storage.buckets (id, name, public)
 values ('informe', 'informe', true)
@@ -44,8 +59,9 @@ on conflict (id) do update set public = true;
 
 drop policy if exists "Usuarios autenticados gestionan PDFs configurador" on storage.objects;
 drop policy if exists "Usuario gestiona PDFs de sus cotizaciones Vactor" on storage.objects;
+drop policy if exists "Usuario o super admin gestiona PDFs Vactor" on storage.objects;
 
-create policy "Usuario gestiona PDFs de sus cotizaciones Vactor"
+create policy "Usuario o super admin gestiona PDFs Vactor"
   on storage.objects
   for all
   to authenticated
@@ -56,7 +72,7 @@ create policy "Usuario gestiona PDFs de sus cotizaciones Vactor"
       select 1
       from public.vactor_configurator_quotes q
       where q.id::text = (storage.foldername(name))[2]
-        and q.user_id = auth.uid()
+        and (q.user_id = auth.uid() or public.is_super_admin_user())
     )
   )
   with check (
@@ -66,6 +82,6 @@ create policy "Usuario gestiona PDFs de sus cotizaciones Vactor"
       select 1
       from public.vactor_configurator_quotes q
       where q.id::text = (storage.foldername(name))[2]
-        and q.user_id = auth.uid()
+        and (q.user_id = auth.uid() or public.is_super_admin_user())
     )
   );
