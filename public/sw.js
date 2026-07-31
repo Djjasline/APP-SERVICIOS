@@ -151,10 +151,24 @@ self.addEventListener("push", (event) => {
   const badgeCount = Number(data.data?.badgeCount ?? data.badgeCount ?? 1) || 1;
 
   const badgePromise = setBadgeCount(badgeCount).catch(() => undefined);
+  const notifyClientsPromise = clients
+    .matchAll({ type: "window", includeUncontrolled: true })
+    .then((clientList) => {
+      clientList.forEach((client) => {
+        client.postMessage({
+          type: "PUSH_NOTIFICATION_RECEIVED",
+          title: data.title,
+          body: data.body,
+          url: data.data?.url || "/notifications",
+        });
+      });
+    })
+    .catch(() => undefined);
 
   event.waitUntil(
     Promise.all([
       badgePromise,
+      notifyClientsPromise,
       self.registration.showNotification(data.title, {
         body: data.body,
         icon: data.icon,

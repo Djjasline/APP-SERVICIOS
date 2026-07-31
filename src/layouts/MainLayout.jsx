@@ -13,6 +13,7 @@ import { clearAppBadge, setAppBadgeCount } from "@/utils/appBadge";
 
 const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
 const signatureGestureSelector = ".signature-pad-canvas, [data-signature-field='true']";
+let notificationAudioContext = null;
 
 const startsOnSignatureCanvas = (event) =>
   typeof event.target?.closest === "function" &&
@@ -36,26 +37,48 @@ function getNotificationPath(notification) {
   return "/notifications";
 }
 
-function playNotificationSound() {
-  try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
+function getNotificationAudioContext() {
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return null;
 
-    const audioContext = new AudioContext();
+  if (!notificationAudioContext) {
+    notificationAudioContext = new AudioContext();
+  }
+
+  return notificationAudioContext;
+}
+
+async function unlockNotificationSound() {
+  try {
+    const audioContext = getNotificationAudioContext();
+    if (!audioContext) return;
+    if (audioContext.state === "suspended") await audioContext.resume();
+  } catch (error) {
+    console.warn("No se pudo habilitar sonido de notificación:", error);
+  }
+}
+
+async function playNotificationSound() {
+  try {
+    const audioContext = getNotificationAudioContext();
+    if (!audioContext) return;
+    if (audioContext.state === "suspended") await audioContext.resume();
+
     const oscillator = audioContext.createOscillator();
     const gain = audioContext.createGain();
 
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
-    oscillator.frequency.setValueAtTime(660, audioContext.currentTime + 0.12);
+    oscillator.type = "triangle";
+    oscillator.frequency.setValueAtTime(1046, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.14);
+    oscillator.frequency.setValueAtTime(1175, audioContext.currentTime + 0.28);
     gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.18, audioContext.currentTime + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.3);
+    gain.gain.exponentialRampToValueAtTime(0.35, audioContext.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.55);
 
     oscillator.connect(gain);
     gain.connect(audioContext.destination);
     oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.32);
+    oscillator.stop(audioContext.currentTime + 0.58);
   } catch (error) {
     console.warn("No se pudo reproducir sonido de notificación:", error);
   }
@@ -99,6 +122,18 @@ export default function MainLayout() {
   useEffect(() => {
     unreadRef.current = unread;
   }, [unread]);
+
+  useEffect(() => {
+    const unlock = () => unlockNotificationSound();
+
+    window.addEventListener("pointerdown", unlock, { once: true });
+    window.addEventListener("keydown", unlock, { once: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+  }, []);
 
   /* =========================
      DETECTAR DISPOSITIVO REAL
@@ -283,6 +318,18 @@ export default function MainLayout() {
       supabase.removeChannel(channel);
     };
   }, [email, navigate]);
+
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return undefined;
+
+    const handleMessage = (event) => {
+      if (event.data?.type !== "PUSH_NOTIFICATION_RECEIVED") return;
+      playNotificationSound();
+    };
+
+    navigator.serviceWorker.addEventListener("message", handleMessage);
+    return () => navigator.serviceWorker.removeEventListener("message", handleMessage);
+  }, []);
 
   return (
     <div
