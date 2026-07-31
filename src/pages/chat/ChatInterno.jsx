@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { Send, MessageCircle, Search, UserCircle2 } from "lucide-react";
+import { Send, MessageCircle, Search, UserCircle2, Volume2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -54,6 +54,7 @@ export default function ChatInterno() {
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
   const [noLeidos, setNoLeidos] = useState({});
+  const [soundTestResult, setSoundTestResult] = useState("");
 
   const usuariosFiltrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
@@ -214,6 +215,12 @@ export default function ChatInterno() {
     }
   };
 
+  const probarSonido = async () => {
+    setSoundTestResult("");
+    const ok = await playNotificationSound();
+    setSoundTestResult(ok ? "Sonido de prueba enviado." : "El navegador bloqueó el sonido en esta página.");
+  };
+
   const panelClass = isLight
     ? "bg-white border-slate-200 text-slate-900"
     : "bg-slate-950/40 border-white/10 text-white";
@@ -224,13 +231,31 @@ export default function ChatInterno() {
 
   return (
     <div className="h-[calc(100vh-9rem)] min-h-[620px] flex flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <MessageCircle size={26} /> Chat interno
-        </h1>
-        <p className={isLight ? "text-slate-500 text-sm" : "text-slate-300 text-sm"}>
-          Comunicación interna entre usuarios registrados de ASTAP.
-        </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <MessageCircle size={26} /> Chat interno
+          </h1>
+          <p className={isLight ? "text-slate-500 text-sm" : "text-slate-300 text-sm"}>
+            Comunicación interna entre usuarios registrados de ASTAP.
+          </p>
+          {soundTestResult && (
+            <p className={isLight ? "mt-1 text-xs text-slate-500" : "mt-1 text-xs text-slate-300"}>
+              {soundTestResult}
+            </p>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={probarSonido}
+          className={`inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${
+            isLight
+              ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
+              : "bg-amber-400/20 text-amber-100 hover:bg-amber-400/30"
+          }`}
+        >
+          <Volume2 size={16} /> Probar sonido
+        </button>
       </div>
 
       {error && (
