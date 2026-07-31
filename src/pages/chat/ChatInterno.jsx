@@ -156,8 +156,6 @@ export default function ChatInterno() {
         filter: `conversation_id=eq.${conversationId}`,
       },
       (payload) => {
-        console.log("[Chat] Nuevo mensaje realtime:", payload.new);
-
         setMensajes((prev) => {
           if (prev.some((m) => m.id === payload.new.id)) return prev;
           return [...prev, payload.new];
@@ -172,9 +170,7 @@ export default function ChatInterno() {
         }
       }
     )
-    .subscribe((status) => {
-      console.log("[Chat] Realtime status:", status);
-    });
+    .subscribe();
 
   return () => {
     supabase.removeChannel(channel);
