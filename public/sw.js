@@ -1,8 +1,9 @@
-const CACHE_NAME = "app-servicios-v11";
+const CACHE_NAME = "app-servicios-v12";
 const VAPID_CACHE_NAME = "app-servicios-vapid";
 const VAPID_PUBLIC_KEY_REQUEST = "/__vapid_public_key__";
 
 const STATIC_ASSETS = [
+  "/index.html",
   "/manifest.json",
   "/favicon.ico",
 ];
@@ -56,6 +57,21 @@ function setBadgeCount(count) {
   return Promise.resolve();
 }
 
+async function getAppShellResponse() {
+  const cachedResponse = await caches.match("/index.html");
+  if (cachedResponse) return cachedResponse;
+
+  try {
+    return await fetch("/index.html", { cache: "reload" });
+  } catch {
+    return new Response("<!doctype html><title>APP Servicios ASTAP</title><p>Sin conexión.</p>", {
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+      status: 503,
+      statusText: "Service Unavailable",
+    });
+  }
+}
+
 
 // ─── INSTALL ────────────────────────────────────────────────────────────────
 self.addEventListener("install", (event) => {
@@ -92,15 +108,18 @@ self.addEventListener("fetch", (event) => {
 
   if (event.request.mode === "navigate" || url.pathname === "/" || url.pathname === "/index.html") {
     event.respondWith(
-      fetch(event.request)
-        .then((networkResponse) => {
+      (async () => {
+        try {
+          const networkResponse = await fetch(event.request);
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put("/index.html", responseClone);
           });
           return networkResponse;
-        })
-        .catch(() => caches.match("/index.html"))
+        } catch {
+          return getAppShellResponse();
+        }
+      })()
     );
     return;
   }
@@ -126,7 +145,7 @@ self.addEventListener("fetch", (event) => {
 
           return networkResponse;
         })
-        .catch(() => caches.match("/index.html"));
+        .catch(() => new Response("", { status: 504, statusText: "Gateway Timeout" }));
     })
   );
 });
