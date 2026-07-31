@@ -15,6 +15,32 @@ import {
 
 const normalizeEmail = (value) => String(value || "").trim().toLowerCase();
 
+async function playTestSound() {
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return false;
+
+  const audioContext = new AudioContext();
+  if (audioContext.state === "suspended") await audioContext.resume();
+
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+
+  oscillator.type = "triangle";
+  oscillator.frequency.setValueAtTime(1046, audioContext.currentTime);
+  oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.14);
+  oscillator.frequency.setValueAtTime(1175, audioContext.currentTime + 0.28);
+  gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.35, audioContext.currentTime + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.55);
+
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + 0.58);
+
+  return true;
+}
+
 function getNotificationPath(notification) {
   if (notification.record_type === "app_update") return "";
 
@@ -201,6 +227,11 @@ export default function NotificationsPage() {
     setMarkingVisible(false);
   };
 
+  const handleTestSound = async () => {
+    const ok = await playTestSound();
+    if (!ok) alert("Tu navegador no permite reproducir sonido en esta página.");
+  };
+
   const updateReadState = (id) => {
     setItemsAndBadge((prev) => {
       const next = prev.map((p) => (p.id === id ? { ...p, read: true } : p));
@@ -244,18 +275,32 @@ export default function NotificationsPage() {
             }`}
           />
 
-          <button
-            type="button"
-            onClick={handleMarkVisibleRead}
-            disabled={unreadVisibleCount === 0 || markingVisible}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
-              unreadVisibleCount === 0 || markingVisible
-                ? "cursor-not-allowed bg-slate-200 text-slate-500"
-                : "bg-green-600 text-white hover:bg-green-700"
-            }`}
-          >
-            {markingVisible ? "Marcando..." : `Marcar visibles como leído (${unreadVisibleCount})`}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={handleTestSound}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                isLight
+                  ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                  : "bg-amber-400/20 text-amber-100 hover:bg-amber-400/30"
+              }`}
+            >
+              Probar sonido
+            </button>
+
+            <button
+              type="button"
+              onClick={handleMarkVisibleRead}
+              disabled={unreadVisibleCount === 0 || markingVisible}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                unreadVisibleCount === 0 || markingVisible
+                  ? "cursor-not-allowed bg-slate-200 text-slate-500"
+                  : "bg-green-600 text-white hover:bg-green-700"
+              }`}
+            >
+              {markingVisible ? "Marcando..." : `Marcar visibles como leído (${unreadVisibleCount})`}
+            </button>
+          </div>
         </div>
 
         <div className="mt-3 flex flex-wrap gap-2">

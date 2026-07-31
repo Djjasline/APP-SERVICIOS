@@ -1,4 +1,4 @@
-const CACHE_NAME = "app-servicios-v9";
+const CACHE_NAME = "app-servicios-v10";
 const VAPID_CACHE_NAME = "app-servicios-vapid";
 const VAPID_PUBLIC_KEY_REQUEST = "/__vapid_public_key__";
 
@@ -136,7 +136,6 @@ self.addEventListener("push", (event) => {
     body: "Tienes una nueva notificación.",
     icon: "/icon-192.png",
     badge: "/icon-192.png",
-    tag: "general",
     data: { url: "/" },
   };
 
@@ -173,8 +172,10 @@ self.addEventListener("push", (event) => {
         body: data.body,
         icon: data.icon,
         badge: data.badge,
-        tag: data.tag,
+        tag: data.tag || `app-servicios-${Date.now()}`,
         data: data.data,
+        silent: false,
+        renotify: Boolean(data.tag),
         vibrate: [200, 100, 200],
         requireInteraction: data.requireInteraction ?? false,
       }),
