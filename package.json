@@ -29,10 +29,10 @@
     "jspdf-autotable": "^5.0.8",
     "lucide-react": "^0.484.0",
     "mongodb": "^6.9.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "react-redux": "^9.2.0",
-    "react-router-dom": "^7.18.2",
+    "react-router": "^8.3.0",
     "react-signature-canvas": "^1.0.6",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7"

@@ -12,6 +12,7 @@ export default defineConfig({
 
   resolve: {
     alias: {
+      "react-router-dom": "react-router",
       "@": path.resolve(rootDir, "src"),
       "@app": path.resolve(rootDir, "src/app"),
       "@utils": path.resolve(rootDir, "src/utils"),
@@ -47,7 +48,7 @@ export default defineConfig({
           if (
             id.includes("react") ||
             id.includes("react-dom") ||
-            id.includes("react-router-dom") ||
+            id.includes("react-router") ||
             id.includes("scheduler") ||
             id.includes("redux") ||
             id.includes("@reduxjs")
