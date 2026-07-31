@@ -33,13 +33,91 @@ alter table public.customer_satisfaction_surveys enable row level security;
 
 drop policy if exists "Usuarios autenticados gestionan encuestas" on public.customer_satisfaction_surveys;
 drop policy if exists "Anonimo no accede directo a encuestas" on public.customer_satisfaction_surveys;
+drop policy if exists "Usuarios autenticados ven encuestas autorizadas" on public.customer_satisfaction_surveys;
+drop policy if exists "Usuarios autenticados crean encuestas autorizadas" on public.customer_satisfaction_surveys;
+drop policy if exists "Usuarios autenticados actualizan encuestas autorizadas" on public.customer_satisfaction_surveys;
+drop policy if exists "Super admin elimina encuestas" on public.customer_satisfaction_surveys;
 
-create policy "Usuarios autenticados gestionan encuestas"
+create or replace function public.is_super_admin_user()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(auth.jwt() ->> 'email', '') = 'smaviles@astap.com'
+    or exists (
+      select 1 from public.profiles
+      where id = auth.uid() and role = 'super_admin'
+    );
+$$;
+
+create or replace function public.can_manage_customer_satisfaction_survey(p_record_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select auth.uid() is not null
+    and exists (
+      select 1
+      from public.registros r
+      where r.id = p_record_id
+        and (
+          r.user_id = auth.uid()
+          or lower(coalesce(r.data->>'tecnicoCorreo', r.data->>'correoTecnico', '')) = lower(coalesce(auth.email(), ''))
+          or public.is_super_admin_user()
+          or (coalesce(r.area, '') = 'operaciones' and lower(coalesce(auth.email(), '')) = 'kamhez@astap.com')
+          or (coalesce(r.area, '') = 'vehiculos' and lower(coalesce(auth.email(), '')) = 'abriones@astap.com')
+          or exists (
+            select 1
+            from public.record_access_permissions p
+            where p.grantee_user_id = auth.uid()
+              and (
+                p.owner_user_id = r.user_id
+                or lower(coalesce(p.owner_email, '')) = lower(coalesce(r.data->>'tecnicoCorreo', r.data->>'correoTecnico', ''))
+              )
+              and p.active = true
+              and (p.can_view = true or p.can_edit = true or p.can_download = true)
+              and (p.area = 'todos' or p.area = coalesce(r.area, 'vehiculos'))
+              and (
+                p.tipo = 'todos'
+                or p.tipo = coalesce(r.tipo, 'todos')
+                or p.tipo = concat_ws(':', coalesce(r.tipo, 'todos'), nullif(coalesce(r.subtipo, ''), ''))
+              )
+          )
+        )
+    );
+$$;
+
+create policy "Usuarios autenticados ven encuestas autorizadas"
   on public.customer_satisfaction_surveys
-  for all
+  for select
   to authenticated
-  using (true)
-  with check (true);
+  using (public.can_manage_customer_satisfaction_survey(record_id));
+
+create policy "Usuarios autenticados crean encuestas autorizadas"
+  on public.customer_satisfaction_surveys
+  for insert
+  to authenticated
+  with check (
+    public.can_manage_customer_satisfaction_survey(record_id)
+    and (created_by is null or created_by = auth.uid() or public.is_super_admin_user())
+  );
+
+create policy "Usuarios autenticados actualizan encuestas autorizadas"
+  on public.customer_satisfaction_surveys
+  for update
+  to authenticated
+  using (public.can_manage_customer_satisfaction_survey(record_id))
+  with check (public.can_manage_customer_satisfaction_survey(record_id));
+
+create policy "Super admin elimina encuestas"
+  on public.customer_satisfaction_surveys
+  for delete
+  to authenticated
+  using (public.is_super_admin_user());
 
 revoke all on public.customer_satisfaction_surveys from anon;
 grant select, insert, update, delete on public.customer_satisfaction_surveys to authenticated;
@@ -117,3 +195,4 @@ $$;
 
 grant execute on function public.get_customer_satisfaction_survey_by_token(text) to anon, authenticated;
 grant execute on function public.submit_customer_satisfaction_survey(text, jsonb, jsonb, jsonb, text) to anon, authenticated;
+grant execute on function public.can_manage_customer_satisfaction_survey(uuid) to authenticated;

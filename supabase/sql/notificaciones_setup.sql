@@ -1,3 +1,17 @@
+create or replace function public.is_super_admin_user()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(auth.jwt() ->> 'email', '') = 'smaviles@astap.com'
+    or exists (
+      select 1 from public.profiles
+      where id = auth.uid() and role = 'super_admin'
+    );
+$$;
+
 create table if not exists public.push_subscriptions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -93,7 +107,10 @@ create policy "Usuario puede marcar sus notificaciones"
 create policy "Usuarios autenticados pueden crear notificaciones"
   on public.notifications for insert
   to authenticated
-  with check (auth.uid() is not null);
+  with check (
+    lower(recipient_email) = lower(auth.jwt() ->> 'email')
+    or public.is_super_admin_user()
+  );
 
 create policy "Super Admin puede ver todas las notificaciones"
   on public.notifications for select
