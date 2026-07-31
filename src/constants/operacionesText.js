@@ -16,4 +16,8 @@ export const OPERACIONES_TEXT = {
     description:
       "Evaluación técnica y operativa previa al servicio, orientada a verificar conocimientos, capacidades del técnico y conformidad de las actividades a ejecutar.",
   },
+  bodega: {
+    title: "Bodega",
+    description: "Control interno de inventario, materiales, herramientas y movimientos de bodega.",
+  },
 };

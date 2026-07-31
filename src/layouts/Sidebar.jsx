@@ -31,6 +31,7 @@ import {
   ClipboardCheck,
   FileText,
   MapPin,
+  Package,
   Wrench,
   ExternalLink,
 } from "lucide-react";
@@ -570,6 +571,16 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 >
                   {subLabel(ClipboardList, OPERACIONES_TEXT.protocolos.title)}
                 </button>
+
+                {superAdminActivo && (
+                  <button
+                    type="button"
+                    onClick={() => go("/operaciones/bodega")}
+                    className={subItemClass("/operaciones/bodega")}
+                  >
+                    {subLabel(Package, OPERACIONES_TEXT.bodega.title)}
+                  </button>
+                )}
               </div>
             )}
           </div>

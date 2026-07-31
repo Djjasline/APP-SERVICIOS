@@ -1,10 +1,12 @@
 import CardModulo from "@/components/CardModulo";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
+import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { ClipboardList, Settings, Wrench, Inbox } from "lucide-react";
+import { ClipboardList, Settings, Wrench, Inbox, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaOperaciones() {
+  const { isSuperAdmin } = useAuth();
   const { isLight } = useTheme();
   const navigate = useNavigate();
 
@@ -37,6 +39,17 @@ export default function AreaOperaciones() {
     color: "bg-indigo-600",
     ruta: "/operaciones/protocolos",
   },
+  ...(isSuperAdmin
+    ? [
+        {
+          titulo: OPERACIONES_TEXT.bodega.title,
+          descripcion: OPERACIONES_TEXT.bodega.description,
+          icono: <Package size={20} />,
+          color: "bg-amber-600",
+          ruta: "/operaciones/bodega",
+        },
+      ]
+    : []),
 ];
   return (
     <div className="p-6 space-y-6">
