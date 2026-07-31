@@ -42,6 +42,7 @@ export default function ChatInterno() {
   const { isLight } = useTheme();
   const { usuariosOnline = {} } = useOutletContext() || {};
   const bottomRef = useRef(null);
+  const soundedMessageIdsRef = useRef(new Set());
 
   const [usuarios, setUsuarios] = useState([]);
   const [busqueda, setBusqueda] = useState("");
@@ -98,6 +99,19 @@ export default function ChatInterno() {
     }
   }, [user?.id]);
 
+  const playIncomingMessageSound = useCallback(
+    (message) => {
+      if (!message?.id || !user?.id) return false;
+      if (message.sender_id === user.id) return false;
+      if (soundedMessageIdsRef.current.has(message.id)) return false;
+
+      soundedMessageIdsRef.current.add(message.id);
+      playNotificationSound();
+      return true;
+    },
+    [user?.id]
+  );
+
   useEffect(() => {
     cargarNoLeidos();
     const timer = setInterval(cargarNoLeidos, 15000);
@@ -149,9 +163,11 @@ export default function ChatInterno() {
           return [...prev, payload.new];
         });
 
-        markConversationRead(conversationId, user?.id);
-        if (payload.new?.sender_id !== user?.id && usuarioActivo?.id) {
-          playNotificationSound();
+        const isIncoming = payload.new?.sender_id !== user?.id;
+        if (isIncoming) playIncomingMessageSound(payload.new);
+
+        if (isIncoming && usuarioActivo?.id) {
+          markConversationRead(conversationId, user?.id);
           setNoLeidos((prev) => ({ ...prev, [usuarioActivo.id]: 0 }));
         }
       }
@@ -163,7 +179,7 @@ export default function ChatInterno() {
   return () => {
     supabase.removeChannel(channel);
   };
-}, [conversationId, user?.id, usuarioActivo?.id]);
+}, [conversationId, playIncomingMessageSound, user?.id, usuarioActivo?.id]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -179,7 +195,7 @@ export default function ChatInterno() {
         },
         (payload) => {
           if (payload.new?.sender_id !== user.id) {
-            if (payload.new?.conversation_id !== conversationId) playNotificationSound();
+            playIncomingMessageSound(payload.new);
             cargarNoLeidos();
           }
         }
@@ -189,7 +205,7 @@ export default function ChatInterno() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [cargarNoLeidos, conversationId, user?.id]);
+  }, [cargarNoLeidos, playIncomingMessageSound, user?.id]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
