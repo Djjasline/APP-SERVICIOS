@@ -62,30 +62,15 @@ function getNotificationAudioContext() {
 }
 
 export async function unlockNotificationSound() {
-  let unlocked = false;
-
   try {
     const audioContext = getNotificationAudioContext();
+    if (!audioContext) return false;
     if (audioContext?.state === "suspended") await audioContext.resume();
-    unlocked = audioContext?.state === "running" || unlocked;
+    return audioContext.state === "running";
   } catch (error) {
     console.warn("No se pudo habilitar sonido de notificación:", error);
+    return false;
   }
-
-  try {
-    const audio = new Audio(getNotificationBeepUrl());
-    audio.volume = 0.01;
-    await audio.play();
-    setTimeout(() => {
-      audio.pause();
-      audio.currentTime = 0;
-    }, 40);
-    unlocked = true;
-  } catch (error) {
-    console.warn("No se pudo desbloquear audio de notificación:", error);
-  }
-
-  return unlocked;
 }
 
 async function playAudioElementSound() {
@@ -126,11 +111,14 @@ async function playAudioContextSound() {
 }
 
 export async function playNotificationSound() {
+  const playedWithAudioContext = await playAudioContextSound();
+  if (playedWithAudioContext) return true;
+
   try {
     return await playAudioElementSound();
   } catch (error) {
     console.warn("No se pudo reproducir audio HTML de notificación:", error);
   }
 
-  return playAudioContextSound();
+  return false;
 }
