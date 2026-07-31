@@ -105,6 +105,41 @@ function isHiddenInternalProjectCommit(commit) {
 
 const FRIENDLY_UPDATES = [
   {
+    match: "detallar control de cambios",
+    title: "Control de cambios: seguridad y notificaciones",
+    message: "Se reforzaron permisos de informes y encuestas, se protegieron las notificaciones y se mejoró el sonido de avisos con la app abierta.",
+  },
+  {
+    match: "mejorar sonido de notificaciones",
+    title: "Control de cambios: sonido de notificaciones",
+    message: "Las notificaciones ahora reproducen un aviso sonoro más claro cuando la app está abierta.",
+  },
+  {
+    match: "validar funcion push con deno",
+    title: "Control de cambios: función de notificaciones",
+    message: "Se validó la función de notificaciones push para asegurar que el envío sea más confiable.",
+  },
+  {
+    match: "blindar encuestas y notificaciones",
+    title: "Control de cambios: seguridad de avisos",
+    message: "Se reforzó el acceso a encuestas y notificaciones para que solo usuarios autorizados puedan gestionarlas.",
+  },
+  {
+    match: "proteger edicion y mejorar autoguardado",
+    title: "Control de cambios: permisos y autoguardado",
+    message: "Se protegió la edición de registros y se mejoró el autoguardado también al editar informes existentes.",
+  },
+  {
+    match: "simplificar validacion de completado",
+    title: "Control de cambios: cierre de formularios",
+    message: "El cierre de formularios queda más simple para campo, manteniendo borradores flexibles y avisos no bloqueantes.",
+  },
+  {
+    match: "actualizar react router sin vulnerabilidades",
+    title: "Control de cambios: actualización técnica",
+    message: "Se actualizaron componentes base de la app para eliminar vulnerabilidades detectadas.",
+  },
+  {
     match: "normalizar nombres de usuarios en chat e informes",
     title: "Control de cambios: nombres de usuarios",
     message: "Los nombres de usuarios en chat e informes ahora se muestran con inicial mayúscula en nombre y apellido.",
