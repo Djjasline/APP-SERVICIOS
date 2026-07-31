@@ -52,6 +52,7 @@ const ProtocoloVactorPDF = lazy(() => import("./app/vehiculos/protocolos/Protoco
 const ProtocoloVCamForm = lazy(() => import("./app/vehiculos/protocolos/ProtocoloVCamForm"));
 const ProtocoloVCamPDF = lazy(() => import("./app/vehiculos/protocolos/ProtocoloVCamPDF"));
 const ConfiguradorHome = lazy(() => import("./app/vehiculos/configurador/ConfiguradorHome"));
+const ConfiguradorQuoteView = lazy(() => import("./app/vehiculos/configurador/ConfiguradorQuoteView"));
 const ManualesTecnicos = lazy(() => import("./app/repositorios/ManualesTecnicos"));
 const DocumotoElgin = lazy(() => import("./app/repositorios/DocumotoElgin"));
 const MarcasProductos = lazy(() => import("./app/repositorios/MarcasProductos"));
@@ -319,6 +320,7 @@ export default function RoutesApp() {
             <Route path="/vehiculos/protocolos/vcam/ver/:id" element={<TechRoute><RecordPermissionRoute action="view" fallback="/operaciones/protocolos"><ProtocoloVCamPDF allowDownload={false} backPath="/operaciones/protocolos" /></RecordPermissionRoute></TechRoute>} />
             <Route path="/vehiculos/protocolos/vcam/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/operaciones/protocolos"><ProtocoloVCamForm /></RecordPermissionRoute></TechRoute>} />
             <Route path="/vehiculos/configurador" element={<ConfiguradorOwnerRoute><ConfiguradorHome /></ConfiguradorOwnerRoute>} />
+            <Route path="/vehiculos/configurador/ver/:id" element={<ConfiguradorOwnerRoute><ConfiguradorQuoteView /></ConfiguradorOwnerRoute>} />
 
             <Route path="/liberacion" element={<Navigate to="/operaciones/liberacion" replace />} />
             <Route path="/liberacion/nuevo" element={<Navigate to="/operaciones/liberacion/nuevo" replace />} />

@@ -82,3 +82,14 @@ export async function getConfiguratorQuoteHistory({ limit = 50 } = {}) {
   if (error) throw error;
   return data || [];
 }
+
+export async function getConfiguratorQuoteById(id) {
+  const { data, error } = await supabase
+    .from("vactor_configurator_quotes")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}

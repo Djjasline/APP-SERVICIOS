@@ -470,7 +470,7 @@ export default function ConfiguradorHome() {
         )}
       </section>
 
-      <HistoryPanel history={history} loading={loadingHistory} error={historyError} onRefresh={loadHistory} hideValues={hideValues} />
+      <HistoryPanel history={history} loading={loadingHistory} error={historyError} onRefresh={loadHistory} onView={(quoteId) => navigate(`/vehiculos/configurador/ver/${quoteId}`)} hideValues={hideValues} />
     </div>
   );
 }
@@ -643,7 +643,7 @@ function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues }) 
   );
 }
 
-function HistoryPanel({ history, loading, error, onRefresh, hideValues }) {
+function HistoryPanel({ history, loading, error, onRefresh, onView, hideValues }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
@@ -674,7 +674,7 @@ function HistoryPanel({ history, loading, error, onRefresh, hideValues }) {
                 <th className="px-3 py-2 font-semibold">Modelo</th>
                 {!hideValues && <th className="px-3 py-2 text-right font-semibold">Total</th>}
                 <th className="px-3 py-2 font-semibold">Fecha</th>
-                <th className="px-3 py-2 font-semibold">PDF</th>
+                <th className="px-3 py-2 font-semibold">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -689,13 +689,18 @@ function HistoryPanel({ history, loading, error, onRefresh, hideValues }) {
                   {!hideValues && <td className="px-3 py-2 text-right font-semibold text-slate-900">{money(quote.price_summary?.total)}</td>}
                   <td className="px-3 py-2 text-slate-600">{formatDate(quote.created_at)}</td>
                   <td className="px-3 py-2">
-                    {quote.pdf_url ? (
-                      <a href={quote.pdf_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-blue-700 hover:underline">
-                        <ExternalLink size={14} /> Abrir
-                      </a>
-                    ) : (
-                      <span className="text-slate-400">Sin PDF</span>
-                    )}
+                    <div className="flex flex-wrap gap-3">
+                      <button type="button" onClick={() => onView(quote.id)} className="font-semibold text-slate-700 hover:underline">
+                        Ver
+                      </button>
+                      {quote.pdf_url ? (
+                        <a href={quote.pdf_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-blue-700 hover:underline">
+                          <ExternalLink size={14} /> PDF
+                        </a>
+                      ) : (
+                        <span className="text-slate-400">Sin PDF</span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
