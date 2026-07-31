@@ -321,7 +321,7 @@ const activeItemCodes = [
 ];
 
   // Autoguardado automático cada 15 segundos
-  useAutoguardado(claveAutoguardado, data, !isEditing);
+  useAutoguardado(claveAutoguardado, data, true);
 
 /* ── PROGRESO ── */
 const itemsMarcados = activeItemCodes.filter(
@@ -1233,6 +1233,8 @@ setTimeout(() => {
 }}
                      onEnd={() => {
   document.body.style.overflow = "";
+  const firma = sigTecnico.current?.isEmpty?.() === false ? sigTecnico.current.toDataURL() : "";
+  update(["firmas", "tecnico"], firma);
 }}
                       canvasProps={{ className:"w-full h-full touch-none" }} />
                   </div>
@@ -1263,6 +1265,8 @@ setTimeout(() => {
 }}
                      onEnd={() => {
   document.body.style.overflow = "";
+  const firma = sigCliente.current?.isEmpty?.() === false ? sigCliente.current.toDataURL() : "";
+  update(["firmas", "cliente"], firma);
 }}
                       canvasProps={{ className:"w-full h-full touch-none" }} />
                   </div>

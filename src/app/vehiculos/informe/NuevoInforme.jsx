@@ -114,7 +114,7 @@ export default function NuevoInforme() {
  const [data, setData] = useState(emptyReport);
 
   // Autoguardado automático cada 15 segundos
-  useAutoguardado(claveAutoguardado, data, !isEditing);
+  useAutoguardado(claveAutoguardado, data, true);
 const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
 const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
 
@@ -1257,6 +1257,8 @@ const estadoFinal =
 }}
 onEnd={() => {
   document.body.style.overflow = "";
+  const firma = sigTecnico.current?.isEmpty?.() === false ? sigTecnico.current.toDataURL() : "";
+  setData((prev) => ({ ...prev, firmas: { ...prev.firmas, tecnico: firma } }));
 }}
             canvasProps={{
               className: "w-full h-full touch-none",
@@ -1304,6 +1306,8 @@ onEnd={() => {
 }}
 onEnd={() => {
               document.body.style.overflow = "";
+              const firma = sigCliente.current?.isEmpty?.() === false ? sigCliente.current.toDataURL() : "";
+              setData((prev) => ({ ...prev, firmas: { ...prev.firmas, cliente: firma } }));
             }}
             canvasProps={{
               className: "w-full h-full touch-none",

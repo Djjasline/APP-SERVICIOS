@@ -5,6 +5,7 @@ import SignatureCanvas from "@/components/SignatureCanvasField";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { uploadRegistroImage } from "@/utils/storage";
+import { saveOrUpdateReport } from "@/services/reportService";
 import { createEmptyVisitaCampoData } from "./visitaCampoData";
 import { listToText, parseTableText, textToList } from "./tableUtils";
 
@@ -533,29 +534,23 @@ export default function VisitaCampoForm() {
     if (!user?.id) return;
     setSaving(true);
 
-    const payload = {
-      area: "petroleo",
-      tipo: "visita_campo",
-      subtipo: "flowserve",
-      estado,
-      data,
-      updated_at: new Date().toISOString(),
-    };
+    try {
+      const saved = await saveOrUpdateReport({
+        id: isEditing ? id : null,
+        area: "petroleo",
+        tipo: "visita_campo",
+        subtipo: "flowserve",
+        estado,
+        data,
+      });
 
-    const query = isEditing
-      ? supabase.from("registros").update(payload).eq("id", id).select().maybeSingle()
-      : supabase.from("registros").insert({ ...payload, user_id: user.id }).select().maybeSingle();
-
-    const { data: saved, error } = await query;
-    setSaving(false);
-
-    if (error) {
+      setSaving(false);
+      navigate(`/petroleo/visita-campo/${saved.id}`);
+    } catch (error) {
+      setSaving(false);
       console.error(error);
       alert("No se pudo guardar el informe.");
-      return;
     }
-
-    navigate(`/petroleo/visita-campo/${saved.id}`);
   };
 
   if (loading) return <div className="p-6 text-gray-500">Cargando informe...</div>;

@@ -214,7 +214,7 @@ estadoEquipo: {
   const [data, setData] = useState(emptyReport);
 
   // Autoguardado automático cada 15 segundos
-  useAutoguardado(claveAutoguardado, data, !isEditing);
+  useAutoguardado(claveAutoguardado, data, true);
 
  /* ─── CARGAR EXISTENTE ─── */
 useEffect(() => {
@@ -1641,7 +1641,11 @@ const save = async () => {
   document.activeElement?.blur();
   document.body.style.overflow = "hidden";
 }}
-                       onEnd={() => { document.body.style.overflow = ""; }}
+                       onEnd={() => {
+                         document.body.style.overflow = "";
+                         const firma = sigTecnico.current?.isEmpty?.() === false ? sigTecnico.current.toDataURL() : "";
+                         set("firmas", { ...data.firmas, tecnico: firma });
+                       }}
                       canvasProps={{ className: "w-full h-full touch-none" }}
                     />
                   </div>
@@ -1659,7 +1663,11 @@ const save = async () => {
   document.activeElement?.blur();
   document.body.style.overflow = "hidden";
 }}
-                      onEnd={() => { document.body.style.overflow = ""; }}
+                      onEnd={() => {
+                        document.body.style.overflow = "";
+                        const firma = sigCliente.current?.isEmpty?.() === false ? sigCliente.current.toDataURL() : "";
+                        set("firmas", { ...data.firmas, cliente: firma });
+                      }}
                       canvasProps={{ className: "w-full h-full touch-none" }}
                     />
                   </div>

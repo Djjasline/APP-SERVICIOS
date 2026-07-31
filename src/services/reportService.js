@@ -1,8 +1,15 @@
 import { supabase } from "../lib/supabase";
+import { canAccessRecord, getRecordAccessPermissionsForUser } from "./accessControlService";
 import { createNotification } from "./notificationService";
 import { getNotificationRecipientsForRecord } from "./notificationRecipientService";
 import { hasReportCodeSequence, normalizeReportCodeValue, reserveNextReportCode } from "./reportCodeService";
 import { formatPersonName } from "@/utils/nameFormat";
+
+const SUPER_ADMIN_EMAIL = "smaviles@astap.com";
+const SUPERVISOR_OPERACIONES_EMAILS = ["kamhez@astap.com"];
+const SUPERVISOR_PROYECTO_EMAILS = ["abriones@astap.com"];
+
+const normalize = (value) => String(value || "").trim().toLowerCase();
 
 export const saveOrUpdateReport = async ({
   id = null,
@@ -23,12 +30,13 @@ export const saveOrUpdateReport = async ({
       throw new Error("Debes iniciar sesión para guardar este registro.");
     }
 
+    const existingRecord = id ? await getEditableRecord({ id, user, area, tipo, subtipo }) : null;
     const reportData = await resolveReportData({ id, data });
 
     const payload = {
-      area,
-      tipo,
-      subtipo,
+      area: existingRecord?.area || area,
+      tipo: existingRecord?.tipo || tipo,
+      subtipo: existingRecord?.subtipo || subtipo,
       data: reportData,
       estado,
       updated_at: new Date().toISOString(),
@@ -74,6 +82,36 @@ export const saveOrUpdateReport = async ({
     throw error;
   }
 };
+
+async function getEditableRecord({ id, user, area, tipo, subtipo }) {
+  const { data: record, error } = await supabase
+    .from("registros")
+    .select("id, user_id, area, tipo, subtipo, data")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!record) throw new Error("No se encontró el registro a actualizar.");
+
+  if (area && record.area !== area) throw new Error("El área del registro no coincide.");
+  if (tipo && record.tipo !== tipo) throw new Error("El tipo del registro no coincide.");
+  if (subtipo && record.subtipo !== subtipo) throw new Error("El subtipo del registro no coincide.");
+
+  const email = normalize(user.email);
+  const ownerEmail = normalize(record.data?.tecnicoCorreo || record.data?.correoTecnico);
+  const isOwnRecord = record.user_id === user.id || (ownerEmail && ownerEmail === email);
+  const isSuperAdmin = email === SUPER_ADMIN_EMAIL;
+  const isAreaSupervisor =
+    (record.area === "operaciones" && SUPERVISOR_OPERACIONES_EMAILS.includes(email)) ||
+    (record.area === "vehiculos" && SUPERVISOR_PROYECTO_EMAILS.includes(email));
+
+  if (isOwnRecord || isSuperAdmin || isAreaSupervisor) return record;
+
+  const permissions = await getRecordAccessPermissionsForUser(user.id);
+  if (canAccessRecord({ record, userId: user.id, permissions, isSuperAdmin, action: "edit" })) return record;
+
+  throw new Error("No tienes permiso para editar este registro.");
+}
 
 async function resolveReportData({ id, data }) {
   if (!data?.codInf) return data;

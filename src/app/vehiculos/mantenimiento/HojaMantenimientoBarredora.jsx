@@ -354,7 +354,7 @@ const superAdminActivo =
   const [data, setData]                     = useState(emptyForm);
 
   // Autoguardado automático cada 15 segundos
-  useAutoguardado(claveAutoguardado, data, !isEditing);
+  useAutoguardado(claveAutoguardado, data, true);
   const [guardando, setGuardando]           = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [successMsg, setSuccessMsg]         = useState("");
@@ -1310,6 +1310,8 @@ const result = await saveOrUpdateReport({
 }}
                       onEnd={() => {
   document.body.style.overflow = "";
+  const firma = sigTecnico.current?.isEmpty?.() === false ? sigTecnico.current.toDataURL() : "";
+  update(["firmas", "tecnico"], firma);
 }}
                       canvasProps={{ className: "w-full h-full touch-none" }}
                     />
@@ -1347,6 +1349,8 @@ const result = await saveOrUpdateReport({
 }}
                       onEnd={() => {
   document.body.style.overflow = "";
+  const firma = sigCliente.current?.isEmpty?.() === false ? sigCliente.current.toDataURL() : "";
+  update(["firmas", "cliente"], firma);
 }}
                       canvasProps={{ className: "w-full h-full touch-none" }}
                     />

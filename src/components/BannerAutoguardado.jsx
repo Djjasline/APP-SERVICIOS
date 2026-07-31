@@ -83,12 +83,14 @@ export default function BannerAutoguardado({ clave, onRestaurar, isEditing }) {
         )}
         <div className="mt-2 flex gap-2">
           <button
+            type="button"
             onClick={handleRestaurar}
             className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700 transition"
           >
             Restaurar borrador
           </button>
           <button
+            type="button"
             onClick={handleDescartar}
             className="rounded-lg border border-amber-300 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition"
           >
@@ -98,6 +100,7 @@ export default function BannerAutoguardado({ clave, onRestaurar, isEditing }) {
       </div>
 
       <button
+        type="button"
         onClick={handleDescartar}
         className="shrink-0 text-amber-400 hover:text-amber-600 transition"
         title="Cerrar"
