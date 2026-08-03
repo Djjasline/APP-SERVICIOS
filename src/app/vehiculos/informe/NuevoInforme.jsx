@@ -14,6 +14,7 @@ import { formatPersonName } from "@/utils/nameFormat";
 import ReportHeader from "@/components/report/ReportHeader";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import { ensureCompletionReady } from "@/utils/completionValidation";
 
 const fieldPlaceholders = {
@@ -82,6 +83,8 @@ export default function NuevoInforme() {
 
     // Actividades
     actividades: [{ titulo: "", detalle: "", imagenes: [] }],
+    incluirAnexoItems: true,
+    anexoItems: createDefaultPartsAnnexRows(),
 
     // Cierre
     conclusiones: [""],
@@ -1148,6 +1151,13 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
         >
           + Agregar actividad
         </button>
+
+        <InspectionPartsAnnex
+          rows={data.anexoItems}
+          enabled={data.incluirAnexoItems !== false}
+          onEnabledChange={(enabled) => update(["incluirAnexoItems"], enabled)}
+          onChange={(rows) => update(["anexoItems"], rows)}
+        />
 
         {/* ── CONCLUSIONES Y RECOMENDACIONES ── */}
         <h3 className="font-bold text-sm border-b pb-1">

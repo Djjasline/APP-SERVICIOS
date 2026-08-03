@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf"; // ← ajusta la ruta a tu proyecto
 import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
+import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 import { formatPersonName } from "@/utils/nameFormat";
 
 export default function InformePDF({ allowDownload = true, backPath = "/informe" }) {
@@ -402,6 +403,8 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             ))}
           </tbody>
         </table>
+
+        <InspectionPartsAnnexPdf rows={data.anexoItems} styles={S} enabled={data.incluirAnexoItems !== false} />
 
         {/* ════════════════════
             CONCLUSIONES / RECOMENDACIONES
