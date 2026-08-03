@@ -340,7 +340,7 @@ setReport({ estado: data.estado, data: data.data });
           </div>
         ))}
 
-        <InspectionPartsAnnexPdf rows={d.anexoItems} styles={S} />
+        <InspectionPartsAnnexPdf rows={d.anexoItems} styles={S} enabled={d.incluirAnexoItems !== false} />
 
         <div className="no-break">
           <PdfConclusionRecommendationTable conclusiones={d.conclusiones} recomendaciones={d.recomendaciones} styles={S} />

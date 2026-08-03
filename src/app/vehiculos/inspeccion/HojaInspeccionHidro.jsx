@@ -165,6 +165,7 @@ const emptyForm = {
 },
   items: {},
   conclusiones: [""], recomendaciones: [""],
+  incluirAnexoItems: true,
   anexoItems: createDefaultPartsAnnexRows(),
   notaFinal: "",
   firmas: { tecnico: "", cliente: "", clienteCedula: "", aprobadoPorActivo: false, aprobadoPorNombre: "" },
@@ -777,7 +778,12 @@ const firmaCliente =
             </section>
           ))}
 
-          <InspectionPartsAnnex rows={data.anexoItems} onChange={(rows) => update(["anexoItems"], rows)} />
+          <InspectionPartsAnnex
+            rows={data.anexoItems}
+            enabled={data.incluirAnexoItems !== false}
+            onEnabledChange={(enabled) => update(["incluirAnexoItems"], enabled)}
+            onChange={(rows) => update(["anexoItems"], rows)}
+          />
 
           {/* ══ 7. CONCLUSION Y RECOMENDACION ══ */}
           <h3 className="font-bold text-sm border-b pb-1">CONCLUSION TECNICA Y RECOMENDACION ACCIONABLE</h3>

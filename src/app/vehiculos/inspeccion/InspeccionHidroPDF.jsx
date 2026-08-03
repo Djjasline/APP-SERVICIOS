@@ -393,7 +393,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
           </div>
         ))}
 
-        <InspectionPartsAnnexPdf rows={d.anexoItems} styles={S} />
+        <InspectionPartsAnnexPdf rows={d.anexoItems} styles={S} enabled={d.incluirAnexoItems !== false} />
 
         {/* CONCLUSION Y RECOMENDACION */}
         <div className="no-break">
