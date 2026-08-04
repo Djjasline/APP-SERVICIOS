@@ -203,6 +203,17 @@ export default function RegistroAccessAdmin() {
     }));
   };
 
+  const handleConfiguratorShortcut = () => {
+    setMessage("");
+    setForm((prev) => ({
+      ...prev,
+      area: "vehiculos",
+      tipo: "configurador",
+      owner_user_id: prev.grantee_user_id,
+      can_view: true,
+    }));
+  };
+
   const handleNotificationChange = (field, value) => {
     setMessage("");
     setNotificationForm((prev) => ({ ...prev, [field]: value }));
@@ -436,6 +447,24 @@ export default function RegistroAccessAdmin() {
               Este permiso habilita el acceso al módulo Configurador Vactor para el usuario seleccionado.
             </div>
           )}
+        </div>
+
+        <div className={`rounded-xl border p-4 text-sm ${isLight ? "border-orange-200 bg-orange-50 text-orange-900" : "border-orange-300/30 bg-orange-500/10 text-orange-100"}`}>
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="font-semibold">Acceso al Configurador Vactor</p>
+              <p className={isLight ? "text-orange-800" : "text-orange-100/80"}>
+                Selecciona primero el usuario y usa este atajo para preparar el permiso del configurador.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleConfiguratorShortcut}
+              className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700"
+            >
+              Dar acceso al configurador
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
