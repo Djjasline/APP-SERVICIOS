@@ -3,6 +3,18 @@ import { SPECIAL_MODULE_BY_KEY, SPECIAL_MODULES } from "@/constants/accessContro
 
 const normalize = (value) => String(value || "").trim().toLowerCase();
 
+function getRecordTechnicianEmails(record) {
+  return [record?.data?.tecnicoCorreo, record?.data?.correoTecnico]
+    .map(normalize)
+    .filter(Boolean);
+}
+
+export function recordHasTechnicianEmail(record, email) {
+  const normalizedEmail = normalize(email);
+  if (!normalizedEmail) return false;
+  return getRecordTechnicianEmails(record).includes(normalizedEmail);
+}
+
 export async function getAccessProfiles() {
   const { data, error } = await supabase
     .from("profiles")
@@ -102,7 +114,7 @@ export async function getAccessibleRecordsForUser({
   if (error) throw error;
 
   const records = (data || []).filter((record) => {
-    const ownRecord = record.user_id === userId || normalize(record.data?.tecnicoCorreo) === normalizedUserEmail;
+    const ownRecord = record.user_id === userId || recordHasTechnicianEmail(record, normalizedUserEmail);
     return ownRecord || canAccessRecord({ record, userId, permissions, isSuperAdmin: false, action });
   });
 
@@ -172,7 +184,7 @@ export function canAccessRecord({ record, userId, permissions, isSuperAdmin, act
   return (permissions || []).some((permission) => {
     const ownerMatches =
       permission.owner_user_id === record.user_id ||
-      (permission.owner_email && normalize(record.data?.tecnicoCorreo) === normalize(permission.owner_email));
+      (permission.owner_email && recordHasTechnicianEmail(record, permission.owner_email));
 
     if (!ownerMatches) return false;
     if (!permissionMatchesScope(permission, record.area, record.tipo, record.subtipo)) return false;

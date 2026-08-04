@@ -1,5 +1,5 @@
 import { supabase } from "../lib/supabase";
-import { canAccessRecord, getRecordAccessPermissionsForUser } from "./accessControlService";
+import { canAccessRecord, getRecordAccessPermissionsForUser, recordHasTechnicianEmail } from "./accessControlService";
 import { createNotification } from "./notificationService";
 import { getNotificationRecipientsForRecord } from "./notificationRecipientService";
 import { hasReportCodeSequence, normalizeReportCodeValue, reserveNextReportCode } from "./reportCodeService";
@@ -98,8 +98,7 @@ async function getEditableRecord({ id, user, area, tipo, subtipo }) {
   if (subtipo && record.subtipo !== subtipo) throw new Error("El subtipo del registro no coincide.");
 
   const email = normalize(user.email);
-  const ownerEmail = normalize(record.data?.tecnicoCorreo || record.data?.correoTecnico);
-  const isOwnRecord = record.user_id === user.id || (ownerEmail && ownerEmail === email);
+  const isOwnRecord = record.user_id === user.id || recordHasTechnicianEmail(record, email);
   const isSuperAdmin = email === SUPER_ADMIN_EMAIL;
   const isAreaSupervisor =
     (record.area === "operaciones" && SUPERVISOR_OPERACIONES_EMAILS.includes(email)) ||

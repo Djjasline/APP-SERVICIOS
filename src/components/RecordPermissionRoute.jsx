@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import {
   canAccessRecord,
   getRecordAccessPermissionsForUser,
+  recordHasTechnicianEmail,
 } from "@/services/accessControlService";
 
 export default function RecordPermissionRoute({ children, action = "view", fallback = "/" }) {
@@ -46,7 +47,7 @@ export default function RecordPermissionRoute({ children, action = "view", fallb
       const area = record.area || record.data?.area || "vehiculos";
       const ownRecord =
         record.user_id === user.id ||
-        (record.data?.tecnicoCorreo && record.data.tecnicoCorreo === user.email);
+        recordHasTechnicianEmail(record, user.email);
 
       if (
         superAdminActivo ||

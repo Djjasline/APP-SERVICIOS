@@ -77,7 +77,7 @@ create policy "Usuario ve registros permitidos"
       where p.grantee_user_id = auth.uid()
         and (
           p.owner_user_id = registros.user_id
-          or lower(coalesce(p.owner_email, '')) = lower(coalesce(registros.data->>'tecnicoCorreo', ''))
+          or lower(trim(coalesce(p.owner_email, ''))) = lower(coalesce(nullif(trim(registros.data->>'tecnicoCorreo'), ''), nullif(trim(registros.data->>'correoTecnico'), ''), ''))
         )
         and p.active = true
         and (p.can_view = true or p.can_edit = true or p.can_download = true)
@@ -99,7 +99,7 @@ create policy "Usuario edita registros permitidos"
       where p.grantee_user_id = auth.uid()
         and (
           p.owner_user_id = registros.user_id
-          or lower(coalesce(p.owner_email, '')) = lower(coalesce(registros.data->>'tecnicoCorreo', ''))
+          or lower(trim(coalesce(p.owner_email, ''))) = lower(coalesce(nullif(trim(registros.data->>'tecnicoCorreo'), ''), nullif(trim(registros.data->>'correoTecnico'), ''), ''))
         )
         and p.active = true
         and p.can_edit = true
@@ -117,7 +117,7 @@ create policy "Usuario edita registros permitidos"
       where p.grantee_user_id = auth.uid()
         and (
           p.owner_user_id = registros.user_id
-          or lower(coalesce(p.owner_email, '')) = lower(coalesce(registros.data->>'tecnicoCorreo', ''))
+          or lower(trim(coalesce(p.owner_email, ''))) = lower(coalesce(nullif(trim(registros.data->>'tecnicoCorreo'), ''), nullif(trim(registros.data->>'correoTecnico'), ''), ''))
         )
         and p.active = true
         and p.can_edit = true

@@ -3,6 +3,7 @@ import { saveOrUpdateReport } from "../services/reportService";
 import {
   canAccessRecord,
   getRecordAccessPermissionsForUser,
+  recordHasTechnicianEmail,
 } from "@/services/accessControlService";
 
 const SUPER_ADMIN_EMAIL = "smaviles@astap.com";
@@ -102,9 +103,8 @@ export async function getAllRegistros() {
     return [];
   }
 
-  const userEmail = user.email?.toLowerCase() || "";
   return (data || []).filter((record) => {
-    const ownRecord = record.user_id === user.id || record.data?.tecnicoCorreo?.toLowerCase() === userEmail;
+    const ownRecord = record.user_id === user.id || recordHasTechnicianEmail(record, user.email);
     return ownRecord || canAccessRecord({ record, userId: user.id, permissions, isSuperAdmin: false, action: "view" });
   });
 }
