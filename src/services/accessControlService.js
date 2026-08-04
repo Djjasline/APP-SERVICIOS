@@ -36,6 +36,16 @@ export async function getRecordAccessPermissionsForUser(userId) {
   return enrichPermissionsWithOwnerProfiles(data || []);
 }
 
+export async function canUseConfiguratorPermission(userId) {
+  if (!userId) return false;
+
+  const permissions = await getRecordAccessPermissionsForUser(userId);
+  return (permissions || []).some(
+    (permission) =>
+      permissionMatchesScope(permission, "vehiculos", "configurador") && hasPermissionAction(permission, "view")
+  );
+}
+
 export async function getAccessibleRecordsForUser({
   userId,
   userEmail = "",

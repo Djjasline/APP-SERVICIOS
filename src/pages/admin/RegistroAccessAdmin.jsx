@@ -48,6 +48,7 @@ const TIPOS = [
   { value: "protocolo", label: "Protocolo" },
   { value: "protocolo:hidrosuccionador-vactor", label: "Protocolo - Hidrosuccionador Vactor" },
   { value: "protocolo:camara-vcam6", label: "Protocolo - Cámara V-Cam6" },
+  { value: "configurador", label: "Configurador Vactor" },
   { value: "registro", label: "Registro de herramientas" },
   { value: "recepcion", label: "Bitácora y control vehicular" },
   { value: "liberacion", label: "Autorización de uso de vehículo para refinería" },
@@ -132,6 +133,7 @@ export default function RegistroAccessAdmin() {
   const sortedProfiles = useMemo(() => {
     return [...profiles].sort((a, b) => getProfileLabel(a).localeCompare(getProfileLabel(b)));
   }, [profiles]);
+  const isConfiguratorPermission = form.tipo === "configurador";
 
   useEffect(() => {
     loadData();
@@ -176,7 +178,21 @@ export default function RegistroAccessAdmin() {
 
   const handleChange = (field, value) => {
     setMessage("");
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => {
+      const next = { ...prev, [field]: value };
+
+      if (field === "tipo" && value === "configurador") {
+        next.area = "vehiculos";
+        next.can_view = true;
+        next.owner_user_id = next.grantee_user_id;
+      }
+
+      if (field === "grantee_user_id" && next.tipo === "configurador") {
+        next.owner_user_id = value;
+      }
+
+      return next;
+    });
   };
 
   const handleSpecificScopeChange = (field, checked, fallbackValue) => {
@@ -207,24 +223,28 @@ export default function RegistroAccessAdmin() {
     setError("");
     setMessage("");
 
-    if (!form.grantee_user_id || !form.owner_user_id) {
-      setError("Selecciona el usuario gestor y el dueño de los registros.");
+    const permissionPayload = isConfiguratorPermission
+      ? { ...form, area: "vehiculos", owner_user_id: form.grantee_user_id, can_view: true }
+      : form;
+
+    if (!permissionPayload.grantee_user_id || !permissionPayload.owner_user_id) {
+      setError(isConfiguratorPermission ? "Selecciona el usuario que tendrá acceso al configurador." : "Selecciona el usuario gestor y el dueño de los registros.");
       return;
     }
 
-    if (form.grantee_user_id === form.owner_user_id) {
+    if (!isConfiguratorPermission && permissionPayload.grantee_user_id === permissionPayload.owner_user_id) {
       setError("El usuario gestor y el dueño de registros deben ser diferentes.");
       return;
     }
 
-    if (!form.can_view && !form.can_edit && !form.can_download) {
+    if (!permissionPayload.can_view && !permissionPayload.can_edit && !permissionPayload.can_download) {
       setError("Activa al menos un permiso.");
       return;
     }
 
     try {
       setSaving(true);
-      await saveRecordAccessPermission(form);
+      await saveRecordAccessPermission(permissionPayload);
       setMessage("Permiso guardado correctamente.");
       await loadData();
     } catch (err) {
@@ -380,7 +400,7 @@ export default function RegistroAccessAdmin() {
       <form onSubmit={handleSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="space-y-1 text-sm">
-            <span className="font-medium">Usuario gestor</span>
+            <span className="font-medium">{isConfiguratorPermission ? "Usuario con acceso" : "Usuario gestor"}</span>
             <select
               value={form.grantee_user_id}
               onChange={(event) => handleChange("grantee_user_id", event.target.value)}
@@ -395,21 +415,27 @@ export default function RegistroAccessAdmin() {
             </select>
           </label>
 
-          <label className="space-y-1 text-sm">
-            <span className="font-medium">Dueño de registros</span>
-            <select
-              value={form.owner_user_id}
-              onChange={(event) => handleChange("owner_user_id", event.target.value)}
-              className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
-            >
-              <option value="">Seleccionar dueño</option>
-              {sortedProfiles.map((profile) => (
-                <option key={profile.id} value={profile.id}>
-                  {getProfileLabel(profile)}
-                </option>
-              ))}
-            </select>
-          </label>
+          {!isConfiguratorPermission ? (
+            <label className="space-y-1 text-sm">
+              <span className="font-medium">Dueño de registros</span>
+              <select
+                value={form.owner_user_id}
+                onChange={(event) => handleChange("owner_user_id", event.target.value)}
+                className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
+              >
+                <option value="">Seleccionar dueño</option>
+                {sortedProfiles.map((profile) => (
+                  <option key={profile.id} value={profile.id}>
+                    {getProfileLabel(profile)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <div className={`rounded-lg border px-3 py-2 text-sm ${isLight ? "border-orange-200 bg-orange-50 text-orange-800" : "border-orange-300/30 bg-orange-500/10 text-orange-100"}`}>
+              Este permiso habilita el acceso al módulo Configurador Vactor para el usuario seleccionado.
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -419,6 +445,7 @@ export default function RegistroAccessAdmin() {
                 type="checkbox"
                 checked={form.area !== "todos"}
                 onChange={(event) => handleSpecificScopeChange("area", event.target.checked, "vehiculos")}
+                disabled={isConfiguratorPermission}
                 className="h-4 w-4 rounded border-slate-300"
               />
               Área específica
@@ -427,7 +454,7 @@ export default function RegistroAccessAdmin() {
             <select
               value={form.area}
               onChange={(event) => handleChange("area", event.target.value)}
-              disabled={form.area === "todos"}
+              disabled={form.area === "todos" || isConfiguratorPermission}
               className={`w-full rounded-lg border px-3 py-2 text-sm disabled:opacity-60 ${inputClass}`}
             >
               {AREAS.map((area) => (
@@ -485,6 +512,7 @@ export default function RegistroAccessAdmin() {
                 type="checkbox"
                 checked={form[field]}
                 onChange={(event) => handleChange(field, event.target.checked)}
+                disabled={isConfiguratorPermission && field === "can_view"}
                 className="h-4 w-4 rounded border-slate-300"
               />
               {label}
@@ -524,7 +552,9 @@ export default function RegistroAccessAdmin() {
                 {permissions.map((permission) => (
                   <tr key={permission.id} className={isLight ? "border-t border-slate-100" : "border-t border-white/10"}>
                     <td className="py-3 pr-4">{getProfileLabel(profileById[permission.grantee_user_id])}</td>
-                    <td className="py-3 pr-4">{getProfileLabel(profileById[permission.owner_user_id])}</td>
+                    <td className="py-3 pr-4">
+                      {permission.tipo === "configurador" ? "Acceso al módulo" : getProfileLabel(profileById[permission.owner_user_id])}
+                    </td>
                     <td className="py-3 pr-4">
                       {getAreaLabel(permission.area)} / {getTipoLabel(permission.tipo)}
                     </td>

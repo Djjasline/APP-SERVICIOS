@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -6,6 +6,7 @@ import RoleRoute from "./components/RoleRoute";
 import RecordPermissionRoute from "./components/RecordPermissionRoute";
 import { useAuth } from "./context/AuthContext";
 import { isConfiguratorOwner } from "./constants/accessControl";
+import { canUseConfiguratorPermission } from "./services/accessControlService";
 
 const Login = lazy(() => import("./pages/Login"));
 const CustomerSurveyPublic = lazy(() => import("./pages/CustomerSurveyPublic"));
@@ -115,9 +116,44 @@ const VehiculosRoute = ({ children }) => (
 );
 
 const ConfiguradorOwnerRoute = ({ children }) => {
-  const { user, email, loading } = useAuth();
+  const { user, email, loading, isSuperAdmin } = useAuth();
+  const [allowedByPermission, setAllowedByPermission] = useState(false);
+  const [checkingPermission, setCheckingPermission] = useState(true);
+  const superAdminActivo = typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
 
-  if (loading) {
+  useEffect(() => {
+    let cancelled = false;
+
+    async function checkPermission() {
+      setCheckingPermission(true);
+
+      if (!user?.id || isConfiguratorOwner(email || user?.email) || superAdminActivo) {
+        if (!cancelled) {
+          setAllowedByPermission(false);
+          setCheckingPermission(false);
+        }
+        return;
+      }
+
+      try {
+        const allowed = await canUseConfiguratorPermission(user.id);
+        if (!cancelled) setAllowedByPermission(allowed);
+      } catch (error) {
+        console.error("Error verificando permiso del configurador:", error);
+        if (!cancelled) setAllowedByPermission(false);
+      } finally {
+        if (!cancelled) setCheckingPermission(false);
+      }
+    }
+
+    checkPermission();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [email, superAdminActivo, user?.email, user?.id]);
+
+  if (loading || checkingPermission) {
     return <div className="p-6 text-sm text-slate-500">Verificando acceso...</div>;
   }
 
@@ -125,7 +161,7 @@ const ConfiguradorOwnerRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (!isConfiguratorOwner(email || user?.email)) {
+  if (!isConfiguratorOwner(email || user?.email) && !superAdminActivo && !allowedByPermission) {
     return <Navigate to="/area/vehiculos" replace />;
   }
 

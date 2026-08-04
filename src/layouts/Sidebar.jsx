@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { isConfiguratorOwner } from "@/constants/accessControl";
+import { canUseConfiguratorPermission } from "@/services/accessControlService";
 import { getUnreadAppUpdatesCount } from "@/services/appUpdatesService";
 import { getUnreadMessageCounts } from "@/services/chatService";
 import { openExternalResource } from "@/services/resourceUsageService";
@@ -54,12 +55,13 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const [openRepositorios, setOpenRepositorios] = useState(false);
   const [unreadBulletins, setUnreadBulletins] = useState(0);
   const [unreadChat, setUnreadChat] = useState(0);
+  const [canUseConfiguratorByPermission, setCanUseConfiguratorByPermission] = useState(false);
 
   const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
   const puedeVerTodo = !proveedorSoloVehiculos;
   const superAdminActivo =
     typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
-  const puedeUsarConfigurador = isConfiguratorOwner(user?.email);
+  const puedeUsarConfigurador = isConfiguratorOwner(user?.email) || superAdminActivo || canUseConfiguratorByPermission;
   const informeGeneralTooltip =
     "Informe técnico de servicio: instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
 
@@ -76,6 +78,31 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       );
     });
   };
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadConfiguratorPermission() {
+      if (!user?.id || isConfiguratorOwner(user?.email) || superAdminActivo) {
+        if (mounted) setCanUseConfiguratorByPermission(false);
+        return;
+      }
+
+      try {
+        const allowed = await canUseConfiguratorPermission(user.id);
+        if (mounted) setCanUseConfiguratorByPermission(allowed);
+      } catch (error) {
+        console.error("Error cargando permiso del configurador:", error);
+        if (mounted) setCanUseConfiguratorByPermission(false);
+      }
+    }
+
+    loadConfiguratorPermission();
+
+    return () => {
+      mounted = false;
+    };
+  }, [superAdminActivo, user?.email, user?.id]);
 
   useEffect(() => {
     const path = location.pathname;

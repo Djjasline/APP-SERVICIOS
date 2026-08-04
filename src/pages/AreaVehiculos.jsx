@@ -3,14 +3,43 @@ import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { isConfiguratorOwner } from "@/constants/accessControl";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { canUseConfiguratorPermission } from "@/services/accessControlService";
 import { FileText, ClipboardCheck, Wrench, SlidersHorizontal, Star } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaVehiculos() {
   const { isLight } = useTheme();
-  const { email, user } = useAuth();
+  const { email, user, isSuperAdmin } = useAuth();
   const navigate = useNavigate();
-  const puedeUsarConfigurador = isConfiguratorOwner(email || user?.email);
+  const [canUseConfiguratorByPermission, setCanUseConfiguratorByPermission] = useState(false);
+  const superAdminActivo = typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
+  const puedeUsarConfigurador = isConfiguratorOwner(email || user?.email) || superAdminActivo || canUseConfiguratorByPermission;
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadPermission() {
+      if (!user?.id || isConfiguratorOwner(email || user?.email) || superAdminActivo) {
+        if (mounted) setCanUseConfiguratorByPermission(false);
+        return;
+      }
+
+      try {
+        const allowed = await canUseConfiguratorPermission(user.id);
+        if (mounted) setCanUseConfiguratorByPermission(allowed);
+      } catch (error) {
+        console.error("Error cargando permiso del configurador:", error);
+        if (mounted) setCanUseConfiguratorByPermission(false);
+      }
+    }
+
+    loadPermission();
+
+    return () => {
+      mounted = false;
+    };
+  }, [email, superAdminActivo, user?.email, user?.id]);
 
   return (
     <div className="p-6 space-y-6">
