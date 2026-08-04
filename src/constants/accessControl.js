@@ -1,5 +1,53 @@
 export const CONFIGURADOR_OWNER_EMAIL = "smaviles@astap.com";
 
+export const SPECIAL_MODULE_KEYS = {
+  configurador: "configurador",
+  recorridoAgua: "recorrido_agua",
+  encuestasSatisfaccion: "encuestas_satisfaccion",
+  bodega: "bodega",
+};
+
+export const SPECIAL_MODULES = [
+  {
+    key: SPECIAL_MODULE_KEYS.configurador,
+    area: "vehiculos",
+    tipo: "configurador",
+    label: "Configurador Vactor",
+    description: "Acceso al configurador comercial Vactor.",
+  },
+  {
+    key: SPECIAL_MODULE_KEYS.recorridoAgua,
+    area: "agua",
+    tipo: "recorrido_agua",
+    label: "Informe de recorrido de agua",
+    description: "Acceso al informe de recorrido de Agua y Saneamiento.",
+  },
+  {
+    key: SPECIAL_MODULE_KEYS.encuestasSatisfaccion,
+    area: "todos",
+    tipo: "encuestas_satisfaccion",
+    label: "Encuestas de satisfacción",
+    description: "Acceso a las encuestas de satisfacción de las áreas.",
+  },
+  {
+    key: SPECIAL_MODULE_KEYS.bodega,
+    area: "operaciones",
+    tipo: "bodega",
+    label: "Gestión de bodega",
+    description: "Acceso al módulo interno de bodega.",
+  },
+];
+
+export const SPECIAL_MODULE_BY_KEY = SPECIAL_MODULES.reduce((acc, module) => {
+  acc[module.key] = module;
+  return acc;
+}, {});
+
+export const SPECIAL_MODULE_BY_TIPO = SPECIAL_MODULES.reduce((acc, module) => {
+  acc[module.tipo] = module;
+  return acc;
+}, {});
+
 export function isConfiguratorOwner(email) {
   return String(email || "").trim().toLowerCase() === CONFIGURADOR_OWNER_EMAIL;
 }

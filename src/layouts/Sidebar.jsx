@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
-import { isConfiguratorOwner } from "@/constants/accessControl";
-import { canUseConfiguratorPermission } from "@/services/accessControlService";
+import { SPECIAL_MODULE_KEYS } from "@/constants/accessControl";
+import { useSpecialModuleAccess } from "@/hooks/useSpecialModuleAccess";
 import { getUnreadAppUpdatesCount } from "@/services/appUpdatesService";
 import { getUnreadMessageCounts } from "@/services/chatService";
 import { openExternalResource } from "@/services/resourceUsageService";
@@ -44,7 +44,7 @@ const TEAMDESK_URL = "https://www.teamdesk.net/secure/db/53431/overview.aspx?t=3
 export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isProveedorVehiculos, isProveedorVehiculosOnly, isSuperAdmin } = useAuth();
+  const { user, isProveedorVehiculos, isProveedorVehiculosOnly } = useAuth();
   const { isLight } = useTheme();
 
   const [openVehiculos, setOpenVehiculos] = useState(false);
@@ -55,13 +55,13 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const [openRepositorios, setOpenRepositorios] = useState(false);
   const [unreadBulletins, setUnreadBulletins] = useState(0);
   const [unreadChat, setUnreadChat] = useState(0);
-  const [canUseConfiguratorByPermission, setCanUseConfiguratorByPermission] = useState(false);
+  const { hasSpecialModuleAccess, superAdminActivo } = useSpecialModuleAccess();
 
   const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
   const puedeVerTodo = !proveedorSoloVehiculos;
-  const superAdminActivo =
-    typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
-  const puedeUsarConfigurador = isConfiguratorOwner(user?.email) || superAdminActivo || canUseConfiguratorByPermission;
+  const puedeUsarConfigurador = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.configurador);
+  const puedeUsarRecorridoAgua = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.recorridoAgua);
+  const puedeUsarBodega = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.bodega);
   const informeGeneralTooltip =
     "Informe técnico de servicio: instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
 
@@ -78,31 +78,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       );
     });
   };
-
-  useEffect(() => {
-    let mounted = true;
-
-    async function loadConfiguratorPermission() {
-      if (!user?.id || isConfiguratorOwner(user?.email) || superAdminActivo) {
-        if (mounted) setCanUseConfiguratorByPermission(false);
-        return;
-      }
-
-      try {
-        const allowed = await canUseConfiguratorPermission(user.id);
-        if (mounted) setCanUseConfiguratorByPermission(allowed);
-      } catch (error) {
-        console.error("Error cargando permiso del configurador:", error);
-        if (mounted) setCanUseConfiguratorByPermission(false);
-      }
-    }
-
-    loadConfiguratorPermission();
-
-    return () => {
-      mounted = false;
-    };
-  }, [superAdminActivo, user?.email, user?.id]);
 
   useEffect(() => {
     const path = location.pathname;
@@ -436,8 +411,14 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
                 <button
                   type="button"
-                  onClick={() => go("/agua/recorrido/informe")}
-                  className={subItemClass("/agua/recorrido/informe")}
+                  onClick={() => puedeUsarRecorridoAgua && go("/agua/recorrido/informe")}
+                  disabled={!puedeUsarRecorridoAgua}
+                  title={puedeUsarRecorridoAgua ? "Acceso especial habilitado" : "Acceso especial"}
+                  className={
+                    puedeUsarRecorridoAgua
+                      ? subItemClass("/agua/recorrido/informe")
+                      : `${subItemClass("/agua/recorrido/informe")} cursor-not-allowed opacity-50`
+                  }
                 >
                   {subLabel(ClipboardList, "Informe de recorrido")}
                 </button>
@@ -599,7 +580,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   {subLabel(ClipboardList, OPERACIONES_TEXT.protocolos.title)}
                 </button>
 
-                {superAdminActivo && (
+                {puedeUsarBodega && (
                   <button
                     type="button"
                     onClick={() => go("/operaciones/bodega")}

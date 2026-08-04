@@ -1,12 +1,12 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleRoute from "./components/RoleRoute";
 import RecordPermissionRoute from "./components/RecordPermissionRoute";
 import { useAuth } from "./context/AuthContext";
-import { isConfiguratorOwner } from "./constants/accessControl";
-import { canUseConfiguratorPermission } from "./services/accessControlService";
+import { SPECIAL_MODULE_KEYS } from "./constants/accessControl";
+import { useSpecialModuleAccess } from "./hooks/useSpecialModuleAccess";
 
 const Login = lazy(() => import("./pages/Login"));
 const CustomerSurveyPublic = lazy(() => import("./pages/CustomerSurveyPublic"));
@@ -115,45 +115,11 @@ const VehiculosRoute = ({ children }) => (
   </RoleRoute>
 );
 
-const ConfiguradorOwnerRoute = ({ children }) => {
-  const { user, email, loading, isSuperAdmin } = useAuth();
-  const [allowedByPermission, setAllowedByPermission] = useState(false);
-  const [checkingPermission, setCheckingPermission] = useState(true);
-  const superAdminActivo = typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
+const SpecialModuleRoute = ({ children, moduleKey, fallback = "/" }) => {
+  const { user } = useAuth();
+  const { checkingSpecialModules, hasSpecialModuleAccess } = useSpecialModuleAccess();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function checkPermission() {
-      setCheckingPermission(true);
-
-      if (!user?.id || isConfiguratorOwner(email || user?.email) || superAdminActivo) {
-        if (!cancelled) {
-          setAllowedByPermission(false);
-          setCheckingPermission(false);
-        }
-        return;
-      }
-
-      try {
-        const allowed = await canUseConfiguratorPermission(user.id);
-        if (!cancelled) setAllowedByPermission(allowed);
-      } catch (error) {
-        console.error("Error verificando permiso del configurador:", error);
-        if (!cancelled) setAllowedByPermission(false);
-      } finally {
-        if (!cancelled) setCheckingPermission(false);
-      }
-    }
-
-    checkPermission();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [email, superAdminActivo, user?.email, user?.id]);
-
-  if (loading || checkingPermission) {
+  if (checkingSpecialModules) {
     return <div className="p-6 text-sm text-slate-500">Verificando acceso...</div>;
   }
 
@@ -161,8 +127,8 @@ const ConfiguradorOwnerRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (!isConfiguratorOwner(email || user?.email) && !superAdminActivo && !allowedByPermission) {
-    return <Navigate to="/area/vehiculos" replace />;
+  if (!hasSpecialModuleAccess(moduleKey)) {
+    return <Navigate to={fallback} replace />;
   }
 
   return children;
@@ -208,10 +174,10 @@ export default function RoutesApp() {
             <Route path="/operaciones" element={<TechRoute><AreaOperaciones /></TechRoute>} />
             <Route path="/repositorios" element={<TechRoute><AreaRepositorios /></TechRoute>} />
 
-            <Route path="/vehiculos/encuesta-satisfaccion" element={<VehiculosRoute><EncuestaSatisfaccionConstruccion areaLabel="Vehículos Especiales" backPath="/area/vehiculos" /></VehiculosRoute>} />
-            <Route path="/agua/encuesta-satisfaccion" element={<TechRoute><EncuestaSatisfaccionConstruccion areaLabel="Agua y Saneamiento" backPath="/area/agua" /></TechRoute>} />
-            <Route path="/industria/encuesta-satisfaccion" element={<TechRoute><EncuestaSatisfaccionConstruccion areaLabel="Industria" backPath="/area/industria" /></TechRoute>} />
-            <Route path="/petroleo/encuesta-satisfaccion" element={<TechRoute><EncuestaSatisfaccionConstruccion areaLabel="Petróleo y Energía" backPath="/area/petroleo" /></TechRoute>} />
+            <Route path="/vehiculos/encuesta-satisfaccion" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.encuestasSatisfaccion} fallback="/area/vehiculos"><EncuestaSatisfaccionConstruccion areaLabel="Vehículos Especiales" backPath="/area/vehiculos" /></SpecialModuleRoute>} />
+            <Route path="/agua/encuesta-satisfaccion" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.encuestasSatisfaccion} fallback="/area/agua"><EncuestaSatisfaccionConstruccion areaLabel="Agua y Saneamiento" backPath="/area/agua" /></SpecialModuleRoute>} />
+            <Route path="/industria/encuesta-satisfaccion" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.encuestasSatisfaccion} fallback="/area/industria"><EncuestaSatisfaccionConstruccion areaLabel="Industria" backPath="/area/industria" /></SpecialModuleRoute>} />
+            <Route path="/petroleo/encuesta-satisfaccion" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.encuestasSatisfaccion} fallback="/area/petroleo"><EncuestaSatisfaccionConstruccion areaLabel="Petróleo y Energía" backPath="/area/petroleo" /></SpecialModuleRoute>} />
 
             <Route path="/notifications" element={<TechRoute><NotificationsPage /></TechRoute>} />
             <Route path="/chat" element={<TechRoute><ChatInterno /></TechRoute>} />
@@ -238,7 +204,7 @@ export default function RoutesApp() {
             <Route path="/agua/informe/valvula/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/agua/informe"><AguaNuevoInforme tipo="valvula" /></RecordPermissionRoute></TechRoute>} />
             <Route path="/agua/informe/ver/:id" element={<TechRoute><RecordPermissionRoute action="view" fallback="/agua/informe"><AguaInformePDF allowDownload={false} /></RecordPermissionRoute></TechRoute>} />
             <Route path="/agua/informe/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/agua/informe"><AguaNuevoInforme /></RecordPermissionRoute></TechRoute>} />
-            <Route path="/agua/recorrido/informe/*" element={<TechRoute><InformeAguaRoutes /></TechRoute>} />
+            <Route path="/agua/recorrido/informe/*" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.recorridoAgua} fallback="/area/agua"><InformeAguaRoutes /></SpecialModuleRoute>} />
 
             <Route path="/industria/informe" element={<TechRoute><AguaInformeHome area="industria" areaLabel="Industria" basePath="/industria/informe" areaPath="/area/industria" /></TechRoute>} />
             <Route path="/industria/informe/nuevo" element={<TechRoute><AguaNuevoInforme area="industria" basePath="/industria/informe" /></TechRoute>} />
@@ -356,8 +322,8 @@ export default function RoutesApp() {
             <Route path="/vehiculos/protocolos/vcam/new" element={<Navigate to="/operaciones/protocolos/vcam/new" replace />} />
             <Route path="/vehiculos/protocolos/vcam/ver/:id" element={<TechRoute><RecordPermissionRoute action="view" fallback="/operaciones/protocolos"><ProtocoloVCamPDF allowDownload={false} backPath="/operaciones/protocolos" /></RecordPermissionRoute></TechRoute>} />
             <Route path="/vehiculos/protocolos/vcam/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/operaciones/protocolos"><ProtocoloVCamForm /></RecordPermissionRoute></TechRoute>} />
-            <Route path="/vehiculos/configurador" element={<ConfiguradorOwnerRoute><ConfiguradorHome /></ConfiguradorOwnerRoute>} />
-            <Route path="/vehiculos/configurador/ver/:id" element={<ConfiguradorOwnerRoute><ConfiguradorQuoteView /></ConfiguradorOwnerRoute>} />
+            <Route path="/vehiculos/configurador" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.configurador} fallback="/area/vehiculos"><ConfiguradorHome /></SpecialModuleRoute>} />
+            <Route path="/vehiculos/configurador/ver/:id" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.configurador} fallback="/area/vehiculos"><ConfiguradorQuoteView /></SpecialModuleRoute>} />
 
             <Route path="/liberacion" element={<Navigate to="/operaciones/liberacion" replace />} />
             <Route path="/liberacion/nuevo" element={<Navigate to="/operaciones/liberacion/nuevo" replace />} />
@@ -387,7 +353,7 @@ export default function RoutesApp() {
             <Route path="/operaciones/registro/ver/:id" element={<TechRoute><RecordPermissionRoute action="view" fallback="/operaciones/registro"><RegistroPDF allowDownload={false} backPath="/operaciones/registro" /></RecordPermissionRoute></TechRoute>} />
             <Route path="/operaciones/registro/pdf/:id" element={<TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/registro"><RegistroPDF /></RecordPermissionRoute></TechRoute>} />
             <Route path="/operaciones/registro/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/operaciones/registro"><HojaRegistroHerramientas /></RecordPermissionRoute></TechRoute>} />
-            <Route path="/operaciones/bodega" element={<SuperAdminRoute><BodegaHome /></SuperAdminRoute>} />
+            <Route path="/operaciones/bodega" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.bodega} fallback="/operaciones"><BodegaHome /></SpecialModuleRoute>} />
 
             <Route path="/operaciones/protocolos" element={<TechRoute><ProtocolosHome /></TechRoute>} />
             <Route path="/operaciones/protocolos/vactor/new" element={<TechRoute><ProtocoloVactorForm /></TechRoute>} />

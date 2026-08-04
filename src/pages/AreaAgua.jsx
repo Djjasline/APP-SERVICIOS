@@ -1,11 +1,16 @@
 import CardModulo from "@/components/CardModulo";
+import { SPECIAL_MODULE_KEYS } from "@/constants/accessControl";
 import { useTheme } from "@/context/ThemeContext";
+import { useSpecialModuleAccess } from "@/hooks/useSpecialModuleAccess";
 import { FileText, ClipboardCheck, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaAgua() {
   const { isLight } = useTheme();
   const navigate = useNavigate();
+  const { hasSpecialModuleAccess } = useSpecialModuleAccess();
+  const puedeUsarRecorrido = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.recorridoAgua);
+  const puedeUsarEncuestas = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.encuestasSatisfaccion);
 
   return (
     <div className="p-6 space-y-6">
@@ -60,6 +65,8 @@ export default function AreaAgua() {
   ruta="/agua/recorrido/informe"
   color="bg-yellow-600"
   icono={<ClipboardCheck size={20} />}
+  disabled={!puedeUsarRecorrido}
+  disabledLabel="Acceso especial"
 />
 
         <CardModulo
@@ -69,6 +76,8 @@ export default function AreaAgua() {
           color="bg-orange-600"
           icono={<Star size={20} />}
           badge="🚧 · 95% de avance"
+          disabled={!puedeUsarEncuestas}
+          disabledLabel="Acceso especial"
         />
 
       </div>

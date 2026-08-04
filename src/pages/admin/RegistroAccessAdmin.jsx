@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { SPECIAL_MODULES, SPECIAL_MODULE_BY_TIPO } from "@/constants/accessControl";
 import { useTheme } from "@/context/ThemeContext";
 import {
   deleteRecordAccessPermission,
@@ -48,7 +49,7 @@ const TIPOS = [
   { value: "protocolo", label: "Protocolo" },
   { value: "protocolo:hidrosuccionador-vactor", label: "Protocolo - Hidrosuccionador Vactor" },
   { value: "protocolo:camara-vcam6", label: "Protocolo - Cámara V-Cam6" },
-  { value: "configurador", label: "Configurador Vactor" },
+  ...SPECIAL_MODULES.map((module) => ({ value: module.tipo, label: module.label })),
   { value: "registro", label: "Registro de herramientas" },
   { value: "recepcion", label: "Bitácora y control vehicular" },
   { value: "liberacion", label: "Autorización de uso de vehículo para refinería" },
@@ -133,7 +134,8 @@ export default function RegistroAccessAdmin() {
   const sortedProfiles = useMemo(() => {
     return [...profiles].sort((a, b) => getProfileLabel(a).localeCompare(getProfileLabel(b)));
   }, [profiles]);
-  const isConfiguratorPermission = form.tipo === "configurador";
+  const specialModulePermission = SPECIAL_MODULE_BY_TIPO[form.tipo];
+  const isSpecialModulePermission = !!specialModulePermission;
 
   useEffect(() => {
     loadData();
@@ -181,13 +183,15 @@ export default function RegistroAccessAdmin() {
     setForm((prev) => {
       const next = { ...prev, [field]: value };
 
-      if (field === "tipo" && value === "configurador") {
-        next.area = "vehiculos";
+      const selectedSpecialModule = field === "tipo" ? SPECIAL_MODULE_BY_TIPO[value] : SPECIAL_MODULE_BY_TIPO[next.tipo];
+
+      if (field === "tipo" && selectedSpecialModule) {
+        next.area = selectedSpecialModule.area;
         next.can_view = true;
         next.owner_user_id = next.grantee_user_id;
       }
 
-      if (field === "grantee_user_id" && next.tipo === "configurador") {
+      if (field === "grantee_user_id" && selectedSpecialModule) {
         next.owner_user_id = value;
       }
 
@@ -203,12 +207,12 @@ export default function RegistroAccessAdmin() {
     }));
   };
 
-  const handleConfiguratorShortcut = () => {
+  const handleSpecialModuleShortcut = (module) => {
     setMessage("");
     setForm((prev) => ({
       ...prev,
-      area: "vehiculos",
-      tipo: "configurador",
+      area: module.area,
+      tipo: module.tipo,
       owner_user_id: prev.grantee_user_id,
       can_view: true,
     }));
@@ -234,16 +238,16 @@ export default function RegistroAccessAdmin() {
     setError("");
     setMessage("");
 
-    const permissionPayload = isConfiguratorPermission
-      ? { ...form, area: "vehiculos", owner_user_id: form.grantee_user_id, can_view: true }
+    const permissionPayload = isSpecialModulePermission
+      ? { ...form, area: specialModulePermission.area, owner_user_id: form.grantee_user_id, can_view: true }
       : form;
 
     if (!permissionPayload.grantee_user_id || !permissionPayload.owner_user_id) {
-      setError(isConfiguratorPermission ? "Selecciona el usuario que tendrá acceso al configurador." : "Selecciona el usuario gestor y el dueño de los registros.");
+      setError(isSpecialModulePermission ? "Selecciona el usuario que tendrá acceso al módulo especial." : "Selecciona el usuario gestor y el dueño de los registros.");
       return;
     }
 
-    if (!isConfiguratorPermission && permissionPayload.grantee_user_id === permissionPayload.owner_user_id) {
+    if (!isSpecialModulePermission && permissionPayload.grantee_user_id === permissionPayload.owner_user_id) {
       setError("El usuario gestor y el dueño de registros deben ser diferentes.");
       return;
     }
@@ -411,7 +415,7 @@ export default function RegistroAccessAdmin() {
       <form onSubmit={handleSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="space-y-1 text-sm">
-            <span className="font-medium">{isConfiguratorPermission ? "Usuario con acceso" : "Usuario gestor"}</span>
+            <span className="font-medium">{isSpecialModulePermission ? "Usuario con acceso" : "Usuario gestor"}</span>
             <select
               value={form.grantee_user_id}
               onChange={(event) => handleChange("grantee_user_id", event.target.value)}
@@ -426,7 +430,7 @@ export default function RegistroAccessAdmin() {
             </select>
           </label>
 
-          {!isConfiguratorPermission ? (
+          {!isSpecialModulePermission ? (
             <label className="space-y-1 text-sm">
               <span className="font-medium">Dueño de registros</span>
               <select
@@ -444,26 +448,32 @@ export default function RegistroAccessAdmin() {
             </label>
           ) : (
             <div className={`rounded-lg border px-3 py-2 text-sm ${isLight ? "border-orange-200 bg-orange-50 text-orange-800" : "border-orange-300/30 bg-orange-500/10 text-orange-100"}`}>
-              Este permiso habilita el acceso al módulo Configurador Vactor para el usuario seleccionado.
+              Este permiso habilita el acceso al módulo {specialModulePermission?.label} para el usuario seleccionado.
             </div>
           )}
         </div>
 
         <div className={`rounded-xl border p-4 text-sm ${isLight ? "border-orange-200 bg-orange-50 text-orange-900" : "border-orange-300/30 bg-orange-500/10 text-orange-100"}`}>
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-3">
             <div>
-              <p className="font-semibold">Acceso al Configurador Vactor</p>
+              <p className="font-semibold">Módulos especiales</p>
               <p className={isLight ? "text-orange-800" : "text-orange-100/80"}>
-                Selecciona primero el usuario y usa este atajo para preparar el permiso del configurador.
+                Selecciona primero el usuario y usa un atajo para preparar el permiso especial.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={handleConfiguratorShortcut}
-              className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700"
-            >
-              Dar acceso al configurador
-            </button>
+            <div className="flex flex-wrap gap-2">
+              {SPECIAL_MODULES.map((module) => (
+                <button
+                  key={module.key}
+                  type="button"
+                  onClick={() => handleSpecialModuleShortcut(module)}
+                  className="rounded-lg bg-orange-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-orange-700"
+                  title={module.description}
+                >
+                  {module.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -474,7 +484,7 @@ export default function RegistroAccessAdmin() {
                 type="checkbox"
                 checked={form.area !== "todos"}
                 onChange={(event) => handleSpecificScopeChange("area", event.target.checked, "vehiculos")}
-                disabled={isConfiguratorPermission}
+                disabled={isSpecialModulePermission}
                 className="h-4 w-4 rounded border-slate-300"
               />
               Área específica
@@ -483,7 +493,7 @@ export default function RegistroAccessAdmin() {
             <select
               value={form.area}
               onChange={(event) => handleChange("area", event.target.value)}
-              disabled={form.area === "todos" || isConfiguratorPermission}
+              disabled={form.area === "todos" || isSpecialModulePermission}
               className={`w-full rounded-lg border px-3 py-2 text-sm disabled:opacity-60 ${inputClass}`}
             >
               {AREAS.map((area) => (
@@ -541,7 +551,7 @@ export default function RegistroAccessAdmin() {
                 type="checkbox"
                 checked={form[field]}
                 onChange={(event) => handleChange(field, event.target.checked)}
-                disabled={isConfiguratorPermission && field === "can_view"}
+                disabled={isSpecialModulePermission && field === "can_view"}
                 className="h-4 w-4 rounded border-slate-300"
               />
               {label}
@@ -582,7 +592,7 @@ export default function RegistroAccessAdmin() {
                   <tr key={permission.id} className={isLight ? "border-t border-slate-100" : "border-t border-white/10"}>
                     <td className="py-3 pr-4">{getProfileLabel(profileById[permission.grantee_user_id])}</td>
                     <td className="py-3 pr-4">
-                      {permission.tipo === "configurador" ? "Acceso al módulo" : getProfileLabel(profileById[permission.owner_user_id])}
+                      {SPECIAL_MODULE_BY_TIPO[permission.tipo] ? "Acceso al módulo" : getProfileLabel(profileById[permission.owner_user_id])}
                     </td>
                     <td className="py-3 pr-4">
                       {getAreaLabel(permission.area)} / {getTipoLabel(permission.tipo)}

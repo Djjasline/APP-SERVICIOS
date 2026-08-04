@@ -1,14 +1,16 @@
 import CardModulo from "@/components/CardModulo";
+import { SPECIAL_MODULE_KEYS } from "@/constants/accessControl";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
-import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { useSpecialModuleAccess } from "@/hooks/useSpecialModuleAccess";
 import { ClipboardList, Settings, Wrench, Inbox, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaOperaciones() {
-  const { isSuperAdmin } = useAuth();
   const { isLight } = useTheme();
   const navigate = useNavigate();
+  const { hasSpecialModuleAccess } = useSpecialModuleAccess();
+  const puedeUsarBodega = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.bodega);
 
  const modulos = [
   {
@@ -39,7 +41,7 @@ export default function AreaOperaciones() {
     color: "bg-indigo-600",
     ruta: "/operaciones/protocolos",
   },
-  ...(isSuperAdmin
+  ...(puedeUsarBodega
     ? [
         {
           titulo: OPERACIONES_TEXT.bodega.title,

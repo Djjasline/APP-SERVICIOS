@@ -1,11 +1,15 @@
 import CardModulo from "@/components/CardModulo";
+import { SPECIAL_MODULE_KEYS } from "@/constants/accessControl";
 import { useTheme } from "@/context/ThemeContext";
+import { useSpecialModuleAccess } from "@/hooks/useSpecialModuleAccess";
 import { FileText, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaIndustria() {
   const { isLight } = useTheme();
   const navigate = useNavigate();
+  const { hasSpecialModuleAccess } = useSpecialModuleAccess();
+  const puedeUsarEncuestas = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.encuestasSatisfaccion);
 
   return (
     <div className="p-6 space-y-6">
@@ -49,6 +53,8 @@ export default function AreaIndustria() {
           color="bg-orange-600"
           icono={<Star size={20} />}
           badge="🚧 · 95% de avance"
+          disabled={!puedeUsarEncuestas}
+          disabledLabel="Acceso especial"
         />
       </div>
     </div>

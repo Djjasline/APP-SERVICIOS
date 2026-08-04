@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { SPECIAL_MODULE_BY_KEY, SPECIAL_MODULES } from "@/constants/accessControl";
 
 const normalize = (value) => String(value || "").trim().toLowerCase();
 
@@ -37,13 +38,32 @@ export async function getRecordAccessPermissionsForUser(userId) {
 }
 
 export async function canUseConfiguratorPermission(userId) {
-  if (!userId) return false;
+  return canUseSpecialModulePermission(userId, "configurador");
+}
+
+export async function canUseSpecialModulePermission(userId, moduleKey) {
+  if (!userId || !SPECIAL_MODULE_BY_KEY[moduleKey]) return false;
 
   const permissions = await getRecordAccessPermissionsForUser(userId);
+  const module = SPECIAL_MODULE_BY_KEY[moduleKey];
+
   return (permissions || []).some(
     (permission) =>
-      permissionMatchesScope(permission, "vehiculos", "configurador") && hasPermissionAction(permission, "view")
+      permissionMatchesScope(permission, module.area, module.tipo) && hasPermissionAction(permission, "view")
   );
+}
+
+export async function getSpecialModulePermissionsForUser(userId) {
+  if (!userId) return {};
+
+  const permissions = await getRecordAccessPermissionsForUser(userId);
+  return SPECIAL_MODULES.reduce((acc, module) => {
+    acc[module.key] = (permissions || []).some(
+      (permission) =>
+        permissionMatchesScope(permission, module.area, module.tipo) && hasPermissionAction(permission, "view")
+    );
+    return acc;
+  }, {});
 }
 
 export async function getAccessibleRecordsForUser({
