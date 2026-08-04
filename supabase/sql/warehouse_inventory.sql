@@ -43,6 +43,7 @@ grant select, insert, update, delete on public.warehouse_inventory to authentica
 alter table public.warehouse_inventory enable row level security;
 
 drop policy if exists "Super admin gestiona inventario de bodega" on public.warehouse_inventory;
+drop policy if exists "Usuario con permiso especial consulta inventario de bodega" on public.warehouse_inventory;
 
 create policy "Super admin gestiona inventario de bodega"
   on public.warehouse_inventory
@@ -50,6 +51,22 @@ create policy "Super admin gestiona inventario de bodega"
   to authenticated
   using (public.is_super_admin_user())
   with check (public.is_super_admin_user());
+
+create policy "Usuario con permiso especial consulta inventario de bodega"
+  on public.warehouse_inventory
+  for select
+  to authenticated
+  using (
+    exists (
+      select 1
+      from public.record_access_permissions p
+      where p.grantee_user_id = auth.uid()
+        and p.active = true
+        and p.can_view = true
+        and (p.area = 'operaciones' or p.area = 'todos')
+        and p.tipo = 'bodega'
+    )
+  );
 
 -- Importacion sugerida desde Excel/CSV:
 -- product_code, description, physical_stock, physical_location, cutoff_date, source_file

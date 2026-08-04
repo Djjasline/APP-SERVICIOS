@@ -84,7 +84,7 @@ export default function BodegaHome() {
       <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900 shadow-sm">
         <h3 className="font-semibold">Área privada de bodega</h3>
         <p className="mt-2 text-sm leading-6">
-          Acceso reservado para superadministrador. La base inicial esperada viene del Excel con columnas: código de producto, descripción, stock físico y ubicación física.
+          Acceso reservado para superadministrador y usuarios autorizados. La base inicial esperada viene del Excel con columnas: código de producto, descripción, stock físico y ubicación física.
         </p>
       </section>
 
