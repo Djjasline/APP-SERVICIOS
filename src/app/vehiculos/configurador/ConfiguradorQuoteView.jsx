@@ -8,9 +8,19 @@ function money(value) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value || 0);
 }
 
+function formatImpact(value) {
+  return typeof value === "number" ? money(value) : "Por definir";
+}
+
 function formatDate(value) {
   if (!value) return "-";
   return new Intl.DateTimeFormat("es-EC", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+}
+
+function PriorityBadge({ priority }) {
+  if (!priority) return null;
+
+  return <span className="ml-2 inline-flex rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-blue-700 ring-1 ring-blue-200">{priority}</span>;
 }
 
 function buildPdfPayload(quote, hideValues) {
@@ -188,9 +198,13 @@ export default function ConfiguradorQuoteView() {
               <tbody>
                 {items.map((item) => (
                   <tr key={`${item.key}-${item.value}`} className="border-b border-slate-200 odd:bg-slate-50">
-                    <td className="px-3 py-2 font-semibold text-slate-900">{item.label}</td>
+                    <td className="px-3 py-2 font-semibold text-slate-900">
+                      {item.label}
+                      <PriorityBadge priority={item.priority} />
+                      {item.info && <span className="mt-1 block text-xs font-normal leading-5 text-slate-500">{item.info.function} | {item.info.reference}</span>}
+                    </td>
                     <td className="px-3 py-2 text-slate-700">{item.value}</td>
-                    {!hideValues && <td className="px-3 py-2 text-right font-semibold text-slate-900">{money(item.price)}</td>}
+                    {!hideValues && <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatImpact(item.price)}</td>}
                   </tr>
                 ))}
               </tbody>

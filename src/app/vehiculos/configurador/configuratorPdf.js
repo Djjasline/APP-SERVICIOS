@@ -11,6 +11,8 @@ const SPRITE_ROWS = 2;
 const money = (value) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(value) || 0);
 
+const formatImpact = (value) => (typeof value === "number" ? money(value) : "Por definir");
+
 const textValue = (value) => (value === null || value === undefined ? "" : String(value));
 
 function sanitizeFilename(value) {
@@ -156,6 +158,14 @@ export async function generateConfiguratorPdf(payload) {
   doc.setFontSize(12);
   doc.text("Configuración seleccionada", MARGIN, y);
   y += 7;
+  if (payload.usageProfile?.label) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(71, 85, 105);
+    doc.text(`Perfil matriz ASTAP: ${payload.usageProfile.label}`, MARGIN, y);
+    doc.setTextColor(0, 0, 0);
+    y += 6;
+  }
 
   doc.setFillColor(15, 23, 42);
   doc.setTextColor(255, 255, 255);
@@ -171,7 +181,10 @@ export async function generateConfiguratorPdf(payload) {
   const items = payload.items?.length ? payload.items : [{ label: "Opciones adicionales", value: "Sin opciones adicionales seleccionadas", price: 0 }];
 
   items.forEach((item, index) => {
-    y = ensurePage(doc, y, 12);
+    y = ensurePage(doc, y, item.info?.function ? 22 : 12);
+    const itemLabel = item.priority ? `${item.label} [${item.priority}]` : item.label;
+    const detail = item.info?.function ? `${itemLabel} - ${item.info.function}` : itemLabel;
+    const value = item.info?.reference ? `${item.value} (${item.info.reference})` : item.value;
     if (index % 2 === 0) {
       doc.setFillColor(248, 250, 252);
       doc.rect(MARGIN, y - 4, CONTENT_WIDTH, 8, "F");
@@ -179,10 +192,10 @@ export async function generateConfiguratorPdf(payload) {
     doc.setTextColor(15, 23, 42);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    addWrappedText(doc, item.label, MARGIN + 3, y, 92, { fontSize: 8 });
-    addWrappedText(doc, item.value, MARGIN + 104, y, 50, { fontSize: 8 });
-    if (!hideValues) doc.text(money(item.price), PAGE_WIDTH - MARGIN - 3, y, { align: "right" });
-    y += 8;
+    const detailBottom = addWrappedText(doc, detail, MARGIN + 3, y, 92, { fontSize: 8 });
+    const valueBottom = addWrappedText(doc, value, MARGIN + 104, y, 50, { fontSize: 8 });
+    if (!hideValues) doc.text(formatImpact(item.price), PAGE_WIDTH - MARGIN - 3, y, { align: "right" });
+    y = Math.max(detailBottom, valueBottom) + 3;
   });
 
   y = ensurePage(doc, y, 26);

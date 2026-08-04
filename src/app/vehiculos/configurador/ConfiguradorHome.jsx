@@ -29,6 +29,7 @@ const TABS = [
   { id: "module", label: "Módulo" },
   { id: "water", label: "Sistema de agua" },
   { id: "electrical", label: "Sistema eléctrico" },
+  { id: "systems", label: "Sistemas" },
   { id: "paint", label: "Pintura" },
   { id: "accessories", label: "Accesorios" },
   { id: "review", label: "Revisión" },
@@ -82,6 +83,74 @@ const SELECT_OPTIONS = {
   subframeToolboxDriver: [["Ninguna", 0], ["48 x 22 x 34", 3200]],
   subframeToolboxPassenger: [["48 x 22 x 34", 0], ["Ninguna", -3200]],
   frontBumperStorage: [["No", 0], ["Sí", 1700]],
+};
+
+const OPTION_INFO = {
+  hpAccumulator: { function: "Absorbe pulsaciones o efecto de martilleo generado por la bomba de pistones.", application: "SC / HX", complexity: "Media", recommendation: "Alta cuando se trabaja con presiones elevadas o existe vibración excesiva.", reference: "Manual, p. 19" },
+  hpDualAccumulators: { function: "Usa un acumulador para el carrete principal y otro para la pistola manual.", application: "SC / HX", complexity: "Media-alta", recommendation: "Alta en trabajos mixtos de limpieza e hidroexcavación.", reference: "Manual, p. 20" },
+  hpAirPurgeSystem: { function: "Usa aire comprimido del chasis para expulsar agua de tuberías, mangueras y componentes.", application: "General", complexity: "Media", recommendation: "Condicional; recomendable para zonas con riesgo de congelamiento.", reference: "Manual, p. 21" },
+  hpAntiFreezeTank: { function: "Introduce anticongelante en bomba, intercambiadores y líneas durante transporte o almacenamiento.", application: "General", complexity: "Media", recommendation: "Condicional para climas fríos; baja prioridad para operación habitual en Ecuador.", reference: "Manual, p. 22" },
+  controlAutoWindGuide: { function: "Distribuye uniformemente la manguera sobre el carrete y reduce cruces.", application: "SC", complexity: "Media", recommendation: "Muy alta para carretes largos y uso intensivo.", reference: "Manual, pp. 23-28" },
+  controlAutoWindGuideHydraulic: { function: "Permite elevar o bajar hidráulicamente el conjunto del guía-manguera.", application: "SC", complexity: "Media-alta", recommendation: "Alta cuando se requiere trabajar desplazado respecto al pozo.", reference: "Manual, p. 24" },
+  pinchRoller: { function: "Mantiene presión sobre la manguera para conservar vueltas ajustadas durante entrada y salida.", application: "SC", complexity: "Media", recommendation: "Alta junto con el Auto Wind Guide.", reference: "Manual, p. 26" },
+  boom5x5: { function: "Extiende la pluma cinco pies y la manguera de vacío cinco pies adicionales.", application: "CB / SC", complexity: "Alta", recommendation: "Alta para operación urbana y limpieza de pozos cercanos al camión.", reference: "Manual, pp. 29-33" },
+  boomRdb: { function: "Pluma telescópica de mayor alcance, con extensión aproximada de 10 ft y hasta 15 ft adicionales de manguera.", application: "CB / HX", complexity: "Alta", recommendation: "Muy alta para sumideros, excavaciones y puntos alejados del vehículo.", reference: "Manual, pp. 34-41" },
+  hpContinuousFill: { function: "Mantiene automáticamente el nivel de los tanques conectado a una fuente de agua.", application: "SC / HX", complexity: "Media", recommendation: "Muy alta para trabajos prolongados con hidrante o abastecimiento continuo.", reference: "Manual, p. 42" },
+  vacCycloneSeparator: { function: "Separa partículas y residuos del flujo de aire antes de llegar al ventilador o soplador.", application: "CB / HX / SC", complexity: "Media-alta", recommendation: "Muy alta para proteger el sistema de vacío con material seco o abrasivo.", reference: "Manual, pp. 43-44" },
+  hpFlusherSystem: { function: "Descarga agua a baja presión y alto caudal mediante boquillas durante el desplazamiento.", application: "Lavado vial", complexity: "Alta", recommendation: "Condicional; solo si se requiere lavado de vías además de alcantarillado.", reference: "Manual, p. 45" },
+  hpHandGunHoseReel: { function: "Almacena y rebobina hasta aproximadamente 50 ft de manguera de 1/2 pulgada.", application: "HX / lavado", complexity: "Baja-media", recommendation: "Alta por orden, seguridad y rapidez de despliegue.", reference: "Manual, p. 46" },
+  hpFreewheelOption: { function: "Desacopla el motor del carrete para permitir rotación manual ante falla hidráulica.", application: "SC", complexity: "Media", recommendation: "Alta como función de contingencia y recuperación de la manguera.", reference: "Manual, p. 47" },
+  hydroExcavationPackage: { function: "Integra elementos para cortar suelo con agua y retirarlo mediante vacío.", application: "HX", complexity: "Alta", recommendation: "Muy alta cuando el equipo se comercialice como unidad multipropósito.", reference: "Manual, pp. 48-65" },
+  hydroDiggingGun: { function: "Pistola de agua de alta presión para desintegrar suelo de forma controlada.", application: "HX", complexity: "Media", recommendation: "Obligatoria para una configuración formal de hidroexcavación.", reference: "Manual, pp. 53-64" },
+  hpDiggingLance: { function: "Lanza para dirigir agua hacia excavaciones estrechas o profundas.", application: "HX", complexity: "Baja-media", recommendation: "Alta como complemento de la pistola de excavación.", reference: "Manual, p. 65" },
+  hpWaterHeaterAlkota: { function: "Calienta el agua utilizada durante hidroexcavación o limpieza.", application: "HX / limpieza industrial", complexity: "Alta", recommendation: "Condicional; recomendable en suelos congelados, grasa o aplicaciones especiales.", reference: "Manual, pp. 66-70" },
+  hydroHydraulicToolPackage: { function: "Proporciona alimentación hidráulica para herramientas externas.", application: "HX / mantenimiento", complexity: "Media-alta", recommendation: "Media-alta si el cliente utiliza martillos, bombas o herramientas hidráulicas.", reference: "Manual, p. 71" },
+  hydroLateralCleaningKit: { function: "Permite intervenir conexiones laterales o acometidas desde la línea principal.", application: "SC", complexity: "Media", recommendation: "Alta para municipios y contratistas que limpian acometidas domiciliarias.", reference: "Manual, p. 72" },
+  vacLavalSeparator: { function: "Separa sólidos del líquido por acción centrífuga antes de devolver el agua al tanque.", application: "Recycler / SC", complexity: "Alta", recommendation: "Alta en unidades recicladoras y trabajos con disponibilidad limitada de agua.", reference: "Manual, p. 73" },
+  controlWirelessBellyPackHetronicNovaL: { function: "Control inalámbrico corporal para agua, carrete, pluma, vacío, aceleración, tanque y puerta trasera.", application: "General", complexity: "Alta", recommendation: "Muy alta por visibilidad, ergonomía y seguridad del operador.", reference: "Manual, pp. 74-82" },
+  controlWirelessRemoteErgoS: { function: "Control inalámbrico portátil para funciones principales del equipo.", application: "General", complexity: "Alta", recommendation: "Muy alta para un solo operador o maniobras alejadas del panel.", reference: "Manual, pp. 83-90" },
+  hpRecirculatorSystem: { function: "Mantiene agua circulando por componentes o líneas para continuidad operativa y protección del sistema.", application: "SC / clima frío", complexity: "Alta", recommendation: "Condicional; revisar diferencias frente al Water Recycler antes de especificarlo.", reference: "Manual, p. 91" },
+  tanksJoined: { function: "Comunica los tanques para operar en conjunto y aprovechar el volumen disponible.", application: "SC / HX", complexity: "Media", recommendation: "Alta cuando se busca maximizar autonomía de agua.", reference: "Manual, p. 92" },
+  vacDebrisBodyPump: { function: "Permite bombear líquidos desde el tanque de desechos.", application: "HX / CB", complexity: "Media-alta", recommendation: "Alta cuando el cliente necesita descargar líquidos de manera controlada.", reference: "Manual, p. 94" },
+  vacDebrisBodyLevelIndicator: { function: "Informa o detecta el nivel de material dentro del tanque de residuos.", application: "General", complexity: "Media", recommendation: "Muy alta para evitar sobrellenado y mejorar control operativo.", reference: "Manual, p. 95" },
+  controlLoadLimitAdjustment: { function: "Permite configurar límite de carga o nivel autorizado del tanque.", application: "General", complexity: "Media-alta", recommendation: "Muy alta para respetar pesos por eje y GVWR del chasis.", reference: "Manual, p. 96" },
+  vacVacuumEnhance: { function: "Mejora la capacidad o respuesta del sistema de vacío en determinadas condiciones.", application: "HX / CB", complexity: "Alta", recommendation: "Alta; requiere validar ventilador, soplador y configuración específica.", reference: "Manual, p. 97" },
+  vacOnTheGo: { function: "Permite usar el sistema de vacío con accionamiento hidráulico en ciertas condiciones de desplazamiento.", application: "Limpieza continua", complexity: "Alta", recommendation: "Condicional; útil para trabajos lineales, pero aumenta integración e interbloqueos.", reference: "Manual, pp. 98-100" },
+  hpWaterRecycler: { function: "Recupera y filtra líquido del tanque de residuos para reutilizarlo en limpieza de tuberías.", application: "SC", complexity: "Muy alta", recommendation: "Muy alta para jornadas prolongadas y zonas con acceso limitado al agua.", reference: "Manual, pp. 101-117" },
+  hpGrayWaterTank: { function: "Administra almacenamiento y funciones asociadas al agua recuperada.", application: "Recycler", complexity: "Alta", recommendation: "Necesaria cuando la unidad se configura con Water Recycler.", reference: "Manual, p. 114" },
+  hpGrayWaterTankSensor: { function: "Controla nivel o condición del tanque de agua reciclada y permite diagnosticar fallas.", application: "Recycler", complexity: "Media", recommendation: "Necesaria con Water Recycler.", reference: "Manual, p. 115" },
+  hpFilterBackflush: { function: "Ejecuta retrolavado de filtros del sistema reciclador para retirar sólidos acumulados.", application: "Recycler", complexity: "Alta", recommendation: "Obligatoria para conservar rendimiento de filtración.", reference: "Manual, p. 116" },
+};
+
+const USAGE_PROFILES = [
+  { id: "sewer", label: "Limpieza de alcantarillado" },
+  { id: "hydro", label: "Hidroexcavación" },
+  { id: "recycler", label: "Recicladora" },
+];
+
+const PROFILE_PRIORITIES = {
+  sewer: {
+    Esenciales: ["controlAutoWindGuide", "pinchRoller", "hpAccumulator", "hpHandGunHoseReel", "vacDebrisBodyLevelIndicator"],
+    "Muy recomendables": ["hpContinuousFill", "hpFreewheelOption", "controlWirelessBellyPackHetronicNovaL", "controlWirelessRemoteErgoS", "controlLoadLimitAdjustment"],
+    "Según aplicación": ["boom5x5", "boomRdb", "hydroLateralCleaningKit", "vacCycloneSeparator"],
+  },
+  hydro: {
+    Esenciales: ["hydroExcavationPackage", "hydroDiggingGun", "hpDiggingLance", "hpHandGunHoseReel"],
+    "Muy recomendables": ["boomRdb", "hpDualAccumulators", "vacCycloneSeparator", "controlWirelessBellyPackHetronicNovaL", "controlWirelessRemoteErgoS"],
+    "Según aplicación": ["hpWaterHeaterAlkota", "hydroHydraulicToolPackage", "vacDebrisBodyPump"],
+  },
+  recycler: {
+    Esenciales: ["hpWaterRecycler", "vacLavalSeparator", "hpGrayWaterTank", "hpGrayWaterTankSensor", "hpFilterBackflush"],
+    "Muy recomendables": ["hpContinuousFill", "controlLoadLimitAdjustment", "vacDebrisBodyLevelIndicator"],
+    Complementarias: ["tanksJoined", "controlWirelessBellyPackHetronicNovaL", "controlWirelessRemoteErgoS", "vacVacuumEnhance"],
+  },
+};
+
+const PRIORITY_BADGE_CLASS = {
+  Esenciales: "bg-red-50 text-red-700 ring-red-200",
+  "Muy recomendables": "bg-blue-50 text-blue-700 ring-blue-200",
+  "Según aplicación": "bg-amber-50 text-amber-700 ring-amber-200",
+  Complementarias: "bg-slate-100 text-slate-700 ring-slate-200",
 };
 
 const SECTIONS = {
@@ -149,6 +218,33 @@ const SECTIONS = {
       toggles: [["midshipTurnSignals", "Luces direccionales centrales", 850], ["additionalHandlight", "Lámpara portátil adicional conectada", 620], ["worklightsPassenger", "Luces de trabajo lado pasajero", 1150], ["worklightsDriver", "Luces de trabajo lado conductor", 1150], ["hoseReelWorklights", "Luces de trabajo en cassette del carrete", 1250]],
     },
   ],
+  systems: [
+    {
+      title: "Sistema de agua de alta presión",
+      fields: [],
+      toggles: [["hpAccumulator", "Accumulator", null], ["hpDualAccumulators", "Dual Accumulators", null], ["hpAirPurgeSystem", "Air Purge System", null], ["hpAntiFreezeTank", "Anti-Freeze Tank", null], ["hpContinuousFill", "Continuous Fill", null], ["hpFlusherSystem", "Flusher System", null], ["hpHandGunHoseReel", "Hand Gun Hose Reel", null], ["hpFreewheelOption", "Freewheel Option", null], ["hpDiggingLance", "Digging Lance", null], ["hpWaterHeaterAlkota", "Water Heater (Alkota)", null], ["hpRecirculatorSystem", "Recirculator System", null], ["hpWaterRecycler", "Water Recycler", null], ["hpGrayWaterTank", "Gray Water Tank", null], ["hpGrayWaterTankSensor", "Gray Water Tank Sensor", null], ["hpFilterBackflush", "Filter Backflush", null]],
+    },
+    {
+      title: "Sistema de vacío",
+      fields: [],
+      toggles: [["vacCycloneSeparator", "Cyclone Separator", null], ["vacLavalSeparator", "Laval Separator", null], ["vacVacuumEnhance", "Vacuum Enhance", null], ["vacDebrisBodyPump", "Debris Body Pump", null], ["vacDebrisBodyLevelIndicator", "Debris Body Level Indicator", null], ["vacOnTheGo", "Vac on the Go", null]],
+    },
+    {
+      title: "Sistema de pluma (Boom)",
+      fields: [],
+      toggles: [["boom5x5", "5 × 5 Boom", null], ["boomRdb", "RDB Boom", null]],
+    },
+    {
+      title: "Automatización y control",
+      fields: [],
+      toggles: [["controlAutoWindGuide", "Auto Wind Guide", null], ["controlAutoWindGuideHydraulic", "Auto Wind Guide - Hydraulic", null], ["controlWirelessBellyPackHetronicNovaL", "Wireless Belly Pack (Hetronic Nova L)", null], ["controlWirelessRemoteErgoS", "Wireless Remote ERGO S", null], ["controlLoadLimitAdjustment", "Load Limit Adjustment", null]],
+    },
+    {
+      title: "Hidroexcavación",
+      fields: [],
+      toggles: [["hydroExcavationPackage", "Hydro-Excavation Package", null], ["hydroDiggingGun", "Digging Gun", null], ["hydroHydraulicToolPackage", "Hydraulic Tool Package", null], ["hydroLateralCleaningKit", "Lateral Cleaning Kit", null]],
+    },
+  ],
   paint: [
     {
       title: "Pintura",
@@ -185,9 +281,33 @@ function money(value) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value || 0);
 }
 
+function formatImpact(value) {
+  return typeof value === "number" ? money(value) : "Por definir";
+}
+
 function formatDate(value) {
   if (!value) return "-";
   return new Intl.DateTimeFormat("es-EC", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+}
+
+function getUsageProfile(profileId) {
+  return USAGE_PROFILES.find((profile) => profile.id === profileId) || USAGE_PROFILES[0];
+}
+
+function buildPriorityLookup(profileId) {
+  return Object.entries(PROFILE_PRIORITIES[profileId] || {}).reduce((lookup, [level, keys]) => {
+    keys.forEach((key) => {
+      lookup[key] = level;
+    });
+    return lookup;
+  }, {});
+}
+
+function getPrioritySummary(profileId, toggles) {
+  return Object.entries(PROFILE_PRIORITIES[profileId] || {}).map(([level, keys]) => {
+    const missing = keys.filter((key) => !toggles[key]);
+    return { level, total: keys.length, selected: keys.length - missing.length, missing };
+  });
 }
 
 function createInitialQuote() {
@@ -222,6 +342,7 @@ export default function ConfiguradorHome() {
   const [history, setHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [historyError, setHistoryError] = useState("");
+  const [usageProfileId, setUsageProfileId] = useState("sewer");
   const [quote, setQuote] = useState(createInitialQuote);
 
   const selectedModel = MODELS.find((model) => model.id === selectedModelId) || MODELS[0];
@@ -229,13 +350,16 @@ export default function ConfiguradorHome() {
     () => (showMoreModels ? MODELS : MODELS.filter((model) => PRIMARY_MODEL_IDS.includes(model.id))),
     [showMoreModels]
   );
+  const usageProfile = getUsageProfile(usageProfileId);
+  const priorityLookup = useMemo(() => buildPriorityLookup(usageProfileId), [usageProfileId]);
+  const prioritySummary = useMemo(() => getPrioritySummary(usageProfileId, toggles), [toggles, usageProfileId]);
 
   const priceSummary = useMemo(() => {
     const optionTotal = Object.entries(config).reduce((total, [key, selected]) => total + getOptionPrice(key, selected), 0);
     const toggleTotal = Object.entries(toggles).reduce((total, [key, enabled]) => {
       if (!enabled) return total;
       const toggle = Object.values(SECTIONS).flat().flatMap((section) => section.toggles || []).find(([toggleKey]) => toggleKey === key);
-      return total + (toggle?.[2] || 0);
+      return total + (typeof toggle?.[2] === "number" ? toggle[2] : 0);
     }, 0);
 
     return {
@@ -251,15 +375,21 @@ export default function ConfiguradorHome() {
       .filter(([, enabled]) => enabled)
       .map(([key]) => {
         const toggle = Object.values(SECTIONS).flat().flatMap((section) => section.toggles || []).find(([toggleKey]) => toggleKey === key);
-        return { key, label: toggle?.[1] || key, value: "Incluido", price: toggle?.[2] || 0 };
+        return { key, label: toggle?.[1] || key, value: "Incluido", price: typeof toggle?.[2] === "number" ? toggle[2] : null, info: OPTION_INFO[key] || null, priority: priorityLookup[key] || "" };
       });
 
     return [...selectedFields, ...enabledToggles].filter((item) => item.price !== 0 || item.value !== SELECT_OPTIONS[item.key]?.[0]?.[0]);
-  }, [config, toggles]);
+  }, [config, priorityLookup, toggles]);
 
   const updateQuote = (key, value) => setQuote((prev) => ({ ...prev, [key]: value }));
   const updateConfig = (key, value) => setConfig((prev) => ({ ...prev, [key]: value }));
   const updateToggle = (key) => setToggles((prev) => ({ ...prev, [key]: !prev[key] }));
+  const applyProfileRecommendations = (level) => {
+    const keys = PROFILE_PRIORITIES[usageProfileId]?.[level] || [];
+    setToggles((prev) => ({ ...prev, ...Object.fromEntries(keys.map((key) => [key, true])) }));
+    setActiveTab("systems");
+    setSavedMessage(`Opciones ${level.toLowerCase()} aplicadas desde la matriz.`);
+  };
   const updateShowMoreModels = (enabled) => {
     setShowMoreModels(enabled);
     if (!enabled && !PRIMARY_MODEL_IDS.includes(selectedModelId)) setSelectedModelId("2100i");
@@ -279,8 +409,8 @@ export default function ConfiguradorHome() {
   };
 
   const quotePayload = useMemo(
-    () => ({ quote, selectedModelId, selectedModel, config, toggles, priceSummary, items: configuredItems, hideValues, showMoreModels }),
-    [config, configuredItems, hideValues, priceSummary, quote, selectedModel, selectedModelId, showMoreModels, toggles]
+    () => ({ quote, selectedModelId, selectedModel, config, toggles, priceSummary, items: configuredItems, hideValues, showMoreModels, usageProfileId, usageProfile }),
+    [config, configuredItems, hideValues, priceSummary, quote, selectedModel, selectedModelId, showMoreModels, toggles, usageProfile, usageProfileId]
   );
 
   const loadHistory = useCallback(async () => {
@@ -306,6 +436,7 @@ export default function ConfiguradorHome() {
     setShowMoreModels(Boolean(draft.showMoreModels) || !PRIMARY_MODEL_IDS.includes(draftModelId));
     setConfig({ ...DEFAULT_CONFIG, ...(draft.config || {}) });
     setToggles({ ...DEFAULT_TOGGLES, ...(draft.toggles || {}) });
+    setUsageProfileId(USAGE_PROFILES.some((profile) => profile.id === draft.usageProfileId) ? draft.usageProfileId : "sewer");
     setHideValues(Boolean(draft.hideValues));
     setQuote({ ...createInitialQuote(), ...(draft.quote || {}) });
   }, []);
@@ -342,6 +473,7 @@ export default function ConfiguradorHome() {
     setActiveTab("basic");
     setConfig(DEFAULT_CONFIG);
     setToggles(DEFAULT_TOGGLES);
+    setUsageProfileId("sewer");
     setHideValues(false);
     setQuote(createInitialQuote());
     setSavedMessage("Configurador reiniciado.");
@@ -369,6 +501,7 @@ export default function ConfiguradorHome() {
       setShowMoreModels(!PRIMARY_MODEL_IDS.includes(modelId));
       setConfig({ ...DEFAULT_CONFIG, ...(row.config || {}) });
       setToggles({ ...DEFAULT_TOGGLES, ...(row.toggles || {}) });
+      setUsageProfileId("sewer");
       setQuote({
         ...createInitialQuote(),
         customer: row.customer || "Cliente por definir",
@@ -484,7 +617,7 @@ export default function ConfiguradorHome() {
             </div>
           </div>
           <span className="w-fit rounded-full bg-white px-3 py-1 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-200">
-            70% de avance
+            90% de avance
           </span>
         </div>
       </div>
@@ -557,6 +690,13 @@ export default function ConfiguradorHome() {
           </div>
         </div>
 
+        <ProfileMatrixPanel
+          usageProfileId={usageProfileId}
+          setUsageProfileId={setUsageProfileId}
+          prioritySummary={prioritySummary}
+          applyProfileRecommendations={applyProfileRecommendations}
+        />
+
         <div className="overflow-x-auto border-b border-red-200 px-4">
           <div className="flex min-w-max gap-1">
             {TABS.map((tab) => (
@@ -580,11 +720,11 @@ export default function ConfiguradorHome() {
 
         <div className="p-4">
           {activeTab === "review" ? (
-            <ReviewPanel quote={quote} selectedModel={selectedModel} priceSummary={priceSummary} items={configuredItems} hideValues={hideValues} />
+            <ReviewPanel quote={quote} selectedModel={selectedModel} priceSummary={priceSummary} items={configuredItems} hideValues={hideValues} usageProfile={usageProfile} prioritySummary={prioritySummary} />
           ) : (
             <div className="space-y-6">
               {(SECTIONS[activeTab] || []).map((section) => (
-                <ConfigSection key={section.title} section={section} config={config} toggles={toggles} updateConfig={updateConfig} updateToggle={updateToggle} hideValues={hideValues} />
+                <ConfigSection key={section.title} section={section} config={config} toggles={toggles} updateConfig={updateConfig} updateToggle={updateToggle} hideValues={hideValues} priorityLookup={priorityLookup} />
               ))}
             </div>
           )}
@@ -723,7 +863,54 @@ function TextInput({ label, value, onChange }) {
   );
 }
 
-function ConfigSection({ section, config, toggles, updateConfig, updateToggle, hideValues }) {
+function ProfileMatrixPanel({ usageProfileId, setUsageProfileId, prioritySummary, applyProfileRecommendations }) {
+  return (
+    <div className="border-b border-red-200 p-4">
+      <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <label className="text-sm font-semibold text-slate-700">
+            Perfil de uso según matriz ASTAP
+            <select value={usageProfileId} onChange={(event) => setUsageProfileId(event.target.value)} className="mt-1 w-full rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400 lg:w-72">
+              {USAGE_PROFILES.map((profile) => (
+                <option key={profile.id} value={profile.id}>{profile.label}</option>
+              ))}
+            </select>
+          </label>
+
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => applyProfileRecommendations("Esenciales")} className="rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700">
+              Aplicar esenciales
+            </button>
+            <button type="button" onClick={() => applyProfileRecommendations("Muy recomendables")} className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+              Aplicar muy recomendables
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-2 md:grid-cols-3">
+          {prioritySummary.map((summary) => (
+            <div key={summary.level} className="rounded-xl border border-white bg-white/80 p-3 text-sm text-slate-700">
+              <div className="flex items-center justify-between gap-2">
+                <PriorityBadge priority={summary.level} />
+                <span className="font-semibold">{summary.selected}/{summary.total}</span>
+              </div>
+              <p className="mt-2 text-xs text-slate-500">
+                {summary.missing.length ? `${summary.missing.length} pendiente(s) de seleccionar` : "Completo para este nivel"}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PriorityBadge({ priority }) {
+  if (!priority) return null;
+  return <span className={`w-fit rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ring-1 ${PRIORITY_BADGE_CLASS[priority] || PRIORITY_BADGE_CLASS.Complementarias}`}>{priority}</span>;
+}
+
+function ConfigSection({ section, config, toggles, updateConfig, updateToggle, hideValues, priorityLookup }) {
   return (
     <section>
       <h3 className="border-b border-red-300 pb-2 text-sm font-bold text-slate-800">▸ {section.title}</h3>
@@ -743,12 +930,18 @@ function ConfigSection({ section, config, toggles, updateConfig, updateToggle, h
 
         {(section.toggles || []).map(([key, label, price]) => (
           <button key={key} type="button" onClick={() => updateToggle(key)} className="grid gap-1 text-left text-sm text-slate-600 sm:grid-cols-[220px_1fr] sm:items-center">
-            <span className="font-medium">{label}</span>
+            <span>
+              <span className="flex flex-wrap items-center gap-2">
+                <span className="font-medium text-slate-700">{label}</span>
+                <PriorityBadge priority={priorityLookup[key]} />
+              </span>
+              <OptionInfo info={OPTION_INFO[key]} />
+            </span>
             <span className="flex items-center gap-3">
               <span className={`relative inline-flex h-6 w-11 rounded-full transition ${toggles[key] ? "bg-blue-600" : "bg-slate-200"}`}>
                 <span className={`absolute top-1 h-4 w-4 rounded-full bg-white transition ${toggles[key] ? "left-6" : "left-1"}`} />
               </span>
-              <span className="text-xs text-slate-500">{toggles[key] ? (hideValues ? "Incluido" : `Incluido ${money(price)}`) : "No"}</span>
+              <span className="text-xs text-slate-500">{toggles[key] ? (hideValues ? "Incluido" : typeof price === "number" ? `Incluido ${money(price)}` : "Incluido (precio por definir)") : "No"}</span>
             </span>
           </button>
         ))}
@@ -757,7 +950,19 @@ function ConfigSection({ section, config, toggles, updateConfig, updateToggle, h
   );
 }
 
-function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues }) {
+function OptionInfo({ info }) {
+  if (!info) return null;
+
+  return (
+    <span className="mt-1 block space-y-1 text-xs font-normal leading-5 text-slate-500">
+      <span className="block">{info.function}</span>
+      <span className="block">Aplicación: {info.application} | Complejidad: {info.complexity} | {info.reference}</span>
+      <span className="block text-slate-600">ASTAP: {info.recommendation}</span>
+    </span>
+  );
+}
+
+function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues, usageProfile, prioritySummary }) {
   return (
     <div className="space-y-5">
       <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
@@ -769,6 +974,7 @@ function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues }) 
             <p><strong>Cliente:</strong> {quote.customer}</p>
             <p><strong>Cliente final:</strong> {quote.endCustomer}</p>
             <p><strong>Vendedor:</strong> {quote.salesPerson}</p>
+            <p><strong>Perfil matriz:</strong> {usageProfile.label}</p>
             <p><strong>Estado:</strong> En progreso</p>
           </div>
         </div>
@@ -789,6 +995,18 @@ function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues }) 
         </div>
       </div>
 
+      <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+        <h3 className="font-bold text-blue-900">Priorización automática según matriz</h3>
+        <div className="mt-3 grid gap-2 md:grid-cols-3">
+          {prioritySummary.map((summary) => (
+            <div key={summary.level} className="rounded-xl bg-white p-3 text-sm text-slate-700">
+              <PriorityBadge priority={summary.level} />
+              <p className="mt-2 font-semibold">{summary.selected}/{summary.total} seleccionadas</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="overflow-hidden rounded-2xl border border-slate-200">
         <div className={`grid ${hideValues ? "grid-cols-1" : "grid-cols-[1fr_120px]"} bg-slate-900 px-4 py-2 text-sm font-semibold text-white`}>
           <span>Configuración seleccionada</span>
@@ -799,8 +1017,12 @@ function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues }) 
         ) : (
           items.map((item) => (
             <div key={`${item.key}-${item.value}`} className={`grid ${hideValues ? "grid-cols-1" : "grid-cols-[1fr_120px]"} border-t border-slate-200 px-4 py-2 text-sm`}>
-              <span><strong>{item.label}:</strong> {item.value}</span>
-              {!hideValues && <span className="text-right font-semibold">{money(item.price)}</span>}
+              <span>
+                <strong>{item.label}:</strong> {item.value}
+                {item.priority && <span className="ml-2 inline-flex align-middle"><PriorityBadge priority={item.priority} /></span>}
+                {item.info && <span className="mt-1 block text-xs leading-5 text-slate-500">{item.info.function} | {item.info.reference}</span>}
+              </span>
+              {!hideValues && <span className="text-right font-semibold">{formatImpact(item.price)}</span>}
             </div>
           ))
         )}
