@@ -537,11 +537,22 @@ export default function ConfiguradorHome() {
             <TextInput label="Cliente final" value={quote.endCustomer} onChange={(value) => updateQuote("endCustomer", value)} />
             <TextInput label="Vendedor" value={quote.salesPerson} onChange={(value) => updateQuote("salesPerson", value)} />
           </div>
-          <div className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-white">
-            <Calculator size={18} />
-            <div>
-              <p className="text-xs text-slate-300">{hideValues ? "Modo visual" : "Total"}</p>
-              <p className="font-bold">{hideValues ? "Sin valores" : money(priceSummary.total)}</p>
+          <div className="flex flex-col gap-2 sm:items-end">
+            <label className="flex w-fit items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700">
+              <input
+                type="checkbox"
+                checked={hideValues}
+                onChange={(event) => setHideValues(event.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+              />
+              Ocultar valores referenciales en opciones
+            </label>
+            <div className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-white">
+              <Calculator size={18} />
+              <div>
+                <p className="text-xs text-slate-300">{hideValues ? "Modo visual" : "Total"}</p>
+                <p className="font-bold">{hideValues ? "Sin valores" : money(priceSummary.total)}</p>
+              </div>
             </div>
           </div>
         </div>
