@@ -65,8 +65,58 @@ create policy "Usuario ve sus permisos recibidos"
   for select
   using (grantee_user_id = auth.uid());
 
+grant select, insert, update, delete on public.registros to authenticated;
+
+alter table public.registros enable row level security;
+
+drop policy if exists "Super admin gestiona todos los registros" on public.registros;
+drop policy if exists "Usuario consulta sus registros" on public.registros;
+drop policy if exists "Usuario crea sus registros" on public.registros;
+drop policy if exists "Usuario edita sus registros" on public.registros;
+drop policy if exists "Usuario elimina sus registros" on public.registros;
 drop policy if exists "Usuario ve registros permitidos" on public.registros;
 drop policy if exists "Usuario edita registros permitidos" on public.registros;
+
+create policy "Super admin gestiona todos los registros"
+  on public.registros
+  for all
+  to authenticated
+  using (public.is_super_admin_user())
+  with check (public.is_super_admin_user());
+
+create policy "Usuario consulta sus registros"
+  on public.registros
+  for select
+  to authenticated
+  using (
+    user_id = auth.uid()
+    or lower(coalesce(auth.jwt() ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
+  );
+
+create policy "Usuario crea sus registros"
+  on public.registros
+  for insert
+  to authenticated
+  with check (user_id = auth.uid());
+
+create policy "Usuario edita sus registros"
+  on public.registros
+  for update
+  to authenticated
+  using (
+    user_id = auth.uid()
+    or lower(coalesce(auth.jwt() ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
+  )
+  with check (
+    user_id = auth.uid()
+    or lower(coalesce(auth.jwt() ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
+  );
+
+create policy "Usuario elimina sus registros"
+  on public.registros
+  for delete
+  to authenticated
+  using (user_id = auth.uid());
 
 create policy "Usuario ve registros permitidos"
   on public.registros
