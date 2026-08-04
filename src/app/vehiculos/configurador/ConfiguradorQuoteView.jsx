@@ -17,6 +17,17 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("es-EC", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
+const MODEL_SPRITES = {
+  "2100i": { col: 0, row: 0 },
+  "water-recycler": { col: 1, row: 0 },
+  impact: { col: 2, row: 0 },
+  "2100i-cb": { col: 3, row: 0 },
+  "ramjet-truck": { col: 0, row: 1 },
+  "ramjet-trailer": { col: 1, row: 1 },
+  ace: { col: 2, row: 1 },
+  truvac: { col: 3, row: 1 },
+};
+
 function PriorityBadge({ priority }) {
   if (!priority) return null;
 
@@ -37,6 +48,7 @@ function buildPdfPayload(quote, hideValues) {
       name: quote.model_name || "Vactor",
       family: quote.model_family || "Vactor",
       fallbackImage: "/hidro-base.png",
+      sprite: MODEL_SPRITES[quote.model_id],
     },
     config: quote.config || {},
     toggles: quote.toggles || {},

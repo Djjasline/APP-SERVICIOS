@@ -8,6 +8,17 @@ const VACTOR_LINE_IMAGE = "/vactor-linea.png.png";
 const SPRITE_COLUMNS = 4;
 const SPRITE_ROWS = 2;
 
+const MODEL_SPRITES = {
+  "2100i": { col: 0, row: 0 },
+  "water-recycler": { col: 1, row: 0 },
+  impact: { col: 2, row: 0 },
+  "2100i-cb": { col: 3, row: 0 },
+  "ramjet-truck": { col: 0, row: 1 },
+  "ramjet-trailer": { col: 1, row: 1 },
+  ace: { col: 2, row: 1 },
+  truvac: { col: 3, row: 1 },
+};
+
 const money = (value) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(value) || 0);
 
@@ -47,11 +58,13 @@ async function loadDataUrl(src) {
 
 async function getModelImageDataUrl(model) {
   try {
-    if (model?.sprite) {
+    const sprite = model?.sprite || MODEL_SPRITES[model?.id];
+
+    if (sprite) {
       const image = await loadImage(VACTOR_LINE_IMAGE);
       const cropWidth = image.naturalWidth / SPRITE_COLUMNS;
       const cellHeight = image.naturalHeight / SPRITE_ROWS;
-      const cropHeight = cellHeight * (model.sprite.row === 0 ? 0.72 : 0.6);
+      const cropHeight = cellHeight * (sprite.row === 0 ? 0.72 : 0.6);
       const canvas = document.createElement("canvas");
       canvas.width = cropWidth;
       canvas.height = cropHeight;
@@ -59,8 +72,8 @@ async function getModelImageDataUrl(model) {
 
       context.drawImage(
         image,
-        model.sprite.col * cropWidth,
-        model.sprite.row * cellHeight,
+        sprite.col * cropWidth,
+        sprite.row * cellHeight,
         cropWidth,
         cropHeight,
         0,
