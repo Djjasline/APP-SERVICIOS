@@ -5,11 +5,12 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { downloadConfiguratorPdf } from "./configuratorPdf";
-import { getConfiguratorQuoteHistory, saveConfiguratorQuote } from "@/services/configuratorQuoteService";
+import { getConfiguratorQuoteById, getConfiguratorQuoteHistory, saveConfiguratorQuote } from "@/services/configuratorQuoteService";
 
 const VACTOR_LINE_IMAGE = "/vactor-linea.png.png";
 const SPRITE_COLUMNS = 4;
 const SPRITE_ROWS = 2;
+const DRAFT_STORAGE_KEY = "astap-configurador-draft";
 
 const MODELS = [
   { id: "2100i", name: "2100i", family: "Vactor", basePrice: 340000, fallbackImage: "/hidro-base.png", sprite: { col: 0, row: 0 } },
@@ -188,6 +189,15 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("es-EC", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
+function createInitialQuote() {
+  return {
+    number: `ASTAP-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`,
+    customer: "Cliente por definir",
+    endCustomer: "Cliente final",
+    salesPerson: "ASTAP",
+  };
+}
+
 function getOptionPrice(key, selected) {
   return SELECT_OPTIONS[key]?.find(([label]) => label === selected)?.[1] || 0;
 }
@@ -205,15 +215,12 @@ export default function ConfiguradorHome() {
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [hideValues, setHideValues] = useState(false);
+  const [hasLocalDraft, setHasLocalDraft] = useState(false);
+  const [loadingQuoteId, setLoadingQuoteId] = useState("");
   const [history, setHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [historyError, setHistoryError] = useState("");
-  const [quote, setQuote] = useState({
-    number: `ASTAP-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`,
-    customer: "Cliente por definir",
-    endCustomer: "Cliente final",
-    salesPerson: "ASTAP",
-  });
+  const [quote, setQuote] = useState(createInitialQuote);
 
   const selectedModel = MODELS.find((model) => model.id === selectedModelId) || MODELS[0];
 
@@ -248,6 +255,19 @@ export default function ConfiguradorHome() {
   const updateConfig = (key, value) => setConfig((prev) => ({ ...prev, [key]: value }));
   const updateToggle = (key) => setToggles((prev) => ({ ...prev, [key]: !prev[key] }));
 
+  const getQuoteValidationError = () => {
+    const missing = [
+      ["Cotización No.", quote.number],
+      ["Cliente", quote.customer],
+      ["Cliente final", quote.endCustomer],
+      ["Vendedor", quote.salesPerson],
+    ]
+      .filter(([, value]) => !String(value || "").trim())
+      .map(([label]) => label);
+
+    return missing.length ? `Completa ${missing.join(", ")} antes de continuar.` : "";
+  };
+
   const quotePayload = useMemo(
     () => ({ quote, selectedModelId, selectedModel, config, toggles, priceSummary, items: configuredItems, hideValues }),
     [config, configuredItems, hideValues, priceSummary, quote, selectedModel, selectedModelId, toggles]
@@ -268,11 +288,96 @@ export default function ConfiguradorHome() {
     }
   }, []);
 
+  const applyLocalDraft = useCallback((draft) => {
+    if (!draft || typeof draft !== "object") return;
+
+    setSelectedModelId(MODELS.some((model) => model.id === draft.selectedModelId) ? draft.selectedModelId : "2100i");
+    setConfig({ ...DEFAULT_CONFIG, ...(draft.config || {}) });
+    setToggles({ ...DEFAULT_TOGGLES, ...(draft.toggles || {}) });
+    setHideValues(Boolean(draft.hideValues));
+    setQuote({ ...createInitialQuote(), ...(draft.quote || {}) });
+  }, []);
+
+  const restoreLocalDraft = useCallback(() => {
+    try {
+      const rawDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
+      setHasLocalDraft(Boolean(rawDraft));
+      if (!rawDraft) return false;
+
+      applyLocalDraft(JSON.parse(rawDraft));
+      setSavedMessage("Borrador local restaurado correctamente.");
+      setErrorMessage("");
+      setPdfUrl("");
+      return true;
+    } catch (error) {
+      console.error("Error restaurando borrador del configurador:", error);
+      setErrorMessage("No se pudo restaurar el borrador local.");
+      return false;
+    }
+  }, [applyLocalDraft]);
+
   useEffect(() => {
     loadHistory();
   }, [loadHistory]);
 
+  useEffect(() => {
+    restoreLocalDraft();
+  }, [restoreLocalDraft]);
+
+  const resetConfigurator = () => {
+    setSelectedModelId("2100i");
+    setActiveTab("basic");
+    setConfig(DEFAULT_CONFIG);
+    setToggles(DEFAULT_TOGGLES);
+    setHideValues(false);
+    setQuote(createInitialQuote());
+    setSavedMessage("Configurador reiniciado.");
+    setErrorMessage("");
+    setPdfUrl("");
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    setHasLocalDraft(false);
+  };
+
+  const useHistoryQuoteAsBase = async (quoteId) => {
+    setLoadingQuoteId(quoteId);
+    setSavedMessage("");
+    setErrorMessage("");
+    setPdfUrl("");
+
+    try {
+      const row = await getConfiguratorQuoteById(quoteId);
+      if (!row) {
+        setErrorMessage("No se encontró la cotización seleccionada.");
+        return;
+      }
+
+      setSelectedModelId(MODELS.some((model) => model.id === row.model_id) ? row.model_id : "2100i");
+      setConfig({ ...DEFAULT_CONFIG, ...(row.config || {}) });
+      setToggles({ ...DEFAULT_TOGGLES, ...(row.toggles || {}) });
+      setQuote({
+        ...createInitialQuote(),
+        customer: row.customer || "Cliente por definir",
+        endCustomer: row.end_customer || "Cliente final",
+        salesPerson: row.sales_person || "ASTAP",
+      });
+      setActiveTab("review");
+      setSavedMessage("Cotización histórica cargada como base para una nueva configuración.");
+    } catch (error) {
+      console.error("Error cargando cotización como base:", error);
+      setErrorMessage("No se pudo cargar la cotización seleccionada.");
+    } finally {
+      setLoadingQuoteId("");
+    }
+  };
+
   const saveQuote = async () => {
+    const validationError = getQuoteValidationError();
+    if (validationError) {
+      setErrorMessage(validationError);
+      setActiveTab("basic");
+      return;
+    }
+
     setSaving(true);
     setSavedMessage("");
     setErrorMessage("");
@@ -280,7 +385,8 @@ export default function ConfiguradorHome() {
 
     try {
       const payload = { ...quotePayload, savedAt: new Date().toISOString(), createdBy: user?.email || user?.id || "" };
-      localStorage.setItem("astap-configurador-draft", JSON.stringify(payload));
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(payload));
+      setHasLocalDraft(true);
       const saved = await saveConfiguratorQuote(payload);
       setPdfUrl(saved?.pdf_url || "");
       if (saved?.id) setHistory((prev) => [saved, ...prev.filter((item) => item.id !== saved.id)].slice(0, 50));
@@ -296,6 +402,13 @@ export default function ConfiguradorHome() {
 
   const downloadPdf = async () => {
     setErrorMessage("");
+    const validationError = getQuoteValidationError();
+    if (validationError) {
+      setErrorMessage(validationError);
+      setActiveTab("basic");
+      return;
+    }
+
     try {
       await downloadConfiguratorPdf(quotePayload);
     } catch (error) {
@@ -306,7 +419,8 @@ export default function ConfiguradorHome() {
 
   const saveLocalDraft = () => {
     const payload = { ...quotePayload, savedAt: new Date().toISOString() };
-    localStorage.setItem("astap-configurador-draft", JSON.stringify(payload));
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(payload));
+    setHasLocalDraft(true);
     setSavedMessage("Configuración guardada localmente para revisión.");
   };
 
@@ -355,7 +469,7 @@ export default function ConfiguradorHome() {
             </div>
           </div>
           <span className="w-fit rounded-full bg-white px-3 py-1 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-200">
-            55% de avance
+            70% de avance
           </span>
         </div>
       </div>
@@ -456,6 +570,12 @@ export default function ConfiguradorHome() {
             <button type="button" onClick={saveLocalDraft} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
               Guardar local
             </button>
+            <button type="button" onClick={restoreLocalDraft} disabled={!hasLocalDraft} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50">
+              Restaurar borrador
+            </button>
+            <button type="button" onClick={resetConfigurator} className="rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">
+              Reiniciar
+            </button>
             <button type="button" onClick={() => navigate("/area/vehiculos")} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
               Cancelar
             </button>
@@ -470,7 +590,16 @@ export default function ConfiguradorHome() {
         )}
       </section>
 
-      <HistoryPanel history={history} loading={loadingHistory} error={historyError} onRefresh={loadHistory} onView={(quoteId) => navigate(`/vehiculos/configurador/ver/${quoteId}`)} hideValues={hideValues} />
+      <HistoryPanel
+        history={history}
+        loading={loadingHistory}
+        loadingQuoteId={loadingQuoteId}
+        error={historyError}
+        onRefresh={loadHistory}
+        onView={(quoteId) => navigate(`/vehiculos/configurador/ver/${quoteId}`)}
+        onUseAsBase={useHistoryQuoteAsBase}
+        hideValues={hideValues}
+      />
     </div>
   );
 }
@@ -643,7 +772,7 @@ function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues }) 
   );
 }
 
-function HistoryPanel({ history, loading, error, onRefresh, onView, hideValues }) {
+function HistoryPanel({ history, loading, loadingQuoteId, error, onRefresh, onView, onUseAsBase, hideValues }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
@@ -692,6 +821,9 @@ function HistoryPanel({ history, loading, error, onRefresh, onView, hideValues }
                     <div className="flex flex-wrap gap-3">
                       <button type="button" onClick={() => onView(quote.id)} className="font-semibold text-slate-700 hover:underline">
                         Ver
+                      </button>
+                      <button type="button" onClick={() => onUseAsBase(quote.id)} disabled={loadingQuoteId === quote.id} className="font-semibold text-emerald-700 hover:underline disabled:cursor-wait disabled:opacity-60">
+                        {loadingQuoteId === quote.id ? "Cargando..." : "Usar como base"}
                       </button>
                       {quote.pdf_url ? (
                         <a href={quote.pdf_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-blue-700 hover:underline">

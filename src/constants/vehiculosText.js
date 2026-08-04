@@ -15,7 +15,7 @@ export const VEHICULOS_TEXT = {
       "Mantenimiento preventivo y correctivo de equipos como Barredoras, Hidrosuccionadores y Cámaras de inspección.",
   },
   configurador: {
-    title: "Configurador 🚧 · 55% de avance",
+    title: "Configurador 🚧 · 70% de avance",
     description:
       "Configurador técnico tipo CPQ para seleccionar modelos, módulos, sistemas, pintura, accesorios y revisión de cotización.",
   },
