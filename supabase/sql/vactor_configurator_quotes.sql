@@ -29,6 +29,16 @@ create index if not exists vactor_configurator_quotes_quote_number_idx
 
 alter table public.vactor_configurator_quotes enable row level security;
 
+alter table public.vactor_configurator_quotes
+  add column if not exists pdf_error text;
+
+alter table public.vactor_configurator_quotes
+  drop constraint if exists vactor_configurator_quotes_status_check;
+
+alter table public.vactor_configurator_quotes
+  add constraint vactor_configurator_quotes_status_check
+  check (status in ('guardada', 'enviada', 'anulada', 'pdf_pendiente'));
+
 create or replace function public.is_super_admin_user()
 returns boolean
 language sql

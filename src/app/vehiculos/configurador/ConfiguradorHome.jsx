@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { downloadConfiguratorPdf } from "./configuratorPdf";
-import { getConfiguratorQuoteById, getConfiguratorQuoteHistory, saveConfiguratorQuote, updateConfiguratorQuote } from "@/services/configuratorQuoteService";
+import { getConfiguratorQuoteById, getConfiguratorQuoteHistory, regenerateConfiguratorQuotePdf, saveConfiguratorQuote, updateConfiguratorQuote } from "@/services/configuratorQuoteService";
 
 const VACTOR_LINE_IMAGE = "/vactor-linea.png.png";
 const SPRITE_COLUMNS = 4;
@@ -339,6 +339,7 @@ export default function ConfiguradorHome() {
   const [hideValues, setHideValues] = useState(false);
   const [hasLocalDraft, setHasLocalDraft] = useState(false);
   const [loadingQuoteId, setLoadingQuoteId] = useState("");
+  const [retryingPdfId, setRetryingPdfId] = useState("");
   const [history, setHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [historyError, setHistoryError] = useState("");
@@ -559,6 +560,26 @@ export default function ConfiguradorHome() {
     }
   };
 
+  const retryQuotePdf = async (quoteId) => {
+    setRetryingPdfId(quoteId);
+    setSavedMessage("");
+    setHistoryError("");
+
+    try {
+      const updated = await regenerateConfiguratorQuotePdf(quoteId, { hideValues });
+      if (updated?.id) {
+        setHistory((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
+        if (editingQuoteId === updated.id) setPdfUrl(updated.pdf_url || "");
+      }
+      setSavedMessage(updated?.status === "pdf_pendiente" ? "El PDF sigue pendiente. Intenta nuevamente más tarde." : "PDF regenerado correctamente.");
+    } catch (error) {
+      console.error("Error reintentando PDF del configurador:", error);
+      setHistoryError(error?.message || "No se pudo regenerar el PDF.");
+    } finally {
+      setRetryingPdfId("");
+    }
+  };
+
   const saveQuote = async () => {
     const validationError = getQuoteValidationError();
     if (validationError) {
@@ -580,7 +601,13 @@ export default function ConfiguradorHome() {
       setPdfUrl(saved?.pdf_url || "");
       if (saved?.id) setHistory((prev) => [saved, ...prev.filter((item) => item.id !== saved.id)].slice(0, 50));
       if (saved?.id) setEditingQuoteId(saved.id);
-      setSavedMessage(editingQuoteId ? "Cotización actualizada en Supabase y PDF regenerado correctamente." : "Cotización guardada en Supabase y PDF generado correctamente.");
+      setSavedMessage(
+        saved?.status === "pdf_pendiente"
+          ? "Cotización guardada en Supabase, pero el PDF quedó pendiente. Puedes reintentarlo desde el historial."
+          : editingQuoteId
+            ? "Cotización actualizada en Supabase y PDF regenerado correctamente."
+            : "Cotización guardada en Supabase y PDF generado correctamente."
+      );
       setActiveTab("review");
     } catch (error) {
       console.error("Error guardando cotización Vactor:", error);
@@ -813,11 +840,13 @@ export default function ConfiguradorHome() {
         history={history}
         loading={loadingHistory}
         loadingQuoteId={loadingQuoteId}
+        retryingPdfId={retryingPdfId}
         error={historyError}
         onRefresh={loadHistory}
         onView={(quoteId) => navigate(`/vehiculos/configurador/ver/${quoteId}`)}
         onEdit={editHistoryQuote}
         onUseAsBase={useHistoryQuoteAsBase}
+        onRetryPdf={retryQuotePdf}
         hideValues={hideValues}
       />
     </div>
@@ -1074,7 +1103,7 @@ function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues, us
   );
 }
 
-function HistoryPanel({ history, loading, loadingQuoteId, error, onRefresh, onView, onEdit, onUseAsBase, hideValues }) {
+function HistoryPanel({ history, loading, loadingQuoteId, retryingPdfId, error, onRefresh, onView, onEdit, onUseAsBase, onRetryPdf, hideValues }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1082,7 +1111,7 @@ function HistoryPanel({ history, loading, loadingQuoteId, error, onRefresh, onVi
           <h2 className="flex items-center gap-2 font-semibold text-slate-900">
             <History size={18} className="text-blue-600" /> Historial de cotizaciones
           </h2>
-          <p className="text-sm text-slate-500">Cotizaciones guardadas en Supabase y PDFs generados.</p>
+          <p className="text-sm text-slate-500">Cotizaciones guardadas en Supabase con PDF generado o pendiente de reintento.</p>
         </div>
         <button type="button" onClick={onRefresh} disabled={loading} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60">
           <RefreshCw size={15} className={loading ? "animate-spin" : ""} /> Actualizar
@@ -1111,7 +1140,10 @@ function HistoryPanel({ history, loading, loadingQuoteId, error, onRefresh, onVi
             <tbody>
               {history.map((quote) => (
                 <tr key={quote.id} className="border-b border-slate-200 odd:bg-slate-50">
-                  <td className="px-3 py-2 font-semibold text-slate-900">{quote.quote_number || "-"}</td>
+                  <td className="px-3 py-2 font-semibold text-slate-900">
+                    <div>{quote.quote_number || "-"}</div>
+                    {quote.status === "pdf_pendiente" && <div className="mt-1 text-xs font-semibold text-amber-700">PDF pendiente</div>}
+                  </td>
                   <td className="px-3 py-2 text-slate-700">
                     <div>{quote.customer || "Cliente por definir"}</div>
                     {quote.end_customer && <div className="text-xs text-slate-500">Final: {quote.end_customer}</div>}
@@ -1135,7 +1167,9 @@ function HistoryPanel({ history, loading, loadingQuoteId, error, onRefresh, onVi
                           <ExternalLink size={14} /> PDF
                         </a>
                       ) : (
-                        <span className="text-slate-400">Sin PDF</span>
+                        <button type="button" onClick={() => onRetryPdf(quote.id)} disabled={retryingPdfId === quote.id} className="font-semibold text-amber-700 hover:underline disabled:cursor-wait disabled:opacity-60">
+                          {retryingPdfId === quote.id ? "Reintentando..." : "Reintentar PDF"}
+                        </button>
                       )}
                     </div>
                   </td>
