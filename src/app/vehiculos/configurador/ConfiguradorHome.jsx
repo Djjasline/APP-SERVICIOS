@@ -11,12 +11,13 @@ const VACTOR_LINE_IMAGE = "/vactor-linea.png.png";
 const SPRITE_COLUMNS = 4;
 const SPRITE_ROWS = 2;
 const DRAFT_STORAGE_KEY = "astap-configurador-draft";
+const PRIMARY_MODEL_IDS = ["2100i", "impact", "2100i-cb"];
 
 const MODELS = [
-  { id: "2100i", name: "2100i", family: "Vactor", basePrice: 340000, fallbackImage: "/hidro-base.png", sprite: { col: 0, row: 0 } },
+  { id: "2100i", name: "Vactor 2100i", family: "Vactor", basePrice: 340000, fallbackImage: "/hidro-base.png", sprite: { col: 0, row: 0 } },
   { id: "water-recycler", name: "Water Recycler", family: "Vactor", basePrice: 410000, fallbackImage: "/hidro-base.png", sprite: { col: 1, row: 0 } },
-  { id: "impact", name: "iMPACT", family: "Vactor", basePrice: 220000, fallbackImage: "/hidro-base.png", sprite: { col: 2, row: 0 } },
-  { id: "2100i-cb", name: "2100i CB", family: "Vactor", basePrice: 355000, fallbackImage: "/hidro-base.png", sprite: { col: 3, row: 0 } },
+  { id: "impact", name: "Vactor Impact", family: "Vactor", basePrice: 220000, fallbackImage: "/hidro-base.png", sprite: { col: 2, row: 0 } },
+  { id: "2100i-cb", name: "Vactor Catch Basin", family: "Vactor", basePrice: 355000, fallbackImage: "/hidro-base.png", sprite: { col: 3, row: 0 } },
   { id: "ramjet-truck", name: "Ramjet Truck Series", family: "Vactor", basePrice: 185000, fallbackImage: "/hidro-base.png", sprite: { col: 0, row: 1 } },
   { id: "ramjet-trailer", name: "Ramjet Trailer Jetter", family: "Vactor", basePrice: 165000, fallbackImage: "/hidro-base.png", sprite: { col: 1, row: 1 } },
   { id: "ace", name: "ACE Easement Machine", family: "Vactor", basePrice: 145000, fallbackImage: "/hidro-base.png", sprite: { col: 2, row: 1 } },
@@ -207,6 +208,7 @@ export default function ConfiguradorHome() {
   const { user } = useAuth();
   const { isLight } = useTheme();
   const [selectedModelId, setSelectedModelId] = useState("2100i");
+  const [showMoreModels, setShowMoreModels] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const [config, setConfig] = useState(DEFAULT_CONFIG);
   const [toggles, setToggles] = useState(DEFAULT_TOGGLES);
@@ -223,6 +225,10 @@ export default function ConfiguradorHome() {
   const [quote, setQuote] = useState(createInitialQuote);
 
   const selectedModel = MODELS.find((model) => model.id === selectedModelId) || MODELS[0];
+  const visibleModels = useMemo(
+    () => (showMoreModels ? MODELS : MODELS.filter((model) => PRIMARY_MODEL_IDS.includes(model.id))),
+    [showMoreModels]
+  );
 
   const priceSummary = useMemo(() => {
     const optionTotal = Object.entries(config).reduce((total, [key, selected]) => total + getOptionPrice(key, selected), 0);
@@ -254,6 +260,10 @@ export default function ConfiguradorHome() {
   const updateQuote = (key, value) => setQuote((prev) => ({ ...prev, [key]: value }));
   const updateConfig = (key, value) => setConfig((prev) => ({ ...prev, [key]: value }));
   const updateToggle = (key) => setToggles((prev) => ({ ...prev, [key]: !prev[key] }));
+  const updateShowMoreModels = (enabled) => {
+    setShowMoreModels(enabled);
+    if (!enabled && !PRIMARY_MODEL_IDS.includes(selectedModelId)) setSelectedModelId("2100i");
+  };
 
   const getQuoteValidationError = () => {
     const missing = [
@@ -269,8 +279,8 @@ export default function ConfiguradorHome() {
   };
 
   const quotePayload = useMemo(
-    () => ({ quote, selectedModelId, selectedModel, config, toggles, priceSummary, items: configuredItems, hideValues }),
-    [config, configuredItems, hideValues, priceSummary, quote, selectedModel, selectedModelId, toggles]
+    () => ({ quote, selectedModelId, selectedModel, config, toggles, priceSummary, items: configuredItems, hideValues, showMoreModels }),
+    [config, configuredItems, hideValues, priceSummary, quote, selectedModel, selectedModelId, showMoreModels, toggles]
   );
 
   const loadHistory = useCallback(async () => {
@@ -291,7 +301,9 @@ export default function ConfiguradorHome() {
   const applyLocalDraft = useCallback((draft) => {
     if (!draft || typeof draft !== "object") return;
 
-    setSelectedModelId(MODELS.some((model) => model.id === draft.selectedModelId) ? draft.selectedModelId : "2100i");
+    const draftModelId = MODELS.some((model) => model.id === draft.selectedModelId) ? draft.selectedModelId : "2100i";
+    setSelectedModelId(draftModelId);
+    setShowMoreModels(Boolean(draft.showMoreModels) || !PRIMARY_MODEL_IDS.includes(draftModelId));
     setConfig({ ...DEFAULT_CONFIG, ...(draft.config || {}) });
     setToggles({ ...DEFAULT_TOGGLES, ...(draft.toggles || {}) });
     setHideValues(Boolean(draft.hideValues));
@@ -326,6 +338,7 @@ export default function ConfiguradorHome() {
 
   const resetConfigurator = () => {
     setSelectedModelId("2100i");
+    setShowMoreModels(false);
     setActiveTab("basic");
     setConfig(DEFAULT_CONFIG);
     setToggles(DEFAULT_TOGGLES);
@@ -351,7 +364,9 @@ export default function ConfiguradorHome() {
         return;
       }
 
-      setSelectedModelId(MODELS.some((model) => model.id === row.model_id) ? row.model_id : "2100i");
+      const modelId = MODELS.some((model) => model.id === row.model_id) ? row.model_id : "2100i";
+      setSelectedModelId(modelId);
+      setShowMoreModels(!PRIMARY_MODEL_IDS.includes(modelId));
       setConfig({ ...DEFAULT_CONFIG, ...(row.config || {}) });
       setToggles({ ...DEFAULT_TOGGLES, ...(row.toggles || {}) });
       setQuote({
@@ -475,12 +490,23 @@ export default function ConfiguradorHome() {
       </div>
 
       <section className={`rounded-2xl border p-4 shadow-sm ${isLight ? "border-slate-200 bg-white" : "border-white/10 bg-white/5"}`}>
-        <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
-          <Truck size={18} className="text-blue-600" />
-          <h2 className="font-semibold">Configurar línea Vactor</h2>
+        <div className="flex flex-col gap-3 border-b border-slate-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <Truck size={18} className="text-blue-600" />
+            <h2 className="font-semibold">Configurar línea Vactor</h2>
+          </div>
+          <label className="flex w-fit items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700">
+            <input
+              type="checkbox"
+              checked={showMoreModels}
+              onChange={(event) => updateShowMoreModels(event.target.checked)}
+              className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+            />
+            Más modelos
+          </label>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {MODELS.map((model) => (
+          {visibleModels.map((model) => (
             <button
               key={model.id}
               type="button"
