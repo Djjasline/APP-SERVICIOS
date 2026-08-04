@@ -73,6 +73,7 @@ const NotificationsPage = lazy(() => import("./pages/Notifications"));
 const ChatInterno = lazy(() => import("./pages/chat/ChatInterno"));
 const RegistroAccessAdmin = lazy(() => import("./pages/admin/RegistroAccessAdmin"));
 const AppUpdatesAdmin = lazy(() => import("./pages/admin/AppUpdatesAdmin"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const TechRoute = ({ children }) => (
   <RoleRoute
@@ -410,6 +411,8 @@ export default function RoutesApp() {
           <Route path="/vehiculos/protocolos/vcam/:id/pdf" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/protocolos"><ProtocoloVCamPDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
           <Route path="/operaciones/protocolos/vactor/:id/pdf" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/protocolos"><ProtocoloVactorPDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
           <Route path="/operaciones/protocolos/vcam/:id/pdf" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/protocolos"><ProtocoloVCamPDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
