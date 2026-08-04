@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { SPECIAL_MODULES, SPECIAL_MODULE_BY_TIPO } from "@/constants/accessControl";
+import { SPECIAL_MODULES, SPECIAL_MODULE_BY_KEY, SPECIAL_MODULE_BY_TIPO } from "@/constants/accessControl";
 import { useTheme } from "@/context/ThemeContext";
 import {
   deleteRecordAccessPermission,
@@ -49,7 +49,6 @@ const TIPOS = [
   { value: "protocolo", label: "Protocolo" },
   { value: "protocolo:hidrosuccionador-vactor", label: "Protocolo - Hidrosuccionador Vactor" },
   { value: "protocolo:camara-vcam6", label: "Protocolo - Cámara V-Cam6" },
-  ...SPECIAL_MODULES.map((module) => ({ value: module.tipo, label: module.label })),
   { value: "registro", label: "Registro de herramientas" },
   { value: "recepcion", label: "Bitácora y control vehicular" },
   { value: "liberacion", label: "Autorización de uso de vehículo para refinería" },
@@ -64,6 +63,11 @@ const emptyForm = {
   can_view: true,
   can_edit: false,
   can_download: false,
+};
+
+const emptySpecialModuleForm = {
+  grantee_user_id: "",
+  module_key: SPECIAL_MODULES[0]?.key || "",
 };
 
 const emptyNotificationForm = {
@@ -114,6 +118,7 @@ export default function RegistroAccessAdmin() {
   const [notificationRules, setNotificationRules] = useState([]);
   const [sequences, setSequences] = useState([]);
   const [form, setForm] = useState(emptyForm);
+  const [specialModuleForm, setSpecialModuleForm] = useState(emptySpecialModuleForm);
   const [notificationForm, setNotificationForm] = useState(emptyNotificationForm);
   const [sequenceForm, setSequenceForm] = useState(emptySequenceForm);
   const [codeCorrectionForm, setCodeCorrectionForm] = useState(emptyCodeCorrectionForm);
@@ -134,8 +139,12 @@ export default function RegistroAccessAdmin() {
   const sortedProfiles = useMemo(() => {
     return [...profiles].sort((a, b) => getProfileLabel(a).localeCompare(getProfileLabel(b)));
   }, [profiles]);
-  const specialModulePermission = SPECIAL_MODULE_BY_TIPO[form.tipo];
-  const isSpecialModulePermission = !!specialModulePermission;
+  const specialPermissions = useMemo(() => {
+    return permissions.filter((permission) => SPECIAL_MODULE_BY_TIPO[permission.tipo]);
+  }, [permissions]);
+  const managementPermissions = useMemo(() => {
+    return permissions.filter((permission) => !SPECIAL_MODULE_BY_TIPO[permission.tipo]);
+  }, [permissions]);
 
   useEffect(() => {
     loadData();
@@ -180,23 +189,12 @@ export default function RegistroAccessAdmin() {
 
   const handleChange = (field, value) => {
     setMessage("");
-    setForm((prev) => {
-      const next = { ...prev, [field]: value };
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
 
-      const selectedSpecialModule = field === "tipo" ? SPECIAL_MODULE_BY_TIPO[value] : SPECIAL_MODULE_BY_TIPO[next.tipo];
-
-      if (field === "tipo" && selectedSpecialModule) {
-        next.area = selectedSpecialModule.area;
-        next.can_view = true;
-        next.owner_user_id = next.grantee_user_id;
-      }
-
-      if (field === "grantee_user_id" && selectedSpecialModule) {
-        next.owner_user_id = value;
-      }
-
-      return next;
-    });
+  const handleSpecialModuleChange = (field, value) => {
+    setMessage("");
+    setSpecialModuleForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSpecificScopeChange = (field, checked, fallbackValue) => {
@@ -204,17 +202,6 @@ export default function RegistroAccessAdmin() {
     setForm((prev) => ({
       ...prev,
       [field]: checked ? fallbackValue : "todos",
-    }));
-  };
-
-  const handleSpecialModuleShortcut = (module) => {
-    setMessage("");
-    setForm((prev) => ({
-      ...prev,
-      area: module.area,
-      tipo: module.tipo,
-      owner_user_id: prev.grantee_user_id,
-      can_view: true,
     }));
   };
 
@@ -238,33 +225,62 @@ export default function RegistroAccessAdmin() {
     setError("");
     setMessage("");
 
-    const permissionPayload = isSpecialModulePermission
-      ? { ...form, area: specialModulePermission.area, owner_user_id: form.grantee_user_id, can_view: true }
-      : form;
-
-    if (!permissionPayload.grantee_user_id || !permissionPayload.owner_user_id) {
-      setError(isSpecialModulePermission ? "Selecciona el usuario que tendrá acceso al módulo especial." : "Selecciona el usuario gestor y el dueño de los registros.");
+    if (!form.grantee_user_id || !form.owner_user_id) {
+      setError("Selecciona el usuario gestor y el dueño de los registros.");
       return;
     }
 
-    if (!isSpecialModulePermission && permissionPayload.grantee_user_id === permissionPayload.owner_user_id) {
+    if (form.grantee_user_id === form.owner_user_id) {
       setError("El usuario gestor y el dueño de registros deben ser diferentes.");
       return;
     }
 
-    if (!permissionPayload.can_view && !permissionPayload.can_edit && !permissionPayload.can_download) {
+    if (!form.can_view && !form.can_edit && !form.can_download) {
       setError("Activa al menos un permiso.");
       return;
     }
 
     try {
       setSaving(true);
-      await saveRecordAccessPermission(permissionPayload);
-      setMessage("Permiso guardado correctamente.");
+      await saveRecordAccessPermission(form);
+      setMessage("Permiso de gestión guardado correctamente.");
       await loadData();
     } catch (err) {
       console.error(err);
       setError("No se pudo guardar el permiso.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSpecialModuleSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+
+    const module = SPECIAL_MODULE_BY_KEY[specialModuleForm.module_key];
+
+    if (!specialModuleForm.grantee_user_id || !module) {
+      setError("Selecciona el usuario y el módulo especial.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      await saveRecordAccessPermission({
+        grantee_user_id: specialModuleForm.grantee_user_id,
+        owner_user_id: specialModuleForm.grantee_user_id,
+        area: module.area,
+        tipo: module.tipo,
+        can_view: true,
+        can_edit: false,
+        can_download: false,
+      });
+      setMessage("Permiso de área especial guardado correctamente.");
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      setError("No se pudo guardar el permiso especial.");
     } finally {
       setSaving(false);
     }
@@ -412,10 +428,67 @@ export default function RegistroAccessAdmin() {
 
       {activeOption === "permisos" && (
         <>
+      <form onSubmit={handleSpecialModuleSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
+        <div>
+          <h2 className="font-semibold">Áreas especiales</h2>
+          <p className={`text-sm ${isLight ? "text-slate-600" : "text-white/70"}`}>
+            Acceso directo a módulos especiales: configurador, recorrido de agua, encuestas y bodega.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4 items-end">
+          <label className="space-y-1 text-sm">
+            <span className="font-medium">Usuario con acceso</span>
+            <select
+              value={specialModuleForm.grantee_user_id}
+              onChange={(event) => handleSpecialModuleChange("grantee_user_id", event.target.value)}
+              className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
+            >
+              <option value="">Seleccionar usuario</option>
+              {sortedProfiles.map((profile) => (
+                <option key={profile.id} value={profile.id}>
+                  {getProfileLabel(profile)}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="space-y-1 text-sm">
+            <span className="font-medium">Módulo especial</span>
+            <select
+              value={specialModuleForm.module_key}
+              onChange={(event) => handleSpecialModuleChange("module_key", event.target.value)}
+              className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
+            >
+              {SPECIAL_MODULES.map((module) => (
+                <option key={module.key} value={module.key}>
+                  {module.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <button
+            type="submit"
+            disabled={saving || loading}
+            className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:opacity-60"
+          >
+            {saving ? "Guardando..." : "Guardar acceso especial"}
+          </button>
+        </div>
+      </form>
+
       <form onSubmit={handleSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
+        <div>
+          <h2 className="font-semibold">Gestión de registros</h2>
+          <p className={`text-sm ${isLight ? "text-slate-600" : "text-white/70"}`}>
+            Permite que un usuario gestione registros creados por otro usuario, como estaba antes.
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="space-y-1 text-sm">
-            <span className="font-medium">{isSpecialModulePermission ? "Usuario con acceso" : "Usuario gestor"}</span>
+            <span className="font-medium">Usuario gestor</span>
             <select
               value={form.grantee_user_id}
               onChange={(event) => handleChange("grantee_user_id", event.target.value)}
@@ -430,51 +503,21 @@ export default function RegistroAccessAdmin() {
             </select>
           </label>
 
-          {!isSpecialModulePermission ? (
-            <label className="space-y-1 text-sm">
-              <span className="font-medium">Dueño de registros</span>
-              <select
-                value={form.owner_user_id}
-                onChange={(event) => handleChange("owner_user_id", event.target.value)}
-                className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
-              >
-                <option value="">Seleccionar dueño</option>
-                {sortedProfiles.map((profile) => (
-                  <option key={profile.id} value={profile.id}>
-                    {getProfileLabel(profile)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ) : (
-            <div className={`rounded-lg border px-3 py-2 text-sm ${isLight ? "border-orange-200 bg-orange-50 text-orange-800" : "border-orange-300/30 bg-orange-500/10 text-orange-100"}`}>
-              Este permiso habilita el acceso al módulo {specialModulePermission?.label} para el usuario seleccionado.
-            </div>
-          )}
-        </div>
-
-        <div className={`rounded-xl border p-4 text-sm ${isLight ? "border-orange-200 bg-orange-50 text-orange-900" : "border-orange-300/30 bg-orange-500/10 text-orange-100"}`}>
-          <div className="space-y-3">
-            <div>
-              <p className="font-semibold">Módulos especiales</p>
-              <p className={isLight ? "text-orange-800" : "text-orange-100/80"}>
-                Selecciona primero el usuario y usa un atajo para preparar el permiso especial.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {SPECIAL_MODULES.map((module) => (
-                <button
-                  key={module.key}
-                  type="button"
-                  onClick={() => handleSpecialModuleShortcut(module)}
-                  className="rounded-lg bg-orange-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-orange-700"
-                  title={module.description}
-                >
-                  {module.label}
-                </button>
+          <label className="space-y-1 text-sm">
+            <span className="font-medium">Dueño de registros</span>
+            <select
+              value={form.owner_user_id}
+              onChange={(event) => handleChange("owner_user_id", event.target.value)}
+              className={`w-full rounded-lg border px-3 py-2 text-sm ${inputClass}`}
+            >
+              <option value="">Seleccionar dueño</option>
+              {sortedProfiles.map((profile) => (
+                <option key={profile.id} value={profile.id}>
+                  {getProfileLabel(profile)}
+                </option>
               ))}
-            </div>
-          </div>
+            </select>
+          </label>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -484,7 +527,6 @@ export default function RegistroAccessAdmin() {
                 type="checkbox"
                 checked={form.area !== "todos"}
                 onChange={(event) => handleSpecificScopeChange("area", event.target.checked, "vehiculos")}
-                disabled={isSpecialModulePermission}
                 className="h-4 w-4 rounded border-slate-300"
               />
               Área específica
@@ -493,7 +535,7 @@ export default function RegistroAccessAdmin() {
             <select
               value={form.area}
               onChange={(event) => handleChange("area", event.target.value)}
-              disabled={form.area === "todos" || isSpecialModulePermission}
+              disabled={form.area === "todos"}
               className={`w-full rounded-lg border px-3 py-2 text-sm disabled:opacity-60 ${inputClass}`}
             >
               {AREAS.map((area) => (
@@ -551,7 +593,6 @@ export default function RegistroAccessAdmin() {
                 type="checkbox"
                 checked={form[field]}
                 onChange={(event) => handleChange(field, event.target.checked)}
-                disabled={isSpecialModulePermission && field === "can_view"}
                 className="h-4 w-4 rounded border-slate-300"
               />
               {label}
@@ -569,12 +610,53 @@ export default function RegistroAccessAdmin() {
       </form>
 
       <div className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
-        <h2 className="font-semibold">Permisos activos</h2>
+        <h2 className="font-semibold">Accesos especiales activos</h2>
 
         {loading ? (
           <p className={isLight ? "text-slate-500" : "text-white/60"}>Cargando...</p>
-        ) : permissions.length === 0 ? (
-          <p className={isLight ? "text-slate-500" : "text-white/60"}>No hay permisos configurados.</p>
+        ) : specialPermissions.length === 0 ? (
+          <p className={isLight ? "text-slate-500" : "text-white/60"}>No hay accesos especiales configurados.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left text-sm">
+              <thead className={isLight ? "text-slate-500" : "text-white/60"}>
+                <tr>
+                  <th className="py-2 pr-4">Usuario</th>
+                  <th className="py-2 pr-4">Módulo</th>
+                  <th className="py-2 pr-4">Área</th>
+                  <th className="py-2 pr-4">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {specialPermissions.map((permission) => (
+                  <tr key={permission.id} className={isLight ? "border-t border-slate-100" : "border-t border-white/10"}>
+                    <td className="py-3 pr-4">{getProfileLabel(profileById[permission.grantee_user_id])}</td>
+                    <td className="py-3 pr-4">{getTipoLabel(permission.tipo)}</td>
+                    <td className="py-3 pr-4">{getAreaLabel(permission.area)}</td>
+                    <td className="py-3 pr-4">
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(permission)}
+                        className="text-red-600 hover:underline"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
+        <h2 className="font-semibold">Permisos de gestión activos</h2>
+
+        {loading ? (
+          <p className={isLight ? "text-slate-500" : "text-white/60"}>Cargando...</p>
+        ) : managementPermissions.length === 0 ? (
+          <p className={isLight ? "text-slate-500" : "text-white/60"}>No hay permisos de gestión configurados.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-sm">
@@ -588,12 +670,10 @@ export default function RegistroAccessAdmin() {
                 </tr>
               </thead>
               <tbody>
-                {permissions.map((permission) => (
+                {managementPermissions.map((permission) => (
                   <tr key={permission.id} className={isLight ? "border-t border-slate-100" : "border-t border-white/10"}>
                     <td className="py-3 pr-4">{getProfileLabel(profileById[permission.grantee_user_id])}</td>
-                    <td className="py-3 pr-4">
-                      {SPECIAL_MODULE_BY_TIPO[permission.tipo] ? "Acceso al módulo" : getProfileLabel(profileById[permission.owner_user_id])}
-                    </td>
+                    <td className="py-3 pr-4">{getProfileLabel(profileById[permission.owner_user_id])}</td>
                     <td className="py-3 pr-4">
                       {getAreaLabel(permission.area)} / {getTipoLabel(permission.tipo)}
                     </td>
