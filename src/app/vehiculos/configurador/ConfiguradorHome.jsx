@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { downloadConfiguratorPdf } from "./configuratorPdf";
-import { getConfiguratorQuoteById, getConfiguratorQuoteHistory, saveConfiguratorQuote } from "@/services/configuratorQuoteService";
+import { getConfiguratorQuoteById, getConfiguratorQuoteHistory, saveConfiguratorQuote, updateConfiguratorQuote } from "@/services/configuratorQuoteService";
 
 const VACTOR_LINE_IMAGE = "/vactor-linea.png.png";
 const SPRITE_COLUMNS = 4;
@@ -343,6 +343,7 @@ export default function ConfiguradorHome() {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [historyError, setHistoryError] = useState("");
   const [usageProfileId, setUsageProfileId] = useState("sewer");
+  const [editingQuoteId, setEditingQuoteId] = useState("");
   const [quote, setQuote] = useState(createInitialQuote);
 
   const selectedModel = MODELS.find((model) => model.id === selectedModelId) || MODELS[0];
@@ -437,6 +438,7 @@ export default function ConfiguradorHome() {
     setConfig({ ...DEFAULT_CONFIG, ...(draft.config || {}) });
     setToggles({ ...DEFAULT_TOGGLES, ...(draft.toggles || {}) });
     setUsageProfileId(USAGE_PROFILES.some((profile) => profile.id === draft.usageProfileId) ? draft.usageProfileId : "sewer");
+    setEditingQuoteId("");
     setHideValues(Boolean(draft.hideValues));
     setQuote({ ...createInitialQuote(), ...(draft.quote || {}) });
   }, []);
@@ -474,6 +476,7 @@ export default function ConfiguradorHome() {
     setConfig(DEFAULT_CONFIG);
     setToggles(DEFAULT_TOGGLES);
     setUsageProfileId("sewer");
+    setEditingQuoteId("");
     setHideValues(false);
     setQuote(createInitialQuote());
     setSavedMessage("Configurador reiniciado.");
@@ -502,6 +505,7 @@ export default function ConfiguradorHome() {
       setConfig({ ...DEFAULT_CONFIG, ...(row.config || {}) });
       setToggles({ ...DEFAULT_TOGGLES, ...(row.toggles || {}) });
       setUsageProfileId("sewer");
+      setEditingQuoteId("");
       setQuote({
         ...createInitialQuote(),
         customer: row.customer || "Cliente por definir",
@@ -513,6 +517,43 @@ export default function ConfiguradorHome() {
     } catch (error) {
       console.error("Error cargando cotización como base:", error);
       setErrorMessage("No se pudo cargar la cotización seleccionada.");
+    } finally {
+      setLoadingQuoteId("");
+    }
+  };
+
+  const editHistoryQuote = async (quoteId) => {
+    setLoadingQuoteId(quoteId);
+    setSavedMessage("");
+    setErrorMessage("");
+    setPdfUrl("");
+
+    try {
+      const row = await getConfiguratorQuoteById(quoteId);
+      if (!row) {
+        setErrorMessage("No se encontró la cotización seleccionada.");
+        return;
+      }
+
+      const modelId = MODELS.some((model) => model.id === row.model_id) ? row.model_id : "2100i";
+      setSelectedModelId(modelId);
+      setShowMoreModels(!PRIMARY_MODEL_IDS.includes(modelId));
+      setConfig({ ...DEFAULT_CONFIG, ...(row.config || {}) });
+      setToggles({ ...DEFAULT_TOGGLES, ...(row.toggles || {}) });
+      setUsageProfileId("sewer");
+      setQuote({
+        ...createInitialQuote(),
+        number: row.quote_number || createInitialQuote().number,
+        customer: row.customer || "Cliente por definir",
+        endCustomer: row.end_customer || "Cliente final",
+        salesPerson: row.sales_person || "ASTAP",
+      });
+      setEditingQuoteId(row.id);
+      setActiveTab("review");
+      setSavedMessage("Cotización cargada en modo edición. Al guardar se actualizará el registro existente.");
+    } catch (error) {
+      console.error("Error cargando cotización para editar:", error);
+      setErrorMessage("No se pudo cargar la cotización para editar.");
     } finally {
       setLoadingQuoteId("");
     }
@@ -535,10 +576,11 @@ export default function ConfiguradorHome() {
       const payload = { ...quotePayload, savedAt: new Date().toISOString(), createdBy: user?.email || user?.id || "" };
       localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(payload));
       setHasLocalDraft(true);
-      const saved = await saveConfiguratorQuote(payload);
+      const saved = editingQuoteId ? await updateConfiguratorQuote(editingQuoteId, payload) : await saveConfiguratorQuote(payload);
       setPdfUrl(saved?.pdf_url || "");
       if (saved?.id) setHistory((prev) => [saved, ...prev.filter((item) => item.id !== saved.id)].slice(0, 50));
-      setSavedMessage("Cotización guardada en Supabase y PDF generado correctamente.");
+      if (saved?.id) setEditingQuoteId(saved.id);
+      setSavedMessage(editingQuoteId ? "Cotización actualizada en Supabase y PDF regenerado correctamente." : "Cotización guardada en Supabase y PDF generado correctamente.");
       setActiveTab("review");
     } catch (error) {
       console.error("Error guardando cotización Vactor:", error);
@@ -739,7 +781,7 @@ export default function ConfiguradorHome() {
               Revisar
             </button>
             <button type="button" onClick={saveQuote} disabled={saving} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60">
-              <Save size={16} /> {saving ? "Guardando..." : "Guardar en Supabase"}
+              <Save size={16} /> {saving ? (editingQuoteId ? "Actualizando..." : "Guardando...") : editingQuoteId ? "Actualizar cotización" : "Guardar en Supabase"}
             </button>
             <button type="button" onClick={downloadPdf} className="inline-flex items-center gap-2 rounded-lg border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50">
               <Download size={16} /> Descargar PDF
@@ -774,6 +816,7 @@ export default function ConfiguradorHome() {
         error={historyError}
         onRefresh={loadHistory}
         onView={(quoteId) => navigate(`/vehiculos/configurador/ver/${quoteId}`)}
+        onEdit={editHistoryQuote}
         onUseAsBase={useHistoryQuoteAsBase}
         hideValues={hideValues}
       />
@@ -1031,7 +1074,7 @@ function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues, us
   );
 }
 
-function HistoryPanel({ history, loading, loadingQuoteId, error, onRefresh, onView, onUseAsBase, hideValues }) {
+function HistoryPanel({ history, loading, loadingQuoteId, error, onRefresh, onView, onEdit, onUseAsBase, hideValues }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1080,6 +1123,9 @@ function HistoryPanel({ history, loading, loadingQuoteId, error, onRefresh, onVi
                     <div className="flex flex-wrap gap-3">
                       <button type="button" onClick={() => onView(quote.id)} className="font-semibold text-slate-700 hover:underline">
                         Ver
+                      </button>
+                      <button type="button" onClick={() => onEdit(quote.id)} disabled={loadingQuoteId === quote.id} className="font-semibold text-blue-700 hover:underline disabled:cursor-wait disabled:opacity-60">
+                        Editar
                       </button>
                       <button type="button" onClick={() => onUseAsBase(quote.id)} disabled={loadingQuoteId === quote.id} className="font-semibold text-emerald-700 hover:underline disabled:cursor-wait disabled:opacity-60">
                         {loadingQuoteId === quote.id ? "Cargando..." : "Usar como base"}

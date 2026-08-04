@@ -72,6 +72,39 @@ export async function saveConfiguratorQuote(payload) {
   return updated;
 }
 
+export async function updateConfiguratorQuote(id, payload) {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    throw new Error("Debes iniciar sesión para actualizar la cotización.");
+  }
+
+  const { data: record, error } = await supabase
+    .from("vactor_configurator_quotes")
+    .update({ ...buildDbPayload(payload, user.id), updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select("*")
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!record) throw new Error("No se encontró la cotización para actualizar.");
+
+  const pdfInfo = await uploadQuotePdf(record.id, payload);
+
+  const { data: updated, error: updateError } = await supabase
+    .from("vactor_configurator_quotes")
+    .update({ ...pdfInfo, updated_at: new Date().toISOString() })
+    .eq("id", record.id)
+    .select("*")
+    .maybeSingle();
+
+  if (updateError) throw updateError;
+  return updated;
+}
+
 export async function getConfiguratorQuoteHistory({ limit = 50 } = {}) {
   const { data, error } = await supabase
     .from("vactor_configurator_quotes")
