@@ -8,8 +8,7 @@ function sanitizePathPart(value) {
 }
 
 function buildDbPayload(payload, userId) {
-  return {
-    user_id: userId,
+  const dbPayload = {
     quote_number: payload.quote.number,
     customer: payload.quote.customer,
     end_customer: payload.quote.endCustomer,
@@ -23,6 +22,10 @@ function buildDbPayload(payload, userId) {
     items: payload.items || [],
     status: "guardada",
   };
+
+  if (userId) dbPayload.user_id = userId;
+
+  return dbPayload;
 }
 
 async function uploadQuotePdf(recordId, payload) {
@@ -84,7 +87,7 @@ export async function updateConfiguratorQuote(id, payload) {
 
   const { data: record, error } = await supabase
     .from("vactor_configurator_quotes")
-    .update({ ...buildDbPayload(payload, user.id), updated_at: new Date().toISOString() })
+    .update({ ...buildDbPayload(payload), updated_at: new Date().toISOString() })
     .eq("id", id)
     .select("*")
     .maybeSingle();
