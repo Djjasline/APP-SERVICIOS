@@ -86,13 +86,13 @@ function addWrappedText(doc, text, x, y, maxWidth, options = {}) {
   return y + lines.length * ((options.fontSize || 9) * 0.42);
 }
 
-function addHeader(doc, payload) {
+function addHeader(doc, payload, options = {}) {
   doc.setFillColor(15, 23, 42);
   doc.rect(0, 0, PAGE_WIDTH, 24, "F");
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(15);
-  doc.text("Cotización técnica Vactor", MARGIN, 10);
+  doc.text(options.continuation ? "Cotización técnica Vactor (cont.)" : "Cotización técnica Vactor", MARGIN, 10);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.text(`No. ${payload.quote.number}`, MARGIN, 17);
@@ -111,10 +111,10 @@ function addKeyValue(doc, label, value, x, y, width) {
   doc.text(doc.splitTextToSize(textValue(value) || "-", width), x, y + 5);
 }
 
-function ensurePage(doc, y, required = 18) {
+function ensurePage(doc, y, required = 18, payload) {
   if (y + required < PAGE_HEIGHT - MARGIN) return y;
   doc.addPage();
-  addHeader(doc, { quote: { number: "continuación" } });
+  addHeader(doc, payload, { continuation: true });
   return 34;
 }
 
@@ -181,9 +181,9 @@ export async function generateConfiguratorPdf(payload) {
   const items = payload.items?.length ? payload.items : [{ label: "Opciones adicionales", value: "Sin opciones adicionales seleccionadas", price: 0 }];
 
   items.forEach((item, index) => {
-    y = ensurePage(doc, y, item.info?.function ? 22 : 12);
+    y = ensurePage(doc, y, 12, payload);
     const itemLabel = item.priority ? `${item.label} [${item.priority}]` : item.label;
-    const detail = item.info?.function ? `${itemLabel} - ${item.info.function}` : itemLabel;
+    const detail = itemLabel;
     const value = item.info?.reference ? `${item.value} (${item.info.reference})` : item.value;
     if (index % 2 === 0) {
       doc.setFillColor(248, 250, 252);
@@ -198,7 +198,7 @@ export async function generateConfiguratorPdf(payload) {
     y = Math.max(detailBottom, valueBottom) + 3;
   });
 
-  y = ensurePage(doc, y, 26);
+  y = ensurePage(doc, y, 26, payload);
   y += 8;
   doc.setDrawColor(203, 213, 225);
   doc.line(MARGIN, y, PAGE_WIDTH - MARGIN, y);
