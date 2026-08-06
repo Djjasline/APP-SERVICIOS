@@ -259,23 +259,6 @@ export async function downloadConfiguratorPdf(payload) {
   doc.save(`${sanitizeFilename(payload.quote.number)}.pdf`);
 }
 
-export async function downloadStoredConfiguratorPdf(url, quoteNumber = "cotizacion-vactor") {
-  if (!url) return;
-
-  const response = await fetch(url);
-  if (!response.ok) throw new Error("No se pudo descargar el PDF guardado.");
-
-  const blob = await response.blob();
-  const objectUrl = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = objectUrl;
-  link.download = `${sanitizeFilename(quoteNumber)}.pdf`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(objectUrl);
-}
-
 export function getConfiguratorPdfFilename(payload) {
   return `${sanitizeFilename(payload.quote.number)}.pdf`;
 }
