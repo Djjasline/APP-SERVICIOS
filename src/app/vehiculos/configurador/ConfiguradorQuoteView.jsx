@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Download, ExternalLink, Eye, EyeOff, FileText } from "lucide-react";
+import { Download, Eye, EyeOff, FileText } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getConfiguratorQuoteById } from "@/services/configuratorQuoteService";
-import { downloadConfiguratorPdf } from "./configuratorPdf";
+import { downloadConfiguratorPdf, downloadStoredConfiguratorPdf } from "./configuratorPdf";
 
 const VACTOR_LINE_IMAGE = "/vactor-linea.png.png";
 const SPRITE_COLUMNS = 4;
@@ -184,6 +184,21 @@ export default function ConfiguradorQuoteView() {
     }
   };
 
+  const downloadSavedPdf = async () => {
+    if (!quote?.pdf_url) return;
+    setDownloading(true);
+    setError("");
+
+    try {
+      await downloadStoredConfiguratorPdf(quote.pdf_url, quote.quote_number);
+    } catch (err) {
+      console.error("Error descargando PDF guardado del configurador:", err);
+      setError(err?.message || "No se pudo descargar el PDF guardado.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   if (loading) {
     return <div className="p-6 text-sm text-slate-500">Cargando cotización...</div>;
   }
@@ -225,9 +240,9 @@ export default function ConfiguradorQuoteView() {
             {hideValues ? "Valores ocultos" : "Ocultar valores"}
           </button>
           {quote.pdf_url && (
-            <a href={quote.pdf_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50">
-              <ExternalLink size={16} /> PDF guardado
-            </a>
+            <button type="button" onClick={downloadSavedPdf} disabled={downloading} className="inline-flex items-center gap-2 rounded-lg border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 disabled:opacity-60">
+              <Download size={16} /> PDF guardado
+            </button>
           )}
           <button type="button" onClick={downloadPdf} disabled={downloading} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60">
             <Download size={16} /> {downloading ? "Generando..." : "Descargar PDF"}

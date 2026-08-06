@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Calculator, CheckCircle2, Download, ExternalLink, Eye, EyeOff, FileText, History, RefreshCw, Save, ShieldCheck, Truck } from "lucide-react";
+import { Calculator, CheckCircle2, Download, Eye, EyeOff, FileText, History, RefreshCw, Save, ShieldCheck, Truck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
-import { downloadConfiguratorPdf } from "./configuratorPdf";
+import { downloadConfiguratorPdf, downloadStoredConfiguratorPdf } from "./configuratorPdf";
 import { getConfiguratorQuoteById, getConfiguratorQuoteHistory, regenerateConfiguratorQuotePdf, saveConfiguratorQuote, updateConfiguratorQuote } from "@/services/configuratorQuoteService";
 
 const VACTOR_LINE_IMAGE = "/vactor-linea.png.png";
@@ -634,6 +634,17 @@ export default function ConfiguradorHome() {
     }
   };
 
+  const downloadSavedPdf = async (url, quoteNumber) => {
+    setErrorMessage("");
+
+    try {
+      await downloadStoredConfiguratorPdf(url, quoteNumber);
+    } catch (error) {
+      console.error("Error descargando PDF guardado:", error);
+      setErrorMessage(error?.message || "No se pudo descargar el PDF guardado.");
+    }
+  };
+
   const saveLocalDraft = () => {
     const payload = { ...quotePayload, savedAt: new Date().toISOString() };
     localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(payload));
@@ -830,9 +841,9 @@ export default function ConfiguradorHome() {
         {savedMessage && <p className="px-4 pb-2 text-sm font-semibold text-green-700">{savedMessage}</p>}
         {errorMessage && <p className="px-4 pb-2 text-sm font-semibold text-red-700">{errorMessage}</p>}
         {pdfUrl && (
-          <a href={pdfUrl} target="_blank" rel="noreferrer" className="mx-4 mb-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:underline">
-            <ExternalLink size={15} /> Abrir PDF guardado en Supabase
-          </a>
+          <button type="button" onClick={() => downloadSavedPdf(pdfUrl, quote.number)} className="mx-4 mb-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:underline">
+            <Download size={15} /> Descargar PDF guardado
+          </button>
         )}
       </section>
 
@@ -846,6 +857,7 @@ export default function ConfiguradorHome() {
         onView={(quoteId) => navigate(`/vehiculos/configurador/ver/${quoteId}`)}
         onEdit={editHistoryQuote}
         onUseAsBase={useHistoryQuoteAsBase}
+        onDownloadPdf={downloadSavedPdf}
         onRetryPdf={retryQuotePdf}
         hideValues={hideValues}
       />
@@ -1103,7 +1115,7 @@ function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues, us
   );
 }
 
-function HistoryPanel({ history, loading, loadingQuoteId, retryingPdfId, error, onRefresh, onView, onEdit, onUseAsBase, onRetryPdf, hideValues }) {
+function HistoryPanel({ history, loading, loadingQuoteId, retryingPdfId, error, onRefresh, onView, onEdit, onUseAsBase, onDownloadPdf, onRetryPdf, hideValues }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1163,9 +1175,9 @@ function HistoryPanel({ history, loading, loadingQuoteId, retryingPdfId, error, 
                         {loadingQuoteId === quote.id ? "Cargando..." : "Usar como base"}
                       </button>
                       {quote.pdf_url ? (
-                        <a href={quote.pdf_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-blue-700 hover:underline">
-                          <ExternalLink size={14} /> PDF
-                        </a>
+                        <button type="button" onClick={() => onDownloadPdf(quote.pdf_url, quote.quote_number)} className="inline-flex items-center gap-1 font-semibold text-blue-700 hover:underline">
+                          <Download size={14} /> PDF
+                        </button>
                       ) : (
                         <button type="button" onClick={() => onRetryPdf(quote.id)} disabled={retryingPdfId === quote.id} className="font-semibold text-amber-700 hover:underline disabled:cursor-wait disabled:opacity-60">
                           {retryingPdfId === quote.id ? "Reintentando..." : "Reintentar PDF"}

@@ -56,7 +56,7 @@ async function loadDataUrl(src) {
   }
 }
 
-async function getModelImageDataUrl(model) {
+async function getModelImage(model) {
   try {
     const sprite = model?.sprite || MODEL_SPRITES[model?.id];
 
@@ -82,13 +82,29 @@ async function getModelImageDataUrl(model) {
         cropHeight
       );
 
-      return canvas.toDataURL("image/png");
+      return { dataUrl: canvas.toDataURL("image/png"), width: canvas.width, height: canvas.height };
     }
   } catch {
     // Si la lamina aun no existe, se usa la imagen de respaldo.
   }
 
-  return loadDataUrl(model?.fallbackImage || "/hidro-base.png");
+  const dataUrl = await loadDataUrl(model?.fallbackImage || "/hidro-base.png");
+  if (!dataUrl) return null;
+
+  try {
+    const image = await loadImage(dataUrl);
+    return { dataUrl, width: image.naturalWidth, height: image.naturalHeight };
+  } catch {
+    return { dataUrl, width: 1, height: 1 };
+  }
+}
+
+function getContainedSize(width, height, maxWidth, maxHeight) {
+  const ratio = Math.min(maxWidth / Math.max(width, 1), maxHeight / Math.max(height, 1));
+  return {
+    width: Math.max(width, 1) * ratio,
+    height: Math.max(height, 1) * ratio,
+  };
 }
 
 function addWrappedText(doc, text, x, y, maxWidth, options = {}) {
@@ -133,7 +149,7 @@ function ensurePage(doc, y, required = 18, payload) {
 
 export async function generateConfiguratorPdf(payload) {
   const doc = new jsPDF("p", "mm", "a4");
-  const modelImage = await getModelImageDataUrl(payload.selectedModel);
+  const modelImage = await getModelImage(payload.selectedModel);
   const hideValues = Boolean(payload.hideValues);
 
   addHeader(doc, payload);
@@ -147,7 +163,9 @@ export async function generateConfiguratorPdf(payload) {
   addKeyValue(doc, "Modelo", `${payload.selectedModel.name} (${payload.selectedModel.family})`, MARGIN + 140, y, 45);
 
   if (modelImage) {
-    doc.addImage(modelImage, "PNG", MARGIN + 4, y + 15, 62, 21, undefined, "FAST");
+    const box = { x: MARGIN + 4, y: y + 15, width: 62, height: 21 };
+    const size = getContainedSize(modelImage.width, modelImage.height, box.width, box.height);
+    doc.addImage(modelImage.dataUrl, "PNG", box.x + (box.width - size.width) / 2, box.y + (box.height - size.height) / 2, size.width, size.height, undefined, "FAST");
   }
 
   doc.setFont("helvetica", "bold");
@@ -239,6 +257,23 @@ export async function generateConfiguratorPdfBlob(payload) {
 export async function downloadConfiguratorPdf(payload) {
   const doc = await generateConfiguratorPdf(payload);
   doc.save(`${sanitizeFilename(payload.quote.number)}.pdf`);
+}
+
+export async function downloadStoredConfiguratorPdf(url, quoteNumber = "cotizacion-vactor") {
+  if (!url) return;
+
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("No se pudo descargar el PDF guardado.");
+
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = `${sanitizeFilename(quoteNumber)}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(objectUrl);
 }
 
 export function getConfiguratorPdfFilename(payload) {
