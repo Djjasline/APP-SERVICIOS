@@ -71,3 +71,12 @@ test("subida de imagen de registros conserva validacion compatible", () => {
   assert.match(storage, /temp/);
   assert.match(storage, /imagen/);
 });
+
+test("capitalizacion automatica no interfiere con escritura", () => {
+  const autoCapitalize = read("src/components/AutoCapitalizeInputs.jsx");
+
+  assert.match(autoCapitalize, /addEventListener\("focusout"/);
+  assert.doesNotMatch(autoCapitalize, /addEventListener\("input"/);
+  assert.match(autoCapitalize, /setNativeValue/);
+  assert.match(autoCapitalize, /dispatchEvent\(new Event\("input", \{ bubbles: true \}\)\)/);
+});

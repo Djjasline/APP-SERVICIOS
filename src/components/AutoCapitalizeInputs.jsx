@@ -70,9 +70,20 @@ function capitalizeFirstLine(value) {
   return `${text.slice(0, index)}${upper}${text.slice(index + 1)}`;
 }
 
+function setNativeValue(element, value) {
+  const prototype = Object.getPrototypeOf(element);
+  const valueSetter = Object.getOwnPropertyDescriptor(prototype, "value")?.set;
+
+  if (valueSetter) {
+    valueSetter.call(element, value);
+  } else {
+    element.value = value;
+  }
+}
+
 export default function AutoCapitalizeInputs() {
   useEffect(() => {
-    const handleInput = (event) => {
+    const handleFocusOut = (event) => {
       const element = event.target;
       if (shouldSkip(element)) return;
 
@@ -80,17 +91,12 @@ export default function AutoCapitalizeInputs() {
       const nextValue = capitalizeFirstLine(currentValue);
       if (nextValue === currentValue) return;
 
-      const selectionStart = element.selectionStart;
-      const selectionEnd = element.selectionEnd;
-      element.value = nextValue;
-
-      if (typeof selectionStart === "number" && typeof selectionEnd === "number") {
-        element.setSelectionRange(selectionStart, selectionEnd);
-      }
+      setNativeValue(element, nextValue);
+      element.dispatchEvent(new Event("input", { bubbles: true }));
     };
 
-    document.addEventListener("input", handleInput, true);
-    return () => document.removeEventListener("input", handleInput, true);
+    document.addEventListener("focusout", handleFocusOut, true);
+    return () => document.removeEventListener("focusout", handleFocusOut, true);
   }, []);
 
   return null;
