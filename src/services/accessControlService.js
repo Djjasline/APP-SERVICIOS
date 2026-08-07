@@ -2,11 +2,21 @@ import { supabase } from "@/lib/supabase";
 import { SPECIAL_MODULE_BY_KEY, SPECIAL_MODULES } from "@/constants/accessControl";
 
 const normalize = (value) => String(value || "").trim().toLowerCase();
+export const HISTORY_QUERY_LIMIT = 200;
+export const RECORD_LIST_COLUMNS = "id, user_id, area, tipo, subtipo, estado, data, created_at, updated_at";
 
 function getRecordTechnicianEmails(record) {
   return [record?.data?.tecnicoCorreo, record?.data?.correoTecnico]
     .map(normalize)
     .filter(Boolean);
+}
+
+function sortRecordsByRecent(records = []) {
+  return [...records].sort((a, b) => {
+    const aTime = new Date(a?.updated_at || a?.created_at || 0).getTime();
+    const bTime = new Date(b?.updated_at || b?.created_at || 0).getTime();
+    return (Number.isNaN(bTime) ? 0 : bTime) - (Number.isNaN(aTime) ? 0 : aTime);
+  });
 }
 
 export function recordHasTechnicianEmail(record, email) {
@@ -86,6 +96,7 @@ export async function getAccessibleRecordsForUser({
   subtipo = "",
   canViewAll = false,
   action = "view",
+  limit = HISTORY_QUERY_LIMIT,
 }) {
   if (!userId) return { records: [], permissions: [] };
 
@@ -93,10 +104,11 @@ export async function getAccessibleRecordsForUser({
   const baseQuery = () => {
     let query = supabase
       .from("registros")
-      .select("*")
+      .select(RECORD_LIST_COLUMNS)
       .eq("area", area)
       .eq("tipo", tipo)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(limit);
 
     if (subtipo) query = query.eq("subtipo", subtipo);
     return query;
@@ -109,16 +121,28 @@ export async function getAccessibleRecordsForUser({
   }
 
   const normalizedUserEmail = normalize(userEmail);
-  const { data, error } = await baseQuery();
+  const ownerIds = getPermittedOwnerIds(permissions, area, tipo, action, subtipo);
+  const ownerEmails = getPermittedOwnerEmails(permissions, area, tipo, action, subtipo);
+  const emailMatches = Array.from(new Set([normalizedUserEmail, ...ownerEmails].filter(Boolean)));
 
+  const queries = [baseQuery().eq("user_id", userId)];
+
+  if (ownerIds.length > 0) queries.push(baseQuery().in("user_id", ownerIds));
+  if (emailMatches.length > 0) {
+    queries.push(baseQuery().in("data->>tecnicoCorreo", emailMatches));
+    queries.push(baseQuery().in("data->>correoTecnico", emailMatches));
+  }
+
+  const responses = await Promise.all(queries);
+  const error = responses.find((response) => response.error)?.error;
   if (error) throw error;
 
-  const records = (data || []).filter((record) => {
+  const records = mergeRecords(...responses.map((response) => response.data || [])).filter((record) => {
     const ownRecord = record.user_id === userId || recordHasTechnicianEmail(record, normalizedUserEmail);
     return ownRecord || canAccessRecord({ record, userId, permissions, isSuperAdmin: false, action });
   });
 
-  return { records, permissions };
+  return { records: sortRecordsByRecent(records), permissions };
 }
 
 export async function saveRecordAccessPermission(permission) {

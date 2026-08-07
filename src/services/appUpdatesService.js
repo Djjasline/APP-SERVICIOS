@@ -276,7 +276,8 @@ export async function getAppUpdates(userId) {
     .from("app_updates")
     .select("id, update_key, title, message, active, created_at")
     .eq("active", true)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(50);
 
   if (error) {
     console.error("Error cargando boletines:", error);
@@ -332,7 +333,8 @@ export async function getAllAppUpdatesForAdmin() {
   const { data, error } = await supabase
     .from("app_updates")
     .select("id, update_key, title, message, active, created_at, updated_at")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(100);
 
   if (error) throw error;
   return (data || []).map(withFriendlyText);

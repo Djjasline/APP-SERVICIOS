@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllInspections, createInspection } from "@/utils/inspectionStorage";
+import { getInspections, createInspection } from "@/utils/inspectionStorage";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 
 /* =========================
@@ -34,14 +34,9 @@ const Card = ({ title, type, description }) => {
   // 🔥 Cargar desde Supabase correctamente
   React.useEffect(() => {
     const loadData = async () => {
-      const data = await getAllInspections();
+      const data = await getInspections(type);
       const safe = Array.isArray(data) ? data : [];
-
-      const filteredByType = safe.filter(
-        (i) => i.type === type
-      );
-
-      setInspections(filteredByType);
+      setInspections(safe);
     };
 
     loadData();
@@ -63,7 +58,7 @@ const Card = ({ title, type, description }) => {
   const eliminarInspeccion = async (item) => {
     if (!confirm("¿Eliminar esta inspección?")) return;
 
-    const data = await getAllInspections();
+    const data = await getInspections(type);
     const safe = Array.isArray(data) ? data : [];
 
     const next = safe.filter(

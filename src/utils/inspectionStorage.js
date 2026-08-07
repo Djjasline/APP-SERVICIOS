@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase"
 import { saveOrUpdateReport } from "../services/reportService"
+import { HISTORY_QUERY_LIMIT, RECORD_LIST_COLUMNS } from "@/services/accessControlService"
 
 const SUPER_ADMIN_EMAIL = "smaviles@astap.com"
 
@@ -34,10 +35,11 @@ const applyUserFilter = async (query) => {
 export async function getAllInspections() {
   let query = supabase
     .from("registros")
-    .select("*")
+    .select(RECORD_LIST_COLUMNS)
     .eq("area", "vehiculos")
     .eq("tipo", "inspeccion")
     .order("updated_at", { ascending: false })
+    .limit(HISTORY_QUERY_LIMIT)
 
   query = await applyUserFilter(query)
   if (!query) return []
@@ -53,11 +55,12 @@ export async function getAllInspections() {
 export async function getInspections(type) {
   let query = supabase
     .from("registros")
-    .select("*")
+    .select(RECORD_LIST_COLUMNS)
     .eq("area", "vehiculos")
     .eq("tipo", "inspeccion")
     .eq("subtipo", type)
     .order("updated_at", { ascending: false })
+    .limit(HISTORY_QUERY_LIMIT)
 
   query = await applyUserFilter(query)
   if (!query) return []

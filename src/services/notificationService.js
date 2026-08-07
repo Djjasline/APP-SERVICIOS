@@ -214,9 +214,10 @@ export async function getNotifications(recipient_email) {
   try {
     const { data, error } = await supabase
       .from("notifications")
-      .select("*")
+      .select("id, recipient_email, title, message, record_type, record_id, read, created_at")
       .ilike("recipient_email", recipientEmail)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(100);
 
     if (error) {
       console.error("Error fetching notifications:", error);

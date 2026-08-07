@@ -2,8 +2,8 @@ import { supabase } from "@/lib/supabase";
 import { saveOrUpdateReport } from "../services/reportService";
 import {
   canAccessRecord,
+  getAccessibleRecordsForUser,
   getRecordAccessPermissionsForUser,
-  recordHasTechnicianEmail,
 } from "@/services/accessControlService";
 
 const SUPER_ADMIN_EMAIL = "smaviles@astap.com";
@@ -75,38 +75,21 @@ export async function getAllRegistros() {
 
   if (!user) return [];
 
-  const loadBaseQuery = () =>
-    supabase
-      .from("registros")
-      .select("*")
-      .eq("area", "operaciones")
-      .eq("tipo", "registro")
-      .eq("subtipo", "herramienta")
-      .order("created_at", { ascending: false });
+  try {
+    const { records } = await getAccessibleRecordsForUser({
+      userId: user.id,
+      userEmail: user.email,
+      area: "operaciones",
+      tipo: "registro",
+      subtipo: "herramienta",
+      canViewAll: canViewAll(user.email),
+    });
 
-  if (canViewAll(user.email)) {
-    const { data, error } = await loadBaseQuery();
-
-    if (error) {
-      console.error("Error cargando registros:", error);
-      return [];
-    }
-
-    return data || [];
-  }
-
-  const permissions = await getRecordAccessPermissionsForUser(user.id);
-  const { data, error } = await loadBaseQuery();
-
-  if (error) {
+    return records;
+  } catch (error) {
     console.error("Error cargando registros:", error);
     return [];
   }
-
-  return (data || []).filter((record) => {
-    const ownRecord = record.user_id === user.id || recordHasTechnicianEmail(record, user.email);
-    return ownRecord || canAccessRecord({ record, userId: user.id, permissions, isSuperAdmin: false, action: "view" });
-  });
 }
 
 /* ================= OBTENER POR ID ================= */

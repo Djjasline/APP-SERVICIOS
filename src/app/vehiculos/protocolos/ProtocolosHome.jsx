@@ -6,6 +6,8 @@ import { useTheme } from "@/context/ThemeContext";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import {
   canAccessRecord,
+  HISTORY_QUERY_LIMIT,
+  RECORD_LIST_COLUMNS,
   getPermittedOwnerEmails,
   getPermittedOwnerIds,
   getRecordAccessPermissionsForUser,
@@ -66,11 +68,12 @@ export default function ProtocolosHome() {
       const baseQuery = () =>
         supabase
           .from("registros")
-          .select("*")
+          .select(RECORD_LIST_COLUMNS)
           .in("area", PROTOCOL_AREAS)
           .eq("tipo", "protocolo")
           .in("subtipo", PROTOCOLS.map((item) => item.subtipo))
-          .order("updated_at", { ascending: false });
+          .order("updated_at", { ascending: false })
+          .limit(HISTORY_QUERY_LIMIT);
 
       let data = [];
       let error = null;

@@ -80,3 +80,32 @@ test("capitalizacion automatica no interfiere con escritura", () => {
   assert.match(autoCapitalize, /setNativeValue/);
   assert.match(autoCapitalize, /dispatchEvent\(new Event\("input", \{ bubbles: true \}\)\)/);
 });
+
+test("historiales limitan consultas pesadas", () => {
+  const accessService = read("src/services/accessControlService.js");
+
+  assert.match(accessService, /HISTORY_QUERY_LIMIT = 200/);
+  assert.match(accessService, /RECORD_LIST_COLUMNS/);
+  assert.match(accessService, /\.select\(RECORD_LIST_COLUMNS\)/);
+  assert.match(accessService, /\.limit\(limit\)/);
+  assert.match(accessService, /data->>correoTecnico/);
+
+  for (const path of [
+    "src/app/vehiculos/inspeccion/HistorialInspecciones.jsx",
+    "src/app/vehiculos/mantenimiento/IndexMantenimiento.jsx",
+    "src/app/vehiculos/protocolos/ProtocolosHome.jsx",
+    "src/app/vehiculos/informe/InformeHome.jsx",
+    "src/app/agua/informe/InformeHome.jsx",
+    "src/utils/inspectionStorage.js",
+  ]) {
+    const source = read(path);
+    assert.match(source, /\.select\(RECORD_LIST_COLUMNS\)/, path);
+    assert.match(source, /\.limit\(HISTORY_QUERY_LIMIT\)/, path);
+  }
+
+  const notifications = read("src/services/notificationService.js");
+  const appUpdates = read("src/services/appUpdatesService.js");
+
+  assert.match(notifications, /\.limit\(100\)/);
+  assert.match(appUpdates, /\.limit\(50\)/);
+});

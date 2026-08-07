@@ -6,6 +6,8 @@ import { useTheme } from "@/context/ThemeContext";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import {
   canAccessRecord,
+  HISTORY_QUERY_LIMIT,
+  RECORD_LIST_COLUMNS,
   getPermittedOwnerEmails,
   getPermittedOwnerIds,
   getRecordAccessPermissionsForUser,
@@ -79,10 +81,11 @@ export default function IndexInspeccion() {
       const loadBaseQuery = () =>
         supabase
           .from("registros")
-          .select("*")
+          .select(RECORD_LIST_COLUMNS)
           .eq("tipo", "inspeccion")
           .or("area.eq.vehiculos,area.is.null")
-          .order("updated_at", { ascending: false });
+          .order("updated_at", { ascending: false })
+          .limit(HISTORY_QUERY_LIMIT);
 
       let data = [];
       let error = null;

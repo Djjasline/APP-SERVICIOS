@@ -2,6 +2,8 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import {
   canAccessRecord,
+  HISTORY_QUERY_LIMIT,
+  RECORD_LIST_COLUMNS,
   getPermittedOwnerEmails,
   getPermittedOwnerIds,
   getRecordAccessPermissionsForUser,
@@ -62,10 +64,11 @@ export default function InformeHome({
         const loadBaseQuery = () =>
           supabase
             .from("registros")
-            .select("*")
+            .select(RECORD_LIST_COLUMNS)
             .eq("area", area)
             .eq("tipo", "informe")
-            .order("created_at", { ascending: false });
+            .order("created_at", { ascending: false })
+            .limit(HISTORY_QUERY_LIMIT);
 
         let data = [];
         let error = null;
