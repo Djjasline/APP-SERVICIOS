@@ -28,6 +28,11 @@ function formatNumber(value) {
   return new Intl.NumberFormat("es-EC", { maximumFractionDigits: 2 }).format(Number(value) || 0);
 }
 
+function formatMoney(value) {
+  if (value === null || value === undefined || value === "") return "-";
+  return new Intl.NumberFormat("es-EC", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(Number(value) || 0);
+}
+
 function formatDate(value) {
   if (!value) return "-";
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -153,6 +158,19 @@ function buildExportRows(rows, viewingReference) {
   return [header, ...body];
 }
 
+function buildRanking(rows, accessor, quantityAccessor) {
+  const grouped = rows.reduce((acc, item) => {
+    const key = accessor(item) || "Sin dato";
+    if (!acc.has(key)) acc.set(key, { label: key, count: 0, quantity: 0 });
+    const current = acc.get(key);
+    current.count += 1;
+    current.quantity += Number(quantityAccessor(item)) || 0;
+    return acc;
+  }, new Map());
+
+  return Array.from(grouped.values()).sort((a, b) => b.count - a.count).slice(0, 5);
+}
+
 export default function BodegaHome() {
   const { isLight } = useTheme();
   const { isSuperAdmin } = useAuth();
@@ -267,6 +285,25 @@ export default function BodegaHome() {
       .map(([field, count]) => ({ field, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 6);
+  }, [items, referenceItems, viewingReference]);
+  const operationalSummary = useMemo(() => {
+    const rows = viewingReference ? referenceItems : items;
+    const quantityAccessor = viewingReference ? (item) => item.reference_stock : (item) => item.physical_stock;
+    const withCost = rows.filter((item) => Number(item.last_cost) > 0).length;
+    const withImage = rows.filter((item) => hasValue(item.image_url)).length;
+    const dash30 = rows.filter((item) => isDash30Code(item.product_code)).length;
+    const value = rows.reduce((total, item) => total + ((Number(quantityAccessor(item)) || 0) * (Number(item.last_cost) || 0)), 0);
+
+    return {
+      value,
+      dash30,
+      withCost,
+      withoutCost: rows.length - withCost,
+      withImage,
+      withoutImage: rows.length - withImage,
+      providerRanking: buildRanking(rows, (item) => item.last_supplier, quantityAccessor),
+      areaRanking: buildRanking(rows, (item) => item.area, quantityAccessor),
+    };
   }, [items, referenceItems, viewingReference]);
 
   const sortedItems = useMemo(() => sortRows(filteredItems, stockSort, {
@@ -405,6 +442,27 @@ export default function BodegaHome() {
           </div>
         </section>
       )}
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h3 className="font-semibold text-slate-900">Indicadores operativos</h3>
+            <p className="text-sm text-slate-500">Valores calculados sobre la fuente activa: {viewingReference ? "referencia histórica" : "stock actual"}.</p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-4">
+          <MiniMetric label="Valor referencial" value={formatMoney(operationalSummary.value)} />
+          <MiniMetric label="Códigos -30" value={formatNumber(operationalSummary.dash30)} />
+          <MiniMetric label="Con costo" value={formatNumber(operationalSummary.withCost)} detail={`Sin costo: ${formatNumber(operationalSummary.withoutCost)}`} />
+          <MiniMetric label="Con imagen" value={formatNumber(operationalSummary.withImage)} detail={`Sin imagen: ${formatNumber(operationalSummary.withoutImage)}`} />
+        </div>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <RankingPanel title="Top proveedores" rows={operationalSummary.providerRanking} empty="Sin proveedores registrados" />
+          <RankingPanel title="Top áreas" rows={operationalSummary.areaRanking} empty="Sin áreas registradas" />
+        </div>
+      </section>
 
       {(activitySummary.length > 0 || movementsUnavailable) && (
         <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -649,9 +707,34 @@ function SourceButton({ active, onClick, children }) {
   );
 }
 
-function formatMoney(value) {
-  if (value === null || value === undefined || value === "") return "-";
-  return new Intl.NumberFormat("es-EC", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(Number(value) || 0);
+function MiniMetric({ label, value, detail }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="mt-1 text-xl font-bold text-slate-900">{value}</p>
+      {detail && <p className="mt-1 text-xs text-slate-500">{detail}</p>}
+    </div>
+  );
+}
+
+function RankingPanel({ title, rows, empty }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <p className="font-semibold text-slate-900">{title}</p>
+      {rows.length === 0 ? (
+        <p className="mt-2 text-sm text-slate-500">{empty}</p>
+      ) : (
+        <div className="mt-3 space-y-2">
+          {rows.map((item) => (
+            <div key={item.label} className="flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 text-sm">
+              <span className="font-semibold text-slate-700">{item.label}</span>
+              <span className="text-right text-slate-500">{formatNumber(item.count)} códigos · {formatNumber(item.quantity)} cant.</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function SortableTh({ sortKey, sort, onSort, align = "left", children }) {
