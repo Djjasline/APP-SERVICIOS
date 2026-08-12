@@ -147,6 +147,9 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(home, /last_cost/);
   assert.match(home, /Resumen por área/);
   assert.match(home, /Nuevo artículo/);
+  assert.match(home, /Ubicación \/ proveedor/);
+  assert.match(home, /Origen \/ fecha/);
+  assert.doesNotMatch(home, /Saldo ref\./);
 
   const detail = read("src/app/operaciones/bodega/BodegaItemDetail.jsx");
   assert.match(detail, /Ficha de artículo/);
@@ -165,6 +168,10 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(service, /createWarehouseItem/);
   assert.match(service, /STOCK_CREATE_FIELDS/);
   assert.match(service, /VEHICLE_REFERENCE_CREATE_FIELDS/);
+  assert.match(service, /VEHICLE_SPECIALS_AREA = "Vehículos Especiales"/);
+  assert.match(service, /FS_DEPOT_SUPPLIER = "FS-DEPOT"/);
+  assert.match(service, /isFsDepotVehicleCode/);
+  assert.match(service, /-30\$/);
   assert.match(service, /WAREHOUSE_MOVEMENT_TYPES/);
   assert.match(service, /getWarehouseItemMovements/);
   assert.match(service, /createWarehouseItemMovement/);
@@ -179,6 +186,11 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(metadataSql, /alter table public\.vehicle_reference_catalog/);
   assert.match(metadataSql, /area text/);
   assert.match(metadataSql, /technical_specs text/);
+
+  const fsDepotSql = read("supabase/sql/apply_fs_depot_vehicle_codes.sql");
+  assert.match(fsDepotSql, /Vehículos Especiales/);
+  assert.match(fsDepotSql, /FS-DEPOT/);
+  assert.match(fsDepotSql, /-30\$/);
 
   const movementsSql = read("supabase/sql/warehouse_item_movements.sql");
   assert.match(movementsSql, /create table if not exists public\.warehouse_item_movements/);

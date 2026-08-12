@@ -134,14 +134,17 @@ export default function BodegaHome() {
   const sortedItems = useMemo(() => sortRows(items, stockSort, {
     product_code: (item) => item.product_code,
     description: (item) => item.description,
+    area: (item) => item.area,
     physical_stock: (item) => Number(item.physical_stock) || 0,
     physical_location: (item) => item.physical_location,
+    last_cost: () => 0,
     cutoff_date: (item) => item.cutoff_date,
   }), [items, stockSort]);
 
   const sortedReferenceItems = useMemo(() => sortRows(referenceItems, referenceSort, {
     product_code: (item) => item.product_code,
     description: (item) => item.description,
+    area: (item) => item.area,
     reference_stock: (item) => Number(item.reference_stock) || 0,
     last_cost: (item) => Number(item.last_cost) || 0,
     last_supplier: (item) => item.last_supplier,
@@ -351,9 +354,11 @@ export default function BodegaHome() {
                 <tr>
                   <SortableTh sortKey="product_code" sort={stockSort} onSort={toggleStockSort}>Código</SortableTh>
                   <SortableTh sortKey="description" sort={stockSort} onSort={toggleStockSort}>Descripción</SortableTh>
-                  <SortableTh sortKey="physical_stock" sort={stockSort} onSort={toggleStockSort} align="right">Stock físico</SortableTh>
-                  <SortableTh sortKey="physical_location" sort={stockSort} onSort={toggleStockSort}>Ubicación</SortableTh>
-                  <SortableTh sortKey="cutoff_date" sort={stockSort} onSort={toggleStockSort}>Fecha corte</SortableTh>
+                  <SortableTh sortKey="area" sort={stockSort} onSort={toggleStockSort}>Área</SortableTh>
+                  <SortableTh sortKey="physical_stock" sort={stockSort} onSort={toggleStockSort} align="right">Cantidad</SortableTh>
+                  <SortableTh sortKey="physical_location" sort={stockSort} onSort={toggleStockSort}>Ubicación / proveedor</SortableTh>
+                  <SortableTh sortKey="last_cost" sort={stockSort} onSort={toggleStockSort} align="right">Último costo</SortableTh>
+                  <SortableTh sortKey="cutoff_date" sort={stockSort} onSort={toggleStockSort}>Origen / fecha</SortableTh>
                   <th className="px-3 py-2 font-semibold">Ficha</th>
                 </tr>
               </thead>
@@ -362,9 +367,11 @@ export default function BodegaHome() {
                   <tr key={item.id} className="border-b border-slate-200 odd:bg-slate-50 hover:bg-amber-50">
                     <td className="px-3 py-2 font-semibold text-slate-900">{item.product_code}</td>
                     <td className="px-3 py-2 text-slate-700">{item.description}</td>
+                    <td className="px-3 py-2 text-slate-700">{item.area || "-"}</td>
                     <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.physical_stock)}</td>
                     <td className="px-3 py-2 text-slate-700">{item.physical_location || "-"}</td>
-                    <td className="px-3 py-2 text-slate-600">{formatDate(item.cutoff_date)}</td>
+                    <td className="px-3 py-2 text-right text-slate-600">-</td>
+                    <td className="px-3 py-2 text-slate-600">{item.source_file || formatDate(item.cutoff_date)}</td>
                     <td className="px-3 py-2">
                       <button type="button" onClick={() => navigate(`/operaciones/bodega/${SOURCE_STOCK}/${item.id}`)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-white">
                         Abrir
@@ -422,11 +429,11 @@ function VehicleReferenceTable({ items, sort, onSort, onOpen }) {
         <tr>
           <SortableTh sortKey="product_code" sort={sort} onSort={onSort}>Código</SortableTh>
           <SortableTh sortKey="description" sort={sort} onSort={onSort}>Descripción</SortableTh>
-          <SortableTh sortKey="reference_stock" sort={sort} onSort={onSort} align="right">Saldo ref.</SortableTh>
+          <SortableTh sortKey="area" sort={sort} onSort={onSort}>Área</SortableTh>
+          <SortableTh sortKey="reference_stock" sort={sort} onSort={onSort} align="right">Cantidad</SortableTh>
+          <SortableTh sortKey="last_supplier" sort={sort} onSort={onSort}>Ubicación / proveedor</SortableTh>
           <SortableTh sortKey="last_cost" sort={sort} onSort={onSort} align="right">Último costo</SortableTh>
-          <SortableTh sortKey="last_supplier" sort={sort} onSort={onSort}>Proveedor</SortableTh>
-          <SortableTh sortKey="last_client" sort={sort} onSort={onSort}>Último cliente</SortableTh>
-          <SortableTh sortKey="sheet_name" sort={sort} onSort={onSort}>Origen</SortableTh>
+          <SortableTh sortKey="sheet_name" sort={sort} onSort={onSort}>Origen / fecha</SortableTh>
           <th className="px-3 py-2 font-semibold">Ficha</th>
         </tr>
       </thead>
@@ -435,10 +442,10 @@ function VehicleReferenceTable({ items, sort, onSort, onOpen }) {
           <tr key={item.id} className="border-b border-slate-200 odd:bg-blue-50/40 hover:bg-blue-100/60">
             <td className="px-3 py-2 font-semibold text-slate-900">{item.product_code}</td>
             <td className="px-3 py-2 text-slate-700">{item.description}</td>
+            <td className="px-3 py-2 text-slate-700">{item.area || "Vehículos Especiales"}</td>
             <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.reference_stock)}</td>
-            <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatMoney(item.last_cost)}</td>
             <td className="px-3 py-2 text-slate-700">{item.last_supplier || "-"}</td>
-            <td className="px-3 py-2 text-slate-700">{item.last_client || "-"}</td>
+            <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatMoney(item.last_cost)}</td>
             <td className="px-3 py-2 text-slate-600">{item.sheet_name || item.source_file || "Histórico vehículos"}</td>
             <td className="px-3 py-2">
               <button type="button" onClick={() => onOpen(item)} className="rounded-lg border border-blue-300 px-3 py-1.5 text-xs font-semibold text-blue-800 hover:bg-white">

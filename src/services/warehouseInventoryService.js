@@ -5,6 +5,8 @@ const VEHICLE_REFERENCE_COLUMNS = "id, product_code, description, sheet_name, re
 const ITEM_METADATA_COLUMNS = "image_url, unit, weight_kg, brand, model, category, system, compatible_equipment, technical_specs, internal_notes";
 const STOCK_DETAIL_COLUMNS = `${SELECT_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
 const VEHICLE_REFERENCE_DETAIL_COLUMNS = `${VEHICLE_REFERENCE_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
+const VEHICLE_SPECIALS_AREA = "Vehículos Especiales";
+const FS_DEPOT_SUPPLIER = "FS-DEPOT";
 
 export const WAREHOUSE_ITEM_SOURCES = {
   stock: "stock",
@@ -15,7 +17,7 @@ const SOURCE_CONFIG = {
   [WAREHOUSE_ITEM_SOURCES.stock]: {
     table: "warehouse_inventory",
     columns: STOCK_DETAIL_COLUMNS,
-    normalize: (item) => item,
+    normalize: normalizeWarehouseInventoryRow,
   },
   [WAREHOUSE_ITEM_SOURCES.vehicleReference]: {
     table: "vehicle_reference_catalog",
@@ -79,11 +81,32 @@ function normalizeProductCode(value) {
   return String(value || "").trim().replace(/^[`'"‘’´]+/, "");
 }
 
-function normalizeVehicleReferenceRow(item) {
+function isFsDepotVehicleCode(productCode) {
+  return /-30$/i.test(normalizeProductCode(productCode));
+}
+
+function applyFsDepotVehicleRule(item) {
+  if (!item || !isFsDepotVehicleCode(item.product_code)) return item;
+
   return {
     ...item,
-    product_code: normalizeProductCode(item.product_code),
+    area: item.area || VEHICLE_SPECIALS_AREA,
+    last_supplier: item.last_supplier || FS_DEPOT_SUPPLIER,
   };
+}
+
+function normalizeVehicleReferenceRow(item) {
+  return applyFsDepotVehicleRule({
+    ...item,
+    product_code: normalizeProductCode(item.product_code),
+  });
+}
+
+function normalizeWarehouseInventoryRow(item) {
+  return applyFsDepotVehicleRule({
+    ...item,
+    product_code: normalizeProductCode(item.product_code),
+  });
 }
 
 function getSourceConfig(source) {
@@ -139,6 +162,13 @@ function normalizeCreatePayload(source, payload, userId) {
     normalized.active = true;
   }
 
+  if (isFsDepotVehicleCode(normalized.product_code)) {
+    normalized.area = normalized.area || VEHICLE_SPECIALS_AREA;
+    if (source === WAREHOUSE_ITEM_SOURCES.vehicleReference) {
+      normalized.last_supplier = normalized.last_supplier || FS_DEPOT_SUPPLIER;
+    }
+  }
+
   if (userId) normalized.created_by = userId;
   return normalized;
 }
@@ -188,7 +218,7 @@ export async function getWarehouseInventory({ search = "", location = "", limit 
   const { data, error } = await query;
 
   if (error) throw error;
-  return data || [];
+  return (data || []).map(normalizeWarehouseInventoryRow);
 }
 
 export async function getWarehouseLocations() {
