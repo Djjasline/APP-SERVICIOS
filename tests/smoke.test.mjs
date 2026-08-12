@@ -147,8 +147,12 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(home, /last_cost/);
   assert.match(home, /Resumen por área/);
   assert.match(home, /Nuevo artículo/);
-  assert.match(home, /Ubicación \/ proveedor/);
-  assert.match(home, /Origen \/ fecha/);
+  assert.match(home, />Ubicación</);
+  assert.match(home, />Proveedor</);
+  assert.match(home, />Origen</);
+  assert.match(home, />Fecha</);
+  assert.doesNotMatch(home, /Ubicación \/ proveedor/);
+  assert.doesNotMatch(home, /Origen \/ fecha/);
   assert.doesNotMatch(home, /Saldo ref\./);
 
   const detail = read("src/app/operaciones/bodega/BodegaItemDetail.jsx");

@@ -137,7 +137,9 @@ export default function BodegaHome() {
     area: (item) => item.area,
     physical_stock: (item) => Number(item.physical_stock) || 0,
     physical_location: (item) => item.physical_location,
+    last_supplier: () => "",
     last_cost: () => 0,
+    source_file: (item) => item.source_file,
     cutoff_date: (item) => item.cutoff_date,
   }), [items, stockSort]);
 
@@ -146,10 +148,12 @@ export default function BodegaHome() {
     description: (item) => item.description,
     area: (item) => item.area,
     reference_stock: (item) => Number(item.reference_stock) || 0,
+    physical_location: () => "",
     last_cost: (item) => Number(item.last_cost) || 0,
     last_supplier: (item) => item.last_supplier,
     last_client: (item) => item.last_client,
     sheet_name: (item) => item.sheet_name || item.source_file,
+    last_purchase_date: (item) => item.last_purchase_date || item.last_sale_date,
   }), [referenceItems, referenceSort]);
 
   const areaSummary = useMemo(() => {
@@ -356,9 +360,11 @@ export default function BodegaHome() {
                   <SortableTh sortKey="description" sort={stockSort} onSort={toggleStockSort}>Descripción</SortableTh>
                   <SortableTh sortKey="area" sort={stockSort} onSort={toggleStockSort}>Área</SortableTh>
                   <SortableTh sortKey="physical_stock" sort={stockSort} onSort={toggleStockSort} align="right">Cantidad</SortableTh>
-                  <SortableTh sortKey="physical_location" sort={stockSort} onSort={toggleStockSort}>Ubicación / proveedor</SortableTh>
+                  <SortableTh sortKey="physical_location" sort={stockSort} onSort={toggleStockSort}>Ubicación</SortableTh>
+                  <SortableTh sortKey="last_supplier" sort={stockSort} onSort={toggleStockSort}>Proveedor</SortableTh>
                   <SortableTh sortKey="last_cost" sort={stockSort} onSort={toggleStockSort} align="right">Último costo</SortableTh>
-                  <SortableTh sortKey="cutoff_date" sort={stockSort} onSort={toggleStockSort}>Origen / fecha</SortableTh>
+                  <SortableTh sortKey="source_file" sort={stockSort} onSort={toggleStockSort}>Origen</SortableTh>
+                  <SortableTh sortKey="cutoff_date" sort={stockSort} onSort={toggleStockSort}>Fecha</SortableTh>
                   <th className="px-3 py-2 font-semibold">Ficha</th>
                 </tr>
               </thead>
@@ -370,8 +376,10 @@ export default function BodegaHome() {
                     <td className="px-3 py-2 text-slate-700">{item.area || "-"}</td>
                     <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.physical_stock)}</td>
                     <td className="px-3 py-2 text-slate-700">{item.physical_location || "-"}</td>
+                    <td className="px-3 py-2 text-slate-700">{item.last_supplier || "-"}</td>
                     <td className="px-3 py-2 text-right text-slate-600">-</td>
-                    <td className="px-3 py-2 text-slate-600">{item.source_file || formatDate(item.cutoff_date)}</td>
+                    <td className="px-3 py-2 text-slate-600">{item.source_file || "-"}</td>
+                    <td className="px-3 py-2 text-slate-600">{formatDate(item.cutoff_date)}</td>
                     <td className="px-3 py-2">
                       <button type="button" onClick={() => navigate(`/operaciones/bodega/${SOURCE_STOCK}/${item.id}`)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-white">
                         Abrir
@@ -431,9 +439,11 @@ function VehicleReferenceTable({ items, sort, onSort, onOpen }) {
           <SortableTh sortKey="description" sort={sort} onSort={onSort}>Descripción</SortableTh>
           <SortableTh sortKey="area" sort={sort} onSort={onSort}>Área</SortableTh>
           <SortableTh sortKey="reference_stock" sort={sort} onSort={onSort} align="right">Cantidad</SortableTh>
-          <SortableTh sortKey="last_supplier" sort={sort} onSort={onSort}>Ubicación / proveedor</SortableTh>
+          <SortableTh sortKey="physical_location" sort={sort} onSort={onSort}>Ubicación</SortableTh>
+          <SortableTh sortKey="last_supplier" sort={sort} onSort={onSort}>Proveedor</SortableTh>
           <SortableTh sortKey="last_cost" sort={sort} onSort={onSort} align="right">Último costo</SortableTh>
-          <SortableTh sortKey="sheet_name" sort={sort} onSort={onSort}>Origen / fecha</SortableTh>
+          <SortableTh sortKey="sheet_name" sort={sort} onSort={onSort}>Origen</SortableTh>
+          <SortableTh sortKey="last_purchase_date" sort={sort} onSort={onSort}>Fecha</SortableTh>
           <th className="px-3 py-2 font-semibold">Ficha</th>
         </tr>
       </thead>
@@ -444,9 +454,11 @@ function VehicleReferenceTable({ items, sort, onSort, onOpen }) {
             <td className="px-3 py-2 text-slate-700">{item.description}</td>
             <td className="px-3 py-2 text-slate-700">{item.area || "Vehículos Especiales"}</td>
             <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.reference_stock)}</td>
+            <td className="px-3 py-2 text-slate-700">-</td>
             <td className="px-3 py-2 text-slate-700">{item.last_supplier || "-"}</td>
             <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatMoney(item.last_cost)}</td>
             <td className="px-3 py-2 text-slate-600">{item.sheet_name || item.source_file || "Histórico vehículos"}</td>
+            <td className="px-3 py-2 text-slate-600">{formatDate(item.last_purchase_date || item.last_sale_date)}</td>
             <td className="px-3 py-2">
               <button type="button" onClick={() => onOpen(item)} className="rounded-lg border border-blue-300 px-3 py-1.5 text-xs font-semibold text-blue-800 hover:bg-white">
                 Abrir
