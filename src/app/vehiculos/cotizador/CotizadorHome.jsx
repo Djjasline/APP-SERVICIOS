@@ -1,9 +1,10 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, Calculator, FileText, Package, Plus, Printer, RefreshCw, Search, Trash2 } from "lucide-react";
+import { AlertTriangle, Calculator, FileText, History, Package, Plus, Printer, RefreshCw, Save, Search, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import SignatureCanvas from "@/components/SignatureCanvasField";
 import { getVehicleReferenceCatalog, getWarehouseInventory, WAREHOUSE_ITEM_SOURCES } from "@/services/warehouseInventoryService";
+import { getVehicleServiceQuoteById, getVehicleServiceQuoteHistory, saveVehicleServiceQuote, updateVehicleServiceQuote } from "@/services/vehicleServiceQuoteService";
 
 const EMPTY_SERVICE = {
   description: "",
@@ -92,6 +93,13 @@ export default function CotizadorHome() {
   const [serviceForm, setServiceForm] = useState(EMPTY_SERVICE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [history, setHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [historyError, setHistoryError] = useState("");
+  const [savingQuote, setSavingQuote] = useState(false);
+  const [loadingQuoteId, setLoadingQuoteId] = useState("");
+  const [editingQuoteId, setEditingQuoteId] = useState("");
+  const [message, setMessage] = useState("");
 
   const subtotal = useMemo(() => lines.reduce((sum, line) => sum + lineTotal(line), 0), [lines]);
   const iva = subtotal * 0.12;
@@ -120,6 +128,25 @@ export default function CotizadorHome() {
   useEffect(() => {
     loadItems();
   }, [deferredSearch]);
+
+  const loadHistory = async () => {
+    setLoadingHistory(true);
+    setHistoryError("");
+
+    try {
+      const rows = await getVehicleServiceQuoteHistory();
+      setHistory(rows);
+    } catch (err) {
+      console.error("Error cargando historial de cotizador:", err);
+      setHistoryError(err?.code === "42P01" ? "Falta ejecutar supabase/sql/vehicle_service_quotes.sql." : "No se pudo cargar el historial de cotizaciones.");
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
 
   const addWarehouseLine = (item, source) => {
     setLines((current) => [buildLineFromItem(item, source), ...current]);
@@ -158,6 +185,62 @@ export default function CotizadorHome() {
 
   const updateSignature = (field, value) => {
     setOffer((current) => ({ ...current, signatures: { ...(current.signatures || {}), [field]: value } }));
+  };
+
+  const quotePayload = () => ({
+    offer,
+    lines,
+    totals: { subtotal, iva, total },
+  });
+
+  const saveQuote = async () => {
+    setSavingQuote(true);
+    setMessage("");
+    setHistoryError("");
+
+    try {
+      const saved = editingQuoteId
+        ? await updateVehicleServiceQuote(editingQuoteId, quotePayload())
+        : await saveVehicleServiceQuote(quotePayload());
+      setEditingQuoteId(saved.id);
+      setHistory((current) => [saved, ...current.filter((item) => item.id !== saved.id)].slice(0, 50));
+      setMessage(editingQuoteId ? "Cotización actualizada en historial." : "Cotización guardada en historial.");
+    } catch (err) {
+      console.error("Error guardando cotización de servicios:", err);
+      setHistoryError(err?.code === "42P01" ? "Falta ejecutar supabase/sql/vehicle_service_quotes.sql." : err?.message || "No se pudo guardar la cotización.");
+    } finally {
+      setSavingQuote(false);
+    }
+  };
+
+  const loadQuoteAsBase = async (id, edit = false) => {
+    setLoadingQuoteId(id);
+    setMessage("");
+    setHistoryError("");
+
+    try {
+      const row = await getVehicleServiceQuoteById(id);
+      if (!row) {
+        setHistoryError("No se encontró la cotización seleccionada.");
+        return;
+      }
+      setOffer({ ...EMPTY_OFFER, ...(row.offer || {}), signatures: { ...EMPTY_OFFER.signatures, ...(row.offer?.signatures || {}) } });
+      setLines(row.lines || []);
+      setEditingQuoteId(edit ? row.id : "");
+      setMessage(edit ? "Cotización cargada para edición." : "Cotización cargada como base nueva.");
+    } catch (err) {
+      console.error("Error cargando cotización de servicios:", err);
+      setHistoryError("No se pudo cargar la cotización seleccionada.");
+    } finally {
+      setLoadingQuoteId("");
+    }
+  };
+
+  const resetQuote = () => {
+    setOffer(EMPTY_OFFER);
+    setLines([]);
+    setEditingQuoteId("");
+    setMessage("Cotización reiniciada.");
   };
 
   return (
@@ -262,13 +345,24 @@ export default function CotizadorHome() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h3 className="font-semibold text-slate-900">Cotización en preparación</h3>
-            <p className="text-sm text-slate-500">La vista final ya está lista para impresión; persistencia y PDF automático quedan para la siguiente iteración.</p>
+            <p className="text-sm text-slate-500">Guarda el borrador en historial, edítalo cuando sea necesario o úsalo como base para una nueva oferta.</p>
           </div>
-          <div className="rounded-xl bg-slate-900 px-4 py-3 text-right text-white">
-            <p className="text-xs text-slate-300">Total referencial</p>
-            <p className="text-xl font-bold">{money(total)}</p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <button type="button" onClick={saveQuote} disabled={savingQuote} className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">
+              <Save size={16} /> {savingQuote ? "Guardando..." : editingQuoteId ? "Actualizar historial" : "Guardar historial"}
+            </button>
+            <button type="button" onClick={resetQuote} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+              Nueva cotización
+            </button>
+            <div className="rounded-xl bg-slate-900 px-4 py-3 text-right text-white">
+              <p className="text-xs text-slate-300">Total referencial</p>
+              <p className="text-xl font-bold">{money(total)}</p>
+            </div>
           </div>
         </div>
+
+        {message && <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">{message}</p>}
+        {historyError && <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">{historyError}</p>}
 
         {approvalCount > 0 && <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-900">{approvalCount} línea(s) requieren aprobación antes de generar salida, reserva o uso de stock.</p>}
 
@@ -307,6 +401,8 @@ export default function CotizadorHome() {
           )}
         </div>
       </section>
+
+      <HistoryPanel history={history} loading={loadingHistory} loadingQuoteId={loadingQuoteId} error={historyError} onRefresh={loadHistory} onEdit={(id) => loadQuoteAsBase(id, true)} onUseAsBase={(id) => loadQuoteAsBase(id, false)} />
 
       <OfferPreview offer={offer} lines={lines} subtotal={subtotal} iva={iva} total={total} />
     </div>
@@ -373,6 +469,66 @@ function SignatureField({ label, name, signature, onSignatureChange }) {
         />
       </div>
     </div>
+  );
+}
+
+function HistoryPanel({ history, loading, loadingQuoteId, error, onRefresh, onEdit, onUseAsBase }) {
+  return (
+    <section className="no-print rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 className="flex items-center gap-2 font-semibold text-slate-900"><History size={18} className="text-blue-600" /> Historial de cotizaciones</h3>
+          <p className="text-sm text-slate-500">Cotizaciones de repuestos y servicios guardadas en Supabase.</p>
+        </div>
+        <button type="button" onClick={onRefresh} disabled={loading} className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60">
+          <RefreshCw size={15} className={loading ? "animate-spin" : ""} /> Actualizar
+        </button>
+      </div>
+
+      {error && <p className="mt-3 text-sm font-semibold text-red-700">{error}</p>}
+
+      <div className="mt-4 overflow-x-auto">
+        {loading && history.length === 0 ? (
+          <p className="text-sm text-slate-500">Cargando historial...</p>
+        ) : history.length === 0 ? (
+          <p className="text-sm text-slate-500">Aún no hay cotizaciones guardadas.</p>
+        ) : (
+          <table className="min-w-full text-left text-sm">
+            <thead className="bg-slate-900 text-white">
+              <tr>
+                <th className="px-3 py-2 font-semibold">Proforma</th>
+                <th className="px-3 py-2 font-semibold">Cliente</th>
+                <th className="px-3 py-2 font-semibold">Referencia</th>
+                <th className="px-3 py-2 text-right font-semibold">Total</th>
+                <th className="px-3 py-2 font-semibold">Fecha</th>
+                <th className="px-3 py-2 font-semibold">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.map((quote) => (
+                <tr key={quote.id} className="border-b border-slate-200 odd:bg-slate-50">
+                  <td className="px-3 py-2 font-semibold text-slate-900">{quote.quote_number || "Por definir"}</td>
+                  <td className="px-3 py-2 text-slate-700">{quote.client || "-"}</td>
+                  <td className="px-3 py-2 text-slate-700">{quote.reference || "-"}</td>
+                  <td className="px-3 py-2 text-right font-semibold text-slate-900">{money(quote.totals?.total)}</td>
+                  <td className="px-3 py-2 text-slate-600">{formatDate(String(quote.created_at || "").slice(0, 10))}</td>
+                  <td className="px-3 py-2">
+                    <div className="flex flex-wrap gap-3">
+                      <button type="button" onClick={() => onEdit(quote.id)} disabled={loadingQuoteId === quote.id} className="font-semibold text-blue-700 hover:underline disabled:opacity-60">
+                        {loadingQuoteId === quote.id ? "Cargando..." : "Editar"}
+                      </button>
+                      <button type="button" onClick={() => onUseAsBase(quote.id)} disabled={loadingQuoteId === quote.id} className="font-semibold text-emerald-700 hover:underline disabled:opacity-60">
+                        Usar como base
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </section>
   );
 }
 

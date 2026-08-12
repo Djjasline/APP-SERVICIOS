@@ -56,6 +56,7 @@ test("RLS versionado cubre registros, perfiles, bodega y configurador", () => {
   const warehouseSql = read("supabase/sql/warehouse_inventory.sql");
   const vehicleReferenceSql = read("supabase/sql/vehicle_reference_catalog.sql");
   const configuratorSql = read("supabase/sql/vactor_configurator_quotes.sql");
+  const serviceQuotesSql = read("supabase/sql/vehicle_service_quotes.sql");
 
   assert.match(recordSql, /alter table public\.registros enable row level security/);
   assert.match(recordSql, /Usuario consulta sus registros/);
@@ -86,6 +87,10 @@ test("RLS versionado cubre registros, perfiles, bodega y configurador", () => {
   assert.match(configuratorSql, /pdf_error text/);
   assert.match(configuratorSql, /pdf_pendiente/);
   assert.match(configuratorSql, /Usuario o super admin gestiona cotizaciones Vactor/);
+  assert.match(serviceQuotesSql, /create table if not exists public\.vehicle_service_quotes/);
+  assert.match(serviceQuotesSql, /offer jsonb/);
+  assert.match(serviceQuotesSql, /lines jsonb/);
+  assert.match(serviceQuotesSql, /Usuario o super admin gestiona cotizaciones de servicios/);
 });
 
 test("subida de imagen de registros conserva validacion compatible", () => {
@@ -258,6 +263,7 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
 
 test("cotizador es modulo separado para repuestos y servicios", () => {
   const cotizador = read("src/app/vehiculos/cotizador/CotizadorHome.jsx");
+  const quoteService = read("src/services/vehicleServiceQuoteService.js");
   const area = read("src/pages/AreaVehiculos.jsx");
   const sidebar = read("src/layouts/Sidebar.jsx");
   const text = read("src/constants/vehiculosText.js");
@@ -284,6 +290,14 @@ test("cotizador es modulo separado para repuestos y servicios", () => {
   assert.match(cotizador, /Borrar firma/);
   assert.match(cotizador, /toDataURL\("image\/png"\)/);
   assert.match(cotizador, /window\.print/);
+  assert.match(cotizador, /Historial de cotizaciones/);
+  assert.match(cotizador, /Guardar historial/);
+  assert.match(cotizador, /Usar como base/);
+  assert.match(cotizador, /saveVehicleServiceQuote/);
+  assert.match(cotizador, /updateVehicleServiceQuote/);
+  assert.match(cotizador, /getVehicleServiceQuoteHistory/);
+  assert.match(quoteService, /vehicle_service_quotes/);
+  assert.match(quoteService, /getVehicleServiceQuoteById/);
   assert.match(area, /SPECIAL_MODULE_KEYS\.cotizador/);
   assert.match(area, /VEHICULOS_TEXT\.cotizador/);
   assert.match(sidebar, /puedeUsarCotizador/);
