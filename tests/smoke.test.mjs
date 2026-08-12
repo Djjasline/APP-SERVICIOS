@@ -269,7 +269,16 @@ test("cotizador es modulo separado para repuestos y servicios", () => {
   assert.match(cotizador, /Referencia histórica/);
   assert.match(cotizador, /Agregar servicio manual/);
   assert.match(cotizador, /requieren aprobación/);
-  assert.match(cotizador, /MVP operativo/);
+  assert.match(cotizador, /Datos de la oferta final/);
+  assert.match(cotizador, /OfferPreview/);
+  assert.match(cotizador, /Proforma No\./);
+  assert.match(cotizador, /Descripción del CPC/);
+  assert.match(cotizador, /12% IVA/);
+  assert.match(cotizador, /Términos de negociación/);
+  assert.match(cotizador, /Preparado por/);
+  assert.match(cotizador, /Aprobado por/);
+  assert.match(cotizador, /Aceptación Cliente/);
+  assert.match(cotizador, /window\.print/);
   assert.match(area, /SPECIAL_MODULE_KEYS\.cotizador/);
   assert.match(area, /VEHICULOS_TEXT\.cotizador/);
   assert.match(sidebar, /puedeUsarCotizador/);
