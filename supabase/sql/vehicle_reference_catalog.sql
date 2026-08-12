@@ -76,6 +76,7 @@ alter table public.vehicle_reference_catalog enable row level security;
 
 drop policy if exists "Super admin gestiona referencia historica vehiculos" on public.vehicle_reference_catalog;
 drop policy if exists "Usuario con permiso bodega consulta referencia historica vehiculos" on public.vehicle_reference_catalog;
+drop policy if exists "Usuario configurador consulta referencia para cotizador" on public.vehicle_reference_catalog;
 
 create policy "Super admin gestiona referencia historica vehiculos"
   on public.vehicle_reference_catalog
@@ -98,6 +99,23 @@ create policy "Usuario con permiso bodega consulta referencia historica vehiculo
         and p.can_view = true
         and (p.area = 'operaciones' or p.area = 'todos')
         and p.tipo = 'bodega'
+    )
+  );
+
+create policy "Usuario configurador consulta referencia para cotizador"
+  on public.vehicle_reference_catalog
+  for select
+  to authenticated
+  using (
+    active = true
+    and exists (
+      select 1
+      from public.record_access_permissions p
+      where p.grantee_user_id = auth.uid()
+        and p.active = true
+        and p.can_view = true
+        and (p.area = 'vehiculos' or p.area = 'todos')
+        and p.tipo = 'configurador'
     )
   );
 

@@ -30,6 +30,7 @@ test("configurador mantiene dueno, vista previa e imagen proporcional", () => {
   const service = read("src/services/configuratorQuoteService.js");
   const home = read("src/app/vehiculos/configurador/ConfiguradorHome.jsx");
   const pdf = read("src/app/vehiculos/configurador/configuratorPdf.js");
+  const warehouseService = read("src/services/warehouseInventoryService.js");
 
   assert.match(service, /if \(userId\) dbPayload\.user_id = userId/);
   assert.doesNotMatch(service, /update\(\{ \.\.\.buildDbPayload\(payload, user\.id\)/);
@@ -37,6 +38,17 @@ test("configurador mantiene dueno, vista previa e imagen proporcional", () => {
   assert.match(service, /regenerateConfiguratorQuotePdf/);
   assert.match(home, /navigate\(`\/vehiculos\/configurador\/ver\/\$\{quoteId\}`\)/);
   assert.match(home, /navigate\(`\/vehiculos\/configurador\/ver\/\$\{editingQuoteId\}`\)/);
+  assert.match(home, /Cruce con Bodega/);
+  assert.match(home, /Disponible en bodega/);
+  assert.match(home, /Solo referencia histórica/);
+  assert.match(home, /Bajo pedido \/ validar/);
+  assert.match(home, /getWarehouseAvailabilityForQuoteItems/);
+  assert.match(home, /AvailabilityBadge/);
+  assert.match(home, /No reserva ni descuenta stock/);
+  assert.match(warehouseService, /getWarehouseAvailabilityForQuoteItems/);
+  assert.match(warehouseService, /WAREHOUSE_AVAILABILITY_STATUS/);
+  assert.match(warehouseService, /warehouse_inventory/);
+  assert.match(warehouseService, /vehicle_reference_catalog/);
   assert.match(pdf, /function getContainedSize/);
   assert.match(pdf, /doc\.addImage\(modelImage\.dataUrl/);
 });
@@ -60,11 +72,15 @@ test("RLS versionado cubre registros, perfiles, bodega y configurador", () => {
 
   assert.match(warehouseSql, /Usuario con permiso especial consulta inventario de bodega/);
   assert.match(warehouseSql, /p\.tipo = 'bodega'/);
+  assert.match(warehouseSql, /Usuario configurador consulta inventario para cotizador/);
+  assert.match(warehouseSql, /p\.tipo = 'configurador'/);
 
   assert.match(vehicleReferenceSql, /create table if not exists public\.vehicle_reference_catalog/);
   assert.match(vehicleReferenceSql, /reference_stock numeric/);
   assert.match(vehicleReferenceSql, /Usuario con permiso bodega consulta referencia historica vehiculos/);
   assert.match(vehicleReferenceSql, /p\.tipo = 'bodega'/);
+  assert.match(vehicleReferenceSql, /Usuario configurador consulta referencia para cotizador/);
+  assert.match(vehicleReferenceSql, /p\.tipo = 'configurador'/);
   assert.match(warehouseSql, /image_url text/);
   assert.match(warehouseSql, /compatible_equipment text/);
   assert.match(vehicleReferenceSql, /image_url text/);

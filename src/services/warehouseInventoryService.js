@@ -3,6 +3,8 @@ import { supabase } from "@/lib/supabase";
 const LIST_METADATA_COLUMNS = "image_url, unit, weight_kg, brand, model, category, system, compatible_equipment";
 const SELECT_COLUMNS = `id, product_code, description, physical_stock, physical_location, cutoff_date, source_file, notes, area, updated_at, ${LIST_METADATA_COLUMNS}`;
 const VEHICLE_REFERENCE_COLUMNS = `id, product_code, description, sheet_name, reference_stock, last_cost, last_supplier, last_purchase_date, last_sale_date, last_client, last_comment, source_file, area, updated_at, ${LIST_METADATA_COLUMNS}`;
+const QUOTE_STOCK_COLUMNS = "id, product_code, description, physical_stock, physical_location, area, updated_at";
+const QUOTE_REFERENCE_COLUMNS = "id, product_code, description, reference_stock, last_cost, last_supplier, source_file, area, updated_at";
 const ITEM_METADATA_COLUMNS = "image_url, unit, weight_kg, brand, model, category, system, compatible_equipment, technical_specs, internal_notes";
 const STOCK_DETAIL_COLUMNS = `${SELECT_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
 const VEHICLE_REFERENCE_DETAIL_COLUMNS = `${VEHICLE_REFERENCE_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
@@ -13,6 +15,13 @@ const PIQUERSA_SUPPLIER = "Piquersa";
 export const WAREHOUSE_ITEM_SOURCES = {
   stock: "stock",
   vehicleReference: "vehicle-reference",
+};
+
+export const WAREHOUSE_AVAILABILITY_STATUS = {
+  stock: "stock",
+  reference: "reference",
+  order: "order",
+  unavailable: "unavailable",
 };
 
 const SOURCE_CONFIG = {
@@ -83,7 +92,27 @@ const MOVEMENT_NUMERIC_FIELDS = new Set(["quantity", "unit_cost"]);
 export const WAREHOUSE_MOVEMENT_TYPES = ["entrada", "salida", "reserva", "devolucion", "ajuste", "uso", "cotizacion"];
 
 function normalizeSearch(value) {
-  return String(value || "").replace(/[,%]/g, " ").trim();
+  return String(value || "").replace(/[,%()"']/g, " ").trim();
+}
+
+function uniqueSearchTerms(values) {
+  return Array.from(new Set(values.map(normalizeSearch).filter((value) => value.length >= 3))).slice(0, 25);
+}
+
+function itemSearchTerms(item) {
+  return uniqueSearchTerms([item?.label, item?.value, item?.key]);
+}
+
+function rowScore(row, terms) {
+  const haystack = `${row.product_code || ""} ${row.description || ""}`.toLowerCase();
+  return terms.reduce((score, term) => score + (haystack.includes(term.toLowerCase()) ? 1 : 0), 0);
+}
+
+function findBestRow(rows, terms, quantityField) {
+  return rows
+    .map((row) => ({ row, score: rowScore(row, terms), quantity: Number(row[quantityField]) || 0 }))
+    .filter((match) => match.score > 0)
+    .sort((a, b) => b.score - a.score || b.quantity - a.quantity)[0]?.row || null;
 }
 
 function normalizeProductCode(value) {
@@ -284,6 +313,81 @@ export async function getVehicleReferenceCatalog({ search = "", limit = 1000 } =
 
   if (error) throw error;
   return (data || []).map(normalizeVehicleReferenceRow);
+}
+
+export async function getWarehouseAvailabilityForQuoteItems(items = []) {
+  const searchableItems = items.map((item) => ({ item, terms: itemSearchTerms(item) })).filter(({ terms }) => terms.length > 0);
+  const allTerms = uniqueSearchTerms(searchableItems.flatMap(({ terms }) => terms));
+
+  if (allTerms.length === 0) {
+    return items.map((item) => ({ ...item, availability: buildAvailability(WAREHOUSE_AVAILABILITY_STATUS.unavailable) }));
+  }
+
+  const filters = allTerms.flatMap((term) => [`product_code.ilike.%${term}%`, `description.ilike.%${term}%`]).join(",");
+  const [stockResult, referenceResult] = await Promise.all([
+    supabase.from("warehouse_inventory").select(QUOTE_STOCK_COLUMNS).or(filters).limit(200),
+    supabase.from("vehicle_reference_catalog").select(QUOTE_REFERENCE_COLUMNS).eq("active", true).or(filters).limit(200),
+  ]);
+
+  if (stockResult.error) throw stockResult.error;
+  if (referenceResult.error) throw referenceResult.error;
+
+  const stockRows = (stockResult.data || []).map(normalizeWarehouseInventoryRow);
+  const referenceRows = (referenceResult.data || []).map(normalizeVehicleReferenceRow);
+
+  return items.map((item) => {
+    const terms = itemSearchTerms(item);
+    if (terms.length === 0) return { ...item, availability: buildAvailability(WAREHOUSE_AVAILABILITY_STATUS.unavailable) };
+
+    const stockMatch = findBestRow(stockRows, terms, "physical_stock");
+    if (stockMatch && Number(stockMatch.physical_stock) > 0) {
+      return { ...item, availability: buildAvailability(WAREHOUSE_AVAILABILITY_STATUS.stock, stockMatch) };
+    }
+
+    const referenceMatch = findBestRow(referenceRows, terms, "reference_stock");
+    if (referenceMatch) {
+      return { ...item, availability: buildAvailability(WAREHOUSE_AVAILABILITY_STATUS.reference, referenceMatch) };
+    }
+
+    return { ...item, availability: buildAvailability(WAREHOUSE_AVAILABILITY_STATUS.order) };
+  });
+}
+
+function buildAvailability(status, row = null) {
+  if (status === WAREHOUSE_AVAILABILITY_STATUS.stock) {
+    return {
+      status,
+      label: "Disponible en bodega",
+      source: WAREHOUSE_ITEM_SOURCES.stock,
+      itemId: row.id,
+      productCode: row.product_code,
+      quantity: Number(row.physical_stock) || 0,
+      area: row.area || "",
+      location: row.physical_location || "",
+      note: row.physical_location ? `Stock físico: ${row.physical_stock} · ${row.physical_location}` : `Stock físico: ${row.physical_stock}`,
+    };
+  }
+
+  if (status === WAREHOUSE_AVAILABILITY_STATUS.reference) {
+    return {
+      status,
+      label: "Solo referencia histórica",
+      source: WAREHOUSE_ITEM_SOURCES.vehicleReference,
+      itemId: row.id,
+      productCode: row.product_code,
+      quantity: Number(row.reference_stock) || 0,
+      area: row.area || "",
+      supplier: row.last_supplier || "",
+      lastCost: row.last_cost ?? null,
+      note: row.last_supplier ? `Referencia histórica · ${row.last_supplier}` : "Referencia histórica",
+    };
+  }
+
+  if (status === WAREHOUSE_AVAILABILITY_STATUS.order) {
+    return { status, label: "Bajo pedido / validar", note: "Sin coincidencia en stock ni referencia histórica." };
+  }
+
+  return { status, label: "Sin datos de bodega", note: "No se pudo consultar disponibilidad." };
 }
 
 export async function getWarehouseItemDetail({ source, id }) {
