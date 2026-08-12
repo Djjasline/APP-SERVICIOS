@@ -198,6 +198,9 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(service, /VEHICLE_REFERENCE_CREATE_FIELDS/);
   assert.match(service, /VEHICLE_SPECIALS_AREA = "Vehículos Especiales"/);
   assert.match(service, /FS_DEPOT_SUPPLIER = "FS-DEPOT"/);
+  assert.match(service, /PIQUERSA_SUPPLIER = "Piquersa"/);
+  assert.match(service, /isPiquersaDescription/);
+  assert.match(service, /applyWarehouseClassificationRules/);
   assert.match(service, /isFsDepotVehicleCode/);
   assert.match(service, /-30\$/);
   assert.match(service, /WAREHOUSE_MOVEMENT_TYPES/);
@@ -213,12 +216,20 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(metadataSql, /alter table public\.warehouse_inventory/);
   assert.match(metadataSql, /alter table public\.vehicle_reference_catalog/);
   assert.match(metadataSql, /area text/);
+  assert.match(metadataSql, /last_supplier text/);
   assert.match(metadataSql, /technical_specs text/);
 
   const fsDepotSql = read("supabase/sql/apply_fs_depot_vehicle_codes.sql");
   assert.match(fsDepotSql, /Vehículos Especiales/);
   assert.match(fsDepotSql, /FS-DEPOT/);
+  assert.match(fsDepotSql, /Piquersa/);
+  assert.match(fsDepotSql, /piquersa/);
   assert.match(fsDepotSql, /-30\$/);
+
+  const piquersaSql = read("supabase/sql/apply_piquersa_vehicle_codes.sql");
+  assert.match(piquersaSql, /Piquersa/);
+  assert.match(piquersaSql, /Vehículos Especiales/);
+  assert.match(piquersaSql, /description/);
 
   const movementsSql = read("supabase/sql/warehouse_item_movements.sql");
   assert.match(movementsSql, /create table if not exists public\.warehouse_item_movements/);

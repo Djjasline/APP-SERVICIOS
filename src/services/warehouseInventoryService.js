@@ -8,6 +8,7 @@ const STOCK_DETAIL_COLUMNS = `${SELECT_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
 const VEHICLE_REFERENCE_DETAIL_COLUMNS = `${VEHICLE_REFERENCE_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
 const VEHICLE_SPECIALS_AREA = "Vehículos Especiales";
 const FS_DEPOT_SUPPLIER = "FS-DEPOT";
+const PIQUERSA_SUPPLIER = "Piquersa";
 
 export const WAREHOUSE_ITEM_SOURCES = {
   stock: "stock",
@@ -27,7 +28,7 @@ const SOURCE_CONFIG = {
   },
 };
 
-const EDITABLE_METADATA_FIELDS = [
+const BASE_METADATA_FIELDS = [
   "image_url",
   "area",
   "unit",
@@ -39,6 +40,13 @@ const EDITABLE_METADATA_FIELDS = [
   "compatible_equipment",
   "technical_specs",
   "internal_notes",
+];
+
+const EDITABLE_METADATA_FIELDS = BASE_METADATA_FIELDS;
+
+const VEHICLE_REFERENCE_METADATA_FIELDS = [
+  ...BASE_METADATA_FIELDS,
+  "last_supplier",
 ];
 
 const STOCK_CREATE_FIELDS = [
@@ -86,25 +94,48 @@ function isFsDepotVehicleCode(productCode) {
   return /-30$/i.test(normalizeProductCode(productCode));
 }
 
-function applyFsDepotVehicleRule(item) {
-  if (!item || !isFsDepotVehicleCode(item.product_code)) return item;
+function isPiquersaDescription(description) {
+  return /piquersa/i.test(String(description || ""));
+}
+
+function getWarehouseClassificationFields(item, { includeSupplier = true } = {}) {
+  if (!item) return {};
+
+  if (isPiquersaDescription(item.description)) {
+    const fields = {
+      area: VEHICLE_SPECIALS_AREA,
+    };
+    if (includeSupplier) fields.last_supplier = PIQUERSA_SUPPLIER;
+    return fields;
+  }
+
+  if (!isFsDepotVehicleCode(item.product_code)) return {};
+
+  const fields = {
+    area: VEHICLE_SPECIALS_AREA,
+  };
+  if (includeSupplier) fields.last_supplier = item.last_supplier || FS_DEPOT_SUPPLIER;
+  return fields;
+}
+
+function applyWarehouseClassificationRules(item, options) {
+  if (!item) return item;
 
   return {
     ...item,
-    area: item.area || VEHICLE_SPECIALS_AREA,
-    last_supplier: item.last_supplier || FS_DEPOT_SUPPLIER,
+    ...getWarehouseClassificationFields(item, options),
   };
 }
 
 function normalizeVehicleReferenceRow(item) {
-  return applyFsDepotVehicleRule({
+  return applyWarehouseClassificationRules({
     ...item,
     product_code: normalizeProductCode(item.product_code),
   });
 }
 
 function normalizeWarehouseInventoryRow(item) {
-  return applyFsDepotVehicleRule({
+  return applyWarehouseClassificationRules({
     ...item,
     product_code: normalizeProductCode(item.product_code),
   });
@@ -116,8 +147,9 @@ function getSourceConfig(source) {
   return config;
 }
 
-function normalizeMetadataPayload(payload) {
-  return EDITABLE_METADATA_FIELDS.reduce((acc, field) => {
+function normalizeMetadataPayload(source, payload) {
+  const fields = source === WAREHOUSE_ITEM_SOURCES.vehicleReference ? VEHICLE_REFERENCE_METADATA_FIELDS : EDITABLE_METADATA_FIELDS;
+  const metadata = fields.reduce((acc, field) => {
     if (!Object.prototype.hasOwnProperty.call(payload, field)) return acc;
     const value = payload[field];
 
@@ -129,6 +161,11 @@ function normalizeMetadataPayload(payload) {
     acc[field] = String(value || "").trim() || null;
     return acc;
   }, { updated_at: new Date().toISOString() });
+
+  return {
+    ...metadata,
+    ...getWarehouseClassificationFields({ ...payload, ...metadata }, { includeSupplier: source === WAREHOUSE_ITEM_SOURCES.vehicleReference }),
+  };
 }
 
 function normalizeCreatePayload(source, payload, userId) {
@@ -163,12 +200,7 @@ function normalizeCreatePayload(source, payload, userId) {
     normalized.active = true;
   }
 
-  if (isFsDepotVehicleCode(normalized.product_code)) {
-    normalized.area = normalized.area || VEHICLE_SPECIALS_AREA;
-    if (source === WAREHOUSE_ITEM_SOURCES.vehicleReference) {
-      normalized.last_supplier = normalized.last_supplier || FS_DEPOT_SUPPLIER;
-    }
-  }
+  Object.assign(normalized, getWarehouseClassificationFields(normalized, { includeSupplier: source === WAREHOUSE_ITEM_SOURCES.vehicleReference }));
 
   if (userId) normalized.created_by = userId;
   return normalized;
@@ -268,7 +300,15 @@ export async function getWarehouseItemDetail({ source, id }) {
 
 export async function updateWarehouseItemMetadata({ source, id, payload }) {
   const config = getSourceConfig(source);
-  const metadata = normalizeMetadataPayload(payload);
+  const { data: current, error: currentError } = await supabase
+    .from(config.table)
+    .select("product_code, description")
+    .eq("id", id)
+    .single();
+
+  if (currentError) throw currentError;
+
+  const metadata = normalizeMetadataPayload(source, { ...current, ...payload });
   const { data, error } = await supabase
     .from(config.table)
     .update(metadata)

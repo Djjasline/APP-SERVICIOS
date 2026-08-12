@@ -11,6 +11,7 @@ const SOURCE_LABELS = {
 
 const EMPTY_FORM = {
   area: "",
+  last_supplier: "",
   image_url: "",
   unit: "",
   weight_kg: "",
@@ -207,6 +208,7 @@ export default function BodegaItemDetail() {
                       <>
                         <InfoCard label="Stock físico" value={formatNumber(item.physical_stock)} />
                         <InfoCard label="Ubicación" value={item.physical_location || "-"} />
+                        <InfoCard label="Proveedor" value={item.last_supplier || "-"} />
                         <InfoCard label="Fecha corte" value={item.cutoff_date || "-"} />
                         <InfoCard label="Origen" value={item.source_file || "-"} />
                       </>
@@ -246,6 +248,7 @@ export default function BodegaItemDetail() {
 
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <Field label="Área / unidad de negocio" value={form.area} onChange={(value) => updateField("area", value)} disabled={!canEdit} placeholder="Vehículos, Agua, Petróleo, Industria" />
+              {isReference && <Field label="Proveedor" value={form.last_supplier} onChange={(value) => updateField("last_supplier", value)} disabled={!canEdit} placeholder="Piquersa, FS-DEPOT..." />}
               <Field label="URL de imagen de referencia" value={form.image_url} onChange={(value) => updateField("image_url", value)} disabled={!canEdit} placeholder="https://..." />
               <Field label="Unidad" value={form.unit} onChange={(value) => updateField("unit", value)} disabled={!canEdit} placeholder="unidad, kit, m, galón" />
               <Field label="Peso kg" type="number" value={form.weight_kg} onChange={(value) => updateField("weight_kg", value)} disabled={!canEdit} placeholder="0.00" />

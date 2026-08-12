@@ -24,6 +24,7 @@ create table if not exists public.warehouse_inventory (
   cutoff_date date,
   source_file text,
   area text,
+  last_supplier text,
   image_url text,
   unit text,
   weight_kg numeric(12, 3),
@@ -42,6 +43,7 @@ create table if not exists public.warehouse_inventory (
 
 alter table public.warehouse_inventory
   add column if not exists area text,
+  add column if not exists last_supplier text,
   add column if not exists image_url text,
   add column if not exists unit text,
   add column if not exists weight_kg numeric(12, 3),

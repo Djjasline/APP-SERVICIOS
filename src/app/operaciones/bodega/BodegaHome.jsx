@@ -312,7 +312,7 @@ export default function BodegaHome() {
     area: (item) => item.area,
     physical_stock: (item) => Number(item.physical_stock) || 0,
     physical_location: (item) => item.physical_location,
-    last_supplier: () => "",
+    last_supplier: (item) => item.last_supplier,
     last_cost: () => 0,
     source_file: (item) => item.source_file,
     cutoff_date: (item) => item.cutoff_date,

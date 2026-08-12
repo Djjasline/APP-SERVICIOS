@@ -3,6 +3,7 @@
 
 alter table public.warehouse_inventory
   add column if not exists area text,
+  add column if not exists last_supplier text,
   add column if not exists image_url text,
   add column if not exists unit text,
   add column if not exists weight_kg numeric(12, 3),
