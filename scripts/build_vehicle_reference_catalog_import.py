@@ -42,6 +42,10 @@ def clean_text(value):
     return re.sub(r"\s+", " ", str(value or "").replace("�", "Ñ")).strip()
 
 
+def clean_product_code(value):
+    return clean_text(value).lstrip("`'\"‘’")
+
+
 def to_number(value):
     try:
         text = str(value or "").strip().replace(",", ".")
@@ -129,7 +133,7 @@ def extract_rows(source):
             for reference, value in cells.items():
                 row = "".join(ch for ch in reference if ch.isdigit())
                 col = column_number(reference)
-                text = clean_text(value)
+                text = clean_product_code(value)
                 if row == "5" and col >= 10 and text and text.upper() not in ["CODIGO", "N° DE PAGINA", "Nº DE PAGINA"]:
                     product_code = text
                     break

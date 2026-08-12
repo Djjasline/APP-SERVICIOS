@@ -7,6 +7,17 @@ function normalizeSearch(value) {
   return String(value || "").replace(/[,%]/g, " ").trim();
 }
 
+function normalizeProductCode(value) {
+  return String(value || "").trim().replace(/^[`'"‘’]+/, "");
+}
+
+function normalizeVehicleReferenceRow(item) {
+  return {
+    ...item,
+    product_code: normalizeProductCode(item.product_code),
+  };
+}
+
 export async function getWarehouseInventory({ search = "", location = "", limit = 1000 } = {}) {
   let query = supabase
     .from("warehouse_inventory")
@@ -60,5 +71,5 @@ export async function getVehicleReferenceCatalog({ search = "", limit = 1000 } =
   const { data, error } = await query;
 
   if (error) throw error;
-  return data || [];
+  return (data || []).map(normalizeVehicleReferenceRow);
 }
