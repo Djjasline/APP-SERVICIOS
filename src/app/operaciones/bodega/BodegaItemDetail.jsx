@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AlertTriangle, ImageIcon, Package, Save } from "lucide-react";
+import { AlertTriangle, ClipboardList, ImageIcon, Package, Save } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { getWarehouseItemDetail, updateWarehouseItemMetadata, WAREHOUSE_ITEM_SOURCES } from "@/services/warehouseInventoryService";
+import { createWarehouseItemMovement, getWarehouseItemDetail, getWarehouseItemMovements, updateWarehouseItemMetadata, WAREHOUSE_ITEM_SOURCES, WAREHOUSE_MOVEMENT_TYPES } from "@/services/warehouseInventoryService";
 
 const SOURCE_LABELS = {
   [WAREHOUSE_ITEM_SOURCES.stock]: "Stock actual",
@@ -23,6 +23,15 @@ const EMPTY_FORM = {
   internal_notes: "",
 };
 
+const EMPTY_MOVEMENT = {
+  movement_type: "uso",
+  quantity: "1",
+  unit_cost: "",
+  related_party: "",
+  document_ref: "",
+  notes: "",
+};
+
 function formatNumber(value) {
   return new Intl.NumberFormat("es-EC", { maximumFractionDigits: 2 }).format(Number(value) || 0);
 }
@@ -30,6 +39,15 @@ function formatNumber(value) {
 function formatMoney(value) {
   if (value === null || value === undefined || value === "") return "-";
   return new Intl.NumberFormat("es-EC", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(Number(value) || 0);
+}
+
+function formatDateTime(value) {
+  if (!value) return "-";
+  return new Intl.DateTimeFormat("es-EC", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+}
+
+function getMovementLabel(value) {
+  return String(value || "").replace("devolucion", "devolución");
 }
 
 function toForm(item) {
@@ -42,12 +60,16 @@ function toForm(item) {
 export default function BodegaItemDetail() {
   const navigate = useNavigate();
   const { source, id } = useParams();
-  const { isSuperAdmin } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
   const [item, setItem] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [movementForm, setMovementForm] = useState(EMPTY_MOVEMENT);
+  const [movements, setMovements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingMovement, setSavingMovement] = useState(false);
   const [error, setError] = useState("");
+  const [movementError, setMovementError] = useState("");
   const [message, setMessage] = useState("");
 
   const sourceLabel = SOURCE_LABELS[source] || "Bodega";
@@ -66,6 +88,16 @@ export default function BodegaItemDetail() {
         if (cancelled) return;
         setItem(row);
         setForm(toForm(row));
+
+        try {
+          const movementRows = await getWarehouseItemMovements({ source, itemId: id });
+          if (!cancelled) setMovements(movementRows);
+        } catch (movementErr) {
+          console.error("Error cargando movimientos de bodega:", movementErr);
+          if (!cancelled && movementErr?.code === "42P01") {
+            setMovementError("Falta ejecutar el SQL de movimientos de bodega en Supabase.");
+          }
+        }
       } catch (err) {
         console.error("Error cargando detalle de bodega:", err);
         if (cancelled) return;
@@ -83,6 +115,10 @@ export default function BodegaItemDetail() {
 
   const updateField = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const updateMovementField = (field, value) => {
+    setMovementForm((current) => ({ ...current, [field]: value }));
   };
 
   const handleSubmit = async (event) => {
@@ -103,6 +139,30 @@ export default function BodegaItemDetail() {
       setError(err?.code === "42703" ? "Falta ejecutar el SQL de metadatos de bodega en Supabase." : "No se pudo guardar la ficha del artículo.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleMovementSubmit = async (event) => {
+    event.preventDefault();
+    if (!canEdit) return;
+
+    setSavingMovement(true);
+    setMovementError("");
+
+    try {
+      const movement = await createWarehouseItemMovement({
+        source,
+        itemId: id,
+        payload: { ...movementForm, area: form.area || item.area },
+        userId: user?.id,
+      });
+      setMovements((current) => [movement, ...current]);
+      setMovementForm(EMPTY_MOVEMENT);
+    } catch (err) {
+      console.error("Error registrando movimiento de bodega:", err);
+      setMovementError(err?.code === "42P01" ? "Falta ejecutar el SQL de movimientos de bodega en Supabase." : err?.message || "No se pudo registrar el movimiento.");
+    } finally {
+      setSavingMovement(false);
     }
   };
 
@@ -161,6 +221,9 @@ export default function BodegaItemDetail() {
               <p className="mt-2 leading-6">
                 Estos datos complementan el artículo para identificarlo mejor por área, preparar compras, cotizaciones y futuras reservas. No modifican cantidades de stock ni saldos históricos.
               </p>
+              <p className="mt-3 leading-6">
+                Los movimientos registran actividad operacional; por ahora no actualizan automáticamente las cantidades.
+              </p>
               {!canEdit && <p className="mt-3 font-semibold">Tu acceso actual permite consultar, pero no editar esta ficha.</p>}
             </div>
           </section>
@@ -198,6 +261,74 @@ export default function BodegaItemDetail() {
               <Field multiline label="Notas internas" value={form.internal_notes} onChange={(value) => updateField("internal_notes", value)} disabled={!canEdit} placeholder="Observaciones de compra, uso, cliente o proveedor..." />
             </div>
           </form>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="flex items-center gap-2 font-semibold text-slate-900"><ClipboardList size={18} /> Movimientos y uso</h3>
+                <p className="text-sm text-slate-500">Registra entradas, salidas, reservas, usos o cotizaciones sin modificar el stock automáticamente.</p>
+              </div>
+            </div>
+
+            {canEdit && (
+              <form onSubmit={handleMovementSubmit} className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                {movementError && <div className="mb-4"><ErrorBox message={movementError} /></div>}
+                <div className="grid gap-4 md:grid-cols-3">
+                  <label className="block text-sm font-semibold text-slate-700">
+                    Tipo
+                    <select value={movementForm.movement_type} onChange={(event) => updateMovementField("movement_type", event.target.value)} className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400">
+                      {WAREHOUSE_MOVEMENT_TYPES.map((type) => <option key={type} value={type}>{getMovementLabel(type)}</option>)}
+                    </select>
+                  </label>
+                  <Field label="Cantidad" type="number" value={movementForm.quantity} onChange={(value) => updateMovementField("quantity", value)} />
+                  <Field label="Costo unitario" type="number" value={movementForm.unit_cost} onChange={(value) => updateMovementField("unit_cost", value)} />
+                  <Field label="Cliente / proveedor / proyecto" value={movementForm.related_party} onChange={(value) => updateMovementField("related_party", value)} />
+                  <Field label="Documento relacionado" value={movementForm.document_ref} onChange={(value) => updateMovementField("document_ref", value)} />
+                  <div className="flex items-end">
+                    <button type="submit" disabled={savingMovement} className="w-full rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60">
+                      {savingMovement ? "Registrando..." : "Registrar movimiento"}
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <Field multiline label="Notas del movimiento" value={movementForm.notes} onChange={(value) => updateMovementField("notes", value)} />
+                </div>
+              </form>
+            )}
+
+            <div className="mt-4 overflow-x-auto">
+              {movements.length === 0 ? (
+                <p className="text-sm text-slate-500">Aún no hay movimientos registrados para este artículo.</p>
+              ) : (
+                <table className="min-w-full text-left text-sm">
+                  <thead className="bg-slate-900 text-white">
+                    <tr>
+                      <th className="px-3 py-2 font-semibold">Fecha</th>
+                      <th className="px-3 py-2 font-semibold">Tipo</th>
+                      <th className="px-3 py-2 text-right font-semibold">Cantidad</th>
+                      <th className="px-3 py-2 text-right font-semibold">Costo unit.</th>
+                      <th className="px-3 py-2 font-semibold">Relacionado</th>
+                      <th className="px-3 py-2 font-semibold">Documento</th>
+                      <th className="px-3 py-2 font-semibold">Notas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {movements.map((movement) => (
+                      <tr key={movement.id} className="border-b border-slate-200 odd:bg-slate-50">
+                        <td className="px-3 py-2 text-slate-600">{formatDateTime(movement.created_at)}</td>
+                        <td className="px-3 py-2 font-semibold capitalize text-slate-900">{getMovementLabel(movement.movement_type)}</td>
+                        <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(movement.quantity)}</td>
+                        <td className="px-3 py-2 text-right text-slate-700">{formatMoney(movement.unit_cost)}</td>
+                        <td className="px-3 py-2 text-slate-700">{movement.related_party || "-"}</td>
+                        <td className="px-3 py-2 text-slate-700">{movement.document_ref || "-"}</td>
+                        <td className="px-3 py-2 text-slate-600">{movement.notes || "-"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </section>
         </>
       ) : null}
     </div>

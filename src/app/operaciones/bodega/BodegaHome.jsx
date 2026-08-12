@@ -2,8 +2,8 @@ import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { getVehicleReferenceCatalog, getWarehouseInventory, getWarehouseLocations } from "@/services/warehouseInventoryService";
-import { AlertTriangle, Database, Package, PackagePlus, RefreshCw, Search, Warehouse } from "lucide-react";
+import { getVehicleReferenceCatalog, getWarehouseInventory, getWarehouseLocations, getWarehouseRecentMovements } from "@/services/warehouseInventoryService";
+import { Activity, AlertTriangle, Database, Package, PackagePlus, RefreshCw, Search, Warehouse } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const SOURCE_STOCK = "stock";
@@ -59,6 +59,8 @@ export default function BodegaHome() {
   const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [recentMovements, setRecentMovements] = useState([]);
+  const [movementsUnavailable, setMovementsUnavailable] = useState(false);
   const [stockSort, setStockSort] = useState({ key: "product_code", direction: SORT_ASC });
   const [referenceSort, setReferenceSort] = useState({ key: "product_code", direction: SORT_ASC });
 
@@ -92,6 +94,27 @@ export default function BodegaHome() {
   useEffect(() => {
     loadInventory();
   }, [deferredSearch, location, source]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMovements() {
+      try {
+        const rows = await getWarehouseRecentMovements({ limit: 100 });
+        if (cancelled) return;
+        setRecentMovements(rows);
+        setMovementsUnavailable(false);
+      } catch (err) {
+        console.error("Error cargando movimientos recientes de bodega:", err);
+        if (!cancelled && err?.code === "42P01") setMovementsUnavailable(true);
+      }
+    }
+
+    loadMovements();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const summary = useMemo(() => {
     const stock = items.reduce((total, item) => total + (Number(item.physical_stock) || 0), 0);
@@ -140,6 +163,19 @@ export default function BodegaHome() {
 
     return Array.from(grouped.values()).sort((a, b) => b.count - a.count).slice(0, 6);
   }, [items, referenceItems, viewingReference]);
+
+  const activitySummary = useMemo(() => {
+    const grouped = recentMovements.reduce((acc, movement) => {
+      const type = movement.movement_type || "sin_tipo";
+      if (!acc.has(type)) acc.set(type, { type, count: 0, quantity: 0 });
+      const current = acc.get(type);
+      current.count += 1;
+      current.quantity += Number(movement.quantity) || 0;
+      return acc;
+    }, new Map());
+
+    return Array.from(grouped.values()).sort((a, b) => b.count - a.count).slice(0, 6);
+  }, [recentMovements]);
 
   const toggleStockSort = (key) => {
     setStockSort((current) => ({
@@ -209,6 +245,31 @@ export default function BodegaHome() {
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {(activitySummary.length > 0 || movementsUnavailable) && (
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-2">
+            <Activity size={18} className="text-amber-600" />
+            <div>
+              <h3 className="font-semibold text-slate-900">Actividad reciente</h3>
+              <p className="text-sm text-slate-500">Movimientos registrados de bodega. No modifican stock automáticamente.</p>
+            </div>
+          </div>
+          {movementsUnavailable ? (
+            <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Ejecuta `supabase/sql/warehouse_item_movements.sql` para habilitar el historial de movimientos.</p>
+          ) : (
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              {activitySummary.map((item) => (
+                <div key={item.type} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <p className="font-semibold capitalize text-slate-900">{item.type.replace("devolucion", "devolución")}</p>
+                  <p className="mt-1 text-sm text-slate-500">{formatNumber(item.count)} registros</p>
+                  <p className="text-sm font-semibold text-slate-700">Cantidad: {formatNumber(item.quantity)}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       )}
 

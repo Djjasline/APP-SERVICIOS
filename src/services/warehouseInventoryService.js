@@ -66,6 +66,10 @@ const VEHICLE_REFERENCE_CREATE_FIELDS = [
 
 const NUMERIC_FIELDS = new Set(["physical_stock", "reference_stock", "last_cost", "weight_kg"]);
 const DATE_FIELDS = new Set(["cutoff_date", "last_purchase_date", "last_sale_date"]);
+const MOVEMENT_COLUMNS = "id, item_source, item_id, movement_type, quantity, unit_cost, area, related_party, document_ref, notes, created_by, created_at";
+const MOVEMENT_NUMERIC_FIELDS = new Set(["quantity", "unit_cost"]);
+
+export const WAREHOUSE_MOVEMENT_TYPES = ["entrada", "salida", "reserva", "devolucion", "ajuste", "uso", "cotizacion"];
 
 function normalizeSearch(value) {
   return String(value || "").replace(/[,%]/g, " ").trim();
@@ -137,6 +141,30 @@ function normalizeCreatePayload(source, payload, userId) {
 
   if (userId) normalized.created_by = userId;
   return normalized;
+}
+
+function normalizeMovementPayload({ source, itemId, payload, userId }) {
+  if (!source || !itemId) throw new Error("Artículo de bodega no válido.");
+  if (!WAREHOUSE_MOVEMENT_TYPES.includes(payload.movement_type)) throw new Error("Tipo de movimiento no válido.");
+
+  const row = ["movement_type", "quantity", "unit_cost", "area", "related_party", "document_ref", "notes"].reduce((acc, field) => {
+    const value = payload[field];
+
+    if (MOVEMENT_NUMERIC_FIELDS.has(field)) {
+      acc[field] = value === "" || value === null || value === undefined ? null : Number(value);
+      return acc;
+    }
+
+    acc[field] = String(value || "").trim() || null;
+    return acc;
+  }, {
+    item_source: source,
+    item_id: itemId,
+  });
+
+  row.quantity = row.quantity ?? 0;
+  if (userId) row.created_by = userId;
+  return row;
 }
 
 export async function getWarehouseInventory({ search = "", location = "", limit = 1000 } = {}) {
@@ -232,4 +260,40 @@ export async function createWarehouseItem({ source, payload, userId }) {
 
   if (error) throw error;
   return config.normalize(data);
+}
+
+export async function getWarehouseItemMovements({ source, itemId, limit = 50 } = {}) {
+  const { data, error } = await supabase
+    .from("warehouse_item_movements")
+    .select(MOVEMENT_COLUMNS)
+    .eq("item_source", source)
+    .eq("item_id", itemId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function createWarehouseItemMovement({ source, itemId, payload, userId }) {
+  const row = normalizeMovementPayload({ source, itemId, payload, userId });
+  const { data, error } = await supabase
+    .from("warehouse_item_movements")
+    .insert(row)
+    .select(MOVEMENT_COLUMNS)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getWarehouseRecentMovements({ limit = 100 } = {}) {
+  const { data, error } = await supabase
+    .from("warehouse_item_movements")
+    .select(MOVEMENT_COLUMNS)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data || [];
 }

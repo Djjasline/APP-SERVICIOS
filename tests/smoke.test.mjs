@@ -165,10 +165,29 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(service, /createWarehouseItem/);
   assert.match(service, /STOCK_CREATE_FIELDS/);
   assert.match(service, /VEHICLE_REFERENCE_CREATE_FIELDS/);
+  assert.match(service, /WAREHOUSE_MOVEMENT_TYPES/);
+  assert.match(service, /getWarehouseItemMovements/);
+  assert.match(service, /createWarehouseItemMovement/);
+  assert.match(service, /getWarehouseRecentMovements/);
+  assert.match(service, /warehouse_item_movements/);
+
+  assert.match(home, /Actividad reciente/);
+  assert.match(home, /getWarehouseRecentMovements/);
 
   const metadataSql = read("supabase/sql/warehouse_item_metadata.sql");
   assert.match(metadataSql, /alter table public\.warehouse_inventory/);
   assert.match(metadataSql, /alter table public\.vehicle_reference_catalog/);
   assert.match(metadataSql, /area text/);
   assert.match(metadataSql, /technical_specs text/);
+
+  const movementsSql = read("supabase/sql/warehouse_item_movements.sql");
+  assert.match(movementsSql, /create table if not exists public\.warehouse_item_movements/);
+  assert.match(movementsSql, /item_source text not null/);
+  assert.match(movementsSql, /movement_type text not null/);
+  assert.match(movementsSql, /Usuario con permiso bodega consulta movimientos/);
+  assert.match(movementsSql, /p\.tipo = 'bodega'/);
+
+  assert.match(detail, /Movimientos y uso/);
+  assert.match(detail, /createWarehouseItemMovement/);
+  assert.match(detail, /getWarehouseItemMovements/);
 });
