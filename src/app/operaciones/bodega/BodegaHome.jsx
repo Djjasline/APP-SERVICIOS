@@ -1,8 +1,9 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
+import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { getVehicleReferenceCatalog, getWarehouseInventory, getWarehouseLocations } from "@/services/warehouseInventoryService";
-import { AlertTriangle, Database, Package, RefreshCw, Search, Warehouse } from "lucide-react";
+import { AlertTriangle, Database, Package, PackagePlus, RefreshCw, Search, Warehouse } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const SOURCE_STOCK = "stock";
@@ -47,6 +48,7 @@ function sortRows(rows, sort, accessors) {
 
 export default function BodegaHome() {
   const { isLight } = useTheme();
+  const { isSuperAdmin } = useAuth();
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [referenceItems, setReferenceItems] = useState([]);
@@ -124,6 +126,21 @@ export default function BodegaHome() {
     sheet_name: (item) => item.sheet_name || item.source_file,
   }), [referenceItems, referenceSort]);
 
+  const areaSummary = useMemo(() => {
+    const rows = viewingReference ? referenceItems : items;
+    const stockField = viewingReference ? "reference_stock" : "physical_stock";
+    const grouped = rows.reduce((acc, item) => {
+      const area = item.area || (viewingReference ? "Vehículos" : "Sin área");
+      if (!acc.has(area)) acc.set(area, { area, count: 0, quantity: 0 });
+      const current = acc.get(area);
+      current.count += 1;
+      current.quantity += Number(item[stockField]) || 0;
+      return acc;
+    }, new Map());
+
+    return Array.from(grouped.values()).sort((a, b) => b.count - a.count).slice(0, 6);
+  }, [items, referenceItems, viewingReference]);
+
   const toggleStockSort = (key) => {
     setStockSort((current) => ({
       key,
@@ -149,9 +166,16 @@ export default function BodegaHome() {
             {OPERACIONES_TEXT.bodega.description}
           </p>
         </div>
-        <button type="button" onClick={() => navigate("/operaciones")} className="btn-volver-orange">
-          Volver
-        </button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          {isSuperAdmin && (
+            <button type="button" onClick={() => navigate("/operaciones/bodega/nuevo")} className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+              <PackagePlus size={16} /> Nuevo artículo
+            </button>
+          )}
+          <button type="button" onClick={() => navigate("/operaciones")} className="btn-volver-orange">
+            Volver
+          </button>
+        </div>
       </div>
 
       <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900 shadow-sm">
@@ -167,6 +191,26 @@ export default function BodegaHome() {
         <StatCard title="Stock total" value={formatNumber(summary.stock)} icon={<Warehouse size={18} />} />
         <StatCard title="Ref. vehículos" value={formatNumber(summary.referenceRows)} icon={<Package size={18} />} />
       </div>
+
+      {areaSummary.length > 0 && (
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h3 className="font-semibold text-slate-900">Resumen por área</h3>
+              <p className="text-sm text-slate-500">Vista rápida de la fuente activa: {viewingReference ? "referencia histórica" : "stock actual"}.</p>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {areaSummary.map((item) => (
+              <div key={item.area} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <p className="font-semibold text-slate-900">{item.area}</p>
+                <p className="mt-1 text-sm text-slate-500">{formatNumber(item.count)} códigos</p>
+                <p className="text-sm font-semibold text-slate-700">Cantidad: {formatNumber(item.quantity)}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-slate-200 p-4 lg:flex-row lg:items-center lg:justify-between">

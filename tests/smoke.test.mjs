@@ -10,6 +10,7 @@ test("rutas criticas de lanzamiento estan protegidas", () => {
   assert.match(routes, /path="\/vehiculos\/configurador"[^\n]+SpecialModuleRoute[^\n]+configurador/);
   assert.match(routes, /path="\/vehiculos\/configurador\/ver\/:id"[^\n]+SpecialModuleRoute[^\n]+configurador/);
   assert.match(routes, /path="\/operaciones\/bodega"[^\n]+SpecialModuleRoute[^\n]+bodega/);
+  assert.match(routes, /path="\/operaciones\/bodega\/nuevo"[^\n]+SpecialModuleRoute[^\n]+bodega/);
   assert.match(routes, /path="\/operaciones\/bodega\/:source\/:id"[^\n]+SpecialModuleRoute[^\n]+bodega/);
   assert.match(routes, /path="\/agua\/recorrido\/informe\/\*"[^\n]+SpecialModuleRoute[^\n]+recorridoAgua/);
   assert.match(routes, /path="\*"[^\n]+<NotFound \/>/);
@@ -144,12 +145,26 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(home, /toggleReferenceSort/);
   assert.match(home, /physical_stock/);
   assert.match(home, /last_cost/);
+  assert.match(home, /Resumen por área/);
+  assert.match(home, /Nuevo artículo/);
 
   const detail = read("src/app/operaciones/bodega/BodegaItemDetail.jsx");
   assert.match(detail, /Ficha de artículo/);
   assert.match(detail, /Área \/ unidad de negocio/);
   assert.match(detail, /URL de imagen de referencia/);
   assert.match(detail, /updateWarehouseItemMetadata/);
+
+  const newItem = read("src/app/operaciones/bodega/BodegaItemNew.jsx");
+  assert.match(newItem, /Bodega multiárea/);
+  assert.match(newItem, /Stock real de bodega/);
+  assert.match(newItem, /Referencia histórica/);
+  assert.match(newItem, /createWarehouseItem/);
+  assert.match(newItem, /Agua/);
+  assert.match(newItem, /Petróleo/);
+
+  assert.match(service, /createWarehouseItem/);
+  assert.match(service, /STOCK_CREATE_FIELDS/);
+  assert.match(service, /VEHICLE_REFERENCE_CREATE_FIELDS/);
 
   const metadataSql = read("supabase/sql/warehouse_item_metadata.sql");
   assert.match(metadataSql, /alter table public\.warehouse_inventory/);

@@ -1,8 +1,8 @@
 import { supabase } from "@/lib/supabase";
 
-const SELECT_COLUMNS = "id, product_code, description, physical_stock, physical_location, cutoff_date, source_file, notes, updated_at";
-const VEHICLE_REFERENCE_COLUMNS = "id, product_code, description, sheet_name, reference_stock, last_cost, last_supplier, last_purchase_date, last_sale_date, last_client, last_comment, source_file, updated_at";
-const ITEM_METADATA_COLUMNS = "area, image_url, unit, weight_kg, brand, model, category, system, compatible_equipment, technical_specs, internal_notes";
+const SELECT_COLUMNS = "id, product_code, description, physical_stock, physical_location, cutoff_date, source_file, notes, area, updated_at";
+const VEHICLE_REFERENCE_COLUMNS = "id, product_code, description, sheet_name, reference_stock, last_cost, last_supplier, last_purchase_date, last_sale_date, last_client, last_comment, source_file, area, updated_at";
+const ITEM_METADATA_COLUMNS = "image_url, unit, weight_kg, brand, model, category, system, compatible_equipment, technical_specs, internal_notes";
 const STOCK_DETAIL_COLUMNS = `${SELECT_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
 const VEHICLE_REFERENCE_DETAIL_COLUMNS = `${VEHICLE_REFERENCE_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
 
@@ -38,6 +38,35 @@ const EDITABLE_METADATA_FIELDS = [
   "internal_notes",
 ];
 
+const STOCK_CREATE_FIELDS = [
+  "product_code",
+  "description",
+  "physical_stock",
+  "physical_location",
+  "cutoff_date",
+  "source_file",
+  "notes",
+  ...EDITABLE_METADATA_FIELDS,
+];
+
+const VEHICLE_REFERENCE_CREATE_FIELDS = [
+  "product_code",
+  "description",
+  "sheet_name",
+  "reference_stock",
+  "last_cost",
+  "last_supplier",
+  "last_purchase_date",
+  "last_sale_date",
+  "last_client",
+  "last_comment",
+  "source_file",
+  ...EDITABLE_METADATA_FIELDS,
+];
+
+const NUMERIC_FIELDS = new Set(["physical_stock", "reference_stock", "last_cost", "weight_kg"]);
+const DATE_FIELDS = new Set(["cutoff_date", "last_purchase_date", "last_sale_date"]);
+
 function normalizeSearch(value) {
   return String(value || "").replace(/[,%]/g, " ").trim();
 }
@@ -72,6 +101,42 @@ function normalizeMetadataPayload(payload) {
     acc[field] = String(value || "").trim() || null;
     return acc;
   }, { updated_at: new Date().toISOString() });
+}
+
+function normalizeCreatePayload(source, payload, userId) {
+  const fields = source === WAREHOUSE_ITEM_SOURCES.stock ? STOCK_CREATE_FIELDS : VEHICLE_REFERENCE_CREATE_FIELDS;
+  const normalized = fields.reduce((acc, field) => {
+    if (!Object.prototype.hasOwnProperty.call(payload, field)) return acc;
+    const value = payload[field];
+
+    if (NUMERIC_FIELDS.has(field)) {
+      acc[field] = value === "" || value === null || value === undefined ? null : Number(value);
+      return acc;
+    }
+
+    if (DATE_FIELDS.has(field)) {
+      acc[field] = value || null;
+      return acc;
+    }
+
+    acc[field] = String(value || "").trim() || null;
+    return acc;
+  }, { updated_at: new Date().toISOString() });
+
+  normalized.product_code = normalizeProductCode(normalized.product_code);
+  if (!normalized.product_code || !normalized.description) {
+    throw new Error("Código y descripción son obligatorios.");
+  }
+
+  if (source === WAREHOUSE_ITEM_SOURCES.stock) {
+    normalized.physical_stock = normalized.physical_stock ?? 0;
+  } else {
+    normalized.reference_stock = normalized.reference_stock ?? 0;
+    normalized.active = true;
+  }
+
+  if (userId) normalized.created_by = userId;
+  return normalized;
 }
 
 export async function getWarehouseInventory({ search = "", location = "", limit = 1000 } = {}) {
@@ -149,6 +214,19 @@ export async function updateWarehouseItemMetadata({ source, id, payload }) {
     .from(config.table)
     .update(metadata)
     .eq("id", id)
+    .select(config.columns)
+    .single();
+
+  if (error) throw error;
+  return config.normalize(data);
+}
+
+export async function createWarehouseItem({ source, payload, userId }) {
+  const config = getSourceConfig(source);
+  const row = normalizeCreatePayload(source, payload, userId);
+  const { data, error } = await supabase
+    .from(config.table)
+    .insert(row)
     .select(config.columns)
     .single();
 
