@@ -297,7 +297,7 @@ export default function CotizadorHome() {
           <OfferField multiline label="Garantía" value={offer.warranty} onChange={(value) => updateOffer("warranty", value)} />
           <OfferField multiline label="Notas" value={offer.notes} onChange={(value) => updateOffer("notes", value)} />
         </div>
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
+        <div className="mt-4 grid items-stretch gap-4 md:grid-cols-3">
           <SignatureField label="Firma preparado por" name={offer.preparedBy} signature={offer.signatures.prepared} onSignatureChange={(value) => updateSignature("prepared", value)} />
           <SignatureField label="Firma aprobado por" name={offer.approvedBy} signature={offer.signatures.approved} onSignatureChange={(value) => updateSignature("approved", value)} />
           <SignatureField label="Firma aceptación cliente" name={offer.acceptedBy} signature={offer.signatures.accepted} onSignatureChange={(value) => updateSignature("accepted", value)} />
@@ -450,7 +450,7 @@ function SignatureField({ label, name, signature, onSignatureChange }) {
   };
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+    <div className="flex h-full min-h-[152px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
       <div className="flex items-center justify-between gap-2">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
@@ -458,14 +458,14 @@ function SignatureField({ label, name, signature, onSignatureChange }) {
         </div>
         <button type="button" onClick={clearSignature} className="text-xs font-semibold text-red-600 hover:underline">Borrar firma</button>
       </div>
-      <div className="mt-2 h-28 rounded-lg border border-slate-300 bg-white">
+      <div className="mt-2 h-20 min-h-0 overflow-hidden rounded-lg border border-slate-300 bg-white">
         <SignatureCanvas
           ref={signatureRef}
           penColor="black"
           minWidth={0.5}
           maxWidth={1.8}
           onEnd={handleEnd}
-          canvasProps={{ className: "h-full w-full" }}
+          canvasProps={{ className: "block h-full w-full" }}
         />
       </div>
     </div>
