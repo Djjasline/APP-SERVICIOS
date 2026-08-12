@@ -30,6 +30,7 @@ import {
   SlidersHorizontal,
   ClipboardList,
   ClipboardCheck,
+  Calculator,
   FileText,
   MapPin,
   Package,
@@ -60,6 +61,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
   const puedeVerTodo = !proveedorSoloVehiculos;
   const puedeUsarConfigurador = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.configurador);
+  const puedeUsarCotizador = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.cotizador);
   const puedeUsarRecorridoAgua = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.recorridoAgua);
   const puedeUsarBodega = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.bodega);
   const informeGeneralTooltip =
@@ -88,7 +90,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       path.startsWith("/informe") ||
       path.startsWith("/inspeccion") ||
       path.startsWith("/mantenimiento") ||
-      path.startsWith("/configurador");
+      path.startsWith("/configurador") ||
+      path.startsWith("/cotizador");
 
     const isAguaPath =
       path.startsWith("/area/agua") || path.startsWith("/agua");
@@ -364,6 +367,20 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 }
               >
                 {subLabel(SlidersHorizontal, "Configurador 🚧 · 90%")}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => puedeUsarCotizador && go("/vehiculos/cotizador")}
+                disabled={!puedeUsarCotizador}
+                title={puedeUsarCotizador ? "Acceso exclusivo habilitado" : "Acceso exclusivo"}
+                className={
+                  puedeUsarCotizador
+                    ? subItemClass("/vehiculos/cotizador")
+                    : `${subItemClass("/vehiculos/cotizador")} cursor-not-allowed opacity-50`
+                }
+              >
+                {subLabel(Calculator, "Cotizador")}
               </button>
             </div>
           )}

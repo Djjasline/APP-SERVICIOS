@@ -2,6 +2,7 @@ export const CONFIGURADOR_OWNER_EMAIL = "smaviles@astap.com";
 
 export const SPECIAL_MODULE_KEYS = {
   configurador: "configurador",
+  cotizador: "cotizador",
   recorridoAgua: "recorrido_agua",
   encuestasSatisfaccion: "encuestas_satisfaccion",
   bodega: "bodega",
@@ -13,7 +14,14 @@ export const SPECIAL_MODULES = [
     area: "vehiculos",
     tipo: "configurador",
     label: "Configurador Vactor",
-    description: "Acceso al configurador comercial Vactor.",
+    description: "Acceso al configurador de equipos nuevos Vactor.",
+  },
+  {
+    key: SPECIAL_MODULE_KEYS.cotizador,
+    area: "vehiculos",
+    tipo: "cotizador",
+    label: "Cotizador de repuestos y servicios",
+    description: "Acceso al cotizador comercial conectado a bodega.",
   },
   {
     key: SPECIAL_MODULE_KEYS.recorridoAgua,

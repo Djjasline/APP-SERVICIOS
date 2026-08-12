@@ -9,6 +9,7 @@ test("rutas criticas de lanzamiento estan protegidas", () => {
 
   assert.match(routes, /path="\/vehiculos\/configurador"[^\n]+SpecialModuleRoute[^\n]+configurador/);
   assert.match(routes, /path="\/vehiculos\/configurador\/ver\/:id"[^\n]+SpecialModuleRoute[^\n]+configurador/);
+  assert.match(routes, /path="\/vehiculos\/cotizador"[^\n]+SpecialModuleRoute[^\n]+cotizador/);
   assert.match(routes, /path="\/operaciones\/bodega"[^\n]+SpecialModuleRoute[^\n]+bodega/);
   assert.match(routes, /path="\/operaciones\/bodega\/nuevo"[^\n]+SpecialModuleRoute[^\n]+bodega/);
   assert.match(routes, /path="\/operaciones\/bodega\/:source\/:id"[^\n]+SpecialModuleRoute[^\n]+bodega/);
@@ -19,7 +20,7 @@ test("rutas criticas de lanzamiento estan protegidas", () => {
 test("modulos especiales conservan llaves esperadas", () => {
   const accessControl = read("src/constants/accessControl.js");
 
-  for (const key of ["configurador", "recorrido_agua", "encuestas_satisfaccion", "bodega"]) {
+  for (const key of ["configurador", "cotizador", "recorrido_agua", "encuestas_satisfaccion", "bodega"]) {
     assert.match(accessControl, new RegExp(`"${key}"`));
   }
 
@@ -38,13 +39,9 @@ test("configurador mantiene dueno, vista previa e imagen proporcional", () => {
   assert.match(service, /regenerateConfiguratorQuotePdf/);
   assert.match(home, /navigate\(`\/vehiculos\/configurador\/ver\/\$\{quoteId\}`\)/);
   assert.match(home, /navigate\(`\/vehiculos\/configurador\/ver\/\$\{editingQuoteId\}`\)/);
-  assert.match(home, /Cruce con Bodega/);
-  assert.match(home, /Disponible en bodega/);
-  assert.match(home, /Solo referencia histórica/);
-  assert.match(home, /Bajo pedido \/ validar/);
-  assert.match(home, /getWarehouseAvailabilityForQuoteItems/);
-  assert.match(home, /AvailabilityBadge/);
-  assert.match(home, /No reserva ni descuenta stock/);
+  assert.doesNotMatch(home, /Cruce con Bodega/);
+  assert.doesNotMatch(home, /getWarehouseAvailabilityForQuoteItems/);
+  assert.doesNotMatch(home, /AvailabilityBadge/);
   assert.match(warehouseService, /getWarehouseAvailabilityForQuoteItems/);
   assert.match(warehouseService, /WAREHOUSE_AVAILABILITY_STATUS/);
   assert.match(warehouseService, /warehouse_inventory/);
@@ -72,15 +69,15 @@ test("RLS versionado cubre registros, perfiles, bodega y configurador", () => {
 
   assert.match(warehouseSql, /Usuario con permiso especial consulta inventario de bodega/);
   assert.match(warehouseSql, /p\.tipo = 'bodega'/);
-  assert.match(warehouseSql, /Usuario configurador consulta inventario para cotizador/);
-  assert.match(warehouseSql, /p\.tipo = 'configurador'/);
+  assert.match(warehouseSql, /Usuario cotizador consulta inventario/);
+  assert.match(warehouseSql, /p\.tipo = 'cotizador'/);
 
   assert.match(vehicleReferenceSql, /create table if not exists public\.vehicle_reference_catalog/);
   assert.match(vehicleReferenceSql, /reference_stock numeric/);
   assert.match(vehicleReferenceSql, /Usuario con permiso bodega consulta referencia historica vehiculos/);
   assert.match(vehicleReferenceSql, /p\.tipo = 'bodega'/);
-  assert.match(vehicleReferenceSql, /Usuario configurador consulta referencia para cotizador/);
-  assert.match(vehicleReferenceSql, /p\.tipo = 'configurador'/);
+  assert.match(vehicleReferenceSql, /Usuario cotizador consulta referencia/);
+  assert.match(vehicleReferenceSql, /p\.tipo = 'cotizador'/);
   assert.match(warehouseSql, /image_url text/);
   assert.match(warehouseSql, /compatible_equipment text/);
   assert.match(vehicleReferenceSql, /image_url text/);
@@ -257,4 +254,25 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(detail, /Movimientos y uso/);
   assert.match(detail, /createWarehouseItemMovement/);
   assert.match(detail, /getWarehouseItemMovements/);
+});
+
+test("cotizador es modulo separado para repuestos y servicios", () => {
+  const cotizador = read("src/app/vehiculos/cotizador/CotizadorHome.jsx");
+  const area = read("src/pages/AreaVehiculos.jsx");
+  const sidebar = read("src/layouts/Sidebar.jsx");
+  const text = read("src/constants/vehiculosText.js");
+
+  assert.match(cotizador, /Cotizador independiente del configurador de equipos nuevos/);
+  assert.match(cotizador, /getWarehouseInventory/);
+  assert.match(cotizador, /getVehicleReferenceCatalog/);
+  assert.match(cotizador, /Stock real de bodega/);
+  assert.match(cotizador, /Referencia histórica/);
+  assert.match(cotizador, /Agregar servicio manual/);
+  assert.match(cotizador, /requieren aprobación/);
+  assert.match(cotizador, /MVP operativo/);
+  assert.match(area, /SPECIAL_MODULE_KEYS\.cotizador/);
+  assert.match(area, /VEHICULOS_TEXT\.cotizador/);
+  assert.match(sidebar, /puedeUsarCotizador/);
+  assert.match(sidebar, /\/vehiculos\/cotizador/);
+  assert.match(text, /Cotizador de repuestos y servicios/);
 });

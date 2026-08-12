@@ -54,6 +54,7 @@ const ProtocoloVCamForm = lazy(() => import("./app/vehiculos/protocolos/Protocol
 const ProtocoloVCamPDF = lazy(() => import("./app/vehiculos/protocolos/ProtocoloVCamPDF"));
 const ConfiguradorHome = lazy(() => import("./app/vehiculos/configurador/ConfiguradorHome"));
 const ConfiguradorQuoteView = lazy(() => import("./app/vehiculos/configurador/ConfiguradorQuoteView"));
+const CotizadorHome = lazy(() => import("./app/vehiculos/cotizador/CotizadorHome"));
 const ManualesTecnicos = lazy(() => import("./app/repositorios/ManualesTecnicos"));
 const DocumotoElgin = lazy(() => import("./app/repositorios/DocumotoElgin"));
 const MarcasProductos = lazy(() => import("./app/repositorios/MarcasProductos"));
@@ -327,6 +328,7 @@ export default function RoutesApp() {
             <Route path="/vehiculos/protocolos/vcam/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/operaciones/protocolos"><ProtocoloVCamForm /></RecordPermissionRoute></TechRoute>} />
             <Route path="/vehiculos/configurador" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.configurador} fallback="/area/vehiculos"><ConfiguradorHome /></SpecialModuleRoute>} />
             <Route path="/vehiculos/configurador/ver/:id" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.configurador} fallback="/area/vehiculos"><ConfiguradorQuoteView /></SpecialModuleRoute>} />
+            <Route path="/vehiculos/cotizador" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.cotizador} fallback="/area/vehiculos"><CotizadorHome /></SpecialModuleRoute>} />
 
             <Route path="/liberacion" element={<Navigate to="/operaciones/liberacion" replace />} />
             <Route path="/liberacion/nuevo" element={<Navigate to="/operaciones/liberacion/nuevo" replace />} />

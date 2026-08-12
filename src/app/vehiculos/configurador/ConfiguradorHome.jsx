@@ -6,7 +6,6 @@ import { useTheme } from "@/context/ThemeContext";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { downloadConfiguratorPdf } from "./configuratorPdf";
 import { getConfiguratorQuoteById, getConfiguratorQuoteHistory, regenerateConfiguratorQuotePdf, saveConfiguratorQuote, updateConfiguratorQuote } from "@/services/configuratorQuoteService";
-import { getWarehouseAvailabilityForQuoteItems, WAREHOUSE_AVAILABILITY_STATUS } from "@/services/warehouseInventoryService";
 
 const VACTOR_LINE_IMAGE = "/vactor-linea.png.png";
 const SPRITE_COLUMNS = 4;
@@ -347,10 +346,6 @@ export default function ConfiguradorHome() {
   const [usageProfileId, setUsageProfileId] = useState("sewer");
   const [editingQuoteId, setEditingQuoteId] = useState("");
   const [quote, setQuote] = useState(createInitialQuote);
-  const [availabilityItems, setAvailabilityItems] = useState([]);
-  const [availabilityKey, setAvailabilityKey] = useState("");
-  const [availabilityLoading, setAvailabilityLoading] = useState(false);
-  const [availabilityError, setAvailabilityError] = useState("");
 
   const selectedModel = MODELS.find((model) => model.id === selectedModelId) || MODELS[0];
   const visibleModels = useMemo(
@@ -387,8 +382,6 @@ export default function ConfiguradorHome() {
 
     return [...selectedFields, ...enabledToggles].filter((item) => item.price !== 0 || item.value !== SELECT_OPTIONS[item.key]?.[0]?.[0]);
   }, [config, priorityLookup, toggles]);
-  const configuredItemsKey = useMemo(() => configuredItems.map((item) => `${item.key}:${item.value}`).join("|"), [configuredItems]);
-  const quoteItems = availabilityKey === configuredItemsKey ? availabilityItems : configuredItems;
 
   const updateQuote = (key, value) => setQuote((prev) => ({ ...prev, [key]: value }));
   const updateConfig = (key, value) => setConfig((prev) => ({ ...prev, [key]: value }));
@@ -418,8 +411,8 @@ export default function ConfiguradorHome() {
   };
 
   const quotePayload = useMemo(
-    () => ({ quote, selectedModelId, selectedModel, config, toggles, priceSummary, items: quoteItems, hideValues, showMoreModels, usageProfileId, usageProfile }),
-    [config, hideValues, priceSummary, quote, quoteItems, selectedModel, selectedModelId, showMoreModels, toggles, usageProfile, usageProfileId]
+    () => ({ quote, selectedModelId, selectedModel, config, toggles, priceSummary, items: configuredItems, hideValues, showMoreModels, usageProfileId, usageProfile }),
+    [config, configuredItems, hideValues, priceSummary, quote, selectedModel, selectedModelId, showMoreModels, toggles, usageProfile, usageProfileId]
   );
 
   const loadHistory = useCallback(async () => {
@@ -476,44 +469,6 @@ export default function ConfiguradorHome() {
   useEffect(() => {
     restoreLocalDraft();
   }, [restoreLocalDraft]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadAvailability() {
-      if (configuredItems.length === 0) {
-        setAvailabilityItems([]);
-        setAvailabilityKey("");
-        setAvailabilityError("");
-        return;
-      }
-
-      setAvailabilityLoading(true);
-      setAvailabilityError("");
-
-      try {
-        const rows = await getWarehouseAvailabilityForQuoteItems(configuredItems);
-        if (!cancelled) {
-          setAvailabilityItems(rows);
-          setAvailabilityKey(configuredItemsKey);
-        }
-      } catch (error) {
-        console.error("Error consultando disponibilidad de bodega para cotizador:", error);
-        if (!cancelled) {
-          setAvailabilityItems(configuredItems.map((item) => ({ ...item, availability: { status: WAREHOUSE_AVAILABILITY_STATUS.unavailable, label: "Sin datos de bodega", note: "No se pudo consultar disponibilidad." } })));
-          setAvailabilityKey(configuredItemsKey);
-          setAvailabilityError("No se pudo consultar disponibilidad de bodega. La cotización puede continuar sin reserva.");
-        }
-      } finally {
-        if (!cancelled) setAvailabilityLoading(false);
-      }
-    }
-
-    loadAvailability();
-    return () => {
-      cancelled = true;
-    };
-  }, [configuredItems, configuredItemsKey]);
 
   const resetConfigurator = () => {
     setSelectedModelId("2100i");
@@ -834,7 +789,7 @@ export default function ConfiguradorHome() {
 
         <div className="p-4">
           {activeTab === "review" ? (
-            <ReviewPanel quote={quote} selectedModel={selectedModel} priceSummary={priceSummary} items={quoteItems} hideValues={hideValues} usageProfile={usageProfile} prioritySummary={prioritySummary} availabilityLoading={availabilityLoading} availabilityError={availabilityError} />
+            <ReviewPanel quote={quote} selectedModel={selectedModel} priceSummary={priceSummary} items={configuredItems} hideValues={hideValues} usageProfile={usageProfile} prioritySummary={prioritySummary} />
           ) : (
             <div className="space-y-6">
               {(SECTIONS[activeTab] || []).map((section) => (
@@ -1027,40 +982,6 @@ function PriorityBadge({ priority }) {
   return <span className={`w-fit rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ring-1 ${PRIORITY_BADGE_CLASS[priority] || PRIORITY_BADGE_CLASS.Complementarias}`}>{priority}</span>;
 }
 
-function getAvailabilitySummary(items) {
-  return items.reduce((acc, item) => {
-    const status = item.availability?.status || WAREHOUSE_AVAILABILITY_STATUS.order;
-    acc[status] = (acc[status] || 0) + 1;
-    return acc;
-  }, { stock: 0, reference: 0, order: 0, unavailable: 0 });
-}
-
-function AvailabilityStat({ label, value }) {
-  return (
-    <div className="rounded-xl border border-amber-200 bg-white/80 p-3 text-sm">
-      <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">{label}</p>
-      <p className="mt-1 text-xl font-bold text-slate-900">{value}</p>
-    </div>
-  );
-}
-
-function AvailabilityBadge({ availability }) {
-  if (!availability) return null;
-
-  const classes = {
-    [WAREHOUSE_AVAILABILITY_STATUS.stock]: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-    [WAREHOUSE_AVAILABILITY_STATUS.reference]: "bg-blue-50 text-blue-700 ring-blue-200",
-    [WAREHOUSE_AVAILABILITY_STATUS.order]: "bg-amber-50 text-amber-700 ring-amber-200",
-    [WAREHOUSE_AVAILABILITY_STATUS.unavailable]: "bg-slate-100 text-slate-600 ring-slate-200",
-  };
-
-  return (
-    <span className={`ml-2 inline-flex align-middle rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ring-1 ${classes[availability.status] || classes[WAREHOUSE_AVAILABILITY_STATUS.order]}`}>
-      {availability.label}
-    </span>
-  );
-}
-
 function ConfigSection({ section, config, toggles, updateConfig, updateToggle, hideValues, priorityLookup }) {
   return (
     <section>
@@ -1113,9 +1034,7 @@ function OptionInfo({ info }) {
   );
 }
 
-function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues, usageProfile, prioritySummary, availabilityLoading, availabilityError }) {
-  const availabilitySummary = getAvailabilitySummary(items);
-
+function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues, usageProfile, prioritySummary }) {
   return (
     <div className="space-y-5">
       <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
@@ -1160,22 +1079,6 @@ function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues, us
         </div>
       </div>
 
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h3 className="font-bold">Cruce con Bodega</h3>
-            <p className="mt-1 text-sm">Consulta informativa. No reserva ni descuenta stock; cualquier movimiento deberá pasar por aprobación.</p>
-          </div>
-          {availabilityLoading && <span className="text-sm font-semibold text-amber-700">Consultando disponibilidad...</span>}
-        </div>
-        <div className="mt-3 grid gap-2 md:grid-cols-3">
-          <AvailabilityStat label="Disponible en bodega" value={availabilitySummary.stock} />
-          <AvailabilityStat label="Solo referencia histórica" value={availabilitySummary.reference} />
-          <AvailabilityStat label="Bajo pedido / validar" value={availabilitySummary.order + availabilitySummary.unavailable} />
-        </div>
-        {availabilityError && <p className="mt-3 text-sm font-semibold text-red-700">{availabilityError}</p>}
-      </div>
-
       <div className="overflow-hidden rounded-2xl border border-slate-200">
         <div className={`grid ${hideValues ? "grid-cols-1" : "grid-cols-[1fr_120px]"} bg-slate-900 px-4 py-2 text-sm font-semibold text-white`}>
           <span>Configuración seleccionada</span>
@@ -1189,9 +1092,7 @@ function ReviewPanel({ quote, selectedModel, priceSummary, items, hideValues, us
               <span>
                 <strong>{item.label}:</strong> {item.value}
                 {item.priority && <span className="ml-2 inline-flex align-middle"><PriorityBadge priority={item.priority} /></span>}
-                <AvailabilityBadge availability={item.availability} />
                 {item.info && <span className="mt-1 block text-xs leading-5 text-slate-500">{item.info.function} | {item.info.reference}</span>}
-                {item.availability?.note && <span className="mt-1 block text-xs leading-5 text-slate-500">Bodega: {item.availability.note}</span>}
               </span>
               {!hideValues && <span className="text-right font-semibold">{formatImpact(item.price)}</span>}
             </div>

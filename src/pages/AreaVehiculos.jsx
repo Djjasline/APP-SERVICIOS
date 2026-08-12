@@ -3,7 +3,7 @@ import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { SPECIAL_MODULE_KEYS } from "@/constants/accessControl";
 import { useTheme } from "@/context/ThemeContext";
 import { useSpecialModuleAccess } from "@/hooks/useSpecialModuleAccess";
-import { FileText, ClipboardCheck, Wrench, SlidersHorizontal, Star } from "lucide-react";
+import { Calculator, FileText, ClipboardCheck, Wrench, SlidersHorizontal, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaVehiculos() {
@@ -11,6 +11,7 @@ export default function AreaVehiculos() {
   const navigate = useNavigate();
   const { hasSpecialModuleAccess } = useSpecialModuleAccess();
   const puedeUsarConfigurador = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.configurador);
+  const puedeUsarCotizador = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.cotizador);
   const puedeUsarEncuestas = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.encuestasSatisfaccion);
 
   return (
@@ -69,6 +70,16 @@ export default function AreaVehiculos() {
   color="bg-orange-600"
   icono={<SlidersHorizontal size={20} />}
   disabled={!puedeUsarConfigurador}
+  disabledLabel="Acceso exclusivo"
+/>
+
+<CardModulo
+  titulo={VEHICULOS_TEXT.cotizador.title}
+  descripcion={VEHICULOS_TEXT.cotizador.description}
+  ruta="/vehiculos/cotizador"
+  color="bg-slate-900"
+  icono={<Calculator size={20} />}
+  disabled={!puedeUsarCotizador}
   disabledLabel="Acceso exclusivo"
 />
 

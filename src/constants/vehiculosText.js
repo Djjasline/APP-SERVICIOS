@@ -17,6 +17,11 @@ export const VEHICULOS_TEXT = {
   configurador: {
     title: "Configurador 🚧 · 90% de avance",
     description:
-      "Configurador técnico tipo CPQ para seleccionar modelos, módulos, sistemas, pintura, accesorios y revisión de cotización.",
+      "Configurador técnico tipo CPQ para equipos nuevos: modelos, módulos, sistemas, pintura, accesorios y revisión.",
+  },
+  cotizador: {
+    title: "Cotizador de repuestos y servicios",
+    description:
+      "Cotizador comercial para repuestos y servicios, conectado a stock real y referencia histórica de Bodega.",
   },
 };
