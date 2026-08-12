@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 
 const SOURCE_STOCK = "stock";
 const SOURCE_VEHICLE_REFERENCE = "vehicle-reference";
+const SORT_ASC = "asc";
+const SORT_DESC = "desc";
 
 function formatNumber(value) {
   return new Intl.NumberFormat("es-EC", { maximumFractionDigits: 2 }).format(Number(value) || 0);
@@ -21,6 +23,28 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("es-EC", { dateStyle: "medium" }).format(new Date(value));
 }
 
+function normalizeSortText(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function compareValues(a, b) {
+  if (typeof a === "number" || typeof b === "number") {
+    return (Number(a) || 0) - (Number(b) || 0);
+  }
+
+  return normalizeSortText(a).localeCompare(normalizeSortText(b), "es", { numeric: true });
+}
+
+function sortRows(rows, sort, accessors) {
+  const accessor = accessors[sort.key];
+  if (!accessor) return rows;
+
+  return [...rows].sort((a, b) => {
+    const result = compareValues(accessor(a), accessor(b));
+    return sort.direction === SORT_ASC ? result : -result;
+  });
+}
+
 export default function BodegaHome() {
   const { isLight } = useTheme();
   const navigate = useNavigate();
@@ -33,6 +57,8 @@ export default function BodegaHome() {
   const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [stockSort, setStockSort] = useState({ key: "product_code", direction: SORT_ASC });
+  const [referenceSort, setReferenceSort] = useState({ key: "product_code", direction: SORT_ASC });
 
   const viewingReference = source === SOURCE_VEHICLE_REFERENCE;
 
@@ -79,6 +105,38 @@ export default function BodegaHome() {
       referenceStock,
     };
   }, [items, referenceItems, locations.length]);
+
+  const sortedItems = useMemo(() => sortRows(items, stockSort, {
+    product_code: (item) => item.product_code,
+    description: (item) => item.description,
+    physical_stock: (item) => Number(item.physical_stock) || 0,
+    physical_location: (item) => item.physical_location,
+    cutoff_date: (item) => item.cutoff_date,
+  }), [items, stockSort]);
+
+  const sortedReferenceItems = useMemo(() => sortRows(referenceItems, referenceSort, {
+    product_code: (item) => item.product_code,
+    description: (item) => item.description,
+    reference_stock: (item) => Number(item.reference_stock) || 0,
+    last_cost: (item) => Number(item.last_cost) || 0,
+    last_supplier: (item) => item.last_supplier,
+    last_client: (item) => item.last_client,
+    sheet_name: (item) => item.sheet_name || item.source_file,
+  }), [referenceItems, referenceSort]);
+
+  const toggleStockSort = (key) => {
+    setStockSort((current) => ({
+      key,
+      direction: current.key === key && current.direction === SORT_ASC ? SORT_DESC : SORT_ASC,
+    }));
+  };
+
+  const toggleReferenceSort = (key) => {
+    setReferenceSort((current) => ({
+      key,
+      direction: current.key === key && current.direction === SORT_ASC ? SORT_DESC : SORT_ASC,
+    }));
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -178,7 +236,7 @@ export default function BodegaHome() {
             referenceItems.length === 0 ? (
               <p className="text-sm text-slate-500">Aún no hay referencia histórica de vehículos importada.</p>
             ) : (
-              <VehicleReferenceTable items={referenceItems} />
+              <VehicleReferenceTable items={sortedReferenceItems} sort={referenceSort} onSort={toggleReferenceSort} />
             )
           ) : items.length === 0 ? (
             <p className="text-sm text-slate-500">Aún no hay inventario actual importado.</p>
@@ -186,15 +244,15 @@ export default function BodegaHome() {
             <table className="min-w-full text-left text-sm">
               <thead className="bg-slate-900 text-white">
                 <tr>
-                  <th className="px-3 py-2 font-semibold">Código</th>
-                  <th className="px-3 py-2 font-semibold">Descripción</th>
-                  <th className="px-3 py-2 text-right font-semibold">Stock físico</th>
-                  <th className="px-3 py-2 font-semibold">Ubicación</th>
-                  <th className="px-3 py-2 font-semibold">Fecha corte</th>
+                  <SortableTh sortKey="product_code" sort={stockSort} onSort={toggleStockSort}>Código</SortableTh>
+                  <SortableTh sortKey="description" sort={stockSort} onSort={toggleStockSort}>Descripción</SortableTh>
+                  <SortableTh sortKey="physical_stock" sort={stockSort} onSort={toggleStockSort} align="right">Stock físico</SortableTh>
+                  <SortableTh sortKey="physical_location" sort={stockSort} onSort={toggleStockSort}>Ubicación</SortableTh>
+                  <SortableTh sortKey="cutoff_date" sort={stockSort} onSort={toggleStockSort}>Fecha corte</SortableTh>
                 </tr>
               </thead>
               <tbody>
-                {items.map((item) => (
+                {sortedItems.map((item) => (
                   <tr key={item.id} className="border-b border-slate-200 odd:bg-slate-50">
                     <td className="px-3 py-2 font-semibold text-slate-900">{item.product_code}</td>
                     <td className="px-3 py-2 text-slate-700">{item.description}</td>
@@ -233,18 +291,31 @@ function formatMoney(value) {
   return new Intl.NumberFormat("es-EC", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(Number(value) || 0);
 }
 
-function VehicleReferenceTable({ items }) {
+function SortableTh({ sortKey, sort, onSort, align = "left", children }) {
+  const active = sort.key === sortKey;
+  const arrow = active ? (sort.direction === SORT_ASC ? " ↑" : " ↓") : "";
+
+  return (
+    <th className={`px-3 py-2 font-semibold ${align === "right" ? "text-right" : ""}`}>
+      <button type="button" onClick={() => onSort(sortKey)} className="inline-flex items-center gap-1 text-left hover:underline">
+        {children}{arrow}
+      </button>
+    </th>
+  );
+}
+
+function VehicleReferenceTable({ items, sort, onSort }) {
   return (
     <table className="min-w-full text-left text-sm">
       <thead className="bg-blue-950 text-white">
         <tr>
-          <th className="px-3 py-2 font-semibold">Código</th>
-          <th className="px-3 py-2 font-semibold">Descripción</th>
-          <th className="px-3 py-2 text-right font-semibold">Saldo ref.</th>
-          <th className="px-3 py-2 text-right font-semibold">Último costo</th>
-          <th className="px-3 py-2 font-semibold">Proveedor</th>
-          <th className="px-3 py-2 font-semibold">Último cliente</th>
-          <th className="px-3 py-2 font-semibold">Origen</th>
+          <SortableTh sortKey="product_code" sort={sort} onSort={onSort}>Código</SortableTh>
+          <SortableTh sortKey="description" sort={sort} onSort={onSort}>Descripción</SortableTh>
+          <SortableTh sortKey="reference_stock" sort={sort} onSort={onSort} align="right">Saldo ref.</SortableTh>
+          <SortableTh sortKey="last_cost" sort={sort} onSort={onSort} align="right">Último costo</SortableTh>
+          <SortableTh sortKey="last_supplier" sort={sort} onSort={onSort}>Proveedor</SortableTh>
+          <SortableTh sortKey="last_client" sort={sort} onSort={onSort}>Último cliente</SortableTh>
+          <SortableTh sortKey="sheet_name" sort={sort} onSort={onSort}>Origen</SortableTh>
         </tr>
       </thead>
       <tbody>

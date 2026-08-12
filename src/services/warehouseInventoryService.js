@@ -8,7 +8,7 @@ function normalizeSearch(value) {
 }
 
 function normalizeProductCode(value) {
-  return String(value || "").trim().replace(/^[`'"‘’]+/, "");
+  return String(value || "").trim().replace(/^[`'"‘’´]+/, "");
 }
 
 function normalizeVehicleReferenceRow(item) {

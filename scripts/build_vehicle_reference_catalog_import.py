@@ -43,7 +43,7 @@ def clean_text(value):
 
 
 def clean_product_code(value):
-    return clean_text(value).lstrip("`'\"‘’")
+    return clean_text(value).lstrip("`'\"‘’´")
 
 
 def to_number(value):
