@@ -2,6 +2,41 @@ import { supabase } from "@/lib/supabase";
 
 const SELECT_COLUMNS = "id, product_code, description, physical_stock, physical_location, cutoff_date, source_file, notes, updated_at";
 const VEHICLE_REFERENCE_COLUMNS = "id, product_code, description, sheet_name, reference_stock, last_cost, last_supplier, last_purchase_date, last_sale_date, last_client, last_comment, source_file, updated_at";
+const ITEM_METADATA_COLUMNS = "area, image_url, unit, weight_kg, brand, model, category, system, compatible_equipment, technical_specs, internal_notes";
+const STOCK_DETAIL_COLUMNS = `${SELECT_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
+const VEHICLE_REFERENCE_DETAIL_COLUMNS = `${VEHICLE_REFERENCE_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
+
+export const WAREHOUSE_ITEM_SOURCES = {
+  stock: "stock",
+  vehicleReference: "vehicle-reference",
+};
+
+const SOURCE_CONFIG = {
+  [WAREHOUSE_ITEM_SOURCES.stock]: {
+    table: "warehouse_inventory",
+    columns: STOCK_DETAIL_COLUMNS,
+    normalize: (item) => item,
+  },
+  [WAREHOUSE_ITEM_SOURCES.vehicleReference]: {
+    table: "vehicle_reference_catalog",
+    columns: VEHICLE_REFERENCE_DETAIL_COLUMNS,
+    normalize: normalizeVehicleReferenceRow,
+  },
+};
+
+const EDITABLE_METADATA_FIELDS = [
+  "image_url",
+  "area",
+  "unit",
+  "weight_kg",
+  "brand",
+  "model",
+  "category",
+  "system",
+  "compatible_equipment",
+  "technical_specs",
+  "internal_notes",
+];
 
 function normalizeSearch(value) {
   return String(value || "").replace(/[,%]/g, " ").trim();
@@ -16,6 +51,27 @@ function normalizeVehicleReferenceRow(item) {
     ...item,
     product_code: normalizeProductCode(item.product_code),
   };
+}
+
+function getSourceConfig(source) {
+  const config = SOURCE_CONFIG[source];
+  if (!config) throw new Error("Fuente de bodega no soportada.");
+  return config;
+}
+
+function normalizeMetadataPayload(payload) {
+  return EDITABLE_METADATA_FIELDS.reduce((acc, field) => {
+    if (!Object.prototype.hasOwnProperty.call(payload, field)) return acc;
+    const value = payload[field];
+
+    if (field === "weight_kg") {
+      acc[field] = value === "" || value === null || value === undefined ? null : Number(value);
+      return acc;
+    }
+
+    acc[field] = String(value || "").trim() || null;
+    return acc;
+  }, { updated_at: new Date().toISOString() });
 }
 
 export async function getWarehouseInventory({ search = "", location = "", limit = 1000 } = {}) {
@@ -72,4 +128,30 @@ export async function getVehicleReferenceCatalog({ search = "", limit = 1000 } =
 
   if (error) throw error;
   return (data || []).map(normalizeVehicleReferenceRow);
+}
+
+export async function getWarehouseItemDetail({ source, id }) {
+  const config = getSourceConfig(source);
+  const { data, error } = await supabase
+    .from(config.table)
+    .select(config.columns)
+    .eq("id", id)
+    .single();
+
+  if (error) throw error;
+  return config.normalize(data);
+}
+
+export async function updateWarehouseItemMetadata({ source, id, payload }) {
+  const config = getSourceConfig(source);
+  const metadata = normalizeMetadataPayload(payload);
+  const { data, error } = await supabase
+    .from(config.table)
+    .update(metadata)
+    .eq("id", id)
+    .select(config.columns)
+    .single();
+
+  if (error) throw error;
+  return config.normalize(data);
 }

@@ -69,6 +69,7 @@ const RegistroHome = lazy(() => import("./app/operaciones/registro/RegistroHome"
 const HojaRegistroHerramientas = lazy(() => import("./app/operaciones/registro/HojaRegistroHerramientas"));
 const RegistroPDF = lazy(() => import("./app/operaciones/registro/RegistroPDF"));
 const BodegaHome = lazy(() => import("./app/operaciones/bodega/BodegaHome"));
+const BodegaItemDetail = lazy(() => import("./app/operaciones/bodega/BodegaItemDetail"));
 const NotificationsPage = lazy(() => import("./pages/Notifications"));
 const ChatInterno = lazy(() => import("./pages/chat/ChatInterno"));
 const RegistroAccessAdmin = lazy(() => import("./pages/admin/RegistroAccessAdmin"));
@@ -355,6 +356,7 @@ export default function RoutesApp() {
             <Route path="/operaciones/registro/pdf/:id" element={<TechRoute><RecordPermissionRoute action="download" fallback="/operaciones/registro"><RegistroPDF /></RecordPermissionRoute></TechRoute>} />
             <Route path="/operaciones/registro/:id" element={<TechRoute><RecordPermissionRoute action="edit" fallback="/operaciones/registro"><HojaRegistroHerramientas /></RecordPermissionRoute></TechRoute>} />
             <Route path="/operaciones/bodega" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.bodega} fallback="/operaciones"><BodegaHome /></SpecialModuleRoute>} />
+            <Route path="/operaciones/bodega/:source/:id" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.bodega} fallback="/operaciones"><BodegaItemDetail /></SpecialModuleRoute>} />
 
             <Route path="/operaciones/protocolos" element={<TechRoute><ProtocolosHome /></TechRoute>} />
             <Route path="/operaciones/protocolos/vactor/new" element={<TechRoute><ProtocoloVactorForm /></TechRoute>} />

@@ -236,7 +236,7 @@ export default function BodegaHome() {
             referenceItems.length === 0 ? (
               <p className="text-sm text-slate-500">Aún no hay referencia histórica de vehículos importada.</p>
             ) : (
-              <VehicleReferenceTable items={sortedReferenceItems} sort={referenceSort} onSort={toggleReferenceSort} />
+              <VehicleReferenceTable items={sortedReferenceItems} sort={referenceSort} onSort={toggleReferenceSort} onOpen={(item) => navigate(`/operaciones/bodega/${SOURCE_VEHICLE_REFERENCE}/${item.id}`)} />
             )
           ) : items.length === 0 ? (
             <p className="text-sm text-slate-500">Aún no hay inventario actual importado.</p>
@@ -249,16 +249,22 @@ export default function BodegaHome() {
                   <SortableTh sortKey="physical_stock" sort={stockSort} onSort={toggleStockSort} align="right">Stock físico</SortableTh>
                   <SortableTh sortKey="physical_location" sort={stockSort} onSort={toggleStockSort}>Ubicación</SortableTh>
                   <SortableTh sortKey="cutoff_date" sort={stockSort} onSort={toggleStockSort}>Fecha corte</SortableTh>
+                  <th className="px-3 py-2 font-semibold">Ficha</th>
                 </tr>
               </thead>
               <tbody>
                 {sortedItems.map((item) => (
-                  <tr key={item.id} className="border-b border-slate-200 odd:bg-slate-50">
+                  <tr key={item.id} className="border-b border-slate-200 odd:bg-slate-50 hover:bg-amber-50">
                     <td className="px-3 py-2 font-semibold text-slate-900">{item.product_code}</td>
                     <td className="px-3 py-2 text-slate-700">{item.description}</td>
                     <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.physical_stock)}</td>
                     <td className="px-3 py-2 text-slate-700">{item.physical_location || "-"}</td>
                     <td className="px-3 py-2 text-slate-600">{formatDate(item.cutoff_date)}</td>
+                    <td className="px-3 py-2">
+                      <button type="button" onClick={() => navigate(`/operaciones/bodega/${SOURCE_STOCK}/${item.id}`)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-white">
+                        Abrir
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -304,7 +310,7 @@ function SortableTh({ sortKey, sort, onSort, align = "left", children }) {
   );
 }
 
-function VehicleReferenceTable({ items, sort, onSort }) {
+function VehicleReferenceTable({ items, sort, onSort, onOpen }) {
   return (
     <table className="min-w-full text-left text-sm">
       <thead className="bg-blue-950 text-white">
@@ -316,11 +322,12 @@ function VehicleReferenceTable({ items, sort, onSort }) {
           <SortableTh sortKey="last_supplier" sort={sort} onSort={onSort}>Proveedor</SortableTh>
           <SortableTh sortKey="last_client" sort={sort} onSort={onSort}>Último cliente</SortableTh>
           <SortableTh sortKey="sheet_name" sort={sort} onSort={onSort}>Origen</SortableTh>
+          <th className="px-3 py-2 font-semibold">Ficha</th>
         </tr>
       </thead>
       <tbody>
         {items.map((item) => (
-          <tr key={item.id} className="border-b border-slate-200 odd:bg-blue-50/40">
+          <tr key={item.id} className="border-b border-slate-200 odd:bg-blue-50/40 hover:bg-blue-100/60">
             <td className="px-3 py-2 font-semibold text-slate-900">{item.product_code}</td>
             <td className="px-3 py-2 text-slate-700">{item.description}</td>
             <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.reference_stock)}</td>
@@ -328,6 +335,11 @@ function VehicleReferenceTable({ items, sort, onSort }) {
             <td className="px-3 py-2 text-slate-700">{item.last_supplier || "-"}</td>
             <td className="px-3 py-2 text-slate-700">{item.last_client || "-"}</td>
             <td className="px-3 py-2 text-slate-600">{item.sheet_name || item.source_file || "Histórico vehículos"}</td>
+            <td className="px-3 py-2">
+              <button type="button" onClick={() => onOpen(item)} className="rounded-lg border border-blue-300 px-3 py-1.5 text-xs font-semibold text-blue-800 hover:bg-white">
+                Abrir
+              </button>
+            </td>
           </tr>
         ))}
       </tbody>

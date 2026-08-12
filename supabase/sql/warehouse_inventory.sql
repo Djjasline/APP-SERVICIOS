@@ -23,17 +23,44 @@ create table if not exists public.warehouse_inventory (
   physical_location text,
   cutoff_date date,
   source_file text,
+  area text,
+  image_url text,
+  unit text,
+  weight_kg numeric(12, 3),
+  brand text,
+  model text,
+  category text,
+  system text,
+  compatible_equipment text,
+  technical_specs text,
+  internal_notes text,
   notes text,
   created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
+alter table public.warehouse_inventory
+  add column if not exists area text,
+  add column if not exists image_url text,
+  add column if not exists unit text,
+  add column if not exists weight_kg numeric(12, 3),
+  add column if not exists brand text,
+  add column if not exists model text,
+  add column if not exists category text,
+  add column if not exists system text,
+  add column if not exists compatible_equipment text,
+  add column if not exists technical_specs text,
+  add column if not exists internal_notes text;
+
 create index if not exists warehouse_inventory_product_code_idx
   on public.warehouse_inventory(product_code);
 
 create index if not exists warehouse_inventory_location_idx
   on public.warehouse_inventory(physical_location);
+
+create index if not exists warehouse_inventory_area_idx
+  on public.warehouse_inventory(area);
 
 create index if not exists warehouse_inventory_description_trgm_idx
   on public.warehouse_inventory using gin (description gin_trgm_ops);

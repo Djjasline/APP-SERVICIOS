@@ -28,17 +28,44 @@ create table if not exists public.vehicle_reference_catalog (
   last_client text,
   last_comment text,
   source_file text,
+  area text,
+  image_url text,
+  unit text,
+  weight_kg numeric(12, 3),
+  brand text,
+  model text,
+  category text,
+  system text,
+  compatible_equipment text,
+  technical_specs text,
+  internal_notes text,
   active boolean not null default true,
   created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
+alter table public.vehicle_reference_catalog
+  add column if not exists area text,
+  add column if not exists image_url text,
+  add column if not exists unit text,
+  add column if not exists weight_kg numeric(12, 3),
+  add column if not exists brand text,
+  add column if not exists model text,
+  add column if not exists category text,
+  add column if not exists system text,
+  add column if not exists compatible_equipment text,
+  add column if not exists technical_specs text,
+  add column if not exists internal_notes text;
+
 create index if not exists vehicle_reference_catalog_product_code_idx
   on public.vehicle_reference_catalog(product_code);
 
 create index if not exists vehicle_reference_catalog_active_idx
   on public.vehicle_reference_catalog(active);
+
+create index if not exists vehicle_reference_catalog_area_idx
+  on public.vehicle_reference_catalog(area);
 
 create index if not exists vehicle_reference_catalog_description_trgm_idx
   on public.vehicle_reference_catalog using gin (description gin_trgm_ops);

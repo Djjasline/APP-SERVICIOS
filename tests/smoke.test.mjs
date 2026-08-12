@@ -10,6 +10,7 @@ test("rutas criticas de lanzamiento estan protegidas", () => {
   assert.match(routes, /path="\/vehiculos\/configurador"[^\n]+SpecialModuleRoute[^\n]+configurador/);
   assert.match(routes, /path="\/vehiculos\/configurador\/ver\/:id"[^\n]+SpecialModuleRoute[^\n]+configurador/);
   assert.match(routes, /path="\/operaciones\/bodega"[^\n]+SpecialModuleRoute[^\n]+bodega/);
+  assert.match(routes, /path="\/operaciones\/bodega\/:source\/:id"[^\n]+SpecialModuleRoute[^\n]+bodega/);
   assert.match(routes, /path="\/agua\/recorrido\/informe\/\*"[^\n]+SpecialModuleRoute[^\n]+recorridoAgua/);
   assert.match(routes, /path="\*"[^\n]+<NotFound \/>/);
 });
@@ -63,6 +64,10 @@ test("RLS versionado cubre registros, perfiles, bodega y configurador", () => {
   assert.match(vehicleReferenceSql, /reference_stock numeric/);
   assert.match(vehicleReferenceSql, /Usuario con permiso bodega consulta referencia historica vehiculos/);
   assert.match(vehicleReferenceSql, /p\.tipo = 'bodega'/);
+  assert.match(warehouseSql, /image_url text/);
+  assert.match(warehouseSql, /compatible_equipment text/);
+  assert.match(vehicleReferenceSql, /image_url text/);
+  assert.match(vehicleReferenceSql, /compatible_equipment text/);
 
   assert.match(configuratorSql, /pdf_error text/);
   assert.match(configuratorSql, /pdf_pendiente/);
@@ -139,4 +144,16 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(home, /toggleReferenceSort/);
   assert.match(home, /physical_stock/);
   assert.match(home, /last_cost/);
+
+  const detail = read("src/app/operaciones/bodega/BodegaItemDetail.jsx");
+  assert.match(detail, /Ficha de artículo/);
+  assert.match(detail, /Área \/ unidad de negocio/);
+  assert.match(detail, /URL de imagen de referencia/);
+  assert.match(detail, /updateWarehouseItemMetadata/);
+
+  const metadataSql = read("supabase/sql/warehouse_item_metadata.sql");
+  assert.match(metadataSql, /alter table public\.warehouse_inventory/);
+  assert.match(metadataSql, /alter table public\.vehicle_reference_catalog/);
+  assert.match(metadataSql, /area text/);
+  assert.match(metadataSql, /technical_specs text/);
 });
