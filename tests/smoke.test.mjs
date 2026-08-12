@@ -161,6 +161,11 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(home, /Falta:/);
   assert.match(home, /Fichas completas/);
   assert.match(home, /Fichas incompletas/);
+  assert.match(home, /Exportar CSV/);
+  assert.match(home, /downloadCsv/);
+  assert.match(home, /buildExportRows/);
+  assert.match(home, /Campos faltantes más comunes/);
+  assert.match(home, /missingFieldSummary/);
   assert.match(home, />Ubicación</);
   assert.match(home, />Proveedor</);
   assert.match(home, />Origen</);

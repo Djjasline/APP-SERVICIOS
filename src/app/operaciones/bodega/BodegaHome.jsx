@@ -114,6 +114,45 @@ function filterRows(rows, filters, viewingReference) {
   });
 }
 
+function escapeCsvValue(value) {
+  const text = String(value ?? "");
+  return /[";\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+function downloadCsv(filename, rows) {
+  const csv = rows.map((row) => row.map(escapeCsvValue).join(";")).join("\n");
+  const blob = new Blob([`\ufeff${csv}`], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function buildExportRows(rows, viewingReference) {
+  const header = ["Código", "Descripción", "Área", "Cantidad", "Ubicación", "Proveedor", "Último costo", "Origen", "Fecha", "Estado ficha", "Campos faltantes"];
+  const body = rows.map((item) => {
+    const status = getFichaStatus(item, viewingReference);
+    return [
+      item.product_code,
+      item.description,
+      item.area || "",
+      viewingReference ? item.reference_stock : item.physical_stock,
+      viewingReference ? "" : item.physical_location,
+      item.last_supplier || "",
+      viewingReference ? item.last_cost : "",
+      viewingReference ? (item.sheet_name || item.source_file || "Histórico vehículos") : item.source_file,
+      viewingReference ? formatDate(item.last_purchase_date || item.last_sale_date) : formatDate(item.cutoff_date),
+      status.label,
+      status.detail,
+    ];
+  });
+  return [header, ...body];
+}
+
 export default function BodegaHome() {
   const { isLight } = useTheme();
   const { isSuperAdmin } = useAuth();
@@ -215,6 +254,20 @@ export default function BodegaHome() {
       return acc;
     }, { complete: 0, incomplete: 0 });
   }, [items, referenceItems, viewingReference]);
+  const missingFieldSummary = useMemo(() => {
+    const rows = viewingReference ? referenceItems : items;
+    const counts = rows.reduce((acc, item) => {
+      for (const field of getFichaMissingFields(item, viewingReference)) {
+        acc.set(field, (acc.get(field) || 0) + 1);
+      }
+      return acc;
+    }, new Map());
+
+    return Array.from(counts.entries())
+      .map(([field, count]) => ({ field, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6);
+  }, [items, referenceItems, viewingReference]);
 
   const sortedItems = useMemo(() => sortRows(filteredItems, stockSort, {
     product_code: (item) => item.product_code,
@@ -288,6 +341,13 @@ export default function BodegaHome() {
   };
 
   const clearFilters = () => setFilters(DEFAULT_FILTERS);
+
+  const exportRows = viewingReference ? sortedReferenceItems : sortedItems;
+  const handleExportCsv = () => {
+    if (exportRows.length === 0) return;
+    const sourceLabel = viewingReference ? "referencia" : "stock";
+    downloadCsv(`bodega_${sourceLabel}_filtrado.csv`, buildExportRows(exportRows, viewingReference));
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -421,9 +481,14 @@ export default function BodegaHome() {
               <h4 className="font-semibold text-slate-900">Filtros avanzados</h4>
               <p className="text-sm text-slate-500">Filtra la fuente activa por área, proveedor, disponibilidad y estado de ficha.</p>
             </div>
-            <button type="button" onClick={clearFilters} disabled={activeFilterCount === 0} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50">
-              Limpiar filtros{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
-            </button>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <button type="button" onClick={handleExportCsv} disabled={exportRows.length === 0} className="rounded-lg border border-emerald-300 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-50">
+                Exportar CSV ({formatNumber(exportRows.length)})
+              </button>
+              <button type="button" onClick={clearFilters} disabled={activeFilterCount === 0} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50">
+                Limpiar filtros{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
+              </button>
+            </div>
           </div>
 
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
@@ -472,6 +537,19 @@ export default function BodegaHome() {
               <p className="mt-1 text-xs">Usa el filtro "Ficha: Incompletas" para depurarlas.</p>
             </div>
           </div>
+
+          {missingFieldSummary.length > 0 && (
+            <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <p className="text-sm font-semibold text-slate-900">Campos faltantes más comunes</p>
+              <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                {missingFieldSummary.map((item) => (
+                  <span key={item.field} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 font-semibold text-slate-700">
+                    {item.field}: {formatNumber(item.count)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {viewingReference && (
