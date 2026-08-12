@@ -84,7 +84,8 @@ function getFichaStatus(item, viewingReference) {
   const missing = getFichaMissingFields(item, viewingReference);
   return {
     complete: missing.length === 0,
-    label: missing.length === 0 ? "Completa" : `Faltan ${missing.length}`,
+    label: missing.length === 0 ? "Ficha completa" : "Ficha incompleta",
+    missingCount: missing.length,
     detail: missing.join(", "),
   };
 }
@@ -205,6 +206,15 @@ export default function BodegaHome() {
   const filteredItems = useMemo(() => filterRows(items, filters, false), [items, filters]);
   const filteredReferenceItems = useMemo(() => filterRows(referenceItems, filters, true), [referenceItems, filters]);
   const activeFilterCount = Object.values(filters).filter((value) => value && value !== FILTER_ALL).length;
+  const fichaSummary = useMemo(() => {
+    const rows = viewingReference ? referenceItems : items;
+    return rows.reduce((acc, item) => {
+      const status = getFichaStatus(item, viewingReference);
+      if (status.complete) acc.complete += 1;
+      else acc.incomplete += 1;
+      return acc;
+    }, { complete: 0, incomplete: 0 });
+  }, [items, referenceItems, viewingReference]);
 
   const sortedItems = useMemo(() => sortRows(filteredItems, stockSort, {
     product_code: (item) => item.product_code,
@@ -450,6 +460,18 @@ export default function BodegaHome() {
               <option value={FILTER_WITHOUT}>Incompletas</option>
             </FilterSelect>
           </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+              <p className="font-semibold">Fichas completas</p>
+              <p className="mt-1 text-2xl font-bold">{formatNumber(fichaSummary.complete)}</p>
+            </div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+              <p className="font-semibold">Fichas incompletas</p>
+              <p className="mt-1 text-2xl font-bold">{formatNumber(fichaSummary.incomplete)}</p>
+              <p className="mt-1 text-xs">Usa el filtro "Ficha: Incompletas" para depurarlas.</p>
+            </div>
+          </div>
         </div>
 
         {viewingReference && (
@@ -626,9 +648,14 @@ function FilterSelect({ label, value, onChange, children }) {
 
 function FichaStatusBadge({ status }) {
   return (
-    <span title={status.detail || "Ficha completa"} className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${status.complete ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"}`}>
-      {status.label}
-    </span>
+    <div className="min-w-40">
+      <span title={status.detail || "Ficha completa"} className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${status.complete ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"}`}>
+        {status.label}{status.complete ? "" : ` (${status.missingCount})`}
+      </span>
+      {!status.complete && (
+        <p className="mt-1 text-xs leading-4 text-slate-500">Falta: {status.detail}</p>
+      )}
+    </div>
   );
 }
 
