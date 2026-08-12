@@ -43,6 +43,7 @@ test("RLS versionado cubre registros, perfiles, bodega y configurador", () => {
   const recordSql = read("supabase/sql/record_access_permissions.sql");
   const profilesSql = read("supabase/sql/profiles_policies.sql");
   const warehouseSql = read("supabase/sql/warehouse_inventory.sql");
+  const vehicleReferenceSql = read("supabase/sql/vehicle_reference_catalog.sql");
   const configuratorSql = read("supabase/sql/vactor_configurator_quotes.sql");
 
   assert.match(recordSql, /alter table public\.registros enable row level security/);
@@ -57,6 +58,11 @@ test("RLS versionado cubre registros, perfiles, bodega y configurador", () => {
 
   assert.match(warehouseSql, /Usuario con permiso especial consulta inventario de bodega/);
   assert.match(warehouseSql, /p\.tipo = 'bodega'/);
+
+  assert.match(vehicleReferenceSql, /create table if not exists public\.vehicle_reference_catalog/);
+  assert.match(vehicleReferenceSql, /reference_stock numeric/);
+  assert.match(vehicleReferenceSql, /Usuario con permiso bodega consulta referencia historica vehiculos/);
+  assert.match(vehicleReferenceSql, /p\.tipo = 'bodega'/);
 
   assert.match(configuratorSql, /pdf_error text/);
   assert.match(configuratorSql, /pdf_pendiente/);
@@ -108,4 +114,18 @@ test("historiales limitan consultas pesadas", () => {
 
   assert.match(notifications, /\.limit\(100\)/);
   assert.match(appUpdates, /\.limit\(50\)/);
+});
+
+test("bodega separa stock real de referencia historica vehiculos", () => {
+  const service = read("src/services/warehouseInventoryService.js");
+  const home = read("src/app/operaciones/bodega/BodegaHome.jsx");
+
+  assert.match(service, /getVehicleReferenceCatalog/);
+  assert.match(service, /vehicle_reference_catalog/);
+  assert.match(service, /reference_stock/);
+
+  assert.match(home, /SOURCE_VEHICLE_REFERENCE/);
+  assert.match(home, /Referencia histórica vehículos/);
+  assert.match(home, /No descuenta, suma ni reemplaza stock real de bodega/);
+  assert.match(home, /VehicleReferenceTable/);
 });
