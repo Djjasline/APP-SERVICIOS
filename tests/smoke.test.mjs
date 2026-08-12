@@ -127,6 +127,9 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   const home = read("src/app/operaciones/bodega/BodegaHome.jsx");
 
   assert.match(service, /getVehicleReferenceCatalog/);
+  assert.match(service, /LIST_METADATA_COLUMNS/);
+  assert.match(service, /image_url/);
+  assert.match(service, /category/);
   assert.match(service, /vehicle_reference_catalog/);
   assert.match(service, /reference_stock/);
   assert.match(service, /normalizeProductCode/);
@@ -147,6 +150,13 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(home, /last_cost/);
   assert.match(home, /Resumen por área/);
   assert.match(home, /Nuevo artículo/);
+  assert.match(home, /Filtros avanzados/);
+  assert.match(home, /Limpiar filtros/);
+  assert.match(home, /Solo terminados -30/);
+  assert.match(home, /Incompletas/);
+  assert.match(home, /Estado ficha/);
+  assert.match(home, /FichaStatusBadge/);
+  assert.match(home, /getFichaMissingFields/);
   assert.match(home, />Ubicación</);
   assert.match(home, />Proveedor</);
   assert.match(home, />Origen</);

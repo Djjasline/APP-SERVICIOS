@@ -1,7 +1,8 @@
 import { supabase } from "@/lib/supabase";
 
-const SELECT_COLUMNS = "id, product_code, description, physical_stock, physical_location, cutoff_date, source_file, notes, area, updated_at";
-const VEHICLE_REFERENCE_COLUMNS = "id, product_code, description, sheet_name, reference_stock, last_cost, last_supplier, last_purchase_date, last_sale_date, last_client, last_comment, source_file, area, updated_at";
+const LIST_METADATA_COLUMNS = "image_url, unit, weight_kg, brand, model, category, system, compatible_equipment";
+const SELECT_COLUMNS = `id, product_code, description, physical_stock, physical_location, cutoff_date, source_file, notes, area, updated_at, ${LIST_METADATA_COLUMNS}`;
+const VEHICLE_REFERENCE_COLUMNS = `id, product_code, description, sheet_name, reference_stock, last_cost, last_supplier, last_purchase_date, last_sale_date, last_client, last_comment, source_file, area, updated_at, ${LIST_METADATA_COLUMNS}`;
 const ITEM_METADATA_COLUMNS = "image_url, unit, weight_kg, brand, model, category, system, compatible_equipment, technical_specs, internal_notes";
 const STOCK_DETAIL_COLUMNS = `${SELECT_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
 const VEHICLE_REFERENCE_DETAIL_COLUMNS = `${VEHICLE_REFERENCE_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;

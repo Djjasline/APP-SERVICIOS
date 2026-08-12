@@ -10,6 +10,19 @@ const SOURCE_STOCK = "stock";
 const SOURCE_VEHICLE_REFERENCE = "vehicle-reference";
 const SORT_ASC = "asc";
 const SORT_DESC = "desc";
+const FILTER_ALL = "todos";
+const FILTER_WITH = "con";
+const FILTER_WITHOUT = "sin";
+const FILTER_ONLY_30 = "solo-30";
+
+const DEFAULT_FILTERS = {
+  area: "",
+  provider: "",
+  stock: FILTER_ALL,
+  cost: FILTER_ALL,
+  code: FILTER_ALL,
+  ficha: FILTER_ALL,
+};
 
 function formatNumber(value) {
   return new Intl.NumberFormat("es-EC", { maximumFractionDigits: 2 }).format(Number(value) || 0);
@@ -46,6 +59,60 @@ function sortRows(rows, sort, accessors) {
   });
 }
 
+function hasValue(value) {
+  return String(value ?? "").trim() !== "";
+}
+
+function isDash30Code(value) {
+  return /-30$/i.test(String(value || "").trim());
+}
+
+function getFichaMissingFields(item, viewingReference) {
+  const missing = [];
+  if (!hasValue(item.area)) missing.push("área");
+  if (!hasValue(item.image_url)) missing.push("imagen");
+  if (!hasValue(item.category)) missing.push("categoría");
+  if (!hasValue(item.system)) missing.push("sistema");
+  if (!hasValue(item.unit)) missing.push("unidad");
+  if (!hasValue(item.weight_kg)) missing.push("peso");
+  if (viewingReference && !hasValue(item.last_supplier)) missing.push("proveedor");
+  if (!viewingReference && !hasValue(item.physical_location)) missing.push("ubicación");
+  return missing;
+}
+
+function getFichaStatus(item, viewingReference) {
+  const missing = getFichaMissingFields(item, viewingReference);
+  return {
+    complete: missing.length === 0,
+    label: missing.length === 0 ? "Completa" : `Faltan ${missing.length}`,
+    detail: missing.join(", "),
+  };
+}
+
+function getUniqueOptions(rows, accessor) {
+  return Array.from(new Set(rows.map(accessor).filter(hasValue))).sort((a, b) => String(a).localeCompare(String(b), "es", { numeric: true }));
+}
+
+function filterRows(rows, filters, viewingReference) {
+  return rows.filter((item) => {
+    const quantity = Number(viewingReference ? item.reference_stock : item.physical_stock) || 0;
+    const cost = Number(item.last_cost) || 0;
+    const provider = viewingReference ? item.last_supplier : item.last_supplier;
+    const fichaStatus = getFichaStatus(item, viewingReference);
+
+    if (filters.area && item.area !== filters.area) return false;
+    if (filters.provider && provider !== filters.provider) return false;
+    if (filters.stock === FILTER_WITH && quantity <= 0) return false;
+    if (filters.stock === FILTER_WITHOUT && quantity > 0) return false;
+    if (filters.cost === FILTER_WITH && cost <= 0) return false;
+    if (filters.cost === FILTER_WITHOUT && cost > 0) return false;
+    if (filters.code === FILTER_ONLY_30 && !isDash30Code(item.product_code)) return false;
+    if (filters.ficha === FILTER_WITH && !fichaStatus.complete) return false;
+    if (filters.ficha === FILTER_WITHOUT && fichaStatus.complete) return false;
+    return true;
+  });
+}
+
 export default function BodegaHome() {
   const { isLight } = useTheme();
   const { isSuperAdmin } = useAuth();
@@ -61,6 +128,7 @@ export default function BodegaHome() {
   const [error, setError] = useState("");
   const [recentMovements, setRecentMovements] = useState([]);
   const [movementsUnavailable, setMovementsUnavailable] = useState(false);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [stockSort, setStockSort] = useState({ key: "product_code", direction: SORT_ASC });
   const [referenceSort, setReferenceSort] = useState({ key: "product_code", direction: SORT_ASC });
 
@@ -131,7 +199,14 @@ export default function BodegaHome() {
     };
   }, [items, referenceItems, locations.length]);
 
-  const sortedItems = useMemo(() => sortRows(items, stockSort, {
+  const activeRows = viewingReference ? referenceItems : items;
+  const areaOptions = useMemo(() => getUniqueOptions(activeRows, (item) => item.area), [activeRows]);
+  const providerOptions = useMemo(() => getUniqueOptions(activeRows, (item) => item.last_supplier), [activeRows]);
+  const filteredItems = useMemo(() => filterRows(items, filters, false), [items, filters]);
+  const filteredReferenceItems = useMemo(() => filterRows(referenceItems, filters, true), [referenceItems, filters]);
+  const activeFilterCount = Object.values(filters).filter((value) => value && value !== FILTER_ALL).length;
+
+  const sortedItems = useMemo(() => sortRows(filteredItems, stockSort, {
     product_code: (item) => item.product_code,
     description: (item) => item.description,
     area: (item) => item.area,
@@ -141,9 +216,9 @@ export default function BodegaHome() {
     last_cost: () => 0,
     source_file: (item) => item.source_file,
     cutoff_date: (item) => item.cutoff_date,
-  }), [items, stockSort]);
+  }), [filteredItems, stockSort]);
 
-  const sortedReferenceItems = useMemo(() => sortRows(referenceItems, referenceSort, {
+  const sortedReferenceItems = useMemo(() => sortRows(filteredReferenceItems, referenceSort, {
     product_code: (item) => item.product_code,
     description: (item) => item.description,
     area: (item) => item.area,
@@ -154,7 +229,7 @@ export default function BodegaHome() {
     last_client: (item) => item.last_client,
     sheet_name: (item) => item.sheet_name || item.source_file,
     last_purchase_date: (item) => item.last_purchase_date || item.last_sale_date,
-  }), [referenceItems, referenceSort]);
+  }), [filteredReferenceItems, referenceSort]);
 
   const areaSummary = useMemo(() => {
     const rows = viewingReference ? referenceItems : items;
@@ -197,6 +272,12 @@ export default function BodegaHome() {
       direction: current.key === key && current.direction === SORT_ASC ? SORT_DESC : SORT_ASC,
     }));
   };
+
+  const updateFilter = (field, value) => {
+    setFilters((current) => ({ ...current, [field]: value }));
+  };
+
+  const clearFilters = () => setFilters(DEFAULT_FILTERS);
 
   return (
     <div className="p-6 space-y-6">
@@ -324,6 +405,53 @@ export default function BodegaHome() {
           </SourceButton>
         </div>
 
+        <div className="border-b border-slate-200 px-4 py-4">
+          <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h4 className="font-semibold text-slate-900">Filtros avanzados</h4>
+              <p className="text-sm text-slate-500">Filtra la fuente activa por área, proveedor, disponibilidad y estado de ficha.</p>
+            </div>
+            <button type="button" onClick={clearFilters} disabled={activeFilterCount === 0} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50">
+              Limpiar filtros{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
+            </button>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+            <FilterSelect label="Área" value={filters.area} onChange={(value) => updateFilter("area", value)}>
+              <option value="">Todas</option>
+              {areaOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+            </FilterSelect>
+
+            <FilterSelect label="Proveedor" value={filters.provider} onChange={(value) => updateFilter("provider", value)}>
+              <option value="">Todos</option>
+              {providerOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+            </FilterSelect>
+
+            <FilterSelect label="Cantidad" value={filters.stock} onChange={(value) => updateFilter("stock", value)}>
+              <option value={FILTER_ALL}>Todos</option>
+              <option value={FILTER_WITH}>Con cantidad</option>
+              <option value={FILTER_WITHOUT}>Sin cantidad</option>
+            </FilterSelect>
+
+            <FilterSelect label="Costo" value={filters.cost} onChange={(value) => updateFilter("cost", value)}>
+              <option value={FILTER_ALL}>Todos</option>
+              <option value={FILTER_WITH}>Con costo</option>
+              <option value={FILTER_WITHOUT}>Sin costo</option>
+            </FilterSelect>
+
+            <FilterSelect label="Código" value={filters.code} onChange={(value) => updateFilter("code", value)}>
+              <option value={FILTER_ALL}>Todos</option>
+              <option value={FILTER_ONLY_30}>Solo terminados -30</option>
+            </FilterSelect>
+
+            <FilterSelect label="Ficha" value={filters.ficha} onChange={(value) => updateFilter("ficha", value)}>
+              <option value={FILTER_ALL}>Todas</option>
+              <option value={FILTER_WITH}>Completas</option>
+              <option value={FILTER_WITHOUT}>Incompletas</option>
+            </FilterSelect>
+          </div>
+        </div>
+
         {viewingReference && (
           <div className="m-4 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
             Esta lista es solo referencial histórica de Vehículos Especiales. No descuenta, suma ni reemplaza stock real de bodega.
@@ -347,11 +475,15 @@ export default function BodegaHome() {
           ) : viewingReference ? (
             referenceItems.length === 0 ? (
               <p className="text-sm text-slate-500">Aún no hay referencia histórica de vehículos importada.</p>
+            ) : sortedReferenceItems.length === 0 ? (
+              <p className="text-sm text-slate-500">No hay artículos que coincidan con los filtros activos.</p>
             ) : (
               <VehicleReferenceTable items={sortedReferenceItems} sort={referenceSort} onSort={toggleReferenceSort} onOpen={(item) => navigate(`/operaciones/bodega/${SOURCE_VEHICLE_REFERENCE}/${item.id}`)} />
             )
           ) : items.length === 0 ? (
             <p className="text-sm text-slate-500">Aún no hay inventario actual importado.</p>
+          ) : sortedItems.length === 0 ? (
+            <p className="text-sm text-slate-500">No hay artículos que coincidan con los filtros activos.</p>
           ) : (
             <table className="min-w-full text-left text-sm">
               <thead className="bg-slate-900 text-white">
@@ -365,28 +497,33 @@ export default function BodegaHome() {
                   <SortableTh sortKey="last_cost" sort={stockSort} onSort={toggleStockSort} align="right">Último costo</SortableTh>
                   <SortableTh sortKey="source_file" sort={stockSort} onSort={toggleStockSort}>Origen</SortableTh>
                   <SortableTh sortKey="cutoff_date" sort={stockSort} onSort={toggleStockSort}>Fecha</SortableTh>
+                  <th className="px-3 py-2 font-semibold">Estado ficha</th>
                   <th className="px-3 py-2 font-semibold">Ficha</th>
                 </tr>
               </thead>
               <tbody>
-                {sortedItems.map((item) => (
-                  <tr key={item.id} className="border-b border-slate-200 odd:bg-slate-50 hover:bg-amber-50">
-                    <td className="px-3 py-2 font-semibold text-slate-900">{item.product_code}</td>
-                    <td className="px-3 py-2 text-slate-700">{item.description}</td>
-                    <td className="px-3 py-2 text-slate-700">{item.area || "-"}</td>
-                    <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.physical_stock)}</td>
-                    <td className="px-3 py-2 text-slate-700">{item.physical_location || "-"}</td>
-                    <td className="px-3 py-2 text-slate-700">{item.last_supplier || "-"}</td>
-                    <td className="px-3 py-2 text-right text-slate-600">-</td>
-                    <td className="px-3 py-2 text-slate-600">{item.source_file || "-"}</td>
-                    <td className="px-3 py-2 text-slate-600">{formatDate(item.cutoff_date)}</td>
-                    <td className="px-3 py-2">
-                      <button type="button" onClick={() => navigate(`/operaciones/bodega/${SOURCE_STOCK}/${item.id}`)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-white">
-                        Abrir
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {sortedItems.map((item) => {
+                  const fichaStatus = getFichaStatus(item, false);
+                  return (
+                    <tr key={item.id} className="border-b border-slate-200 odd:bg-slate-50 hover:bg-amber-50">
+                      <td className="px-3 py-2 font-semibold text-slate-900">{item.product_code}</td>
+                      <td className="px-3 py-2 text-slate-700">{item.description}</td>
+                      <td className="px-3 py-2 text-slate-700">{item.area || "-"}</td>
+                      <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.physical_stock)}</td>
+                      <td className="px-3 py-2 text-slate-700">{item.physical_location || "-"}</td>
+                      <td className="px-3 py-2 text-slate-700">{item.last_supplier || "-"}</td>
+                      <td className="px-3 py-2 text-right text-slate-600">-</td>
+                      <td className="px-3 py-2 text-slate-600">{item.source_file || "-"}</td>
+                      <td className="px-3 py-2 text-slate-600">{formatDate(item.cutoff_date)}</td>
+                      <td className="px-3 py-2"><FichaStatusBadge status={fichaStatus} /></td>
+                      <td className="px-3 py-2">
+                        <button type="button" onClick={() => navigate(`/operaciones/bodega/${SOURCE_STOCK}/${item.id}`)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-white">
+                          Abrir
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
@@ -444,30 +581,54 @@ function VehicleReferenceTable({ items, sort, onSort, onOpen }) {
           <SortableTh sortKey="last_cost" sort={sort} onSort={onSort} align="right">Último costo</SortableTh>
           <SortableTh sortKey="sheet_name" sort={sort} onSort={onSort}>Origen</SortableTh>
           <SortableTh sortKey="last_purchase_date" sort={sort} onSort={onSort}>Fecha</SortableTh>
+          <th className="px-3 py-2 font-semibold">Estado ficha</th>
           <th className="px-3 py-2 font-semibold">Ficha</th>
         </tr>
       </thead>
       <tbody>
-        {items.map((item) => (
-          <tr key={item.id} className="border-b border-slate-200 odd:bg-blue-50/40 hover:bg-blue-100/60">
-            <td className="px-3 py-2 font-semibold text-slate-900">{item.product_code}</td>
-            <td className="px-3 py-2 text-slate-700">{item.description}</td>
-            <td className="px-3 py-2 text-slate-700">{item.area || "Vehículos Especiales"}</td>
-            <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.reference_stock)}</td>
-            <td className="px-3 py-2 text-slate-700">-</td>
-            <td className="px-3 py-2 text-slate-700">{item.last_supplier || "-"}</td>
-            <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatMoney(item.last_cost)}</td>
-            <td className="px-3 py-2 text-slate-600">{item.sheet_name || item.source_file || "Histórico vehículos"}</td>
-            <td className="px-3 py-2 text-slate-600">{formatDate(item.last_purchase_date || item.last_sale_date)}</td>
-            <td className="px-3 py-2">
-              <button type="button" onClick={() => onOpen(item)} className="rounded-lg border border-blue-300 px-3 py-1.5 text-xs font-semibold text-blue-800 hover:bg-white">
-                Abrir
-              </button>
-            </td>
-          </tr>
-        ))}
+        {items.map((item) => {
+          const fichaStatus = getFichaStatus(item, true);
+          return (
+            <tr key={item.id} className="border-b border-slate-200 odd:bg-blue-50/40 hover:bg-blue-100/60">
+              <td className="px-3 py-2 font-semibold text-slate-900">{item.product_code}</td>
+              <td className="px-3 py-2 text-slate-700">{item.description}</td>
+              <td className="px-3 py-2 text-slate-700">{item.area || "Vehículos Especiales"}</td>
+              <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.reference_stock)}</td>
+              <td className="px-3 py-2 text-slate-700">-</td>
+              <td className="px-3 py-2 text-slate-700">{item.last_supplier || "-"}</td>
+              <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatMoney(item.last_cost)}</td>
+              <td className="px-3 py-2 text-slate-600">{item.sheet_name || item.source_file || "Histórico vehículos"}</td>
+              <td className="px-3 py-2 text-slate-600">{formatDate(item.last_purchase_date || item.last_sale_date)}</td>
+              <td className="px-3 py-2"><FichaStatusBadge status={fichaStatus} /></td>
+              <td className="px-3 py-2">
+                <button type="button" onClick={() => onOpen(item)} className="rounded-lg border border-blue-300 px-3 py-1.5 text-xs font-semibold text-blue-800 hover:bg-white">
+                  Abrir
+                </button>
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
+  );
+}
+
+function FilterSelect({ label, value, onChange, children }) {
+  return (
+    <label className="block text-sm font-semibold text-slate-700">
+      {label}
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400">
+        {children}
+      </select>
+    </label>
+  );
+}
+
+function FichaStatusBadge({ status }) {
+  return (
+    <span title={status.detail || "Ficha completa"} className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${status.complete ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"}`}>
+      {status.label}
+    </span>
   );
 }
 
