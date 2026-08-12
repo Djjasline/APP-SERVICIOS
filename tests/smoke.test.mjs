@@ -278,6 +278,11 @@ test("cotizador es modulo separado para repuestos y servicios", () => {
   assert.match(cotizador, /Preparado por/);
   assert.match(cotizador, /Aprobado por/);
   assert.match(cotizador, /Aceptación Cliente/);
+  assert.match(cotizador, /SignatureCanvas/);
+  assert.match(cotizador, /SignatureField/);
+  assert.match(cotizador, /OfferSignature/);
+  assert.match(cotizador, /Borrar firma/);
+  assert.match(cotizador, /toDataURL\("image\/png"\)/);
   assert.match(cotizador, /window\.print/);
   assert.match(area, /SPECIAL_MODULE_KEYS\.cotizador/);
   assert.match(area, /VEHICULOS_TEXT\.cotizador/);

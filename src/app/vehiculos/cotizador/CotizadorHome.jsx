@@ -1,7 +1,8 @@
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, Calculator, FileText, Package, Plus, Printer, RefreshCw, Search, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
+import SignatureCanvas from "@/components/SignatureCanvasField";
 import { getVehicleReferenceCatalog, getWarehouseInventory, WAREHOUSE_ITEM_SOURCES } from "@/services/warehouseInventoryService";
 
 const EMPTY_SERVICE = {
@@ -32,6 +33,12 @@ const EMPTY_OFFER = {
   notes: "Los precios ofertados son por la TOTALIDAD de la oferta; en caso de adjudicación parcial los precios serán revisados.",
   preparedBy: "",
   approvedBy: "",
+  acceptedBy: "",
+  signatures: {
+    prepared: "",
+    approved: "",
+    accepted: "",
+  },
 };
 
 function formatNumber(value) {
@@ -149,6 +156,10 @@ export default function CotizadorHome() {
     setOffer((current) => ({ ...current, [field]: value }));
   };
 
+  const updateSignature = (field, value) => {
+    setOffer((current) => ({ ...current, signatures: { ...(current.signatures || {}), [field]: value } }));
+  };
+
   return (
     <div className="p-6 space-y-6">
       <style>{`@media print { body * { visibility: hidden; } .offer-print, .offer-print * { visibility: visible; } .offer-print { position: absolute; left: 0; top: 0; width: 100%; } .no-print { display: none !important; } }`}</style>
@@ -191,6 +202,7 @@ export default function CotizadorHome() {
           <OfferField label="Referencia" value={offer.reference} onChange={(value) => updateOffer("reference", value)} />
           <OfferField label="Preparado por" value={offer.preparedBy} onChange={(value) => updateOffer("preparedBy", value)} />
           <OfferField label="Aprobado por" value={offer.approvedBy} onChange={(value) => updateOffer("approvedBy", value)} />
+          <OfferField label="Aceptación cliente" value={offer.acceptedBy} onChange={(value) => updateOffer("acceptedBy", value)} />
           <OfferField label="CPC" value={offer.cpcCode} onChange={(value) => updateOffer("cpcCode", value)} />
           <OfferField label="Descripción CPC" value={offer.cpcDescription} onChange={(value) => updateOffer("cpcDescription", value)} />
         </div>
@@ -201,6 +213,11 @@ export default function CotizadorHome() {
           <OfferField multiline label="Forma de pago" value={offer.payment} onChange={(value) => updateOffer("payment", value)} />
           <OfferField multiline label="Garantía" value={offer.warranty} onChange={(value) => updateOffer("warranty", value)} />
           <OfferField multiline label="Notas" value={offer.notes} onChange={(value) => updateOffer("notes", value)} />
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <SignatureField label="Firma preparado por" name={offer.preparedBy} signature={offer.signatures.prepared} onSignatureChange={(value) => updateSignature("prepared", value)} />
+          <SignatureField label="Firma aprobado por" name={offer.approvedBy} signature={offer.signatures.approved} onSignatureChange={(value) => updateSignature("approved", value)} />
+          <SignatureField label="Firma aceptación cliente" name={offer.acceptedBy} signature={offer.signatures.accepted} onSignatureChange={(value) => updateSignature("accepted", value)} />
         </div>
       </section>
 
@@ -311,6 +328,54 @@ function OfferField({ label, value, onChange, type = "text", multiline = false, 
   );
 }
 
+function SignatureField({ label, name, signature, onSignatureChange }) {
+  const signatureRef = useRef(null);
+  const loadedSignatureRef = useRef("");
+
+  useEffect(() => {
+    if (!signatureRef.current) return;
+    if ((signature || "") === loadedSignatureRef.current) return;
+    signatureRef.current.clear();
+    if (signature) signatureRef.current.fromDataURL(signature);
+    loadedSignatureRef.current = signature || "";
+  }, [signature]);
+
+  const handleEnd = () => {
+    if (!signatureRef.current || signatureRef.current.isEmpty()) return;
+    const dataUrl = signatureRef.current.toDataURL("image/png");
+    loadedSignatureRef.current = dataUrl;
+    onSignatureChange(dataUrl);
+  };
+
+  const clearSignature = () => {
+    signatureRef.current?.clear();
+    loadedSignatureRef.current = "";
+    onSignatureChange("");
+  };
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+          <p className="text-xs text-slate-500">{name || "Nombre pendiente"}</p>
+        </div>
+        <button type="button" onClick={clearSignature} className="text-xs font-semibold text-red-600 hover:underline">Borrar firma</button>
+      </div>
+      <div className="mt-2 h-28 rounded-lg border border-slate-300 bg-white">
+        <SignatureCanvas
+          ref={signatureRef}
+          penColor="black"
+          minWidth={0.5}
+          maxWidth={1.8}
+          onEnd={handleEnd}
+          canvasProps={{ className: "h-full w-full" }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function OfferPreview({ offer, lines, subtotal, iva, total }) {
   return (
     <section className="offer-print rounded-2xl border border-slate-300 bg-white p-5 shadow-sm print:rounded-none print:border-0 print:shadow-none">
@@ -392,13 +457,24 @@ function OfferPreview({ offer, lines, subtotal, iva, total }) {
       </div>
 
       <div className="mt-10 grid grid-cols-3 gap-6 text-center text-sm">
-        <div className="border-t border-slate-500 pt-2">Preparado por: {offer.preparedBy || "-"}</div>
-        <div className="border-t border-slate-500 pt-2">Aprobado por: {offer.approvedBy || "-"}</div>
-        <div className="border-t border-slate-500 pt-2">Aceptación Cliente</div>
+        <OfferSignature label="Preparado por" name={offer.preparedBy} signature={offer.signatures?.prepared} />
+        <OfferSignature label="Aprobado por" name={offer.approvedBy} signature={offer.signatures?.approved} />
+        <OfferSignature label="Aceptación Cliente" name={offer.acceptedBy} signature={offer.signatures?.accepted} />
       </div>
 
       <p className="mt-8 text-center text-xs text-slate-500">Desde 1941 suministrando productos y servicios para aplicaciones petroleras, de agua potable, generación de energía, medio ambiente e industria</p>
     </section>
+  );
+}
+
+function OfferSignature({ label, name, signature }) {
+  return (
+    <div className="pt-2">
+      <div className="flex h-16 items-end justify-center">
+        {signature && <img src={signature} alt={`Firma ${label}`} className="max-h-16 max-w-full object-contain" />}
+      </div>
+      <div className="border-t border-slate-500 pt-2">{label}: {name || "-"}</div>
+    </div>
   );
 }
 
