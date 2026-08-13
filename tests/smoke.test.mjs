@@ -90,6 +90,9 @@ test("RLS versionado cubre registros, perfiles, bodega y configurador", () => {
   assert.match(serviceQuotesSql, /create table if not exists public\.vehicle_service_quotes/);
   assert.match(serviceQuotesSql, /offer jsonb/);
   assert.match(serviceQuotesSql, /lines jsonb/);
+  assert.match(serviceQuotesSql, /pdf_url text/);
+  assert.match(serviceQuotesSql, /pdf_error text/);
+  assert.match(serviceQuotesSql, /pdf_pendiente/);
   assert.match(serviceQuotesSql, /Usuario o super admin gestiona cotizaciones de servicios/);
 });
 
@@ -264,6 +267,7 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
 test("cotizador es modulo separado para repuestos y servicios", () => {
   const cotizador = read("src/app/vehiculos/cotizador/CotizadorHome.jsx");
   const quoteService = read("src/services/vehicleServiceQuoteService.js");
+  const quotePdf = read("src/app/vehiculos/cotizador/vehicleServiceQuotePdf.js");
   const area = read("src/pages/AreaVehiculos.jsx");
   const sidebar = read("src/layouts/Sidebar.jsx");
   const text = read("src/constants/vehiculosText.js");
@@ -296,8 +300,15 @@ test("cotizador es modulo separado para repuestos y servicios", () => {
   assert.match(cotizador, /saveVehicleServiceQuote/);
   assert.match(cotizador, /updateVehicleServiceQuote/);
   assert.match(cotizador, /getVehicleServiceQuoteHistory/);
+  assert.match(cotizador, /Reintentar PDF/);
   assert.match(quoteService, /vehicle_service_quotes/);
+  assert.match(quoteService, /generateVehicleServiceQuotePdfBlob/);
+  assert.match(quoteService, /regenerateVehicleServiceQuotePdf/);
+  assert.match(quoteService, /pdf_url/);
   assert.match(quoteService, /getVehicleServiceQuoteById/);
+  assert.match(quotePdf, /new jsPDF/);
+  assert.match(quotePdf, /autoTable/);
+  assert.match(quotePdf, /generateVehicleServiceQuotePdfBlob/);
   assert.match(area, /SPECIAL_MODULE_KEYS\.cotizador/);
   assert.match(area, /VEHICULOS_TEXT\.cotizador/);
   assert.match(sidebar, /puedeUsarCotizador/);

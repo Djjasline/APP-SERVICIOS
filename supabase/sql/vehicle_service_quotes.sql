@@ -23,10 +23,25 @@ create table if not exists public.vehicle_service_quotes (
   offer jsonb not null default '{}'::jsonb,
   lines jsonb not null default '[]'::jsonb,
   totals jsonb not null default '{}'::jsonb,
-  status text not null default 'borrador' check (status in ('borrador', 'enviada', 'aprobada', 'anulada')),
+  pdf_url text,
+  pdf_path text,
+  pdf_error text,
+  status text not null default 'borrador' check (status in ('borrador', 'enviada', 'aprobada', 'anulada', 'pdf_pendiente')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.vehicle_service_quotes
+  add column if not exists pdf_url text,
+  add column if not exists pdf_path text,
+  add column if not exists pdf_error text;
+
+alter table public.vehicle_service_quotes
+  drop constraint if exists vehicle_service_quotes_status_check;
+
+alter table public.vehicle_service_quotes
+  add constraint vehicle_service_quotes_status_check
+  check (status in ('borrador', 'enviada', 'aprobada', 'anulada', 'pdf_pendiente'));
 
 create index if not exists vehicle_service_quotes_user_created_idx
   on public.vehicle_service_quotes(user_id, created_at desc);

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import SignatureCanvas from "@/components/SignatureCanvasField";
 import { getVehicleReferenceCatalog, getWarehouseInventory, WAREHOUSE_ITEM_SOURCES } from "@/services/warehouseInventoryService";
-import { getVehicleServiceQuoteById, getVehicleServiceQuoteHistory, saveVehicleServiceQuote, updateVehicleServiceQuote } from "@/services/vehicleServiceQuoteService";
+import { getVehicleServiceQuoteById, getVehicleServiceQuoteHistory, regenerateVehicleServiceQuotePdf, saveVehicleServiceQuote, updateVehicleServiceQuote } from "@/services/vehicleServiceQuoteService";
 
 const EMPTY_SERVICE = {
   description: "",
@@ -57,6 +57,12 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("es-EC").format(new Date(year, month - 1, day));
 }
 
+function quoteSqlErrorMessage(err, fallback) {
+  return ["42P01", "42703", "23514"].includes(err?.code)
+    ? "Falta ejecutar o actualizar supabase/sql/vehicle_service_quotes.sql."
+    : fallback;
+}
+
 function buildLineFromItem(item, source) {
   const isReference = source === WAREHOUSE_ITEM_SOURCES.vehicleReference;
   const availableQuantity = Number(isReference ? item.reference_stock : item.physical_stock) || 0;
@@ -98,6 +104,7 @@ export default function CotizadorHome() {
   const [historyError, setHistoryError] = useState("");
   const [savingQuote, setSavingQuote] = useState(false);
   const [loadingQuoteId, setLoadingQuoteId] = useState("");
+  const [regeneratingPdfId, setRegeneratingPdfId] = useState("");
   const [editingQuoteId, setEditingQuoteId] = useState("");
   const [message, setMessage] = useState("");
 
@@ -138,7 +145,7 @@ export default function CotizadorHome() {
       setHistory(rows);
     } catch (err) {
       console.error("Error cargando historial de cotizador:", err);
-      setHistoryError(err?.code === "42P01" ? "Falta ejecutar supabase/sql/vehicle_service_quotes.sql." : "No se pudo cargar el historial de cotizaciones.");
+      setHistoryError(quoteSqlErrorMessage(err, "No se pudo cargar el historial de cotizaciones."));
     } finally {
       setLoadingHistory(false);
     }
@@ -204,10 +211,14 @@ export default function CotizadorHome() {
         : await saveVehicleServiceQuote(quotePayload());
       setEditingQuoteId(saved.id);
       setHistory((current) => [saved, ...current.filter((item) => item.id !== saved.id)].slice(0, 50));
-      setMessage(editingQuoteId ? "Cotización actualizada en historial." : "Cotización guardada en historial.");
+      if (saved.status === "pdf_pendiente") {
+        setMessage("Cotización guardada. El PDF quedó pendiente; puedes reintentarlo desde el historial.");
+      } else {
+        setMessage(editingQuoteId ? "Cotización actualizada en historial con PDF." : "Cotización guardada en historial con PDF.");
+      }
     } catch (err) {
       console.error("Error guardando cotización de servicios:", err);
-      setHistoryError(err?.code === "42P01" ? "Falta ejecutar supabase/sql/vehicle_service_quotes.sql." : err?.message || "No se pudo guardar la cotización.");
+      setHistoryError(quoteSqlErrorMessage(err, err?.message || "No se pudo guardar la cotización."));
     } finally {
       setSavingQuote(false);
     }
@@ -241,6 +252,23 @@ export default function CotizadorHome() {
     setLines([]);
     setEditingQuoteId("");
     setMessage("Cotización reiniciada.");
+  };
+
+  const retryPdf = async (id) => {
+    setRegeneratingPdfId(id);
+    setMessage("");
+    setHistoryError("");
+
+    try {
+      const updated = await regenerateVehicleServiceQuotePdf(id);
+      setHistory((current) => current.map((quote) => (quote.id === updated.id ? updated : quote)));
+      setMessage(updated.status === "pdf_pendiente" ? "El PDF sigue pendiente. Intenta nuevamente más tarde." : "PDF generado correctamente.");
+    } catch (err) {
+      console.error("Error regenerando PDF del cotizador:", err);
+      setHistoryError(quoteSqlErrorMessage(err, err?.message || "No se pudo regenerar el PDF."));
+    } finally {
+      setRegeneratingPdfId("");
+    }
   };
 
   return (
@@ -402,7 +430,7 @@ export default function CotizadorHome() {
         </div>
       </section>
 
-      <HistoryPanel history={history} loading={loadingHistory} loadingQuoteId={loadingQuoteId} error={historyError} onRefresh={loadHistory} onEdit={(id) => loadQuoteAsBase(id, true)} onUseAsBase={(id) => loadQuoteAsBase(id, false)} />
+      <HistoryPanel history={history} loading={loadingHistory} loadingQuoteId={loadingQuoteId} regeneratingPdfId={regeneratingPdfId} error={historyError} onRefresh={loadHistory} onEdit={(id) => loadQuoteAsBase(id, true)} onUseAsBase={(id) => loadQuoteAsBase(id, false)} onRetryPdf={retryPdf} />
 
       <OfferPreview offer={offer} lines={lines} subtotal={subtotal} iva={iva} total={total} />
     </div>
@@ -472,7 +500,7 @@ function SignatureField({ label, name, signature, onSignatureChange }) {
   );
 }
 
-function HistoryPanel({ history, loading, loadingQuoteId, error, onRefresh, onEdit, onUseAsBase }) {
+function HistoryPanel({ history, loading, loadingQuoteId, regeneratingPdfId, error, onRefresh, onEdit, onUseAsBase, onRetryPdf }) {
   return (
     <section className="no-print rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -501,6 +529,7 @@ function HistoryPanel({ history, loading, loadingQuoteId, error, onRefresh, onEd
                 <th className="px-3 py-2 font-semibold">Referencia</th>
                 <th className="px-3 py-2 text-right font-semibold">Total</th>
                 <th className="px-3 py-2 font-semibold">Fecha</th>
+                <th className="px-3 py-2 font-semibold">PDF</th>
                 <th className="px-3 py-2 font-semibold">Acciones</th>
               </tr>
             </thead>
@@ -513,12 +542,27 @@ function HistoryPanel({ history, loading, loadingQuoteId, error, onRefresh, onEd
                   <td className="px-3 py-2 text-right font-semibold text-slate-900">{money(quote.totals?.total)}</td>
                   <td className="px-3 py-2 text-slate-600">{formatDate(String(quote.created_at || "").slice(0, 10))}</td>
                   <td className="px-3 py-2">
+                    {quote.pdf_url ? (
+                      <a href={quote.pdf_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-blue-700 hover:underline">
+                        <FileText size={14} /> PDF
+                      </a>
+                    ) : (
+                      <div className="space-y-1">
+                        <span className="text-xs font-semibold text-amber-700">Pendiente</span>
+                        {quote.pdf_error && <p className="max-w-56 text-xs text-slate-500">{quote.pdf_error}</p>}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-3 py-2">
                     <div className="flex flex-wrap gap-3">
                       <button type="button" onClick={() => onEdit(quote.id)} disabled={loadingQuoteId === quote.id} className="font-semibold text-blue-700 hover:underline disabled:opacity-60">
                         {loadingQuoteId === quote.id ? "Cargando..." : "Editar"}
                       </button>
                       <button type="button" onClick={() => onUseAsBase(quote.id)} disabled={loadingQuoteId === quote.id} className="font-semibold text-emerald-700 hover:underline disabled:opacity-60">
                         Usar como base
+                      </button>
+                      <button type="button" onClick={() => onRetryPdf(quote.id)} disabled={regeneratingPdfId === quote.id} className="font-semibold text-amber-700 hover:underline disabled:opacity-60">
+                        {regeneratingPdfId === quote.id ? "Generando..." : "Reintentar PDF"}
                       </button>
                     </div>
                   </td>
