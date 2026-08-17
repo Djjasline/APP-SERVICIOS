@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { getDraftTime, pickNewestDraft, toDraftPayload } from "../src/utils/draftSelection.mjs";
 import { ROLES, getEmailRoles, resolveAuthAccess } from "../src/constants/privilegedAccess.mjs";
+import { buildCompletedRecordPdfAttachment, normalizeChatAttachments } from "../src/utils/chatAttachments.mjs";
 
 test("resolveAuthAccess normaliza roles y aplica privilegios por correo", () => {
   const access = resolveAuthAccess({
@@ -43,4 +44,43 @@ test("pickNewestDraft elige el borrador con fecha mas reciente", () => {
 test("getDraftTime trata fechas invalidas como borradores antiguos", () => {
   assert.equal(getDraftTime({ guardadoEn: "fecha-invalida" }), 0);
   assert.equal(pickNewestDraft({ guardadoEn: "fecha-invalida" }, null)?.guardadoEn, "fecha-invalida");
+});
+
+test("normalizeChatAttachments descarta adjuntos sin URL", () => {
+  assert.deepEqual(
+    normalizeChatAttachments([
+      { title: "Sin URL" },
+      { type: "completed_record_pdf", title: "PDF", url: "/vehiculos/informe/pdf/1", extra: "ignorar" },
+    ]),
+    [
+      {
+        type: "completed_record_pdf",
+        title: "PDF",
+        url: "/vehiculos/informe/pdf/1",
+        description: "",
+        record_id: undefined,
+        area: undefined,
+        tipo: undefined,
+        subtipo: undefined,
+      },
+    ]
+  );
+});
+
+test("buildCompletedRecordPdfAttachment crea enlace interno de PDF", () => {
+  const attachment = buildCompletedRecordPdfAttachment(
+    {
+      id: "abc",
+      area: "vehiculos",
+      tipo: "informe",
+      subtipo: "general",
+      data: { cliente: "Cliente ASTAP", codInf: "INF-001" },
+    },
+    { area: "vehiculos", tipo: "informe", subtipo: "general", label: "Informe vehículos", path: (id) => `/vehiculos/informe/pdf/${id}` }
+  );
+
+  assert.equal(attachment.type, "completed_record_pdf");
+  assert.equal(attachment.title, "Informe vehículos - General");
+  assert.equal(attachment.description, "Cliente ASTAP · INF-001");
+  assert.equal(attachment.url, "/vehiculos/informe/pdf/abc");
 });

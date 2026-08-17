@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { Send, MessageCircle, Search, UserCircle2, Volume2 } from "lucide-react";
+import { FileText, MessageCircle, Paperclip, Search, Send, UserCircle2, Volume2, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { formatUserDisplayName } from "@/utils/nameFormat";
+import { getRecordAttachmentSearchText } from "@/utils/chatAttachments.mjs";
 import {
+  getCompletedRecordPdfAttachmentsForChat,
   getChatUsers,
   getMessages,
   getOrCreateDirectConversation,
@@ -38,7 +40,7 @@ function formatTime(value) {
 }
 
 export default function ChatInterno() {
-  const { user } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
   const { isLight } = useTheme();
   const { usuariosOnline = {} } = useOutletContext() || {};
   const bottomRef = useRef(null);
@@ -56,6 +58,11 @@ export default function ChatInterno() {
   const [error, setError] = useState("");
   const [noLeidos, setNoLeidos] = useState({});
   const [soundTestResult, setSoundTestResult] = useState("");
+  const [adjuntosDisponibles, setAdjuntosDisponibles] = useState([]);
+  const [adjuntoSeleccionado, setAdjuntoSeleccionado] = useState(null);
+  const [selectorAdjuntosAbierto, setSelectorAdjuntosAbierto] = useState(false);
+  const [busquedaAdjuntos, setBusquedaAdjuntos] = useState("");
+  const [cargandoAdjuntos, setCargandoAdjuntos] = useState(false);
 
   const usuariosFiltrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
@@ -68,6 +75,12 @@ export default function ChatInterno() {
         .includes(q)
     );
   }, [usuarios, busqueda]);
+
+  const adjuntosFiltrados = useMemo(() => {
+    const q = busquedaAdjuntos.trim().toLowerCase();
+    if (!q) return adjuntosDisponibles;
+    return adjuntosDisponibles.filter((attachment) => getRecordAttachmentSearchText(attachment).includes(q));
+  }, [adjuntosDisponibles, busquedaAdjuntos]);
 
   const cargarUsuarios = useCallback(async () => {
     if (!user?.id) return;
@@ -142,6 +155,34 @@ export default function ChatInterno() {
     [user?.id]
   );
 
+  const cargarAdjuntosPdf = useCallback(async () => {
+    if (!user?.id) return;
+
+    setCargandoAdjuntos(true);
+    setError("");
+    try {
+      const data = await getCompletedRecordPdfAttachmentsForChat({
+        userId: user.id,
+        userEmail: user.email,
+        isSuperAdmin,
+      });
+      setAdjuntosDisponibles(data);
+    } catch (err) {
+      console.error("[Chat] Error cargando adjuntos PDF:", err);
+      setError("No se pudieron cargar los PDFs completados.");
+    } finally {
+      setCargandoAdjuntos(false);
+    }
+  }, [isSuperAdmin, user?.email, user?.id]);
+
+  const alternarSelectorAdjuntos = async () => {
+    const nextOpen = !selectorAdjuntosAbierto;
+    setSelectorAdjuntosAbierto(nextOpen);
+    if (nextOpen && adjuntosDisponibles.length === 0) {
+      await cargarAdjuntosPdf();
+    }
+  };
+
   useEffect(() => {
   if (!conversationId) return;
 
@@ -209,18 +250,24 @@ export default function ChatInterno() {
 
   const enviar = async (e) => {
     e.preventDefault();
-    if (!conversationId || !user?.id || !texto.trim() || enviando) return;
+    if (!conversationId || !user?.id || (!texto.trim() && !adjuntoSeleccionado) || enviando) return;
 
     setEnviando(true);
     setError("");
     const textoEnviar = texto;
+    const adjuntoEnviar = adjuntoSeleccionado;
     setTexto("");
+    setAdjuntoSeleccionado(null);
+    setSelectorAdjuntosAbierto(false);
 
     try {
-      await sendMessage(conversationId, user.id, textoEnviar);
+      await sendMessage(conversationId, user.id, textoEnviar, {
+        attachments: adjuntoEnviar ? [adjuntoEnviar] : [],
+      });
     } catch (err) {
       console.error("[Chat] Error enviando mensaje:", err);
       setTexto(textoEnviar);
+      setAdjuntoSeleccionado(adjuntoEnviar);
       setError("No se pudo enviar el mensaje.");
     } finally {
       setEnviando(false);
@@ -416,6 +463,35 @@ export default function ChatInterno() {
                             : "bg-white/10 text-white rounded-bl-md"
                         }`}>
                           <div className="whitespace-pre-wrap break-words text-sm">{m.body}</div>
+                          {Array.isArray(m.attachments) && m.attachments.length > 0 && (
+                            <div className="mt-2 space-y-2">
+                              {m.attachments.map((attachment, index) => (
+                                <a
+                                  key={`${m.id}-attachment-${index}`}
+                                  href={attachment.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className={`flex items-start gap-2 rounded-xl border px-3 py-2 text-left text-xs transition ${
+                                    mine
+                                      ? "border-white/25 bg-white/10 text-white hover:bg-white/15"
+                                      : isLight
+                                      ? "border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
+                                      : "border-white/10 bg-black/20 text-white hover:bg-white/10"
+                                  }`}
+                                >
+                                  <FileText size={16} className="mt-0.5 shrink-0" />
+                                  <span className="min-w-0">
+                                    <span className="block font-semibold">{attachment.title || "PDF adjunto"}</span>
+                                    {attachment.description && (
+                                      <span className={`block truncate ${mine ? "text-blue-100" : "opacity-70"}`}>
+                                        {attachment.description}
+                                      </span>
+                                    )}
+                                  </span>
+                                </a>
+                              ))}
+                            </div>
+                          )}
                           <div className={`text-[10px] mt-1 text-right ${mine ? "text-blue-100" : "opacity-60"}`}>
                             {formatTime(m.created_at)}
                           </div>
@@ -428,7 +504,92 @@ export default function ChatInterno() {
               </div>
 
               <form onSubmit={enviar} className={`p-4 border-t ${isLight ? "border-slate-200" : "border-white/10"}`}>
+                {selectorAdjuntosAbierto && (
+                  <div className={`mb-3 rounded-2xl border p-3 ${isLight ? "border-slate-200 bg-slate-50" : "border-white/10 bg-white/5"}`}>
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-sm font-semibold">
+                        <FileText size={16} /> Adjuntar PDF completado
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSelectorAdjuntosAbierto(false)}
+                        className="rounded-lg p-1 opacity-70 hover:opacity-100"
+                        aria-label="Cerrar adjuntos"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                    <div className={`mb-2 flex items-center gap-2 rounded-xl border px-3 py-2 ${isLight ? "border-slate-200 bg-white" : "border-white/10 bg-black/20"}`}>
+                      <Search size={15} className="opacity-60" />
+                      <input
+                        value={busquedaAdjuntos}
+                        onChange={(e) => setBusquedaAdjuntos(e.target.value)}
+                        placeholder="Buscar por cliente, código o tipo..."
+                        className={`w-full bg-transparent text-sm outline-none ${isLight ? "text-slate-900" : "text-white"}`}
+                      />
+                    </div>
+                    {cargandoAdjuntos ? (
+                      <div className="py-4 text-center text-sm opacity-70">Cargando PDFs completados...</div>
+                    ) : adjuntosFiltrados.length === 0 ? (
+                      <div className="py-4 text-center text-sm opacity-70">No hay PDFs completados disponibles.</div>
+                    ) : (
+                      <div className="max-h-52 overflow-y-auto space-y-2 pr-1">
+                        {adjuntosFiltrados.map((attachment) => {
+                          const selected = adjuntoSeleccionado?.url === attachment.url;
+                          return (
+                            <button
+                              key={`${attachment.record_id}-${attachment.url}`}
+                              type="button"
+                              onClick={() => {
+                                setAdjuntoSeleccionado(attachment);
+                                setSelectorAdjuntosAbierto(false);
+                              }}
+                              className={`w-full rounded-xl border px-3 py-2 text-left text-sm transition ${
+                                selected
+                                  ? "border-blue-500 bg-blue-50 text-blue-900"
+                                  : isLight
+                                  ? "border-slate-200 bg-white hover:bg-slate-100"
+                                  : "border-white/10 bg-black/20 hover:bg-white/10"
+                              }`}
+                            >
+                              <span className="block font-semibold">{attachment.title}</span>
+                              <span className="block truncate text-xs opacity-70">{attachment.description}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {adjuntoSeleccionado && (
+                  <div className={`mb-3 flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-sm ${isLight ? "border-blue-200 bg-blue-50 text-blue-900" : "border-blue-300/30 bg-blue-500/15 text-blue-100"}`}>
+                    <div className="min-w-0 flex items-center gap-2">
+                      <FileText size={16} className="shrink-0" />
+                      <span className="min-w-0 truncate">
+                        <strong>{adjuntoSeleccionado.title}</strong> · {adjuntoSeleccionado.description}
+                      </span>
+                    </div>
+                    <button type="button" onClick={() => setAdjuntoSeleccionado(null)} className="rounded-lg p-1 hover:bg-black/10" aria-label="Quitar adjunto">
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+
                 <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={alternarSelectorAdjuntos}
+                    disabled={!conversationId || cargandoAdjuntos}
+                    className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 transition disabled:opacity-50 ${
+                      isLight
+                        ? "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+                        : "border-white/10 bg-white/5 text-white hover:bg-white/10"
+                    }`}
+                    title="Adjuntar PDF completado"
+                  >
+                    <Paperclip size={17} />
+                  </button>
                   <textarea
                     value={texto}
                     onChange={(e) => setTexto(e.target.value)}
@@ -438,7 +599,7 @@ export default function ChatInterno() {
                         enviar(e);
                       }
                     }}
-                    placeholder="Escribe un mensaje..."
+                    placeholder={adjuntoSeleccionado ? "Agrega un comentario opcional..." : "Escribe un mensaje..."}
                     rows={1}
                     className={`flex-1 resize-none rounded-xl border px-3 py-2 text-sm outline-none ${
                       isLight
@@ -448,7 +609,7 @@ export default function ChatInterno() {
                   />
                   <button
                     type="submit"
-                    disabled={!texto.trim() || enviando}
+                    disabled={(!texto.trim() && !adjuntoSeleccionado) || enviando}
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 text-white font-semibold"
                   >
                     <Send size={17} />

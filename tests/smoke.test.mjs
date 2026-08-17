@@ -114,6 +114,19 @@ test("capitalizacion automatica no interfiere con escritura", () => {
   assert.match(autoCapitalize, /dispatchEvent\(new Event\("input", \{ bubbles: true \}\)\)/);
 });
 
+test("chat soporta adjuntos estructurados en mensajes", () => {
+  const chatSql = read("supabase/sql/chat_interno_setup.sql");
+  const chatService = read("src/services/chatService.js");
+  const chatPage = read("src/pages/chat/ChatInterno.jsx");
+
+  assert.match(chatSql, /attachments jsonb not null default '\[\]'::jsonb/);
+  assert.match(chatSql, /add column if not exists attachments jsonb/);
+  assert.match(chatService, /CHAT_MESSAGE_COLUMNS = "id, conversation_id, sender_id, body, attachments, created_at"/);
+  assert.match(chatService, /getCompletedRecordPdfAttachmentsForChat/);
+  assert.match(chatPage, /Adjuntar PDF completado/);
+  assert.match(chatPage, /adjuntoSeleccionado/);
+});
+
 test("historiales limitan consultas pesadas", () => {
   const accessService = read("src/services/accessControlService.js");
 

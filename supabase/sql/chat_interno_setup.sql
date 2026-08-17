@@ -23,10 +23,14 @@ create table if not exists public.chat_messages (
   conversation_id uuid not null references public.chat_conversations(id) on delete cascade,
   sender_id uuid not null references auth.users(id) on delete cascade,
   body text not null check (length(trim(body)) > 0),
+  attachments jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now(),
   edited_at timestamptz,
   deleted_at timestamptz
 );
+
+alter table public.chat_messages
+  add column if not exists attachments jsonb not null default '[]'::jsonb;
 
 create index if not exists chat_participants_user_id_idx
 on public.chat_participants(user_id);

@@ -1,6 +1,14 @@
 import { supabase } from "@/lib/supabase";
+import { getAccessibleRecordsForUser } from "@/services/accessControlService";
 import { createUserNotifications } from "@/services/notificationService";
 import { formatUserDisplayName } from "@/utils/nameFormat";
+import {
+  COMPLETED_RECORD_PDF_CONFIGS,
+  buildCompletedRecordPdfAttachment,
+  normalizeChatAttachments,
+} from "@/utils/chatAttachments.mjs";
+
+const CHAT_MESSAGE_COLUMNS = "id, conversation_id, sender_id, body, attachments, created_at";
 
 export async function getChatUsers(currentUserId) {
   let query = supabase
@@ -27,7 +35,7 @@ export async function getOrCreateDirectConversation(otherUserId) {
 export async function getMessages(conversationId) {
   const { data, error } = await supabase
     .from("chat_messages")
-    .select("id, conversation_id, sender_id, body, created_at")
+    .select(CHAT_MESSAGE_COLUMNS)
     .eq("conversation_id", conversationId)
     .order("created_at", { ascending: true });
 
@@ -91,18 +99,21 @@ export async function getUnreadMessageCounts(currentUserId) {
   }, {});
 }
 
-export async function sendMessage(conversationId, senderId, body) {
+export async function sendMessage(conversationId, senderId, body, { attachments = [] } = {}) {
   const text = String(body || "").trim();
-  if (!text) return null;
+  const normalizedAttachments = normalizeChatAttachments(attachments);
+  if (!text && normalizedAttachments.length === 0) return null;
+  const bodyText = text || `Adjunto: ${normalizedAttachments[0]?.title || "archivo"}`;
 
   const { data, error } = await supabase
     .from("chat_messages")
     .insert({
       conversation_id: conversationId,
       sender_id: senderId,
-      body: text,
+      body: bodyText,
+      attachments: normalizedAttachments,
     })
-    .select("id, conversation_id, sender_id, body, created_at")
+    .select(CHAT_MESSAGE_COLUMNS)
     .single();
 
   if (error) throw error;
@@ -134,7 +145,7 @@ export async function sendMessage(conversationId, senderId, body) {
         user_ids: userIds,
         recipient_emails: (recipientProfiles || []).map((profile) => profile.email),
         title: `Nuevo mensaje de ${senderName}`,
-        message: text.length > 120 ? `${text.slice(0, 120)}...` : text,
+        message: bodyText.length > 120 ? `${bodyText.slice(0, 120)}...` : bodyText,
         record_type: "chat",
         record_id: conversationId,
       });
@@ -144,6 +155,38 @@ export async function sendMessage(conversationId, senderId, body) {
   }
 
   return data;
+}
+
+export async function getCompletedRecordPdfAttachmentsForChat({
+  userId,
+  userEmail,
+  isSuperAdmin = false,
+} = {}) {
+  if (!userId) return [];
+
+  const responses = await Promise.all(
+    COMPLETED_RECORD_PDF_CONFIGS.map(async (config) => {
+      const { records } = await getAccessibleRecordsForUser({
+        userId,
+        userEmail,
+        area: config.area,
+        tipo: config.tipo,
+        subtipo: config.subtipo,
+        canViewAll: isSuperAdmin,
+        action: "download",
+      });
+
+      return records
+        .filter((record) => record.estado === "completado")
+        .map((record) => buildCompletedRecordPdfAttachment(record, config))
+        .filter(Boolean);
+    })
+  );
+
+  return responses
+    .flat()
+    .sort((a, b) => String(a.title).localeCompare(String(b.title), "es"))
+    .slice(0, 120);
 }
 
 export async function markConversationRead(conversationId, userId) {
