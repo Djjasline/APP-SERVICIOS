@@ -516,7 +516,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
                   </div>
 
                   <div style={{ marginTop: 4, fontSize: 12 }}>
-                    Cédula: {data.firmas?.clienteCedula || "—"}
+                    {data.firmas?.clienteCedula || ""}
                   </div>
                 </td>
               </tr>

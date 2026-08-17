@@ -381,7 +381,7 @@ setReport({ estado: data.estado, data: data.data });
             {d.contacto || d.cliente || "—"}
           </div>
           <div style={{ marginTop: 1, fontSize: 9 }}>
-            Cédula: {d.firmas?.clienteCedula || "—"}
+            {d.firmas?.clienteCedula || ""}
           </div>
         </td>
       </tr>

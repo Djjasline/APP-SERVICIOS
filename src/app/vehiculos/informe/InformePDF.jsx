@@ -504,7 +504,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
       fontSize: 11,
     }}
   >
-    Cédula: {data.firmas?.clienteCedula || "—"}
+    {data.firmas?.clienteCedula || ""}
   </div>
 </td>
       </tr>

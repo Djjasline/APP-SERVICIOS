@@ -1687,7 +1687,7 @@ const save = async () => {
                   <input className="w-full border rounded mt-1 text-xs p-1"
                     value={data.firmas.clienteCedula || ""}
                     onChange={(e) => set("firmas", { ...data.firmas, clienteCedula: e.target.value })}
-                    placeholder="Cédula del cliente"
+                    placeholder=""
                   />
                   <div className="text-center mt-1">
                     <button type="button" onClick={() => { sigCliente.current?.clear(); set("firmas", { ...data.firmas, cliente: "" }); }}

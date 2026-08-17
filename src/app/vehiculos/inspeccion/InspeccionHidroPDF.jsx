@@ -538,7 +538,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
                       color: "#4b5563",
                     }}
                   >
-                    Cédula: {d.firmas?.clienteCedula || "—"}
+                    {d.firmas?.clienteCedula || ""}
                   </div>
                 </td>
               </tr>
