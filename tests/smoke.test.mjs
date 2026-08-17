@@ -24,7 +24,7 @@ test("modulos especiales conservan llaves esperadas", () => {
     assert.match(accessControl, new RegExp(`"${key}"`));
   }
 
-  assert.match(accessControl, /CONFIGURADOR_OWNER_EMAIL = "smaviles@astap\.com"/);
+  assert.match(accessControl, /CONFIGURADOR_OWNER_EMAIL = PRIVILEGED_EMAILS\.superAdmin\[0\]/);
 });
 
 test("configurador mantiene dueno, vista previa e imagen proporcional", () => {

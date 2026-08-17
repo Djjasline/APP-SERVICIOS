@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { pickNewestDraft, toDraftPayload } from "@/utils/draftSelection.mjs";
 
 let activeScope = "anon";
 const remoteProtectedKeys = new Set();
@@ -15,21 +16,6 @@ function logRemoteDraftError(message, error) {
   if (import.meta.env.DEV) {
     console.warn(message, error);
   }
-}
-
-function toDraftPayload(datos, guardadoEn = new Date().toISOString()) {
-  return { datos, guardadoEn };
-}
-
-function getDraftTime(draft) {
-  const time = draft?.guardadoEn ? new Date(draft.guardadoEn).getTime() : 0;
-  return Number.isFinite(time) ? time : 0;
-}
-
-function pickNewestDraft(localDraft, remoteDraft) {
-  if (!localDraft) return remoteDraft;
-  if (!remoteDraft) return localDraft;
-  return getDraftTime(remoteDraft) > getDraftTime(localDraft) ? remoteDraft : localDraft;
 }
 
 async function guardarBorradorRemoto(clave, datos, scope, guardadoEn) {

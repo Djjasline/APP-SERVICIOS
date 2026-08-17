@@ -1,4 +1,6 @@
-export const CONFIGURADOR_OWNER_EMAIL = "smaviles@astap.com";
+import { PRIVILEGED_EMAILS, isSuperAdminEmail } from "@/constants/privilegedAccess.mjs";
+
+export const CONFIGURADOR_OWNER_EMAIL = PRIVILEGED_EMAILS.superAdmin[0];
 
 export const SPECIAL_MODULE_KEYS = {
   configurador: "configurador",
@@ -57,5 +59,5 @@ export const SPECIAL_MODULE_BY_TIPO = SPECIAL_MODULES.reduce((acc, module) => {
 }, {});
 
 export function isConfiguratorOwner(email) {
-  return String(email || "").trim().toLowerCase() === CONFIGURADOR_OWNER_EMAIL;
+  return isSuperAdminEmail(email);
 }

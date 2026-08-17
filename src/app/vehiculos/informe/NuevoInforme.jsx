@@ -16,6 +16,7 @@ import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import AutoResizeInput from "@/components/AutoResizeInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import { ensureCompletionReady } from "@/utils/completionValidation";
+import { isSuperAdminEmail } from "@/constants/privilegedAccess.mjs";
 
 const fieldPlaceholders = {
   cliente: "Nombre del cliente",
@@ -40,8 +41,7 @@ export default function NuevoInforme() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const esSantiago =
-    user?.email?.toLowerCase() === "smaviles@astap.com";
+  const esSantiago = isSuperAdminEmail(user?.email);
 
   const {
     technicians,

@@ -14,6 +14,7 @@ import { formatPersonName } from "@/utils/nameFormat";
 import ObservationImageField from "@/components/ObservationImageField";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import { isSuperAdminEmail } from "@/constants/privilegedAccess.mjs";
 
 /* ═══════════════════════════════════════
    SECCIONES
@@ -141,9 +142,8 @@ export default function HojaMantenimientoHidro() {
 
   const { user } = useAuth();
 
-  // Santiago puede seleccionar cualquier técnico
-  const esSantiago =
-    user?.email?.toLowerCase() === "smaviles@astap.com";
+  // Super admin puede seleccionar cualquier técnico.
+  const esSantiago = isSuperAdminEmail(user?.email);
 
   const isEditing = !!id;
   const claveAutoguardado = `mantenimiento_hidro_${id ?? "new"}`;

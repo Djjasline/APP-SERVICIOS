@@ -1,22 +1,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { resolveAuthAccess } from "@/constants/privilegedAccess.mjs";
 
 const AuthContext = createContext();
-
-const SUPER_ADMIN_EMAIL = "smaviles@astap.com";
-const SUPERVISOR_OPERACIONES_EMAILS = ["kamhez@astap.com"];
-const SUPERVISOR_PROYECTO_EMAILS = ["abriones@astap.com"];
-const TECHNICAL_USER_EMAILS = ["abriones@astap.com"];
-
-const normalizeRole = (value) => String(value || "").trim().toLowerCase();
-const COMMERCIAL_ROLES = ["ing. comercial", "ingeniero comercial", "comercial"];
-const TECHNICAL_ROLES = [
-  "super_admin",
-  "admin",
-  "tecnico",
-  "supervisor_operaciones",
-  "supervisor_proyecto",
-];
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -101,41 +87,22 @@ export function AuthProvider({ children }) {
 
   const refreshProfile = () => loadProfile(user);
 
-  const email = user?.email?.trim().toLowerCase() || "";
-
-  const profileRole = normalizeRole(profile?.role || user?.user_metadata?.role);
-  const emailRoles = [
-    email === SUPER_ADMIN_EMAIL ? "super_admin" : null,
-    SUPERVISOR_OPERACIONES_EMAILS.includes(email) ? "supervisor_operaciones" : null,
-    SUPERVISOR_PROYECTO_EMAILS.includes(email) ? "supervisor_proyecto" : null,
-    TECHNICAL_USER_EMAILS.includes(email) ? "tecnico" : null,
-  ].filter(Boolean);
-
-  const role = emailRoles[0] || profileRole || "usuario";
-  const hasCommercialAccess = COMMERCIAL_ROLES.includes(profileRole);
-  const hasTechnicalAccess =
-    TECHNICAL_USER_EMAILS.includes(email) ||
-    emailRoles.some((emailRole) => TECHNICAL_ROLES.includes(emailRole)) ||
-    TECHNICAL_ROLES.includes(profileRole);
-
-  const roles = Array.from(
-    new Set([
-      role,
-      ...emailRoles,
-      profileRole,
-      ...(hasCommercialAccess ? ["comercial"] : []),
-      ...(hasTechnicalAccess ? ["tecnico"] : []),
-    ].filter(Boolean))
-  );
+  const access = resolveAuthAccess({
+    email: user?.email,
+    profileRole: profile?.role || user?.user_metadata?.role,
+  });
+  const { email, role, roles } = access;
 
   const department = profile?.department || "";
   const fullName = profile?.full_name || user?.user_metadata?.full_name || "";
 
-  const isSuperAdmin = roles.includes("super_admin");
-  const isSupervisorOperaciones = roles.includes("supervisor_operaciones");
-  const isProveedorVehiculos = roles.includes("proveedor_vehiculos");
-  const isSupervisorProyecto = roles.includes("supervisor_proyecto");
-  const isTechnicalUser = hasTechnicalAccess || roles.includes("tecnico");
+  const {
+    isSuperAdmin,
+    isSupervisorOperaciones,
+    isProveedorVehiculos,
+    isSupervisorProyecto,
+    isTechnicalUser,
+  } = access;
   const isProveedorVehiculosOnly = isProveedorVehiculos && !isTechnicalUser;
   const roleLabel = roles.join(" / ");
 

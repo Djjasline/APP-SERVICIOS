@@ -1,8 +1,7 @@
 import { supabase } from "@/lib/supabase"
 import { saveOrUpdateReport } from "../services/reportService"
 import { HISTORY_QUERY_LIMIT, RECORD_LIST_COLUMNS } from "@/services/accessControlService"
-
-const SUPER_ADMIN_EMAIL = "smaviles@astap.com"
+import { isSuperAdminEmail } from "@/constants/privilegedAccess.mjs"
 
 /* ======================================================
    STORAGE PARA INSPECCIONES (SUPABASE)
@@ -24,7 +23,7 @@ const applyUserFilter = async (query) => {
 
   if (!user) return null
 
-  if (user.email !== SUPER_ADMIN_EMAIL) {
+  if (!isSuperAdminEmail(user.email)) {
     return query.eq("user_id", user.id)
   }
 

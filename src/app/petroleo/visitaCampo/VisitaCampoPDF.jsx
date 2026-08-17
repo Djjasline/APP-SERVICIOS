@@ -5,6 +5,7 @@ import { printPdf } from "@/utils/printPdf";
 import { useAuth } from "@/context/AuthContext";
 import { createEmptyVisitaCampoData } from "./visitaCampoData";
 import { parseTableText } from "./tableUtils";
+import { isSuperAdminEmail } from "@/constants/privilegedAccess.mjs";
 
 const S = {
   page: {
@@ -349,7 +350,7 @@ export default function VisitaCampoPDF({ allowDownload = true }) {
   const navigate = useNavigate();
   const { user, isSuperAdmin } = useAuth();
   const superAdminActivo = typeof isSuperAdmin === "function" ? isSuperAdmin() : !!isSuperAdmin;
-  const puedeVerBorrador = superAdminActivo || String(user?.email || "").toLowerCase() === "smaviles@astap.com";
+  const puedeVerBorrador = superAdminActivo || isSuperAdminEmail(user?.email);
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
 

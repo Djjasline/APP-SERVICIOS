@@ -4,10 +4,13 @@ import { createNotification } from "./notificationService";
 import { getNotificationRecipientsForRecord } from "./notificationRecipientService";
 import { hasReportCodeSequence, normalizeReportCodeValue, reserveNextReportCode } from "./reportCodeService";
 import { formatPersonName } from "@/utils/nameFormat";
-
-const SUPER_ADMIN_EMAIL = "smaviles@astap.com";
-const SUPERVISOR_OPERACIONES_EMAILS = ["kamhez@astap.com"];
-const SUPERVISOR_PROYECTO_EMAILS = ["abriones@astap.com"];
+import {
+  ROLES,
+  isSuperAdminEmail,
+  isSupervisorOperacionesEmail,
+  isSupervisorProyectoEmail,
+  normalizeRole,
+} from "@/constants/privilegedAccess.mjs";
 
 const normalize = (value) => String(value || "").trim().toLowerCase();
 
@@ -99,10 +102,10 @@ async function getEditableRecord({ id, user, area, tipo, subtipo }) {
 
   const email = normalize(user.email);
   const isOwnRecord = record.user_id === user.id || recordHasTechnicianEmail(record, email);
-  const isSuperAdmin = email === SUPER_ADMIN_EMAIL;
+  const isSuperAdmin = isSuperAdminEmail(email) || rolesIncludeSuperAdmin(user);
   const isAreaSupervisor =
-    (record.area === "operaciones" && SUPERVISOR_OPERACIONES_EMAILS.includes(email)) ||
-    (record.area === "vehiculos" && SUPERVISOR_PROYECTO_EMAILS.includes(email));
+    (record.area === "operaciones" && isSupervisorOperacionesEmail(email)) ||
+    (record.area === "vehiculos" && isSupervisorProyectoEmail(email));
 
   if (isOwnRecord || isSuperAdmin || isAreaSupervisor) return record;
 
@@ -110,6 +113,10 @@ async function getEditableRecord({ id, user, area, tipo, subtipo }) {
   if (canAccessRecord({ record, userId: user.id, permissions, isSuperAdmin, action: "edit" })) return record;
 
   throw new Error("No tienes permiso para editar este registro.");
+}
+
+function rolesIncludeSuperAdmin(user) {
+  return normalizeRole(user?.user_metadata?.role) === ROLES.superAdmin;
 }
 
 async function resolveReportData({ id, data }) {

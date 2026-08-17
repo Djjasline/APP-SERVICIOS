@@ -5,16 +5,10 @@ import {
   getAccessibleRecordsForUser,
   getRecordAccessPermissionsForUser,
 } from "@/services/accessControlService";
-
-const SUPER_ADMIN_EMAIL = "smaviles@astap.com";
-const SUPERVISOR_OPERACIONES_EMAIL = "kamhez@astap.com";
+import { isSuperAdminEmail, isSupervisorOperacionesEmail } from "@/constants/privilegedAccess.mjs";
 
 const canViewAll = (email = "") => {
-  const userEmail = email.toLowerCase();
-  return (
-    userEmail === SUPER_ADMIN_EMAIL ||
-    userEmail === SUPERVISOR_OPERACIONES_EMAIL
-  );
+  return isSuperAdminEmail(email) || isSupervisorOperacionesEmail(email);
 };
 
 /* ================= CREAR REGISTRO ================= */
@@ -52,8 +46,8 @@ export async function deleteRegistro(id) {
     .eq("tipo", "registro")
     .eq("subtipo", "herramienta");
 
-  // Karim NO elimina registros de otros. Solo Santiago puede.
-  if (user.email?.toLowerCase() !== SUPER_ADMIN_EMAIL) {
+  // Solo super admin elimina registros de otros usuarios.
+  if (!isSuperAdminEmail(user.email)) {
     query = query.eq("user_id", user.id);
   }
 
@@ -123,7 +117,7 @@ export async function getRegistroById(id) {
     record: data,
     userId: user.id,
     permissions,
-    isSuperAdmin: user.email?.toLowerCase() === SUPER_ADMIN_EMAIL,
+    isSuperAdmin: isSuperAdminEmail(user.email),
     action: "view",
   });
 
