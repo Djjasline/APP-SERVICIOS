@@ -1,12 +1,57 @@
 import { supabase } from "@/lib/supabase";
 
-const DEFAULT_UPDATE_MESSAGE = "Se mejoró el sistema de notificaciones: sonido de chat, avisos internos y actualización de alertas en la app.";
+const DEFAULT_UPDATE_MESSAGE = "Se publicó una mejora en la aplicación.";
 
 function cleanUpdateId(value) {
   return String(value || "").replace(/^app-update-/, "");
 }
 
 const FRIENDLY_UPDATES = [
+  {
+    match: "mejorar control de cambios",
+    title: "Control de cambios: historial mejorado",
+    message: "El control de cambios ahora describe mejor las mejoras publicadas y evita mensajes genéricos.",
+  },
+  {
+    match: "optimizar recursos iniciales",
+    title: "Control de cambios: carga inicial optimizada",
+    message: "Se optimizó la carga inicial de la app con mejor carga de fuentes y caché para recursos públicos.",
+  },
+  {
+    match: "vincular clientes en cotizador y configurador",
+    title: "Control de cambios: clientes en cotizador y configurador",
+    message: "El cotizador y el configurador ahora usan la base de clientes para seleccionar clientes de forma consistente.",
+  },
+  {
+    match: "limitar autocompletado de cliente",
+    title: "Control de cambios: selección de clientes ajustada",
+    message: "En formularios de vehículos, seleccionar un cliente ahora completa solo el nombre y no modifica dirección ni RUC/cédula.",
+  },
+  {
+    match: "agregar modulo de clientes en operaciones",
+    title: "Control de cambios: módulo de clientes",
+    message: "Operaciones ahora cuenta con un módulo para buscar, crear, editar, activar, desactivar y eliminar clientes.",
+  },
+  {
+    match: "integrar base de clientes en vehiculos",
+    title: "Control de cambios: base de clientes integrada",
+    message: "Los formularios de vehículos ahora pueden seleccionar clientes desde la base central de clientes.",
+  },
+  {
+    match: "integrar referencia vactor en anexos",
+    title: "Control de cambios: referencia Vactor en anexos",
+    message: "Los anexos de partes ahora permiten buscar referencias Vactor y completar descripción y número de parte.",
+  },
+  {
+    match: "agregar import vactor dividido",
+    title: "Control de cambios: importación Vactor preparada",
+    message: "Se agregó la importación dividida de referencias Vactor para facilitar su carga en Supabase.",
+  },
+  {
+    match: "mover import vactor a supabase sql",
+    title: "Control de cambios: importación Vactor en SQL",
+    message: "La importación de referencias Vactor quedó organizada dentro de los archivos SQL de Supabase.",
+  },
   {
     match: "detallar control de cambios",
     title: "Control de cambios: seguridad y notificaciones",
