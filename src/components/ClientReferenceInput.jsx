@@ -102,7 +102,7 @@ function ClientReferenceDropdown({ query, matches, loading, error, onSelect, onC
         <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-700">Cerrar</button>
       </div>
 
-      {showHint && <p className="px-3 py-2 text-slate-500">Escribe al menos 3 caracteres para buscar por cliente, RUC o dirección.</p>}
+      {showHint && <p className="px-3 py-2 text-slate-500">Escribe al menos 3 caracteres para buscar cliente.</p>}
       {loading && <p className="px-3 py-2 text-slate-500">Buscando clientes...</p>}
       {error && <p className="px-3 py-2 text-red-600">{error}</p>}
       {showEmpty && <p className="px-3 py-2 text-slate-500">Sin coincidencias en clientes.</p>}
@@ -116,8 +116,6 @@ function ClientReferenceDropdown({ query, matches, loading, error, onSelect, onC
           className="block w-full border-b border-slate-100 px-3 py-2 text-left last:border-b-0 hover:bg-blue-50"
         >
           <span className="block font-bold text-slate-900">{client.name}</span>
-          {client.tax_id && <span className="block text-slate-600">RUC/Cédula: {client.tax_id}</span>}
-          {client.address && <span className="block text-slate-500">{client.address}</span>}
         </button>
       ))}
     </div>

@@ -611,12 +611,7 @@ const result = await saveOrUpdateReport({
                     value={data.cliente}
                     placeholder={fieldPlaceholders.cliente}
                     onValueChange={(value) => update(["cliente"], value)}
-                    onSelect={(client) => {
-                      update(["cliente"], client.name || "");
-                      update(["direccion"], client.address || "");
-                      update(["cedulaCliente"], client.tax_id || "");
-                      update(["firmas", "clienteCedula"], client.tax_id || "");
-                    }}
+                    onSelect={(client) => update(["cliente"], client.name || "")}
                   />
                 </td>
                 <td className="pdf-label">DIRECCIÓN</td>

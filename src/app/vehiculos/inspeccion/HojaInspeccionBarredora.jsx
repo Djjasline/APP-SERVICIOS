@@ -900,7 +900,7 @@ setTimeout(() => {
             <tbody>
               <tr>
                 <td className="pdf-label">CLIENTE</td>
-                <td><ClientReferenceInput value={data.cliente} placeholder={fieldPlaceholders.cliente} onValueChange={(value) => update(["cliente"], value)} onSelect={(client) => { update(["cliente"], client.name || ""); update(["direccion"], client.address || ""); update(["cedulaCliente"], client.tax_id || ""); update(["firmas", "clienteCedula"], client.tax_id || ""); }} /></td>
+                <td><ClientReferenceInput value={data.cliente} placeholder={fieldPlaceholders.cliente} onValueChange={(value) => update(["cliente"], value)} onSelect={(client) => update(["cliente"], client.name || "")} /></td>
                 <td className="pdf-label">DIRECCIÓN</td>
                 <td><AutoResizeInput className="pdf-input w-full" value={data.direccion} placeholder={fieldPlaceholders.direccion} onChange={(e) => update(["direccion"], e.target.value)} /></td>
               </tr>
