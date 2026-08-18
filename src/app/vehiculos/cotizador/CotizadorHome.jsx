@@ -2,6 +2,7 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, Calculator, FileText, History, Package, Plus, Printer, RefreshCw, Save, Search, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
+import ClientReferenceInput from "@/components/ClientReferenceInput";
 import SignatureCanvas from "@/components/SignatureCanvasField";
 import { getVehicleReferenceCatalog, getWarehouseInventory, WAREHOUSE_ITEM_SOURCES } from "@/services/warehouseInventoryService";
 import { getVehicleServiceQuoteById, getVehicleServiceQuoteHistory, regenerateVehicleServiceQuotePdf, saveVehicleServiceQuote, updateVehicleServiceQuote } from "@/services/vehicleServiceQuoteService";
@@ -306,7 +307,15 @@ export default function CotizadorHome() {
           <OfferField label="Proforma No." value={offer.proformaNo} onChange={(value) => updateOffer("proformaNo", value)} />
           <OfferField label="Fecha" type="date" value={offer.date} onChange={(value) => updateOffer("date", value)} />
           <OfferField label="Validez días" type="number" value={offer.validityDays} onChange={(value) => updateOffer("validityDays", value)} />
-          <OfferField label="Cliente" value={offer.client} onChange={(value) => updateOffer("client", value)} />
+          <ClientOfferField
+            label="Cliente"
+            value={offer.client}
+            onChange={(value) => updateOffer("client", value)}
+            onSelect={(client) => {
+              updateOffer("client", client.name || "");
+              updateOffer("ruc", client.tax_id || "");
+            }}
+          />
           <OfferField label="RUC" value={offer.ruc} onChange={(value) => updateOffer("ruc", value)} />
           <OfferField label="Teléfono" value={offer.phone} onChange={(value) => updateOffer("phone", value)} />
           <OfferField label="Atención" value={offer.attention} onChange={(value) => updateOffer("attention", value)} />
@@ -448,6 +457,20 @@ function OfferField({ label, value, onChange, type = "text", multiline = false, 
       ) : (
         <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className={className} />
       )}
+    </label>
+  );
+}
+
+function ClientOfferField({ label, value, onChange, onSelect }) {
+  return (
+    <label className="block text-sm font-semibold text-slate-700">
+      {label}
+      <ClientReferenceInput
+        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
+        value={value}
+        onValueChange={onChange}
+        onSelect={onSelect}
+      />
     </label>
   );
 }

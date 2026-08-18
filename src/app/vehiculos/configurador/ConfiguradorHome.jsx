@@ -3,6 +3,7 @@ import { Calculator, CheckCircle2, Download, Eye, EyeOff, FileText, History, Ref
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import ClientReferenceInput from "@/components/ClientReferenceInput";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { downloadConfiguratorPdf } from "./configuratorPdf";
 import { getConfiguratorQuoteById, getConfiguratorQuoteHistory, regenerateConfiguratorQuotePdf, saveConfiguratorQuote, updateConfiguratorQuote } from "@/services/configuratorQuoteService";
@@ -735,8 +736,8 @@ export default function ConfiguradorHome() {
         <div className="flex flex-col gap-3 border-b border-red-200 p-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <TextInput label="Cotización No." value={quote.number} onChange={(value) => updateQuote("number", value)} />
-            <TextInput label="Cliente" value={quote.customer} onChange={(value) => updateQuote("customer", value)} />
-            <TextInput label="Cliente final" value={quote.endCustomer} onChange={(value) => updateQuote("endCustomer", value)} />
+            <ClientTextInput label="Cliente" value={quote.customer} onChange={(value) => updateQuote("customer", value)} />
+            <ClientTextInput label="Cliente final" value={quote.endCustomer} onChange={(value) => updateQuote("endCustomer", value)} />
             <TextInput label="Vendedor" value={quote.salesPerson} onChange={(value) => updateQuote("salesPerson", value)} />
           </div>
           <div className="flex flex-col gap-2 sm:items-end">
@@ -931,6 +932,20 @@ function TextInput({ label, value, onChange }) {
     <label className="text-xs font-semibold text-slate-500">
       {label}
       <input value={value} onChange={(event) => onChange(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400" />
+    </label>
+  );
+}
+
+function ClientTextInput({ label, value, onChange }) {
+  return (
+    <label className="text-xs font-semibold text-slate-500">
+      {label}
+      <ClientReferenceInput
+        className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400"
+        value={value}
+        onValueChange={onChange}
+        onSelect={(client) => onChange(client.name || "")}
+      />
     </label>
   );
 }
