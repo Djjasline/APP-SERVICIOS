@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { saveOrUpdateReport } from "@/services/reportService";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import ClientReferenceInput from "@/components/ClientReferenceInput";
 import { leerBorrador, useAutoguardado } from "@/hooks/useAutoguardado";
 import { ensureCompletionReady } from "@/utils/completionValidation";
 import {
@@ -232,7 +233,7 @@ export default function ProtocoloVCamForm() {
       <section className="bg-white rounded-xl border shadow-sm p-4 space-y-3">
         <h2 className="font-semibold text-slate-900">1. Datos generales del equipo</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <label className="text-sm">Cliente<input className={inputClass} value={data.cliente} onChange={(e) => set("cliente", e.target.value)} /></label>
+          <label className="text-sm">Cliente<ClientReferenceInput className={inputClass} value={data.cliente} onValueChange={(value) => set("cliente", value)} onSelect={(client) => set("cliente", client.name || "")} /></label>
           <label className="text-sm">Equipo No.<input className={inputClass} value={data.equipoNo} onChange={(e) => set("equipoNo", e.target.value)} /></label>
           <label className="text-sm">Modelo<input className={inputClass} value={data.modelo} onChange={(e) => set("modelo", e.target.value)} /></label>
           <label className="text-sm">Serie módulo<input className={inputClass} value={data.serieModulo} onChange={(e) => set("serieModulo", e.target.value)} /></label>

@@ -15,6 +15,7 @@ import { formatPersonName } from "@/utils/nameFormat";
 import ObservationImageField from "@/components/ObservationImageField";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import ClientReferenceInput from "@/components/ClientReferenceInput";
 
 /* ═══════════════════════════════════════
    HELPERS
@@ -720,7 +721,7 @@ const result = await saveOrUpdateReport({
             <tbody>
               <tr>
                 <td className="pdf-label">CLIENTE</td>
-                <td><AutoResizeInput className="pdf-input w-full" value={data.cliente} placeholder={fieldPlaceholders.cliente} onChange={(e) => update(["cliente"], e.target.value)} /></td>
+                <td><ClientReferenceInput value={data.cliente} placeholder={fieldPlaceholders.cliente} onValueChange={(value) => update(["cliente"], value)} onSelect={(client) => { update(["cliente"], client.name || ""); update(["direccion"], client.address || ""); update(["firmas", "clienteCedula"], client.tax_id || ""); }} /></td>
                 <td className="pdf-label">DIRECCIÓN</td>
                 <td><AutoResizeInput className="pdf-input w-full" value={data.direccion} placeholder={fieldPlaceholders.direccion} onChange={(e) => update(["direccion"], e.target.value)} /></td>
               </tr>
