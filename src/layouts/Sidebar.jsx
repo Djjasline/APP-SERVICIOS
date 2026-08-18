@@ -36,6 +36,7 @@ import {
   Package,
   Wrench,
   ExternalLink,
+  Users,
 } from "lucide-react";
 
 const DOCUMOTO_ELGIN_URL = "https://documoto.digabit.com/ui/home";
@@ -64,6 +65,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const puedeUsarCotizador = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.cotizador);
   const puedeUsarRecorridoAgua = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.recorridoAgua);
   const puedeUsarBodega = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.bodega);
+  const puedeUsarClientes = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.clientes);
   const informeGeneralTooltip =
     "Informe técnico de servicio: instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
 
@@ -604,6 +606,16 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                     className={subItemClass("/operaciones/bodega")}
                   >
                     {subLabel(Package, OPERACIONES_TEXT.bodega.title)}
+                  </button>
+                )}
+
+                {puedeUsarClientes && (
+                  <button
+                    type="button"
+                    onClick={() => go("/operaciones/clientes")}
+                    className={subItemClass("/operaciones/clientes")}
+                  >
+                    {subLabel(Users, OPERACIONES_TEXT.clientes.title)}
                   </button>
                 )}
               </div>

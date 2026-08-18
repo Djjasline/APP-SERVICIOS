@@ -40,6 +40,7 @@ grant select, insert, update, delete on public.client_reference_catalog to authe
 alter table public.client_reference_catalog enable row level security;
 
 drop policy if exists "Super admin gestiona clientes referencia" on public.client_reference_catalog;
+drop policy if exists "Usuario modulo clientes gestiona clientes referencia" on public.client_reference_catalog;
 drop policy if exists "Usuarios formularios consultan clientes referencia" on public.client_reference_catalog;
 
 create policy "Super admin gestiona clientes referencia"
@@ -48,6 +49,33 @@ create policy "Super admin gestiona clientes referencia"
   to authenticated
   using (public.is_super_admin_user())
   with check (public.is_super_admin_user());
+
+create policy "Usuario modulo clientes gestiona clientes referencia"
+  on public.client_reference_catalog
+  for all
+  to authenticated
+  using (
+    exists (
+      select 1
+      from public.record_access_permissions p
+      where p.grantee_user_id = auth.uid()
+        and p.active = true
+        and p.can_view = true
+        and (p.area = 'operaciones' or p.area = 'todos')
+        and p.tipo = 'clientes'
+    )
+  )
+  with check (
+    exists (
+      select 1
+      from public.record_access_permissions p
+      where p.grantee_user_id = auth.uid()
+        and p.active = true
+        and p.can_view = true
+        and (p.area = 'operaciones' or p.area = 'todos')
+        and p.tipo = 'clientes'
+    )
+  );
 
 create policy "Usuarios formularios consultan clientes referencia"
   on public.client_reference_catalog

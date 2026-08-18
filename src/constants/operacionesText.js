@@ -20,4 +20,8 @@ export const OPERACIONES_TEXT = {
     title: "Bodega",
     description: "Control interno de inventario, materiales, herramientas y movimientos de bodega.",
   },
+  clientes: {
+    title: "Clientes",
+    description: "Gestión del catálogo de clientes para formularios y reportes técnicos.",
+  },
 };

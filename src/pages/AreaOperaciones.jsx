@@ -3,7 +3,7 @@ import { SPECIAL_MODULE_KEYS } from "@/constants/accessControl";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { useTheme } from "@/context/ThemeContext";
 import { useSpecialModuleAccess } from "@/hooks/useSpecialModuleAccess";
-import { ClipboardList, Settings, Wrench, Inbox, Package } from "lucide-react";
+import { ClipboardList, Settings, Wrench, Inbox, Package, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaOperaciones() {
@@ -11,6 +11,7 @@ export default function AreaOperaciones() {
   const navigate = useNavigate();
   const { hasSpecialModuleAccess } = useSpecialModuleAccess();
   const puedeUsarBodega = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.bodega);
+  const puedeUsarClientes = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.clientes);
 
  const modulos = [
   {
@@ -49,6 +50,17 @@ export default function AreaOperaciones() {
           icono: <Package size={20} />,
           color: "bg-amber-600",
           ruta: "/operaciones/bodega",
+        },
+      ]
+    : []),
+  ...(puedeUsarClientes
+    ? [
+        {
+          titulo: OPERACIONES_TEXT.clientes.title,
+          descripcion: OPERACIONES_TEXT.clientes.description,
+          icono: <Users size={20} />,
+          color: "bg-emerald-600",
+          ruta: "/operaciones/clientes",
         },
       ]
     : []),

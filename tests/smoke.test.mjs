@@ -20,7 +20,7 @@ test("rutas criticas de lanzamiento estan protegidas", () => {
 test("modulos especiales conservan llaves esperadas", () => {
   const accessControl = read("src/constants/accessControl.js");
 
-  for (const key of ["configurador", "cotizador", "recorrido_agua", "encuestas_satisfaccion", "bodega"]) {
+  for (const key of ["configurador", "cotizador", "recorrido_agua", "encuestas_satisfaccion", "bodega", "clientes"]) {
     assert.match(accessControl, new RegExp(`"${key}"`));
   }
 

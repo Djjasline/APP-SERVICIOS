@@ -8,6 +8,7 @@ export const SPECIAL_MODULE_KEYS = {
   recorridoAgua: "recorrido_agua",
   encuestasSatisfaccion: "encuestas_satisfaccion",
   bodega: "bodega",
+  clientes: "clientes",
 };
 
 export const SPECIAL_MODULES = [
@@ -45,6 +46,13 @@ export const SPECIAL_MODULES = [
     tipo: "bodega",
     label: "Gestión de bodega",
     description: "Acceso al módulo interno de bodega.",
+  },
+  {
+    key: SPECIAL_MODULE_KEYS.clientes,
+    area: "operaciones",
+    tipo: "clientes",
+    label: "Gestión de clientes",
+    description: "Acceso al catálogo interno de clientes.",
   },
 ];
 
