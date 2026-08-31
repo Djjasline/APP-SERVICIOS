@@ -141,6 +141,8 @@ test("formularios activan revision ortografica sin afectar campos tecnicos", () 
   assert.match(quality, /"correo"/);
   assert.match(quality, /"vin"/);
   assert.match(assistant, /shouldEnableWritingAssistance/);
+  assert.match(assistant, /activeFieldRef/);
+  assert.match(assistant, /onMouseDown=\{\(event\) => event\.preventDefault\(\)\}/);
 });
 
 test("chat soporta adjuntos estructurados en mensajes", () => {

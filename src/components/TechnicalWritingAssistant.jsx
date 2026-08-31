@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { shouldEnableWritingAssistance } from "@/utils/formWritingQuality";
 
@@ -114,18 +114,24 @@ function replaceInElement(element, suggestions) {
 
 export default function TechnicalWritingAssistant() {
   const { isLight } = useTheme();
+  const panelRef = useRef(null);
+  const activeFieldRef = useRef(null);
   const [activeElement, setActiveElement] = useState(null);
   const [text, setText] = useState("");
   const [dismissedValue, setDismissedValue] = useState("");
 
   useEffect(() => {
     const updateFromElement = (element) => {
+      if (panelRef.current?.contains(element)) return;
+
       if (!isEditableTextField(element)) {
+        activeFieldRef.current = null;
         setActiveElement(null);
         setText("");
         return;
       }
 
+      activeFieldRef.current = element;
       setActiveElement(element);
       setText(element.value || "");
     };
@@ -148,11 +154,13 @@ export default function TechnicalWritingAssistant() {
 
   const suggestions = useMemo(() => findSuggestions(text), [text]);
   const visible = activeElement && suggestions.length > 0 && dismissedValue !== text;
+  const targetElement = activeFieldRef.current || activeElement;
 
   if (!visible) return null;
 
   return (
     <div
+      ref={panelRef}
       className={`fixed bottom-4 right-4 z-[9999] w-[min(92vw,360px)] rounded-2xl border p-4 text-sm shadow-2xl ${
         isLight
           ? "border-blue-200 bg-white text-slate-900"
@@ -168,6 +176,7 @@ export default function TechnicalWritingAssistant() {
         </div>
         <button
           type="button"
+          onMouseDown={(event) => event.preventDefault()}
           onClick={() => setDismissedValue(text)}
           className={isLight ? "text-slate-400 hover:text-slate-700" : "text-slate-400 hover:text-white"}
           aria-label="Ocultar corrector"
@@ -181,7 +190,8 @@ export default function TechnicalWritingAssistant() {
           <button
             key={`${suggestion.source}-${suggestion.replacement}`}
             type="button"
-            onClick={() => replaceInElement(activeElement, [suggestion])}
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => replaceInElement(targetElement, [suggestion])}
             className={`block w-full rounded-lg border px-3 py-2 text-left text-xs transition ${
               isLight
                 ? "border-slate-200 hover:bg-blue-50"
@@ -195,7 +205,8 @@ export default function TechnicalWritingAssistant() {
 
       <button
         type="button"
-        onClick={() => replaceInElement(activeElement, suggestions)}
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={() => replaceInElement(targetElement, suggestions)}
         className="mt-3 w-full rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
       >
         Aplicar todas las sugerencias
