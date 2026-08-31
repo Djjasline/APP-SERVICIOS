@@ -343,6 +343,14 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
 
               <button
                 type="button"
+                onClick={() => go("/vehiculos/capacitacion")}
+                className={subItemClass("/vehiculos/capacitacion")}
+              >
+                {subLabel(GraduationCap, "Informe de Capacitación")}
+              </button>
+
+              <button
+                type="button"
                 onClick={() => go("/vehiculos/inspeccion")}
                 className={subItemClass("/vehiculos/inspeccion")}
               >

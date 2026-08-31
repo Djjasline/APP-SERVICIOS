@@ -20,6 +20,14 @@ test("rutas criticas de lanzamiento estan protegidas", () => {
   assert.match(routes, /path="\*"[^\n]+<NotFound \/>/);
 });
 
+test("menu lateral muestra acceso a informe de capacitacion", () => {
+  const sidebar = read("src/layouts/Sidebar.jsx");
+
+  assert.match(sidebar, /go\("\/vehiculos\/capacitacion"\)/);
+  assert.match(sidebar, /subItemClass\("\/vehiculos\/capacitacion"\)/);
+  assert.match(sidebar, /Informe de Capacitación/);
+});
+
 test("modulos especiales conservan llaves esperadas", () => {
   const accessControl = read("src/constants/accessControl.js");
 
