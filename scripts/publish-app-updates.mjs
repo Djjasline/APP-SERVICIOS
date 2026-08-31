@@ -116,9 +116,19 @@ const FRIENDLY_UPDATES = [
     message: "Vehículos Especiales ahora incluye un apartado de informe de capacitación con historial, formulario base y PDF.",
   },
   {
+    match: "agregar acceso a capacitacion en menu",
+    title: "Control de cambios: acceso a capacitación",
+    message: "El menú lateral de Vehículos Especiales ahora incluye el acceso directo a Informe de Capacitación.",
+  },
+  {
     match: "agregar revision ortografica global",
     title: "Control de cambios: revisión ortográfica",
     message: "Los formularios ahora activan revisión ortográfica y sugerencias de redacción en campos de texto, evitando afectar códigos, correos y datos técnicos.",
+  },
+  {
+    match: "mejorar bodega con despacho qr",
+    title: "Control de cambios: Bodega Digital",
+    message: "Bodega ahora permite movimientos con trazabilidad, stock antes/después, stock mínimo y ficha con QR operativo para despacho o devolución desde el móvil.",
   },
   {
     match: "optimizar recursos iniciales",

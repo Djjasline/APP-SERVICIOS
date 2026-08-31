@@ -271,11 +271,17 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(service, /WAREHOUSE_MOVEMENT_TYPES/);
   assert.match(service, /getWarehouseItemMovements/);
   assert.match(service, /createWarehouseItemMovement/);
+  assert.match(service, /register_warehouse_item_movement/);
+  assert.match(service, /stock_before/);
+  assert.match(service, /stock_after/);
+  assert.match(service, /stock_minimum/);
   assert.match(service, /getWarehouseRecentMovements/);
   assert.match(service, /warehouse_item_movements/);
 
   assert.match(home, /Actividad reciente/);
   assert.match(home, /getWarehouseRecentMovements/);
+  assert.match(home, /Bajo mínimo/);
+  assert.match(home, /Stock mín\./);
 
   const metadataSql = read("supabase/sql/warehouse_item_metadata.sql");
   assert.match(metadataSql, /alter table public\.warehouse_inventory/);
@@ -283,6 +289,7 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(metadataSql, /area text/);
   assert.match(metadataSql, /last_supplier text/);
   assert.match(metadataSql, /technical_specs text/);
+  assert.match(metadataSql, /stock_minimum numeric/);
 
   const fsDepotSql = read("supabase/sql/apply_fs_depot_vehicle_codes.sql");
   assert.match(fsDepotSql, /Vehículos Especiales/);
@@ -300,10 +307,21 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(movementsSql, /create table if not exists public\.warehouse_item_movements/);
   assert.match(movementsSql, /item_source text not null/);
   assert.match(movementsSql, /movement_type text not null/);
+  assert.match(movementsSql, /stock_before numeric/);
+  assert.match(movementsSql, /stock_after numeric/);
+  assert.match(movementsSql, /responsible text/);
+  assert.match(movementsSql, /create or replace function public\.register_warehouse_item_movement/);
+  assert.match(movementsSql, /update public\.warehouse_inventory/);
+  assert.match(movementsSql, /Stock insuficiente/);
   assert.match(movementsSql, /Usuario con permiso bodega consulta movimientos/);
   assert.match(movementsSql, /p\.tipo = 'bodega'/);
 
   assert.match(detail, /Movimientos y uso/);
+  assert.match(detail, /QR operativo del artículo/);
+  assert.match(detail, /api\.qrserver\.com/);
+  assert.match(detail, /Stock antes/);
+  assert.match(detail, /Responsable que recibe/);
+  assert.match(detail, /Servicio \/ informe \/ OT/);
   assert.match(detail, /createWarehouseItemMovement/);
   assert.match(detail, /getWarehouseItemMovements/);
 });

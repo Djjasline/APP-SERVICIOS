@@ -138,7 +138,7 @@ function downloadCsv(filename, rows) {
 }
 
 function buildExportRows(rows, viewingReference) {
-  const header = ["Código", "Descripción", "Área", "Cantidad", "Ubicación", "Proveedor", "Último costo", "Origen", "Fecha", "Estado ficha", "Campos faltantes"];
+  const header = ["Código", "Descripción", "Área", "Cantidad", "Stock mínimo", "Ubicación", "Proveedor", "Último costo", "Origen", "Fecha", "Estado ficha", "Campos faltantes"];
   const body = rows.map((item) => {
     const status = getFichaStatus(item, viewingReference);
     return [
@@ -146,6 +146,7 @@ function buildExportRows(rows, viewingReference) {
       item.description,
       item.area || "",
       viewingReference ? item.reference_stock : item.physical_stock,
+      viewingReference ? "" : item.stock_minimum,
       viewingReference ? "" : item.physical_location,
       item.last_supplier || "",
       viewingReference ? item.last_cost : "",
@@ -211,7 +212,7 @@ export default function BodegaHome() {
       }
     } catch (err) {
       console.error("Error cargando inventario de bodega:", err);
-      setError(err?.code === "42P01" ? "La tabla requerida aún no existe en Supabase." : "No se pudo cargar la información de bodega.");
+      setError(["42P01", "42703"].includes(err?.code) ? "Falta ejecutar el SQL actualizado de bodega en Supabase." : "No se pudo cargar la información de bodega.");
     } finally {
       setLoading(false);
     }
@@ -232,7 +233,7 @@ export default function BodegaHome() {
         setMovementsUnavailable(false);
       } catch (err) {
         console.error("Error cargando movimientos recientes de bodega:", err);
-        if (!cancelled && err?.code === "42P01") setMovementsUnavailable(true);
+        if (!cancelled && ["42P01", "42703", "42883"].includes(err?.code)) setMovementsUnavailable(true);
       }
     }
 
@@ -246,12 +247,14 @@ export default function BodegaHome() {
     const stock = items.reduce((total, item) => total + (Number(item.physical_stock) || 0), 0);
     const uniqueCodes = new Set(items.map((item) => item.product_code).filter(Boolean)).size;
     const referenceStock = referenceItems.reduce((total, item) => total + (Number(item.reference_stock) || 0), 0);
+    const lowStock = items.filter((item) => Number(item.stock_minimum) > 0 && (Number(item.physical_stock) || 0) <= Number(item.stock_minimum)).length;
 
     return {
       rows: items.length,
       uniqueCodes,
       stock,
       locations: locations.length,
+      lowStock,
       referenceRows: referenceItems.length,
       referenceStock,
     };
@@ -311,6 +314,7 @@ export default function BodegaHome() {
     description: (item) => item.description,
     area: (item) => item.area,
     physical_stock: (item) => Number(item.physical_stock) || 0,
+    stock_minimum: (item) => Number(item.stock_minimum) || 0,
     physical_location: (item) => item.physical_location,
     last_supplier: (item) => item.last_supplier,
     last_cost: () => 0,
@@ -412,14 +416,16 @@ export default function BodegaHome() {
       <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900 shadow-sm">
         <h3 className="font-semibold">Área privada de bodega</h3>
         <p className="mt-2 text-sm leading-6">
-          Acceso reservado para superadministrador y usuarios autorizados. El stock actual sigue separado de la referencia histórica de Vehículos Especiales, que no afecta inventario físico.
+          Acceso reservado para superadministrador y usuarios autorizados. El stock actual registra movimientos con trazabilidad y sigue separado de la referencia histórica de Vehículos Especiales.
         </p>
       </section>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-6">
         <StatCard title="Registros" value={formatNumber(summary.rows)} icon={<Database size={18} />} />
         <StatCard title="Códigos únicos" value={formatNumber(summary.uniqueCodes)} icon={<Package size={18} />} />
         <StatCard title="Stock total" value={formatNumber(summary.stock)} icon={<Warehouse size={18} />} />
+        <StatCard title="Ubicaciones" value={formatNumber(summary.locations)} icon={<Warehouse size={18} />} />
+        <StatCard title="Bajo mínimo" value={formatNumber(summary.lowStock)} icon={<AlertTriangle size={18} />} />
         <StatCard title="Ref. vehículos" value={formatNumber(summary.referenceRows)} icon={<Package size={18} />} />
       </div>
 
@@ -470,11 +476,11 @@ export default function BodegaHome() {
             <Activity size={18} className="text-amber-600" />
             <div>
               <h3 className="font-semibold text-slate-900">Actividad reciente</h3>
-              <p className="text-sm text-slate-500">Movimientos registrados de bodega. No modifican stock automáticamente.</p>
+              <p className="text-sm text-slate-500">Movimientos registrados de bodega con stock antes/después cuando aplican a stock real.</p>
             </div>
           </div>
           {movementsUnavailable ? (
-            <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Ejecuta `supabase/sql/warehouse_item_movements.sql` para habilitar el historial de movimientos.</p>
+            <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Ejecuta `supabase/sql/warehouse_item_movements.sql` para habilitar movimientos con stock automático.</p>
           ) : (
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               {activitySummary.map((item) => (
@@ -621,8 +627,8 @@ export default function BodegaHome() {
             <p className="flex items-center gap-2 font-semibold"><AlertTriangle size={16} /> {error}</p>
             <p className="mt-2">
               {viewingReference
-                ? "Ejecuta primero `supabase/sql/vehicle_reference_catalog.sql` en Supabase y luego importa el inventario referencial."
-                : "Ejecuta primero `supabase/sql/warehouse_inventory.sql` en Supabase y luego importa el Excel como CSV."}
+                ? "Ejecuta primero `supabase/sql/vehicle_reference_catalog.sql` y `supabase/sql/warehouse_item_metadata.sql` en Supabase."
+                : "Ejecuta primero `supabase/sql/warehouse_inventory.sql` y `supabase/sql/warehouse_item_movements.sql` en Supabase."}
             </p>
           </div>
         )}
@@ -650,6 +656,7 @@ export default function BodegaHome() {
                   <SortableTh sortKey="description" sort={stockSort} onSort={toggleStockSort}>Descripción</SortableTh>
                   <SortableTh sortKey="area" sort={stockSort} onSort={toggleStockSort}>Área</SortableTh>
                   <SortableTh sortKey="physical_stock" sort={stockSort} onSort={toggleStockSort} align="right">Cantidad</SortableTh>
+                  <SortableTh sortKey="stock_minimum" sort={stockSort} onSort={toggleStockSort} align="right">Stock mín.</SortableTh>
                   <SortableTh sortKey="physical_location" sort={stockSort} onSort={toggleStockSort}>Ubicación</SortableTh>
                   <SortableTh sortKey="last_supplier" sort={stockSort} onSort={toggleStockSort}>Proveedor</SortableTh>
                   <SortableTh sortKey="last_cost" sort={stockSort} onSort={toggleStockSort} align="right">Último costo</SortableTh>
@@ -668,6 +675,7 @@ export default function BodegaHome() {
                       <td className="px-3 py-2 text-slate-700">{item.description}</td>
                       <td className="px-3 py-2 text-slate-700">{item.area || "-"}</td>
                       <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.physical_stock)}</td>
+                      <td className="px-3 py-2 text-right text-slate-700">{item.stock_minimum ? formatNumber(item.stock_minimum) : "-"}</td>
                       <td className="px-3 py-2 text-slate-700">{item.physical_location || "-"}</td>
                       <td className="px-3 py-2 text-slate-700">{item.last_supplier || "-"}</td>
                       <td className="px-3 py-2 text-right text-slate-600">-</td>

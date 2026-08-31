@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 
-const LIST_METADATA_COLUMNS = "image_url, unit, weight_kg, brand, model, category, system, compatible_equipment";
+const LIST_METADATA_COLUMNS = "image_url, unit, weight_kg, stock_minimum, brand, model, category, system, compatible_equipment";
 const SELECT_COLUMNS = `id, product_code, description, physical_stock, physical_location, cutoff_date, source_file, notes, area, updated_at, ${LIST_METADATA_COLUMNS}`;
 const VEHICLE_REFERENCE_COLUMNS = `id, product_code, description, sheet_name, reference_stock, last_cost, last_supplier, last_purchase_date, last_sale_date, last_client, last_comment, source_file, area, updated_at, ${LIST_METADATA_COLUMNS}`;
 const QUOTE_STOCK_COLUMNS = "id, product_code, description, physical_stock, physical_location, area, updated_at";
@@ -42,6 +42,7 @@ const BASE_METADATA_FIELDS = [
   "area",
   "unit",
   "weight_kg",
+  "stock_minimum",
   "brand",
   "model",
   "category",
@@ -84,9 +85,9 @@ const VEHICLE_REFERENCE_CREATE_FIELDS = [
   ...EDITABLE_METADATA_FIELDS,
 ];
 
-const NUMERIC_FIELDS = new Set(["physical_stock", "reference_stock", "last_cost", "weight_kg"]);
+const NUMERIC_FIELDS = new Set(["physical_stock", "reference_stock", "last_cost", "weight_kg", "stock_minimum"]);
 const DATE_FIELDS = new Set(["cutoff_date", "last_purchase_date", "last_sale_date"]);
-const MOVEMENT_COLUMNS = "id, item_source, item_id, movement_type, quantity, unit_cost, area, related_party, document_ref, notes, created_by, created_at";
+const MOVEMENT_COLUMNS = "id, item_source, item_id, movement_type, quantity, unit_cost, stock_before, stock_after, area, related_party, responsible, service_ref, equipment, client, document_ref, evidence_url, notes, created_by, created_at";
 const MOVEMENT_NUMERIC_FIELDS = new Set(["quantity", "unit_cost"]);
 
 export const WAREHOUSE_MOVEMENT_TYPES = ["entrada", "salida", "reserva", "devolucion", "ajuste", "uso", "cotizacion"];
@@ -182,7 +183,7 @@ function normalizeMetadataPayload(source, payload) {
     if (!Object.prototype.hasOwnProperty.call(payload, field)) return acc;
     const value = payload[field];
 
-    if (field === "weight_kg") {
+    if (NUMERIC_FIELDS.has(field)) {
       acc[field] = value === "" || value === null || value === undefined ? null : Number(value);
       return acc;
     }
@@ -239,7 +240,7 @@ function normalizeMovementPayload({ source, itemId, payload, userId }) {
   if (!source || !itemId) throw new Error("Artículo de bodega no válido.");
   if (!WAREHOUSE_MOVEMENT_TYPES.includes(payload.movement_type)) throw new Error("Tipo de movimiento no válido.");
 
-  const row = ["movement_type", "quantity", "unit_cost", "area", "related_party", "document_ref", "notes"].reduce((acc, field) => {
+  const row = ["movement_type", "quantity", "unit_cost", "area", "related_party", "responsible", "service_ref", "equipment", "client", "document_ref", "evidence_url", "notes"].reduce((acc, field) => {
     const value = payload[field];
 
     if (MOVEMENT_NUMERIC_FIELDS.has(field)) {
@@ -452,14 +453,25 @@ export async function getWarehouseItemMovements({ source, itemId, limit = 50 } =
 
 export async function createWarehouseItemMovement({ source, itemId, payload, userId }) {
   const row = normalizeMovementPayload({ source, itemId, payload, userId });
-  const { data, error } = await supabase
-    .from("warehouse_item_movements")
-    .insert(row)
-    .select(MOVEMENT_COLUMNS)
-    .single();
+  const { data, error } = await supabase.rpc("register_warehouse_item_movement", {
+    p_item_source: row.item_source,
+    p_item_id: row.item_id,
+    p_movement_type: row.movement_type,
+    p_quantity: row.quantity,
+    p_unit_cost: row.unit_cost,
+    p_area: row.area,
+    p_related_party: row.related_party,
+    p_responsible: row.responsible,
+    p_service_ref: row.service_ref,
+    p_equipment: row.equipment,
+    p_client: row.client,
+    p_document_ref: row.document_ref,
+    p_evidence_url: row.evidence_url,
+    p_notes: row.notes,
+  });
 
   if (error) throw error;
-  return data;
+  return Array.isArray(data) ? data[0] : data;
 }
 
 export async function getWarehouseRecentMovements({ limit = 100 } = {}) {

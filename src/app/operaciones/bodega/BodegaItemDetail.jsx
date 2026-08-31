@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AlertTriangle, ClipboardList, ImageIcon, Package, Save } from "lucide-react";
+import { AlertTriangle, ClipboardList, ImageIcon, Package, QrCode, Save } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { createWarehouseItemMovement, getWarehouseItemDetail, getWarehouseItemMovements, updateWarehouseItemMetadata, WAREHOUSE_ITEM_SOURCES, WAREHOUSE_MOVEMENT_TYPES } from "@/services/warehouseInventoryService";
 
@@ -15,6 +15,7 @@ const EMPTY_FORM = {
   image_url: "",
   unit: "",
   weight_kg: "",
+  stock_minimum: "",
   brand: "",
   model: "",
   category: "",
@@ -25,11 +26,16 @@ const EMPTY_FORM = {
 };
 
 const EMPTY_MOVEMENT = {
-  movement_type: "uso",
+  movement_type: "salida",
   quantity: "1",
   unit_cost: "",
+  responsible: "",
+  service_ref: "",
+  equipment: "",
+  client: "",
   related_party: "",
   document_ref: "",
+  evidence_url: "",
   notes: "",
 };
 
@@ -49,6 +55,14 @@ function formatDateTime(value) {
 
 function getMovementLabel(value) {
   return String(value || "").replace("devolucion", "devolución");
+}
+
+function getMovementStockHint(type, isReference) {
+  if (isReference) return "La referencia histórica solo registra auditoría; no modifica stock físico.";
+  if (type === "ajuste") return "El ajuste fija la cantidad ingresada como nuevo stock físico.";
+  if (["salida", "uso"].includes(type)) return "Este movimiento descontará stock físico automáticamente.";
+  if (["entrada", "devolucion"].includes(type)) return "Este movimiento sumará stock físico automáticamente.";
+  return "Este movimiento queda auditado sin modificar stock hasta confirmar una salida o ajuste real.";
 }
 
 function toForm(item) {
@@ -76,6 +90,8 @@ export default function BodegaItemDetail() {
   const sourceLabel = SOURCE_LABELS[source] || "Bodega";
   const isReference = source === WAREHOUSE_ITEM_SOURCES.vehicleReference;
   const canEdit = isSuperAdmin;
+  const itemUrl = typeof window === "undefined" ? "" : `${window.location.origin}/operaciones/bodega/${source}/${id}`;
+  const qrUrl = itemUrl ? `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(itemUrl)}` : "";
 
   useEffect(() => {
     let cancelled = false;
@@ -95,8 +111,8 @@ export default function BodegaItemDetail() {
           if (!cancelled) setMovements(movementRows);
         } catch (movementErr) {
           console.error("Error cargando movimientos de bodega:", movementErr);
-          if (!cancelled && movementErr?.code === "42P01") {
-            setMovementError("Falta ejecutar el SQL de movimientos de bodega en Supabase.");
+          if (!cancelled && ["42P01", "42703", "42883"].includes(movementErr?.code)) {
+            setMovementError("Falta ejecutar el SQL actualizado de movimientos de bodega en Supabase.");
           }
         }
       } catch (err) {
@@ -158,10 +174,13 @@ export default function BodegaItemDetail() {
         userId: user?.id,
       });
       setMovements((current) => [movement, ...current]);
+      if (!isReference && movement.stock_after !== null && movement.stock_after !== undefined) {
+        setItem((current) => current ? { ...current, physical_stock: movement.stock_after } : current);
+      }
       setMovementForm(EMPTY_MOVEMENT);
     } catch (err) {
       console.error("Error registrando movimiento de bodega:", err);
-      setMovementError(err?.code === "42P01" ? "Falta ejecutar el SQL de movimientos de bodega en Supabase." : err?.message || "No se pudo registrar el movimiento.");
+      setMovementError(["42P01", "42883", "42703"].includes(err?.code) ? "Falta ejecutar el SQL actualizado de movimientos de bodega en Supabase." : err?.message || "No se pudo registrar el movimiento.");
     } finally {
       setSavingMovement(false);
     }
@@ -207,6 +226,7 @@ export default function BodegaItemDetail() {
                     ) : (
                       <>
                         <InfoCard label="Stock físico" value={formatNumber(item.physical_stock)} />
+                        <InfoCard label="Stock mínimo" value={item.stock_minimum ? formatNumber(item.stock_minimum) : "-"} />
                         <InfoCard label="Ubicación" value={item.physical_location || "-"} />
                         <InfoCard label="Proveedor" value={item.last_supplier || "-"} />
                         <InfoCard label="Fecha corte" value={item.cutoff_date || "-"} />
@@ -221,12 +241,35 @@ export default function BodegaItemDetail() {
             <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm text-blue-900 shadow-sm">
               <h3 className="font-semibold">Uso de la ficha</h3>
               <p className="mt-2 leading-6">
-                Estos datos complementan el artículo para identificarlo mejor por área, preparar compras, cotizaciones y futuras reservas. No modifican cantidades de stock ni saldos históricos.
+                Estos datos complementan el artículo para identificarlo mejor por área, preparar compras, cotizaciones, movimientos y futuras reservas.
               </p>
               <p className="mt-3 leading-6">
-                Los movimientos registran actividad operacional; por ahora no actualizan automáticamente las cantidades.
+                {isReference
+                  ? "Los movimientos de referencia se registran como auditoría y no afectan inventario físico."
+                  : "Las entradas, salidas, devoluciones y ajustes actualizan el stock físico automáticamente."}
               </p>
               {!canEdit && <p className="mt-3 font-semibold">Tu acceso actual permite consultar, pero no editar esta ficha.</p>}
+            </div>
+          </section>
+
+          <section className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:grid-cols-[auto_1fr]">
+            <div className="flex h-48 w-48 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              {qrUrl ? <img src={qrUrl} alt="QR de ficha de bodega" className="h-full w-full object-contain" /> : <QrCode size={80} className="text-slate-300" />}
+            </div>
+            <div className="flex flex-col justify-center">
+              <h3 className="flex items-center gap-2 font-semibold text-slate-900"><QrCode size={18} /> QR operativo del artículo</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Imprime este QR para pegarlo en la ubicación física o en la etiqueta del repuesto. Al escanearlo desde el móvil se abre esta ficha para registrar salida, devolución, ingreso o ajuste.
+              </p>
+              <div className="mt-3 break-all rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">{itemUrl}</div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button type="button" onClick={() => window.print()} className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                  Imprimir ficha / QR
+                </button>
+                <a href={qrUrl} target="_blank" rel="noreferrer" className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800">
+                  Abrir QR
+                </a>
+              </div>
             </div>
           </section>
 
@@ -252,6 +295,7 @@ export default function BodegaItemDetail() {
               <Field label="URL de imagen de referencia" value={form.image_url} onChange={(value) => updateField("image_url", value)} disabled={!canEdit} placeholder="https://..." />
               <Field label="Unidad" value={form.unit} onChange={(value) => updateField("unit", value)} disabled={!canEdit} placeholder="unidad, kit, m, galón" />
               <Field label="Peso kg" type="number" value={form.weight_kg} onChange={(value) => updateField("weight_kg", value)} disabled={!canEdit} placeholder="0.00" />
+              {!isReference && <Field label="Stock mínimo" type="number" value={form.stock_minimum} onChange={(value) => updateField("stock_minimum", value)} disabled={!canEdit} placeholder="0" />}
               <Field label="Marca" value={form.brand} onChange={(value) => updateField("brand", value)} disabled={!canEdit} />
               <Field label="Modelo / parte" value={form.model} onChange={(value) => updateField("model", value)} disabled={!canEdit} />
               <Field label="Categoría" value={form.category} onChange={(value) => updateField("category", value)} disabled={!canEdit} placeholder="Filtro, válvula, manguera..." />
@@ -269,7 +313,7 @@ export default function BodegaItemDetail() {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="flex items-center gap-2 font-semibold text-slate-900"><ClipboardList size={18} /> Movimientos y uso</h3>
-                <p className="text-sm text-slate-500">Registra entradas, salidas, reservas, usos o cotizaciones sin modificar el stock automáticamente.</p>
+                <p className="text-sm text-slate-500">Registra entradas, salidas, devoluciones, ajustes y reservas con trazabilidad por responsable, servicio, equipo o cliente.</p>
               </div>
             </div>
 
@@ -285,8 +329,13 @@ export default function BodegaItemDetail() {
                   </label>
                   <Field label="Cantidad" type="number" value={movementForm.quantity} onChange={(value) => updateMovementField("quantity", value)} />
                   <Field label="Costo unitario" type="number" value={movementForm.unit_cost} onChange={(value) => updateMovementField("unit_cost", value)} />
-                  <Field label="Cliente / proveedor / proyecto" value={movementForm.related_party} onChange={(value) => updateMovementField("related_party", value)} />
+                  <Field label="Responsable que recibe" value={movementForm.responsible} onChange={(value) => updateMovementField("responsible", value)} />
+                  <Field label="Servicio / informe / OT" value={movementForm.service_ref} onChange={(value) => updateMovementField("service_ref", value)} />
+                  <Field label="Equipo destino" value={movementForm.equipment} onChange={(value) => updateMovementField("equipment", value)} />
+                  <Field label="Cliente relacionado" value={movementForm.client} onChange={(value) => updateMovementField("client", value)} />
+                  <Field label="Área / proveedor / proyecto" value={movementForm.related_party} onChange={(value) => updateMovementField("related_party", value)} />
                   <Field label="Documento relacionado" value={movementForm.document_ref} onChange={(value) => updateMovementField("document_ref", value)} />
+                  <Field label="Evidencia URL" value={movementForm.evidence_url} onChange={(value) => updateMovementField("evidence_url", value)} placeholder="https://..." />
                   <div className="flex items-end">
                     <button type="submit" disabled={savingMovement} className="w-full rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60">
                       {savingMovement ? "Registrando..." : "Registrar movimiento"}
@@ -296,6 +345,9 @@ export default function BodegaItemDetail() {
                 <div className="mt-4">
                   <Field multiline label="Notas del movimiento" value={movementForm.notes} onChange={(value) => updateMovementField("notes", value)} />
                 </div>
+                <p className="mt-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-900">
+                  {getMovementStockHint(movementForm.movement_type, isReference)}
+                </p>
               </form>
             )}
 
@@ -309,9 +361,13 @@ export default function BodegaItemDetail() {
                       <th className="px-3 py-2 font-semibold">Fecha</th>
                       <th className="px-3 py-2 font-semibold">Tipo</th>
                       <th className="px-3 py-2 text-right font-semibold">Cantidad</th>
+                      <th className="px-3 py-2 text-right font-semibold">Stock antes</th>
+                      <th className="px-3 py-2 text-right font-semibold">Stock después</th>
                       <th className="px-3 py-2 text-right font-semibold">Costo unit.</th>
-                      <th className="px-3 py-2 font-semibold">Relacionado</th>
+                      <th className="px-3 py-2 font-semibold">Responsable</th>
+                      <th className="px-3 py-2 font-semibold">Servicio / equipo / cliente</th>
                       <th className="px-3 py-2 font-semibold">Documento</th>
+                      <th className="px-3 py-2 font-semibold">Evidencia</th>
                       <th className="px-3 py-2 font-semibold">Notas</th>
                     </tr>
                   </thead>
@@ -321,9 +377,13 @@ export default function BodegaItemDetail() {
                         <td className="px-3 py-2 text-slate-600">{formatDateTime(movement.created_at)}</td>
                         <td className="px-3 py-2 font-semibold capitalize text-slate-900">{getMovementLabel(movement.movement_type)}</td>
                         <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(movement.quantity)}</td>
+                        <td className="px-3 py-2 text-right text-slate-700">{movement.stock_before === null || movement.stock_before === undefined ? "-" : formatNumber(movement.stock_before)}</td>
+                        <td className="px-3 py-2 text-right font-semibold text-slate-900">{movement.stock_after === null || movement.stock_after === undefined ? "-" : formatNumber(movement.stock_after)}</td>
                         <td className="px-3 py-2 text-right text-slate-700">{formatMoney(movement.unit_cost)}</td>
-                        <td className="px-3 py-2 text-slate-700">{movement.related_party || "-"}</td>
+                        <td className="px-3 py-2 text-slate-700">{movement.responsible || "-"}</td>
+                        <td className="px-3 py-2 text-slate-700">{[movement.service_ref, movement.equipment, movement.client, movement.related_party].filter(Boolean).join(" / ") || "-"}</td>
                         <td className="px-3 py-2 text-slate-700">{movement.document_ref || "-"}</td>
+                        <td className="px-3 py-2 text-slate-700">{movement.evidence_url ? <a href={movement.evidence_url} target="_blank" rel="noreferrer" className="font-semibold text-blue-700 hover:underline">Ver</a> : "-"}</td>
                         <td className="px-3 py-2 text-slate-600">{movement.notes || "-"}</td>
                       </tr>
                     ))}

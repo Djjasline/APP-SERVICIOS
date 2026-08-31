@@ -23,6 +23,7 @@ const EMPTY_FORM = {
   image_url: "",
   unit: "",
   weight_kg: "",
+  stock_minimum: "",
   brand: "",
   model: "",
   category: "",
@@ -135,6 +136,7 @@ export default function BodegaItemNew() {
               <Field label="URL de imagen de referencia" value={form.image_url} onChange={(value) => updateField("image_url", value)} placeholder="https://..." />
               <Field label="Unidad" value={form.unit} onChange={(value) => updateField("unit", value)} placeholder="unidad, kit, m, galón" />
               <Field label="Peso kg" type="number" value={form.weight_kg} onChange={(value) => updateField("weight_kg", value)} />
+              {!isReference && <Field label="Stock mínimo" type="number" value={form.stock_minimum} onChange={(value) => updateField("stock_minimum", value)} />}
               <Field label="Marca" value={form.brand} onChange={(value) => updateField("brand", value)} />
               <Field label="Modelo / parte" value={form.model} onChange={(value) => updateField("model", value)} />
               <Field label="Categoría" value={form.category} onChange={(value) => updateField("category", value)} />
