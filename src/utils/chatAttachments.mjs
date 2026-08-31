@@ -18,6 +18,7 @@ const PDF_LABEL_BY_SUBTYPE = {
 
 export const COMPLETED_RECORD_PDF_CONFIGS = [
   { area: "vehiculos", tipo: "informe", subtipo: "general", label: "Informe vehículos", path: (id) => `/vehiculos/informe/pdf/${id}` },
+  { area: "vehiculos", tipo: "capacitacion", subtipo: "general", label: "Informe capacitación", path: (id) => `/vehiculos/capacitacion/pdf/${id}` },
   { area: "agua", tipo: "informe", subtipo: "bomba", label: "Informe agua", path: (id) => `/agua/informe/pdf/${id}` },
   { area: "agua", tipo: "informe", subtipo: "valvula", label: "Informe agua", path: (id) => `/agua/informe/pdf/${id}` },
   { area: "agua", tipo: "informe", subtipo: "avance_epmaps", label: "Informe recorrido agua", path: (id) => `/agua/recorrido/informe/pdf/${id}` },

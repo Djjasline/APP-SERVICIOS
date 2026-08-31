@@ -12,15 +12,16 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
-import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
 import CustomerSurveyLink from "@/components/CustomerSurveyLink";
 import { formatPersonName } from "@/utils/nameFormat";
 import { sortRecordsByRecent } from "@/utils/recordSort";
+import { getVehicleReportConfig } from "./reportModeConfig";
 
-export default function InformeHome() {
+export default function InformeHome({ reportType = "informe" }) {
   const navigate = useNavigate();
   const { users: userOptions } = useUserOptions();
+  const reportConfig = getVehicleReportConfig(reportType);
 
   const {
     user,
@@ -80,7 +81,7 @@ export default function InformeHome() {
           supabase
             .from("registros")
             .select(RECORD_LIST_COLUMNS)
-            .eq("tipo", "informe")
+            .eq("tipo", reportConfig.tipo)
             .order("updated_at", { ascending: false })
             .limit(HISTORY_QUERY_LIMIT);
 
@@ -92,8 +93,8 @@ export default function InformeHome() {
           data = response.data || [];
           error = response.error;
         } else {
-          const ownerIds = getPermittedOwnerIds(permissions, "vehiculos", "informe", "view");
-          const ownerEmails = getPermittedOwnerEmails(permissions, "vehiculos", "informe", "view");
+          const ownerIds = getPermittedOwnerIds(permissions, "vehiculos", reportConfig.tipo, "view");
+          const ownerEmails = getPermittedOwnerEmails(permissions, "vehiculos", reportConfig.tipo, "view");
           const [ownResponse, permittedResponse, permittedByTechResponse] = await Promise.all([
             loadBaseQuery().eq("data->>tecnicoCorreo", user.email),
             ownerIds.length > 0 ? loadBaseQuery().in("user_id", ownerIds) : Promise.resolve({ data: [], error: null }),
@@ -129,7 +130,7 @@ export default function InformeHome() {
     };
 
     loadReports();
-  }, [user?.id, user?.email, puedeVerTodoVehiculos]);
+  }, [user?.id, user?.email, puedeVerTodoVehiculos, reportConfig.tipo]);
 
   const isOwnReport = (report) => {
     return report.user_id === user?.id || report.data?.tecnicoCorreo === user?.email;
@@ -203,7 +204,7 @@ export default function InformeHome() {
       return;
     }
 
-    navigate(`/vehiculos/informe/${report.id}`);
+    navigate(`${reportConfig.basePath}/${report.id}`);
   };
 
   const duplicateReport = async (report) => {
@@ -216,7 +217,7 @@ export default function InformeHome() {
 
     try {
       const duplicated = await duplicateRecordAsDraft(report, user);
-      navigate(`/vehiculos/informe/${duplicated.id}`);
+      navigate(`${reportConfig.basePath}/${duplicated.id}`);
     } catch (error) {
       console.error("Error duplicando informe:", error);
       alert("No se pudo duplicar el informe.");
@@ -261,10 +262,10 @@ export default function InformeHome() {
       <div className="flex justify-between items-start gap-4">
         <div>
           <h1 className="text-lg font-semibold text-gray-900">
-            {VEHICULOS_TEXT.informe.title}
+            {reportConfig.title}
           </h1>
           <p className="mt-1 text-sm text-gray-600">
-            {VEHICULOS_TEXT.informe.description}
+            {reportConfig.description}
           </p>
         </div>
 
@@ -299,10 +300,10 @@ export default function InformeHome() {
 
       {/* NUEVO */}
       <button
-        onClick={() => navigate("/vehiculos/informe/nuevo")}
+        onClick={() => navigate(`${reportConfig.basePath}/nuevo`)}
         className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg transition"
       >
-        Nuevo Informe Técnico de Servicio
+        {reportConfig.newButtonLabel}
       </button>
 
       {/* FILTRO ESTADO */}
@@ -430,12 +431,12 @@ export default function InformeHome() {
                 </span>
               </div>
 
-              <CustomerSurveyLink record={r} userId={user?.id} />
+              {reportConfig.showSurveyLink && <CustomerSurveyLink record={r} userId={user?.id} />}
             </div>
 
             <div className="flex gap-3 text-sm shrink-0">
               <button
-                onClick={() => navigate(`/vehiculos/informe/ver/${r.id}`)}
+                onClick={() => navigate(`${reportConfig.basePath}/ver/${r.id}`)}
                 className="text-slate-600 hover:underline font-semibold"
               >
                 Ver
@@ -461,7 +462,7 @@ export default function InformeHome() {
 
               {r.estado === "completado" && canDownloadReport(r) && (
                 <button
-                  onClick={() => navigate(`/vehiculos/informe/pdf/${r.id}`)}
+                  onClick={() => navigate(`${reportConfig.basePath}/pdf/${r.id}`)}
                   className="text-green-600 hover:underline font-semibold"
                 >
                   PDF

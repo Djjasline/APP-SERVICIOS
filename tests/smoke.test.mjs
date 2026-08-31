@@ -13,6 +13,9 @@ test("rutas criticas de lanzamiento estan protegidas", () => {
   assert.match(routes, /path="\/operaciones\/bodega"[^\n]+SpecialModuleRoute[^\n]+bodega/);
   assert.match(routes, /path="\/operaciones\/bodega\/nuevo"[^\n]+SpecialModuleRoute[^\n]+bodega/);
   assert.match(routes, /path="\/operaciones\/bodega\/:source\/:id"[^\n]+SpecialModuleRoute[^\n]+bodega/);
+  assert.match(routes, /path="\/vehiculos\/capacitacion"[^\n]+InformeHome[^\n]+reportType="capacitacion"/);
+  assert.match(routes, /path="\/vehiculos\/capacitacion\/nuevo"[^\n]+NuevoInforme[^\n]+reportType="capacitacion"/);
+  assert.match(routes, /path="\/vehiculos\/capacitacion\/pdf\/:id"[^\n]+InformePDF[^\n]+reportType="capacitacion"/);
   assert.match(routes, /path="\/agua\/recorrido\/informe\/\*"[^\n]+SpecialModuleRoute[^\n]+recorridoAgua/);
   assert.match(routes, /path="\*"[^\n]+<NotFound \/>/);
 });

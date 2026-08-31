@@ -1,8 +1,9 @@
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
 
-export default function ReportHeader({ data, onChange }) {
+export default function ReportHeader({ data, onChange, reportConfig }) {
   const reportDescription =
+    reportConfig?.description ||
     "Instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
   const referenciaPlaceholder = "Ej: información dada por el asesor comercial, gestor interno del área de operaciones o dentro de la base de datos";
   const pedidoDemandaPlaceholder = "Ej: P-23-046 o D-45821";
@@ -43,7 +44,7 @@ export default function ReportHeader({ data, onChange }) {
             }}
           >
             <div style={{ fontSize: "16px" }}>
-              INFORME TÉCNICO DE SERVICIO
+              {reportConfig?.pdfTitle || "INFORME TÉCNICO DE SERVICIO"}
             </div>
             <div
               style={{

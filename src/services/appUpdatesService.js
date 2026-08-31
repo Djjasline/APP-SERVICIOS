@@ -13,6 +13,11 @@ const FRIENDLY_UPDATES = [
     message: "El control de cambios ahora describe mejor las mejoras publicadas y evita mensajes genéricos.",
   },
   {
+    match: "agregar informe de capacitacion",
+    title: "Control de cambios: informe de capacitación",
+    message: "Vehículos Especiales ahora incluye un apartado de informe de capacitación con historial, formulario base y PDF.",
+  },
+  {
     match: "optimizar recursos iniciales",
     title: "Control de cambios: carga inicial optimizada",
     message: "Se optimizó la carga inicial de la app con mejor carga de fuentes y caché para recursos públicos.",

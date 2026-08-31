@@ -199,6 +199,11 @@ export default function RoutesApp() {
             <Route path="/vehiculos/informe/ver/:id" element={<VehiculosRoute><RecordPermissionRoute action="view" fallback="/vehiculos/informe"><InformePDF allowDownload={false} backPath="/vehiculos/informe" /></RecordPermissionRoute></VehiculosRoute>} />
             <Route path="/vehiculos/informe/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/informe"><NuevoInforme /></RecordPermissionRoute></VehiculosRoute>} />
 
+            <Route path="/vehiculos/capacitacion" element={<VehiculosRoute><InformeHome reportType="capacitacion" /></VehiculosRoute>} />
+            <Route path="/vehiculos/capacitacion/nuevo" element={<VehiculosRoute><NuevoInforme reportType="capacitacion" /></VehiculosRoute>} />
+            <Route path="/vehiculos/capacitacion/ver/:id" element={<VehiculosRoute><RecordPermissionRoute action="view" fallback="/vehiculos/capacitacion"><InformePDF reportType="capacitacion" allowDownload={false} backPath="/vehiculos/capacitacion" /></RecordPermissionRoute></VehiculosRoute>} />
+            <Route path="/vehiculos/capacitacion/:id" element={<VehiculosRoute><RecordPermissionRoute action="edit" fallback="/vehiculos/capacitacion"><NuevoInforme reportType="capacitacion" /></RecordPermissionRoute></VehiculosRoute>} />
+
             <Route path="/agua/informe" element={<TechRoute><AguaInformeHome /></TechRoute>} />
             <Route path="/agua/informe/nuevo" element={<TechRoute><AguaNuevoInforme /></TechRoute>} />
             <Route path="/agua/informe/bomba" element={<TechRoute><AguaInformeHome tipo="bomba" /></TechRoute>} />
@@ -384,6 +389,7 @@ export default function RoutesApp() {
 
           <Route path="/informe/pdf/:id" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/informe"><InformePDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/vehiculos/informe/pdf/:id" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/informe"><InformePDF /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
+          <Route path="/vehiculos/capacitacion/pdf/:id" element={<ProtectedRoute><VehiculosRoute><RecordPermissionRoute action="download" fallback="/vehiculos/capacitacion"><InformePDF reportType="capacitacion" /></RecordPermissionRoute></VehiculosRoute></ProtectedRoute>} />
           <Route path="/agua/informe/pdf/:id" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/agua/informe"><AguaInformePDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
           <Route path="/industria/informe/pdf/:id" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/industria/informe"><AguaInformePDF area="industria" basePath="/industria/informe" /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />
           <Route path="/petroleo/informe/pdf/:id" element={<ProtectedRoute><TechRoute><RecordPermissionRoute action="download" fallback="/petroleo/informe"><PetroleoInformePDF /></RecordPermissionRoute></TechRoute></ProtectedRoute>} />

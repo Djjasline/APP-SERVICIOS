@@ -18,6 +18,7 @@ import ClientReferenceInput from "@/components/ClientReferenceInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import { ensureCompletionReady } from "@/utils/completionValidation";
 import { isSuperAdminEmail } from "@/constants/privilegedAccess.mjs";
+import { getVehicleReportConfig } from "./reportModeConfig";
 
 const fieldPlaceholders = {
   cliente: "Nombre del cliente",
@@ -38,9 +39,10 @@ const fieldPlaceholders = {
   horometro: "Ej: 1800 h",
 };
 
-export default function NuevoInforme() {
+export default function NuevoInforme({ reportType = "informe" }) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const reportConfig = getVehicleReportConfig(reportType);
 
   const esSantiago = isSuperAdminEmail(user?.email);
 
@@ -53,7 +55,7 @@ export default function NuevoInforme() {
 
   const { id } = useParams();
   const isEditing = !!id;
-  const claveAutoguardado = `informe_vehiculos_${id ?? "new"}`;
+  const claveAutoguardado = `${reportConfig.tipo}_vehiculos_${id ?? "new"}`;
 
   /* ===========================
      ESTADO BASE
@@ -207,7 +209,8 @@ useEffect(() => {
   .from("registros")
   .select("*")
   .eq("id", id)
-  .eq("tipo", "informe")
+  .eq("tipo", reportConfig.tipo)
+  .eq("subtipo", reportConfig.subtipo)
   .or("area.eq.vehiculos,area.is.null")
   .single();
 
@@ -585,7 +588,7 @@ const estadoFinal =
 
 if (!ensureCompletionReady({
   estado: estadoFinal,
-  title: "informe",
+  title: reportConfig.saveLabel,
   requiredFields: [
     { label: "Cliente", value: data.cliente },
     { label: "Técnico responsable", value: data.tecnicoNombre },
@@ -612,8 +615,8 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
       await saveOrUpdateReport({
         id: isEditing ? id : null,
         area: "vehiculos",
-        tipo: "informe",
-        subtipo: "general",
+        tipo: reportConfig.tipo,
+        subtipo: reportConfig.subtipo,
         data: finalData,
         estado: estadoFinal,
       });
@@ -622,13 +625,13 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
 
       alert(
         technicalWarning
-          ? `Informe guardado correctamente ✅\n\nAviso: ${technicalWarning}`
+          ? `${reportConfig.savedLabel} guardado correctamente ✅\n\nAviso: ${technicalWarning}`
           : isEditing
-          ? "Informe actualizado correctamente ✅"
-          : "Informe guardado correctamente ✅"
+          ? `${reportConfig.savedLabel} actualizado correctamente ✅`
+          : `${reportConfig.savedLabel} guardado correctamente ✅`
       );
 
-      navigate("/vehiculos/informe");
+      navigate(reportConfig.basePath);
     } catch (error) {
       console.error("❌ Error real al guardar:", error);
       alert(`No se pudo guardar el informe. ${error.message || "Intenta de nuevo."}`);
@@ -647,7 +650,7 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
           isEditing={isEditing}
         />
 
-        <ReportHeader data={data} onChange={update} />
+        <ReportHeader data={data} onChange={update} reportConfig={reportConfig} />
 
         <TechnicalReportGuidance />
 
@@ -1404,7 +1407,7 @@ onEnd={() => {
         <div className="border-t pt-4 mt-6 flex flex-col md:flex-row justify-between gap-3">
           <button
             type="button"
-            onClick={() => navigate("/vehiculos/informe")}
+            onClick={() => navigate(reportConfig.basePath)}
             className="btn-volver-orange px-6"
           >
             ← Volver
@@ -1414,7 +1417,7 @@ onEnd={() => {
             {isEditing && (
               <button
                 type="button"
-                onClick={() => navigate(`/vehiculos/informe/pdf/${id}`)}
+                onClick={() => navigate(`${reportConfig.basePath}/pdf/${id}`)}
                 className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded transition"
               >
                 Ver PDF
@@ -1432,8 +1435,8 @@ onEnd={() => {
               {uploading
                 ? `Subiendo imágenes (${uploadingCount})...`
                 : isEditing
-                ? "Actualizar informe"
-                : "Guardar informe"}
+                ? `Actualizar ${reportConfig.saveLabel}`
+                : `Guardar ${reportConfig.saveLabel}`}
             </button>
           </div>
         </div>

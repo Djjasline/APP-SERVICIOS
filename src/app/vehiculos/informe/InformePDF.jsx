@@ -6,12 +6,15 @@ import { printPdf } from "@/utils/printPdf"; // ← ajusta la ruta a tu proyecto
 import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
 import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 import { formatPersonName } from "@/utils/nameFormat";
+import { getVehicleReportConfig } from "./reportModeConfig";
 
-export default function InformePDF({ allowDownload = true, backPath = "/informe" }) {
+export default function InformePDF({ allowDownload = true, backPath = null, reportType = "informe" }) {
   const navigate = useNavigate();
   const { id } = useParams();
   const { isLight } = useTheme();
   const [report, setReport] = useState(null);
+  const reportConfig = getVehicleReportConfig(reportType);
+  const resolvedBackPath = backPath || reportConfig.basePath;
 
   /* ── Cargar informe desde Supabase ── */
   useEffect(() => {
@@ -21,8 +24,8 @@ export default function InformePDF({ allowDownload = true, backPath = "/informe"
           .from("registros")
           .select("*")
           .eq("id", id)
-          .eq("tipo", "informe")
-          .eq("subtipo", "general")
+          .eq("tipo", reportConfig.tipo)
+          .eq("subtipo", reportConfig.subtipo)
           .single();
 
         if (error || !data) {
@@ -42,7 +45,7 @@ export default function InformePDF({ allowDownload = true, backPath = "/informe"
       }
     };
     loadReport();
-  }, [id]);
+  }, [id, reportConfig.tipo, reportConfig.subtipo]);
 
   /* ── Estados de carga / validación ── */
   if (!report) {
@@ -50,7 +53,7 @@ export default function InformePDF({ allowDownload = true, backPath = "/informe"
       <div className="p-6 text-center">
         <p>No se encontró el informe.</p>
         <button
-          onClick={() => navigate("/informe")}
+          onClick={() => navigate(resolvedBackPath)}
           className="btn-volver-orange mt-4"
         >
           Volver
@@ -65,7 +68,7 @@ export default function InformePDF({ allowDownload = true, backPath = "/informe"
       <div className="p-6 text-center">
         <p>Este informe no está completado.</p>
         <button
-          onClick={() => navigate("/informe")}
+          onClick={() => navigate(resolvedBackPath)}
           className="btn-volver-orange mt-4"
         >
           Volver
@@ -77,15 +80,14 @@ export default function InformePDF({ allowDownload = true, backPath = "/informe"
   const { data } = report;
   const estadoEquipoImagenes = data?.estadoEquipo?.imagenes || [];
   const logoSrc = typeof window !== "undefined" ? `${window.location.origin}/astap-logo.jpg` : "/astap-logo.jpg";
-  const reportDescription =
-    "Instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
+  const reportDescription = reportConfig.description;
   /* ── Handler de impresión via iframe ── */
   const handlePrint = () => {
   const cliente = (data.cliente || "cliente").replace(/\s+/g, "-");
   const pedido = (data.pedidoDemanda || "pedido").replace(/\s+/g, "");
   const codigo = (data.codInf || "000").replace(/\s+/g, "");
 
-  const filename = `${cliente}_${pedido}_${codigo}_App Servicios ASTAP`;
+  const filename = `${cliente}_${pedido}_${codigo}_${reportConfig.savedLabel}_App Servicios ASTAP`;
 
   printPdf("pdf-content", filename);
 };
@@ -216,7 +218,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                   style={{ ...S.cell, textAlign: "center", fontWeight: 800, textTransform: "uppercase" }}
                 >
                   <div style={{ fontSize: 13 }}>
-                    INFORME TÉCNICO DE SERVICIO
+                    {reportConfig.pdfTitle}
                   </div>
                   <div
                     style={{
@@ -561,7 +563,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         style={{ display: "flex", justifyContent: "space-between", maxWidth: 794, margin: "24px auto 0" }}
       >
         <button
-          onClick={() => navigate(backPath)}
+          onClick={() => navigate(resolvedBackPath)}
           className="btn-volver-orange px-6"
         >
           Volver

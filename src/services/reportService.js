@@ -198,6 +198,7 @@ function getNombreFormularioPorArea(result) {
 
 function getNombreFormularioVehiculos(tipo, subtipo) {
   if (tipo === "informe") return "informe general de servicio técnico";
+  if (tipo === "capacitacion") return "informe de capacitación";
   if (tipo === "inspeccion") return `informe de inspección${subtipo ? ` ${subtipo}` : ""}`;
   if (tipo === "mantenimiento") return `informe de mantenimiento${subtipo ? ` ${subtipo}` : ""}`;
   if (tipo === "protocolo") return `protocolo${subtipo ? ` ${subtipo}` : ""}`;

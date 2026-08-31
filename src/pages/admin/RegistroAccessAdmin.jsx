@@ -31,6 +31,7 @@ const AREAS = [
 const TIPOS = [
   { value: "todos", label: "Todos los formatos" },
   { value: "informe", label: "Informe General" },
+  { value: "capacitacion", label: "Informe de Capacitación" },
   { value: "informe:bomba", label: "Informe - Bomba" },
   { value: "informe:valvula", label: "Informe - Válvula" },
   { value: "informe:avance_epmaps", label: "Informe - Recorrido/EPMAPS" },

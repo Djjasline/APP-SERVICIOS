@@ -33,6 +33,14 @@ function getNotificationPath(notification) {
     return `/operaciones/liberacion/${notification.record_id}`;
   }
 
+  if (notification.record_type === "informe" && notification.record_id) {
+    return `/vehiculos/informe/${notification.record_id}`;
+  }
+
+  if (notification.record_type === "capacitacion" && notification.record_id) {
+    return `/vehiculos/capacitacion/${notification.record_id}`;
+  }
+
   if (notification.record_type === "chat") return "/chat";
 
   return "/notifications";

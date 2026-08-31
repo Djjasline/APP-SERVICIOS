@@ -3,7 +3,7 @@ import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { SPECIAL_MODULE_KEYS } from "@/constants/accessControl";
 import { useTheme } from "@/context/ThemeContext";
 import { useSpecialModuleAccess } from "@/hooks/useSpecialModuleAccess";
-import { Calculator, FileText, ClipboardCheck, Wrench, SlidersHorizontal, Star } from "lucide-react";
+import { Calculator, FileText, ClipboardCheck, Wrench, SlidersHorizontal, Star, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaVehiculos() {
@@ -61,6 +61,14 @@ export default function AreaVehiculos() {
   ruta="/vehiculos/mantenimiento"
   color="bg-green-600"
   icono={<Wrench size={20} />}
+/>
+
+<CardModulo
+  titulo={VEHICULOS_TEXT.capacitacion.title}
+  descripcion={VEHICULOS_TEXT.capacitacion.description}
+  ruta="/vehiculos/capacitacion"
+  color="bg-indigo-600"
+  icono={<GraduationCap size={20} />}
 />
 
 <CardModulo
