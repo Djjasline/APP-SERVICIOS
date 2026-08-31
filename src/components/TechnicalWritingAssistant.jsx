@@ -1,15 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
+import { shouldEnableWritingAssistance } from "@/utils/formWritingQuality";
 
 const replacements = [
   ["esta ok", "está operativo"],
   ["esta operativo", "está operativo"],
   ["esta normal", "se verificó funcionamiento normal"],
   ["mas o menos", "requiere verificación adicional"],
+  ["se realizo", "se realizó"],
+  ["se verifico", "se verificó"],
+  ["se cambio", "se cambió"],
+  ["se instalo", "se instaló"],
+  ["se reparo", "se reparó"],
+  ["se capacito", "se capacitó"],
   ["tecnico", "técnico"],
   ["tecnica", "técnica"],
   ["accion", "acción"],
+  ["aplicacion", "aplicación"],
+  ["calificacion", "calificación"],
+  ["capacitacion", "capacitación"],
   ["conclusion", "conclusión"],
+  ["condicion", "condición"],
+  ["conexion", "conexión"],
   ["recomendacion", "recomendación"],
   ["hidraulico", "hidráulico"],
   ["hidraulica", "hidráulica"],
@@ -33,19 +45,20 @@ const replacements = [
   ["medicion", "medición"],
   ["intervencion", "intervención"],
   ["presion", "presión"],
+  ["practica", "práctica"],
+  ["practicas", "prácticas"],
+  ["presentacion", "presentación"],
+  ["participacion", "participación"],
+  ["evaluacion", "evaluación"],
+  ["informacion", "información"],
+  ["funcion", "función"],
+  ["situacion", "situación"],
+  ["solucion", "solución"],
   ["imagenes", "imágenes"],
 ];
 
-const editableInputTypes = new Set(["text", "search", "email", "tel", "url", "number"]);
-
 function isEditableTextField(element) {
-  if (!element) return false;
-  if (element instanceof HTMLTextAreaElement) return !element.readOnly && !element.disabled;
-  if (element instanceof HTMLInputElement) {
-    const type = String(element.type || "text").toLowerCase();
-    return editableInputTypes.has(type) && !element.readOnly && !element.disabled;
-  }
-  return false;
+  return shouldEnableWritingAssistance(element);
 }
 
 function escapeRegExp(value) {

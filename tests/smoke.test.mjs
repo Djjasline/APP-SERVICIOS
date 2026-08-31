@@ -117,6 +117,24 @@ test("capitalizacion automatica no interfiere con escritura", () => {
   assert.match(autoCapitalize, /dispatchEvent\(new Event\("input", \{ bubbles: true \}\)\)/);
 });
 
+test("formularios activan revision ortografica sin afectar campos tecnicos", () => {
+  const app = read("src/App.jsx");
+  const hook = read("src/hooks/useFormWritingQuality.js");
+  const quality = read("src/utils/formWritingQuality.js");
+  const assistant = read("src/components/TechnicalWritingAssistant.jsx");
+
+  assert.match(app, /useFormWritingQuality\(\)/);
+  assert.match(hook, /applyWritingQuality\(\)/);
+  assert.match(hook, /MutationObserver/);
+  assert.match(hook, /addEventListener\("input"/);
+  assert.match(quality, /setAttribute\("spellcheck", enabled \? "true" : "false"\)/);
+  assert.match(quality, /setAttribute\("lang", "es-EC"\)/);
+  assert.match(quality, /TECHNICAL_FIELD_KEYWORDS/);
+  assert.match(quality, /"correo"/);
+  assert.match(quality, /"vin"/);
+  assert.match(assistant, /shouldEnableWritingAssistance/);
+});
+
 test("chat soporta adjuntos estructurados en mensajes", () => {
   const chatSql = read("supabase/sql/chat_interno_setup.sql");
   const chatService = read("src/services/chatService.js");

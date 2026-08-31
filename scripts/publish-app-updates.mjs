@@ -116,6 +116,11 @@ const FRIENDLY_UPDATES = [
     message: "Vehículos Especiales ahora incluye un apartado de informe de capacitación con historial, formulario base y PDF.",
   },
   {
+    match: "agregar revision ortografica global",
+    title: "Control de cambios: revisión ortográfica",
+    message: "Los formularios ahora activan revisión ortográfica y sugerencias de redacción en campos de texto, evitando afectar códigos, correos y datos técnicos.",
+  },
+  {
     match: "optimizar recursos iniciales",
     title: "Control de cambios: carga inicial optimizada",
     message: "Se optimizó la carga inicial de la app con mejor carga de fuentes y caché para recursos públicos.",
