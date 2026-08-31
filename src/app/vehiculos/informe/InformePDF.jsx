@@ -289,7 +289,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             DESCRIPCIÓN EQUIPO
         ════════════════════ */}
         <div className="no-break">
-          <p style={S.sectionTitle}>DESCRIPCIÓN DEL EQUIPO</p>
+          <p style={S.sectionTitle}>{reportConfig.equipmentSectionTitle}</p>
           <table style={S.tbl}>
             <tbody>
               {[

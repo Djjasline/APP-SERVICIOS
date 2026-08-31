@@ -779,14 +779,14 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
 
         {/* ── DESCRIPCIÓN DEL EQUIPO ── */}
         <h3 className="font-bold text-sm border-b pb-1">
-          DESCRIPCIÓN DEL EQUIPO
+          {reportConfig.equipmentSectionTitle}
         </h3>
 
         <table className="pdf-table w-full">
           <thead>
             <tr>
               <th colSpan={4} style={{ textAlign: "center" }}>
-                DESCRIPCIÓN DEL EQUIPO
+                {reportConfig.equipmentSectionTitle}
               </th>
             </tr>
           </thead>

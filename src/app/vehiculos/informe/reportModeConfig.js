@@ -7,6 +7,7 @@ export const VEHICLE_REPORT_CONFIGS = {
     pdfTitle: "INFORME TÉCNICO DE SERVICIO",
     description:
       "Instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.",
+    equipmentSectionTitle: "DESCRIPCIÓN DEL EQUIPO",
     newButtonLabel: "Nuevo Informe Técnico de Servicio",
     saveLabel: "informe",
     savedLabel: "Informe",
@@ -20,6 +21,7 @@ export const VEHICLE_REPORT_CONFIGS = {
     pdfTitle: "INFORME DE CAPACITACIÓN",
     description:
       "Registro de capacitaciones técnicas, participantes, temas tratados, prácticas realizadas y recomendaciones de seguimiento.",
+    equipmentSectionTitle: "DESCRIPCIÓN DEL EQUIPO USADO EN LA CAPACITACIÓN",
     newButtonLabel: "Nuevo Informe de Capacitación",
     saveLabel: "informe de capacitación",
     savedLabel: "Informe de capacitación",
