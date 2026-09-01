@@ -103,7 +103,7 @@ create policy "Usuarios autenticados crean encuestas autorizadas"
   to authenticated
   with check (
     public.can_manage_customer_satisfaction_survey(record_id)
-    and (created_by is null or created_by = auth.uid() or public.is_super_admin_user())
+    and (created_by is null or created_by = (select auth.uid()) or (select public.is_super_admin_user()))
   );
 
 create policy "Usuarios autenticados actualizan encuestas autorizadas"
@@ -117,7 +117,7 @@ create policy "Super admin elimina encuestas"
   on public.customer_satisfaction_surveys
   for delete
   to authenticated
-  using (public.is_super_admin_user());
+  using ((select public.is_super_admin_user()));
 
 revoke all on public.customer_satisfaction_surveys from anon;
 grant select, insert, update, delete on public.customer_satisfaction_surveys to authenticated;
