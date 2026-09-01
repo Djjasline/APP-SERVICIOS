@@ -107,34 +107,34 @@ create policy "Usuario consulta sus registros"
   for select
   to authenticated
   using (
-    user_id = auth.uid()
-    or lower(coalesce(auth.jwt() ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
+    user_id = (select auth.uid())
+    or lower(coalesce((select auth.jwt()) ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
   );
 
 create policy "Usuario crea sus registros"
   on public.registros
   for insert
   to authenticated
-  with check (user_id = auth.uid());
+  with check (user_id = (select auth.uid()));
 
 create policy "Usuario edita sus registros"
   on public.registros
   for update
   to authenticated
   using (
-    user_id = auth.uid()
-    or lower(coalesce(auth.jwt() ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
+    user_id = (select auth.uid())
+    or lower(coalesce((select auth.jwt()) ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
   )
   with check (
-    user_id = auth.uid()
-    or lower(coalesce(auth.jwt() ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
+    user_id = (select auth.uid())
+    or lower(coalesce((select auth.jwt()) ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
   );
 
 create policy "Usuario elimina sus registros"
   on public.registros
   for delete
   to authenticated
-  using (user_id = auth.uid());
+  using (user_id = (select auth.uid()));
 
 create policy "Usuario ve registros permitidos"
   on public.registros
@@ -142,7 +142,7 @@ create policy "Usuario ve registros permitidos"
   using (
     exists (
       select 1 from public.record_access_permissions p
-      where p.grantee_user_id = auth.uid()
+      where p.grantee_user_id = (select auth.uid())
         and (
           p.owner_user_id = registros.user_id
           or lower(trim(coalesce(p.owner_email, ''))) = lower(coalesce(nullif(trim(registros.data->>'tecnicoCorreo'), ''), nullif(trim(registros.data->>'correoTecnico'), ''), ''))
@@ -164,7 +164,7 @@ create policy "Usuario edita registros permitidos"
   using (
     exists (
       select 1 from public.record_access_permissions p
-      where p.grantee_user_id = auth.uid()
+      where p.grantee_user_id = (select auth.uid())
         and (
           p.owner_user_id = registros.user_id
           or lower(trim(coalesce(p.owner_email, ''))) = lower(coalesce(nullif(trim(registros.data->>'tecnicoCorreo'), ''), nullif(trim(registros.data->>'correoTecnico'), ''), ''))
@@ -182,7 +182,7 @@ create policy "Usuario edita registros permitidos"
   with check (
     exists (
       select 1 from public.record_access_permissions p
-      where p.grantee_user_id = auth.uid()
+      where p.grantee_user_id = (select auth.uid())
         and (
           p.owner_user_id = registros.user_id
           or lower(trim(coalesce(p.owner_email, ''))) = lower(coalesce(nullif(trim(registros.data->>'tecnicoCorreo'), ''), nullif(trim(registros.data->>'correoTecnico'), ''), ''))
