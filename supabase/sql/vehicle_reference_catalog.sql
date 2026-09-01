@@ -79,72 +79,75 @@ drop policy if exists "Usuario con permiso bodega consulta referencia historica 
 drop policy if exists "Usuario configurador consulta referencia para cotizador" on public.vehicle_reference_catalog;
 drop policy if exists "Usuario cotizador consulta referencia" on public.vehicle_reference_catalog;
 drop policy if exists "Usuario formularios vehiculos consulta referencia" on public.vehicle_reference_catalog;
+drop policy if exists "Usuarios autorizados consultan referencia historica vehiculos" on public.vehicle_reference_catalog;
+drop policy if exists "Super admin crea referencia historica vehiculos" on public.vehicle_reference_catalog;
+drop policy if exists "Super admin actualiza referencia historica vehiculos" on public.vehicle_reference_catalog;
+drop policy if exists "Super admin elimina referencia historica vehiculos" on public.vehicle_reference_catalog;
 
-create policy "Super admin gestiona referencia historica vehiculos"
-  on public.vehicle_reference_catalog
-  for all
-  to authenticated
-  using (public.is_super_admin_user())
-  with check (public.is_super_admin_user());
-
-create policy "Usuario con permiso bodega consulta referencia historica vehiculos"
+create policy "Usuarios autorizados consultan referencia historica vehiculos"
   on public.vehicle_reference_catalog
   for select
   to authenticated
   using (
-    active = true
-    and exists (
-      select 1
-      from public.record_access_permissions p
-      where p.grantee_user_id = auth.uid()
-        and p.active = true
-        and p.can_view = true
-        and (p.area = 'operaciones' or p.area = 'todos')
-        and p.tipo = 'bodega'
-    )
-  );
-
-create policy "Usuario cotizador consulta referencia"
-  on public.vehicle_reference_catalog
-  for select
-  to authenticated
-  using (
-    active = true
-    and exists (
-      select 1
-      from public.record_access_permissions p
-      where p.grantee_user_id = auth.uid()
-        and p.active = true
-        and p.can_view = true
-        and (p.area = 'vehiculos' or p.area = 'todos')
-        and p.tipo = 'cotizador'
-      )
-  );
-
-create policy "Usuario formularios vehiculos consulta referencia"
-  on public.vehicle_reference_catalog
-  for select
-  to authenticated
-  using (
-    active = true
-    and (
-      exists (
-        select 1
-        from public.profiles pr
-        where pr.id = auth.uid()
-          and pr.role in ('admin', 'tecnico', 'supervisor_operaciones', 'supervisor_proyecto', 'proveedor_vehiculos')
-      )
-      or exists (
-        select 1
-        from public.record_access_permissions p
-        where p.grantee_user_id = auth.uid()
-          and p.active = true
-          and (p.can_view = true or p.can_edit = true or p.can_download = true)
-          and (p.area = 'vehiculos' or p.area = 'todos')
-          and p.tipo in ('todos', 'informe', 'inspeccion', 'mantenimiento')
+    (select public.is_super_admin_user())
+    or (
+      active = true
+      and (
+        exists (
+          select 1
+          from public.record_access_permissions p
+          where p.grantee_user_id = (select auth.uid())
+            and p.active = true
+            and p.can_view = true
+            and (p.area = 'operaciones' or p.area = 'todos')
+            and p.tipo = 'bodega'
+        )
+        or exists (
+          select 1
+          from public.record_access_permissions p
+          where p.grantee_user_id = (select auth.uid())
+            and p.active = true
+            and p.can_view = true
+            and (p.area = 'vehiculos' or p.area = 'todos')
+            and p.tipo = 'cotizador'
+        )
+        or exists (
+          select 1
+          from public.profiles pr
+          where pr.id = (select auth.uid())
+            and pr.role in ('admin', 'tecnico', 'supervisor_operaciones', 'supervisor_proyecto', 'proveedor_vehiculos')
+        )
+        or exists (
+          select 1
+          from public.record_access_permissions p
+          where p.grantee_user_id = (select auth.uid())
+            and p.active = true
+            and (p.can_view = true or p.can_edit = true or p.can_download = true)
+            and (p.area = 'vehiculos' or p.area = 'todos')
+            and p.tipo in ('todos', 'informe', 'inspeccion', 'mantenimiento')
+        )
       )
     )
   );
+
+create policy "Super admin crea referencia historica vehiculos"
+  on public.vehicle_reference_catalog
+  for insert
+  to authenticated
+  with check ((select public.is_super_admin_user()));
+
+create policy "Super admin actualiza referencia historica vehiculos"
+  on public.vehicle_reference_catalog
+  for update
+  to authenticated
+  using ((select public.is_super_admin_user()))
+  with check ((select public.is_super_admin_user()));
+
+create policy "Super admin elimina referencia historica vehiculos"
+  on public.vehicle_reference_catalog
+  for delete
+  to authenticated
+  using ((select public.is_super_admin_user()));
 
 -- Importacion sugerida desde INVENTARIO referencial vehiculos.XLSX:
 -- product_code, description, sheet_name, reference_stock, last_cost, last_supplier,
