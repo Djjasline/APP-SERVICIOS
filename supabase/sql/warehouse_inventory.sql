@@ -77,45 +77,55 @@ drop policy if exists "Super admin gestiona inventario de bodega" on public.ware
 drop policy if exists "Usuario con permiso especial consulta inventario de bodega" on public.warehouse_inventory;
 drop policy if exists "Usuario configurador consulta inventario para cotizador" on public.warehouse_inventory;
 drop policy if exists "Usuario cotizador consulta inventario" on public.warehouse_inventory;
+drop policy if exists "Usuarios autorizados consultan inventario de bodega" on public.warehouse_inventory;
+drop policy if exists "Super admin crea inventario de bodega" on public.warehouse_inventory;
+drop policy if exists "Super admin actualiza inventario de bodega" on public.warehouse_inventory;
+drop policy if exists "Super admin elimina inventario de bodega" on public.warehouse_inventory;
 
-create policy "Super admin gestiona inventario de bodega"
-  on public.warehouse_inventory
-  for all
-  to authenticated
-  using (public.is_super_admin_user())
-  with check (public.is_super_admin_user());
-
-create policy "Usuario con permiso especial consulta inventario de bodega"
+create policy "Usuarios autorizados consultan inventario de bodega"
   on public.warehouse_inventory
   for select
   to authenticated
   using (
-    exists (
+    (select public.is_super_admin_user())
+    or exists (
       select 1
       from public.record_access_permissions p
-      where p.grantee_user_id = auth.uid()
+      where p.grantee_user_id = (select auth.uid())
         and p.active = true
         and p.can_view = true
         and (p.area = 'operaciones' or p.area = 'todos')
         and p.tipo = 'bodega'
     )
-  );
-
-create policy "Usuario cotizador consulta inventario"
-  on public.warehouse_inventory
-  for select
-  to authenticated
-  using (
-    exists (
+    or exists (
       select 1
       from public.record_access_permissions p
-      where p.grantee_user_id = auth.uid()
+      where p.grantee_user_id = (select auth.uid())
         and p.active = true
         and p.can_view = true
         and (p.area = 'vehiculos' or p.area = 'todos')
         and p.tipo = 'cotizador'
     )
   );
+
+create policy "Super admin crea inventario de bodega"
+  on public.warehouse_inventory
+  for insert
+  to authenticated
+  with check ((select public.is_super_admin_user()));
+
+create policy "Super admin actualiza inventario de bodega"
+  on public.warehouse_inventory
+  for update
+  to authenticated
+  using ((select public.is_super_admin_user()))
+  with check ((select public.is_super_admin_user()));
+
+create policy "Super admin elimina inventario de bodega"
+  on public.warehouse_inventory
+  for delete
+  to authenticated
+  using ((select public.is_super_admin_user()));
 
 -- Importacion sugerida desde Excel/CSV:
 -- product_code, description, physical_stock, physical_location, cutoff_date, source_file

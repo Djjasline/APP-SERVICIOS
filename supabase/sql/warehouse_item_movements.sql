@@ -63,29 +63,46 @@ alter table public.warehouse_item_movements enable row level security;
 
 drop policy if exists "Super admin gestiona movimientos de bodega" on public.warehouse_item_movements;
 drop policy if exists "Usuario con permiso bodega consulta movimientos" on public.warehouse_item_movements;
+drop policy if exists "Usuarios autorizados consultan movimientos de bodega" on public.warehouse_item_movements;
+drop policy if exists "Super admin crea movimientos de bodega" on public.warehouse_item_movements;
+drop policy if exists "Super admin actualiza movimientos de bodega" on public.warehouse_item_movements;
+drop policy if exists "Super admin elimina movimientos de bodega" on public.warehouse_item_movements;
 
-create policy "Super admin gestiona movimientos de bodega"
-  on public.warehouse_item_movements
-  for all
-  to authenticated
-  using (public.is_super_admin_user())
-  with check (public.is_super_admin_user());
-
-create policy "Usuario con permiso bodega consulta movimientos"
+create policy "Usuarios autorizados consultan movimientos de bodega"
   on public.warehouse_item_movements
   for select
   to authenticated
   using (
-    exists (
+    (select public.is_super_admin_user())
+    or exists (
       select 1
       from public.record_access_permissions p
-      where p.grantee_user_id = auth.uid()
+      where p.grantee_user_id = (select auth.uid())
         and p.active = true
         and p.can_view = true
         and (p.area = 'operaciones' or p.area = 'todos')
         and p.tipo = 'bodega'
     )
   );
+
+create policy "Super admin crea movimientos de bodega"
+  on public.warehouse_item_movements
+  for insert
+  to authenticated
+  with check ((select public.is_super_admin_user()));
+
+create policy "Super admin actualiza movimientos de bodega"
+  on public.warehouse_item_movements
+  for update
+  to authenticated
+  using ((select public.is_super_admin_user()))
+  with check ((select public.is_super_admin_user()));
+
+create policy "Super admin elimina movimientos de bodega"
+  on public.warehouse_item_movements
+  for delete
+  to authenticated
+  using ((select public.is_super_admin_user()));
 
 create or replace function public.register_warehouse_item_movement(
   p_item_source text,
