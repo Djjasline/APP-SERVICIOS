@@ -32,19 +32,34 @@ alter table public.app_updates enable row level security;
 
 drop policy if exists "Usuarios autenticados ven boletines activos" on public.app_updates;
 drop policy if exists "Super admin gestiona boletines" on public.app_updates;
+drop policy if exists "Super admin crea boletines" on public.app_updates;
+drop policy if exists "Super admin actualiza boletines" on public.app_updates;
+drop policy if exists "Super admin elimina boletines" on public.app_updates;
 
 create policy "Usuarios autenticados ven boletines activos"
   on public.app_updates
   for select
   to authenticated
-  using (active = true or public.is_super_admin_user());
+  using (active = true or (select public.is_super_admin_user()));
 
-create policy "Super admin gestiona boletines"
+create policy "Super admin crea boletines"
   on public.app_updates
-  for all
+  for insert
   to authenticated
-  using (public.is_super_admin_user())
-  with check (public.is_super_admin_user());
+  with check ((select public.is_super_admin_user()));
+
+create policy "Super admin actualiza boletines"
+  on public.app_updates
+  for update
+  to authenticated
+  using ((select public.is_super_admin_user()))
+  with check ((select public.is_super_admin_user()));
+
+create policy "Super admin elimina boletines"
+  on public.app_updates
+  for delete
+  to authenticated
+  using ((select public.is_super_admin_user()));
 
 create table if not exists public.app_update_reads (
   update_id uuid not null references public.app_updates(id) on delete cascade,
@@ -62,19 +77,35 @@ alter table public.app_update_reads enable row level security;
 
 drop policy if exists "Usuario gestiona sus lecturas de boletines" on public.app_update_reads;
 drop policy if exists "Super admin ve lecturas de boletines" on public.app_update_reads;
+drop policy if exists "Usuarios autorizados ven lecturas de boletines" on public.app_update_reads;
+drop policy if exists "Usuario crea sus lecturas de boletines" on public.app_update_reads;
+drop policy if exists "Usuario actualiza sus lecturas de boletines" on public.app_update_reads;
+drop policy if exists "Usuario elimina sus lecturas de boletines" on public.app_update_reads;
 
-create policy "Usuario gestiona sus lecturas de boletines"
-  on public.app_update_reads
-  for all
-  to authenticated
-  using (user_id = auth.uid())
-  with check (user_id = auth.uid());
-
-create policy "Super admin ve lecturas de boletines"
+create policy "Usuarios autorizados ven lecturas de boletines"
   on public.app_update_reads
   for select
   to authenticated
-  using (public.is_super_admin_user());
+  using (user_id = (select auth.uid()) or (select public.is_super_admin_user()));
+
+create policy "Usuario crea sus lecturas de boletines"
+  on public.app_update_reads
+  for insert
+  to authenticated
+  with check (user_id = (select auth.uid()));
+
+create policy "Usuario actualiza sus lecturas de boletines"
+  on public.app_update_reads
+  for update
+  to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+
+create policy "Usuario elimina sus lecturas de boletines"
+  on public.app_update_reads
+  for delete
+  to authenticated
+  using (user_id = (select auth.uid()));
 
 insert into public.app_updates (update_key, title, message, active, created_at)
 values
