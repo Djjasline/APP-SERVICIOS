@@ -20,5 +20,5 @@ create policy "Usuario gestiona sus borradores"
   on public.form_drafts
   for all
   to authenticated
-  using (user_id = auth.uid())
-  with check (user_id = auth.uid());
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));

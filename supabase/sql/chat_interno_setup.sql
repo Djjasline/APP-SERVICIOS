@@ -115,7 +115,7 @@ create policy "chat_conversations_insert_auth"
 on public.chat_conversations
 for insert
 to authenticated
-with check (created_by = auth.uid());
+with check (created_by = (select auth.uid()));
 
 create policy "chat_participants_select_own_conversations"
 on public.chat_participants
@@ -127,8 +127,8 @@ create policy "chat_participants_update_own"
 on public.chat_participants
 for update
 to authenticated
-using (user_id = auth.uid())
-with check (user_id = auth.uid());
+using (user_id = (select auth.uid()))
+with check (user_id = (select auth.uid()));
 
 create policy "chat_messages_select_participants"
 on public.chat_messages
@@ -141,7 +141,7 @@ on public.chat_messages
 for insert
 to authenticated
 with check (
-  sender_id = auth.uid()
+  sender_id = (select auth.uid())
   and public.is_chat_participant(conversation_id)
 );
 
