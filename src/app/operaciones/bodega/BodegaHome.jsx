@@ -6,6 +6,7 @@ import { getVehicleReferenceCatalog, getWarehouseInventory, getWarehouseLocation
 import { Activity, AlertTriangle, Database, Package, PackagePlus, RefreshCw, Search, Warehouse } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+const SOURCE_ALL = "all";
 const SOURCE_STOCK = "stock";
 const SOURCE_VEHICLE_REFERENCE = "vehicle-reference";
 const SORT_ASC = "asc";
@@ -159,6 +160,13 @@ function buildExportRows(rows, viewingReference) {
   return [header, ...body];
 }
 
+function buildCombinedExportRows(stockRows, referenceRows) {
+  const header = ["Lista", "Código", "Descripción", "Área", "Cantidad", "Stock mínimo", "Ubicación", "Proveedor", "Último costo", "Origen", "Fecha", "Estado ficha", "Campos faltantes"];
+  const stockBody = buildExportRows(stockRows, false).slice(1).map((row) => ["Stock actual", ...row]);
+  const referenceBody = buildExportRows(referenceRows, true).slice(1).map((row) => ["Referencia histórica vehículos", ...row]);
+  return [header, ...stockBody, ...referenceBody];
+}
+
 function buildRanking(rows, accessor, quantityAccessor) {
   const grouped = rows.reduce((acc, item) => {
     const key = accessor(item) || "Sin dato";
@@ -179,7 +187,7 @@ export default function BodegaHome() {
   const [items, setItems] = useState([]);
   const [referenceItems, setReferenceItems] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [source, setSource] = useState(SOURCE_STOCK);
+  const [source, setSource] = useState(SOURCE_ALL);
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
   const [location, setLocation] = useState("");
@@ -191,6 +199,7 @@ export default function BodegaHome() {
   const [stockSort, setStockSort] = useState({ key: "product_code", direction: SORT_ASC });
   const [referenceSort, setReferenceSort] = useState({ key: "product_code", direction: SORT_ASC });
 
+  const viewingAll = source === SOURCE_ALL;
   const viewingReference = source === SOURCE_VEHICLE_REFERENCE;
 
   const loadInventory = async () => {
@@ -198,18 +207,15 @@ export default function BodegaHome() {
     setError("");
 
     try {
-      if (viewingReference) {
-        const rows = await getVehicleReferenceCatalog({ search: deferredSearch });
-        setReferenceItems(rows);
-      } else {
-        const [inventoryRows, locationRows] = await Promise.all([
-          getWarehouseInventory({ search: deferredSearch, location }),
-          getWarehouseLocations(),
-        ]);
+      const [inventoryRows, locationRows, referenceRows] = await Promise.all([
+        getWarehouseInventory({ search: deferredSearch, location: viewingReference ? "" : location }),
+        getWarehouseLocations(),
+        getVehicleReferenceCatalog({ search: deferredSearch }),
+      ]);
 
-        setItems(inventoryRows);
-        setLocations(locationRows);
-      }
+      setItems(inventoryRows);
+      setLocations(locationRows);
+      setReferenceItems(referenceRows);
     } catch (err) {
       console.error("Error cargando inventario de bodega:", err);
       setError(["42P01", "42703"].includes(err?.code) ? "Falta ejecutar el SQL actualizado de bodega en Supabase." : "No se pudo cargar la información de bodega.");
@@ -220,7 +226,7 @@ export default function BodegaHome() {
 
   useEffect(() => {
     loadInventory();
-  }, [deferredSearch, location, source]);
+  }, [deferredSearch, location, viewingReference]);
 
   useEffect(() => {
     let cancelled = false;
@@ -260,25 +266,31 @@ export default function BodegaHome() {
     };
   }, [items, referenceItems, locations.length]);
 
-  const activeRows = viewingReference ? referenceItems : items;
+  const activeRows = viewingAll ? [...items, ...referenceItems] : viewingReference ? referenceItems : items;
   const areaOptions = useMemo(() => getUniqueOptions(activeRows, (item) => item.area), [activeRows]);
   const providerOptions = useMemo(() => getUniqueOptions(activeRows, (item) => item.last_supplier), [activeRows]);
   const filteredItems = useMemo(() => filterRows(items, filters, false), [items, filters]);
   const filteredReferenceItems = useMemo(() => filterRows(referenceItems, filters, true), [referenceItems, filters]);
+  const filteredCount = viewingAll ? filteredItems.length + filteredReferenceItems.length : viewingReference ? filteredReferenceItems.length : filteredItems.length;
   const activeFilterCount = Object.values(filters).filter((value) => value && value !== FILTER_ALL).length;
   const fichaSummary = useMemo(() => {
-    const rows = viewingReference ? referenceItems : items;
-    return rows.reduce((acc, item) => {
-      const status = getFichaStatus(item, viewingReference);
+    const rows = viewingAll
+      ? [...items.map((item) => ({ item, isReference: false })), ...referenceItems.map((item) => ({ item, isReference: true }))]
+      : (viewingReference ? referenceItems : items).map((item) => ({ item, isReference: viewingReference }));
+
+    return rows.reduce((acc, row) => {
+      const status = getFichaStatus(row.item, row.isReference);
       if (status.complete) acc.complete += 1;
       else acc.incomplete += 1;
       return acc;
     }, { complete: 0, incomplete: 0 });
-  }, [items, referenceItems, viewingReference]);
+  }, [items, referenceItems, viewingAll, viewingReference]);
   const missingFieldSummary = useMemo(() => {
-    const rows = viewingReference ? referenceItems : items;
-    const counts = rows.reduce((acc, item) => {
-      for (const field of getFichaMissingFields(item, viewingReference)) {
+    const rows = viewingAll
+      ? [...items.map((item) => ({ item, isReference: false })), ...referenceItems.map((item) => ({ item, isReference: true }))]
+      : (viewingReference ? referenceItems : items).map((item) => ({ item, isReference: viewingReference }));
+    const counts = rows.reduce((acc, row) => {
+      for (const field of getFichaMissingFields(row.item, row.isReference)) {
         acc.set(field, (acc.get(field) || 0) + 1);
       }
       return acc;
@@ -288,10 +300,14 @@ export default function BodegaHome() {
       .map(([field, count]) => ({ field, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 6);
-  }, [items, referenceItems, viewingReference]);
+  }, [items, referenceItems, viewingAll, viewingReference]);
   const operationalSummary = useMemo(() => {
-    const rows = viewingReference ? referenceItems : items;
-    const quantityAccessor = viewingReference ? (item) => item.reference_stock : (item) => item.physical_stock;
+    const rows = viewingAll
+      ? [...items.map((item) => ({ ...item, quantity: item.physical_stock })), ...referenceItems.map((item) => ({ ...item, quantity: item.reference_stock }))]
+      : viewingReference
+        ? referenceItems.map((item) => ({ ...item, quantity: item.reference_stock }))
+        : items.map((item) => ({ ...item, quantity: item.physical_stock }));
+    const quantityAccessor = (item) => item.quantity;
     const withCost = rows.filter((item) => Number(item.last_cost) > 0).length;
     const withImage = rows.filter((item) => hasValue(item.image_url)).length;
     const dash30 = rows.filter((item) => isDash30Code(item.product_code)).length;
@@ -307,7 +323,7 @@ export default function BodegaHome() {
       providerRanking: buildRanking(rows, (item) => item.last_supplier, quantityAccessor),
       areaRanking: buildRanking(rows, (item) => item.area, quantityAccessor),
     };
-  }, [items, referenceItems, viewingReference]);
+  }, [items, referenceItems, viewingAll, viewingReference]);
 
   const sortedItems = useMemo(() => sortRows(filteredItems, stockSort, {
     product_code: (item) => item.product_code,
@@ -336,19 +352,22 @@ export default function BodegaHome() {
   }), [filteredReferenceItems, referenceSort]);
 
   const areaSummary = useMemo(() => {
-    const rows = viewingReference ? referenceItems : items;
-    const stockField = viewingReference ? "reference_stock" : "physical_stock";
+    const rows = viewingAll
+      ? [...items.map((item) => ({ ...item, quantity: item.physical_stock })), ...referenceItems.map((item) => ({ ...item, quantity: item.reference_stock }))]
+      : viewingReference
+        ? referenceItems.map((item) => ({ ...item, quantity: item.reference_stock }))
+        : items.map((item) => ({ ...item, quantity: item.physical_stock }));
     const grouped = rows.reduce((acc, item) => {
       const area = item.area || (viewingReference ? "Vehículos" : "Sin área");
       if (!acc.has(area)) acc.set(area, { area, count: 0, quantity: 0 });
       const current = acc.get(area);
       current.count += 1;
-      current.quantity += Number(item[stockField]) || 0;
+      current.quantity += Number(item.quantity) || 0;
       return acc;
     }, new Map());
 
     return Array.from(grouped.values()).sort((a, b) => b.count - a.count).slice(0, 6);
-  }, [items, referenceItems, viewingReference]);
+  }, [items, referenceItems, viewingAll, viewingReference]);
 
   const activitySummary = useMemo(() => {
     const grouped = recentMovements.reduce((acc, movement) => {
@@ -383,9 +402,14 @@ export default function BodegaHome() {
 
   const clearFilters = () => setFilters(DEFAULT_FILTERS);
 
-  const exportRows = viewingReference ? sortedReferenceItems : sortedItems;
+  const exportRows = viewingAll ? [...sortedItems, ...sortedReferenceItems] : viewingReference ? sortedReferenceItems : sortedItems;
   const handleExportCsv = () => {
     if (exportRows.length === 0) return;
+    if (viewingAll) {
+      downloadCsv("bodega_todas_las_listas_filtrado.csv", buildCombinedExportRows(sortedItems, sortedReferenceItems));
+      return;
+    }
+
     const sourceLabel = viewingReference ? "referencia" : "stock";
     downloadCsv(`bodega_${sourceLabel}_filtrado.csv`, buildExportRows(exportRows, viewingReference));
   };
@@ -502,7 +526,9 @@ export default function BodegaHome() {
             <p className="text-sm text-slate-500">
               {viewingReference
                 ? "Consulta histórica de repuestos de Vehículos Especiales para futuras compras o cotizaciones."
-                : "Consulta de artículos importados desde la base de bodega actual."}
+                : viewingAll
+                  ? "Busca en stock actual y referencia histórica de vehículos desde un solo lugar."
+                  : "Consulta de artículos importados desde la base de bodega actual."}
             </p>
           </div>
 
@@ -512,7 +538,7 @@ export default function BodegaHome() {
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder={viewingReference ? "Buscar código, descripción, proveedor o cliente" : "Buscar código, descripción o ubicación"}
+                placeholder="Buscar en todas las listas: código, descripción, ubicación, proveedor o cliente"
                 className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm text-slate-900 outline-none focus:border-blue-400 sm:w-80"
               />
             </label>
@@ -531,11 +557,14 @@ export default function BodegaHome() {
         </div>
 
         <div className="flex flex-wrap gap-2 border-b border-slate-200 px-4 py-3 text-sm">
+          <SourceButton active={source === SOURCE_ALL} onClick={() => setSource(SOURCE_ALL)}>
+            Todas las listas ({formatNumber(sortedItems.length + sortedReferenceItems.length)})
+          </SourceButton>
           <SourceButton active={source === SOURCE_STOCK} onClick={() => setSource(SOURCE_STOCK)}>
-            Stock actual
+            Stock actual ({formatNumber(sortedItems.length)})
           </SourceButton>
           <SourceButton active={source === SOURCE_VEHICLE_REFERENCE} onClick={() => setSource(SOURCE_VEHICLE_REFERENCE)}>
-            Referencia histórica vehículos
+            Referencia histórica vehículos ({formatNumber(sortedReferenceItems.length)})
           </SourceButton>
         </div>
 
@@ -543,11 +572,11 @@ export default function BodegaHome() {
           <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h4 className="font-semibold text-slate-900">Filtros avanzados</h4>
-              <p className="text-sm text-slate-500">Filtra la fuente activa por área, proveedor, disponibilidad y estado de ficha.</p>
+              <p className="text-sm text-slate-500">Filtra todas las listas por área, proveedor, disponibilidad y estado de ficha.</p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <button type="button" onClick={handleExportCsv} disabled={exportRows.length === 0} className="rounded-lg border border-emerald-300 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-50">
-                Exportar CSV ({formatNumber(exportRows.length)})
+                Exportar CSV ({formatNumber(filteredCount)})
               </button>
               <button type="button" onClick={clearFilters} disabled={activeFilterCount === 0} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50">
                 Limpiar filtros{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
@@ -634,8 +663,21 @@ export default function BodegaHome() {
         )}
 
         <div className="overflow-x-auto p-4">
-          {loading && (viewingReference ? referenceItems.length === 0 : items.length === 0) ? (
+          {loading && (viewingAll ? items.length === 0 && referenceItems.length === 0 : viewingReference ? referenceItems.length === 0 : items.length === 0) ? (
             <p className="text-sm text-slate-500">Cargando información...</p>
+          ) : viewingAll ? (
+            sortedItems.length === 0 && sortedReferenceItems.length === 0 ? (
+              <p className="text-sm text-slate-500">No hay artículos que coincidan con la búsqueda o filtros activos en ninguna lista.</p>
+            ) : (
+              <div className="space-y-6">
+                <ResultGroup title="Stock actual" count={sortedItems.length} empty="Sin coincidencias en stock actual.">
+                  {sortedItems.length > 0 && <StockTable items={sortedItems} sort={stockSort} onSort={toggleStockSort} onOpen={(item) => navigate(`/operaciones/bodega/${SOURCE_STOCK}/${item.id}`)} />}
+                </ResultGroup>
+                <ResultGroup title="Referencia histórica vehículos" count={sortedReferenceItems.length} empty="Sin coincidencias en referencia histórica de vehículos.">
+                  {sortedReferenceItems.length > 0 && <VehicleReferenceTable items={sortedReferenceItems} sort={referenceSort} onSort={toggleReferenceSort} onOpen={(item) => navigate(`/operaciones/bodega/${SOURCE_VEHICLE_REFERENCE}/${item.id}`)} />}
+                </ResultGroup>
+              </div>
+            )
           ) : viewingReference ? (
             referenceItems.length === 0 ? (
               <p className="text-sm text-slate-500">Aún no hay referencia histórica de vehículos importada.</p>
@@ -649,53 +691,71 @@ export default function BodegaHome() {
           ) : sortedItems.length === 0 ? (
             <p className="text-sm text-slate-500">No hay artículos que coincidan con los filtros activos.</p>
           ) : (
-            <table className="min-w-full text-left text-sm">
-              <thead className="bg-slate-900 text-white">
-                <tr>
-                  <SortableTh sortKey="product_code" sort={stockSort} onSort={toggleStockSort}>Código</SortableTh>
-                  <SortableTh sortKey="description" sort={stockSort} onSort={toggleStockSort}>Descripción</SortableTh>
-                  <SortableTh sortKey="area" sort={stockSort} onSort={toggleStockSort}>Área</SortableTh>
-                  <SortableTh sortKey="physical_stock" sort={stockSort} onSort={toggleStockSort} align="right">Cantidad</SortableTh>
-                  <SortableTh sortKey="stock_minimum" sort={stockSort} onSort={toggleStockSort} align="right">Stock mín.</SortableTh>
-                  <SortableTh sortKey="physical_location" sort={stockSort} onSort={toggleStockSort}>Ubicación</SortableTh>
-                  <SortableTh sortKey="last_supplier" sort={stockSort} onSort={toggleStockSort}>Proveedor</SortableTh>
-                  <SortableTh sortKey="last_cost" sort={stockSort} onSort={toggleStockSort} align="right">Último costo</SortableTh>
-                  <SortableTh sortKey="source_file" sort={stockSort} onSort={toggleStockSort}>Origen</SortableTh>
-                  <SortableTh sortKey="cutoff_date" sort={stockSort} onSort={toggleStockSort}>Fecha</SortableTh>
-                  <th className="px-3 py-2 font-semibold">Estado ficha</th>
-                  <th className="px-3 py-2 font-semibold">Ficha</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedItems.map((item) => {
-                  const fichaStatus = getFichaStatus(item, false);
-                  return (
-                    <tr key={item.id} className="border-b border-slate-200 odd:bg-slate-50 hover:bg-amber-50">
-                      <td className="px-3 py-2 font-semibold text-slate-900">{item.product_code}</td>
-                      <td className="px-3 py-2 text-slate-700">{item.description}</td>
-                      <td className="px-3 py-2 text-slate-700">{item.area || "-"}</td>
-                      <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.physical_stock)}</td>
-                      <td className="px-3 py-2 text-right text-slate-700">{item.stock_minimum ? formatNumber(item.stock_minimum) : "-"}</td>
-                      <td className="px-3 py-2 text-slate-700">{item.physical_location || "-"}</td>
-                      <td className="px-3 py-2 text-slate-700">{item.last_supplier || "-"}</td>
-                      <td className="px-3 py-2 text-right text-slate-600">-</td>
-                      <td className="px-3 py-2 text-slate-600">{item.source_file || "-"}</td>
-                      <td className="px-3 py-2 text-slate-600">{formatDate(item.cutoff_date)}</td>
-                      <td className="px-3 py-2"><FichaStatusBadge status={fichaStatus} /></td>
-                      <td className="px-3 py-2">
-                        <button type="button" onClick={() => navigate(`/operaciones/bodega/${SOURCE_STOCK}/${item.id}`)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-white">
-                          Abrir
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <StockTable items={sortedItems} sort={stockSort} onSort={toggleStockSort} onOpen={(item) => navigate(`/operaciones/bodega/${SOURCE_STOCK}/${item.id}`)} />
           )}
         </div>
       </section>
     </div>
+  );
+}
+
+function ResultGroup({ title, count, empty, children }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+        <h4 className="font-semibold text-slate-900">{title}</h4>
+        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{formatNumber(count)} resultados</span>
+      </div>
+      {count === 0 ? <p className="p-4 text-sm text-slate-500">{empty}</p> : children}
+    </div>
+  );
+}
+
+function StockTable({ items, sort, onSort, onOpen }) {
+  return (
+    <table className="min-w-full text-left text-sm">
+      <thead className="bg-slate-900 text-white">
+        <tr>
+          <SortableTh sortKey="product_code" sort={sort} onSort={onSort}>Código</SortableTh>
+          <SortableTh sortKey="description" sort={sort} onSort={onSort}>Descripción</SortableTh>
+          <SortableTh sortKey="area" sort={sort} onSort={onSort}>Área</SortableTh>
+          <SortableTh sortKey="physical_stock" sort={sort} onSort={onSort} align="right">Cantidad</SortableTh>
+          <SortableTh sortKey="stock_minimum" sort={sort} onSort={onSort} align="right">Stock mín.</SortableTh>
+          <SortableTh sortKey="physical_location" sort={sort} onSort={onSort}>Ubicación</SortableTh>
+          <SortableTh sortKey="last_supplier" sort={sort} onSort={onSort}>Proveedor</SortableTh>
+          <SortableTh sortKey="last_cost" sort={sort} onSort={onSort} align="right">Último costo</SortableTh>
+          <SortableTh sortKey="source_file" sort={sort} onSort={onSort}>Origen</SortableTh>
+          <SortableTh sortKey="cutoff_date" sort={sort} onSort={onSort}>Fecha</SortableTh>
+          <th className="px-3 py-2 font-semibold">Estado ficha</th>
+          <th className="px-3 py-2 font-semibold">Ficha</th>
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((item) => {
+          const fichaStatus = getFichaStatus(item, false);
+          return (
+            <tr key={item.id} className="border-b border-slate-200 odd:bg-slate-50 hover:bg-amber-50">
+              <td className="px-3 py-2 font-semibold text-slate-900">{item.product_code}</td>
+              <td className="px-3 py-2 text-slate-700">{item.description}</td>
+              <td className="px-3 py-2 text-slate-700">{item.area || "-"}</td>
+              <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.physical_stock)}</td>
+              <td className="px-3 py-2 text-right text-slate-700">{item.stock_minimum ? formatNumber(item.stock_minimum) : "-"}</td>
+              <td className="px-3 py-2 text-slate-700">{item.physical_location || "-"}</td>
+              <td className="px-3 py-2 text-slate-700">{item.last_supplier || "-"}</td>
+              <td className="px-3 py-2 text-right text-slate-600">-</td>
+              <td className="px-3 py-2 text-slate-600">{item.source_file || "-"}</td>
+              <td className="px-3 py-2 text-slate-600">{formatDate(item.cutoff_date)}</td>
+              <td className="px-3 py-2"><FichaStatusBadge status={fichaStatus} /></td>
+              <td className="px-3 py-2">
+                <button type="button" onClick={() => onOpen(item)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-white">
+                  Abrir
+                </button>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
   );
 }
 

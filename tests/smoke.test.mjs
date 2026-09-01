@@ -205,6 +205,12 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(importer, /lstrip\("`'\\"‘’´"\)/);
 
   assert.match(home, /SOURCE_VEHICLE_REFERENCE/);
+  assert.match(home, /SOURCE_ALL/);
+  assert.match(home, /Todas las listas/);
+  assert.match(home, /Buscar en todas las listas/);
+  assert.match(home, /buildCombinedExportRows/);
+  assert.match(home, /ResultGroup/);
+  assert.match(home, /StockTable/);
   assert.match(home, /Referencia histórica vehículos/);
   assert.match(home, /No descuenta, suma ni reemplaza stock real de bodega/);
   assert.match(home, /VehicleReferenceTable/);
