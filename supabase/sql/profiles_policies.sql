@@ -19,6 +19,12 @@ alter table public.profiles enable row level security;
 drop policy if exists "Usuarios autenticados leen perfiles" on public.profiles;
 drop policy if exists "Usuario actualiza su perfil" on public.profiles;
 drop policy if exists "Super admin gestiona perfiles" on public.profiles;
+drop policy if exists "Allow authenticated users to read profiles" on public.profiles;
+drop policy if exists "Ver propio perfil" on public.profiles;
+drop policy if exists "Editar propio perfil" on public.profiles;
+drop policy if exists "Usuarios autorizados actualizan perfiles" on public.profiles;
+drop policy if exists "Super admin crea perfiles" on public.profiles;
+drop policy if exists "Super admin elimina perfiles" on public.profiles;
 
 create policy "Usuarios autenticados leen perfiles"
   on public.profiles
@@ -26,16 +32,21 @@ create policy "Usuarios autenticados leen perfiles"
   to authenticated
   using (true);
 
-create policy "Usuario actualiza su perfil"
+create policy "Usuarios autorizados actualizan perfiles"
   on public.profiles
   for update
   to authenticated
-  using (id = auth.uid())
-  with check (id = auth.uid());
+  using (id = (select auth.uid()) or (select public.is_super_admin_user()))
+  with check (id = (select auth.uid()) or (select public.is_super_admin_user()));
 
-create policy "Super admin gestiona perfiles"
+create policy "Super admin crea perfiles"
   on public.profiles
-  for all
+  for insert
   to authenticated
-  using (public.is_super_admin_user())
-  with check (public.is_super_admin_user());
+  with check ((select public.is_super_admin_user()));
+
+create policy "Super admin elimina perfiles"
+  on public.profiles
+  for delete
+  to authenticated
+  using ((select public.is_super_admin_user()));
