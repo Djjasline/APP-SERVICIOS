@@ -104,8 +104,9 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
     const isPetroleoPath =
       path.startsWith("/area/petroleo") || path.startsWith("/petroleo");
 
+    const isBodegaPath = path.startsWith("/operaciones/bodega");
     const isOperacionesPath =
-      path.startsWith("/operaciones") ||
+      (path.startsWith("/operaciones") && !isBodegaPath) ||
       path.startsWith("/registro") ||
       path.startsWith("/recepcion") ||
       path.startsWith("/liberacion");
@@ -607,16 +608,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   {subLabel(ClipboardList, OPERACIONES_TEXT.protocolos.title)}
                 </button>
 
-                {puedeUsarBodega && (
-                  <button
-                    type="button"
-                    onClick={() => go("/operaciones/bodega")}
-                    className={subItemClass("/operaciones/bodega")}
-                  >
-                    {subLabel(Package, OPERACIONES_TEXT.bodega.title)}
-                  </button>
-                )}
-
                 {puedeUsarClientes && (
                   <button
                     type="button"
@@ -629,6 +620,22 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
               </div>
             )}
           </div>
+        )}
+
+        {puedeVerTodo && puedeUsarBodega && (
+          <button
+            type="button"
+            onClick={() => {
+              openOnly("");
+              go("/operaciones/bodega");
+            }}
+            className={itemClass(isActive("/operaciones/bodega"))}
+            aria-current={isActive("/operaciones/bodega") ? "page" : undefined}
+          >
+            <Package size={20} className={iconClass} />
+            {openSidebar && OPERACIONES_TEXT.bodega.title}
+            {tooltip(OPERACIONES_TEXT.bodega.title)}
+          </button>
         )}
 
         {/* RECURSOS */}

@@ -28,6 +28,16 @@ test("menu lateral muestra acceso a informe de capacitacion", () => {
   assert.match(sidebar, /Informe de Capacitación/);
 });
 
+test("menu lateral muestra bodega como seccion independiente", () => {
+  const sidebar = read("src/layouts/Sidebar.jsx");
+
+  assert.match(sidebar, /puedeVerTodo && puedeUsarBodega/);
+  assert.match(sidebar, /go\("\/operaciones\/bodega"\)/);
+  assert.match(sidebar, /itemClass\(isActive\("\/operaciones\/bodega"\)\)/);
+  assert.match(sidebar, /path\.startsWith\("\/operaciones"\) && !isBodegaPath/);
+  assert.doesNotMatch(sidebar, /subLabel\(Package, OPERACIONES_TEXT\.bodega\.title\)/);
+});
+
 test("modulos especiales conservan llaves esperadas", () => {
   const accessControl = read("src/constants/accessControl.js");
 

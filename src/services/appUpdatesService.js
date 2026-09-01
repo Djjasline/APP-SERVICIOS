@@ -38,6 +38,11 @@ const FRIENDLY_UPDATES = [
     message: "El buscador de Bodega ahora consulta stock actual y referencia histórica de vehículos desde una vista unificada.",
   },
   {
+    match: "mover bodega a menu principal",
+    title: "Control de cambios: Bodega en menú principal",
+    message: "Bodega ahora aparece como sección independiente en el menú lateral, fuera del grupo Operaciones.",
+  },
+  {
     match: "optimizar recursos iniciales",
     title: "Control de cambios: carga inicial optimizada",
     message: "Se optimizó la carga inicial de la app con mejor carga de fuentes y caché para recursos públicos.",
