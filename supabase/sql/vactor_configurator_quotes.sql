@@ -60,8 +60,8 @@ create policy "Usuario o super admin gestiona cotizaciones Vactor"
   on public.vactor_configurator_quotes
   for all
   to authenticated
-  using (user_id = auth.uid() or public.is_super_admin_user())
-  with check (user_id = auth.uid() or public.is_super_admin_user());
+  using (user_id = (select auth.uid()) or (select public.is_super_admin_user()))
+  with check (user_id = (select auth.uid()) or (select public.is_super_admin_user()));
 
 insert into storage.buckets (id, name, public)
 values ('informe', 'informe', true)
