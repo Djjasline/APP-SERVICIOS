@@ -17,6 +17,7 @@ create or replace function public.normalize_report_code_prefix(input_code text)
 returns text
 language plpgsql
 stable
+set search_path = public
 as $$
 declare
   normalized text;
@@ -37,6 +38,7 @@ create or replace function public.get_existing_report_code_last_number(normalize
 returns integer
 language sql
 stable
+set search_path = public
 as $$
   select coalesce(max(suffix::integer), 0)
   from (

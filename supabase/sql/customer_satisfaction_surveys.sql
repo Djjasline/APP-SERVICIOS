@@ -183,7 +183,7 @@ begin
     responded_at = now(),
     updated_at = now()
   where token = p_token
-    and status <> 'respondida';
+    and customer_satisfaction_surveys.status <> 'respondida';
 
   return query
   select s.status, s.responded_at

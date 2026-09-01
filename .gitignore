@@ -9,5 +9,8 @@ package-lock.json
 .vscode/
 vite.config.*s.*
 .env
+supabase/.temp/
 Matriz_opciones_Vactor_2100i.xlsx
 Vactor-2100i-Manuals-options manual r9-10-2024.pdf
+2014-03 Price File - Vactor Parts ingles.xls
+RepClientes.xls
