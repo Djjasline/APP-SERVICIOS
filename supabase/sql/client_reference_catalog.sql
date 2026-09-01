@@ -43,34 +43,22 @@ drop policy if exists "Super admin gestiona clientes referencia" on public.clien
 drop policy if exists "Usuario modulo clientes gestiona clientes referencia" on public.client_reference_catalog;
 drop policy if exists "Usuarios formularios consultan clientes referencia" on public.client_reference_catalog;
 drop policy if exists "Usuarios autenticados consultan clientes referencia" on public.client_reference_catalog;
+drop policy if exists "Usuarios autorizados consultan clientes referencia" on public.client_reference_catalog;
+drop policy if exists "Usuarios autorizados crean clientes referencia" on public.client_reference_catalog;
+drop policy if exists "Usuarios autorizados actualizan clientes referencia" on public.client_reference_catalog;
+drop policy if exists "Usuarios autorizados eliminan clientes referencia" on public.client_reference_catalog;
 
-create policy "Super admin gestiona clientes referencia"
+create policy "Usuarios autorizados consultan clientes referencia"
   on public.client_reference_catalog
-  for all
-  to authenticated
-  using (public.is_super_admin_user())
-  with check (public.is_super_admin_user());
-
-create policy "Usuario modulo clientes gestiona clientes referencia"
-  on public.client_reference_catalog
-  for all
+  for select
   to authenticated
   using (
-    exists (
+    active = true
+    or (select public.is_super_admin_user())
+    or exists (
       select 1
       from public.record_access_permissions p
-      where p.grantee_user_id = auth.uid()
-        and p.active = true
-        and p.can_view = true
-        and (p.area = 'operaciones' or p.area = 'todos')
-        and p.tipo = 'clientes'
-    )
-  )
-  with check (
-    exists (
-      select 1
-      from public.record_access_permissions p
-      where p.grantee_user_id = auth.uid()
+      where p.grantee_user_id = (select auth.uid())
         and p.active = true
         and p.can_view = true
         and (p.area = 'operaciones' or p.area = 'todos')
@@ -78,8 +66,65 @@ create policy "Usuario modulo clientes gestiona clientes referencia"
     )
   );
 
-create policy "Usuarios autenticados consultan clientes referencia"
+create policy "Usuarios autorizados crean clientes referencia"
   on public.client_reference_catalog
-  for select
+  for insert
   to authenticated
-  using (active = true);
+  with check (
+    (select public.is_super_admin_user())
+    or exists (
+      select 1
+      from public.record_access_permissions p
+      where p.grantee_user_id = (select auth.uid())
+        and p.active = true
+        and p.can_view = true
+        and (p.area = 'operaciones' or p.area = 'todos')
+        and p.tipo = 'clientes'
+    )
+  );
+
+create policy "Usuarios autorizados actualizan clientes referencia"
+  on public.client_reference_catalog
+  for update
+  to authenticated
+  using (
+    (select public.is_super_admin_user())
+    or exists (
+      select 1
+      from public.record_access_permissions p
+      where p.grantee_user_id = (select auth.uid())
+        and p.active = true
+        and p.can_view = true
+        and (p.area = 'operaciones' or p.area = 'todos')
+        and p.tipo = 'clientes'
+    )
+  )
+  with check (
+    (select public.is_super_admin_user())
+    or exists (
+      select 1
+      from public.record_access_permissions p
+      where p.grantee_user_id = (select auth.uid())
+        and p.active = true
+        and p.can_view = true
+        and (p.area = 'operaciones' or p.area = 'todos')
+        and p.tipo = 'clientes'
+    )
+  );
+
+create policy "Usuarios autorizados eliminan clientes referencia"
+  on public.client_reference_catalog
+  for delete
+  to authenticated
+  using (
+    (select public.is_super_admin_user())
+    or exists (
+      select 1
+      from public.record_access_permissions p
+      where p.grantee_user_id = (select auth.uid())
+        and p.active = true
+        and p.can_view = true
+        and (p.area = 'operaciones' or p.area = 'todos')
+        and p.tipo = 'clientes'
+    )
+  );
