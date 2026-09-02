@@ -115,7 +115,7 @@ create or replace function public.is_report_sequence_admin()
 returns boolean
 language sql
 stable
-security definer
+security invoker
 set search_path = public
 as $$
   select lower(coalesce(auth.email(), '')) = 'smaviles@astap.com';
