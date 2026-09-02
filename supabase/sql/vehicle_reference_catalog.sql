@@ -1,5 +1,6 @@
 create extension if not exists pgcrypto;
-create extension if not exists pg_trgm;
+create schema if not exists extensions;
+create extension if not exists pg_trgm with schema extensions;
 
 create or replace function public.is_super_admin_user()
 returns boolean
@@ -68,7 +69,7 @@ create index if not exists vehicle_reference_catalog_area_idx
   on public.vehicle_reference_catalog(area);
 
 create index if not exists vehicle_reference_catalog_description_trgm_idx
-  on public.vehicle_reference_catalog using gin (description gin_trgm_ops);
+  on public.vehicle_reference_catalog using gin (description extensions.gin_trgm_ops);
 
 grant select, insert, update, delete on public.vehicle_reference_catalog to authenticated;
 

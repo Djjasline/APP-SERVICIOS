@@ -1,5 +1,6 @@
 create extension if not exists pgcrypto;
-create extension if not exists pg_trgm;
+create schema if not exists extensions;
+create extension if not exists pg_trgm with schema extensions;
 
 create or replace function public.is_super_admin_user()
 returns boolean
@@ -27,7 +28,7 @@ create table if not exists public.client_reference_catalog (
 );
 
 create index if not exists client_reference_catalog_name_trgm_idx
-  on public.client_reference_catalog using gin (name gin_trgm_ops);
+  on public.client_reference_catalog using gin (name extensions.gin_trgm_ops);
 
 create index if not exists client_reference_catalog_tax_id_idx
   on public.client_reference_catalog(tax_id);
