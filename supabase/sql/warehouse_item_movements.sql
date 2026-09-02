@@ -224,6 +224,7 @@ begin
 end;
 $$;
 
+revoke execute on function public.register_warehouse_item_movement(text, uuid, text, numeric, numeric, text, text, text, text, text, text, text, text, text) from public, anon;
 grant execute on function public.register_warehouse_item_movement(text, uuid, text, numeric, numeric, text, text, text, text, text, text, text, text, text) to authenticated;
 
 -- Entradas/devoluciones suman stock, salidas/usos descuentan stock y ajustes fijan el stock final.

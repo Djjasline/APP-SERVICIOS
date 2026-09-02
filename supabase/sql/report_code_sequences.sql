@@ -231,6 +231,13 @@ begin
 end;
 $$;
 
+revoke execute on function public.peek_next_report_code(text) from public, anon;
+revoke execute on function public.reserve_next_report_code(text) from public, anon;
+revoke execute on function public.is_report_sequence_admin() from public, anon;
+revoke execute on function public.list_report_code_sequences() from public, anon;
+revoke execute on function public.update_report_code_sequence(text, integer) from public, anon;
+revoke execute on function public.update_existing_report_code(text, text) from public, anon;
+
 grant execute on function public.normalize_report_code_prefix(text) to authenticated;
 grant execute on function public.peek_next_report_code(text) to authenticated;
 grant execute on function public.reserve_next_report_code(text) to authenticated;

@@ -56,6 +56,7 @@ as $$
   );
 $$;
 
+revoke execute on function public.is_chat_participant(uuid) from public, anon;
 grant execute on function public.is_chat_participant(uuid) to authenticated;
 
 create or replace function public.get_or_create_direct_conversation(other_user_id uuid)
@@ -96,6 +97,7 @@ begin
 end;
 $$;
 
+revoke execute on function public.get_or_create_direct_conversation(uuid) from public, anon;
 grant execute on function public.get_or_create_direct_conversation(uuid) to authenticated;
 
 drop policy if exists "chat_conversations_select_participants" on public.chat_conversations;
