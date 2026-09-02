@@ -21,7 +21,7 @@ create policy "Usuarios autorizados consultan registros"
   for select
   to authenticated
   using (
-    (select public.is_super_admin_user())
+    (select private.is_super_admin_user())
     or user_id = (select auth.uid())
     or lower(coalesce((select auth.jwt()) ->> 'email', '')) = 'kamhez@astap.com'
     or lower(coalesce((select auth.jwt()) ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
@@ -57,14 +57,14 @@ create policy "Usuarios autorizados crean registros"
   on public.registros
   for insert
   to authenticated
-  with check ((select public.is_super_admin_user()) or user_id = (select auth.uid()));
+  with check ((select private.is_super_admin_user()) or user_id = (select auth.uid()));
 
 create policy "Usuarios autorizados actualizan registros"
   on public.registros
   for update
   to authenticated
   using (
-    (select public.is_super_admin_user())
+    (select private.is_super_admin_user())
     or user_id = (select auth.uid())
     or lower(coalesce((select auth.jwt()) ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
     or exists (
@@ -85,7 +85,7 @@ create policy "Usuarios autorizados actualizan registros"
     )
   )
   with check (
-    (select public.is_super_admin_user())
+    (select private.is_super_admin_user())
     or user_id = (select auth.uid())
     or lower(coalesce((select auth.jwt()) ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
     or exists (
@@ -110,4 +110,4 @@ create policy "Usuarios autorizados eliminan registros"
   on public.registros
   for delete
   to authenticated
-  using ((select public.is_super_admin_user()) or user_id = (select auth.uid()));
+  using ((select private.is_super_admin_user()) or user_id = (select auth.uid()));

@@ -37,7 +37,10 @@ create index if not exists record_access_permissions_owner_idx
 
 alter table public.record_access_permissions enable row level security;
 
-create or replace function public.is_super_admin_user()
+create schema if not exists private;
+grant usage on schema private to authenticated;
+
+create or replace function private.is_super_admin_user()
 returns boolean
 language sql
 stable
@@ -62,26 +65,26 @@ create policy "Usuarios autorizados consultan permisos de registros"
   on public.record_access_permissions
   for select
   to authenticated
-  using (grantee_user_id = (select auth.uid()) or (select public.is_super_admin_user()));
+  using (grantee_user_id = (select auth.uid()) or (select private.is_super_admin_user()));
 
 create policy "Super admin crea permisos de registros"
   on public.record_access_permissions
   for insert
   to authenticated
-  with check ((select public.is_super_admin_user()));
+  with check ((select private.is_super_admin_user()));
 
 create policy "Super admin actualiza permisos de registros"
   on public.record_access_permissions
   for update
   to authenticated
-  using ((select public.is_super_admin_user()))
-  with check ((select public.is_super_admin_user()));
+  using ((select private.is_super_admin_user()))
+  with check ((select private.is_super_admin_user()));
 
 create policy "Super admin elimina permisos de registros"
   on public.record_access_permissions
   for delete
   to authenticated
-  using ((select public.is_super_admin_user()));
+  using ((select private.is_super_admin_user()));
 
 grant select, insert, update, delete on public.registros to authenticated;
 
@@ -110,7 +113,7 @@ create policy "Usuarios autorizados consultan registros"
   for select
   to authenticated
   using (
-    (select public.is_super_admin_user())
+    (select private.is_super_admin_user())
     or user_id = (select auth.uid())
     or lower(coalesce((select auth.jwt()) ->> 'email', '')) = 'kamhez@astap.com'
     or lower(coalesce((select auth.jwt()) ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
@@ -146,14 +149,14 @@ create policy "Usuarios autorizados crean registros"
   on public.registros
   for insert
   to authenticated
-  with check ((select public.is_super_admin_user()) or user_id = (select auth.uid()));
+  with check ((select private.is_super_admin_user()) or user_id = (select auth.uid()));
 
 create policy "Usuarios autorizados actualizan registros"
   on public.registros
   for update
   to authenticated
   using (
-    (select public.is_super_admin_user())
+    (select private.is_super_admin_user())
     or user_id = (select auth.uid())
     or lower(coalesce((select auth.jwt()) ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
     or exists (
@@ -174,7 +177,7 @@ create policy "Usuarios autorizados actualizan registros"
     )
   )
   with check (
-    (select public.is_super_admin_user())
+    (select private.is_super_admin_user())
     or user_id = (select auth.uid())
     or lower(coalesce((select auth.jwt()) ->> 'email', '')) = lower(coalesce(nullif(trim(data->>'tecnicoCorreo'), ''), nullif(trim(data->>'correoTecnico'), ''), ''))
     or exists (
@@ -199,4 +202,4 @@ create policy "Usuarios autorizados eliminan registros"
   on public.registros
   for delete
   to authenticated
-  using ((select public.is_super_admin_user()) or user_id = (select auth.uid()));
+  using ((select private.is_super_admin_user()) or user_id = (select auth.uid()));

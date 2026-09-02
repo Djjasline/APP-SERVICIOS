@@ -17,7 +17,7 @@ revoke execute on function public.update_report_code_sequence(text, integer) fro
 
 revoke execute on function public.register_warehouse_item_movement(text, uuid, text, numeric, numeric, text, text, text, text, text, text, text, text, text) from public, anon;
 
-revoke execute on function public.is_super_admin_user() from public, anon;
+revoke execute on function private.is_super_admin_user() from public, anon;
 revoke execute on function public.handle_new_user() from public, anon, authenticated;
 
 grant execute on function private.can_manage_customer_satisfaction_survey(uuid) to authenticated;
@@ -35,7 +35,8 @@ grant execute on function public.update_existing_report_code(text, text) to auth
 grant execute on function public.update_report_code_sequence(text, integer) to authenticated;
 
 grant execute on function public.register_warehouse_item_movement(text, uuid, text, numeric, numeric, text, text, text, text, text, text, text, text, text) to authenticated;
-grant execute on function public.is_super_admin_user() to authenticated;
+grant execute on function private.is_super_admin_user() to authenticated;
 
 drop function if exists public.can_manage_customer_satisfaction_survey(uuid);
 drop function if exists public.is_chat_participant(uuid);
+drop function if exists public.is_super_admin_user();

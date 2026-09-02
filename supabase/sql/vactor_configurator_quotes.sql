@@ -39,7 +39,10 @@ alter table public.vactor_configurator_quotes
   add constraint vactor_configurator_quotes_status_check
   check (status in ('guardada', 'enviada', 'anulada', 'pdf_pendiente'));
 
-create or replace function public.is_super_admin_user()
+create schema if not exists private;
+grant usage on schema private to authenticated;
+
+create or replace function private.is_super_admin_user()
 returns boolean
 language sql
 stable
@@ -60,8 +63,8 @@ create policy "Usuario o super admin gestiona cotizaciones Vactor"
   on public.vactor_configurator_quotes
   for all
   to authenticated
-  using (user_id = (select auth.uid()) or (select public.is_super_admin_user()))
-  with check (user_id = (select auth.uid()) or (select public.is_super_admin_user()));
+  using (user_id = (select auth.uid()) or (select private.is_super_admin_user()))
+  with check (user_id = (select auth.uid()) or (select private.is_super_admin_user()));
 
 insert into storage.buckets (id, name, public)
 values ('informe', 'informe', true)
@@ -82,7 +85,7 @@ create policy "Usuario o super admin gestiona PDFs Vactor"
       select 1
       from public.vactor_configurator_quotes q
       where q.id::text = (storage.foldername(name))[2]
-        and (q.user_id = auth.uid() or public.is_super_admin_user())
+        and (q.user_id = auth.uid() or private.is_super_admin_user())
     )
   )
   with check (
@@ -92,6 +95,6 @@ create policy "Usuario o super admin gestiona PDFs Vactor"
       select 1
       from public.vactor_configurator_quotes q
       where q.id::text = (storage.foldername(name))[2]
-        and (q.user_id = auth.uid() or public.is_super_admin_user())
+        and (q.user_id = auth.uid() or private.is_super_admin_user())
     )
   );

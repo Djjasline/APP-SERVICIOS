@@ -1,4 +1,7 @@
-create or replace function public.is_super_admin_user()
+create schema if not exists private;
+grant usage on schema private to authenticated;
+
+create or replace function private.is_super_admin_user()
 returns boolean
 language sql
 stable
@@ -40,26 +43,26 @@ create policy "Usuarios autenticados ven boletines activos"
   on public.app_updates
   for select
   to authenticated
-  using (active = true or (select public.is_super_admin_user()));
+  using (active = true or (select private.is_super_admin_user()));
 
 create policy "Super admin crea boletines"
   on public.app_updates
   for insert
   to authenticated
-  with check ((select public.is_super_admin_user()));
+  with check ((select private.is_super_admin_user()));
 
 create policy "Super admin actualiza boletines"
   on public.app_updates
   for update
   to authenticated
-  using ((select public.is_super_admin_user()))
-  with check ((select public.is_super_admin_user()));
+  using ((select private.is_super_admin_user()))
+  with check ((select private.is_super_admin_user()));
 
 create policy "Super admin elimina boletines"
   on public.app_updates
   for delete
   to authenticated
-  using ((select public.is_super_admin_user()));
+  using ((select private.is_super_admin_user()));
 
 create table if not exists public.app_update_reads (
   update_id uuid not null references public.app_updates(id) on delete cascade,
@@ -86,7 +89,7 @@ create policy "Usuarios autorizados ven lecturas de boletines"
   on public.app_update_reads
   for select
   to authenticated
-  using (user_id = (select auth.uid()) or (select public.is_super_admin_user()));
+  using (user_id = (select auth.uid()) or (select private.is_super_admin_user()));
 
 create policy "Usuario crea sus lecturas de boletines"
   on public.app_update_reads

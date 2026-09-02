@@ -1,4 +1,7 @@
-create or replace function public.is_super_admin_user()
+create schema if not exists private;
+grant usage on schema private to authenticated;
+
+create or replace function private.is_super_admin_user()
 returns boolean
 language sql
 stable
@@ -36,17 +39,17 @@ create policy "Usuarios autorizados actualizan perfiles"
   on public.profiles
   for update
   to authenticated
-  using (id = (select auth.uid()) or (select public.is_super_admin_user()))
-  with check (id = (select auth.uid()) or (select public.is_super_admin_user()));
+  using (id = (select auth.uid()) or (select private.is_super_admin_user()))
+  with check (id = (select auth.uid()) or (select private.is_super_admin_user()));
 
 create policy "Super admin crea perfiles"
   on public.profiles
   for insert
   to authenticated
-  with check ((select public.is_super_admin_user()));
+  with check ((select private.is_super_admin_user()));
 
 create policy "Super admin elimina perfiles"
   on public.profiles
   for delete
   to authenticated
-  using ((select public.is_super_admin_user()));
+  using ((select private.is_super_admin_user()));

@@ -2,7 +2,10 @@ create extension if not exists pgcrypto;
 create schema if not exists extensions;
 create extension if not exists pg_trgm with schema extensions;
 
-create or replace function public.is_super_admin_user()
+create schema if not exists private;
+grant usage on schema private to authenticated;
+
+create or replace function private.is_super_admin_user()
 returns boolean
 language sql
 stable
@@ -55,7 +58,7 @@ create policy "Usuarios autorizados consultan clientes referencia"
   to authenticated
   using (
     active = true
-    or (select public.is_super_admin_user())
+    or (select private.is_super_admin_user())
     or exists (
       select 1
       from public.record_access_permissions p
@@ -72,7 +75,7 @@ create policy "Usuarios autorizados crean clientes referencia"
   for insert
   to authenticated
   with check (
-    (select public.is_super_admin_user())
+    (select private.is_super_admin_user())
     or exists (
       select 1
       from public.record_access_permissions p
@@ -89,7 +92,7 @@ create policy "Usuarios autorizados actualizan clientes referencia"
   for update
   to authenticated
   using (
-    (select public.is_super_admin_user())
+    (select private.is_super_admin_user())
     or exists (
       select 1
       from public.record_access_permissions p
@@ -101,7 +104,7 @@ create policy "Usuarios autorizados actualizan clientes referencia"
     )
   )
   with check (
-    (select public.is_super_admin_user())
+    (select private.is_super_admin_user())
     or exists (
       select 1
       from public.record_access_permissions p
@@ -118,7 +121,7 @@ create policy "Usuarios autorizados eliminan clientes referencia"
   for delete
   to authenticated
   using (
-    (select public.is_super_admin_user())
+    (select private.is_super_admin_user())
     or exists (
       select 1
       from public.record_access_permissions p

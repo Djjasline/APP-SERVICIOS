@@ -1,6 +1,9 @@
 create extension if not exists pgcrypto;
 
-create or replace function public.is_super_admin_user()
+create schema if not exists private;
+grant usage on schema private to authenticated;
+
+create or replace function private.is_super_admin_user()
 returns boolean
 language sql
 stable
@@ -73,7 +76,7 @@ create policy "Usuarios autorizados consultan movimientos de bodega"
   for select
   to authenticated
   using (
-    (select public.is_super_admin_user())
+    (select private.is_super_admin_user())
     or exists (
       select 1
       from public.record_access_permissions p
@@ -89,20 +92,20 @@ create policy "Super admin crea movimientos de bodega"
   on public.warehouse_item_movements
   for insert
   to authenticated
-  with check ((select public.is_super_admin_user()));
+  with check ((select private.is_super_admin_user()));
 
 create policy "Super admin actualiza movimientos de bodega"
   on public.warehouse_item_movements
   for update
   to authenticated
-  using ((select public.is_super_admin_user()))
-  with check ((select public.is_super_admin_user()));
+  using ((select private.is_super_admin_user()))
+  with check ((select private.is_super_admin_user()));
 
 create policy "Super admin elimina movimientos de bodega"
   on public.warehouse_item_movements
   for delete
   to authenticated
-  using ((select public.is_super_admin_user()));
+  using ((select private.is_super_admin_user()));
 
 create or replace function public.register_warehouse_item_movement(
   p_item_source text,
@@ -131,7 +134,7 @@ declare
   v_stock_after numeric(12, 2);
   v_row public.warehouse_item_movements;
 begin
-  if not public.is_super_admin_user() then
+  if not private.is_super_admin_user() then
     raise exception 'No autorizado para registrar movimientos de bodega.' using errcode = '42501';
   end if;
 

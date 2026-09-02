@@ -2,7 +2,10 @@ create extension if not exists pgcrypto;
 create schema if not exists extensions;
 create extension if not exists pg_trgm with schema extensions;
 
-create or replace function public.is_super_admin_user()
+create schema if not exists private;
+grant usage on schema private to authenticated;
+
+create or replace function private.is_super_admin_user()
 returns boolean
 language sql
 stable
@@ -90,7 +93,7 @@ create policy "Usuarios autorizados consultan referencia historica vehiculos"
   for select
   to authenticated
   using (
-    (select public.is_super_admin_user())
+    (select private.is_super_admin_user())
     or (
       active = true
       and (
@@ -135,20 +138,20 @@ create policy "Super admin crea referencia historica vehiculos"
   on public.vehicle_reference_catalog
   for insert
   to authenticated
-  with check ((select public.is_super_admin_user()));
+  with check ((select private.is_super_admin_user()));
 
 create policy "Super admin actualiza referencia historica vehiculos"
   on public.vehicle_reference_catalog
   for update
   to authenticated
-  using ((select public.is_super_admin_user()))
-  with check ((select public.is_super_admin_user()));
+  using ((select private.is_super_admin_user()))
+  with check ((select private.is_super_admin_user()));
 
 create policy "Super admin elimina referencia historica vehiculos"
   on public.vehicle_reference_catalog
   for delete
   to authenticated
-  using ((select public.is_super_admin_user()));
+  using ((select private.is_super_admin_user()));
 
 -- Importacion sugerida desde INVENTARIO referencial vehiculos.XLSX:
 -- product_code, description, sheet_name, reference_stock, last_cost, last_supplier,

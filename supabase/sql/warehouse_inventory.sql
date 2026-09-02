@@ -2,7 +2,10 @@ create extension if not exists pgcrypto;
 create schema if not exists extensions;
 create extension if not exists pg_trgm with schema extensions;
 
-create or replace function public.is_super_admin_user()
+create schema if not exists private;
+grant usage on schema private to authenticated;
+
+create or replace function private.is_super_admin_user()
 returns boolean
 language sql
 stable
@@ -88,7 +91,7 @@ create policy "Usuarios autorizados consultan inventario de bodega"
   for select
   to authenticated
   using (
-    (select public.is_super_admin_user())
+    (select private.is_super_admin_user())
     or exists (
       select 1
       from public.record_access_permissions p
@@ -113,20 +116,20 @@ create policy "Super admin crea inventario de bodega"
   on public.warehouse_inventory
   for insert
   to authenticated
-  with check ((select public.is_super_admin_user()));
+  with check ((select private.is_super_admin_user()));
 
 create policy "Super admin actualiza inventario de bodega"
   on public.warehouse_inventory
   for update
   to authenticated
-  using ((select public.is_super_admin_user()))
-  with check ((select public.is_super_admin_user()));
+  using ((select private.is_super_admin_user()))
+  with check ((select private.is_super_admin_user()));
 
 create policy "Super admin elimina inventario de bodega"
   on public.warehouse_inventory
   for delete
   to authenticated
-  using ((select public.is_super_admin_user()));
+  using ((select private.is_super_admin_user()));
 
 -- Importacion sugerida desde Excel/CSV:
 -- product_code, description, physical_stock, physical_location, cutoff_date, source_file

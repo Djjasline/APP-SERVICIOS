@@ -1,6 +1,9 @@
 create extension if not exists pgcrypto;
 
-create or replace function public.is_super_admin_user()
+create schema if not exists private;
+grant usage on schema private to authenticated;
+
+create or replace function private.is_super_admin_user()
 returns boolean
 language sql
 stable
@@ -59,5 +62,5 @@ create policy "Usuario o super admin gestiona cotizaciones de servicios"
   on public.vehicle_service_quotes
   for all
   to authenticated
-  using (user_id = (select auth.uid()) or (select public.is_super_admin_user()))
-  with check (user_id = (select auth.uid()) or (select public.is_super_admin_user()));
+  using (user_id = (select auth.uid()) or (select private.is_super_admin_user()))
+  with check (user_id = (select auth.uid()) or (select private.is_super_admin_user()));

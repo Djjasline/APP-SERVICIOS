@@ -1,4 +1,7 @@
-create or replace function public.is_super_admin_user()
+create schema if not exists private;
+grant usage on schema private to authenticated;
+
+create or replace function private.is_super_admin_user()
 returns boolean
 language sql
 stable
@@ -108,7 +111,7 @@ create policy "Usuario puede ver sus notificaciones"
   to authenticated
   using (
     lower(recipient_email) = lower((select auth.jwt()) ->> 'email')
-    or (select public.is_super_admin_user())
+    or (select private.is_super_admin_user())
   );
 
 create policy "Usuario puede marcar sus notificaciones"
@@ -122,5 +125,5 @@ create policy "Usuarios autenticados pueden crear notificaciones"
   to authenticated
   with check (
     lower(recipient_email) = lower((select auth.jwt()) ->> 'email')
-    or (select public.is_super_admin_user())
+    or (select private.is_super_admin_user())
   );

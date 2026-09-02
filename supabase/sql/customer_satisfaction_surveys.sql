@@ -41,7 +41,7 @@ drop policy if exists "Usuarios autenticados crean encuestas autorizadas" on pub
 drop policy if exists "Usuarios autenticados actualizan encuestas autorizadas" on public.customer_satisfaction_surveys;
 drop policy if exists "Super admin elimina encuestas" on public.customer_satisfaction_surveys;
 
-create or replace function public.is_super_admin_user()
+create or replace function private.is_super_admin_user()
 returns boolean
 language sql
 stable
@@ -70,7 +70,7 @@ as $$
         and (
           r.user_id = auth.uid()
           or lower(coalesce(r.data->>'tecnicoCorreo', r.data->>'correoTecnico', '')) = lower(coalesce(auth.email(), ''))
-          or public.is_super_admin_user()
+          or private.is_super_admin_user()
           or (coalesce(r.area, '') = 'operaciones' and lower(coalesce(auth.email(), '')) = 'kamhez@astap.com')
           or (coalesce(r.area, '') = 'vehiculos' and lower(coalesce(auth.email(), '')) = 'abriones@astap.com')
           or exists (
@@ -106,7 +106,7 @@ create policy "Usuarios autenticados crean encuestas autorizadas"
   to authenticated
   with check (
     private.can_manage_customer_satisfaction_survey(record_id)
-    and (created_by is null or created_by = (select auth.uid()) or (select public.is_super_admin_user()))
+    and (created_by is null or created_by = (select auth.uid()) or (select private.is_super_admin_user()))
   );
 
 create policy "Usuarios autenticados actualizan encuestas autorizadas"
@@ -120,7 +120,7 @@ create policy "Super admin elimina encuestas"
   on public.customer_satisfaction_surveys
   for delete
   to authenticated
-  using ((select public.is_super_admin_user()));
+  using ((select private.is_super_admin_user()));
 
 revoke all on public.customer_satisfaction_surveys from anon;
 grant select, insert, update, delete on public.customer_satisfaction_surveys to authenticated;
