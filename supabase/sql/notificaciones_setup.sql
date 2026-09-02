@@ -105,26 +105,22 @@ drop policy if exists "Super Admin puede ver todas las notificaciones" on public
 
 create policy "Usuario puede ver sus notificaciones"
   on public.notifications for select
-  using (lower(recipient_email) = lower(auth.jwt() ->> 'email'));
+  to authenticated
+  using (
+    lower(recipient_email) = lower((select auth.jwt()) ->> 'email')
+    or (select public.is_super_admin_user())
+  );
 
 create policy "Usuario puede marcar sus notificaciones"
   on public.notifications for update
-  using (lower(recipient_email) = lower(auth.jwt() ->> 'email'))
-  with check (lower(recipient_email) = lower(auth.jwt() ->> 'email'));
+  to authenticated
+  using (lower(recipient_email) = lower((select auth.jwt()) ->> 'email'))
+  with check (lower(recipient_email) = lower((select auth.jwt()) ->> 'email'));
 
 create policy "Usuarios autenticados pueden crear notificaciones"
   on public.notifications for insert
   to authenticated
   with check (
-    lower(recipient_email) = lower(auth.jwt() ->> 'email')
-    or public.is_super_admin_user()
-  );
-
-create policy "Super Admin puede ver todas las notificaciones"
-  on public.notifications for select
-  using (
-    exists (
-      select 1 from public.profiles
-      where id = auth.uid() and role = 'super_admin'
-    )
+    lower(recipient_email) = lower((select auth.jwt()) ->> 'email')
+    or (select public.is_super_admin_user())
   );
