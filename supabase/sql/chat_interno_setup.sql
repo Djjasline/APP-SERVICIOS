@@ -1,6 +1,9 @@
 -- Chat interno ASTAP
 -- Ejecutar en Supabase SQL Editor.
 
+create schema if not exists private;
+grant usage on schema private to authenticated;
+
 create table if not exists public.chat_conversations (
   id uuid primary key default gen_random_uuid(),
   type text not null default 'direct' check (type in ('direct', 'group')),
@@ -42,7 +45,7 @@ alter table public.chat_conversations enable row level security;
 alter table public.chat_participants enable row level security;
 alter table public.chat_messages enable row level security;
 
-create or replace function public.is_chat_participant(conv_id uuid)
+create or replace function private.is_chat_participant(conv_id uuid)
 returns boolean
 language sql
 security definer
@@ -56,8 +59,8 @@ as $$
   );
 $$;
 
-revoke execute on function public.is_chat_participant(uuid) from public, anon;
-grant execute on function public.is_chat_participant(uuid) to authenticated;
+revoke execute on function private.is_chat_participant(uuid) from public, anon;
+grant execute on function private.is_chat_participant(uuid) to authenticated;
 
 create or replace function public.get_or_create_direct_conversation(other_user_id uuid)
 returns uuid
@@ -111,7 +114,7 @@ create policy "chat_conversations_select_participants"
 on public.chat_conversations
 for select
 to authenticated
-using (public.is_chat_participant(id));
+using (private.is_chat_participant(id));
 
 create policy "chat_conversations_insert_auth"
 on public.chat_conversations
@@ -123,7 +126,7 @@ create policy "chat_participants_select_own_conversations"
 on public.chat_participants
 for select
 to authenticated
-using (public.is_chat_participant(conversation_id));
+using (private.is_chat_participant(conversation_id));
 
 create policy "chat_participants_update_own"
 on public.chat_participants
@@ -136,7 +139,7 @@ create policy "chat_messages_select_participants"
 on public.chat_messages
 for select
 to authenticated
-using (public.is_chat_participant(conversation_id));
+using (private.is_chat_participant(conversation_id));
 
 create policy "chat_messages_insert_participants"
 on public.chat_messages
@@ -144,8 +147,10 @@ for insert
 to authenticated
 with check (
   sender_id = (select auth.uid())
-  and public.is_chat_participant(conversation_id)
+  and private.is_chat_participant(conversation_id)
 );
+
+drop function if exists public.is_chat_participant(uuid);
 
 -- Realtime: después de ejecutar el SQL, activa Realtime para chat_messages desde:
 -- Supabase > Database > Replication > activa public.chat_messages
