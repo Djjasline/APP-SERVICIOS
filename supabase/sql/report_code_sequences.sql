@@ -6,6 +6,9 @@ create table if not exists public.report_code_sequences (
 
 alter table public.report_code_sequences enable row level security;
 
+create schema if not exists private;
+grant usage on schema private to authenticated;
+
 create or replace function public.is_report_sequence_admin()
 returns boolean
 language sql
@@ -77,7 +80,7 @@ as $$
   where suffix ~ '^[0-9]{3,}$';
 $$;
 
-create or replace function public.peek_next_report_code(input_code text)
+create or replace function private.peek_next_report_code(input_code text)
 returns text
 language plpgsql
 security definer
@@ -102,7 +105,16 @@ begin
 end;
 $$;
 
-create or replace function public.reserve_next_report_code(input_code text)
+create or replace function public.peek_next_report_code(input_code text)
+returns text
+language sql
+security invoker
+set search_path = public
+as $$
+  select private.peek_next_report_code(input_code);
+$$;
+
+create or replace function private.reserve_next_report_code(input_code text)
 returns text
 language plpgsql
 security definer
@@ -136,6 +148,15 @@ begin
 
   return normalized_prefix || '-' || lpad(next_number::text, 3, '0');
 end;
+$$;
+
+create or replace function public.reserve_next_report_code(input_code text)
+returns text
+language sql
+security invoker
+set search_path = public
+as $$
+  select private.reserve_next_report_code(input_code);
 $$;
 
 create or replace function public.list_report_code_sequences()
@@ -250,6 +271,8 @@ $$;
 
 revoke execute on function public.peek_next_report_code(text) from public, anon;
 revoke execute on function public.reserve_next_report_code(text) from public, anon;
+revoke execute on function private.peek_next_report_code(text) from public, anon;
+revoke execute on function private.reserve_next_report_code(text) from public, anon;
 revoke execute on function public.is_report_sequence_admin() from public, anon;
 revoke execute on function public.list_report_code_sequences() from public, anon;
 revoke execute on function public.update_report_code_sequence(text, integer) from public, anon;
@@ -258,6 +281,8 @@ revoke execute on function public.update_existing_report_code(text, text) from p
 grant execute on function public.normalize_report_code_prefix(text) to authenticated;
 grant execute on function public.peek_next_report_code(text) to authenticated;
 grant execute on function public.reserve_next_report_code(text) to authenticated;
+grant execute on function private.peek_next_report_code(text) to authenticated;
+grant execute on function private.reserve_next_report_code(text) to authenticated;
 grant execute on function public.is_report_sequence_admin() to authenticated;
 grant execute on function public.list_report_code_sequences() to authenticated;
 grant execute on function public.update_report_code_sequence(text, integer) to authenticated;

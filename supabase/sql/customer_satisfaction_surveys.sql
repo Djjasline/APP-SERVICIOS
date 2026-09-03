@@ -1,7 +1,7 @@
 create extension if not exists pgcrypto;
 
 create schema if not exists private;
-grant usage on schema private to authenticated;
+grant usage on schema private to anon, authenticated;
 
 create table if not exists public.customer_satisfaction_surveys (
   id uuid primary key default gen_random_uuid(),
@@ -125,7 +125,7 @@ create policy "Super admin elimina encuestas"
 revoke all on public.customer_satisfaction_surveys from anon;
 grant select, insert, update, delete on public.customer_satisfaction_surveys to authenticated;
 
-create or replace function public.get_customer_satisfaction_survey_by_token(p_token text)
+create or replace function private.get_customer_satisfaction_survey_by_token(p_token text)
 returns table (
   id uuid,
   area text,
@@ -160,7 +160,29 @@ as $$
   limit 1;
 $$;
 
-create or replace function public.submit_customer_satisfaction_survey(
+create or replace function public.get_customer_satisfaction_survey_by_token(p_token text)
+returns table (
+  id uuid,
+  area text,
+  tipo text,
+  subtipo text,
+  report_code text,
+  client_name text,
+  technician_name text,
+  service_date timestamptz,
+  status text,
+  responded_at timestamptz,
+  created_at timestamptz
+)
+language sql
+security invoker
+set search_path = public
+as $$
+  select *
+  from private.get_customer_satisfaction_survey_by_token(p_token);
+$$;
+
+create or replace function private.submit_customer_satisfaction_survey(
   p_token text,
   p_respondent jsonb,
   p_ratings jsonb,
@@ -196,12 +218,35 @@ begin
 end;
 $$;
 
+create or replace function public.submit_customer_satisfaction_survey(
+  p_token text,
+  p_respondent jsonb,
+  p_ratings jsonb,
+  p_answers jsonb,
+  p_comments text
+)
+returns table (
+  status text,
+  responded_at timestamptz
+)
+language sql
+security invoker
+set search_path = public
+as $$
+  select *
+  from private.submit_customer_satisfaction_survey(p_token, p_respondent, p_ratings, p_answers, p_comments);
+$$;
+
 revoke execute on function private.can_manage_customer_satisfaction_survey(uuid) from public, anon;
 revoke execute on function public.get_customer_satisfaction_survey_by_token(text) from public, authenticated;
 revoke execute on function public.submit_customer_satisfaction_survey(text, jsonb, jsonb, jsonb, text) from public, authenticated;
+revoke execute on function private.get_customer_satisfaction_survey_by_token(text) from public, authenticated;
+revoke execute on function private.submit_customer_satisfaction_survey(text, jsonb, jsonb, jsonb, text) from public, authenticated;
 
 grant execute on function private.can_manage_customer_satisfaction_survey(uuid) to authenticated;
 grant execute on function public.get_customer_satisfaction_survey_by_token(text) to anon;
 grant execute on function public.submit_customer_satisfaction_survey(text, jsonb, jsonb, jsonb, text) to anon;
+grant execute on function private.get_customer_satisfaction_survey_by_token(text) to anon;
+grant execute on function private.submit_customer_satisfaction_survey(text, jsonb, jsonb, jsonb, text) to anon;
 
 drop function if exists public.can_manage_customer_satisfaction_survey(uuid);

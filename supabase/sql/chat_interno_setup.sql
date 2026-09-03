@@ -62,7 +62,7 @@ $$;
 revoke execute on function private.is_chat_participant(uuid) from public, anon;
 grant execute on function private.is_chat_participant(uuid) to authenticated;
 
-create or replace function public.get_or_create_direct_conversation(other_user_id uuid)
+create or replace function private.get_or_create_direct_conversation(other_user_id uuid)
 returns uuid
 language plpgsql
 security definer
@@ -100,8 +100,19 @@ begin
 end;
 $$;
 
+create or replace function public.get_or_create_direct_conversation(other_user_id uuid)
+returns uuid
+language sql
+security invoker
+set search_path = public
+as $$
+  select private.get_or_create_direct_conversation(other_user_id);
+$$;
+
 revoke execute on function public.get_or_create_direct_conversation(uuid) from public, anon;
+revoke execute on function private.get_or_create_direct_conversation(uuid) from public, anon;
 grant execute on function public.get_or_create_direct_conversation(uuid) to authenticated;
+grant execute on function private.get_or_create_direct_conversation(uuid) to authenticated;
 
 drop policy if exists "chat_conversations_select_participants" on public.chat_conversations;
 drop policy if exists "chat_conversations_insert_auth" on public.chat_conversations;
