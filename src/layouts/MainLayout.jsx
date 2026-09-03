@@ -80,7 +80,15 @@ export default function MainLayout() {
   const [usuariosOnline, setUsuariosOnline] = useState({});
   const chatAlertTimer = useRef(null);
   const unreadRef = useRef(0);
-  useNotificaciones();
+  const {
+    permiso: pushPermiso,
+    suscrito: pushSuscrito,
+    cargando: pushCargando,
+    error: pushError,
+    soportado: pushSoportado,
+    solicitarPermiso: activarPush,
+    cancelarSuscripcion: desactivarPush,
+  } = useNotificaciones();
 
   useEffect(() => {
     unreadRef.current = unread;
@@ -493,6 +501,29 @@ export default function MainLayout() {
                     >
                       🔔 Ver notificaciones
                     </button>
+                    {pushSoportado && pushPermiso !== "denied" && (
+                      <button
+                        onClick={pushSuscrito ? desactivarPush : activarPush}
+                        disabled={pushCargando}
+                        className={`text-left px-2 py-1 rounded ${isLight ? "hover:bg-slate-100" : "hover:bg-white/10"} disabled:opacity-60`}
+                      >
+                        {pushCargando
+                          ? "Procesando push..."
+                          : pushSuscrito
+                          ? "🔔 Push activas en este dispositivo"
+                          : "🔔 Activar push en este dispositivo"}
+                      </button>
+                    )}
+                    {pushSoportado && pushPermiso === "denied" && (
+                      <div className={`px-2 py-1 text-xs ${isLight ? "text-slate-500" : "text-slate-300"}`}>
+                        Push bloqueadas por el navegador.
+                      </div>
+                    )}
+                    {pushError && (
+                      <div className="px-2 py-1 text-xs text-red-500">
+                        {pushError}
+                      </div>
+                    )}
                     <button
                       onClick={toggleTheme}
                       className={`text-left px-2 py-1 rounded flex items-center gap-2 ${
