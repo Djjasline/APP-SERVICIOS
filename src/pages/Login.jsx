@@ -33,6 +33,10 @@ function getLoginErrorMessage(message = "") {
     return "Demasiados intentos. Espera unos minutos e intenta de nuevo.";
   }
 
+  if (normalized.includes("weak password") || normalized.includes("password should")) {
+    return "Tu contraseña debe actualizarse: mínimo 8 caracteres, con minúscula, mayúscula y número.";
+  }
+
   if (normalized.includes("failed to fetch") || normalized.includes("network")) {
     return "No se pudo conectar con el servidor. Revisa la conexión.";
   }

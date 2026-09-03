@@ -15,6 +15,18 @@ const DEPARTMENTS = [
   "Administración",
 ];
 
+function getPasswordPolicyError(password) {
+  if (!password || password.length < 8) {
+    return "La contraseña debe tener al menos 8 caracteres.";
+  }
+
+  if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password)) {
+    return "La contraseña debe incluir minúscula, mayúscula y número.";
+  }
+
+  return null;
+}
+
 export default function Perfil() {
   const navigate        = useNavigate();
   const { user, role, roleLabel, refreshProfile }  = useAuth();
@@ -125,8 +137,9 @@ export default function Perfil() {
   const handleCambiarPassword = async () => {
     setMensajePass(null);
 
-    if (!newPassword || newPassword.length < 6) {
-      setMensajePass({ tipo: "error", texto: "La contraseña debe tener al menos 6 caracteres." });
+    const policyError = getPasswordPolicyError(newPassword);
+    if (policyError) {
+      setMensajePass({ tipo: "error", texto: policyError });
       return;
     }
     if (newPassword !== confirmPass) {
@@ -324,7 +337,7 @@ export default function Perfil() {
           <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Nueva contraseña</label>
           <input type="password" value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Mínimo 6 caracteres"
+            placeholder="Mínimo 8, con mayúscula, minúscula y número"
             className="border rounded-lg px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
         </div>
 
@@ -352,8 +365,7 @@ export default function Perfil() {
               ))}
             </div>
             <p className="text-xs text-gray-400">
-              {newPassword.length < 6  ? "Muy corta" :
-               newPassword.length < 8  ? "Regular" :
+              {getPasswordPolicyError(newPassword) ? "Debe incluir 8 caracteres, mayúscula, minúscula y número" :
                newPassword.length < 10 ? "Buena" : "Excelente"}
             </p>
           </div>
