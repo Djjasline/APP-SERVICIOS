@@ -125,7 +125,7 @@ create or replace function public.register_warehouse_item_movement(
 )
 returns public.warehouse_item_movements
 language plpgsql
-security definer
+security invoker
 set search_path = public
 as $$
 declare

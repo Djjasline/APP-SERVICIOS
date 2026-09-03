@@ -6,12 +6,39 @@ create table if not exists public.report_code_sequences (
 
 alter table public.report_code_sequences enable row level security;
 
+create or replace function public.is_report_sequence_admin()
+returns boolean
+language sql
+stable
+security invoker
+set search_path = public
+as $$
+  select lower(coalesce(auth.email(), '')) = 'smaviles@astap.com';
+$$;
+
 drop policy if exists "report_code_sequences_select_authenticated" on public.report_code_sequences;
-create policy "report_code_sequences_select_authenticated"
+drop policy if exists "report_code_sequences_select_admin" on public.report_code_sequences;
+drop policy if exists "report_code_sequences_insert_admin" on public.report_code_sequences;
+drop policy if exists "report_code_sequences_update_admin" on public.report_code_sequences;
+
+create policy "report_code_sequences_select_admin"
 on public.report_code_sequences
 for select
 to authenticated
-using (true);
+using ((select public.is_report_sequence_admin()));
+
+create policy "report_code_sequences_insert_admin"
+on public.report_code_sequences
+for insert
+to authenticated
+with check ((select public.is_report_sequence_admin()));
+
+create policy "report_code_sequences_update_admin"
+on public.report_code_sequences
+for update
+to authenticated
+using ((select public.is_report_sequence_admin()))
+with check ((select public.is_report_sequence_admin()));
 
 create or replace function public.normalize_report_code_prefix(input_code text)
 returns text
@@ -111,20 +138,10 @@ begin
 end;
 $$;
 
-create or replace function public.is_report_sequence_admin()
-returns boolean
-language sql
-stable
-security invoker
-set search_path = public
-as $$
-  select lower(coalesce(auth.email(), '')) = 'smaviles@astap.com';
-$$;
-
 create or replace function public.list_report_code_sequences()
 returns table(prefix text, last_number integer, updated_at timestamptz)
 language plpgsql
-security definer
+security invoker
 set search_path = public
 as $$
 begin
@@ -142,7 +159,7 @@ $$;
 create or replace function public.update_report_code_sequence(input_prefix text, input_last_number integer)
 returns public.report_code_sequences
 language plpgsql
-security definer
+security invoker
 set search_path = public
 as $$
 declare
@@ -177,7 +194,7 @@ $$;
 create or replace function public.update_existing_report_code(input_current_code text, input_new_code text)
 returns table(id uuid, old_code text, new_code text, area text, tipo text, estado text)
 language plpgsql
-security definer
+security invoker
 set search_path = public
 as $$
 declare

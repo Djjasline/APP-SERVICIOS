@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { anonymousSupabase, supabase } from "@/lib/supabase";
 import { formatPersonName } from "@/utils/nameFormat";
 
 export const SURVEY_STATUS_LABELS = {
@@ -82,7 +82,7 @@ export async function markSurveySent(surveyId) {
 }
 
 export async function getPublicSurveyByToken(token) {
-  const { data, error } = await supabase.rpc("get_customer_satisfaction_survey_by_token", {
+  const { data, error } = await anonymousSupabase.rpc("get_customer_satisfaction_survey_by_token", {
     p_token: token,
   });
 
@@ -91,7 +91,7 @@ export async function getPublicSurveyByToken(token) {
 }
 
 export async function submitPublicSurvey(token, payload) {
-  const { data, error } = await supabase.rpc("submit_customer_satisfaction_survey", {
+  const { data, error } = await anonymousSupabase.rpc("submit_customer_satisfaction_survey", {
     p_token: token,
     p_respondent: payload.respondent || {},
     p_ratings: payload.ratings || {},

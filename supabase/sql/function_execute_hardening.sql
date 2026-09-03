@@ -2,8 +2,8 @@ create schema if not exists private;
 grant usage on schema private to authenticated;
 
 revoke execute on function private.can_manage_customer_satisfaction_survey(uuid) from public, anon;
-revoke execute on function public.get_customer_satisfaction_survey_by_token(text) from public;
-revoke execute on function public.submit_customer_satisfaction_survey(text, jsonb, jsonb, jsonb, text) from public;
+revoke execute on function public.get_customer_satisfaction_survey_by_token(text) from public, authenticated;
+revoke execute on function public.submit_customer_satisfaction_survey(text, jsonb, jsonb, jsonb, text) from public, authenticated;
 
 revoke execute on function public.get_or_create_direct_conversation(uuid) from public, anon;
 revoke execute on function private.is_chat_participant(uuid) from public, anon;
@@ -21,8 +21,8 @@ revoke execute on function private.is_super_admin_user() from public, anon;
 revoke execute on function public.handle_new_user() from public, anon, authenticated;
 
 grant execute on function private.can_manage_customer_satisfaction_survey(uuid) to authenticated;
-grant execute on function public.get_customer_satisfaction_survey_by_token(text) to anon, authenticated;
-grant execute on function public.submit_customer_satisfaction_survey(text, jsonb, jsonb, jsonb, text) to anon, authenticated;
+grant execute on function public.get_customer_satisfaction_survey_by_token(text) to anon;
+grant execute on function public.submit_customer_satisfaction_survey(text, jsonb, jsonb, jsonb, text) to anon;
 
 grant execute on function public.get_or_create_direct_conversation(uuid) to authenticated;
 grant execute on function private.is_chat_participant(uuid) to authenticated;
