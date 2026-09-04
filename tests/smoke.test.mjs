@@ -167,9 +167,16 @@ test("chat soporta adjuntos estructurados en mensajes", () => {
   assert.match(chatPage, /Adjuntar PDF completado/);
   assert.match(chatPage, /adjuntoSeleccionado/);
   assert.match(chatPage, /EMOJI_OPTIONS/);
+  assert.match(chatPage, /VITE_TENOR_API_KEY/);
+  assert.match(chatPage, /https:\/\/tenor\.googleapis\.com\/v2/);
+  assert.match(chatPage, /Buscar GIF/);
   assert.match(chatPage, /type: "gif"/);
   assert.match(chatPage, /Adjuntar GIF/);
   assert.match(chatPage, /isGifAttachment/);
+
+  const netlify = read("netlify.toml");
+  assert.match(netlify, /https:\/\/tenor\.googleapis\.com/);
+  assert.match(netlify, /https:\/\/media\.tenor\.com/);
 });
 
 test("historiales limitan consultas pesadas", () => {
