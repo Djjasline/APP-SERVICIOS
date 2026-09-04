@@ -63,6 +63,16 @@ test("tema liquid glass se mantiene como tercer modo visual", () => {
   assert.match(styles, /prefers-reduced-motion/);
 });
 
+test("dashboard de exito mantiene actividad diaria visible", () => {
+  const dashboard = read("src/pages/admin/AdminSuccessDashboard.jsx");
+
+  assert.match(dashboard, /function buildDailyActivity/);
+  assert.match(dashboard, /dailyActivity: buildDailyActivity/);
+  assert.match(dashboard, /<BarChart data=\{dashboard\.dailyActivity\}/);
+  assert.match(dashboard, /role="img" aria-label="Actividad diaria de informes"/);
+  assert.match(dashboard, /lg:grid-cols-2 2xl:grid-cols/);
+});
+
 test("configurador mantiene dueno, vista previa e imagen proporcional", () => {
   const service = read("src/services/configuratorQuoteService.js");
   const home = read("src/app/vehiculos/configurador/ConfiguradorHome.jsx");

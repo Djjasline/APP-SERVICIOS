@@ -96,6 +96,24 @@ function buildLinePath(points, width, height) {
     .join(" ");
 }
 
+function buildDailyActivity(dailyMap, firstDate, lastDate) {
+  const startKey = dateKey(firstDate);
+  const endKey = dateKey(lastDate);
+  if (!startKey || !endKey) return [];
+
+  const rows = [];
+  const cursor = new Date(`${startKey}T00:00:00.000Z`);
+  const end = new Date(`${endKey}T00:00:00.000Z`);
+
+  while (cursor <= end) {
+    const key = cursor.toISOString().slice(0, 10);
+    rows.push({ date: key, count: dailyMap.get(key) || 0 });
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+
+  return rows;
+}
+
 function downloadCsv(filename, rows) {
   const csv = rows
     .map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(","))
@@ -202,6 +220,7 @@ export default function AdminSuccessDashboard() {
         rows: resourceRows,
       },
       daily,
+      dailyActivity: buildDailyActivity(dailyMap, firstDate, lastDate),
       firstDate,
       lastDate,
       periodDays,
@@ -258,7 +277,7 @@ export default function AdminSuccessDashboard() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <label className="text-sm font-semibold text-slate-700">
+          <label className={`text-sm font-semibold ${isLight ? "text-slate-700" : "text-white/80"}`}>
             <span className="mb-1 flex items-center gap-2"><CalendarDays size={16} /> Periodo seleccionado</span>
             <select
               value={period}
@@ -271,7 +290,7 @@ export default function AdminSuccessDashboard() {
           <button
             type="button"
             onClick={exportReport}
-            className="mt-auto inline-flex items-center justify-center gap-2 rounded-xl border border-blue-600 px-4 py-2 text-sm font-bold text-blue-700 transition hover:bg-blue-50"
+            className={`mt-auto inline-flex items-center justify-center gap-2 rounded-xl border border-blue-600 px-4 py-2 text-sm font-bold transition ${isLight ? "text-blue-700 hover:bg-blue-50" : "text-blue-100 hover:bg-white/10"}`}
           >
             <Download size={16} /> Exportar reporte
           </button>
@@ -306,7 +325,7 @@ export default function AdminSuccessDashboard() {
         </Panel>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[0.9fr_0.9fr_1.15fr_0.8fr]">
+      <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-[0.9fr_0.9fr_1.15fr_0.8fr]">
         <Panel title="4. Uso de Recursos">
           <ResourceUsageTable usage={dashboard.resourceUsage} />
         </Panel>
@@ -314,7 +333,7 @@ export default function AdminSuccessDashboard() {
           <DonutChart items={dashboard.areaRows.map((row) => ({ label: row.label, value: row.total, color: row.color }))} total={dashboard.totals.total} />
         </Panel>
         <Panel title="6. Actividad diaria de informes">
-          <BarChart data={dashboard.daily} />
+          <BarChart data={dashboard.dailyActivity} />
         </Panel>
         <Panel title="7. Resumen de impacto">
           <ImpactList />
@@ -464,14 +483,53 @@ function LineChart({ data }) {
 }
 
 function BarChart({ data }) {
-  const max = Math.max(...data.map((item) => item.count), 1);
+  const visibleData = data.slice(-90);
+  const max = Math.max(...visibleData.map((item) => item.count), 1);
+  const width = 420;
+  const height = 190;
+  const baseline = 176;
+  const step = visibleData.length ? width / visibleData.length : width;
+
+  if (!visibleData.length) {
+    return (
+      <div className="flex h-56 items-center justify-center rounded-xl border border-dashed border-slate-200 px-4 text-center text-xs font-medium text-slate-500">
+        Sin informes registrados en el periodo seleccionado.
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-56 items-end gap-1 border-b border-slate-200 px-2">
-      {data.slice(-80).map((item) => (
-        <div key={item.date} title={`${fullDate(item.date)}: ${item.count}`} className="flex flex-1 items-end">
-          <div className="w-full rounded-t bg-blue-600" style={{ height: `${Math.max(3, (item.count / max) * 190)}px` }} />
-        </div>
-      ))}
+    <div>
+      <svg viewBox={`0 0 ${width} ${height}`} className="h-56 w-full overflow-visible" role="img" aria-label="Actividad diaria de informes">
+        {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
+          <line key={ratio} x1="0" x2={width} y1={baseline * ratio} y2={baseline * ratio} stroke="#e2e8f0" />
+        ))}
+        {visibleData.map((item, index) => {
+          const barHeight = item.count ? Math.max(4, (item.count / max) * 152) : 2;
+          const barWidth = Math.max(1.5, step * 0.7);
+          const x = index * step + (step - barWidth) / 2;
+          const y = baseline - barHeight;
+
+          return (
+            <rect
+              key={item.date}
+              x={x}
+              y={y}
+              width={barWidth}
+              height={barHeight}
+              rx="2"
+              fill={item.count ? "#2563eb" : "#cbd5e1"}
+            >
+              <title>{`${fullDate(item.date)}: ${item.count}`}</title>
+            </rect>
+          );
+        })}
+      </svg>
+      <div className="mt-1 flex justify-between text-[10px] text-slate-500">
+        <span>{shortDate(visibleData[0]?.date)}</span>
+        <span>{shortDate(visibleData[Math.floor(visibleData.length / 2)]?.date)}</span>
+        <span>{shortDate(visibleData[visibleData.length - 1]?.date)}</span>
+      </div>
     </div>
   );
 }
