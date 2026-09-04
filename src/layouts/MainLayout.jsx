@@ -80,6 +80,7 @@ export default function MainLayout() {
   const [usuariosOnline, setUsuariosOnline] = useState({});
   const chatAlertTimer = useRef(null);
   const unreadRef = useRef(0);
+  const unreadPollingReadyRef = useRef(false);
   const {
     permiso: pushPermiso,
     suscrito: pushSuscrito,
@@ -95,10 +96,19 @@ export default function MainLayout() {
   }, [unread]);
 
   useEffect(() => {
-    const unlock = () => queueMicrotask(() => unlockNotificationSound());
+    let unlocked = false;
+    const unlock = async () => {
+      if (unlocked) return;
+      unlocked = await unlockNotificationSound();
 
-    window.addEventListener("pointerdown", unlock, { once: true });
-    window.addEventListener("keydown", unlock, { once: true });
+      if (unlocked) {
+        window.removeEventListener("pointerdown", unlock);
+        window.removeEventListener("keydown", unlock);
+      }
+    };
+
+    window.addEventListener("pointerdown", unlock);
+    window.addEventListener("keydown", unlock);
 
     return () => {
       window.removeEventListener("pointerdown", unlock);
@@ -150,6 +160,13 @@ export default function MainLayout() {
         const notificationsCount = await getUnreadCount(email);
         const updatesCount = await getUnreadAppUpdatesCount(user?.id);
         const totalCount = (notificationsCount || 0) + (updatesCount || 0);
+        if (mounted && unreadPollingReadyRef.current && totalCount > unreadRef.current) {
+          playNotificationSound();
+        }
+
+        unreadPollingReadyRef.current = true;
+        unreadRef.current = totalCount;
+
         if (mounted) setUnread(totalCount);
         setAppBadgeCount(totalCount);
       } catch (e) {

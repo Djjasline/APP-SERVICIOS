@@ -1,5 +1,6 @@
 let notificationAudioContext = null;
 let notificationBeepUrl = null;
+let notificationAudioUnlocked = false;
 
 function getNotificationBeepUrl() {
   if (notificationBeepUrl) return notificationBeepUrl;
@@ -66,7 +67,8 @@ export async function unlockNotificationSound() {
     const audioContext = getNotificationAudioContext();
     if (!audioContext) return false;
     if (audioContext?.state === "suspended") await audioContext.resume();
-    return audioContext.state === "running";
+    notificationAudioUnlocked = audioContext.state === "running";
+    return notificationAudioUnlocked;
   } catch (error) {
     console.warn("No se pudo habilitar sonido de notificación:", error);
     return false;
@@ -85,6 +87,9 @@ async function playAudioContextSound() {
     const audioContext = getNotificationAudioContext();
     if (!audioContext) return false;
     if (audioContext.state === "suspended") await audioContext.resume();
+    if (audioContext.state !== "running") return false;
+
+    notificationAudioUnlocked = true;
 
     const now = audioContext.currentTime;
     const oscillator = audioContext.createOscillator();
@@ -111,6 +116,8 @@ async function playAudioContextSound() {
 }
 
 export async function playNotificationSound() {
+  if (!notificationAudioUnlocked) await unlockNotificationSound();
+
   const playedWithAudioContext = await playAudioContextSound();
   if (playedWithAudioContext) return true;
 
