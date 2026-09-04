@@ -70,7 +70,8 @@ test("dashboard de exito mantiene actividad diaria visible", () => {
   assert.match(dashboard, /dailyActivity: buildDailyActivity/);
   assert.match(dashboard, /<BarChart data=\{dashboard\.dailyActivity\}/);
   assert.match(dashboard, /role="img" aria-label="Actividad diaria de informes"/);
-  assert.match(dashboard, /lg:grid-cols-2 2xl:grid-cols/);
+  assert.match(dashboard, /lg:grid-cols-2 2xl:grid-cols-\[0\.9fr_0\.9fr_1fr\]/);
+  assert.match(dashboard, /<Panel title="7\. Resumen de impacto">\s*<ImpactList \/>\s*<\/Panel>/);
 });
 
 test("configurador mantiene dueno, vista previa e imagen proporcional", () => {

@@ -325,7 +325,7 @@ export default function AdminSuccessDashboard() {
         </Panel>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-[0.9fr_0.9fr_1.15fr_0.8fr]">
+      <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-[0.9fr_0.9fr_1fr]">
         <Panel title="4. Uso de Recursos">
           <ResourceUsageTable usage={dashboard.resourceUsage} />
         </Panel>
@@ -335,10 +335,11 @@ export default function AdminSuccessDashboard() {
         <Panel title="6. Actividad diaria de informes">
           <BarChart data={dashboard.dailyActivity} />
         </Panel>
-        <Panel title="7. Resumen de impacto">
-          <ImpactList />
-        </Panel>
       </div>
+
+      <Panel title="7. Resumen de impacto">
+        <ImpactList />
+      </Panel>
 
       <div className="grid gap-4 rounded-2xl border border-blue-100 bg-white p-5 text-slate-900 md:grid-cols-[1fr_1.4fr]">
         <div className="flex gap-4">
