@@ -75,7 +75,7 @@ export default function AreaVehiculos() {
   titulo={VEHICULOS_TEXT.configurador.title}
   descripcion={VEHICULOS_TEXT.configurador.description}
   ruta="/vehiculos/configurador"
-  color="bg-orange-600"
+  color="bg-cyan-600"
   icono={<SlidersHorizontal size={20} />}
   disabled={!puedeUsarConfigurador}
   disabledLabel="Acceso exclusivo"
