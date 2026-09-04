@@ -166,6 +166,10 @@ test("chat soporta adjuntos estructurados en mensajes", () => {
   assert.match(chatService, /getCompletedRecordPdfAttachmentsForChat/);
   assert.match(chatPage, /Adjuntar PDF completado/);
   assert.match(chatPage, /adjuntoSeleccionado/);
+  assert.match(chatPage, /EMOJI_OPTIONS/);
+  assert.match(chatPage, /type: "gif"/);
+  assert.match(chatPage, /Adjuntar GIF/);
+  assert.match(chatPage, /isGifAttachment/);
 });
 
 test("historiales limitan consultas pesadas", () => {

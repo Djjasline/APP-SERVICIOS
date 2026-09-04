@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { FileText, MessageCircle, Paperclip, Search, Send, UserCircle2, Volume2, X } from "lucide-react";
+import { FileText, ImageIcon, MessageCircle, Paperclip, Search, Send, Smile, UserCircle2, Volume2, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -39,6 +39,44 @@ function formatTime(value) {
   }).format(new Date(value));
 }
 
+const EMOJI_OPTIONS = [
+  "😀", "😁", "😂", "🤣", "😊", "😍", "😎", "🤝",
+  "👍", "👏", "🙌", "✅", "⚠️", "🔧", "🚛", "📋",
+  "📸", "📎", "⏱️", "🛠️", "💧", "⚙️", "🔥", "⭐",
+];
+
+function buildGifAttachment(value) {
+  const url = String(value || "").trim();
+  if (!url) return { attachment: null, error: "Ingresa la URL directa del GIF." };
+
+  try {
+    const parsedUrl = new URL(url);
+    if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+      return { attachment: null, error: "Usa una URL http o https." };
+    }
+
+    if (!parsedUrl.pathname.toLowerCase().includes(".gif")) {
+      return { attachment: null, error: "Usa una URL directa que termine en .gif." };
+    }
+
+    return {
+      attachment: {
+        type: "gif",
+        title: "GIF",
+        url,
+        description: parsedUrl.hostname,
+      },
+      error: "",
+    };
+  } catch {
+    return { attachment: null, error: "La URL del GIF no es válida." };
+  }
+}
+
+function isGifAttachment(attachment) {
+  return String(attachment?.type || "").toLowerCase() === "gif";
+}
+
 export default function ChatInterno() {
   const { user, isSuperAdmin } = useAuth();
   const { isLight } = useTheme();
@@ -61,8 +99,13 @@ export default function ChatInterno() {
   const [adjuntosDisponibles, setAdjuntosDisponibles] = useState([]);
   const [adjuntoSeleccionado, setAdjuntoSeleccionado] = useState(null);
   const [selectorAdjuntosAbierto, setSelectorAdjuntosAbierto] = useState(false);
+  const [selectorEmojisAbierto, setSelectorEmojisAbierto] = useState(false);
+  const [selectorGifAbierto, setSelectorGifAbierto] = useState(false);
   const [busquedaAdjuntos, setBusquedaAdjuntos] = useState("");
   const [cargandoAdjuntos, setCargandoAdjuntos] = useState(false);
+  const [gifUrl, setGifUrl] = useState("");
+  const [gifSeleccionado, setGifSeleccionado] = useState(null);
+  const [gifError, setGifError] = useState("");
 
   const usuariosFiltrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
@@ -178,9 +221,26 @@ export default function ChatInterno() {
   const alternarSelectorAdjuntos = async () => {
     const nextOpen = !selectorAdjuntosAbierto;
     setSelectorAdjuntosAbierto(nextOpen);
+    setSelectorEmojisAbierto(false);
+    setSelectorGifAbierto(false);
     if (nextOpen && adjuntosDisponibles.length === 0) {
       await cargarAdjuntosPdf();
     }
+  };
+
+  const agregarEmoji = (emoji) => {
+    setTexto((prev) => `${prev}${emoji}`);
+  };
+
+  const adjuntarGif = () => {
+    const { attachment, error: gifValidationError } = buildGifAttachment(gifUrl);
+    setGifError(gifValidationError);
+
+    if (!attachment) return;
+
+    setGifSeleccionado(attachment);
+    setGifUrl("");
+    setSelectorGifAbierto(false);
   };
 
   useEffect(() => {
@@ -250,24 +310,29 @@ export default function ChatInterno() {
 
   const enviar = async (e) => {
     e.preventDefault();
-    if (!conversationId || !user?.id || (!texto.trim() && !adjuntoSeleccionado) || enviando) return;
+    if (!conversationId || !user?.id || (!texto.trim() && !adjuntoSeleccionado && !gifSeleccionado) || enviando) return;
 
     setEnviando(true);
     setError("");
     const textoEnviar = texto;
     const adjuntoEnviar = adjuntoSeleccionado;
+    const gifEnviar = gifSeleccionado;
     setTexto("");
     setAdjuntoSeleccionado(null);
+    setGifSeleccionado(null);
     setSelectorAdjuntosAbierto(false);
+    setSelectorEmojisAbierto(false);
+    setSelectorGifAbierto(false);
 
     try {
       await sendMessage(conversationId, user.id, textoEnviar, {
-        attachments: adjuntoEnviar ? [adjuntoEnviar] : [],
+        attachments: [adjuntoEnviar, gifEnviar].filter(Boolean),
       });
     } catch (err) {
       console.error("[Chat] Error enviando mensaje:", err);
       setTexto(textoEnviar);
       setAdjuntoSeleccionado(adjuntoEnviar);
+      setGifSeleccionado(gifEnviar);
       setError("No se pudo enviar el mensaje.");
     } finally {
       setEnviando(false);
@@ -465,31 +530,53 @@ export default function ChatInterno() {
                           <div className="whitespace-pre-wrap break-words text-sm">{m.body}</div>
                           {Array.isArray(m.attachments) && m.attachments.length > 0 && (
                             <div className="mt-2 space-y-2">
-                              {m.attachments.map((attachment, index) => (
-                                <a
-                                  key={`${m.id}-attachment-${index}`}
-                                  href={attachment.url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className={`flex items-start gap-2 rounded-xl border px-3 py-2 text-left text-xs transition ${
-                                    mine
-                                      ? "border-white/25 bg-white/10 text-white hover:bg-white/15"
-                                      : isLight
-                                      ? "border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
-                                      : "border-white/10 bg-black/20 text-white hover:bg-white/10"
-                                  }`}
-                                >
-                                  <FileText size={16} className="mt-0.5 shrink-0" />
-                                  <span className="min-w-0">
-                                    <span className="block font-semibold">{attachment.title || "PDF adjunto"}</span>
-                                    {attachment.description && (
-                                      <span className={`block truncate ${mine ? "text-blue-100" : "opacity-70"}`}>
-                                        {attachment.description}
-                                      </span>
-                                    )}
-                                  </span>
-                                </a>
-                              ))}
+                              {m.attachments.map((attachment, index) => {
+                                if (isGifAttachment(attachment)) {
+                                  return (
+                                    <a
+                                      key={`${m.id}-attachment-${index}`}
+                                      href={attachment.url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="block overflow-hidden rounded-xl border border-white/20 bg-black/10"
+                                      title={attachment.description || "Abrir GIF"}
+                                    >
+                                      <img
+                                        src={attachment.url}
+                                        alt={attachment.title || "GIF enviado"}
+                                        loading="lazy"
+                                        className="max-h-64 w-full max-w-sm object-contain"
+                                      />
+                                    </a>
+                                  );
+                                }
+
+                                return (
+                                  <a
+                                    key={`${m.id}-attachment-${index}`}
+                                    href={attachment.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className={`flex items-start gap-2 rounded-xl border px-3 py-2 text-left text-xs transition ${
+                                      mine
+                                        ? "border-white/25 bg-white/10 text-white hover:bg-white/15"
+                                        : isLight
+                                        ? "border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
+                                        : "border-white/10 bg-black/20 text-white hover:bg-white/10"
+                                    }`}
+                                  >
+                                    <FileText size={16} className="mt-0.5 shrink-0" />
+                                    <span className="min-w-0">
+                                      <span className="block font-semibold">{attachment.title || "PDF adjunto"}</span>
+                                      {attachment.description && (
+                                        <span className={`block truncate ${mine ? "text-blue-100" : "opacity-70"}`}>
+                                          {attachment.description}
+                                        </span>
+                                      )}
+                                    </span>
+                                  </a>
+                                );
+                              })}
                             </div>
                           )}
                           <div className={`text-[10px] mt-1 text-right ${mine ? "text-blue-100" : "opacity-60"}`}>
@@ -562,6 +649,78 @@ export default function ChatInterno() {
                   </div>
                 )}
 
+                {selectorEmojisAbierto && (
+                  <div className={`mb-3 rounded-2xl border p-3 ${isLight ? "border-slate-200 bg-slate-50" : "border-white/10 bg-white/5"}`}>
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-sm font-semibold">
+                        <Smile size={16} /> Emojis
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSelectorEmojisAbierto(false)}
+                        className="rounded-lg p-1 opacity-70 hover:opacity-100"
+                        aria-label="Cerrar emojis"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-8 gap-1 sm:grid-cols-12">
+                      {EMOJI_OPTIONS.map((emoji) => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => agregarEmoji(emoji)}
+                          className={`rounded-lg p-2 text-xl transition ${isLight ? "hover:bg-white" : "hover:bg-white/10"}`}
+                          aria-label={`Agregar emoji ${emoji}`}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectorGifAbierto && (
+                  <div className={`mb-3 rounded-2xl border p-3 ${isLight ? "border-slate-200 bg-slate-50" : "border-white/10 bg-white/5"}`}>
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-sm font-semibold">
+                        <ImageIcon size={16} /> Adjuntar GIF
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSelectorGifAbierto(false)}
+                        className="rounded-lg p-1 opacity-70 hover:opacity-100"
+                        aria-label="Cerrar GIF"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <input
+                        value={gifUrl}
+                        onChange={(e) => {
+                          setGifUrl(e.target.value);
+                          setGifError("");
+                        }}
+                        placeholder="Pega una URL directa .gif de Giphy o Tenor"
+                        className={`flex-1 rounded-xl border px-3 py-2 text-sm outline-none ${
+                          isLight
+                            ? "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
+                            : "border-white/10 bg-black/20 text-white placeholder:text-slate-400"
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={adjuntarGif}
+                        className="rounded-xl bg-purple-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-700"
+                      >
+                        Adjuntar
+                      </button>
+                    </div>
+                    {gifError && <div className="mt-2 text-xs text-red-500">{gifError}</div>}
+                  </div>
+                )}
+
                 {adjuntoSeleccionado && (
                   <div className={`mb-3 flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-sm ${isLight ? "border-blue-200 bg-blue-50 text-blue-900" : "border-blue-300/30 bg-blue-500/15 text-blue-100"}`}>
                     <div className="min-w-0 flex items-center gap-2">
@@ -571,6 +730,20 @@ export default function ChatInterno() {
                       </span>
                     </div>
                     <button type="button" onClick={() => setAdjuntoSeleccionado(null)} className="rounded-lg p-1 hover:bg-black/10" aria-label="Quitar adjunto">
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+
+                {gifSeleccionado && (
+                  <div className={`mb-3 flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-sm ${isLight ? "border-purple-200 bg-purple-50 text-purple-900" : "border-purple-300/30 bg-purple-500/15 text-purple-100"}`}>
+                    <div className="min-w-0 flex items-center gap-2">
+                      <ImageIcon size={16} className="shrink-0" />
+                      <span className="min-w-0 truncate">
+                        <strong>GIF adjunto</strong> · {gifSeleccionado.description}
+                      </span>
+                    </div>
+                    <button type="button" onClick={() => setGifSeleccionado(null)} className="rounded-lg p-1 hover:bg-black/10" aria-label="Quitar GIF">
                       <X size={16} />
                     </button>
                   </div>
@@ -590,6 +763,40 @@ export default function ChatInterno() {
                   >
                     <Paperclip size={17} />
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectorEmojisAbierto((open) => !open);
+                      setSelectorAdjuntosAbierto(false);
+                      setSelectorGifAbierto(false);
+                    }}
+                    disabled={!conversationId}
+                    className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 transition disabled:opacity-50 ${
+                      isLight
+                        ? "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+                        : "border-white/10 bg-white/5 text-white hover:bg-white/10"
+                    }`}
+                    title="Agregar emoji"
+                  >
+                    <Smile size={17} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectorGifAbierto((open) => !open);
+                      setSelectorAdjuntosAbierto(false);
+                      setSelectorEmojisAbierto(false);
+                    }}
+                    disabled={!conversationId}
+                    className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-bold transition disabled:opacity-50 ${
+                      isLight
+                        ? "border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100"
+                        : "border-purple-300/30 bg-purple-500/15 text-purple-100 hover:bg-purple-500/25"
+                    }`}
+                    title="Adjuntar GIF"
+                  >
+                    GIF
+                  </button>
                   <textarea
                     value={texto}
                     onChange={(e) => setTexto(e.target.value)}
@@ -599,7 +806,7 @@ export default function ChatInterno() {
                         enviar(e);
                       }
                     }}
-                    placeholder={adjuntoSeleccionado ? "Agrega un comentario opcional..." : "Escribe un mensaje..."}
+                    placeholder={adjuntoSeleccionado || gifSeleccionado ? "Agrega un comentario opcional..." : "Escribe un mensaje..."}
                     rows={1}
                     className={`flex-1 resize-none rounded-xl border px-3 py-2 text-sm outline-none ${
                       isLight
@@ -609,7 +816,7 @@ export default function ChatInterno() {
                   />
                   <button
                     type="submit"
-                    disabled={(!texto.trim() && !adjuntoSeleccionado) || enviando}
+                    disabled={(!texto.trim() && !adjuntoSeleccionado && !gifSeleccionado) || enviando}
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 text-white font-semibold"
                   >
                     <Send size={17} />
