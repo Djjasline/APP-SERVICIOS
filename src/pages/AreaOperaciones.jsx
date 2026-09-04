@@ -1,4 +1,5 @@
 import CardModulo from "@/components/CardModulo";
+import ServiceMenuFrame from "@/components/ServiceMenuFrame";
 import { SPECIAL_MODULE_KEYS } from "@/constants/accessControl";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { useTheme } from "@/context/ThemeContext";
@@ -66,7 +67,7 @@ export default function AreaOperaciones() {
     : []),
 ];
   return (
-    <div className="p-6 space-y-6">
+    <ServiceMenuFrame className="space-y-6">
 
       {/* 🔥 HEADER */}
       <div className="flex items-start justify-between gap-4">
@@ -103,6 +104,6 @@ export default function AreaOperaciones() {
 
       </div>
 
-    </div>
+    </ServiceMenuFrame>
   );
 }

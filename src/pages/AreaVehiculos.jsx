@@ -1,4 +1,5 @@
 import CardModulo from "@/components/CardModulo";
+import ServiceMenuFrame from "@/components/ServiceMenuFrame";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import { SPECIAL_MODULE_KEYS } from "@/constants/accessControl";
 import { useTheme } from "@/context/ThemeContext";
@@ -15,7 +16,7 @@ export default function AreaVehiculos() {
   const puedeUsarEncuestas = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.encuestasSatisfaccion);
 
   return (
-    <div className="p-6 space-y-6">
+    <ServiceMenuFrame className="space-y-6">
 
       {/* 🔥 HEADER */}
       <div className="flex items-start justify-between gap-4">
@@ -105,6 +106,6 @@ export default function AreaVehiculos() {
 
       </div>
 
-    </div>
+    </ServiceMenuFrame>
   );
 }

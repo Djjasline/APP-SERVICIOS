@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import ServiceMenuFrame from "@/components/ServiceMenuFrame";
 import {
   Truck,
   Droplet,
@@ -86,27 +87,7 @@ export default function PanelServicios() {
   ];
 
   return (
-    <div className="relative">
-      {/* ================= FONDO COLLAGE ================= */}
-      <div className={`absolute inset-0 grid grid-cols-4 ${isLight ? "opacity-25" : "opacity-80"}`}>
-        {[...Array(8)].map((_, i) => (
-          <img
-            key={i}
-            src="/background-astap.png"
-            alt=""
-            className="w-full h-full object-cover"
-            style={{
-              filter: isLight ? "brightness(1.05) saturate(0.8)" : "brightness(0.6)",
-              transform: i % 2 === 0 ? "scaleX(-1)" : "none",
-            }}
-          />
-        ))}
-      </div>
-
-      <div className={`absolute inset-0 backdrop-blur-sm ${isLight ? "bg-white/70" : "bg-black/50"}`} />
-
-      {/* ================= CONTENIDO ================= */}
-      <div className="relative p-6 space-y-8">
+    <ServiceMenuFrame className="space-y-8">
         {/* HEADER */}
         <div className="flex flex-col items-center text-center space-y-4">
           <img
@@ -157,7 +138,6 @@ export default function PanelServicios() {
             </div>
           ))}
         </div>
-      </div>
-    </div>
+    </ServiceMenuFrame>
   );
 }

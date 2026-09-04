@@ -1,4 +1,5 @@
 import CardModulo from "@/components/CardModulo";
+import ServiceMenuFrame from "@/components/ServiceMenuFrame";
 import { SPECIAL_MODULE_KEYS } from "@/constants/accessControl";
 import { useTheme } from "@/context/ThemeContext";
 import { useSpecialModuleAccess } from "@/hooks/useSpecialModuleAccess";
@@ -12,7 +13,7 @@ export default function AreaIndustria() {
   const puedeUsarEncuestas = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.encuestasSatisfaccion);
 
   return (
-    <div className="p-6 space-y-6">
+    <ServiceMenuFrame className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className={`text-lg font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>Industria</h2>
@@ -57,6 +58,6 @@ export default function AreaIndustria() {
           disabledLabel="Acceso especial"
         />
       </div>
-    </div>
+    </ServiceMenuFrame>
   );
 }

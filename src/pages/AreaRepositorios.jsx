@@ -1,4 +1,5 @@
 import CardModulo from "@/components/CardModulo";
+import ServiceMenuFrame from "@/components/ServiceMenuFrame";
 import { useTheme } from "@/context/ThemeContext";
 import { FileText, Database, Tags, GraduationCap } from "lucide-react";
 import { recordResourceUsage } from "@/services/resourceUsageService";
@@ -10,7 +11,7 @@ export default function AreaRepositorios() {
   const { isLight } = useTheme();
 
   return (
-    <div className="p-6 space-y-6">
+    <ServiceMenuFrame className="space-y-6">
       {/* HEADER */}
       <div>
         <h2 className={`text-lg font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
@@ -57,6 +58,6 @@ export default function AreaRepositorios() {
           onOpen={() => recordResourceUsage({ subtipo: "base-datos-astap", label: "Base de datos ASTAP", url: TEAMDESK_URL })}
         />
       </div>
-    </div>
+    </ServiceMenuFrame>
   );
 }
