@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { FileText, ImageIcon, MessageCircle, Paperclip, Search, Send, Smile, UserCircle2, Volume2, X } from "lucide-react";
+import { FileText, MessageCircle, Paperclip, Search, Send, Smile, UserCircle2, Volume2, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -45,66 +45,6 @@ const EMOJI_OPTIONS = [
   "📸", "📎", "⏱️", "🛠️", "💧", "⚙️", "🔥", "⭐",
 ];
 
-const TENOR_API_KEY = (import.meta.env.VITE_TENOR_API_KEY || "").trim();
-const TENOR_CLIENT_KEY = "app_servicios_astap";
-
-function buildGifAttachment(value) {
-  const url = String(value || "").trim();
-  if (!url) return { attachment: null, error: "Ingresa la URL directa del GIF." };
-
-  try {
-    const parsedUrl = new URL(url);
-    if (!["http:", "https:"].includes(parsedUrl.protocol)) {
-      return { attachment: null, error: "Usa una URL http o https." };
-    }
-
-    if (!parsedUrl.pathname.toLowerCase().includes(".gif")) {
-      return { attachment: null, error: "Usa una URL directa que termine en .gif." };
-    }
-
-    return {
-      attachment: {
-        type: "gif",
-        title: "GIF",
-        url,
-        description: parsedUrl.hostname,
-      },
-      error: "",
-    };
-  } catch {
-    return { attachment: null, error: "La URL del GIF no es válida." };
-  }
-}
-
-function isGifAttachment(attachment) {
-  return String(attachment?.type || "").toLowerCase() === "gif";
-}
-
-function getTenorGifUrl(result) {
-  return (
-    result?.media_formats?.gif?.url ||
-    result?.media_formats?.mediumgif?.url ||
-    result?.media_formats?.tinygif?.url ||
-    ""
-  );
-}
-
-function getTenorPreviewUrl(result) {
-  return result?.media_formats?.tinygif?.url || getTenorGifUrl(result);
-}
-
-function buildTenorGifAttachment(result) {
-  const url = getTenorGifUrl(result);
-  if (!url) return null;
-
-  return {
-    type: "gif",
-    title: result?.content_description || "GIF",
-    url,
-    description: "Tenor",
-  };
-}
-
 export default function ChatInterno() {
   const { user, isSuperAdmin } = useAuth();
   const { isLight } = useTheme();
@@ -128,16 +68,8 @@ export default function ChatInterno() {
   const [adjuntoSeleccionado, setAdjuntoSeleccionado] = useState(null);
   const [selectorAdjuntosAbierto, setSelectorAdjuntosAbierto] = useState(false);
   const [selectorEmojisAbierto, setSelectorEmojisAbierto] = useState(false);
-  const [selectorGifAbierto, setSelectorGifAbierto] = useState(false);
   const [busquedaAdjuntos, setBusquedaAdjuntos] = useState("");
   const [cargandoAdjuntos, setCargandoAdjuntos] = useState(false);
-  const [gifUrl, setGifUrl] = useState("");
-  const [gifSeleccionado, setGifSeleccionado] = useState(null);
-  const [gifError, setGifError] = useState("");
-  const [gifBusqueda, setGifBusqueda] = useState("");
-  const [gifResultados, setGifResultados] = useState([]);
-  const [buscandoGifs, setBuscandoGifs] = useState(false);
-  const [gifBusquedaCargada, setGifBusquedaCargada] = useState(false);
 
   const usuariosFiltrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
@@ -254,7 +186,6 @@ export default function ChatInterno() {
     const nextOpen = !selectorAdjuntosAbierto;
     setSelectorAdjuntosAbierto(nextOpen);
     setSelectorEmojisAbierto(false);
-    setSelectorGifAbierto(false);
     if (nextOpen && adjuntosDisponibles.length === 0) {
       await cargarAdjuntosPdf();
     }
@@ -262,74 +193,6 @@ export default function ChatInterno() {
 
   const agregarEmoji = (emoji) => {
     setTexto((prev) => `${prev}${emoji}`);
-  };
-
-  const adjuntarGif = () => {
-    const { attachment, error: gifValidationError } = buildGifAttachment(gifUrl);
-    setGifError(gifValidationError);
-
-    if (!attachment) return;
-
-    setGifSeleccionado(attachment);
-    setGifUrl("");
-    setSelectorGifAbierto(false);
-  };
-
-  const buscarGifs = useCallback(async (query = "") => {
-    if (!TENOR_API_KEY) {
-      setGifError("Falta configurar VITE_TENOR_API_KEY para buscar GIFs.");
-      return;
-    }
-
-    setBuscandoGifs(true);
-    setGifError("");
-
-    try {
-      const searchText = String(query || "").trim();
-      const endpoint = searchText ? "search" : "featured";
-      const url = new URL(`https://tenor.googleapis.com/v2/${endpoint}`);
-      url.searchParams.set("key", TENOR_API_KEY);
-      url.searchParams.set("client_key", TENOR_CLIENT_KEY);
-      url.searchParams.set("limit", "18");
-      url.searchParams.set("media_filter", "gif,tinygif,mediumgif");
-      url.searchParams.set("locale", "es");
-      if (searchText) url.searchParams.set("q", searchText);
-
-      const response = await fetch(url.toString());
-      if (!response.ok) throw new Error(`Tenor ${response.status}`);
-
-      const data = await response.json();
-      setGifResultados(Array.isArray(data?.results) ? data.results : []);
-      setGifBusquedaCargada(true);
-    } catch (err) {
-      console.error("[Chat] Error buscando GIFs:", err);
-      setGifError("No se pudieron cargar GIFs. Intenta de nuevo.");
-      setGifResultados([]);
-    } finally {
-      setBuscandoGifs(false);
-    }
-  }, []);
-
-  const alternarSelectorGif = async () => {
-    const nextOpen = !selectorGifAbierto;
-    setSelectorGifAbierto(nextOpen);
-    setSelectorAdjuntosAbierto(false);
-    setSelectorEmojisAbierto(false);
-
-    if (nextOpen && TENOR_API_KEY && !gifBusquedaCargada) {
-      await buscarGifs();
-    }
-  };
-
-  const seleccionarGifTenor = (result) => {
-    const attachment = buildTenorGifAttachment(result);
-    if (!attachment) {
-      setGifError("No se pudo seleccionar este GIF.");
-      return;
-    }
-
-    setGifSeleccionado(attachment);
-    setSelectorGifAbierto(false);
   };
 
   useEffect(() => {
@@ -399,29 +262,25 @@ export default function ChatInterno() {
 
   const enviar = async (e) => {
     e.preventDefault();
-    if (!conversationId || !user?.id || (!texto.trim() && !adjuntoSeleccionado && !gifSeleccionado) || enviando) return;
+    if (!conversationId || !user?.id || (!texto.trim() && !adjuntoSeleccionado) || enviando) return;
 
     setEnviando(true);
     setError("");
     const textoEnviar = texto;
     const adjuntoEnviar = adjuntoSeleccionado;
-    const gifEnviar = gifSeleccionado;
     setTexto("");
     setAdjuntoSeleccionado(null);
-    setGifSeleccionado(null);
     setSelectorAdjuntosAbierto(false);
     setSelectorEmojisAbierto(false);
-    setSelectorGifAbierto(false);
 
     try {
       await sendMessage(conversationId, user.id, textoEnviar, {
-        attachments: [adjuntoEnviar, gifEnviar].filter(Boolean),
+        attachments: adjuntoEnviar ? [adjuntoEnviar] : [],
       });
     } catch (err) {
       console.error("[Chat] Error enviando mensaje:", err);
       setTexto(textoEnviar);
       setAdjuntoSeleccionado(adjuntoEnviar);
-      setGifSeleccionado(gifEnviar);
       setError("No se pudo enviar el mensaje.");
     } finally {
       setEnviando(false);
@@ -619,28 +478,7 @@ export default function ChatInterno() {
                           <div className="whitespace-pre-wrap break-words text-sm">{m.body}</div>
                           {Array.isArray(m.attachments) && m.attachments.length > 0 && (
                             <div className="mt-2 space-y-2">
-                              {m.attachments.map((attachment, index) => {
-                                if (isGifAttachment(attachment)) {
-                                  return (
-                                    <a
-                                      key={`${m.id}-attachment-${index}`}
-                                      href={attachment.url}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="block overflow-hidden rounded-xl border border-white/20 bg-black/10"
-                                      title={attachment.description || "Abrir GIF"}
-                                    >
-                                      <img
-                                        src={attachment.url}
-                                        alt={attachment.title || "GIF enviado"}
-                                        loading="lazy"
-                                        className="max-h-64 w-full max-w-sm object-contain"
-                                      />
-                                    </a>
-                                  );
-                                }
-
-                                return (
+                              {m.attachments.map((attachment, index) => (
                                   <a
                                     key={`${m.id}-attachment-${index}`}
                                     href={attachment.url}
@@ -664,8 +502,7 @@ export default function ChatInterno() {
                                       )}
                                     </span>
                                   </a>
-                                );
-                              })}
+                              ))}
                             </div>
                           )}
                           <div className={`text-[10px] mt-1 text-right ${mine ? "text-blue-100" : "opacity-60"}`}>
@@ -769,114 +606,6 @@ export default function ChatInterno() {
                   </div>
                 )}
 
-                {selectorGifAbierto && (
-                  <div className={`mb-3 rounded-2xl border p-3 ${isLight ? "border-slate-200 bg-slate-50" : "border-white/10 bg-white/5"}`}>
-                    <div className="mb-2 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 text-sm font-semibold">
-                        <ImageIcon size={16} /> Buscar GIF
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setSelectorGifAbierto(false)}
-                        className="rounded-lg p-1 opacity-70 hover:opacity-100"
-                        aria-label="Cerrar GIF"
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-
-                    {TENOR_API_KEY ? (
-                      <>
-                        <div className="mb-3 flex flex-col gap-2 sm:flex-row">
-                          <div className={`flex flex-1 items-center gap-2 rounded-xl border px-3 py-2 ${isLight ? "border-slate-200 bg-white" : "border-white/10 bg-black/20"}`}>
-                            <Search size={15} className="opacity-60" />
-                            <input
-                              value={gifBusqueda}
-                              onChange={(e) => setGifBusqueda(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  buscarGifs(gifBusqueda);
-                                }
-                              }}
-                              placeholder="Buscar GIFs: ok, gracias, risa..."
-                              className={`w-full bg-transparent text-sm outline-none ${isLight ? "text-slate-900" : "text-white"}`}
-                            />
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => buscarGifs(gifBusqueda)}
-                            disabled={buscandoGifs}
-                            className="rounded-xl bg-purple-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-700 disabled:opacity-50"
-                          >
-                            {buscandoGifs ? "Buscando..." : "Buscar"}
-                          </button>
-                        </div>
-
-                        {buscandoGifs ? (
-                          <div className="py-6 text-center text-sm opacity-70">Cargando GIFs...</div>
-                        ) : gifResultados.length === 0 ? (
-                          <div className="py-6 text-center text-sm opacity-70">Busca un GIF para enviarlo en el chat.</div>
-                        ) : (
-                          <div className="grid max-h-72 grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3 lg:grid-cols-4">
-                            {gifResultados.map((gif) => {
-                              const previewUrl = getTenorPreviewUrl(gif);
-                              if (!previewUrl) return null;
-
-                              return (
-                                <button
-                                  key={gif.id || previewUrl}
-                                  type="button"
-                                  onClick={() => seleccionarGifTenor(gif)}
-                                  className={`overflow-hidden rounded-xl border transition hover:scale-[1.02] ${isLight ? "border-slate-200 bg-white" : "border-white/10 bg-black/20"}`}
-                                  title={gif.content_description || "Seleccionar GIF"}
-                                >
-                                  <img
-                                    src={previewUrl}
-                                    alt={gif.content_description || "GIF"}
-                                    loading="lazy"
-                                    className="h-24 w-full object-cover sm:h-28"
-                                  />
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <div className={`mb-3 rounded-xl border px-3 py-2 text-xs ${isLight ? "border-amber-200 bg-amber-50 text-amber-800" : "border-amber-300/30 bg-amber-400/10 text-amber-100"}`}>
-                          Para búsqueda nativa configura <strong>VITE_TENOR_API_KEY</strong>. Mientras tanto puedes pegar una URL directa .gif.
-                        </div>
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                          <input
-                            value={gifUrl}
-                            onChange={(e) => {
-                              setGifUrl(e.target.value);
-                              setGifError("");
-                            }}
-                            placeholder="Pega una URL directa .gif de Giphy o Tenor"
-                            className={`flex-1 rounded-xl border px-3 py-2 text-sm outline-none ${
-                              isLight
-                                ? "border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
-                                : "border-white/10 bg-black/20 text-white placeholder:text-slate-400"
-                            }`}
-                          />
-                          <button
-                            type="button"
-                            onClick={adjuntarGif}
-                            className="rounded-xl bg-purple-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-700"
-                          >
-                            Adjuntar
-                          </button>
-                        </div>
-                      </>
-                    )}
-
-                    {gifError && <div className="mt-2 text-xs text-red-500">{gifError}</div>}
-                  </div>
-                )}
-
                 {adjuntoSeleccionado && (
                   <div className={`mb-3 flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-sm ${isLight ? "border-blue-200 bg-blue-50 text-blue-900" : "border-blue-300/30 bg-blue-500/15 text-blue-100"}`}>
                     <div className="min-w-0 flex items-center gap-2">
@@ -886,20 +615,6 @@ export default function ChatInterno() {
                       </span>
                     </div>
                     <button type="button" onClick={() => setAdjuntoSeleccionado(null)} className="rounded-lg p-1 hover:bg-black/10" aria-label="Quitar adjunto">
-                      <X size={16} />
-                    </button>
-                  </div>
-                )}
-
-                {gifSeleccionado && (
-                  <div className={`mb-3 flex items-center justify-between gap-2 rounded-xl border px-3 py-2 text-sm ${isLight ? "border-purple-200 bg-purple-50 text-purple-900" : "border-purple-300/30 bg-purple-500/15 text-purple-100"}`}>
-                    <div className="min-w-0 flex items-center gap-2">
-                      <ImageIcon size={16} className="shrink-0" />
-                      <span className="min-w-0 truncate">
-                        <strong>GIF adjunto</strong> · {gifSeleccionado.description}
-                      </span>
-                    </div>
-                    <button type="button" onClick={() => setGifSeleccionado(null)} className="rounded-lg p-1 hover:bg-black/10" aria-label="Quitar GIF">
                       <X size={16} />
                     </button>
                   </div>
@@ -924,7 +639,6 @@ export default function ChatInterno() {
                     onClick={() => {
                       setSelectorEmojisAbierto((open) => !open);
                       setSelectorAdjuntosAbierto(false);
-                      setSelectorGifAbierto(false);
                     }}
                     disabled={!conversationId}
                     className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 transition disabled:opacity-50 ${
@@ -936,19 +650,6 @@ export default function ChatInterno() {
                   >
                     <Smile size={17} />
                   </button>
-                  <button
-                    type="button"
-                    onClick={alternarSelectorGif}
-                    disabled={!conversationId}
-                    className={`inline-flex items-center justify-center rounded-xl border px-3 py-2 text-xs font-bold transition disabled:opacity-50 ${
-                      isLight
-                        ? "border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100"
-                        : "border-purple-300/30 bg-purple-500/15 text-purple-100 hover:bg-purple-500/25"
-                    }`}
-                    title="Adjuntar GIF"
-                  >
-                    GIF
-                  </button>
                   <textarea
                     value={texto}
                     onChange={(e) => setTexto(e.target.value)}
@@ -958,7 +659,7 @@ export default function ChatInterno() {
                         enviar(e);
                       }
                     }}
-                    placeholder={adjuntoSeleccionado || gifSeleccionado ? "Agrega un comentario opcional..." : "Escribe un mensaje..."}
+                    placeholder={adjuntoSeleccionado ? "Agrega un comentario opcional..." : "Escribe un mensaje..."}
                     rows={1}
                     className={`flex-1 resize-none rounded-xl border px-3 py-2 text-sm outline-none ${
                       isLight
@@ -968,7 +669,7 @@ export default function ChatInterno() {
                   />
                   <button
                     type="submit"
-                    disabled={(!texto.trim() && !adjuntoSeleccionado && !gifSeleccionado) || enviando}
+                    disabled={(!texto.trim() && !adjuntoSeleccionado) || enviando}
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 text-white font-semibold"
                   >
                     <Send size={17} />

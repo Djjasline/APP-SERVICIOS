@@ -51,7 +51,6 @@ test("normalizeChatAttachments descarta adjuntos sin URL", () => {
     normalizeChatAttachments([
       { title: "Sin URL" },
       { type: "completed_record_pdf", title: "PDF", url: "/vehiculos/informe/pdf/1", extra: "ignorar" },
-      { type: "gif", title: "GIF", url: "https://media.giphy.com/media/test/giphy.gif", description: "media.giphy.com" },
     ]),
     [
       {
@@ -59,16 +58,6 @@ test("normalizeChatAttachments descarta adjuntos sin URL", () => {
         title: "PDF",
         url: "/vehiculos/informe/pdf/1",
         description: "",
-        record_id: undefined,
-        area: undefined,
-        tipo: undefined,
-        subtipo: undefined,
-      },
-      {
-        type: "gif",
-        title: "GIF",
-        url: "https://media.giphy.com/media/test/giphy.gif",
-        description: "media.giphy.com",
         record_id: undefined,
         area: undefined,
         tipo: undefined,
