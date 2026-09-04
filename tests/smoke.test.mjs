@@ -48,6 +48,21 @@ test("modulos especiales conservan llaves esperadas", () => {
   assert.match(accessControl, /CONFIGURADOR_OWNER_EMAIL = PRIVILEGED_EMAILS\.superAdmin\[0\]/);
 });
 
+test("tema liquid glass se mantiene como tercer modo visual", () => {
+  const themeContext = read("src/context/ThemeContext.jsx");
+  const mainLayout = read("src/layouts/MainLayout.jsx");
+  const sidebar = read("src/layouts/Sidebar.jsx");
+  const styles = read("src/styles/tailwind.css");
+
+  assert.match(themeContext, /const THEMES = \["dark", "light", "liquid"\]/);
+  assert.match(themeContext, /isLiquid: theme === "liquid"/);
+  assert.match(mainLayout, /liquid-glass-background/);
+  assert.match(mainLayout, /liquid-glass-shell/);
+  assert.match(sidebar, /liquid-glass-sidebar/);
+  assert.match(styles, /LIQUID GLASS THEME/);
+  assert.match(styles, /prefers-reduced-motion/);
+});
+
 test("configurador mantiene dueno, vista previa e imagen proporcional", () => {
   const service = read("src/services/configuratorQuoteService.js");
   const home = read("src/app/vehiculos/configurador/ConfiguradorHome.jsx");

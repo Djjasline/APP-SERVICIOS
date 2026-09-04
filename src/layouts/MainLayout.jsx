@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Outlet, useNavigate, Link } from "react-router-dom";
-import { User, Bell, Moon, Sun } from "lucide-react";
+import { User, Bell, Moon, Sparkles, Sun } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import Sidebar from "./Sidebar";
@@ -74,7 +74,7 @@ export default function MainLayout() {
 
   const navigate = useNavigate();
   const { user, profile, logout, role, roleLabel, email } = useAuth();
-  const { isLight, toggleTheme } = useTheme();
+  const { theme, isLight, isLiquid, nextTheme, toggleTheme } = useTheme();
   const [unread, setUnread] = useState(0);
   const [chatAlert, setChatAlert] = useState(null);
   const [usuariosOnline, setUsuariosOnline] = useState({});
@@ -90,6 +90,7 @@ export default function MainLayout() {
     solicitarPermiso: activarPush,
     cancelarSuscripcion: desactivarPush,
   } = useNotificaciones();
+  const nextThemeLabel = nextTheme === "light" ? "modo claro" : nextTheme === "liquid" ? "Liquid Glass" : "modo oscuro";
 
   useEffect(() => {
     unreadRef.current = unread;
@@ -323,7 +324,9 @@ export default function MainLayout() {
   return (
     <div
       className={`flex h-screen transition-colors duration-300 ${
-        isLight
+        isLiquid
+          ? "relative overflow-hidden bg-[#06142f] text-white"
+          : isLight
           ? "bg-gradient-to-br from-slate-50 via-blue-50 to-white text-slate-900"
           : "bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b] text-white"
       }`}
@@ -347,6 +350,15 @@ export default function MainLayout() {
         setTouchStartX(null);
       }}
       >
+      {isLiquid && (
+        <div className="liquid-glass-background" aria-hidden="true">
+          <span className="liquid-orb liquid-orb-one" />
+          <span className="liquid-orb liquid-orb-two" />
+          <span className="liquid-orb liquid-orb-three" />
+          <span className="liquid-grid" />
+        </div>
+      )}
+
       {chatAlert && (
         <button
           type="button"
@@ -355,7 +367,9 @@ export default function MainLayout() {
             navigate(chatAlert.path || "/notifications");
           }}
           className={`fixed right-4 top-20 z-[9999] max-w-sm rounded-2xl border px-4 py-3 text-left shadow-2xl transition ${
-            isLight
+            isLiquid
+              ? "liquid-glass-panel border-white/25 text-white"
+              : isLight
               ? "border-blue-200 bg-white text-slate-900"
               : "border-white/10 bg-slate-950 text-white"
           }`}
@@ -410,7 +424,9 @@ export default function MainLayout() {
         {/* ================= HEADER ================= */}
         <header
           className={`app-header h-16 flex items-center justify-between px-6 backdrop-blur-xl border-b relative z-50 transition-colors ${
-            isLight
+            isLiquid
+              ? "liquid-glass-panel border-white/20 text-white shadow-2xl shadow-cyan-950/20"
+              : isLight
               ? "bg-white/85 border-slate-200 text-slate-900 shadow-sm"
               : "bg-white/5 border-white/10 text-white"
           }`}
@@ -447,7 +463,7 @@ export default function MainLayout() {
             <Link
               to="/notifications"
               className={`relative inline-flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
-                isLight ? "hover:bg-slate-100" : "hover:bg-white/10"
+                isLight ? "hover:bg-slate-100" : isLiquid ? "hover:bg-white/20" : "hover:bg-white/10"
               }`}
               title="Notificaciones"
             >
@@ -464,7 +480,9 @@ export default function MainLayout() {
               <div
                 onClick={() => setOpenMenu(!openMenu)}
                 className={`w-10 h-10 rounded-full backdrop-blur-md border flex items-center justify-center cursor-pointer transition-all duration-200 ${
-                  isLight
+                  isLiquid
+                    ? "bg-white/10 border-white/25 shadow-lg shadow-cyan-950/20 hover:bg-white/25"
+                    : isLight
                     ? "bg-slate-100 border-slate-200 hover:bg-slate-200"
                     : "bg-white/10 border-white/20 hover:bg-white/20"
                 }`}
@@ -483,7 +501,9 @@ export default function MainLayout() {
               {openMenu && (
                 <div
                   className={`absolute right-0 mt-2 w-64 backdrop-blur-xl border rounded-xl shadow-xl p-4 text-sm animate-fadeIn ${
-                    isLight
+                    isLiquid
+                      ? "liquid-glass-panel border-white/25 text-white"
+                      : isLight
                       ? "bg-white/95 border-slate-200 text-slate-900"
                       : "bg-black/70 border-white/20 text-white"
                   }`}
@@ -547,8 +567,8 @@ export default function MainLayout() {
                         isLight ? "hover:bg-slate-100" : "hover:bg-white/10"
                       }`}
                     >
-                      {isLight ? <Moon size={15} /> : <Sun size={15} />}
-                      {isLight ? "Usar modo oscuro" : "Usar modo claro"}
+                      {theme === "dark" ? <Sun size={15} /> : theme === "light" ? <Sparkles size={15} /> : <Moon size={15} />}
+                      Usar {nextThemeLabel}
                     </button>
                   </div>
 
@@ -574,7 +594,9 @@ export default function MainLayout() {
         <main className="app-main flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6">
           <div
             className={`app-page-shell max-w-7xl mx-auto rounded-2xl backdrop-blur-xl border p-4 md:p-6 shadow-xl min-h-full transition-colors ${
-              isLight
+              isLiquid
+                ? "liquid-glass-shell border-white/20"
+                : isLight
                 ? "bg-white/80 border-slate-200"
                 : "bg-white/5 border-white/10"
             }`}
