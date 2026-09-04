@@ -128,7 +128,7 @@ function downloadCsv(filename, rows) {
 }
 
 export default function AdminSuccessDashboard() {
-  const { isLight } = useTheme();
+  const { isLight, isLiquid } = useTheme();
   const [records, setRecords] = useState([]);
   const [period, setPeriod] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -268,7 +268,7 @@ export default function AdminSuccessDashboard() {
     <section className={`${cardClass} rounded-3xl border p-6 shadow space-y-5`}>
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div>
-          <h2 className="text-3xl font-black tracking-tight text-blue-700 md:text-4xl">
+          <h2 className={`text-3xl font-black tracking-tight md:text-4xl ${isLiquid ? "text-white drop-shadow" : "text-blue-700"}`}>
             CASO DE ÉXITO APP SERVICIOS ASTAP
           </h2>
           <p className={isLight ? "text-slate-600" : "text-white/70"}>
