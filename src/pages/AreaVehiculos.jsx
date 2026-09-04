@@ -77,6 +77,7 @@ export default function AreaVehiculos() {
   ruta="/vehiculos/configurador"
   color="bg-cyan-600"
   icono={<SlidersHorizontal size={20} />}
+  badge="🚧 · 90% de avance"
   disabled={!puedeUsarConfigurador}
   disabledLabel="Acceso exclusivo"
 />

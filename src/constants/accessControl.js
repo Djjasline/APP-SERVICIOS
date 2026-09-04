@@ -16,8 +16,8 @@ export const SPECIAL_MODULES = [
     key: SPECIAL_MODULE_KEYS.configurador,
     area: "vehiculos",
     tipo: "configurador",
-    label: "Configurador Vactor",
-    description: "Acceso al configurador de equipos nuevos Vactor.",
+    label: "Configurador de equipos hidrosuccionadores",
+    description: "Acceso al configurador de equipos hidrosuccionadores nuevos.",
   },
   {
     key: SPECIAL_MODULE_KEYS.cotizador,
