@@ -1048,6 +1048,8 @@ const result = await saveOrUpdateReport({
                  <div className="border rounded bg-white h-[120px]">
                     <SignatureCanvas
                       ref={sigTecnico}
+                      enableDefaultSignature
+                      onDefaultSignatureApplied={() => setFirmaTecnicoEditada(true)}
                       penColor="black"
                       minWidth={0.5}
                       maxWidth={1.5}

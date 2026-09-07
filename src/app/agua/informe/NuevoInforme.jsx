@@ -1648,6 +1648,8 @@ const save = async () => {
                 <td className="border p-2 align-top" style={{ height: 200 }}>
                   <div className="border rounded bg-white h-36">
                     <SignatureCanvas ref={sigTecnico} penColor="black" minWidth={0.5} maxWidth={1.5}
+                      enableDefaultSignature
+                      onDefaultSignatureApplied={() => setFirmaTecnicoEditada(true)}
                       onBegin={() => {
   setFirmaTecnicoEditada(true);
   document.activeElement?.blur();

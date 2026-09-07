@@ -344,6 +344,7 @@ pendientes.push({
           <div className="border bg-white">
             <SignatureCanvas
               ref={sigRef}
+              enableDefaultSignature
               penColor="black"
               minWidth={0.5}
               maxWidth={1.8}

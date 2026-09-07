@@ -1,5 +1,7 @@
-import { forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useRef } from "react";
+import { forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
 import ReactSignatureCanvas from "react-signature-canvas";
+import { useAuth } from "@/context/AuthContext";
+import { loadUserSignatureDataUrl } from "@/services/userSignatureService";
 
 const lockPageScroll = () => {
   document.activeElement?.blur();
@@ -21,10 +23,13 @@ const stopGesturePropagation = (event) => {
 };
 
 const SignatureCanvasField = forwardRef(function SignatureCanvasField(
-  { canvasProps = {}, onBegin, onEnd, ...props },
+  { canvasProps = {}, enableDefaultSignature = false, onBegin, onEnd, onDefaultSignatureApplied, ...props },
   forwardedRef
 ) {
   const internalRef = useRef(null);
+  const { user } = useAuth() || {};
+  const [loadingDefault, setLoadingDefault] = useState(false);
+  const [defaultMessage, setDefaultMessage] = useState("");
 
   useImperativeHandle(forwardedRef, () => ({
     clear: (...args) => internalRef.current?.clear?.(...args),
@@ -96,11 +101,36 @@ const SignatureCanvasField = forwardRef(function SignatureCanvasField(
     ...restCanvasProps
   } = canvasProps;
 
-  return (
+  const applyDefaultSignature = async () => {
+    if (!user?.id || loadingDefault) return;
+
+    setLoadingDefault(true);
+    setDefaultMessage("");
+    try {
+      const dataUrl = await loadUserSignatureDataUrl(user.id);
+      if (!dataUrl) {
+        setDefaultMessage("Sin firma guardada");
+        return;
+      }
+
+      internalRef.current?.clear?.();
+      internalRef.current?.fromDataURL?.(dataUrl);
+      onDefaultSignatureApplied?.(dataUrl);
+      requestAnimationFrame(() => onEnd?.());
+    } catch (error) {
+      console.error("Error aplicando firma predeterminada:", error);
+      setDefaultMessage("No se pudo cargar");
+    } finally {
+      setLoadingDefault(false);
+    }
+  };
+
+  const canvas = (
     <ReactSignatureCanvas
       {...props}
       ref={internalRef}
       onBegin={(...args) => {
+        setDefaultMessage("");
         lockPageScroll();
         onBegin?.(...args);
       }}
@@ -152,6 +182,29 @@ const SignatureCanvasField = forwardRef(function SignatureCanvasField(
       }}
     />
   );
+
+  if (enableDefaultSignature) {
+    return (
+      <div className="relative h-full w-full min-w-0">
+        <button
+          type="button"
+          onClick={applyDefaultSignature}
+          disabled={loadingDefault}
+          className="absolute right-2 top-2 z-10 rounded-md border border-blue-200 bg-blue-50/95 px-2 py-1 text-[11px] font-semibold text-blue-700 shadow-sm transition hover:bg-blue-100 disabled:opacity-60"
+        >
+          {loadingDefault ? "Cargando..." : "Usar mi firma"}
+        </button>
+        {defaultMessage && (
+          <span className="absolute bottom-2 right-2 z-10 rounded bg-white/90 px-2 py-1 text-[10px] font-semibold text-slate-500 shadow-sm">
+            {defaultMessage}
+          </span>
+        )}
+        {canvas}
+      </div>
+    );
+  }
+
+  return canvas;
 });
 
 export default SignatureCanvasField;

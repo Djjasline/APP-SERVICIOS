@@ -412,7 +412,7 @@ const url = await uploadRegistroImage(
   );
 };
 
-const SignatureBox = ({ dataUrl, canvasRef, readOnly = false }) => {
+const SignatureBox = ({ dataUrl, canvasRef, readOnly = false, enableDefaultSignature = false }) => {
   if (readOnly) {
     return dataUrl ? (
       <img src={dataUrl} alt="Firma" className="signature-img" />
@@ -422,6 +422,7 @@ const SignatureBox = ({ dataUrl, canvasRef, readOnly = false }) => {
   return (
     <SignatureCanvas
       ref={canvasRef}
+      enableDefaultSignature={enableDefaultSignature}
       penColor="black"
       minWidth={0.5}
       maxWidth={1.8}
@@ -1235,6 +1236,7 @@ export function ControlVehicularSheet({
                 <SignatureBox
                   dataUrl={data.firmas.responsable}
                   canvasRef={signatureRefs.responsable}
+                  enableDefaultSignature
                   readOnly={readOnly}
                 />
               </td>
@@ -1245,6 +1247,7 @@ export function ControlVehicularSheet({
                <SignatureBox
   dataUrl={data.firmas.recepcionFinal}
   canvasRef={signatureRefs.recepcionFinal}
+  enableDefaultSignature
   readOnly={readOnly || !puedeFirmarRecepcion}
 />
               </td>

@@ -1123,6 +1123,7 @@ navigate("/agua/recorrido/informe");
                     <div className="ia-firma-canvas-wrap">
                       <SignatureCanvas
                         ref={firmaTecnicoRef}
+                        enableDefaultSignature
                         penColor="#1a2942"
                         minWidth={0.5}
                         maxWidth={1.8}
@@ -1157,6 +1158,7 @@ navigate("/agua/recorrido/informe");
                     <div className="ia-firma-canvas-wrap">
                       <SignatureCanvas
                         ref={firmaSupervisorRef}
+                        enableDefaultSignature
                         penColor="#1a2942"
                         minWidth={0.5}
                         maxWidth={1.8}

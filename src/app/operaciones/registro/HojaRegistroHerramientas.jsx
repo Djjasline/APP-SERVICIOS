@@ -23,6 +23,7 @@ function SignatureField({
   label,
   dataUrl,
   canvasRef,
+  enableDefaultSignature = false,
   onClear,
   isLocked,
   onSignatureBegin,
@@ -49,6 +50,7 @@ function SignatureField({
           ) : (
             <SignatureCanvas
               ref={canvasRef}
+              enableDefaultSignature={enableDefaultSignature}
               penColor="black"
               minWidth={0.5}
               maxWidth={1.8}
@@ -553,6 +555,7 @@ const handleSubmit = async (e) => {
             label="Firma Responsable"
             dataUrl={formData.firmas?.responsable}
             canvasRef={firmaResponsableRef}
+            enableDefaultSignature
             isLocked={isLocked}
             onSignatureBegin={handleSignatureBegin}
             onSignatureEnd={handleSignatureEnd}
@@ -567,6 +570,7 @@ const handleSubmit = async (e) => {
             label="Firma Aprobador / Recepción"
             dataUrl={formData.firmas?.aprobador}
             canvasRef={firmaAprobadorRef}
+            enableDefaultSignature
             isLocked={isLocked}
             onSignatureBegin={handleSignatureBegin}
             onSignatureEnd={handleSignatureEnd}

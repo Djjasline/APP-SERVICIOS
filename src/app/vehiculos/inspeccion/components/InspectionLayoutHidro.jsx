@@ -260,6 +260,7 @@ export default function InspectionLayoutHidro({
         ) : (
           <SignatureCanvas
             ref={firmasRef?.tecnico}
+            enableDefaultSignature
             penColor="black"
             minWidth={0.5}
             maxWidth={1.8}

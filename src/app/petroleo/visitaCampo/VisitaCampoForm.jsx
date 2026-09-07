@@ -390,7 +390,7 @@ const IntervalosBox = ({ intro, tableText, note, onIntroChange, onTableChange, o
   </section>
 );
 
-const SignatureField = ({ label, value, onChange, signature, onSignatureChange }) => {
+const SignatureField = ({ label, value, onChange, signature, onSignatureChange, enableDefaultSignature = false }) => {
   const signatureRef = useRef(null);
   const loadedSignatureRef = useRef("");
 
@@ -432,6 +432,7 @@ const SignatureField = ({ label, value, onChange, signature, onSignatureChange }
       <div className="h-28 rounded border border-slate-400 bg-white">
         <SignatureCanvas
           ref={signatureRef}
+          enableDefaultSignature={enableDefaultSignature}
           penColor="black"
           minWidth={0.5}
           maxWidth={1.8}
@@ -726,8 +727,8 @@ export default function VisitaCampoForm() {
       </div>
 
       <section className="grid gap-3 md:grid-cols-3">
-        <SignatureField label="Realizado por" value={data.realizadoPor} onChange={(e) => set("realizadoPor", e.target.value)} signature={data.firmas?.realizado} onSignatureChange={(value) => setFirma("realizado", value)} />
-        <SignatureField label="Revisado por" value={data.revisadoPor} onChange={(e) => set("revisadoPor", e.target.value)} signature={data.firmas?.revisado} onSignatureChange={(value) => setFirma("revisado", value)} />
+        <SignatureField label="Realizado por" value={data.realizadoPor} onChange={(e) => set("realizadoPor", e.target.value)} signature={data.firmas?.realizado} onSignatureChange={(value) => setFirma("realizado", value)} enableDefaultSignature />
+        <SignatureField label="Revisado por" value={data.revisadoPor} onChange={(e) => set("revisadoPor", e.target.value)} signature={data.firmas?.revisado} onSignatureChange={(value) => setFirma("revisado", value)} enableDefaultSignature />
         <SignatureField label="Recibido por" value={data.recibidoPor} onChange={(e) => set("recibidoPor", e.target.value)} signature={data.firmas?.recibido} onSignatureChange={(value) => setFirma("recibido", value)} />
       </section>
 

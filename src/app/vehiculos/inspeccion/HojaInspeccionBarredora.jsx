@@ -1233,7 +1233,7 @@ setTimeout(() => {
               <tr>
                 <td className="align-top" style={{ height:190 }}>
                   <div className="border rounded bg-white h-[120px]">
-                    <SignatureCanvas ref={sigTecnico} penColor="black" minWidth={0.5} maxWidth={1.5}
+                    <SignatureCanvas ref={sigTecnico} enableDefaultSignature onDefaultSignatureApplied={() => setFirmaTecnicoEditada(true)} penColor="black" minWidth={0.5} maxWidth={1.5}
                      onBegin={() => {
   setFirmaTecnicoEditada(true);
   document.body.style.overflow = "hidden";

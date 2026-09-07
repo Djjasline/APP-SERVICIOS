@@ -93,6 +93,7 @@ const clearCliente = () => {
 
           <SignatureCanvas
             ref={tecnicoRef}
+            enableDefaultSignature
             onBegin={handleBegin}
             onEnd={handleEnd}
             canvasProps={{

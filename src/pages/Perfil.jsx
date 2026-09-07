@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import imageCompression from "browser-image-compression";
 import { BotonNotificaciones } from "@/components/BotonNotificaciones";
+import { loadUserSignatureDataUrl, uploadUserSignature } from "@/services/userSignatureService";
 
 const DEPARTMENTS = [
   "Vehículos Especiales",
@@ -36,6 +37,8 @@ export default function Perfil() {
   const [loading, setLoading]             = useState(true);
   const [guardando, setGuardando]         = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingSignature, setUploadingSignature] = useState(false);
+  const [signaturePreview, setSignaturePreview] = useState("");
   const [mensaje, setMensaje]             = useState(null);
 
   // ── Cambio de contraseña ──
@@ -62,6 +65,7 @@ export default function Perfil() {
           avatar_url: data.avatar_url || "",
         });
       }
+      setSignaturePreview(await loadUserSignatureDataUrl(user.id));
       setLoading(false);
     };
     load();
@@ -88,6 +92,32 @@ export default function Perfil() {
         : { tipo: "ok",    texto: "Perfil actualizado correctamente ✅" }
     );
     setGuardando(false);
+  };
+
+  /* ── SUBIR FIRMA PREDETERMINADA ── */
+  const handleSignatureUpload = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    if (file.type !== "image/png") {
+      setMensaje({ tipo: "error", texto: "La firma debe cargarse en formato PNG." });
+      return;
+    }
+
+    setUploadingSignature(true);
+    setMensaje(null);
+
+    try {
+      const dataUrl = await uploadUserSignature(user.id, file);
+      setSignaturePreview(dataUrl);
+      setMensaje({ tipo: "ok", texto: "Firma predeterminada actualizada." });
+    } catch (err) {
+      console.error(err);
+      setMensaje({ tipo: "error", texto: "Error subiendo la firma PNG." });
+    } finally {
+      setUploadingSignature(false);
+    }
   };
 
   /* ── SUBIR AVATAR ── */
@@ -264,6 +294,35 @@ export default function Perfil() {
             <option value="">Seleccionar área...</option>
             {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
           </select>
+        </div>
+
+        {/* FIRMA PREDETERMINADA */}
+        <div className="space-y-3 rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            Firma predeterminada
+          </label>
+          <div className="flex min-h-28 items-center justify-center rounded-lg border border-dashed border-blue-200 bg-white p-3">
+            {signaturePreview ? (
+              <img src={signaturePreview} alt="Firma predeterminada" className="max-h-24 max-w-full object-contain" />
+            ) : (
+              <span className="text-center text-xs text-gray-400">
+                Sin firma PNG cargada.
+              </span>
+            )}
+          </div>
+          <label className="inline-flex cursor-pointer items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">
+            {uploadingSignature ? "Subiendo firma..." : "Cargar firma PNG"}
+            <input
+              type="file"
+              accept="image/png"
+              className="hidden"
+              onChange={handleSignatureUpload}
+              disabled={uploadingSignature}
+            />
+          </label>
+          <p className="text-xs text-gray-500">
+            En los formularios podrás usar esta firma predeterminada o firmar manualmente con lápiz, tablet o dispositivo táctil.
+          </p>
         </div>
 
         {/* TEMA */}

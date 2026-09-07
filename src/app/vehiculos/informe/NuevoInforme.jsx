@@ -1271,6 +1271,8 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
         <div className="border rounded bg-white h-[150px] flex items-center justify-center">
           <SignatureCanvas
             ref={sigTecnico}
+            enableDefaultSignature
+            onDefaultSignatureApplied={() => setFirmaTecnicoEditada(true)}
             penColor="black"
             minWidth={0.5}
             maxWidth={1.5}
