@@ -22,6 +22,30 @@ const stopGesturePropagation = (event) => {
   event.nativeEvent?.stopImmediatePropagation?.();
 };
 
+const loadDataUrlImage = (dataUrl) =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = dataUrl;
+  });
+
+const getContainedImageOptions = (canvas, image) => {
+  const padding = Math.max(10, Math.round(Math.min(canvas.width, canvas.height) * 0.08));
+  const maxWidth = Math.max(1, canvas.width - padding * 2);
+  const maxHeight = Math.max(1, canvas.height - padding * 2);
+  const scale = Math.min(maxWidth / image.naturalWidth, maxHeight / image.naturalHeight);
+  const width = Math.round(image.naturalWidth * scale);
+  const height = Math.round(image.naturalHeight * scale);
+
+  return {
+    width,
+    height,
+    xOffset: Math.round((canvas.width - width) / 2),
+    yOffset: Math.round((canvas.height - height) / 2),
+  };
+};
+
 const SignatureCanvasField = forwardRef(function SignatureCanvasField(
   { canvasProps = {}, enableDefaultSignature = false, onBegin, onEnd, onDefaultSignatureApplied, ...props },
   forwardedRef
@@ -113,8 +137,14 @@ const SignatureCanvasField = forwardRef(function SignatureCanvasField(
         return;
       }
 
-      internalRef.current?.clear?.();
-      internalRef.current?.fromDataURL?.(dataUrl);
+      resizeCanvas();
+      const signature = internalRef.current;
+      const canvas = signature?.getCanvas?.();
+      if (!signature || !canvas) return;
+
+      const image = await loadDataUrlImage(dataUrl);
+      signature.clear?.();
+      signature.fromDataURL?.(dataUrl, getContainedImageOptions(canvas, image));
       onDefaultSignatureApplied?.(dataUrl);
       requestAnimationFrame(() => onEnd?.());
     } catch (error) {
@@ -190,7 +220,7 @@ const SignatureCanvasField = forwardRef(function SignatureCanvasField(
           type="button"
           onClick={applyDefaultSignature}
           disabled={loadingDefault}
-          className="absolute right-2 top-2 z-10 rounded-md border border-blue-200 bg-blue-50/95 px-2 py-1 text-[11px] font-semibold text-blue-700 shadow-sm transition hover:bg-blue-100 disabled:opacity-60"
+          className="absolute right-2 top-2 z-10 rounded-md border border-blue-200 bg-blue-50/90 px-2 py-1 text-[10px] font-semibold text-blue-700 shadow-sm transition hover:bg-blue-100 disabled:opacity-60"
         >
           {loadingDefault ? "Cargando..." : "Usar mi firma"}
         </button>
