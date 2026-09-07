@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
+import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame, PdfSignaturesTable } from "@/components/pdf/PdfReportLayout";
 import { formatPersonName } from "@/utils/nameFormat";
 
 const S = {
@@ -479,49 +479,14 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
 
         {/* ================= FIRMAS ================= */}
         <div className="no-break">
-          <table className="pdf-table w-full mt-4">
-            <thead>
-              <tr>
-                <th>FIRMA TÉCNICO ASTAP</th>
-                <th>FIRMA CLIENTE</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={{ height: 180, textAlign: "center", verticalAlign: "top" }}>
-                  {data.firmas?.tecnico && (
-                    <img
-                      src={data.firmas.tecnico}
-                      alt="firma tecnico"
-                      style={{ maxHeight: 120, margin: "0 auto" }}
-                    />
-                  )}
-
-                  <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>
-                    {formatPersonName(data.tecnicoNombre) || "—"}
-                  </div>
-                </td>
-
-                <td style={{ height: 180, textAlign: "center", verticalAlign: "top" }}>
-                  {data.firmas?.cliente && (
-                    <img
-                      src={data.firmas.cliente}
-                      alt="firma cliente"
-                      style={{ maxHeight: 120, margin: "0 auto" }}
-                    />
-                  )}
-
-                  <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>
-                    {data.contacto || data.cliente || "—"}
-                  </div>
-
-                  <div style={{ marginTop: 4, fontSize: 12 }}>
-                    {data.firmas?.clienteCedula || ""}
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <PdfSignaturesTable
+            styles={S}
+            marginTop={16}
+            signatures={[
+              { header: "FIRMA TÉCNICO ASTAP", src: data.firmas?.tecnico, alt: "Firma técnico", name: formatPersonName(data.tecnicoNombre) },
+              { header: "FIRMA CLIENTE", src: data.firmas?.cliente, alt: "Firma cliente", name: data.contacto || data.cliente, detail: data.firmas?.clienteCedula },
+            ]}
+          />
 
           {data.firmas?.autorizadoPorActivo && (
             <table className="pdf-table mt-3" style={{ width: "60%", marginLeft: "auto", marginRight: "auto" }}>

@@ -7,6 +7,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { generarPDFInformeAgua } from "./generarPDFInformeAgua";
 import { cloneInformeAguaSchema } from "./informeAguaSchema";
+import { PdfSignaturesTable } from "@/components/pdf/PdfReportLayout";
+
+const SIGNATURE_STYLES = {
+  tbl: { width: "100%", borderCollapse: "collapse", fontSize: 10 },
+  cell: { border: "1px solid #d1d5db", padding: "4px 6px", verticalAlign: "middle", fontSize: 10 },
+  th: { border: "1px solid #1a2942", padding: "6px 8px", backgroundColor: "#1a2942", color: "#fff", fontWeight: 700, textAlign: "center", fontSize: 10 },
+};
 
 const mergeDeep = (base, value) => {
   if (Array.isArray(base)) return Array.isArray(value) ? value : [...base];
@@ -327,40 +334,15 @@ export default function InformeAguaPDF({ allowDownload = true }) {
             Firmas
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-            <div className="border rounded p-3 text-center">
-              <div className="text-xs font-semibold text-gray-600 mb-2">
-                Técnico de campo
-              </div>
-              {d.firmas?.tecnico ? (
-                <img
-                  src={d.firmas.tecnico}
-                  alt="Firma técnico"
-                  className="h-28 w-full object-contain mx-auto"
-                />
-              ) : (
-                <div className="h-28 flex items-center justify-center text-sm text-gray-400">
-                  Sin firma
-                </div>
-              )}
-            </div>
-
-            <div className="border rounded p-3 text-center">
-              <div className="text-xs font-semibold text-gray-600 mb-2">
-                Supervisor de contrato
-              </div>
-              {d.firmas?.supervisor ? (
-                <img
-                  src={d.firmas.supervisor}
-                  alt="Firma supervisor"
-                  className="h-28 w-full object-contain mx-auto"
-                />
-              ) : (
-                <div className="h-28 flex items-center justify-center text-sm text-gray-400">
-                  Sin firma
-                </div>
-              )}
-            </div>
+          <div className="p-4">
+            <PdfSignaturesTable
+              styles={SIGNATURE_STYLES}
+              marginTop={0}
+              signatures={[
+                { header: "TÉCNICO DE CAMPO", src: d.firmas?.tecnico, alt: "Firma técnico", name: d.tecnico || d.tecnicoNombre },
+                { header: "SUPERVISOR DE CONTRATO", src: d.firmas?.supervisor, alt: "Firma supervisor", name: d.supervisor },
+              ]}
+            />
           </div>
         </section>
       </div>

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
 import ObservationImagesPdf from "@/components/ObservationImagesPdf";
-import { PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
+import { PdfEquipmentImageFrame, PdfSignaturesTable } from "@/components/pdf/PdfReportLayout";
 import { formatPersonName } from "@/utils/nameFormat";
 
 /* ══════════════════════════════
@@ -450,70 +450,13 @@ export default function MantenimientoHidroPDF({ allowDownload = true }) {
 
         {/* ── FIRMAS ── */}
         <div className="no-break">
-          <table style={{ ...S.tbl, marginTop: 10 }}>
-            <thead>
-              <tr>
-                <th style={S.th}>FIRMA TÉCNICO ASTAP</th>
-                <th style={S.th}>FIRMA CLIENTE</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                {/* TÉCNICO */}
-                <td style={{ ...S.cell, height: 95, textAlign: "center", verticalAlign: "middle", padding: "4px 6px" }}>
-                  <div style={{ height: 45, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {d.firmas?.tecnico ? (
-                      <img
-                        src={d.firmas.tecnico}
-                        alt="Firma técnico"
-                        style={{
-  maxHeight: 52,
-  width: "100%",
-  maxWidth: 180,
-  objectFit: "contain",
-  display: "block",
-  filter: "contrast(1.1)",
-}}
-                      />
-                    ) : (
-                      <span style={{ fontSize: 10, color: "#9ca3af" }}>Sin firma</span>
-                    )}
-                  </div>
-                  <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase" }}>
-                    {formatPersonName(d.tecnicoNombre) || "—"}
-                  </div>
-                </td>
-
-                {/* CLIENTE */}
-                <td style={{ ...S.cell, height: 95, textAlign: "center", verticalAlign: "middle", padding: "4px 6px" }}>
-                  <div style={{ height: 70, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {d.firmas?.cliente ? (
-                      <img
-                        src={d.firmas.cliente}
-                        alt="Firma cliente"
-                        style={{
-                          maxHeight: 34,
-                          width: "auto",
-                          maxWidth: 140,
-                          objectFit: "contain",
-                          display: "block",
-                          filter: "contrast(1.05)",
-                        }}
-                      />
-                    ) : (
-                      <span style={{ fontSize: 10, color: "#9ca3af" }}>Sin firma</span>
-                    )}
-                  </div>
-                  <div style={{ marginTop: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase" }}>
-                    {d.contacto || d.cliente || "—"}
-                  </div>
-                  <div style={{ marginTop: 1, fontSize: 9, color: "#4b5563" }}>
-                    {d.firmas?.clienteCedula || ""}
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <PdfSignaturesTable
+            styles={S}
+            signatures={[
+              { header: "FIRMA TÉCNICO ASTAP", src: d.firmas?.tecnico, alt: "Firma técnico", name: formatPersonName(d.tecnicoNombre) },
+              { header: "FIRMA CLIENTE", src: d.firmas?.cliente, alt: "Firma cliente", name: d.contacto || d.cliente, detail: d.firmas?.clienteCedula },
+            ]}
+          />
         </div>
 
       </div>

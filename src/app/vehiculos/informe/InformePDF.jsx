@@ -3,7 +3,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf"; // ← ajusta la ruta a tu proyecto
-import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame } from "@/components/pdf/PdfReportLayout";
+import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame, PdfSignaturesTable } from "@/components/pdf/PdfReportLayout";
 import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 import { formatPersonName } from "@/utils/nameFormat";
 import { getVehicleReportConfig } from "./reportModeConfig";
@@ -419,99 +419,14 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
     FIRMAS (CORREGIDO)
 ════════════════════ */}
 <div className="no-break">
-  <table style={{ ...S.tbl, marginTop: 14 }}>
-    <thead>
-      <tr>
-        <th style={S.th}>FIRMA TÉCNICO ASTAP</th>
-        <th style={S.th}>FIRMA CLIENTE</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <tr>
-        {/* ================= TÉCNICO ================= */}
-        <td
-          style={{
-            ...S.cell,
-            height: 120,
-            textAlign: "center",
-            verticalAlign: "top",
-            paddingTop: 6,
-          }}
-        >
-          {data.firmas?.tecnico && (
-            <img
-              src={data.firmas.tecnico}
-              alt="Firma técnico"
-              style={{
-                width: "100%",
-                maxWidth: 180,
-                height: "auto",
-                objectFit: "contain",
-                display: "block",
-                margin: "0 auto",
-              }}
-            />
-          )}
-
-         <div
-  style={{
-    marginTop: 10,
-    fontSize: 12,
-    fontWeight: 700,
-  }}
->
-  {formatPersonName(data.tecnicoNombre) || "—"}
-</div>
-        </td>
-
-       {/* ================= CLIENTE ================= */}
-<td
-  style={{
-    ...S.cell,
-    height: 120,
-    textAlign: "center",
-    verticalAlign: "top",
-    paddingTop: 6,
-  }}
->
-  {data.firmas?.cliente && (
-    <img
-      src={data.firmas.cliente}
-      alt="Firma cliente"
-      style={{
-        width: "100%",
-        maxWidth: 180,
-        height: "auto",
-        objectFit: "contain",
-        display: "block",
-        margin: "0 auto",
-      }}
-    />
-  )}
-
-  <div
-    style={{
-      marginTop: 10,
-      fontSize: 12,
-      fontWeight: 700,
-    }}
-  >
-    {data.contacto || data.cliente || "—"}
-  </div>
-
-  <div
-    style={{
-      marginTop: 4,
-      fontSize: 11,
-    }}
-  >
-    {data.firmas?.clienteCedula || ""}
-  </div>
-</td>
-      </tr>
-    </tbody>
-  </table>
+  <PdfSignaturesTable
+    styles={S}
+    marginTop={14}
+    signatures={[
+      { header: "FIRMA TÉCNICO ASTAP", src: data.firmas?.tecnico, alt: "Firma técnico", name: formatPersonName(data.tecnicoNombre) },
+      { header: "FIRMA CLIENTE", src: data.firmas?.cliente, alt: "Firma cliente", name: data.contacto || data.cliente, detail: data.firmas?.clienteCedula },
+    ]}
+  />
 
   {data.firmas?.autorizadoPorActivo && (
     <table style={{ ...S.tbl, marginTop: 10, width: "60%", marginLeft: "auto", marginRight: "auto" }}>

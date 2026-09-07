@@ -29,6 +29,14 @@ const imageToBase64 = (url, timeoutMs = 8000) =>
     img.src = url;
   });
 
+const addContainedImage = (doc, image, x, y, width, height) => {
+  const props = doc.getImageProperties(image);
+  const scale = Math.min(width / props.width, height / props.height);
+  const imageW = props.width * scale;
+  const imageH = props.height * scale;
+  doc.addImage(image, "PNG", x + (width - imageW) / 2, y + (height - imageH) / 2, imageW, imageH);
+};
+
 // ── Colores corporativos ──────────────────────────────
 const AZUL_OSCURO  = [26, 41, 66];    // #1a2942
 const AZUL_MEDIO   = [37, 99, 235];   // #2563eb
@@ -447,10 +455,11 @@ export const generarPDFInformeAgua = async (data = {}) => {
     y = sectionHeader(doc, y, "Firmas");
     y += 8;
 
-    const firmaW  = 72;
-    const firmaH  = 36;
-    const xTecn   = margin;
-    const xSuperv = w - margin - firmaW;
+    const gap = 10;
+    const firmaW = (w - margin * 2 - gap) / 2;
+    const firmaH = 36;
+    const xTecn = margin;
+    const xSuperv = margin + firmaW + gap;
 
     const drawFirma = async (b64Url, x, fy, label) => {
       if (b64Url) {
@@ -458,7 +467,7 @@ export const generarPDFInformeAgua = async (data = {}) => {
           const img = b64Url.startsWith("data:")
             ? b64Url
             : await imageToBase64(b64Url);
-          if (img) doc.addImage(img, "PNG", x, fy, firmaW, firmaH);
+          if (img) addContainedImage(doc, img, x, fy, firmaW, firmaH);
         } catch { /* omit */ }
       }
       doc.setDrawColor(107, 114, 128);

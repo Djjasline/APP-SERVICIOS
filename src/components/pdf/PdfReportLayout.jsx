@@ -106,3 +106,86 @@ export function PdfConclusionRecommendationTable({ conclusiones = [], recomendac
     </table>
   );
 }
+
+export function PdfSignaturesTable({ signatures = [], styles, marginTop = 10 }) {
+  const count = Math.max(signatures.length, 1);
+  const columnWidth = `${100 / count}%`;
+  const tableStyle = styles?.tbl || {};
+  const headerStyle = styles?.th || {};
+  const cellStyle = styles?.cell || {};
+
+  return (
+    <table style={{ ...tableStyle, width: "100%", tableLayout: "fixed", marginTop, breakInside: "avoid", pageBreakInside: "avoid" }}>
+      <thead>
+        <tr>
+          {signatures.map((signature) => (
+            <th key={signature.header} style={{ ...headerStyle, width: columnWidth }}>
+              {signature.header}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          {signatures.map((signature) => (
+            <td
+              key={`${signature.header}-content`}
+              style={{
+                ...cellStyle,
+                width: columnWidth,
+                height: 112,
+                padding: "6px 8px",
+                textAlign: "center",
+                verticalAlign: "middle",
+              }}
+            >
+              <div
+                style={{
+                  height: 62,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
+                }}
+              >
+                {signature.src ? (
+                  <img
+                    src={signature.src}
+                    alt={signature.alt || signature.header}
+                    style={{
+                      maxWidth: "92%",
+                      maxHeight: 58,
+                      width: "auto",
+                      height: "auto",
+                      objectFit: "contain",
+                      display: "block",
+                      filter: "contrast(1.05)",
+                    }}
+                  />
+                ) : (
+                  <span style={{ fontSize: 10, color: "#9ca3af" }}>Sin firma</span>
+                )}
+              </div>
+              <div
+                style={{
+                  marginTop: 8,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  lineHeight: 1.2,
+                  textTransform: "uppercase",
+                }}
+              >
+                {signature.name || "—"}
+              </div>
+              {signature.detail && (
+                <div style={{ marginTop: 2, fontSize: 9, color: "#4b5563", lineHeight: 1.2 }}>
+                  {signature.detail}
+                </div>
+              )}
+            </td>
+          ))}
+        </tr>
+      </tbody>
+    </table>
+  );
+}

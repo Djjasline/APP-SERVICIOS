@@ -17,6 +17,14 @@ const colW = (col, span = 1) => {
   return (width / COL_TOTAL) * TABLE_WIDTH;
 };
 
+const addContainedImage = (doc, image, x, y, width, height) => {
+  const props = doc.getImageProperties(image);
+  const scale = Math.min(width / props.width, height / props.height);
+  const imageW = props.width * scale;
+  const imageH = props.height * scale;
+  doc.addImage(image, "PNG", x + (width - imageW) / 2, y + (height - imageH) / 2, imageW, imageH);
+};
+
 const textValue = (value) => (value === null || value === undefined ? "" : String(value));
 
 const imageToDataUrl = async (url) => {
@@ -501,7 +509,7 @@ export const generarPDFRecepcion = async (data) => {
   });
   cell(doc, 1, 4, y, 18);
   if (data.firmas?.responsable) {
-    doc.addImage(data.firmas.responsable, "PNG", colX(1) + 2, y + 2, colW(1, 4) - 4, 14);
+    addContainedImage(doc, data.firmas.responsable, colX(1) + 2, y + 2, colW(1, 4) - 4, 14);
   }
   cell(doc, 5, 3, y, 18, "RECEPCIÓN FINAL SERVICIO:", {
     align: "center",
@@ -509,7 +517,7 @@ export const generarPDFRecepcion = async (data) => {
   });
   cell(doc, 8, 5, y, 18);
   if (data.firmas?.recepcionFinal) {
-    doc.addImage(data.firmas.recepcionFinal, "PNG", colX(8) + 2, y + 2, colW(8, 5) - 4, 14);
+    addContainedImage(doc, data.firmas.recepcionFinal, colX(8) + 2, y + 2, colW(8, 5) - 4, 14);
   }
   y += 18;
 

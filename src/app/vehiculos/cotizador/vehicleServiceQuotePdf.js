@@ -66,11 +66,19 @@ function addKeyValue(doc, label, value, x, y, width) {
   doc.text(doc.splitTextToSize(textValue(value) || "-", width), x, y + 4.5);
 }
 
+function addContainedImage(doc, image, x, y, width, height) {
+  const props = doc.getImageProperties(image);
+  const scale = Math.min(width / props.width, height / props.height);
+  const imageW = props.width * scale;
+  const imageH = props.height * scale;
+  doc.addImage(image, "PNG", x + (width - imageW) / 2, y + (height - imageH) / 2, imageW, imageH, undefined, "FAST");
+}
+
 function addSignature(doc, label, name, signature, x, y, width) {
   const imageBox = { x, y, width, height: 18 };
   if (signature) {
     try {
-      doc.addImage(signature, "PNG", imageBox.x + 2, imageBox.y, imageBox.width - 4, imageBox.height, undefined, "FAST");
+      addContainedImage(doc, signature, imageBox.x + 2, imageBox.y, imageBox.width - 4, imageBox.height);
     } catch {
       // Si la firma guardada no puede insertarse, se mantiene la linea para firma fisica.
     }

@@ -2,6 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/context/ThemeContext";
+import { PdfSignaturesTable } from "@/components/pdf/PdfReportLayout";
+
+const SIGNATURE_STYLES = {
+  tbl: { width: "100%", borderCollapse: "collapse", fontSize: 10 },
+  cell: { border: "1px solid #171717", padding: "4px 6px", verticalAlign: "middle", fontSize: 10 },
+  th: { border: "1px solid #171717", padding: 8, backgroundColor: "#eff6ff", fontWeight: 700, textAlign: "center", fontSize: 10 },
+};
 
 export default function RegistroPDF({ allowDownload = true, backPath = "/operaciones/registro" }) {
   const { id } = useParams();
@@ -354,54 +361,14 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
         )}
 
         <SectionTitle>Firmas</SectionTitle>
-        <table className="w-full border-collapse border border-neutral-900 text-xs">
-          <thead>
-            <tr className="bg-blue-50">
-              <th className="border border-neutral-900 p-2">Responsable</th>
-              <th className="border border-neutral-900 p-2">Aprobador / Recepción</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr>
-              <td className="h-32 border border-neutral-900 p-3 text-center align-middle">
-                <div className="flex h-24 items-center justify-center">
-                  {firmas.responsable ? (
-                    <img
-                      src={firmas.responsable}
-                      alt="Firma responsable"
-                      className="max-h-24 max-w-full object-contain"
-                    />
-                  ) : (
-                    <span>-</span>
-                  )}
-                </div>
-
-                <div className="mt-2 border-t pt-2 text-xs font-semibold">
-                  Firma Responsable
-                </div>
-              </td>
-
-              <td className="h-32 border border-neutral-900 p-3 text-center align-middle">
-                <div className="flex h-24 items-center justify-center">
-                  {firmas.aprobador ? (
-                    <img
-                      src={firmas.aprobador}
-                      alt="Firma aprobador"
-                      className="max-h-24 max-w-full object-contain"
-                    />
-                  ) : (
-                    <span>-</span>
-                  )}
-                </div>
-
-                <div className="mt-2 border-t pt-2 text-xs font-semibold">
-                  Firma Aprobador / Recepción
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <PdfSignaturesTable
+          styles={SIGNATURE_STYLES}
+          marginTop={0}
+          signatures={[
+            { header: "RESPONSABLE", src: firmas.responsable, alt: "Firma responsable", name: "Firma Responsable" },
+            { header: "APROBADOR / RECEPCIÓN", src: firmas.aprobador, alt: "Firma aprobador", name: "Firma Aprobador / Recepción" },
+          ]}
+        />
 
         <div className="no-print mt-6 flex justify-between">
           <button

@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { createEmptyVisitaCampoData } from "./visitaCampoData";
 import { parseTableText } from "./tableUtils";
 import { isSuperAdminEmail } from "@/constants/privilegedAccess.mjs";
+import { PdfSignaturesTable } from "@/components/pdf/PdfReportLayout";
 
 const S = {
   page: {
@@ -279,37 +280,17 @@ function IntervalosBox({ intro, tableText, note }) {
 }
 
 function SignatureBlock({ data }) {
-  const signatures = [
-    ["REALIZADO POR", data.realizadoPor, data.firmas?.realizado],
-    ["REVISADO POR", data.revisadoPor, data.firmas?.revisado],
-    ["RECIBIDO POR", data.recibidoPor, data.firmas?.recibido],
-  ];
-
   return (
     <div style={{ marginTop: 28 }}>
-      <table style={S.table}>
-        <tbody>
-          <tr>
-            {signatures.map(([label]) => (
-              <td key={label} style={{ ...S.headerCell, textAlign: "center" }}>{label}</td>
-            ))}
-          </tr>
-          <tr>
-            {signatures.map(([label, , signature]) => (
-              <td key={`${label}-firma`} style={{ ...S.cell, height: 78, textAlign: "center", verticalAlign: "middle", padding: 0 }}>
-                {signature && <img src={signature} alt={`Firma ${label}`} style={{ maxWidth: "95%", maxHeight: 76, objectFit: "contain" }} />}
-              </td>
-            ))}
-          </tr>
-          <tr>
-            {signatures.map(([label, value]) => (
-              <td key={`${label}-texto`} style={{ ...S.cell, height: 58, whiteSpace: "pre-line", textAlign: "center", verticalAlign: "middle", fontWeight: 600 }}>
-                {value}
-              </td>
-            ))}
-          </tr>
-        </tbody>
-      </table>
+      <PdfSignaturesTable
+        styles={{ tbl: S.table, th: S.headerCell, cell: S.cell }}
+        marginTop={0}
+        signatures={[
+          { header: "REALIZADO POR", src: data.firmas?.realizado, alt: "Firma realizado por", name: data.realizadoPor },
+          { header: "REVISADO POR", src: data.firmas?.revisado, alt: "Firma revisado por", name: data.revisadoPor },
+          { header: "RECIBIDO POR", src: data.firmas?.recibido, alt: "Firma recibido por", name: data.recibidoPor },
+        ]}
+      />
 
       {data.firmas?.autorizadoPorActivo && (
         <table style={{ ...S.table, width: "60%", margin: "10px auto 0" }}>
