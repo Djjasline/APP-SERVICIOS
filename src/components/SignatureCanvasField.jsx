@@ -30,6 +30,48 @@ const loadDataUrlImage = (dataUrl) =>
     image.src = dataUrl;
   });
 
+const getTrimmedSignatureDataUrl = (image) => {
+  const source = document.createElement("canvas");
+  source.width = image.naturalWidth || image.width;
+  source.height = image.naturalHeight || image.height;
+  const sourceContext = source.getContext("2d");
+  sourceContext.drawImage(image, 0, 0);
+
+  const { data, width, height } = sourceContext.getImageData(0, 0, source.width, source.height);
+  let top = height;
+  let left = width;
+  let right = 0;
+  let bottom = 0;
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const index = (y * width + x) * 4;
+      const alpha = data[index + 3];
+      const isWhite = data[index] > 245 && data[index + 1] > 245 && data[index + 2] > 245;
+      if (alpha > 20 && !isWhite) {
+        top = Math.min(top, y);
+        left = Math.min(left, x);
+        right = Math.max(right, x);
+        bottom = Math.max(bottom, y);
+      }
+    }
+  }
+
+  if (right <= left || bottom <= top) return null;
+
+  const margin = Math.max(4, Math.round(Math.min(width, height) * 0.02));
+  left = Math.max(0, left - margin);
+  top = Math.max(0, top - margin);
+  right = Math.min(width - 1, right + margin);
+  bottom = Math.min(height - 1, bottom + margin);
+
+  const cropped = document.createElement("canvas");
+  cropped.width = right - left + 1;
+  cropped.height = bottom - top + 1;
+  cropped.getContext("2d").drawImage(source, left, top, cropped.width, cropped.height, 0, 0, cropped.width, cropped.height);
+  return cropped.toDataURL("image/png");
+};
+
 const getContainedImageOptions = (canvas, image) => {
   const padding = Math.max(10, Math.round(Math.min(canvas.width, canvas.height) * 0.08));
   const maxWidth = Math.max(1, canvas.width - padding * 2);
@@ -62,7 +104,16 @@ const SignatureCanvasField = forwardRef(function SignatureCanvasField(
     getTrimmedCanvas: (...args) => internalRef.current?.getTrimmedCanvas?.(...args),
     getSignaturePad: (...args) => internalRef.current?.getSignaturePad?.(...args),
     fromDataURL: (...args) => internalRef.current?.fromDataURL?.(...args),
-    toDataURL: (...args) => internalRef.current?.toDataURL?.(...args),
+    toDataURL: (type = "image/png", encoderOptions) => {
+      const signature = internalRef.current;
+      if (!signature) return undefined;
+      if (signature.isEmpty?.()) return signature.toDataURL?.(type, encoderOptions);
+      try {
+        return signature.getTrimmedCanvas?.().toDataURL(type, encoderOptions);
+      } catch {
+        return signature.toDataURL?.(type, encoderOptions);
+      }
+    },
   }), []);
 
   const resizeCanvas = useCallback(() => {
@@ -143,8 +194,10 @@ const SignatureCanvasField = forwardRef(function SignatureCanvasField(
       if (!signature || !canvas) return;
 
       const image = await loadDataUrlImage(dataUrl);
+      const containedDataUrl = getTrimmedSignatureDataUrl(image) || dataUrl;
+      const containedImage = containedDataUrl === dataUrl ? image : await loadDataUrlImage(containedDataUrl);
       signature.clear?.();
-      signature.fromDataURL?.(dataUrl, getContainedImageOptions(canvas, image));
+      signature.fromDataURL?.(containedDataUrl, getContainedImageOptions(canvas, containedImage));
       onDefaultSignatureApplied?.(dataUrl);
       requestAnimationFrame(() => onEnd?.());
     } catch (error) {
