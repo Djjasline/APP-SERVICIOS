@@ -52,6 +52,7 @@ const BASE_METADATA_FIELDS = [
   "internal_notes",
 ];
 
+const ITEM_IDENTITY_FIELDS = ["product_code", "description"];
 const EDITABLE_METADATA_FIELDS = BASE_METADATA_FIELDS;
 
 const VEHICLE_REFERENCE_METADATA_FIELDS = [
@@ -178,10 +179,18 @@ function getSourceConfig(source) {
 }
 
 function normalizeMetadataPayload(source, payload) {
-  const fields = source === WAREHOUSE_ITEM_SOURCES.vehicleReference ? VEHICLE_REFERENCE_METADATA_FIELDS : EDITABLE_METADATA_FIELDS;
+  const fields = [
+    ...ITEM_IDENTITY_FIELDS,
+    ...(source === WAREHOUSE_ITEM_SOURCES.vehicleReference ? VEHICLE_REFERENCE_METADATA_FIELDS : EDITABLE_METADATA_FIELDS),
+  ];
   const metadata = fields.reduce((acc, field) => {
     if (!Object.prototype.hasOwnProperty.call(payload, field)) return acc;
     const value = payload[field];
+
+    if (field === "product_code") {
+      acc[field] = normalizeProductCode(value);
+      return acc;
+    }
 
     if (NUMERIC_FIELDS.has(field)) {
       acc[field] = value === "" || value === null || value === undefined ? null : Number(value);
@@ -191,6 +200,10 @@ function normalizeMetadataPayload(source, payload) {
     acc[field] = String(value || "").trim() || null;
     return acc;
   }, { updated_at: new Date().toISOString() });
+
+  if (!metadata.product_code || !metadata.description) {
+    throw new Error("Código y descripción son obligatorios.");
+  }
 
   return {
     ...metadata,

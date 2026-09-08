@@ -10,6 +10,8 @@ const SOURCE_LABELS = {
 };
 
 const EMPTY_FORM = {
+  product_code: "",
+  description: "",
   area: "",
   last_supplier: "",
   image_url: "",
@@ -153,7 +155,7 @@ export default function BodegaItemDetail() {
       setMessage("Ficha actualizada correctamente.");
     } catch (err) {
       console.error("Error guardando detalle de bodega:", err);
-      setError(err?.code === "42703" ? "Falta ejecutar el SQL de metadatos de bodega en Supabase." : "No se pudo guardar la ficha del artículo.");
+      setError(err?.code === "42703" ? "Falta ejecutar el SQL de metadatos de bodega en Supabase." : err?.message || "No se pudo guardar la ficha del artículo.");
     } finally {
       setSaving(false);
     }
@@ -277,7 +279,7 @@ export default function BodegaItemDetail() {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="font-semibold text-slate-900">Datos complementarios</h3>
-                <p className="text-sm text-slate-500">Imagen, clasificación, compatibilidad y notas técnicas del artículo.</p>
+                <p className="text-sm text-slate-500">Código, descripción, imagen, clasificación, compatibilidad y notas técnicas del artículo.</p>
               </div>
               {canEdit && (
                 <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60">
@@ -290,6 +292,8 @@ export default function BodegaItemDetail() {
             {message && <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">{message}</div>}
 
             <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <Field label="Código" value={form.product_code} onChange={(value) => updateField("product_code", value)} disabled={!canEdit} required />
+              <Field label="Descripción" value={form.description} onChange={(value) => updateField("description", value)} disabled={!canEdit} required />
               <Field label="Área / unidad de negocio" value={form.area} onChange={(value) => updateField("area", value)} disabled={!canEdit} placeholder="Vehículos, Agua, Petróleo, Industria" />
               {isReference && <Field label="Proveedor" value={form.last_supplier} onChange={(value) => updateField("last_supplier", value)} disabled={!canEdit} placeholder="Piquersa, FS-DEPOT..." />}
               <Field label="URL de imagen de referencia" value={form.image_url} onChange={(value) => updateField("image_url", value)} disabled={!canEdit} placeholder="https://..." />
@@ -422,7 +426,7 @@ function InfoCard({ label, value }) {
   );
 }
 
-function Field({ label, value, onChange, disabled, multiline = false, type = "text", placeholder = "" }) {
+function Field({ label, value, onChange, disabled, multiline = false, type = "text", placeholder = "", required = false }) {
   const className = "mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-400 disabled:bg-slate-100 disabled:text-slate-500";
 
   return (
@@ -431,7 +435,7 @@ function Field({ label, value, onChange, disabled, multiline = false, type = "te
       {multiline ? (
         <textarea value={value} onChange={(event) => onChange(event.target.value)} disabled={disabled} placeholder={placeholder} rows={5} className={className} />
       ) : (
-        <input type={type} step={type === "number" ? "0.01" : undefined} value={value} onChange={(event) => onChange(event.target.value)} disabled={disabled} placeholder={placeholder} className={className} />
+        <input type={type} step={type === "number" ? "0.01" : undefined} value={value} onChange={(event) => onChange(event.target.value)} disabled={disabled} placeholder={placeholder} required={required} className={className} />
       )}
     </label>
   );
