@@ -238,12 +238,12 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(service, /reference_stock/);
   assert.match(service, /normalizeProductCode/);
   assert.match(service, /replace\(\/\^\[`'"‘’´\]\+\//);
-  assert.match(service, /replace\(\/\^0-\(\.\+-30\)\$\/i, "\$1"\)/);
+  assert.match(service, /replace\(\/\^0-\(\.\+\)\$\/i, "\$1"\)/);
 
   const importer = read("scripts/build_vehicle_reference_catalog_import.py");
   assert.match(importer, /def clean_product_code/);
   assert.match(importer, /lstrip\("`'\\"‘’´"\)/);
-  assert.match(importer, /re\.sub\(r"\^0-\(\.\+-30\)\$"/);
+  assert.match(importer, /re\.sub\(r"\^0-\(\.\+\)\$"/);
 
   assert.match(home, /SOURCE_VEHICLE_REFERENCE/);
   assert.match(home, /SOURCE_ALL/);

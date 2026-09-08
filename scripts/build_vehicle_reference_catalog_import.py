@@ -44,7 +44,7 @@ def clean_text(value):
 
 def clean_product_code(value):
     code = clean_text(value).lstrip("`'\"‘’´")
-    return re.sub(r"^0-(.+-30)$", r"\1", code, flags=re.IGNORECASE)
+    return re.sub(r"^0-(.+)$", r"\1", code, flags=re.IGNORECASE)
 
 
 def to_number(value):
