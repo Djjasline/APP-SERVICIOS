@@ -415,7 +415,7 @@ export default function BodegaHome() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 p-3 md:p-4">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className={`flex items-center gap-2 text-lg font-semibold ${isLight ? "text-slate-900" : "text-white"}`}>
@@ -662,7 +662,7 @@ export default function BodegaHome() {
           </div>
         )}
 
-        <div className="overflow-x-auto p-4">
+        <div className="overflow-x-auto p-3 md:p-4">
           {loading && (viewingAll ? items.length === 0 && referenceItems.length === 0 : viewingReference ? referenceItems.length === 0 : items.length === 0) ? (
             <p className="text-sm text-slate-500">Cargando información...</p>
           ) : viewingAll ? (
@@ -713,7 +713,21 @@ function ResultGroup({ title, count, empty, children }) {
 
 function StockTable({ items, sort, onSort, onOpen }) {
   return (
-    <table className="min-w-full text-left text-sm">
+    <table className="w-full table-fixed text-left text-xs xl:text-sm">
+      <colgroup>
+        <col className="w-[8%]" />
+        <col className="w-[18%]" />
+        <col className="w-[8%]" />
+        <col className="w-[5%]" />
+        <col className="w-[5%]" />
+        <col className="w-[8%]" />
+        <col className="w-[10%]" />
+        <col className="w-[6%]" />
+        <col className="w-[8%]" />
+        <col className="w-[6%]" />
+        <col className="w-[14%]" />
+        <col className="w-[4%]" />
+      </colgroup>
       <thead className="bg-slate-900 text-white">
         <tr>
           <SortableTh sortKey="product_code" sort={sort} onSort={onSort}>Código</SortableTh>
@@ -726,7 +740,7 @@ function StockTable({ items, sort, onSort, onOpen }) {
           <SortableTh sortKey="last_cost" sort={sort} onSort={onSort} align="right">Último costo</SortableTh>
           <SortableTh sortKey="source_file" sort={sort} onSort={onSort}>Origen</SortableTh>
           <SortableTh sortKey="cutoff_date" sort={sort} onSort={onSort}>Fecha</SortableTh>
-          <th className="px-3 py-2 font-semibold">Estado ficha</th>
+          <th className="px-2 py-2 font-semibold">Estado ficha</th>
           <th className="px-3 py-2 font-semibold">Ficha</th>
         </tr>
       </thead>
@@ -735,18 +749,18 @@ function StockTable({ items, sort, onSort, onOpen }) {
           const fichaStatus = getFichaStatus(item, false);
           return (
             <tr key={item.id} className="border-b border-slate-200 odd:bg-slate-50 hover:bg-amber-50">
-              <td className="px-3 py-2 font-semibold text-slate-900">{item.product_code}</td>
-              <td className="px-3 py-2 text-slate-700">{item.description}</td>
-              <td className="px-3 py-2 text-slate-700">{item.area || "-"}</td>
-              <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.physical_stock)}</td>
-              <td className="px-3 py-2 text-right text-slate-700">{item.stock_minimum ? formatNumber(item.stock_minimum) : "-"}</td>
-              <td className="px-3 py-2 text-slate-700">{item.physical_location || "-"}</td>
-              <td className="px-3 py-2 text-slate-700">{item.last_supplier || "-"}</td>
-              <td className="px-3 py-2 text-right text-slate-600">-</td>
-              <td className="px-3 py-2 text-slate-600">{item.source_file || "-"}</td>
-              <td className="px-3 py-2 text-slate-600">{formatDate(item.cutoff_date)}</td>
-              <td className="px-3 py-2"><FichaStatusBadge status={fichaStatus} /></td>
-              <td className="px-3 py-2">
+              <td className="break-words px-2 py-2 font-semibold text-slate-900">{item.product_code}</td>
+              <td className="break-words px-2 py-2 text-slate-700">{item.description}</td>
+              <td className="break-words px-2 py-2 text-slate-700">{item.area || "-"}</td>
+              <td className="px-2 py-2 text-right font-semibold text-slate-900">{formatNumber(item.physical_stock)}</td>
+              <td className="px-2 py-2 text-right text-slate-700">{item.stock_minimum ? formatNumber(item.stock_minimum) : "-"}</td>
+              <td className="break-words px-2 py-2 text-slate-700">{item.physical_location || "-"}</td>
+              <td className="break-words px-2 py-2 text-slate-700">{item.last_supplier || "-"}</td>
+              <td className="px-2 py-2 text-right text-slate-600">-</td>
+              <td className="break-words px-2 py-2 text-slate-600">{item.source_file || "-"}</td>
+              <td className="break-words px-2 py-2 text-slate-600">{formatDate(item.cutoff_date)}</td>
+              <td className="px-2 py-2"><FichaStatusBadge status={fichaStatus} /></td>
+              <td className="px-2 py-2">
                 <button type="button" onClick={() => onOpen(item)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-white">
                   Abrir
                 </button>
@@ -820,7 +834,20 @@ function SortableTh({ sortKey, sort, onSort, align = "left", children }) {
 
 function VehicleReferenceTable({ items, sort, onSort, onOpen }) {
   return (
-    <table className="min-w-full text-left text-sm">
+    <table className="w-full table-fixed text-left text-xs xl:text-sm">
+      <colgroup>
+        <col className="w-[8%]" />
+        <col className="w-[20%]" />
+        <col className="w-[8%]" />
+        <col className="w-[5%]" />
+        <col className="w-[5%]" />
+        <col className="w-[10%]" />
+        <col className="w-[6%]" />
+        <col className="w-[10%]" />
+        <col className="w-[6%]" />
+        <col className="w-[18%]" />
+        <col className="w-[4%]" />
+      </colgroup>
       <thead className="bg-blue-950 text-white">
         <tr>
           <SortableTh sortKey="product_code" sort={sort} onSort={onSort}>Código</SortableTh>
@@ -832,7 +859,7 @@ function VehicleReferenceTable({ items, sort, onSort, onOpen }) {
           <SortableTh sortKey="last_cost" sort={sort} onSort={onSort} align="right">Último costo</SortableTh>
           <SortableTh sortKey="sheet_name" sort={sort} onSort={onSort}>Origen</SortableTh>
           <SortableTh sortKey="last_purchase_date" sort={sort} onSort={onSort}>Fecha</SortableTh>
-          <th className="px-3 py-2 font-semibold">Estado ficha</th>
+          <th className="px-2 py-2 font-semibold">Estado ficha</th>
           <th className="px-3 py-2 font-semibold">Ficha</th>
         </tr>
       </thead>
@@ -841,17 +868,17 @@ function VehicleReferenceTable({ items, sort, onSort, onOpen }) {
           const fichaStatus = getFichaStatus(item, true);
           return (
             <tr key={item.id} className="border-b border-slate-200 odd:bg-blue-50/40 hover:bg-blue-100/60">
-              <td className="px-3 py-2 font-semibold text-slate-900">{item.product_code}</td>
-              <td className="px-3 py-2 text-slate-700">{item.description}</td>
-              <td className="px-3 py-2 text-slate-700">{item.area || "Vehículos Especiales"}</td>
-              <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatNumber(item.reference_stock)}</td>
-              <td className="px-3 py-2 text-slate-700">-</td>
-              <td className="px-3 py-2 text-slate-700">{item.last_supplier || "-"}</td>
-              <td className="px-3 py-2 text-right font-semibold text-slate-900">{formatMoney(item.last_cost)}</td>
-              <td className="px-3 py-2 text-slate-600">{item.sheet_name || item.source_file || "Histórico vehículos"}</td>
-              <td className="px-3 py-2 text-slate-600">{formatDate(item.last_purchase_date || item.last_sale_date)}</td>
-              <td className="px-3 py-2"><FichaStatusBadge status={fichaStatus} /></td>
-              <td className="px-3 py-2">
+              <td className="break-words px-2 py-2 font-semibold text-slate-900">{item.product_code}</td>
+              <td className="break-words px-2 py-2 text-slate-700">{item.description}</td>
+              <td className="break-words px-2 py-2 text-slate-700">{item.area || "Vehículos Especiales"}</td>
+              <td className="px-2 py-2 text-right font-semibold text-slate-900">{formatNumber(item.reference_stock)}</td>
+              <td className="px-2 py-2 text-slate-700">-</td>
+              <td className="break-words px-2 py-2 text-slate-700">{item.last_supplier || "-"}</td>
+              <td className="px-2 py-2 text-right font-semibold text-slate-900">{formatMoney(item.last_cost)}</td>
+              <td className="break-words px-2 py-2 text-slate-600">{item.sheet_name || item.source_file || "Histórico vehículos"}</td>
+              <td className="break-words px-2 py-2 text-slate-600">{formatDate(item.last_purchase_date || item.last_sale_date)}</td>
+              <td className="px-2 py-2"><FichaStatusBadge status={fichaStatus} /></td>
+              <td className="px-2 py-2">
                 <button type="button" onClick={() => onOpen(item)} className="rounded-lg border border-blue-300 px-3 py-1.5 text-xs font-semibold text-blue-800 hover:bg-white">
                   Abrir
                 </button>
@@ -877,12 +904,12 @@ function FilterSelect({ label, value, onChange, children }) {
 
 function FichaStatusBadge({ status }) {
   return (
-    <div className="min-w-40">
-      <span title={status.detail || "Ficha completa"} className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${status.complete ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"}`}>
+    <div className="w-full min-w-0 space-y-1">
+      <span title={status.detail || "Ficha completa"} className={`flex w-full items-center justify-center whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm ${status.complete ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"}`}>
         {status.label}{status.complete ? "" : ` (${status.missingCount})`}
       </span>
       {!status.complete && (
-        <p className="mt-1 text-xs leading-4 text-slate-500">Falta: {status.detail}</p>
+        <p className="text-xs leading-4 text-slate-500">Falta: {status.detail}</p>
       )}
     </div>
   );

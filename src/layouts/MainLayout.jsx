@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Outlet, useNavigate, Link } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, Link } from "react-router-dom";
 import { User, Bell, Moon, Sparkles, Sun } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -73,6 +73,7 @@ export default function MainLayout() {
   const [touchStartX, setTouchStartX] = useState(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, profile, logout, role, roleLabel, email } = useAuth();
   const { theme, isLight, isLiquid, nextTheme, toggleTheme } = useTheme();
   const [unread, setUnread] = useState(0);
@@ -91,6 +92,7 @@ export default function MainLayout() {
     cancelarSuscripcion: desactivarPush,
   } = useNotificaciones();
   const nextThemeLabel = nextTheme === "light" ? "modo claro" : nextTheme === "liquid" ? "Liquid Glass" : "modo oscuro";
+  const isWidePage = location.pathname.startsWith("/operaciones/bodega");
 
   useEffect(() => {
     unreadRef.current = unread;
@@ -591,9 +593,9 @@ export default function MainLayout() {
         </header>
 
         {/* ================= MAIN ================= */}
-        <main className="app-main flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6">
+        <main className={`app-main flex-1 overflow-y-auto overflow-x-hidden ${isWidePage ? "p-2 md:p-3" : "p-4 md:p-6"}`}>
           <div
-            className={`app-page-shell max-w-7xl mx-auto rounded-2xl backdrop-blur-xl border p-4 md:p-6 shadow-xl min-h-full transition-colors ${
+            className={`app-page-shell ${isWidePage ? "w-full max-w-none p-2 md:p-3" : "max-w-7xl mx-auto p-4 md:p-6"} rounded-2xl backdrop-blur-xl border shadow-xl min-h-full transition-colors ${
               isLiquid
                 ? "liquid-glass-shell border-white/20"
                 : isLight
