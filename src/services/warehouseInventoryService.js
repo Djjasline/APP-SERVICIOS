@@ -118,7 +118,10 @@ function findBestRow(rows, terms, quantityField) {
 }
 
 function normalizeProductCode(value) {
-  return String(value || "").trim().replace(/^[`'"‘’´]+/, "");
+  return String(value || "")
+    .trim()
+    .replace(/^[`'"‘’´]+/, "")
+    .replace(/^0-(.+-30)$/i, "$1");
 }
 
 function isFsDepotVehicleCode(productCode) {
