@@ -351,7 +351,29 @@ export default function Perfil() {
                   : "border-transparent bg-white/60 text-gray-600 hover:bg-white"
               }`}
             >
-              Modo oscuro
+              Modo dark
+            </button>
+            <button
+              type="button"
+              onClick={() => setTheme("blue")}
+              className={`rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                theme === "blue"
+                  ? "border-blue-600 bg-blue-950 text-white shadow"
+                  : "border-transparent bg-white/60 text-gray-600 hover:bg-white"
+              }`}
+            >
+              Oscuro azul
+            </button>
+            <button
+              type="button"
+              onClick={() => setTheme("liquid")}
+              className={`rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                theme === "liquid"
+                  ? "border-cyan-400 bg-cyan-950 text-white shadow"
+                  : "border-transparent bg-white/60 text-gray-600 hover:bg-white"
+              }`}
+            >
+              Liquid Glass
             </button>
           </div>
           <p className="text-xs text-gray-500">

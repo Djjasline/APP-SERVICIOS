@@ -69,13 +69,17 @@ test("modulos especiales conservan llaves esperadas", () => {
   assert.match(accessControl, /CONFIGURADOR_OWNER_EMAIL = PRIVILEGED_EMAILS\.superAdmin\[0\]/);
 });
 
-test("tema liquid glass se mantiene como tercer modo visual", () => {
+test("temas oscuros mantienen variantes dark y azul", () => {
   const themeContext = read("src/context/ThemeContext.jsx");
   const mainLayout = read("src/layouts/MainLayout.jsx");
   const sidebar = read("src/layouts/Sidebar.jsx");
   const styles = read("src/styles/tailwind.css");
 
-  assert.match(themeContext, /const THEMES = \["dark", "light", "liquid"\]/);
+  assert.match(themeContext, /const THEMES = \["dark", "blue", "light", "liquid"\]/);
+  assert.match(themeContext, /isBlueDark: theme === "blue"/);
+  assert.match(mainLayout, /oscuro azul/);
+  assert.match(sidebar, /from-\[#003366\] to-\[#001f3f\]/);
+  assert.match(styles, /GRAPHITE DARK THEME/);
   assert.match(themeContext, /isLiquid: theme === "liquid"/);
   assert.match(mainLayout, /liquid-glass-background/);
   assert.match(mainLayout, /liquid-glass-shell/);

@@ -169,6 +169,51 @@
 }
 
 /* =============================
+   GRAPHITE DARK THEME
+============================= */
+html[data-theme="dark"] .app-main {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 30rem),
+    linear-gradient(135deg, #111315 0%, #181a1d 48%, #0f1012 100%);
+}
+
+html[data-theme="dark"] .app-page-shell {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 24px 70px rgba(0, 0, 0, 0.38);
+}
+
+html[data-theme="dark"] .app-page-shell :where(.bg-white, .bg-gray-50, .bg-gray-100, .bg-slate-50) {
+  background-color: rgba(42, 44, 47, 0.88) !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.text-gray-900, .text-slate-900, .text-gray-800, .text-slate-800, .text-gray-700, .text-slate-700) {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.text-gray-600, .text-slate-600, .text-gray-500, .text-slate-500) {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(input, textarea, select) {
+  background-color: rgba(32, 33, 36, 0.92);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] .app-page-shell :where(input, textarea)::placeholder {
+  color: #94a3b8;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table),
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-white, .bg-gray-50, .bg-gray-100) {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+/* =============================
    COMPONENTS
 ============================= */
 @layer components {
@@ -444,7 +489,13 @@ html[data-theme="dark"] :where(h1, h2, h3, h4, h5, h6).text-slate-900,
 html[data-theme="dark"] :where(h1, h2, h3, h4, h5, h6).text-gray-800,
 html[data-theme="dark"] :where(h1, h2, h3, h4, h5, h6).text-slate-800,
 html[data-theme="dark"] :where(h1, h2, h3, h4, h5, h6).text-gray-700,
-html[data-theme="dark"] :where(h1, h2, h3, h4, h5, h6).text-slate-700 {
+html[data-theme="dark"] :where(h1, h2, h3, h4, h5, h6).text-slate-700,
+html[data-theme="blue"] :where(h1, h2, h3, h4, h5, h6).text-gray-900,
+html[data-theme="blue"] :where(h1, h2, h3, h4, h5, h6).text-slate-900,
+html[data-theme="blue"] :where(h1, h2, h3, h4, h5, h6).text-gray-800,
+html[data-theme="blue"] :where(h1, h2, h3, h4, h5, h6).text-slate-800,
+html[data-theme="blue"] :where(h1, h2, h3, h4, h5, h6).text-gray-700,
+html[data-theme="blue"] :where(h1, h2, h3, h4, h5, h6).text-slate-700 {
   color: #f8fafc !important;
 }
 
@@ -453,7 +504,13 @@ html[data-theme="dark"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-contai
 html[data-theme="dark"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-gray-800,
 html[data-theme="dark"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-slate-800,
 html[data-theme="dark"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-gray-700,
-html[data-theme="dark"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-slate-700 {
+html[data-theme="dark"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-slate-700,
+html[data-theme="blue"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-gray-900,
+html[data-theme="blue"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-slate-900,
+html[data-theme="blue"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-gray-800,
+html[data-theme="blue"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-slate-800,
+html[data-theme="blue"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-gray-700,
+html[data-theme="blue"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-container, .print-area, .pdf-page) :where(h1, h2, h3, h4, h5, h6).text-slate-700 {
   color: #111827 !important;
 }
 

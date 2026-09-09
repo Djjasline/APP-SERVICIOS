@@ -75,7 +75,7 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, logout, role, roleLabel, email } = useAuth();
-  const { theme, isLight, isLiquid, nextTheme, toggleTheme } = useTheme();
+  const { theme, isLight, isBlueDark, isLiquid, nextTheme, toggleTheme } = useTheme();
   const [unread, setUnread] = useState(0);
   const [chatAlert, setChatAlert] = useState(null);
   const [installPrompt, setInstallPrompt] = useState(null);
@@ -93,7 +93,7 @@ export default function MainLayout() {
     solicitarPermiso: activarPush,
     cancelarSuscripcion: desactivarPush,
   } = useNotificaciones();
-  const nextThemeLabel = nextTheme === "light" ? "modo claro" : nextTheme === "liquid" ? "Liquid Glass" : "modo oscuro";
+  const nextThemeLabel = nextTheme === "blue" ? "oscuro azul" : nextTheme === "light" ? "modo claro" : nextTheme === "liquid" ? "Liquid Glass" : "modo dark";
   const isWidePage = location.pathname.startsWith("/operaciones/bodega");
 
   useEffect(() => {
@@ -357,9 +357,11 @@ export default function MainLayout() {
       className={`flex h-screen transition-colors duration-300 ${
         isLiquid
           ? "relative overflow-hidden bg-[#06142f] text-white"
+          : isBlueDark
+          ? "bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b] text-white"
           : isLight
           ? "bg-gradient-to-br from-slate-50 via-blue-50 to-white text-slate-900"
-          : "bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e293b] text-white"
+          : "bg-[#111315] text-white"
       }`}
       /* ================= SWIPE ================= */
       onTouchStart={(e) => {
@@ -400,9 +402,11 @@ export default function MainLayout() {
           className={`fixed right-4 top-20 z-[9999] max-w-sm rounded-2xl border px-4 py-3 text-left shadow-2xl transition ${
             isLiquid
               ? "liquid-glass-panel border-white/25 text-white"
+              : isBlueDark
+              ? "border-white/10 bg-slate-950 text-white"
               : isLight
               ? "border-blue-200 bg-white text-slate-900"
-              : "border-white/10 bg-slate-950 text-white"
+              : "border-white/10 bg-[#202124] text-white"
           }`}
         >
           <div className="text-sm font-semibold">{chatAlert.title}</div>
@@ -457,9 +461,11 @@ export default function MainLayout() {
           className={`app-header h-16 flex items-center justify-between px-6 backdrop-blur-xl border-b relative z-50 transition-colors ${
             isLiquid
               ? "liquid-glass-panel border-white/20 text-white shadow-2xl shadow-cyan-950/20"
+              : isBlueDark
+              ? "bg-white/5 border-white/10 text-white"
               : isLight
               ? "bg-white/85 border-slate-200 text-slate-900 shadow-sm"
-              : "bg-white/5 border-white/10 text-white"
+              : "bg-[#202124]/90 border-white/10 text-white shadow-lg shadow-black/30"
           }`}
         >
           {/* IZQUIERDA */}
@@ -523,9 +529,11 @@ export default function MainLayout() {
                 className={`w-10 h-10 rounded-full backdrop-blur-md border flex items-center justify-center cursor-pointer transition-all duration-200 ${
                   isLiquid
                     ? "bg-white/10 border-white/25 shadow-lg shadow-cyan-950/20 hover:bg-white/25"
+                    : isBlueDark
+                    ? "bg-white/10 border-white/20 hover:bg-white/20"
                     : isLight
                     ? "bg-slate-100 border-slate-200 hover:bg-slate-200"
-                    : "bg-white/10 border-white/20 hover:bg-white/20"
+                    : "bg-[#2b2d30] border-white/15 hover:bg-[#34363a]"
                 }`}
               >
                 {profile?.avatar_url ? (
@@ -544,9 +552,11 @@ export default function MainLayout() {
                   className={`absolute right-0 mt-2 w-64 backdrop-blur-xl border rounded-xl shadow-xl p-4 text-sm animate-fadeIn ${
                     isLiquid
                       ? "liquid-glass-panel border-white/25 text-white"
+                      : isBlueDark
+                      ? "bg-black/70 border-white/20 text-white"
                       : isLight
                       ? "bg-white/95 border-slate-200 text-slate-900"
-                      : "bg-black/70 border-white/20 text-white"
+                      : "bg-[#202124]/95 border-white/15 text-white"
                   }`}
                 >
                   {/* INFO USUARIO */}
@@ -608,7 +618,7 @@ export default function MainLayout() {
                         isLight ? "hover:bg-slate-100" : "hover:bg-white/10"
                       }`}
                     >
-                      {theme === "dark" ? <Sun size={15} /> : theme === "light" ? <Sparkles size={15} /> : <Moon size={15} />}
+                      {nextTheme === "liquid" ? <Sparkles size={15} /> : nextTheme === "light" ? <Sun size={15} /> : <Moon size={15} />}
                       Usar {nextThemeLabel}
                     </button>
                   </div>
@@ -637,9 +647,11 @@ export default function MainLayout() {
             className={`app-page-shell ${isWidePage ? "w-full max-w-none p-2 md:p-3" : "max-w-7xl mx-auto p-4 md:p-6"} rounded-2xl backdrop-blur-xl border shadow-xl min-h-full transition-colors ${
               isLiquid
                 ? "liquid-glass-shell border-white/20"
+                : isBlueDark
+                ? "bg-white/5 border-white/10"
                 : isLight
                 ? "bg-white/80 border-slate-200"
-                : "bg-white/5 border-white/10"
+                : "bg-[#242628]/90 border-white/10 shadow-black/40"
             }`}
           >
             <Outlet context={{ usuariosOnline }} />

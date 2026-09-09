@@ -47,7 +47,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isProveedorVehiculos, isProveedorVehiculosOnly } = useAuth();
-  const { isLight, isLiquid } = useTheme();
+  const { isLight, isBlueDark, isLiquid } = useTheme();
 
   const [openVehiculos, setOpenVehiculos] = useState(false);
   const [openOperaciones, setOpenOperaciones] = useState(false);
@@ -214,19 +214,23 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       active
         ? isLiquid
           ? "bg-white/20 text-white shadow-lg shadow-cyan-950/20 ring-1 ring-white/20"
+          : isBlueDark
+          ? "bg-emerald-400/20 text-emerald-50"
           : isLight
           ? "bg-emerald-50 text-emerald-900"
-          : "bg-emerald-400/20 text-emerald-50"
+          : "bg-slate-500/35 text-white ring-1 ring-white/10"
         : isLiquid
         ? "text-white/80 hover:bg-white/10 hover:text-white"
+        : isBlueDark
+        ? "text-white/80 hover:bg-emerald-400/10 hover:text-emerald-50"
         : isLight
         ? "text-slate-600 hover:bg-emerald-50 hover:text-emerald-900"
-        : "text-white/80 hover:bg-emerald-400/10 hover:text-emerald-50"
+        : "text-slate-300 hover:bg-white/10 hover:text-white"
     }
   `;
 
   const iconClass = `
-    ${isLiquid ? "text-cyan-100 group-hover:text-white drop-shadow" : isLight ? "text-slate-500 group-hover:text-emerald-900" : "text-white/80 group-hover:text-emerald-50"} transition-all duration-300
+    ${isLiquid ? "text-cyan-100 group-hover:text-white drop-shadow" : isBlueDark ? "text-white/80 group-hover:text-emerald-50" : isLight ? "text-slate-500 group-hover:text-emerald-900" : "text-slate-300 group-hover:text-white"} transition-all duration-300
   `;
 
   const tooltip = (label) =>
@@ -247,14 +251,18 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       isActive(path)
         ? isLiquid
           ? "bg-white/20 text-white border-l-2 border-cyan-200 pl-3"
+          : isBlueDark
+          ? "bg-emerald-400/20 text-emerald-50 border-l-2 border-emerald-300 pl-3"
           : isLight
           ? "bg-emerald-50 text-emerald-900 border-l-2 border-emerald-500 pl-3"
-          : "bg-emerald-400/20 text-emerald-50 border-l-2 border-emerald-300 pl-3"
+          : "bg-slate-500/30 text-white border-l-2 border-slate-300 pl-3"
         : isLiquid
         ? "text-white/70 hover:text-white hover:bg-white/10"
+        : isBlueDark
+        ? "text-white/70 hover:text-emerald-50 hover:bg-emerald-400/10"
         : isLight
         ? "text-slate-500 hover:text-emerald-900 hover:bg-emerald-50"
-        : "text-white/70 hover:text-emerald-50 hover:bg-emerald-400/10"
+        : "text-slate-300 hover:text-white hover:bg-white/10"
     }`;
 
   const subLabel = (Icon, label) => (
@@ -278,7 +286,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
     <aside
       className={`
         fixed top-0 left-0 h-screen z-50 flex flex-col
-        ${isLiquid ? "liquid-glass-sidebar border-r border-white/20" : isLight ? "bg-white/95 border-r border-slate-200" : "bg-gradient-to-b from-[#003366] to-[#001f3f] border-r border-white/10"}
+        ${isLiquid ? "liquid-glass-sidebar border-r border-white/20" : isBlueDark ? "bg-gradient-to-b from-[#003366] to-[#001f3f] border-r border-white/10" : isLight ? "bg-white/95 border-r border-slate-200" : "bg-[#1e2023]/95 border-r border-white/10 shadow-2xl shadow-black/40"}
         backdrop-blur-xl
         transition-all duration-300
         ${openSidebar ? "w-64" : "w-0"}
@@ -286,7 +294,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       `}
     >
       {/* LOGO */}
-      <div className={`p-4 flex items-center gap-3 border-b cursor-pointer ${isLiquid ? "border-white/20 hover:bg-white/10" : isLight ? "border-slate-200 hover:bg-emerald-50" : "border-white/10 hover:bg-emerald-400/10"}`}>
+      <div className={`p-4 flex items-center gap-3 border-b cursor-pointer ${isLiquid ? "border-white/20 hover:bg-white/10" : isBlueDark ? "border-white/10 hover:bg-emerald-400/10" : isLight ? "border-slate-200 hover:bg-emerald-50" : "border-white/10 hover:bg-white/10"}`}>
         <button
           type="button"
           onClick={() => setOpenSidebar(!openSidebar)}

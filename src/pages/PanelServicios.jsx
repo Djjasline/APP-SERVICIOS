@@ -15,7 +15,8 @@ import {
 export default function PanelServicios() {
   const navigate = useNavigate();
   const { isProveedorVehiculos, isProveedorVehiculosOnly } = useAuth();
-  const { isLight } = useTheme();
+  const { theme, isLight } = useTheme();
+  const isGraphiteDark = theme === "dark";
   const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
 
   useEffect(() => {
@@ -110,7 +111,11 @@ export default function PanelServicios() {
           {menuPrincipal.map((item) => (
             <div
               key={item.id}
-              className="bg-white p-6 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 space-y-4"
+              className={`p-6 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 space-y-4 ${
+                isGraphiteDark
+                  ? "border border-white/15 bg-[#2a2c2f]/90 text-white backdrop-blur-md shadow-black/40"
+                  : "bg-white"
+              }`}
             >
               {/* ICONO */}
               <div
@@ -120,12 +125,12 @@ export default function PanelServicios() {
               </div>
 
               {/* TITULO */}
-              <h2 className="font-semibold text-lg text-gray-900">
+              <h2 className={`font-semibold text-lg ${isGraphiteDark ? "text-white" : "text-gray-900"}`}>
                 {item.titulo}
               </h2>
 
               {/* DESCRIPCIÓN */}
-              <p className="text-sm text-gray-600">{item.descripcion}</p>
+              <p className={`text-sm ${isGraphiteDark ? "text-slate-200" : "text-gray-600"}`}>{item.descripcion}</p>
 
               {/* BOTÓN */}
               <button
