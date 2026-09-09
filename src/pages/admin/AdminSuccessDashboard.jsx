@@ -1,11 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
+  AlertTriangle,
   ArrowRightFromLine,
+  Bell,
   CalendarDays,
   CheckSquare,
+  ClipboardList,
   Clock3,
   Download,
   FileText,
+  Package,
+  RefreshCw,
   ShieldCheck,
   Star,
   Timer,
@@ -13,7 +19,9 @@ import {
   Users,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { getGeneralDashboard } from "@/services/dashboardService";
 
 const FORM_AREA_META = {
   vehiculos: { label: "Vehículos Especiales", color: "#0f55ff" },
@@ -75,6 +83,18 @@ function formatNumber(value) {
   return new Intl.NumberFormat("es-EC").format(value || 0);
 }
 
+function formatActivityDate(value) {
+  if (!value) return "Sin fecha";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Sin fecha";
+  return date.toLocaleString("es-EC", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function getPeriodStart(period) {
   if (period === "all") return null;
   const days = Number(period);
@@ -128,11 +148,17 @@ function downloadCsv(filename, rows) {
 }
 
 export default function AdminSuccessDashboard() {
+  const navigate = useNavigate();
+  const { email, user } = useAuth();
   const { isLight, isLiquid } = useTheme();
   const [records, setRecords] = useState([]);
   const [period, setPeriod] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [operationalDashboard, setOperationalDashboard] = useState(null);
+  const [operationalLoading, setOperationalLoading] = useState(true);
+  const [operationalError, setOperationalError] = useState("");
+  const [operationalRefreshKey, setOperationalRefreshKey] = useState(0);
 
   useEffect(() => {
     const load = async () => {
@@ -156,6 +182,30 @@ export default function AdminSuccessDashboard() {
 
     load();
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadOperationalDashboard() {
+      try {
+        setOperationalLoading(true);
+        setOperationalError("");
+        const data = await getGeneralDashboard({ email: email || user?.email });
+        if (mounted) setOperationalDashboard(data);
+      } catch (err) {
+        console.error("Error cargando vista operativa del dashboard:", err);
+        if (mounted) setOperationalError("No se pudo cargar la vista operativa diaria.");
+      } finally {
+        if (mounted) setOperationalLoading(false);
+      }
+    }
+
+    loadOperationalDashboard();
+
+    return () => {
+      mounted = false;
+    };
+  }, [email, operationalRefreshKey, user?.email]);
 
   const dashboard = useMemo(() => {
     const start = getPeriodStart(period);
@@ -306,6 +356,14 @@ export default function AdminSuccessDashboard() {
         <MetricCard icon={Users} label="Usuarios Recursos" value={dashboard.resourceUsage.users} detail={`${formatNumber(dashboard.resourceUsage.total)} accesos`} color="bg-purple-700" />
       </div>
 
+      <OperationalSnapshot
+        dashboard={operationalDashboard}
+        error={operationalError}
+        loading={operationalLoading}
+        onNavigate={navigate}
+        onRefresh={() => setOperationalRefreshKey((value) => value + 1)}
+      />
+
       <div className="grid gap-4 xl:grid-cols-[1.15fr_1.15fr_0.85fr]">
         <Panel title="1. Distribución por área y estado">
           <AreaTable rows={dashboard.areaRows} total={dashboard.totals.total} />
@@ -377,6 +435,152 @@ function MetricCard({ icon: Icon, label, value, detail, color }) {
           <p className="text-xs text-slate-600">{detail}</p>
         </div>
       </div>
+    </div>
+  );
+}
+
+function OperationalSnapshot({ dashboard, error, loading, onNavigate, onRefresh }) {
+  const metrics = dashboard?.metrics || {};
+  const actions = [
+    { label: "Notificaciones", url: "/notifications", color: "bg-blue-600" },
+    { label: "Bodega", url: "/operaciones/bodega", color: "bg-emerald-700" },
+    { label: "Cotizador", url: "/vehiculos/cotizador", color: "bg-violet-600" },
+  ];
+
+  return (
+    <Panel title="Vista operativa diaria">
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p className="text-sm font-bold text-slate-900">Resumen rápido sin cambiar el menú principal</p>
+            <p className="text-xs text-slate-500">Muestra pendientes, actividad reciente y alertas usando los permisos actuales.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onRefresh}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50"
+          >
+            <RefreshCw size={14} />
+            Actualizar vista
+          </button>
+        </div>
+
+        {error && <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">{error}</div>}
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <OperationalMetric icon={FileText} label="Informes hoy" value={metrics.reportsToday} detail="Creados durante la jornada" color="text-blue-600" />
+          <OperationalMetric icon={ClipboardList} label="Borradores" value={metrics.draftReports} detail="Pendientes visibles" color="text-amber-600" />
+          <OperationalMetric icon={Bell} label="Notificaciones" value={metrics.unreadNotifications} detail="Avisos sin leer" color="text-purple-600" />
+          <OperationalMetric icon={Package} label="Stock bajo" value={metrics.lowStockItems} detail={`${formatNumber(metrics.warehouseItems)} artículos visibles`} color="text-red-600" />
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h4 className="text-xs font-black uppercase text-blue-900">Alertas importantes</h4>
+              <span className="text-[10px] font-bold uppercase text-slate-400">Hoy</span>
+            </div>
+            {loading ? <LoadingLine text="Cargando alertas..." /> : <OperationalAlerts alerts={dashboard?.alerts || []} onNavigate={onNavigate} />}
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h4 className="text-xs font-black uppercase text-blue-900">Actividad reciente</h4>
+              <div className="flex gap-2">
+                {actions.map((action) => (
+                  <button
+                    key={action.url}
+                    type="button"
+                    onClick={() => onNavigate(action.url)}
+                    className={`${action.color} rounded-full px-3 py-1 text-[10px] font-bold uppercase text-white transition hover:opacity-90`}
+                  >
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {loading ? <LoadingLine text="Cargando actividad..." /> : <OperationalActivity items={dashboard?.activity || []} onNavigate={onNavigate} />}
+          </div>
+        </div>
+      </div>
+    </Panel>
+  );
+}
+
+function OperationalMetric({ icon: Icon, label, value, detail, color }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-black uppercase text-slate-500">{label}</p>
+          <p className="mt-1 text-2xl font-black text-slate-900">{formatNumber(value)}</p>
+          <p className="text-xs text-slate-500">{detail}</p>
+        </div>
+        <Icon size={24} className={color} />
+      </div>
+    </div>
+  );
+}
+
+function LoadingLine({ text }) {
+  return <p className="rounded-xl border border-dashed border-slate-200 bg-white p-4 text-xs font-medium text-slate-500">{text}</p>;
+}
+
+function OperationalAlerts({ alerts, onNavigate }) {
+  const toneClass = {
+    amber: "border-amber-200 bg-amber-50 text-amber-800",
+    blue: "border-blue-200 bg-blue-50 text-blue-800",
+    emerald: "border-emerald-200 bg-emerald-50 text-emerald-800",
+    red: "border-red-200 bg-red-50 text-red-800",
+    violet: "border-violet-200 bg-violet-50 text-violet-800",
+  };
+
+  if (!alerts.length) {
+    return <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-medium text-emerald-800">Sin alertas críticas visibles en este momento.</p>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {alerts.map((alert) => (
+        <button
+          key={alert.id}
+          type="button"
+          onClick={() => onNavigate(alert.url)}
+          className={`flex w-full gap-3 rounded-xl border p-3 text-left transition hover:-translate-y-0.5 ${toneClass[alert.tone] || toneClass.blue}`}
+        >
+          <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+          <span>
+            <span className="block text-xs font-black uppercase">{alert.title}</span>
+            <span className="block text-xs opacity-80">{alert.detail}</span>
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function OperationalActivity({ items, onNavigate }) {
+  if (!items.length) {
+    return <p className="rounded-xl border border-dashed border-slate-200 bg-white p-4 text-xs font-medium text-slate-500">Todavía no hay actividad reciente visible.</p>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onNavigate(item.url)}
+          className="flex w-full items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-blue-200 hover:bg-blue-50"
+        >
+          <span className="mt-1.5 h-2.5 w-2.5 rounded-full bg-blue-600" />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-xs font-black uppercase text-slate-900">{item.title}</span>
+            <span className="block truncate text-xs text-slate-500">{item.detail}</span>
+          </span>
+          <span className="shrink-0 text-[10px] font-semibold text-slate-400">{formatActivityDate(item.date)}</span>
+        </button>
+      ))}
     </div>
   );
 }

@@ -68,22 +68,26 @@ test("dashboard de exito mantiene actividad diaria visible", () => {
 
   assert.match(dashboard, /function buildDailyActivity/);
   assert.match(dashboard, /dailyActivity: buildDailyActivity/);
+  assert.match(dashboard, /getGeneralDashboard/);
+  assert.match(dashboard, /Vista operativa diaria/);
+  assert.match(dashboard, /OperationalSnapshot/);
+  assert.match(dashboard, /Alertas importantes/);
+  assert.match(dashboard, /Actividad reciente/);
   assert.match(dashboard, /<BarChart data=\{dashboard\.dailyActivity\}/);
   assert.match(dashboard, /role="img" aria-label="Actividad diaria de informes"/);
   assert.match(dashboard, /lg:grid-cols-2 2xl:grid-cols-\[0\.9fr_0\.9fr_1fr\]/);
   assert.match(dashboard, /<Panel title="7\. Resumen de impacto">\s*<ImpactList \/>\s*<\/Panel>/);
 });
 
-test("panel principal muestra dashboard general operativo", () => {
+test("panel principal conserva visual de menu estable", () => {
   const panel = read("src/pages/PanelServicios.jsx");
   const service = read("src/services/dashboardService.js");
 
-  assert.match(panel, /getGeneralDashboard/);
-  assert.match(panel, /Centro de control/);
-  assert.match(panel, /Accesos rápidos/);
-  assert.match(panel, /Alertas importantes/);
-  assert.match(panel, /Actividad reciente/);
-  assert.match(panel, /Áreas de servicio/);
+  assert.match(panel, /Panel de servicios ASTAP/);
+  assert.match(panel, /Gestión técnica organizada por secciones operativas/);
+  assert.match(panel, /menuPrincipal/);
+  assert.doesNotMatch(panel, /getGeneralDashboard/);
+  assert.doesNotMatch(panel, /Centro de control/);
   assert.match(service, /warehouse_inventory/);
   assert.match(service, /vehicle_service_quotes/);
   assert.match(service, /customer_satisfaction_surveys/);
