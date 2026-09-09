@@ -47,6 +47,12 @@ def clean_product_code(value):
     return re.sub(r"^0-(.+)$", r"\1", code, flags=re.IGNORECASE)
 
 
+def clean_supplier(value):
+    supplier = clean_text(value)
+    compact = re.sub(r"[^A-Z0-9]", "", supplier.upper())
+    return "FS-DEPOT" if compact == "FSDEPOT" else supplier
+
+
 def to_number(value):
     try:
         text = str(value or "").strip().replace(",", ".")
@@ -171,7 +177,7 @@ def extract_rows(source):
                     if cost != "" and cost > 0:
                         costs.append(cost)
 
-                supplier = clean_text(row.get(columns["proveedor"], ""))
+                supplier = clean_supplier(row.get(columns["proveedor"], ""))
                 if supplier:
                     suppliers.append(supplier)
 

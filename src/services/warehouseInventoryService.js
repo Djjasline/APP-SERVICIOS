@@ -1,9 +1,9 @@
 import { supabase } from "@/lib/supabase";
 
 const LIST_METADATA_COLUMNS = "image_url, unit, weight_kg, stock_minimum, brand, model, category, system, compatible_equipment";
-const SELECT_COLUMNS = `id, product_code, description, physical_stock, physical_location, cutoff_date, source_file, notes, area, updated_at, ${LIST_METADATA_COLUMNS}`;
+const SELECT_COLUMNS = `id, product_code, description, physical_stock, physical_location, cutoff_date, source_file, notes, area, last_supplier, updated_at, ${LIST_METADATA_COLUMNS}`;
 const VEHICLE_REFERENCE_COLUMNS = `id, product_code, description, sheet_name, reference_stock, last_cost, last_supplier, last_purchase_date, last_sale_date, last_client, last_comment, source_file, area, updated_at, ${LIST_METADATA_COLUMNS}`;
-const QUOTE_STOCK_COLUMNS = "id, product_code, description, physical_stock, physical_location, area, updated_at";
+const QUOTE_STOCK_COLUMNS = "id, product_code, description, physical_stock, physical_location, area, last_supplier, updated_at";
 const QUOTE_REFERENCE_COLUMNS = "id, product_code, description, reference_stock, last_cost, last_supplier, source_file, area, updated_at";
 const ITEM_METADATA_COLUMNS = "image_url, unit, weight_kg, brand, model, category, system, compatible_equipment, technical_specs, internal_notes";
 const STOCK_DETAIL_COLUMNS = `${SELECT_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
@@ -124,6 +124,12 @@ function normalizeProductCode(value) {
     .replace(/^0-(.+)$/i, "$1");
 }
 
+function normalizeSupplierName(value) {
+  const supplier = String(value || "").trim();
+  const compact = supplier.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  return compact === "FSDEPOT" ? FS_DEPOT_SUPPLIER : supplier;
+}
+
 function isFsDepotVehicleCode(productCode) {
   return /-30$/i.test(normalizeProductCode(productCode));
 }
@@ -148,7 +154,7 @@ function getWarehouseClassificationFields(item, { includeSupplier = true } = {})
   const fields = {
     area: VEHICLE_SPECIALS_AREA,
   };
-  if (includeSupplier) fields.last_supplier = item.last_supplier || FS_DEPOT_SUPPLIER;
+  if (includeSupplier) fields.last_supplier = normalizeSupplierName(item.last_supplier) || FS_DEPOT_SUPPLIER;
   return fields;
 }
 
@@ -165,6 +171,7 @@ function normalizeVehicleReferenceRow(item) {
   return applyWarehouseClassificationRules({
     ...item,
     product_code: normalizeProductCode(item.product_code),
+    last_supplier: normalizeSupplierName(item.last_supplier),
   });
 }
 
@@ -172,6 +179,7 @@ function normalizeWarehouseInventoryRow(item) {
   return applyWarehouseClassificationRules({
     ...item,
     product_code: normalizeProductCode(item.product_code),
+    last_supplier: normalizeSupplierName(item.last_supplier),
   });
 }
 
@@ -192,6 +200,11 @@ function normalizeMetadataPayload(source, payload) {
 
     if (field === "product_code") {
       acc[field] = normalizeProductCode(value);
+      return acc;
+    }
+
+    if (field === "last_supplier") {
+      acc[field] = normalizeSupplierName(value) || null;
       return acc;
     }
 
@@ -227,6 +240,11 @@ function normalizeCreatePayload(source, payload, userId) {
 
     if (DATE_FIELDS.has(field)) {
       acc[field] = value || null;
+      return acc;
+    }
+
+    if (field === "last_supplier") {
+      acc[field] = normalizeSupplierName(value) || null;
       return acc;
     }
 

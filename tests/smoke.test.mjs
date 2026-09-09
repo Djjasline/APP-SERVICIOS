@@ -310,6 +310,8 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(service, /VEHICLE_REFERENCE_CREATE_FIELDS/);
   assert.match(service, /VEHICLE_SPECIALS_AREA = "Vehículos Especiales"/);
   assert.match(service, /FS_DEPOT_SUPPLIER = "FS-DEPOT"/);
+  assert.match(service, /function normalizeSupplierName/);
+  assert.match(service, /compact === "FSDEPOT" \? FS_DEPOT_SUPPLIER/);
   assert.match(service, /PIQUERSA_SUPPLIER = "Piquersa"/);
   assert.match(service, /isPiquersaDescription/);
   assert.match(service, /applyWarehouseClassificationRules/);
@@ -344,6 +346,10 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(fsDepotSql, /Piquersa/);
   assert.match(fsDepotSql, /piquersa/);
   assert.match(fsDepotSql, /-30\$/);
+
+  const fsDepotSupplierSql = read("supabase/sql/normalize_fs_depot_suppliers.sql");
+  assert.match(fsDepotSupplierSql, /last_supplier = 'FS-DEPOT'/);
+  assert.match(fsDepotSupplierSql, /FSDEPOT/);
 
   const piquersaSql = read("supabase/sql/apply_piquersa_vehicle_codes.sql");
   assert.match(piquersaSql, /Piquersa/);
