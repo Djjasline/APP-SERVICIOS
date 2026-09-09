@@ -10,7 +10,12 @@ const STOCK_DETAIL_COLUMNS = `${SELECT_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
 const VEHICLE_REFERENCE_DETAIL_COLUMNS = `${VEHICLE_REFERENCE_COLUMNS}, ${ITEM_METADATA_COLUMNS}`;
 const VEHICLE_SPECIALS_AREA = "Vehículos Especiales";
 const FS_DEPOT_SUPPLIER = "FS-DEPOT";
+const USA_BLUEBOOK_SUPPLIER = "USA BLUEBOOK";
 const PIQUERSA_SUPPLIER = "Piquersa";
+const SUPPLIER_NORMALIZATIONS = {
+  FSDEPOT: FS_DEPOT_SUPPLIER,
+  USABLUEBOOK: USA_BLUEBOOK_SUPPLIER,
+};
 
 export const WAREHOUSE_ITEM_SOURCES = {
   stock: "stock",
@@ -127,7 +132,7 @@ function normalizeProductCode(value) {
 function normalizeSupplierName(value) {
   const supplier = String(value || "").trim();
   const compact = supplier.toUpperCase().replace(/[^A-Z0-9]/g, "");
-  return compact === "FSDEPOT" ? FS_DEPOT_SUPPLIER : supplier;
+  return SUPPLIER_NORMALIZATIONS[compact] || supplier;
 }
 
 function isFsDepotVehicleCode(productCode) {

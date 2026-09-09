@@ -11,6 +11,10 @@ NS = {"a": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 SOURCE_FILE = "INVENTARIO referencial vehiculos.XLSX"
 DEFAULT_SOURCE = pathlib.Path("cotizador") / SOURCE_FILE
 DEFAULT_OUT_DIR = pathlib.Path("tmp")
+SUPPLIER_NORMALIZATIONS = {
+    "FSDEPOT": "FS-DEPOT",
+    "USABLUEBOOK": "USA BLUEBOOK",
+}
 
 
 def cell_text(cell, shared_strings):
@@ -50,7 +54,7 @@ def clean_product_code(value):
 def clean_supplier(value):
     supplier = clean_text(value)
     compact = re.sub(r"[^A-Z0-9]", "", supplier.upper())
-    return "FS-DEPOT" if compact == "FSDEPOT" else supplier
+    return SUPPLIER_NORMALIZATIONS.get(compact, supplier)
 
 
 def to_number(value):
