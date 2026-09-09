@@ -16,6 +16,10 @@ export const OPERACIONES_TEXT = {
     description:
       "Evaluación técnica y operativa previa al servicio, orientada a verificar conocimientos, capacidades del técnico y conformidad de las actividades a ejecutar.",
   },
+  protocoloMan: {
+    title: "Protocolo MAN",
+    description: "Formularios de recepción, entrega, informe semanal y avance de trabajos para vehículos y equipos.",
+  },
   bodega: {
     title: "Bodega",
     description: "Control interno de inventario, materiales, herramientas y movimientos de bodega.",

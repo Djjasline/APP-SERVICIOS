@@ -77,6 +77,8 @@ const NotificationsPage = lazy(() => import("./pages/Notifications"));
 const ChatInterno = lazy(() => import("./pages/chat/ChatInterno"));
 const RegistroAccessAdmin = lazy(() => import("./pages/admin/RegistroAccessAdmin"));
 const AppUpdatesAdmin = lazy(() => import("./pages/admin/AppUpdatesAdmin"));
+const ProtocoloManHome = lazy(() => import("./app/operaciones/protocoloMan/ProtocoloManHome"));
+const ProtocoloManForm = lazy(() => import("./app/operaciones/protocoloMan/ProtocoloManForm"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const TechRoute = ({ children }) => (
@@ -368,6 +370,8 @@ export default function RoutesApp() {
             <Route path="/operaciones/bodega/nuevo" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.bodega} fallback="/operaciones"><BodegaItemNew /></SpecialModuleRoute>} />
             <Route path="/operaciones/bodega/:source/:id" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.bodega} fallback="/operaciones"><BodegaItemDetail /></SpecialModuleRoute>} />
             <Route path="/operaciones/clientes" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.clientes} fallback="/operaciones"><ClientesHome /></SpecialModuleRoute>} />
+            <Route path="/operaciones/protocolo-man" element={<SuperAdminRoute><ProtocoloManHome /></SuperAdminRoute>} />
+            <Route path="/operaciones/protocolo-man/:protocolId" element={<SuperAdminRoute><ProtocoloManForm /></SuperAdminRoute>} />
 
             <Route path="/operaciones/protocolos" element={<TechRoute><ProtocolosHome /></TechRoute>} />
             <Route path="/operaciones/protocolos/vactor/new" element={<TechRoute><ProtocoloVactorForm /></TechRoute>} />

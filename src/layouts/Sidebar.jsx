@@ -616,6 +616,16 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                   {subLabel(ClipboardList, OPERACIONES_TEXT.protocolos.title)}
                 </button>
 
+                {superAdminActivo && (
+                  <button
+                    type="button"
+                    onClick={() => go("/operaciones/protocolo-man")}
+                    className={subItemClass("/operaciones/protocolo-man")}
+                  >
+                    {subLabel(ClipboardCheck, OPERACIONES_TEXT.protocoloMan.title)}
+                  </button>
+                )}
+
                 {puedeUsarClientes && (
                   <button
                     type="button"

@@ -13,6 +13,8 @@ test("rutas criticas de lanzamiento estan protegidas", () => {
   assert.match(routes, /path="\/operaciones\/bodega"[^\n]+SpecialModuleRoute[^\n]+bodega/);
   assert.match(routes, /path="\/operaciones\/bodega\/nuevo"[^\n]+SpecialModuleRoute[^\n]+bodega/);
   assert.match(routes, /path="\/operaciones\/bodega\/:source\/:id"[^\n]+SpecialModuleRoute[^\n]+bodega/);
+  assert.match(routes, /path="\/operaciones\/protocolo-man"[^\n]+SuperAdminRoute[^\n]+ProtocoloManHome/);
+  assert.match(routes, /path="\/operaciones\/protocolo-man\/:protocolId"[^\n]+SuperAdminRoute[^\n]+ProtocoloManForm/);
   assert.match(routes, /path="\/vehiculos\/capacitacion"[^\n]+InformeHome[^\n]+reportType="capacitacion"/);
   assert.match(routes, /path="\/vehiculos\/capacitacion\/nuevo"[^\n]+NuevoInforme[^\n]+reportType="capacitacion"/);
   assert.match(routes, /path="\/vehiculos\/capacitacion\/pdf\/:id"[^\n]+InformePDF[^\n]+reportType="capacitacion"/);
@@ -36,6 +38,25 @@ test("menu lateral muestra bodega como seccion independiente", () => {
   assert.match(sidebar, /itemClass\(isActive\("\/operaciones\/bodega"\)\)/);
   assert.match(sidebar, /path\.startsWith\("\/operaciones"\) && !isBodegaPath/);
   assert.doesNotMatch(sidebar, /subLabel\(Package, OPERACIONES_TEXT\.bodega\.title\)/);
+});
+
+test("operaciones incluye protocolo MAN solo para superadmin", () => {
+  const sidebar = read("src/layouts/Sidebar.jsx");
+  const area = read("src/pages/AreaOperaciones.jsx");
+  const home = read("src/app/operaciones/protocoloMan/ProtocoloManHome.jsx");
+  const form = read("src/app/operaciones/protocoloMan/ProtocoloManForm.jsx");
+  const config = read("src/app/operaciones/protocoloMan/protocolosManConfig.js");
+
+  assert.match(sidebar, /superAdminActivo && \(/);
+  assert.match(sidebar, /go\("\/operaciones\/protocolo-man"\)/);
+  assert.match(sidebar, /OPERACIONES_TEXT\.protocoloMan\.title/);
+  assert.match(area, /superAdminActivo/);
+  assert.match(area, /"\/operaciones\/protocolo-man"/);
+  assert.match(home, /Solo superadministrador/);
+  assert.match(form, /PROTOCOLO_MAN_TIPO/);
+  for (const code of ["FR-MAN-001", "FR-MAN-002", "FR-MAN-003", "FR-MAN-004"]) {
+    assert.match(config, new RegExp(code));
+  }
 });
 
 test("modulos especiales conservan llaves esperadas", () => {

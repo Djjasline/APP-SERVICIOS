@@ -4,13 +4,13 @@ import { SPECIAL_MODULE_KEYS } from "@/constants/accessControl";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { useTheme } from "@/context/ThemeContext";
 import { useSpecialModuleAccess } from "@/hooks/useSpecialModuleAccess";
-import { ClipboardList, Settings, Wrench, Inbox, Package, Users } from "lucide-react";
+import { ClipboardCheck, ClipboardList, Settings, Wrench, Inbox, Package, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function AreaOperaciones() {
   const { isLight } = useTheme();
   const navigate = useNavigate();
-  const { hasSpecialModuleAccess } = useSpecialModuleAccess();
+  const { hasSpecialModuleAccess, superAdminActivo } = useSpecialModuleAccess();
   const puedeUsarBodega = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.bodega);
   const puedeUsarClientes = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.clientes);
 
@@ -43,6 +43,17 @@ export default function AreaOperaciones() {
     color: "bg-indigo-600",
     ruta: "/operaciones/protocolos",
   },
+  ...(superAdminActivo
+    ? [
+        {
+          titulo: OPERACIONES_TEXT.protocoloMan.title,
+          descripcion: OPERACIONES_TEXT.protocoloMan.description,
+          icono: <ClipboardCheck size={20} />,
+          color: "bg-blue-700",
+          ruta: "/operaciones/protocolo-man",
+        },
+      ]
+    : []),
   ...(puedeUsarBodega
     ? [
         {
