@@ -238,6 +238,25 @@ test("chat soporta adjuntos estructurados en mensajes", () => {
   assert.doesNotMatch(chatPage, />GIF</);
 });
 
+test("biblioteca tecnica incluye buscador por indice OneDrive", () => {
+  const page = read("src/app/repositorios/ManualesTecnicos.jsx");
+  const service = read("src/services/technicalManualIndexService.js");
+  const script = read("scripts/build-technical-manual-index.mjs");
+  const gitignore = read(".gitignore");
+  const pkg = read("package.json");
+
+  assert.match(page, /Buscador técnico por número de parte/);
+  assert.match(page, /loadTechnicalManualIndex/);
+  assert.match(page, /searchTechnicalManualIndex/);
+  assert.match(service, /VITE_TECH_MANUAL_INDEX_URL/);
+  assert.match(service, /\/data\/technical-manual-index\.json/);
+  assert.match(script, /ONEDRIVE_MANUALS_URL/);
+  assert.match(script, /_api\/v2\.0\/drives/);
+  assert.match(script, /pages: \[\]/);
+  assert.match(gitignore, /public\/data\/technical-manual-index\.json/);
+  assert.match(pkg, /"manuals:index": "node scripts\/build-technical-manual-index\.mjs"/);
+});
+
 test("historiales limitan consultas pesadas", () => {
   const accessService = read("src/services/accessControlService.js");
 
