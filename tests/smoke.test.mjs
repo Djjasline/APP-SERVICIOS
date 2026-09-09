@@ -242,7 +242,7 @@ test("biblioteca tecnica incluye buscador por indice OneDrive", () => {
   const page = read("src/app/repositorios/ManualesTecnicos.jsx");
   const service = read("src/services/technicalManualIndexService.js");
   const script = read("scripts/build-technical-manual-index.mjs");
-  const gitignore = read(".gitignore");
+  const index = JSON.parse(read("public/data/technical-manual-index.json"));
   const pkg = read("package.json");
 
   assert.match(page, /Buscador técnico por número de parte/);
@@ -253,7 +253,9 @@ test("biblioteca tecnica incluye buscador por indice OneDrive", () => {
   assert.match(script, /ONEDRIVE_MANUALS_URL/);
   assert.match(script, /_api\/v2\.0\/drives/);
   assert.match(script, /pages: \[\]/);
-  assert.match(gitignore, /public\/data\/technical-manual-index\.json/);
+  assert.equal(index.source, "onedrive-sharepoint");
+  assert.ok(index.totalFiles > 0);
+  assert.ok(Array.isArray(index.entries));
   assert.match(pkg, /"manuals:index": "node scripts\/build-technical-manual-index\.mjs"/);
 });
 
