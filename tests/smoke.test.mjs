@@ -74,6 +74,22 @@ test("dashboard de exito mantiene actividad diaria visible", () => {
   assert.match(dashboard, /<Panel title="7\. Resumen de impacto">\s*<ImpactList \/>\s*<\/Panel>/);
 });
 
+test("panel principal muestra dashboard general operativo", () => {
+  const panel = read("src/pages/PanelServicios.jsx");
+  const service = read("src/services/dashboardService.js");
+
+  assert.match(panel, /getGeneralDashboard/);
+  assert.match(panel, /Centro de control/);
+  assert.match(panel, /Accesos rápidos/);
+  assert.match(panel, /Alertas importantes/);
+  assert.match(panel, /Actividad reciente/);
+  assert.match(panel, /Áreas de servicio/);
+  assert.match(service, /warehouse_inventory/);
+  assert.match(service, /vehicle_service_quotes/);
+  assert.match(service, /customer_satisfaction_surveys/);
+  assert.match(service, /safeQuery/);
+});
+
 test("configurador mantiene dueno, vista previa e imagen proporcional", () => {
   const service = read("src/services/configuratorQuoteService.js");
   const home = read("src/app/vehiculos/configurador/ConfiguradorHome.jsx");
