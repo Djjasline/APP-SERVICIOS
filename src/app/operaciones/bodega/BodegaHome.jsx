@@ -2,8 +2,8 @@ import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { getVehicleReferenceCatalog, getWarehouseInventory, getWarehouseLocations, getWarehouseRecentMovements } from "@/services/warehouseInventoryService";
-import { Activity, AlertTriangle, Database, Package, PackagePlus, RefreshCw, Search, Warehouse } from "lucide-react";
+import { cleanupWarehouseCatalogData, getVehicleReferenceCatalog, getWarehouseInventory, getWarehouseLocations, getWarehouseRecentMovements, importWarehouseItems, normalizeWarehouseProductCode, normalizeWarehouseSupplierName, prepareWarehouseImportRows } from "@/services/warehouseInventoryService";
+import { Activity, AlertTriangle, Database, FileUp, Package, PackagePlus, RefreshCw, Search, ShieldCheck, Warehouse } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const SOURCE_ALL = "all";
@@ -138,6 +138,50 @@ function downloadCsv(filename, rows) {
   URL.revokeObjectURL(url);
 }
 
+function parseCsvLine(line, delimiter) {
+  const cells = [];
+  let current = "";
+  let quoted = false;
+
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    if (char === '"' && line[index + 1] === '"') {
+      current += '"';
+      index += 1;
+      continue;
+    }
+    if (char === '"') {
+      quoted = !quoted;
+      continue;
+    }
+    if (char === delimiter && !quoted) {
+      cells.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+
+  cells.push(current.trim());
+  return cells;
+}
+
+function parseCsvText(text) {
+  const lines = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/).filter((line) => line.trim());
+  if (lines.length < 2) return [];
+
+  const delimiter = (lines[0].match(/;/g) || []).length >= (lines[0].match(/,/g) || []).length ? ";" : ",";
+  const headers = parseCsvLine(lines[0], delimiter);
+
+  return lines.slice(1).map((line) => {
+    const cells = parseCsvLine(line, delimiter);
+    return headers.reduce((acc, header, index) => {
+      acc[header] = cells[index] || "";
+      return acc;
+    }, {});
+  });
+}
+
 function buildExportRows(rows, viewingReference) {
   const header = ["Código", "Descripción", "Área", "Cantidad", "Stock mínimo", "Ubicación", "Proveedor", "Último costo", "Origen", "Fecha", "Estado ficha", "Campos faltantes"];
   const body = rows.map((item) => {
@@ -180,9 +224,56 @@ function buildRanking(rows, accessor, quantityAccessor) {
   return Array.from(grouped.values()).sort((a, b) => b.count - a.count).slice(0, 5);
 }
 
+function buildDuplicateCodeCount(rows) {
+  const grouped = rows.reduce((acc, item) => {
+    const code = normalizeWarehouseProductCode(item.product_code);
+    if (!code) return acc;
+    acc.set(code, (acc.get(code) || 0) + 1);
+    return acc;
+  }, new Map());
+
+  return Array.from(grouped.values()).filter((count) => count > 1).length;
+}
+
+function countNormalizableRows(rows) {
+  return rows.filter((item) => {
+    const rawCode = item._raw_product_code ?? item.product_code;
+    const rawSupplier = item._raw_last_supplier ?? item.last_supplier;
+    const rawArea = item._raw_area ?? item.area;
+    const code = normalizeWarehouseProductCode(rawCode);
+    const supplier = normalizeWarehouseSupplierName(rawSupplier);
+    const expectedArea = isDash30Code(code) || /piquersa/i.test(item.description || "") ? "Vehículos Especiales" : rawArea;
+    return code !== String(rawCode || "").trim() || supplier !== String(rawSupplier || "").trim() || expectedArea !== rawArea;
+  }).length;
+}
+
+function buildDataQuality(items, referenceItems) {
+  const rows = [...items.map((item) => ({ item, isReference: false })), ...referenceItems.map((item) => ({ item, isReference: true }))];
+  const incomplete = rows.filter((row) => !getFichaStatus(row.item, row.isReference).complete).length;
+  const withoutImage = rows.filter((row) => !hasValue(row.item.image_url)).length;
+  const withoutArea = rows.filter((row) => !hasValue(row.item.area)).length;
+  const withoutSupplier = rows.filter((row) => !hasValue(row.item.last_supplier)).length;
+  const lowStock = items.filter((item) => Number(item.stock_minimum) > 0 && (Number(item.physical_stock) || 0) <= Number(item.stock_minimum)).length;
+  const duplicateCodes = buildDuplicateCodeCount([...items, ...referenceItems]);
+  const normalizableRows = countNormalizableRows([...items, ...referenceItems]);
+
+  return {
+    score: rows.length === 0 ? 100 : Math.max(0, Math.round(100 - (((incomplete + duplicateCodes + normalizableRows + lowStock) / rows.length) * 100))),
+    cards: [
+      { label: "Duplicados", value: duplicateCodes, detail: "Códigos repetidos tras limpiar formato" },
+      { label: "Normalizables", value: normalizableRows, detail: "Códigos, proveedores o áreas corregibles" },
+      { label: "Fichas incompletas", value: incomplete, detail: "Faltan datos técnicos u operativos" },
+      { label: "Sin imagen", value: withoutImage, detail: "Pendientes de foto o URL" },
+      { label: "Sin proveedor", value: withoutSupplier, detail: "Afecta compras y rankings" },
+      { label: "Bajo mínimo", value: lowStock, detail: "Requieren reposición o revisión" },
+      { label: "Sin área", value: withoutArea, detail: "Dificulta filtros por negocio" },
+    ],
+  };
+}
+
 export default function BodegaHome() {
   const { isLight } = useTheme();
-  const { isSuperAdmin } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [referenceItems, setReferenceItems] = useState([]);
@@ -198,6 +289,14 @@ export default function BodegaHome() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [stockSort, setStockSort] = useState({ key: "product_code", direction: SORT_ASC });
   const [referenceSort, setReferenceSort] = useState({ key: "product_code", direction: SORT_ASC });
+  const [cleanupSaving, setCleanupSaving] = useState(false);
+  const [cleanupMessage, setCleanupMessage] = useState("");
+  const [cleanupError, setCleanupError] = useState("");
+  const [importSource, setImportSource] = useState(SOURCE_STOCK);
+  const [importPreview, setImportPreview] = useState([]);
+  const [importMessage, setImportMessage] = useState("");
+  const [importError, setImportError] = useState("");
+  const [importing, setImporting] = useState(false);
 
   const viewingAll = source === SOURCE_ALL;
   const viewingReference = source === SOURCE_VEHICLE_REFERENCE;
@@ -227,6 +326,12 @@ export default function BodegaHome() {
   useEffect(() => {
     loadInventory();
   }, [deferredSearch, location, viewingReference]);
+
+  useEffect(() => {
+    setImportPreview([]);
+    setImportMessage("");
+    setImportError("");
+  }, [importSource]);
 
   useEffect(() => {
     let cancelled = false;
@@ -324,6 +429,8 @@ export default function BodegaHome() {
       areaRanking: buildRanking(rows, (item) => item.area, quantityAccessor),
     };
   }, [items, referenceItems, viewingAll, viewingReference]);
+  const dataQuality = useMemo(() => buildDataQuality(items, referenceItems), [items, referenceItems]);
+  const validImportRows = importPreview.filter((row) => row.status === "valid");
 
   const sortedItems = useMemo(() => sortRows(filteredItems, stockSort, {
     product_code: (item) => item.product_code,
@@ -414,6 +521,62 @@ export default function BodegaHome() {
     downloadCsv(`bodega_${sourceLabel}_filtrado.csv`, buildExportRows(exportRows, viewingReference));
   };
 
+  const handleCleanupData = async () => {
+    if (!isSuperAdmin) return;
+    setCleanupSaving(true);
+    setCleanupMessage("");
+    setCleanupError("");
+
+    try {
+      const result = await cleanupWarehouseCatalogData();
+      setCleanupMessage(`Normalización completa: ${formatNumber(result.updated)} de ${formatNumber(result.scanned)} registros requerían ajuste.`);
+      await loadInventory();
+    } catch (err) {
+      console.error("Error normalizando bodega:", err);
+      setCleanupError(["42P01", "42703"].includes(err?.code) ? "Falta ejecutar los SQL actualizados de bodega en Supabase." : err?.message || "No se pudo normalizar la bodega.");
+    } finally {
+      setCleanupSaving(false);
+    }
+  };
+
+  const handleImportFile = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    setImportPreview([]);
+    setImportMessage("");
+    setImportError("");
+    if (!file) return;
+
+    try {
+      const rows = parseCsvText(await file.text());
+      const existingCodes = importSource === SOURCE_VEHICLE_REFERENCE ? referenceItems.map((item) => item.product_code) : items.map((item) => item.product_code);
+      const preview = prepareWarehouseImportRows({ source: importSource, rows, existingCodes });
+      setImportPreview(preview);
+      setImportMessage(`Archivo leído: ${formatNumber(preview.length)} filas, ${formatNumber(preview.filter((row) => row.status === "valid").length)} listas para importar.`);
+    } catch (err) {
+      console.error("Error leyendo CSV de bodega:", err);
+      setImportError(err?.message || "No se pudo leer el archivo CSV.");
+    }
+  };
+
+  const handleImportRows = async () => {
+    if (!isSuperAdmin || validImportRows.length === 0) return;
+    setImporting(true);
+    setImportError("");
+
+    try {
+      const result = await importWarehouseItems({ source: importSource, rows: validImportRows.map((row) => row.payload), userId: user?.id });
+      setImportMessage(`Importación completa: ${formatNumber(result.created)} creados${result.errors.length ? `, ${formatNumber(result.errors.length)} con error` : ""}.`);
+      setImportPreview(result.errors.length ? importPreview : []);
+      await loadInventory();
+    } catch (err) {
+      console.error("Error importando bodega:", err);
+      setImportError(err?.message || "No se pudo importar el archivo.");
+    } finally {
+      setImporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6 p-3 md:p-4">
       <div className="flex items-start justify-between gap-4">
@@ -443,6 +606,29 @@ export default function BodegaHome() {
           Acceso reservado para superadministrador y usuarios autorizados. El stock actual registra movimientos con trazabilidad y sigue separado de la referencia histórica de Vehículos Especiales.
         </p>
       </section>
+
+      <DataQualityPanel
+        quality={dataQuality}
+        canEdit={isSuperAdmin}
+        saving={cleanupSaving}
+        message={cleanupMessage}
+        error={cleanupError}
+        onCleanup={handleCleanupData}
+      />
+
+      {isSuperAdmin && (
+        <ImportPanel
+          importSource={importSource}
+          setImportSource={setImportSource}
+          preview={importPreview}
+          validCount={validImportRows.length}
+          importing={importing}
+          message={importMessage}
+          error={importError}
+          onFile={handleImportFile}
+          onImport={handleImportRows}
+        />
+      )}
 
       <div className="grid gap-4 md:grid-cols-6">
         <StatCard title="Registros" value={formatNumber(summary.rows)} icon={<Database size={18} />} />
@@ -708,6 +894,111 @@ function ResultGroup({ title, count, empty, children }) {
       </div>
       {count === 0 ? <p className="p-4 text-sm text-slate-500">{empty}</p> : children}
     </div>
+  );
+}
+
+function DataQualityPanel({ quality, canEdit, saving, message, error, onCleanup }) {
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+            <ShieldCheck size={20} />
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900">Calidad de datos</h3>
+            <p className="text-sm text-slate-500">Auditoría automática de códigos, proveedores, fichas, imágenes y stock mínimo.</p>
+          </div>
+        </div>
+        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-800">
+            Salud: {quality.score}%
+          </span>
+          {canEdit && (
+            <button type="button" onClick={onCleanup} disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60">
+              <RefreshCw size={15} className={saving ? "animate-spin" : ""} /> {saving ? "Normalizando..." : "Normalizar datos"}
+            </button>
+          )}
+        </div>
+      </div>
+      {message && <p className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">{message}</p>}
+      {error && <p className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-800">{error}</p>}
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {quality.cards.map((card) => (
+          <MiniMetric key={card.label} label={card.label} value={formatNumber(card.value)} detail={card.detail} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ImportPanel({ importSource, setImportSource, preview, validCount, importing, message, error, onFile, onImport }) {
+  const duplicateCount = preview.filter((row) => row.status === "duplicate").length;
+  const errorCount = preview.filter((row) => row.status === "error").length;
+
+  return (
+    <section className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-blue-950 shadow-sm">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-900 text-white">
+            <FileUp size={20} />
+          </div>
+          <div>
+            <h3 className="font-semibold">Importador CSV</h3>
+            <p className="text-sm text-blue-800">Carga inventario con vista previa. Normaliza códigos, proveedores y detecta duplicados antes de guardar.</p>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <select value={importSource} onChange={(event) => setImportSource(event.target.value)} className="rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500">
+            <option value={SOURCE_STOCK}>Stock actual</option>
+            <option value={SOURCE_VEHICLE_REFERENCE}>Referencia histórica</option>
+          </select>
+          <label className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-blue-300 bg-white px-3 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-100">
+            Seleccionar CSV
+            <input type="file" accept=".csv,text/csv" onChange={onFile} className="hidden" />
+          </label>
+          <button type="button" onClick={onImport} disabled={validCount === 0 || importing} className="rounded-lg bg-blue-900 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60">
+            {importing ? "Importando..." : `Importar ${formatNumber(validCount)}`}
+          </button>
+        </div>
+      </div>
+      {message && <p className="mt-3 rounded-xl border border-blue-200 bg-white p-3 text-sm font-semibold text-blue-900">{message}</p>}
+      {error && <p className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-800">{error}</p>}
+      {preview.length > 0 && (
+        <div className="mt-4 rounded-xl border border-blue-200 bg-white p-3">
+          <div className="flex flex-wrap gap-2 text-xs font-semibold">
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-emerald-800">Listos: {formatNumber(validCount)}</span>
+            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-amber-800">Duplicados: {formatNumber(duplicateCount)}</span>
+            <span className="rounded-full bg-red-100 px-2.5 py-1 text-red-800">Errores: {formatNumber(errorCount)}</span>
+          </div>
+          <div className="mt-3 max-h-64 overflow-auto">
+            <table className="min-w-full text-left text-xs">
+              <thead className="bg-slate-900 text-white">
+                <tr>
+                  <th className="px-3 py-2">Estado</th>
+                  <th className="px-3 py-2">Código</th>
+                  <th className="px-3 py-2">Descripción</th>
+                  <th className="px-3 py-2">Proveedor</th>
+                  <th className="px-3 py-2">Cantidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {preview.slice(0, 25).map((row) => (
+                  <tr key={`${row.index}-${row.payload.product_code || row.reason}`} className="border-b border-slate-200 odd:bg-slate-50">
+                    <td className="px-3 py-2 font-semibold text-slate-700">{row.reason}</td>
+                    <td className="px-3 py-2 text-slate-700">{row.payload.product_code || "-"}</td>
+                    <td className="px-3 py-2 text-slate-700">{row.payload.description || "-"}</td>
+                    <td className="px-3 py-2 text-slate-700">{row.payload.last_supplier || "-"}</td>
+                    <td className="px-3 py-2 text-slate-700">{row.payload.physical_stock ?? row.payload.reference_stock ?? "-"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {preview.length > 25 && <p className="mt-2 text-xs text-slate-500">Mostrando 25 de {formatNumber(preview.length)} filas.</p>}
+        </div>
+      )}
+    </section>
   );
 }
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, ClipboardList, ImageIcon, Package, QrCode, Save } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { createWarehouseItemMovement, getWarehouseItemDetail, getWarehouseItemMovements, updateWarehouseItemMetadata, WAREHOUSE_ITEM_SOURCES, WAREHOUSE_MOVEMENT_TYPES } from "@/services/warehouseInventoryService";
+import { createWarehouseItemMovement, getWarehouseItemAuditLogs, getWarehouseItemDetail, getWarehouseItemMovements, updateWarehouseItemMetadata, WAREHOUSE_ITEM_SOURCES, WAREHOUSE_MOVEMENT_TYPES } from "@/services/warehouseInventoryService";
 
 const SOURCE_LABELS = {
   [WAREHOUSE_ITEM_SOURCES.stock]: "Stock actual",
@@ -82,6 +82,8 @@ export default function BodegaItemDetail() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [movementForm, setMovementForm] = useState(EMPTY_MOVEMENT);
   const [movements, setMovements] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [auditUnavailable, setAuditUnavailable] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingMovement, setSavingMovement] = useState(false);
@@ -117,6 +119,17 @@ export default function BodegaItemDetail() {
             setMovementError("Falta ejecutar el SQL actualizado de movimientos de bodega en Supabase.");
           }
         }
+
+        try {
+          const auditRows = await getWarehouseItemAuditLogs({ source, itemId: id });
+          if (!cancelled) {
+            setAuditLogs(auditRows);
+            setAuditUnavailable(false);
+          }
+        } catch (auditErr) {
+          console.error("Error cargando auditoría de bodega:", auditErr);
+          if (!cancelled && ["42P01", "42703"].includes(auditErr?.code)) setAuditUnavailable(true);
+        }
       } catch (err) {
         console.error("Error cargando detalle de bodega:", err);
         if (cancelled) return;
@@ -149,10 +162,17 @@ export default function BodegaItemDetail() {
     setMessage("");
 
     try {
-      const updated = await updateWarehouseItemMetadata({ source, id, payload: form });
+      const updated = await updateWarehouseItemMetadata({ source, id, payload: form, userId: user?.id });
       setItem(updated);
       setForm(toForm(updated));
       setMessage("Ficha actualizada correctamente.");
+      if (!auditUnavailable) {
+        try {
+          setAuditLogs(await getWarehouseItemAuditLogs({ source, itemId: id }));
+        } catch (auditErr) {
+          console.error("Error recargando auditoría de bodega:", auditErr);
+        }
+      }
     } catch (err) {
       console.error("Error guardando detalle de bodega:", err);
       setError(err?.code === "42703" ? "Falta ejecutar el SQL de metadatos de bodega en Supabase." : err?.message || "No se pudo guardar la ficha del artículo.");
@@ -295,7 +315,7 @@ export default function BodegaItemDetail() {
               <Field label="Código" value={form.product_code} onChange={(value) => updateField("product_code", value)} disabled={!canEdit} required />
               <Field label="Descripción" value={form.description} onChange={(value) => updateField("description", value)} disabled={!canEdit} required />
               <Field label="Área / unidad de negocio" value={form.area} onChange={(value) => updateField("area", value)} disabled={!canEdit} placeholder="Vehículos, Agua, Petróleo, Industria" />
-              {isReference && <Field label="Proveedor" value={form.last_supplier} onChange={(value) => updateField("last_supplier", value)} disabled={!canEdit} placeholder="Piquersa, FS-DEPOT..." />}
+              <Field label="Proveedor" value={form.last_supplier} onChange={(value) => updateField("last_supplier", value)} disabled={!canEdit} placeholder="Piquersa, FS-DEPOT, USA BLUEBOOK..." />
               <Field label="URL de imagen de referencia" value={form.image_url} onChange={(value) => updateField("image_url", value)} disabled={!canEdit} placeholder="https://..." />
               <Field label="Unidad" value={form.unit} onChange={(value) => updateField("unit", value)} disabled={!canEdit} placeholder="unidad, kit, m, galón" />
               <Field label="Peso kg" type="number" value={form.weight_kg} onChange={(value) => updateField("weight_kg", value)} disabled={!canEdit} placeholder="0.00" />
@@ -312,6 +332,44 @@ export default function BodegaItemDetail() {
               <Field multiline label="Notas internas" value={form.internal_notes} onChange={(value) => updateField("internal_notes", value)} disabled={!canEdit} placeholder="Observaciones de compra, uso, cliente o proveedor..." />
             </div>
           </form>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-center gap-2">
+              <ClipboardList size={18} className="text-amber-600" />
+              <div>
+                <h3 className="font-semibold text-slate-900">Historial de cambios</h3>
+                <p className="text-sm text-slate-500">Auditoría de edición de ficha: campo anterior, nuevo valor y fecha.</p>
+              </div>
+            </div>
+            {auditUnavailable ? (
+              <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Ejecuta `supabase/sql/warehouse_item_audit_logs.sql` para habilitar auditoría de fichas.</p>
+            ) : auditLogs.length === 0 ? (
+              <p className="mt-4 text-sm text-slate-500">Aún no hay cambios auditados para esta ficha.</p>
+            ) : (
+              <div className="mt-4 overflow-x-auto">
+                <table className="min-w-full text-left text-sm">
+                  <thead className="bg-slate-900 text-white">
+                    <tr>
+                      <th className="px-3 py-2 font-semibold">Fecha</th>
+                      <th className="px-3 py-2 font-semibold">Campo</th>
+                      <th className="px-3 py-2 font-semibold">Antes</th>
+                      <th className="px-3 py-2 font-semibold">Después</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {auditLogs.map((log) => (
+                      <tr key={log.id} className="border-b border-slate-200 odd:bg-slate-50">
+                        <td className="px-3 py-2 text-slate-600">{formatDateTime(log.changed_at)}</td>
+                        <td className="px-3 py-2 font-semibold text-slate-900">{log.field_name}</td>
+                        <td className="max-w-xs break-words px-3 py-2 text-slate-600">{log.old_value || "-"}</td>
+                        <td className="max-w-xs break-words px-3 py-2 text-slate-800">{log.new_value || "-"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
 
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

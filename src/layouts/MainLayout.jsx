@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Outlet, useLocation, useNavigate, Link } from "react-router-dom";
-import { User, Bell, Moon, Sparkles, Sun } from "lucide-react";
+import { User, Bell, Download, Moon, Sparkles, Sun } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import Sidebar from "./Sidebar";
@@ -78,6 +78,8 @@ export default function MainLayout() {
   const { theme, isLight, isLiquid, nextTheme, toggleTheme } = useTheme();
   const [unread, setUnread] = useState(0);
   const [chatAlert, setChatAlert] = useState(null);
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [installDismissed, setInstallDismissed] = useState(false);
   const [usuariosOnline, setUsuariosOnline] = useState({});
   const chatAlertTimer = useRef(null);
   const unreadRef = useRef(0);
@@ -97,6 +99,33 @@ export default function MainLayout() {
   useEffect(() => {
     unreadRef.current = unread;
   }, [unread]);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (event) => {
+      event.preventDefault();
+      setInstallPrompt(event);
+      setInstallDismissed(false);
+    };
+    const handleInstalled = () => {
+      setInstallPrompt(null);
+      setInstallDismissed(true);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleInstalled);
+    };
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const choice = await installPrompt.userChoice;
+    if (choice?.outcome !== "dismissed") setInstallPrompt(null);
+    setInstallDismissed(true);
+  };
 
   useEffect(() => {
     let unlocked = false;
@@ -461,6 +490,16 @@ export default function MainLayout() {
 
           {/* ================= AREA DERECHA: NOTIFICACIONES + USUARIO ================= */}
           <div className="flex items-center gap-4">
+            {installPrompt && !installDismissed && (
+              <button
+                type="button"
+                onClick={handleInstallApp}
+                className={`hidden items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold sm:inline-flex ${isLight ? "bg-slate-900 text-white hover:bg-slate-800" : "bg-white/15 text-white hover:bg-white/25"}`}
+                title="Instalar App Servicios en este dispositivo"
+              >
+                <Download size={15} /> Instalar app
+              </button>
+            )}
             {/* Icono notificaciones (link a /notifications) */}
             <Link
               to="/notifications"

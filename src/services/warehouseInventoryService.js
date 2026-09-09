@@ -58,12 +58,12 @@ const BASE_METADATA_FIELDS = [
 ];
 
 const ITEM_IDENTITY_FIELDS = ["product_code", "description"];
-const EDITABLE_METADATA_FIELDS = BASE_METADATA_FIELDS;
-
-const VEHICLE_REFERENCE_METADATA_FIELDS = [
+const EDITABLE_METADATA_FIELDS = [
   ...BASE_METADATA_FIELDS,
   "last_supplier",
 ];
+
+const VEHICLE_REFERENCE_METADATA_FIELDS = EDITABLE_METADATA_FIELDS;
 
 const STOCK_CREATE_FIELDS = [
   "product_code",
@@ -95,6 +95,47 @@ const NUMERIC_FIELDS = new Set(["physical_stock", "reference_stock", "last_cost"
 const DATE_FIELDS = new Set(["cutoff_date", "last_purchase_date", "last_sale_date"]);
 const MOVEMENT_COLUMNS = "id, item_source, item_id, movement_type, quantity, unit_cost, stock_before, stock_after, area, related_party, responsible, service_ref, equipment, client, document_ref, evidence_url, notes, created_by, created_at";
 const MOVEMENT_NUMERIC_FIELDS = new Set(["quantity", "unit_cost"]);
+const AUDIT_COLUMNS = "id, item_source, item_id, product_code, field_name, old_value, new_value, changed_by, changed_at";
+const AUDITABLE_FIELDS = ["product_code", "description", "area", "last_supplier", "image_url", "unit", "weight_kg", "stock_minimum", "brand", "model", "category", "system", "compatible_equipment", "technical_specs", "internal_notes"];
+const IMPORT_HEADER_ALIASES = {
+  area: "area",
+  codigo: "product_code",
+  codigodeproducto: "product_code",
+  descripcion: "description",
+  description: "description",
+  productcode: "product_code",
+  proveedor: "last_supplier",
+  supplier: "last_supplier",
+  stock: "physical_stock",
+  stockfisico: "physical_stock",
+  stockfisico2026: "physical_stock",
+  cantidad: "physical_stock",
+  ubicacion: "physical_location",
+  ubicacionfisica: "physical_location",
+  fecha: "cutoff_date",
+  fechacorte: "cutoff_date",
+  origen: "source_file",
+  archivo: "source_file",
+  saldoreferencial: "reference_stock",
+  reference_stock: "reference_stock",
+  ultimocosto: "last_cost",
+  costo: "last_cost",
+  hoja: "sheet_name",
+  cliente: "last_client",
+  marca: "brand",
+  modelo: "model",
+  categoria: "category",
+  sistema: "system",
+  unidad: "unit",
+  peso: "weight_kg",
+  pesokg: "weight_kg",
+  stockminimo: "stock_minimum",
+  imagen: "image_url",
+  urlimagen: "image_url",
+  equipocompatible: "compatible_equipment",
+  datostecnicos: "technical_specs",
+  notas: "internal_notes",
+};
 
 export const WAREHOUSE_MOVEMENT_TYPES = ["entrada", "salida", "reserva", "devolucion", "ajuste", "uso", "cotizacion"];
 
@@ -122,21 +163,21 @@ function findBestRow(rows, terms, quantityField) {
     .sort((a, b) => b.score - a.score || b.quantity - a.quantity)[0]?.row || null;
 }
 
-function normalizeProductCode(value) {
+export function normalizeWarehouseProductCode(value) {
   return String(value || "")
     .trim()
     .replace(/^[`'"‘’´]+/, "")
     .replace(/^0-(.+)$/i, "$1");
 }
 
-function normalizeSupplierName(value) {
+export function normalizeWarehouseSupplierName(value) {
   const supplier = String(value || "").trim();
   const compact = supplier.toUpperCase().replace(/[^A-Z0-9]/g, "");
   return SUPPLIER_NORMALIZATIONS[compact] || supplier;
 }
 
 function isFsDepotVehicleCode(productCode) {
-  return /-30$/i.test(normalizeProductCode(productCode));
+  return /-30$/i.test(normalizeWarehouseProductCode(productCode));
 }
 
 function isPiquersaDescription(description) {
@@ -159,7 +200,7 @@ function getWarehouseClassificationFields(item, { includeSupplier = true } = {})
   const fields = {
     area: VEHICLE_SPECIALS_AREA,
   };
-  if (includeSupplier) fields.last_supplier = normalizeSupplierName(item.last_supplier) || FS_DEPOT_SUPPLIER;
+  if (includeSupplier) fields.last_supplier = normalizeWarehouseSupplierName(item.last_supplier) || FS_DEPOT_SUPPLIER;
   return fields;
 }
 
@@ -173,18 +214,30 @@ function applyWarehouseClassificationRules(item, options) {
 }
 
 function normalizeVehicleReferenceRow(item) {
+  const rawProductCode = item.product_code;
+  const rawSupplier = item.last_supplier;
+  const rawArea = item.area;
   return applyWarehouseClassificationRules({
     ...item,
-    product_code: normalizeProductCode(item.product_code),
-    last_supplier: normalizeSupplierName(item.last_supplier),
+    _raw_product_code: rawProductCode,
+    _raw_last_supplier: rawSupplier,
+    _raw_area: rawArea,
+    product_code: normalizeWarehouseProductCode(rawProductCode),
+    last_supplier: normalizeWarehouseSupplierName(rawSupplier),
   });
 }
 
 function normalizeWarehouseInventoryRow(item) {
+  const rawProductCode = item.product_code;
+  const rawSupplier = item.last_supplier;
+  const rawArea = item.area;
   return applyWarehouseClassificationRules({
     ...item,
-    product_code: normalizeProductCode(item.product_code),
-    last_supplier: normalizeSupplierName(item.last_supplier),
+    _raw_product_code: rawProductCode,
+    _raw_last_supplier: rawSupplier,
+    _raw_area: rawArea,
+    product_code: normalizeWarehouseProductCode(rawProductCode),
+    last_supplier: normalizeWarehouseSupplierName(rawSupplier),
   });
 }
 
@@ -204,12 +257,12 @@ function normalizeMetadataPayload(source, payload) {
     const value = payload[field];
 
     if (field === "product_code") {
-      acc[field] = normalizeProductCode(value);
+      acc[field] = normalizeWarehouseProductCode(value);
       return acc;
     }
 
     if (field === "last_supplier") {
-      acc[field] = normalizeSupplierName(value) || null;
+      acc[field] = normalizeWarehouseSupplierName(value) || null;
       return acc;
     }
 
@@ -249,7 +302,7 @@ function normalizeCreatePayload(source, payload, userId) {
     }
 
     if (field === "last_supplier") {
-      acc[field] = normalizeSupplierName(value) || null;
+      acc[field] = normalizeWarehouseSupplierName(value) || null;
       return acc;
     }
 
@@ -257,7 +310,7 @@ function normalizeCreatePayload(source, payload, userId) {
     return acc;
   }, { updated_at: new Date().toISOString() });
 
-  normalized.product_code = normalizeProductCode(normalized.product_code);
+  normalized.product_code = normalizeWarehouseProductCode(normalized.product_code);
   if (!normalized.product_code || !normalized.description) {
     throw new Error("Código y descripción son obligatorios.");
   }
@@ -299,6 +352,143 @@ function normalizeMovementPayload({ source, itemId, payload, userId }) {
   return row;
 }
 
+function normalizeImportHeader(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, "");
+}
+
+function normalizeImportRow(row) {
+  return Object.entries(row || {}).reduce((acc, [key, value]) => {
+    const normalizedKey = IMPORT_HEADER_ALIASES[normalizeImportHeader(key)] || key;
+    acc[normalizedKey] = value;
+    return acc;
+  }, {});
+}
+
+function buildAuditRows({ source, itemId, productCode, before, after, userId }) {
+  return AUDITABLE_FIELDS.flatMap((field) => {
+    const oldValue = before?.[field] ?? "";
+    const newValue = after?.[field] ?? "";
+    if (String(oldValue) === String(newValue)) return [];
+
+    return [{
+      item_source: source,
+      item_id: itemId,
+      product_code: productCode,
+      field_name: field,
+      old_value: String(oldValue),
+      new_value: String(newValue),
+      changed_by: userId || null,
+    }];
+  });
+}
+
+async function insertAuditRows(rows) {
+  if (rows.length === 0) return;
+
+  const { error } = await supabase.from("warehouse_item_audit_logs").insert(rows);
+  if (error && !["42P01", "42703"].includes(error.code)) throw error;
+}
+
+function buildCleanupPatch(source, row) {
+  const normalized = source === WAREHOUSE_ITEM_SOURCES.stock ? normalizeWarehouseInventoryRow(row) : normalizeVehicleReferenceRow(row);
+  return ["product_code", "area", "last_supplier"].reduce((acc, field) => {
+    const rawValue = row?.[field] ?? "";
+    const normalizedValue = normalized?.[field] ?? "";
+    if (String(rawValue) !== String(normalizedValue)) acc[field] = normalizedValue || null;
+    return acc;
+  }, {});
+}
+
+function toImportPayload(source, row) {
+  const normalized = normalizeImportRow(row);
+  const payload = {
+    source_file: normalized.source_file || "Importación CSV",
+    ...normalized,
+  };
+
+  if (source === WAREHOUSE_ITEM_SOURCES.vehicleReference) {
+    payload.sheet_name = payload.sheet_name || "Importación CSV";
+  }
+
+  return normalizeCreatePayload(source, payload, null);
+}
+
+export function prepareWarehouseImportRows({ source, rows = [], existingCodes = [] } = {}) {
+  const existing = new Set(existingCodes.map(normalizeWarehouseProductCode).filter(Boolean));
+  const seen = new Set();
+
+  return rows.map((row, index) => {
+    try {
+      const payload = toImportPayload(source, row);
+      const duplicateInFile = seen.has(payload.product_code);
+      const duplicateExisting = existing.has(payload.product_code);
+      seen.add(payload.product_code);
+
+      return {
+        index,
+        status: duplicateInFile || duplicateExisting ? "duplicate" : "valid",
+        reason: duplicateInFile ? "Duplicado en archivo" : duplicateExisting ? "Ya existe en bodega" : "Listo para importar",
+        payload,
+      };
+    } catch (error) {
+      return {
+        index,
+        status: "error",
+        reason: error?.message || "Fila no válida",
+        payload: normalizeImportRow(row),
+      };
+    }
+  });
+}
+
+export async function importWarehouseItems({ source, rows = [], userId } = {}) {
+  const result = { created: 0, errors: [] };
+
+  for (const row of rows) {
+    try {
+      await createWarehouseItem({ source, payload: row, userId });
+      result.created += 1;
+    } catch (error) {
+      result.errors.push({ product_code: row.product_code, message: error?.message || "No se pudo importar" });
+    }
+  }
+
+  return result;
+}
+
+export async function cleanupWarehouseCatalogData() {
+  const targets = [
+    { source: WAREHOUSE_ITEM_SOURCES.stock, table: "warehouse_inventory", columns: SELECT_COLUMNS },
+    { source: WAREHOUSE_ITEM_SOURCES.vehicleReference, table: "vehicle_reference_catalog", columns: VEHICLE_REFERENCE_COLUMNS },
+  ];
+  const summary = { scanned: 0, updated: 0 };
+
+  for (const target of targets) {
+    const { data, error } = await supabase.from(target.table).select(target.columns).limit(5000);
+    if (error) throw error;
+
+    for (const row of data || []) {
+      summary.scanned += 1;
+      const patch = buildCleanupPatch(target.source, row);
+      if (Object.keys(patch).length === 0) continue;
+
+      const { error: updateError } = await supabase
+        .from(target.table)
+        .update({ ...patch, updated_at: new Date().toISOString() })
+        .eq("id", row.id);
+
+      if (updateError) throw updateError;
+      summary.updated += 1;
+    }
+  }
+
+  return summary;
+}
+
 export async function getWarehouseInventory({ search = "", location = "", limit = 1000 } = {}) {
   let query = supabase
     .from("warehouse_inventory")
@@ -310,7 +500,7 @@ export async function getWarehouseInventory({ search = "", location = "", limit 
   const safeSearch = normalizeSearch(search);
 
   if (safeSearch) {
-    query = query.or(`product_code.ilike.%${safeSearch}%,description.ilike.%${safeSearch}%,physical_location.ilike.%${safeSearch}%`);
+    query = query.or(`product_code.ilike.%${safeSearch}%,description.ilike.%${safeSearch}%,physical_location.ilike.%${safeSearch}%,last_supplier.ilike.%${safeSearch}%`);
   }
 
   if (location) {
@@ -442,17 +632,18 @@ export async function getWarehouseItemDetail({ source, id }) {
   return config.normalize(data);
 }
 
-export async function updateWarehouseItemMetadata({ source, id, payload }) {
+export async function updateWarehouseItemMetadata({ source, id, payload, userId }) {
   const config = getSourceConfig(source);
   const { data: current, error: currentError } = await supabase
     .from(config.table)
-    .select("product_code, description")
+    .select(config.columns)
     .eq("id", id)
     .single();
 
   if (currentError) throw currentError;
 
-  const metadata = normalizeMetadataPayload(source, { ...current, ...payload });
+  const before = config.normalize(current);
+  const metadata = normalizeMetadataPayload(source, { ...before, ...payload });
   const { data, error } = await supabase
     .from(config.table)
     .update(metadata)
@@ -461,7 +652,16 @@ export async function updateWarehouseItemMetadata({ source, id, payload }) {
     .single();
 
   if (error) throw error;
-  return config.normalize(data);
+  const updated = config.normalize(data);
+  const auditRows = buildAuditRows({ source, itemId: id, productCode: updated.product_code, before, after: updated, userId });
+
+  try {
+    await insertAuditRows(auditRows);
+  } catch (auditError) {
+    console.warn("No se pudo registrar auditoría de ficha de bodega:", auditError);
+  }
+
+  return updated;
 }
 
 export async function createWarehouseItem({ source, payload, userId }) {
@@ -518,6 +718,19 @@ export async function getWarehouseRecentMovements({ limit = 100 } = {}) {
     .from("warehouse_item_movements")
     .select(MOVEMENT_COLUMNS)
     .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getWarehouseItemAuditLogs({ source, itemId, limit = 30 } = {}) {
+  const { data, error } = await supabase
+    .from("warehouse_item_audit_logs")
+    .select(AUDIT_COLUMNS)
+    .eq("item_source", source)
+    .eq("item_id", itemId)
+    .order("changed_at", { ascending: false })
     .limit(limit);
 
   if (error) throw error;

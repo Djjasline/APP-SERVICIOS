@@ -236,7 +236,7 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(service, /category/);
   assert.match(service, /vehicle_reference_catalog/);
   assert.match(service, /reference_stock/);
-  assert.match(service, /normalizeProductCode/);
+  assert.match(service, /normalizeWarehouseProductCode/);
   assert.match(service, /replace\(\/\^\[`'"‘’´\]\+\//);
   assert.match(service, /replace\(\/\^0-\(\.\+\)\$\/i, "\$1"\)/);
 
@@ -278,6 +278,10 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(home, /buildExportRows/);
   assert.match(home, /Campos faltantes más comunes/);
   assert.match(home, /missingFieldSummary/);
+  assert.match(home, /Calidad de datos/);
+  assert.match(home, /Normalizar datos/);
+  assert.match(home, /Importador CSV/);
+  assert.match(home, /prepareWarehouseImportRows/);
   assert.match(home, /Indicadores operativos/);
   assert.match(home, /Valor referencial/);
   assert.match(home, /Top proveedores/);
@@ -311,8 +315,11 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(service, /VEHICLE_SPECIALS_AREA = "Vehículos Especiales"/);
   assert.match(service, /FS_DEPOT_SUPPLIER = "FS-DEPOT"/);
   assert.match(service, /USA_BLUEBOOK_SUPPLIER = "USA BLUEBOOK"/);
-  assert.match(service, /function normalizeSupplierName/);
+  assert.match(service, /function normalizeWarehouseSupplierName/);
   assert.match(service, /USABLUEBOOK: USA_BLUEBOOK_SUPPLIER/);
+  assert.match(service, /cleanupWarehouseCatalogData/);
+  assert.match(service, /importWarehouseItems/);
+  assert.match(service, /getWarehouseItemAuditLogs/);
   assert.match(service, /PIQUERSA_SUPPLIER = "Piquersa"/);
   assert.match(service, /isPiquersaDescription/);
   assert.match(service, /applyWarehouseClassificationRules/);
@@ -372,6 +379,12 @@ test("bodega separa stock real de referencia historica vehiculos", () => {
   assert.match(movementsSql, /Usuario con permiso bodega consulta movimientos/);
   assert.match(movementsSql, /p\.tipo = 'bodega'/);
 
+  const auditSql = read("supabase/sql/warehouse_item_audit_logs.sql");
+  assert.match(auditSql, /create table if not exists public\.warehouse_item_audit_logs/);
+  assert.match(auditSql, /field_name text not null/);
+  assert.match(auditSql, /Super admin registra auditoria de bodega/);
+
+  assert.match(detail, /Historial de cambios/);
   assert.match(detail, /Movimientos y uso/);
   assert.match(detail, /QR operativo del artículo/);
   assert.match(detail, /api\.qrserver\.com/);
@@ -432,4 +445,16 @@ test("cotizador es modulo separado para repuestos y servicios", () => {
   assert.match(sidebar, /puedeUsarCotizador/);
   assert.match(sidebar, /\/vehiculos\/cotizador/);
   assert.match(text, /Cotizador de repuestos y servicios/);
+});
+
+test("PWA permite instalacion y accesos directos", () => {
+  const layout = read("src/layouts/MainLayout.jsx");
+  const manifest = read("public/manifest.json");
+  const sw = read("public/sw.js");
+
+  assert.match(layout, /beforeinstallprompt/);
+  assert.match(layout, /Instalar app/);
+  assert.match(manifest, /"shortcuts"/);
+  assert.match(manifest, /"url": "\/operaciones\/bodega"/);
+  assert.match(sw, /app-servicios-v13/);
 });

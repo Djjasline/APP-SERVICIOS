@@ -124,6 +124,7 @@ export default function BodegaItemNew() {
               <>
                 <Field label="Stock físico" type="number" value={form.physical_stock} onChange={(value) => updateField("physical_stock", value)} />
                 <Field label="Ubicación física" value={form.physical_location} onChange={(value) => updateField("physical_location", value)} />
+                <Field label="Proveedor" value={form.last_supplier} onChange={(value) => updateField("last_supplier", value)} />
                 <Field label="Fecha corte" type="date" value={form.cutoff_date} onChange={(value) => updateField("cutoff_date", value)} />
                 <Field label="Origen" value={form.source_file} onChange={(value) => updateField("source_file", value)} />
               </>
