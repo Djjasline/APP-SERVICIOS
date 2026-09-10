@@ -526,6 +526,91 @@ html[data-theme="blue"] :where(.bg-white, .bg-gray-50, .bg-gray-100, .pdf-contai
   color: #111827 !important;
 }
 
+/* Final dark-theme contrast pass after the light-surface defaults above. */
+html[data-theme="dark"] .app-page-shell :where(.bg-white, .bg-white\/95, .bg-white\/90, .bg-white\/85, .bg-white\/80, .bg-gray-50, .bg-gray-100, .bg-gray-200, .bg-slate-50, .bg-slate-100, .bg-slate-200, .bg-blue-50, .bg-blue-100, .bg-blue-200) {
+  background-color: rgba(42, 44, 47, 0.88) !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+html[data-theme="blue"] .app-page-shell :where(.bg-white, .bg-white\/95, .bg-white\/90, .bg-white\/85, .bg-white\/80, .bg-gray-50, .bg-gray-100, .bg-gray-200, .bg-slate-50, .bg-slate-100, .bg-slate-200, .bg-blue-50, .bg-blue-100, .bg-blue-200) {
+  background-color: rgba(15, 35, 66, 0.9) !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.text-black, .text-gray-900, .text-slate-900, .text-neutral-900, .text-zinc-900, .text-stone-900, .text-gray-800, .text-slate-800, .text-neutral-800, .text-zinc-800, .text-stone-800, .text-gray-700, .text-slate-700, .text-neutral-700, .text-zinc-700, .text-stone-700, .text-blue-950, .text-blue-900, .text-blue-800, .text-blue-700),
+html[data-theme="blue"] .app-page-shell :where(.text-black, .text-gray-900, .text-slate-900, .text-neutral-900, .text-zinc-900, .text-stone-900, .text-gray-800, .text-slate-800, .text-neutral-800, .text-zinc-800, .text-stone-800, .text-gray-700, .text-slate-700, .text-neutral-700, .text-zinc-700, .text-stone-700, .text-blue-950, .text-blue-900, .text-blue-800, .text-blue-700) {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.text-gray-600, .text-slate-600, .text-neutral-600, .text-zinc-600, .text-stone-600, .text-gray-500, .text-slate-500, .text-neutral-500, .text-zinc-500, .text-stone-500, .text-blue-600, .text-blue-500),
+html[data-theme="blue"] .app-page-shell :where(.text-gray-600, .text-slate-600, .text-neutral-600, .text-zinc-600, .text-stone-600, .text-gray-500, .text-slate-500, .text-neutral-500, .text-zinc-500, .text-stone-500, .text-blue-600, .text-blue-500) {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table),
+html[data-theme="blue"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-white, .bg-white\/95, .bg-white\/90, .bg-white\/85, .bg-white\/80),
+html[data-theme="blue"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-white, .bg-white\/95, .bg-white\/90, .bg-white\/85, .bg-white\/80) {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-gray-50),
+html[data-theme="blue"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-gray-50) {
+  background-color: #f9fafb !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-gray-100),
+html[data-theme="blue"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-gray-100) {
+  background-color: #f3f4f6 !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-gray-200),
+html[data-theme="blue"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-gray-200) {
+  background-color: #e5e7eb !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-slate-50),
+html[data-theme="blue"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-slate-50) {
+  background-color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-slate-100),
+html[data-theme="blue"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-slate-100) {
+  background-color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-slate-200),
+html[data-theme="blue"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-slate-200) {
+  background-color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-blue-50),
+html[data-theme="blue"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-blue-50) {
+  background-color: #eff6ff !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-blue-100),
+html[data-theme="blue"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-blue-100) {
+  background-color: #dbeafe !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-blue-200),
+html[data-theme="blue"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.bg-blue-200) {
+  background-color: #bfdbfe !important;
+}
+
+html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.text-black, .text-gray-900, .text-slate-900, .text-neutral-900, .text-zinc-900, .text-stone-900, .text-gray-800, .text-slate-800, .text-neutral-800, .text-zinc-800, .text-stone-800, .text-gray-700, .text-slate-700, .text-neutral-700, .text-zinc-700, .text-stone-700, .text-gray-600, .text-slate-600, .text-neutral-600, .text-zinc-600, .text-stone-600, .text-gray-500, .text-slate-500, .text-neutral-500, .text-zinc-500, .text-stone-500, .text-blue-950, .text-blue-900, .text-blue-800, .text-blue-700, .text-blue-600, .text-blue-500),
+html[data-theme="blue"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(.text-black, .text-gray-900, .text-slate-900, .text-neutral-900, .text-zinc-900, .text-stone-900, .text-gray-800, .text-slate-800, .text-neutral-800, .text-zinc-800, .text-stone-800, .text-gray-700, .text-slate-700, .text-neutral-700, .text-zinc-700, .text-stone-700, .text-gray-600, .text-slate-600, .text-neutral-600, .text-zinc-600, .text-stone-600, .text-gray-500, .text-slate-500, .text-neutral-500, .text-zinc-500, .text-stone-500, .text-blue-950, .text-blue-900, .text-blue-800, .text-blue-700, .text-blue-600, .text-blue-500) {
+  color: #111827 !important;
+}
+
 /* Login: mobile avoids the heavy background image; desktop loads it via CSS media query. */
 .login-bg {
   background:
