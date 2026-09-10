@@ -2,6 +2,15 @@ name: Publish app updates
 
 on:
   workflow_dispatch:
+    inputs:
+      title:
+        description: "Título del boletín manual"
+        required: false
+        type: string
+      message:
+        description: "Mensaje del boletín manual"
+        required: false
+        type: string
   push:
     branches:
       - main
@@ -18,3 +27,5 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          APP_UPDATE_TITLE: ${{ github.event.inputs.title }}
+          APP_UPDATE_MESSAGE: ${{ github.event.inputs.message }}

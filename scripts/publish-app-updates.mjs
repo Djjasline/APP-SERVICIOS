@@ -3,7 +3,11 @@ import { execSync } from "node:child_process";
 const supabaseUrl = process.env.SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const eventPath = process.env.GITHUB_EVENT_PATH;
+const eventName = process.env.GITHUB_EVENT_NAME || "";
+const manualTitle = String(process.env.APP_UPDATE_TITLE || "").trim();
+const manualMessage = String(process.env.APP_UPDATE_MESSAGE || "").trim();
 const repository = process.env.GITHUB_REPOSITORY || "";
+const runId = process.env.GITHUB_RUN_ID || "";
 const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
 
 async function main() {
@@ -18,30 +22,36 @@ async function main() {
   }
 
   const event = await readJson(eventPath);
+  const hasManualText = Boolean(manualTitle && manualMessage);
   const commits = Array.isArray(event.commits) && event.commits.length > 0 ? event.commits : [getCurrentCommit()].filter(Boolean);
   const visibleCommits = commits.filter((commit) => {
     const message = String(commit.message || "");
     return !/\[(skip bulletin|skip update|no bulletin)\]/i.test(message) && !isHiddenInternalProjectCommit(commit);
   });
 
-  if (visibleCommits.length === 0) {
+  if (visibleCommits.length === 0 && !hasManualText) {
     console.log("No hay commits para publicar como boletín.");
     process.exit(0);
   }
 
-  const headSha = event.after || visibleCommits.at(-1)?.id || String(Date.now());
-  const title = buildTitle(visibleCommits);
-  const message = buildMessage(visibleCommits);
-  const createdAt = visibleCommits.at(-1)?.timestamp || new Date().toISOString();
+  const isManualDispatch = eventName === "workflow_dispatch";
+  const now = new Date().toISOString();
+  const headSha = event.after || visibleCommits.at(-1)?.id || getCurrentCommit()?.id || String(Date.now());
+  const updateKey = isManualDispatch
+    ? `github-manual-${headSha}-${runId || Date.now()}`
+    : `github-push-${headSha}`;
+  const title = hasManualText ? manualTitle : buildTitle(visibleCommits);
+  const message = hasManualText ? manualMessage : buildMessage(visibleCommits);
+  const createdAt = isManualDispatch ? now : visibleCommits.at(-1)?.timestamp || now;
 
   const payload = [
     {
-      update_key: `github-push-${headSha}`,
+      update_key: updateKey,
       title,
       message,
       active: true,
       created_at: createdAt,
-      updated_at: new Date().toISOString(),
+      updated_at: now,
     },
   ];
 

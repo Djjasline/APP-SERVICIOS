@@ -139,11 +139,22 @@ test("dashboard de exito mantiene actividad diaria visible", () => {
 
 test("boletines recientes muestran contexto por update_key", () => {
   const appUpdates = read("src/services/appUpdatesService.js");
+  const publisher = read("scripts/publish-app-updates.mjs");
 
   assert.match(appUpdates, /update\?\.update_key/);
   assert.match(appUpdates, /matchesFriendlyUpdate/);
   assert.match(appUpdates, /e68a8458/);
   assert.match(appUpdates, /40029-30 ubica referencias/);
+  assert.match(publisher, /GITHUB_EVENT_NAME/);
+  assert.match(publisher, /APP_UPDATE_TITLE/);
+  assert.match(publisher, /APP_UPDATE_MESSAGE/);
+  assert.match(publisher, /github-manual/);
+  assert.match(publisher, /isManualDispatch \? now/);
+
+  const workflow = read(".github/workflows/publish-app-updates.yml");
+  assert.match(workflow, /workflow_dispatch:\n    inputs:/);
+  assert.match(workflow, /APP_UPDATE_TITLE: \$\{\{ github\.event\.inputs\.title \}\}/);
+  assert.match(workflow, /APP_UPDATE_MESSAGE: \$\{\{ github\.event\.inputs\.message \}\}/);
 });
 
 test("firma predeterminada mantiene contraste sobre canvas blanco", () => {
