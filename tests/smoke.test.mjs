@@ -290,7 +290,8 @@ test("biblioteca tecnica incluye buscador por indice OneDrive", () => {
   const index = JSON.parse(read("public/data/technical-manual-index.json"));
   const pkg = read("package.json");
 
-  assert.match(page, /Buscador técnico por número de parte/);
+  assert.match(page, /Buscador inteligente de referencia técnica/);
+  assert.match(page, /Encuentra referencias, repuestos, códigos de parte/);
   assert.match(page, /loadTechnicalManualIndex/);
   assert.match(page, /searchTechnicalManualIndex/);
   assert.match(service, /VITE_TECH_MANUAL_INDEX_URL/);
@@ -305,6 +306,7 @@ test("biblioteca tecnica incluye buscador por indice OneDrive", () => {
   assert.ok(index.totalFiles > 0);
   assert.ok(Array.isArray(index.entries));
   assert.ok(index.entries.some((entry) => String(entry.searchText || "").includes("vactor")));
+  assert.ok(index.entries.some((entry) => JSON.stringify(entry.pages || []).includes("40029-30")));
   assert.match(pkg, /"manuals:index": "node scripts\/build-technical-manual-index\.mjs"/);
 });
 

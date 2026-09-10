@@ -33,7 +33,7 @@ function termsFromQuery(query) {
 }
 
 function pageText(page) {
-  return [page.page, page.text, page.context, page.system, page.partNumber].filter(Boolean).join(" ");
+  return [page.page, page.text, page.context, page.system, page.partNumber, ...(page.partNumbers || [])].filter(Boolean).join(" ");
 }
 
 function scoreEntry(entry, terms) {
@@ -102,6 +102,16 @@ export function searchTechnicalManualIndex(index, query, { limit = 50 } = {}) {
     .filter((match) => match.score > 0)
     .sort((a, b) => b.score - a.score || String(a.entry.name).localeCompare(String(b.entry.name)))
     .slice(0, limit);
+}
+
+export function getMatchingPartNumbers(page, query) {
+  const terms = termsFromQuery(query);
+  if (terms.length === 0) return [];
+
+  return (page?.partNumbers || []).filter((partNumber) => {
+    const value = normalize(partNumber);
+    return terms.some((term) => value.includes(term));
+  });
 }
 
 export function formatManualFileSize(bytes) {

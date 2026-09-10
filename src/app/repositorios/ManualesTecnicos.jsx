@@ -4,7 +4,7 @@ import { Folder, ExternalLink, ArrowLeft, FileText, Search } from "lucide-react"
 import { MANUALES_TECNICOS } from "@/data/manualesTecnicos";
 import { useTheme } from "@/context/ThemeContext";
 import { openExternalResource } from "@/services/resourceUsageService";
-import { formatManualFileSize, loadTechnicalManualIndex, searchTechnicalManualIndex } from "@/services/technicalManualIndexService";
+import { formatManualFileSize, getMatchingPartNumbers, loadTechnicalManualIndex, searchTechnicalManualIndex } from "@/services/technicalManualIndexService";
 
 export default function ManualesTecnicos() {
   const navigate = useNavigate();
@@ -64,9 +64,9 @@ export default function ManualesTecnicos() {
         <div className="border-b border-slate-100 p-5">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Buscador técnico por número de parte</h3>
+              <h3 className="text-lg font-bold text-slate-900">Buscador inteligente de referencia técnica</h3>
               <p className="text-sm text-slate-500">
-                Busca por número de parte, nombre de manual, equipo, carpeta o sistema. Los documentos se abren en OneDrive/SharePoint.
+                Encuentra referencias, repuestos, códigos de parte, manuales, equipos y páginas relacionadas dentro de la biblioteca técnica disponible.
               </p>
             </div>
             {indexReady && (
@@ -82,7 +82,7 @@ export default function ManualesTecnicos() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               className="w-full bg-transparent text-sm text-slate-900 outline-none"
-              placeholder="Ej. 1091795, bomba, Vactor, Piquersa, aceite hidráulico"
+                placeholder="Ej. 40029-30, 1091795, bomba, Vactor, Piquersa, aceite hidráulico"
             />
           </label>
 
@@ -128,8 +128,19 @@ export default function ManualesTecnicos() {
                         </div>
                         <p className="mt-1 truncate text-xs text-slate-500">{entry.folder}</p>
                         {pageMatches.length > 0 ? (
-                          <div className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
-                            Coincidencia en página(s): {pageMatches.map((page) => page.page).filter(Boolean).join(", ") || "detectada"}
+                          <div className="mt-2 space-y-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+                            {pageMatches.slice(0, 3).map((page) => {
+                              const partNumbers = getMatchingPartNumbers(page, query);
+                              return (
+                                <div key={`${entry.id || entry.path}-${page.page}`}>
+                                  <p className="font-bold">
+                                    Página {page.page || "detectada"}{partNumbers.length > 0 ? ` · ${partNumbers.slice(0, 6).join(", ")}` : ""}
+                                  </p>
+                                  {page.text && <p className="mt-1 line-clamp-2 text-emerald-700">{page.text}</p>}
+                                </div>
+                              );
+                            })}
+                            {pageMatches.length > 3 && <p className="font-semibold">+ {pageMatches.length - 3} coincidencias adicionales</p>}
                           </div>
                         ) : (
                           <p className="mt-2 text-xs text-slate-500">Coincidencia por nombre, carpeta o metadatos. La página exacta estará disponible cuando se genere el índice de texto por página.</p>

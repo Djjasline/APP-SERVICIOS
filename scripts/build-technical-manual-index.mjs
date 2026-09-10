@@ -17,6 +17,12 @@ const args = new Map(
 const sourceUrl = args.get("url") || process.env.ONEDRIVE_MANUALS_URL;
 const outputPath = args.get("out") || DEFAULT_OUTPUT;
 const maxFiles = Number(args.get("max-files") || 0);
+const extractText = args.has("extract-text") || args.get("extract-text") === "true";
+const maxPdfTextFiles = Number(args.get("max-pdf-text-files") || 0);
+const maxPdfBytes = Number(args.get("max-pdf-mb") || 0) * 1024 * 1024;
+const stopAfterQuery = normalizeSearch(args.get("stop-after-query") || "");
+const pathContains = normalizeSearch(args.get("path-contains") || "");
+let pdfjsPromise = null;
 
 if (!sourceUrl) {
   console.error("Falta ONEDRIVE_MANUALS_URL o --url=<enlace de carpeta OneDrive/SharePoint>.");
@@ -48,9 +54,38 @@ async function main() {
     files,
   });
 
-  const entries = files
-    .filter((file) => !maxFiles || files.indexOf(file) < maxFiles)
-    .map(normalizeFileEntry);
+  const selectedFiles = files
+    .filter((file) => !pathContains || normalizeSearch(file.path).includes(pathContains))
+    .slice(0, maxFiles || undefined)
+  const entries = [];
+  let extractedPdfFiles = 0;
+  let foundStopAfterQuery = false;
+
+  for (const file of selectedFiles) {
+    const entry = normalizeFileEntry(file);
+
+    if (extractText && isPdfEntry(entry) && shouldExtractPdf(entry, extractedPdfFiles)) {
+      extractedPdfFiles += 1;
+      try {
+        entry.pages = await extractPdfPages({ session, driveId, file, query: stopAfterQuery });
+        entry.extractedText = entry.pages.length > 0;
+        entry.searchText = buildEntrySearchText(entry);
+        if (stopAfterQuery && entry.pages.some((page) => pageSearchText(page).includes(stopAfterQuery))) {
+          foundStopAfterQuery = true;
+        }
+        console.log(`Texto PDF: ${entry.name} | páginas con referencias: ${entry.pages.length}`);
+      } catch (error) {
+        entry.extractionError = error.message;
+        console.warn(`No se pudo extraer texto de PDF: ${entry.path} (${error.message})`);
+      }
+    }
+
+    entries.push(entry);
+    if (foundStopAfterQuery) {
+      console.log(`Consulta encontrada: ${args.get("stop-after-query")}`);
+      if (args.has("stop-after-query")) break;
+    }
+  }
 
   const index = {
     generatedAt: new Date().toISOString(),
@@ -58,6 +93,7 @@ async function main() {
     rootName: manualsRoot.name || ROOT_FOLDER_NAME,
     totalFiles: entries.length,
     totalPdfFiles: entries.filter((item) => item.mimeType === "application/pdf").length,
+    totalPdfTextFiles: entries.filter((item) => item.extractedText).length,
     totalBytes: entries.reduce((sum, item) => sum + (Number(item.size) || 0), 0),
     entries,
   };
@@ -65,7 +101,7 @@ async function main() {
   await mkdir(path.dirname(outputPath), { recursive: true });
   await writeFile(outputPath, `${JSON.stringify(index, null, 2)}\n`, "utf8");
   console.log(`Índice generado: ${outputPath}`);
-  console.log(`Archivos: ${index.totalFiles} | PDFs: ${index.totalPdfFiles} | Tamaño: ${formatBytes(index.totalBytes)}`);
+  console.log(`Archivos: ${index.totalFiles} | PDFs: ${index.totalPdfFiles} | PDFs con texto: ${index.totalPdfTextFiles} | Tamaño: ${formatBytes(index.totalBytes)}`);
 }
 
 async function openSharedFolder(url, { browserHeaders = true } = {}) {
@@ -216,9 +252,139 @@ function normalizeFileEntry(file) {
     size: file.size || 0,
     webUrl: file.webUrl || "",
     lastModifiedDateTime: file.lastModifiedDateTime || null,
-    searchText: [file.name, file.path, folder, extension].filter(Boolean).join(" ").toLowerCase(),
+    searchText: normalizeSearch([file.name, file.path, folder, extension].filter(Boolean).join(" ")),
     pages: [],
   };
+}
+
+function isPdfEntry(entry) {
+  return entry.mimeType === "application/pdf" || entry.extension === "pdf";
+}
+
+function shouldExtractPdf(entry, extractedPdfFiles) {
+  if (maxPdfTextFiles && extractedPdfFiles >= maxPdfTextFiles) return false;
+  if (maxPdfBytes && Number(entry.size || 0) > maxPdfBytes) return false;
+  return true;
+}
+
+async function getPdfjs() {
+  if (!pdfjsPromise) {
+    pdfjsPromise = import("pdfjs-dist/legacy/build/pdf.mjs");
+  }
+  return pdfjsPromise;
+}
+
+async function downloadFileBytes(session, driveId, fileId) {
+  const encodedDriveId = encodeURIComponent(driveId);
+  const url = `https://astap1-my.sharepoint.com/_api/v2.0/drives/${encodedDriveId}/items/${encodeURIComponent(fileId)}/content`;
+  const response = await fetchWithRetry(url, {
+    redirect: "follow",
+    headers: {
+      ...BROWSER_HEADERS,
+      Accept: "application/pdf,*/*;q=0.8",
+      Cookie: cookieHeader(session.cookies),
+      Referer: session.finalUrl,
+    },
+  });
+
+  collectCookies(response.headers, session.cookies);
+  if (!response.ok) throw new Error(`descarga ${response.status}`);
+  return new Uint8Array(await response.arrayBuffer());
+}
+
+async function extractPdfPages({ session, driveId, file, query }) {
+  const pdfjs = await getPdfjs();
+  const bytes = await downloadFileBytes(session, driveId, file.id);
+  const loadingTask = pdfjs.getDocument({
+    data: bytes,
+    disableFontFace: true,
+    disableWorker: true,
+    isEvalSupported: false,
+    useSystemFonts: true,
+  });
+  const document = await loadingTask.promise;
+  const pages = [];
+
+  try {
+    for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
+      const page = await document.getPage(pageNumber);
+      const content = await page.getTextContent({ disableCombineTextItems: false });
+      const text = content.items.map((item) => item.str).filter(Boolean).join(" ");
+      const partNumbers = extractPartNumbers(text);
+      const normalizedText = normalizeSearch(text);
+      const matchesQuery = query && normalizedText.includes(query);
+
+      if (partNumbers.length > 0 || matchesQuery) {
+        pages.push({
+          page: pageNumber,
+          text: buildPageSnippet(text, partNumbers, query),
+          partNumbers,
+        });
+      }
+    }
+  } finally {
+    await document.destroy?.();
+    await loadingTask.destroy?.();
+  }
+
+  return pages;
+}
+
+function extractPartNumbers(text) {
+  const normalized = String(text || "")
+    .replace(/[‐‑‒–—−]/g, "-")
+    .replace(/\s*-\s*/g, "-")
+    .replace(/\s*\/\s*/g, "/")
+    .replace(/\s+/g, " ");
+  const matches = normalized.match(/\b[A-Z]{0,6}\d{2,}[A-Z0-9]*(?:[-./][A-Z0-9]{1,})+\b|\b[A-Z]{1,8}-?\d{3,}[A-Z0-9]*(?:[-./][A-Z0-9]{1,})*\b|\b\d{5,}\b/gi) || [];
+  const ignored = new Set(["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026"]);
+
+  return [...new Set(matches.map((match) => match.toUpperCase()).filter((match) => !ignored.has(match) && !isDateLike(match)))].slice(0, 120);
+}
+
+function isDateLike(value) {
+  return /^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(String(value || ""));
+}
+
+function buildPageSnippet(text, partNumbers, query) {
+  const value = String(text || "").replace(/\s+/g, " ").trim();
+  const needles = [...partNumbers.slice(0, 5), query].filter(Boolean);
+  const snippets = [];
+
+  for (const needle of needles) {
+    const normalizedNeedle = normalizeSearch(needle);
+    const normalizedValue = normalizeSearch(value);
+    const index = normalizedValue.indexOf(normalizedNeedle);
+    if (index < 0) continue;
+
+    const start = Math.max(0, index - 90);
+    const end = Math.min(value.length, index + String(needle).length + 140);
+    snippets.push(value.slice(start, end).trim());
+  }
+
+  return [...new Set(snippets)].join(" ... ").slice(0, 600) || value.slice(0, 360);
+}
+
+function pageSearchText(page) {
+  return normalizeSearch([page.text, ...(page.partNumbers || [])].filter(Boolean).join(" "));
+}
+
+function buildEntrySearchText(entry) {
+  return normalizeSearch([
+    entry.name,
+    entry.path,
+    entry.folder,
+    entry.extension,
+    ...(entry.pages || []).flatMap((page) => page.partNumbers || []),
+  ].filter(Boolean).join(" "));
+}
+
+function normalizeSearch(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[‐‑‒–—−]/g, "-")
+    .toLowerCase();
 }
 
 function formatBytes(bytes) {
