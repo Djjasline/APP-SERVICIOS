@@ -55,7 +55,11 @@ En PowerShell, si la política local bloquea `npm.ps1`, usa `npm.cmd run dev`.
 - `npm run dev`: servidor Vite local.
 - `npm run build`: build de producción en `dist`.
 - `npm run preview`: preview local del build.
+- `npm run manuals:index -- --extract-text`: genera el índice de la Biblioteca Técnica con texto seleccionable de PDFs.
+- `npm run manuals:index -- --extract-text --ocr`: además aplica OCR a páginas escaneadas o sin texto seleccionable.
 - `npm test`: pruebas con `node --test`.
+
+Para OCR controlado en manuales técnicos grandes, usa límites como `--max-ocr-pages=200`, `--ocr-mode=auto` o `--ocr-mode=query --stop-after-query=40029-30`.
 
 ## Estructura
 

@@ -322,12 +322,18 @@ test("biblioteca tecnica incluye buscador por indice OneDrive", () => {
   assert.match(script, /ONEDRIVE_MANUALS_URL/);
   assert.match(script, /_api\/v2\.0\/drives/);
   assert.match(script, /pages: \[\]/);
+  assert.match(script, /extractOcr/);
+  assert.match(script, /@napi-rs\/canvas/);
+  assert.match(script, /tesseract\.js/);
+  assert.match(script, /totalPdfOcrFiles/);
   assert.equal(index.source, "onedrive-sharepoint");
   assert.ok(index.totalFiles > 0);
   assert.ok(Array.isArray(index.entries));
   assert.ok(index.entries.some((entry) => String(entry.searchText || "").includes("vactor")));
   assert.ok(index.entries.some((entry) => JSON.stringify(entry.pages || []).includes("40029-30")));
   assert.match(pkg, /"manuals:index": "node scripts\/build-technical-manual-index\.mjs"/);
+  assert.match(pkg, /"@napi-rs\/canvas"/);
+  assert.match(pkg, /"tesseract\.js"/);
 });
 
 test("service worker no bloquea indice tecnico con cache vieja", () => {

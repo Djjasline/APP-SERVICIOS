@@ -22,7 +22,17 @@ const maxPdfTextFiles = Number(args.get("max-pdf-text-files") || 0);
 const maxPdfBytes = Number(args.get("max-pdf-mb") || 0) * 1024 * 1024;
 const stopAfterQuery = normalizeSearch(args.get("stop-after-query") || "");
 const pathContains = normalizeSearch(args.get("path-contains") || "");
+const extractOcr = args.has("ocr") || args.get("ocr") === "true";
+const ocrLang = args.get("ocr-lang") || "eng";
+const ocrMode = args.get("ocr-mode") || (stopAfterQuery ? "query" : "auto");
+const ocrMinTextChars = Number(args.get("ocr-min-text-chars") || 40);
+const ocrScale = Number(args.get("ocr-scale") || 2);
+const maxOcrPages = Number(args.get("max-ocr-pages") || 0);
+const maxOcrPixels = Number(args.get("ocr-max-pixels") || 4_000_000);
 let pdfjsPromise = null;
+let canvasPromise = null;
+let ocrWorkerPromise = null;
+let extractedOcrPages = 0;
 
 if (!sourceUrl) {
   console.error("Falta ONEDRIVE_MANUALS_URL o --url=<enlace de carpeta OneDrive/SharePoint>.");
@@ -69,11 +79,12 @@ async function main() {
       try {
         entry.pages = await extractPdfPages({ session, driveId, file, query: stopAfterQuery });
         entry.extractedText = entry.pages.length > 0;
+        entry.ocrText = entry.pages.some((page) => page.ocr);
         entry.searchText = buildEntrySearchText(entry);
         if (stopAfterQuery && entry.pages.some((page) => pageSearchText(page).includes(stopAfterQuery))) {
           foundStopAfterQuery = true;
         }
-        console.log(`Texto PDF: ${entry.name} | páginas con referencias: ${entry.pages.length}`);
+        console.log(`Texto PDF${entry.ocrText ? "/OCR" : ""}: ${entry.name} | páginas con referencias: ${entry.pages.length}`);
       } catch (error) {
         entry.extractionError = error.message;
         console.warn(`No se pudo extraer texto de PDF: ${entry.path} (${error.message})`);
@@ -94,6 +105,7 @@ async function main() {
     totalFiles: entries.length,
     totalPdfFiles: entries.filter((item) => item.mimeType === "application/pdf").length,
     totalPdfTextFiles: entries.filter((item) => item.extractedText).length,
+    totalPdfOcrFiles: entries.filter((item) => item.ocrText).length,
     totalBytes: entries.reduce((sum, item) => sum + (Number(item.size) || 0), 0),
     entries,
   };
@@ -101,7 +113,7 @@ async function main() {
   await mkdir(path.dirname(outputPath), { recursive: true });
   await writeFile(outputPath, `${JSON.stringify(index, null, 2)}\n`, "utf8");
   console.log(`Índice generado: ${outputPath}`);
-  console.log(`Archivos: ${index.totalFiles} | PDFs: ${index.totalPdfFiles} | PDFs con texto: ${index.totalPdfTextFiles} | Tamaño: ${formatBytes(index.totalBytes)}`);
+  console.log(`Archivos: ${index.totalFiles} | PDFs: ${index.totalPdfFiles} | PDFs con texto: ${index.totalPdfTextFiles} | PDFs con OCR: ${index.totalPdfOcrFiles} | Tamaño: ${formatBytes(index.totalBytes)}`);
 }
 
 async function openSharedFolder(url, { browserHeaders = true } = {}) {
@@ -274,6 +286,39 @@ async function getPdfjs() {
   return pdfjsPromise;
 }
 
+async function getCanvas() {
+  if (!canvasPromise) {
+    canvasPromise = import("@napi-rs/canvas");
+  }
+  return canvasPromise;
+}
+
+async function getOcrWorker() {
+  if (!ocrWorkerPromise) {
+    ocrWorkerPromise = (async () => {
+      const tesseractModule = await import("tesseract.js");
+      const tesseract = tesseractModule.default || tesseractModule;
+      const worker = await tesseract.createWorker(ocrLang, undefined, {
+        logger: args.has("ocr-progress") ? (message) => console.log(`OCR ${message.status}: ${Math.round((message.progress || 0) * 100)}%`) : undefined,
+      });
+      await worker.setParameters({
+        preserve_interword_spaces: "1",
+        tessedit_pageseg_mode: tesseract.PSM?.SPARSE_TEXT || "11",
+        user_defined_dpi: String(Math.round(72 * Math.max(1, ocrScale))),
+      });
+      return worker;
+    })();
+  }
+
+  return ocrWorkerPromise;
+}
+
+async function cleanupOcrWorker() {
+  if (!ocrWorkerPromise) return;
+  const worker = await ocrWorkerPromise;
+  await worker.terminate();
+}
+
 async function downloadFileBytes(session, driveId, fileId) {
   const encodedDriveId = encodeURIComponent(driveId);
   const url = `https://astap1-my.sharepoint.com/_api/v2.0/drives/${encodedDriveId}/items/${encodeURIComponent(fileId)}/content`;
@@ -310,15 +355,33 @@ async function extractPdfPages({ session, driveId, file, query }) {
       const page = await document.getPage(pageNumber);
       const content = await page.getTextContent({ disableCombineTextItems: false });
       const text = content.items.map((item) => item.str).filter(Boolean).join(" ");
-      const partNumbers = extractPartNumbers(text);
-      const normalizedText = normalizeSearch(text);
+      let fullText = text;
+      let usedOcr = false;
+      let normalizedText = normalizeSearch(fullText);
+
+      if (shouldOcrPage({ text: fullText, normalizedText, query })) {
+        try {
+          const ocrText = await extractPageOcrText(page);
+          if (ocrText) {
+            extractedOcrPages += 1;
+            usedOcr = true;
+            fullText = [fullText, ocrText].filter(Boolean).join(" ");
+            normalizedText = normalizeSearch(fullText);
+          }
+        } catch (error) {
+          console.warn(`OCR omitido: ${file.path} página ${pageNumber} (${error.message})`);
+        }
+      }
+
+      const partNumbers = extractPartNumbers(fullText);
       const matchesQuery = query && normalizedText.includes(query);
 
       if (partNumbers.length > 0 || matchesQuery) {
         pages.push({
           page: pageNumber,
-          text: buildPageSnippet(text, partNumbers, query),
+          text: buildPageSnippet(fullText, partNumbers, query),
           partNumbers,
+          ...(usedOcr ? { ocr: true } : {}),
         });
       }
     }
@@ -328,6 +391,36 @@ async function extractPdfPages({ session, driveId, file, query }) {
   }
 
   return pages;
+}
+
+function shouldOcrPage({ text, normalizedText, query }) {
+  if (!extractOcr) return false;
+  if (maxOcrPages && extractedOcrPages >= maxOcrPages) return false;
+  if (ocrMode === "all") return true;
+  if (ocrMode === "query" && query) return !normalizedText.includes(query);
+  return String(text || "").replace(/\s+/g, "").length < ocrMinTextChars;
+}
+
+async function extractPageOcrText(page) {
+  const worker = await getOcrWorker();
+  const image = await renderPageToPng(page);
+  const result = await worker.recognize(image, {}, { text: true, blocks: false, hocr: false, tsv: false });
+  return String(result?.data?.text || "").replace(/\s+/g, " ").trim();
+}
+
+async function renderPageToPng(page) {
+  const { createCanvas } = await getCanvas();
+  const baseViewport = page.getViewport({ scale: Math.max(1, ocrScale) });
+  const pixels = baseViewport.width * baseViewport.height;
+  const safeScale = maxOcrPixels && pixels > maxOcrPixels
+    ? Math.max(1, Math.max(1, ocrScale) * Math.sqrt(maxOcrPixels / pixels))
+    : Math.max(1, ocrScale);
+  const viewport = page.getViewport({ scale: safeScale });
+  const canvas = createCanvas(Math.ceil(viewport.width), Math.ceil(viewport.height));
+  const canvasContext = canvas.getContext("2d");
+
+  await page.render({ canvasContext, viewport }).promise;
+  return canvas.toBuffer("image/png");
 }
 
 function extractPartNumbers(text) {
@@ -394,7 +487,11 @@ function formatBytes(bytes) {
   return `${value} B`;
 }
 
-main().catch((error) => {
+try {
+  await main();
+} catch (error) {
   console.error(error);
-  process.exit(1);
-});
+  process.exitCode = 1;
+} finally {
+  await cleanupOcrWorker();
+}
