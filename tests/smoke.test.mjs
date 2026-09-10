@@ -86,6 +86,8 @@ test("temas oscuros mantienen variantes dark y azul", () => {
   assert.match(sidebar, /liquid-glass-sidebar/);
   assert.match(styles, /LIQUID GLASS THEME/);
   assert.match(styles, /prefers-reduced-motion/);
+  assert.match(styles, /\.text-blue-900,\nhtml\[data-theme="dark"\].*\.text-blue-800,\nhtml\[data-theme="dark"\].*\.text-blue-700/s);
+  assert.match(styles, /\.text-blue-900,\nhtml\[data-theme="blue"\].*\.text-blue-800,\nhtml\[data-theme="blue"\].*\.text-blue-700/s);
 });
 
 test("dashboard de exito mantiene actividad diaria visible", () => {
