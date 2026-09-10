@@ -317,7 +317,7 @@ const handleSubmit = async (e) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white text-slate-900 rounded-2xl p-6 shadow space-y-6"
+      className="document-sheet bg-white text-slate-900 rounded-2xl p-6 shadow space-y-6"
     >
       {/* HEADER */}
       <div className="flex justify-between items-center flex-wrap gap-2">

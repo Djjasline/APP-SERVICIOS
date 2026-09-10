@@ -92,8 +92,30 @@ test("temas oscuros mantienen variantes dark y azul", () => {
   assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell.*\.text-red-700.*\.text-amber-700.*\.text-green-700.*\.text-purple-700/s);
   assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell.*\.hover\\:bg-white:hover.*\.hover\\:bg-blue-50:hover.*\.hover\\:bg-red-50:hover.*\.hover\\:bg-purple-100:hover/s);
   assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell.*\.hover\\:text-slate-700:hover.*\.hover\\:text-red-700:hover.*\.hover\\:text-blue-700:hover/s);
+  assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell.*\.odd\\:bg-slate-50:nth-child\(odd\).*\.odd\\:bg-blue-50\\\/40:nth-child\(odd\)/s);
   assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell :where\(\.pdf-container, \.print-area, \.pdf-page, \.pdf-table\).*\.bg-green-100/s);
   assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell :where\(\.pdf-container, \.print-area, \.pdf-page, \.pdf-table\).*\.text-red-700/s);
+  assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell :where\(\.document-sheet\)/);
+  assert.match(styles, /document-sheet.*input, textarea, select/s);
+  assert.match(styles, /document-sheet.*\.bg-blue-50/s);
+  assert.match(styles, /document-sheet.*\.bg-green-100/s);
+  assert.match(styles, /document-sheet.*\.text-red-700/s);
+});
+
+test("formularios tecnicos conservan hoja blanca en modo oscuro", () => {
+  const vehiculo = read("src/app/vehiculos/informe/NuevoInforme.jsx");
+  const agua = read("src/app/agua/informe/NuevoInforme.jsx");
+  const recepcion = read("src/app/operaciones/recepcion/HojaRecepcion.jsx");
+  const herramientas = read("src/app/operaciones/registro/HojaRegistroHerramientas.jsx");
+  const liberacion = read("src/app/operaciones/liberacion/LiberacionForm.jsx");
+  const protocoloMan = read("src/app/operaciones/protocoloMan/ProtocoloManForm.jsx");
+
+  assert.match(vehiculo, /document-sheet bg-white/);
+  assert.match(agua, /document-sheet bg-white/);
+  assert.match(recepcion, /document-sheet recepcion-sheet-wrap/);
+  assert.match(herramientas, /document-sheet bg-white text-slate-900/);
+  assert.match(liberacion, /document-sheet max-w-\[794px\]/);
+  assert.match(protocoloMan, /document-sheet overflow-hidden/);
 });
 
 test("dashboard de exito mantiene actividad diaria visible", () => {

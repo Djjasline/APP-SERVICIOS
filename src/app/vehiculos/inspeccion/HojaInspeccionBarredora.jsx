@@ -832,7 +832,7 @@ setTimeout(() => {
       )}
 
       <div className="p-3 md:p-6 bg-gray-100 min-h-screen">
-        <div className="bg-white p-4 md:p-6 rounded shadow w-full max-w-screen-xl mx-auto space-y-6">
+        <div className="document-sheet bg-white p-4 md:p-6 rounded shadow w-full max-w-screen-xl mx-auto space-y-6">
 
       
         {/* ── BANNER PROGRESO ── */}

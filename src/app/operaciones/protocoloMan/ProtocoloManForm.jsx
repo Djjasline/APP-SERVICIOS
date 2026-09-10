@@ -60,7 +60,7 @@ function FieldInput({ column, value, checked, onChange }) {
 
 function ProtocolHeader({ protocol, values, onChange }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-blue-200 bg-white shadow-lg">
+    <div className="document-sheet overflow-hidden rounded-xl border border-blue-200 bg-white shadow-lg">
       <div className="grid gap-0 md:grid-cols-[230px_1fr_230px]">
         <div className="flex items-center gap-3 border-b border-blue-200 p-4 md:border-b-0 md:border-r">
           <img src="/astap-logo.jpg" alt="ASTAP" className="h-14 w-14 object-contain" />
@@ -376,7 +376,7 @@ export default function ProtocoloManForm() {
       {message && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">{message}</div>}
       {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</div>}
 
-      <div className="space-y-4 rounded-2xl bg-slate-100 p-3 shadow-inner">
+      <div className="document-sheet space-y-4 rounded-2xl bg-slate-100 p-3 shadow-inner">
         <ProtocolHeader protocol={protocol} values={values} onChange={updateValue} />
         <GeneralInfo values={values} onChange={updateValue} />
         {protocol.sections.map((section) => renderSection(section, values, updateValue))}

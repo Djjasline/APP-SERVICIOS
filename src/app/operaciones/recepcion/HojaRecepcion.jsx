@@ -1503,7 +1503,7 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
         Completa datos de entrega, documentos, kilometraje y combustible. En daños de carrocería puedes subir fotos, marcar puntos sobre la imagen y describir cada novedad antes de guardar o descargar el PDF.
       </div>
 
-      <div className="recepcion-sheet-wrap overflow-hidden bg-white shadow border p-2">
+      <div className="document-sheet recepcion-sheet-wrap overflow-hidden bg-white shadow border p-2">
         <ControlVehicularSheet
   data={data}
   setData={setData}

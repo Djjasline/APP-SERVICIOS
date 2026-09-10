@@ -570,7 +570,7 @@ export default function VisitaCampoForm() {
   if (loading) return <div className="p-6 text-gray-500">Cargando informe...</div>;
 
   return (
-    <div className="rounded-2xl bg-white p-6 text-gray-900 shadow space-y-6">
+    <div className="document-sheet rounded-2xl bg-white p-6 text-gray-900 shadow space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="text-lg font-semibold">Informe técnico de visita en campo</h1>

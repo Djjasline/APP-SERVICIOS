@@ -152,7 +152,7 @@ export default function LiberacionDetalle({ pdfMode = false, allowDownload = tru
         ) : null}
       </div>
 
-      <div className="liberacion-page mx-auto max-w-[794px] bg-white p-6 shadow border space-y-4 text-xs">
+      <div className="document-sheet liberacion-page mx-auto max-w-[794px] bg-white p-6 shadow border space-y-4 text-xs">
         <div className="border border-slate-400">
           <div className="grid grid-cols-[110px_1fr_150px] items-stretch">
             <div className="flex items-center justify-center border-r border-slate-400 p-2">

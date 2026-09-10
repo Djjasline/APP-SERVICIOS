@@ -223,7 +223,7 @@ pendientes.push({
     />
 
     <div className="p-6 bg-slate-100 min-h-screen">
-      <div className="max-w-[794px] mx-auto bg-white p-6 shadow border">
+      <div className="document-sheet max-w-[794px] mx-auto bg-white p-6 shadow border">
 
         {/* HEADER */}
         <div className="border p-4 mb-4">
