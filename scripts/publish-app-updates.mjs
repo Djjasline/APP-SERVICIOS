@@ -124,6 +124,11 @@ function isHiddenInternalProjectCommit(commit) {
 
 const FRIENDLY_UPDATES = [
   {
+    match: ["agregar ocr al buscador tecnico", "c93a7495"],
+    title: "Control de cambios: OCR en Biblioteca Técnica",
+    message: "El buscador técnico ahora puede indexar referencias dentro de PDFs escaneados mediante OCR, además del texto seleccionable, nombres de archivos y carpetas.",
+  },
+  {
     match: ["agregar busqueda precisa en manuales tecnicos", "e68a8458"],
     title: "Control de cambios: búsqueda técnica precisa",
     message: "La Biblioteca Técnica incorpora búsqueda inteligente por número de parte, código técnico, equipo, carpeta o manual; por ejemplo, 40029-30 ubica referencias en el manual Vactor 2100i y página 125.",

@@ -143,6 +143,8 @@ test("boletines recientes muestran contexto por update_key", () => {
 
   assert.match(appUpdates, /update\?\.update_key/);
   assert.match(appUpdates, /matchesFriendlyUpdate/);
+  assert.match(appUpdates, /c93a7495/);
+  assert.match(appUpdates, /OCR en Biblioteca Técnica/);
   assert.match(appUpdates, /e68a8458/);
   assert.match(appUpdates, /40029-30 ubica referencias/);
   assert.match(publisher, /GITHUB_EVENT_NAME/);
