@@ -6,7 +6,70 @@ function cleanUpdateId(value) {
   return String(value || "").replace(/^app-update-/, "");
 }
 
+function getFriendlyMatches(item) {
+  return Array.isArray(item.match) ? item.match : [item.match];
+}
+
+function matchesFriendlyUpdate(item, value) {
+  return getFriendlyMatches(item).some((match) => value.includes(match));
+}
+
 const FRIENDLY_UPDATES = [
+  {
+    match: ["agregar busqueda precisa en manuales tecnicos", "e68a8458"],
+    title: "Control de cambios: búsqueda técnica precisa",
+    message: "La Biblioteca Técnica incorpora búsqueda inteligente por número de parte, código técnico, equipo, carpeta o manual; por ejemplo, 40029-30 ubica referencias en el manual Vactor 2100i y página 125.",
+  },
+  {
+    match: ["mantener formularios blancos en modo oscuro", "cf4786a6"],
+    title: "Control de cambios: formularios en modo oscuro",
+    message: "Los formularios técnicos conservan hoja blanca y contraste correcto aunque la app esté en modo oscuro.",
+  },
+  {
+    match: ["ampliar contraste del modo oscuro", "bbff381c"],
+    title: "Control de cambios: contraste oscuro",
+    message: "Se amplió el contraste del modo oscuro para mejorar lectura de textos, tablas, botones y estados visuales.",
+  },
+  {
+    match: ["corregir contraste en firmas y dashboard", "0b19d597"],
+    title: "Control de cambios: firmas y dashboard",
+    message: "Se corrigió el contraste de firmas, paneles y dashboard para mantener contenido legible en temas oscuros.",
+  },
+  {
+    match: ["mejorar contraste global en temas oscuros", "cb16d5c6"],
+    title: "Control de cambios: temas oscuros",
+    message: "Se mejoró el contraste global de la app en temas oscuros, incluyendo tarjetas, alertas, listas y acciones.",
+  },
+  {
+    match: ["corregir carga del buscador tecnico", "4ebc3d58"],
+    title: "Control de cambios: carga del buscador técnico",
+    message: "Se corrigió la carga del índice técnico para que el buscador encuentre los manuales publicados correctamente.",
+  },
+  {
+    match: ["mejorar contraste de titulos en modo oscuro", "26307d78"],
+    title: "Control de cambios: títulos en modo oscuro",
+    message: "Los títulos y encabezados ahora mantienen mejor contraste y legibilidad en modo oscuro.",
+  },
+  {
+    match: ["agregar tema dark grafito", "079ae6f1"],
+    title: "Control de cambios: tema dark grafito",
+    message: "Se agregó el modo dark grafito y se mantuvo el oscuro azul como alternativa en Perfil > Apariencia.",
+  },
+  {
+    match: ["publicar indice de manuales tecnicos", "e4a8e2f6"],
+    title: "Control de cambios: índice de manuales técnicos",
+    message: "Se publicó el índice de la Biblioteca Técnica para consultar manuales y referencias desde la app.",
+  },
+  {
+    match: ["agregar buscador de manuales tecnicos", "0af5e170"],
+    title: "Control de cambios: buscador de manuales",
+    message: "La Biblioteca Técnica ahora incluye un buscador para localizar manuales del repositorio técnico por nombre, carpeta o referencia.",
+  },
+  {
+    match: ["agregar protocolos man en operaciones", "ec649fe5"],
+    title: "Control de cambios: protocolos MAN",
+    message: "Operaciones ahora incluye protocolos MAN con acceso exclusivo para superadministrador.",
+  },
   {
     match: "mejorar control de cambios",
     title: "Control de cambios: historial mejorado",
@@ -290,7 +353,7 @@ function genericFriendlyUpdate(update) {
   }
 
   const subject = getSubjectFromTitle(update?.title).toLowerCase();
-  const known = FRIENDLY_UPDATES.find((item) => subject.includes(item.match));
+  const known = FRIENDLY_UPDATES.find((item) => matchesFriendlyUpdate(item, subject));
   if (known) return known;
 
   return {
@@ -302,8 +365,8 @@ function genericFriendlyUpdate(update) {
 function friendlyUpdate(update) {
   const rawTitle = stripTechnicalReferences(update?.title);
   const rawMessage = stripTechnicalReferences(update?.message);
-  const searchable = `${rawTitle} ${rawMessage}`.toLowerCase();
-  const known = FRIENDLY_UPDATES.find((item) => searchable.includes(item.match));
+  const searchable = `${update?.update_key || ""} ${rawTitle} ${rawMessage}`.toLowerCase();
+  const known = FRIENDLY_UPDATES.find((item) => matchesFriendlyUpdate(item, searchable));
 
   if (known) return known;
 
