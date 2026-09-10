@@ -385,7 +385,7 @@ export default function AdminSuccessDashboard() {
 
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-[0.9fr_0.9fr_1fr]">
         <Panel title="4. Uso de Recursos">
-          <ResourceUsageTable usage={dashboard.resourceUsage} />
+          <ResourceUsageTable usage={dashboard.resourceUsage} isLight={isLight} />
         </Panel>
         <Panel title="5. Informes por área">
           <DonutChart items={dashboard.areaRows.map((row) => ({ label: row.label, value: row.total, color: row.color }))} total={dashboard.totals.total} />
@@ -623,32 +623,39 @@ function AreaTable({ rows, total }) {
   );
 }
 
-function ResourceUsageTable({ usage }) {
+function ResourceUsageTable({ usage, isLight }) {
   const rows = usage?.rows || [];
+  const statCardClass = isLight
+    ? "bg-purple-50 text-slate-900"
+    : "border border-white/10 bg-white/10 text-white";
+  const statLabelClass = isLight ? "text-purple-700" : "text-purple-100";
+  const rowClass = isLight ? "border-slate-100" : "border-white/15";
+  const rowLabelClass = isLight ? "text-slate-700" : "text-white/80";
+  const rowCountClass = isLight ? "bg-purple-100 text-purple-700" : "bg-purple-500/25 text-purple-100";
 
   return (
-    <div className="space-y-4 text-sm text-slate-700">
+    <div className={`space-y-4 text-sm ${isLight ? "text-slate-700" : "text-white/80"}`}>
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-purple-50 p-3">
-          <p className="text-[10px] font-black uppercase text-purple-700">Usuarios</p>
-          <p className="text-2xl font-black text-slate-900">{formatNumber(usage?.users)}</p>
+        <div className={`rounded-xl p-3 ${statCardClass}`}>
+          <p className={`text-[10px] font-black uppercase ${statLabelClass}`}>Usuarios</p>
+          <p className="text-2xl font-black">{formatNumber(usage?.users)}</p>
         </div>
-        <div className="rounded-xl bg-purple-50 p-3">
-          <p className="text-[10px] font-black uppercase text-purple-700">Accesos</p>
-          <p className="text-2xl font-black text-slate-900">{formatNumber(usage?.total)}</p>
+        <div className={`rounded-xl p-3 ${statCardClass}`}>
+          <p className={`text-[10px] font-black uppercase ${statLabelClass}`}>Accesos</p>
+          <p className="text-2xl font-black">{formatNumber(usage?.total)}</p>
         </div>
       </div>
 
       {rows.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-slate-200 p-4 text-xs text-slate-500">
+        <p className={`rounded-xl border border-dashed p-4 text-xs ${isLight ? "border-slate-200 text-slate-500" : "border-white/15 text-white/60"}`}>
           Sin accesos a recursos registrados en el periodo.
         </p>
       ) : (
         <div className="space-y-2">
           {rows.slice(0, 5).map((row) => (
-            <div key={row.label} className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 px-3 py-2">
-              <span className="truncate text-xs font-semibold text-slate-700">{row.label}</span>
-              <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-bold text-purple-700">
+            <div key={row.label} className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-2 ${rowClass}`}>
+              <span className={`truncate text-xs font-semibold ${rowLabelClass}`}>{row.label}</span>
+              <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${rowCountClass}`}>
                 {formatNumber(row.count)}
               </span>
             </div>

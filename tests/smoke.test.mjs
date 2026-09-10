@@ -104,6 +104,17 @@ test("dashboard de exito mantiene actividad diaria visible", () => {
   assert.match(dashboard, /role="img" aria-label="Actividad diaria de informes"/);
   assert.match(dashboard, /lg:grid-cols-2 2xl:grid-cols-\[0\.9fr_0\.9fr_1fr\]/);
   assert.match(dashboard, /<Panel title="7\. Resumen de impacto">\s*<ImpactList \/>\s*<\/Panel>/);
+  assert.match(dashboard, /<ResourceUsageTable usage=\{dashboard\.resourceUsage\} isLight=\{isLight\} \/>/);
+  assert.match(dashboard, /border border-white\/10 bg-white\/10 text-white/);
+  assert.match(dashboard, /bg-purple-500\/25 text-purple-100/);
+});
+
+test("firma predeterminada mantiene contraste sobre canvas blanco", () => {
+  const signature = read("src/components/SignatureCanvasField.jsx");
+
+  assert.match(signature, /Usar mi firma/);
+  assert.match(signature, /bg-slate-950[^\n]+text-white/);
+  assert.doesNotMatch(signature, /bg-blue-50\/90[^\n]+text-blue-700/);
 });
 
 test("panel principal conserva visual de menu estable", () => {

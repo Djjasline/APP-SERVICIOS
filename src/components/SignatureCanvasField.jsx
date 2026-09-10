@@ -273,12 +273,12 @@ const SignatureCanvasField = forwardRef(function SignatureCanvasField(
           type="button"
           onClick={applyDefaultSignature}
           disabled={loadingDefault}
-          className="absolute right-2 top-2 z-10 rounded-md border border-blue-200 bg-blue-50/90 px-2 py-1 text-[10px] font-semibold text-blue-700 shadow-sm transition hover:bg-blue-100 disabled:opacity-60"
+          className="absolute right-2 top-2 z-10 rounded-md border border-slate-950 bg-slate-950 px-2 py-1 text-[10px] font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-70"
         >
           {loadingDefault ? "Cargando..." : "Usar mi firma"}
         </button>
         {defaultMessage && (
-          <span className="absolute bottom-2 right-2 z-10 rounded bg-white/90 px-2 py-1 text-[10px] font-semibold text-slate-500 shadow-sm">
+          <span className="absolute bottom-2 right-2 z-10 rounded bg-slate-950/90 px-2 py-1 text-[10px] font-semibold text-white shadow-sm">
             {defaultMessage}
           </span>
         )}
