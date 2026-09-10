@@ -88,6 +88,12 @@ test("temas oscuros mantienen variantes dark y azul", () => {
   assert.match(styles, /prefers-reduced-motion/);
   assert.match(styles, /\.text-blue-900,\nhtml\[data-theme="dark"\].*\.text-blue-800,\nhtml\[data-theme="dark"\].*\.text-blue-700/s);
   assert.match(styles, /\.text-blue-900,\nhtml\[data-theme="blue"\].*\.text-blue-800,\nhtml\[data-theme="blue"\].*\.text-blue-700/s);
+  assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell.*\.bg-red-200.*\.bg-amber-50.*\.bg-green-100.*\.bg-purple-100/s);
+  assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell.*\.text-red-700.*\.text-amber-700.*\.text-green-700.*\.text-purple-700/s);
+  assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell.*\.hover\\:bg-white:hover.*\.hover\\:bg-blue-50:hover.*\.hover\\:bg-red-50:hover.*\.hover\\:bg-purple-100:hover/s);
+  assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell.*\.hover\\:text-slate-700:hover.*\.hover\\:text-red-700:hover.*\.hover\\:text-blue-700:hover/s);
+  assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell :where\(\.pdf-container, \.print-area, \.pdf-page, \.pdf-table\).*\.bg-green-100/s);
+  assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell :where\(\.pdf-container, \.print-area, \.pdf-page, \.pdf-table\).*\.text-red-700/s);
 });
 
 test("dashboard de exito mantiene actividad diaria visible", () => {
