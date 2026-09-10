@@ -255,14 +255,26 @@ test("biblioteca tecnica incluye buscador por indice OneDrive", () => {
   assert.match(page, /loadTechnicalManualIndex/);
   assert.match(page, /searchTechnicalManualIndex/);
   assert.match(service, /VITE_TECH_MANUAL_INDEX_URL/);
+  assert.match(service, /buildIndexUrls/);
+  assert.match(service, /cache: "reload"/);
   assert.match(service, /\/data\/technical-manual-index\.json/);
+  assert.match(page, /Cargando índice técnico de manuales/);
   assert.match(script, /ONEDRIVE_MANUALS_URL/);
   assert.match(script, /_api\/v2\.0\/drives/);
   assert.match(script, /pages: \[\]/);
   assert.equal(index.source, "onedrive-sharepoint");
   assert.ok(index.totalFiles > 0);
   assert.ok(Array.isArray(index.entries));
+  assert.ok(index.entries.some((entry) => String(entry.searchText || "").includes("vactor")));
   assert.match(pkg, /"manuals:index": "node scripts\/build-technical-manual-index\.mjs"/);
+});
+
+test("service worker no bloquea indice tecnico con cache vieja", () => {
+  const sw = read("public/sw.js");
+
+  assert.match(sw, /app-servicios-v14/);
+  assert.match(sw, /data\/technical-manual-index\.json/);
+  assert.match(sw, /fetch\(event\.request, \{ cache: "reload" \}\)/);
 });
 
 test("historiales limitan consultas pesadas", () => {
@@ -524,5 +536,5 @@ test("PWA permite instalacion y accesos directos", () => {
   assert.match(layout, /Instalar app/);
   assert.match(manifest, /"shortcuts"/);
   assert.match(manifest, /"url": "\/operaciones\/bodega"/);
-  assert.match(sw, /app-servicios-v13/);
+  assert.match(sw, /app-servicios-v14/);
 });

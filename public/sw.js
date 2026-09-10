@@ -1,4 +1,4 @@
-const CACHE_NAME = "app-servicios-v13";
+const CACHE_NAME = "app-servicios-v14";
 const VAPID_CACHE_NAME = "app-servicios-vapid";
 const VAPID_PUBLIC_KEY_REQUEST = "/__vapid_public_key__";
 
@@ -105,6 +105,11 @@ self.addEventListener("fetch", (event) => {
 
   // Para llamadas a Supabase siempre ir a la red
   if (url.hostname.includes("supabase.co")) return;
+
+  if (url.pathname.endsWith("/data/technical-manual-index.json")) {
+    event.respondWith(fetch(event.request, { cache: "reload" }));
+    return;
+  }
 
   if (event.request.mode === "navigate" || url.pathname === "/" || url.pathname === "/index.html") {
     event.respondWith(

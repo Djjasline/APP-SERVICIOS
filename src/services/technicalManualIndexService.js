@@ -1,4 +1,22 @@
 const DEFAULT_INDEX_URL = "/data/technical-manual-index.json";
+const INDEX_FILE = "technical-manual-index.json";
+
+function unique(values) {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function buildIndexUrls() {
+  const configuredUrl = import.meta.env.VITE_TECH_MANUAL_INDEX_URL;
+  const baseUrl = import.meta.env.BASE_URL || "/";
+  const relativeBaseUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+
+  return unique([
+    configuredUrl,
+    `${relativeBaseUrl}data/${INDEX_FILE}`,
+    DEFAULT_INDEX_URL,
+    `data/${INDEX_FILE}`,
+  ]);
+}
 
 function normalize(value) {
   return String(value || "")
@@ -35,38 +53,44 @@ function scoreEntry(entry, terms) {
 }
 
 export async function loadTechnicalManualIndex() {
-  const url = import.meta.env.VITE_TECH_MANUAL_INDEX_URL || DEFAULT_INDEX_URL;
+  const urls = buildIndexUrls();
+  const cacheBuster = Date.now().toString(36);
+  const attempts = [];
 
-  try {
-    const response = await fetch(url, { cache: "no-cache" });
-    if (!response.ok) {
+  for (const url of urls) {
+    try {
+      const requestUrl = new URL(url, window.location.href);
+      requestUrl.searchParams.set("v", cacheBuster);
+      const response = await fetch(requestUrl.toString(), { cache: "reload" });
+      attempts.push({ url, status: response.status });
+
+      if (!response.ok) continue;
+
+      const payload = await response.json();
+      const entries = Array.isArray(payload.entries) ? payload.entries : [];
       return {
-        available: false,
-        reason: response.status === 404 ? "missing" : "error",
-        entries: [],
-        totalFiles: 0,
-        totalPdfFiles: 0,
-        generatedAt: null,
+        available: entries.length > 0,
+        reason: entries.length > 0 ? null : "empty",
+        loadedFrom: url,
+        attempts,
+        ...payload,
+        entries,
       };
+    } catch (error) {
+      attempts.push({ url, status: "error" });
+      console.error("Error cargando índice técnico:", error);
     }
-
-    const payload = await response.json();
-    return {
-      available: true,
-      ...payload,
-      entries: Array.isArray(payload.entries) ? payload.entries : [],
-    };
-  } catch (error) {
-    console.error("Error cargando índice técnico:", error);
-    return {
-      available: false,
-      reason: "error",
-      entries: [],
-      totalFiles: 0,
-      totalPdfFiles: 0,
-      generatedAt: null,
-    };
   }
+
+  return {
+    available: false,
+    reason: attempts.some((attempt) => attempt.status === 404) ? "missing" : "error",
+    attempts,
+    entries: [],
+    totalFiles: 0,
+    totalPdfFiles: 0,
+    generatedAt: null,
+  };
 }
 
 export function searchTechnicalManualIndex(index, query, { limit = 50 } = {}) {

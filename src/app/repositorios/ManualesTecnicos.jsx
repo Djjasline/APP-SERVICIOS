@@ -33,6 +33,7 @@ export default function ManualesTecnicos() {
 
   const searchResults = searchTechnicalManualIndex(manualIndex, query);
   const indexReady = manualIndex?.available;
+  const indexLoading = manualIndex === null;
 
   return (
     <div className="p-6 space-y-6">
@@ -85,9 +86,20 @@ export default function ManualesTecnicos() {
             />
           </label>
 
-          {!indexReady && (
+          {indexLoading && (
+            <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+              Cargando índice técnico de manuales...
+            </div>
+          )}
+
+          {!indexLoading && !indexReady && (
             <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              El índice de búsqueda aún no está generado en esta publicación. Ejecuta `npm.cmd run manuals:index -- --url=&lt;enlace OneDrive&gt;` para crear el archivo local de búsqueda.
+              No se pudo cargar el índice de búsqueda publicado. Usa Recargar para limpiar caché e intenta de nuevo.
+              {manualIndex?.attempts?.length > 0 && (
+                <span className="mt-1 block text-xs">
+                  Rutas probadas: {manualIndex.attempts.map((attempt) => `${attempt.url} (${attempt.status})`).join(", ")}
+                </span>
+              )}
             </div>
           )}
 
