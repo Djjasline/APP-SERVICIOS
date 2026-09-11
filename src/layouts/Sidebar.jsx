@@ -43,7 +43,7 @@ const DOCUMOTO_ELGIN_URL = "https://documoto.digabit.com/ui/home";
 const TRAINING_URL = "https://fsu.myfslearning.com/student/catalog";
 const TEAMDESK_URL = "https://www.teamdesk.net/secure/db/53431/overview.aspx?t=381285";
 
-export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
+export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnlineChatUsers = false }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isProveedorVehiculos, isProveedorVehiculosOnly } = useAuth();
@@ -57,7 +57,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const [openRepositorios, setOpenRepositorios] = useState(false);
   const [unreadBulletins, setUnreadBulletins] = useState(0);
   const [unreadChat, setUnreadChat] = useState(0);
-  const [hasOnlineChatUsers, setHasOnlineChatUsers] = useState(false);
   const { hasSpecialModuleAccess, superAdminActivo } = useSpecialModuleAccess();
 
   const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
@@ -192,29 +191,6 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       if (channel) supabase.removeChannel(channel);
     };
   }, [user?.id, puedeVerTodo, location.pathname]);
-
-  useEffect(() => {
-    if (!user?.id || !puedeVerTodo) {
-      setHasOnlineChatUsers(false);
-      return undefined;
-    }
-
-    const channel = supabase.channel("online-users");
-
-    channel
-      .on("presence", { event: "sync" }, () => {
-        const state = channel.presenceState();
-        const onlineUserIds = Object.keys(state).filter((userId) => userId !== user.id);
-
-        setHasOnlineChatUsers(onlineUserIds.length > 0);
-      })
-      .subscribe();
-
-    return () => {
-      setHasOnlineChatUsers(false);
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id, puedeVerTodo]);
 
   const openOnly = (name) => {
     setOpenVehiculos(name === "vehiculos");

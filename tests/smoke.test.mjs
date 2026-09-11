@@ -32,10 +32,13 @@ test("menu lateral muestra acceso a informe de capacitacion", () => {
 
 test("menu lateral resalta chat cuando hay usuarios en linea", () => {
   const sidebar = read("src/layouts/Sidebar.jsx");
+  const layout = read("src/layouts/MainLayout.jsx");
 
   assert.match(sidebar, /hasOnlineChatUsers/);
-  assert.match(sidebar, /presenceState/);
-  assert.match(sidebar, /online-users/);
+  assert.match(layout, /hasOnlineChatUsers/);
+  assert.match(layout, /presenceState/);
+  assert.match(layout, /online-users/);
+  assert.doesNotMatch(sidebar, /channel\("online-users"/);
   assert.match(sidebar, /bg-green-500\/15/);
   assert.match(sidebar, /bg-green-400/);
 });

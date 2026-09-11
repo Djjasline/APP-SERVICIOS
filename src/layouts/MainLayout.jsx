@@ -96,6 +96,7 @@ export default function MainLayout() {
   } = useNotificaciones();
   const nextThemeLabel = nextTheme === "blue" ? "oscuro azul" : nextTheme === "light" ? "modo claro" : nextTheme === "liquid" ? "Liquid Glass" : "modo dark";
   const isWidePage = location.pathname.startsWith("/operaciones/bodega");
+  const hasOnlineChatUsers = Object.keys(usuariosOnline).some((userId) => userId !== user?.id);
 
   useEffect(() => {
     unreadRef.current = unread;
@@ -445,6 +446,7 @@ export default function MainLayout() {
         <Sidebar
           openSidebar={openSidebar}
           setOpenSidebar={setOpenSidebar}
+          hasOnlineChatUsers={hasOnlineChatUsers}
         />
       </div>
 
