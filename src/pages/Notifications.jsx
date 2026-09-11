@@ -58,7 +58,7 @@ export default function NotificationsPage() {
   const [filter, setFilter] = useState("all");
   const [markingVisible, setMarkingVisible] = useState(false);
   const navigate = useNavigate();
-  const { isLight } = useTheme();
+  const { isLight, isLiquid } = useTheme();
 
   const setItemsAndBadge = (updater) => {
     setItems((prev) => {
@@ -344,11 +344,11 @@ export default function NotificationsPage() {
                   </div>
                 )}
 
-                <div className={`text-sm ${isLight ? "text-slate-600" : "text-slate-300"}`}>
+                <div className={`text-sm ${isLight ? "text-slate-600" : isLiquid ? "text-white/90 drop-shadow" : "text-slate-300"}`}>
                   {n.message}
                 </div>
 
-                <div className={`text-xs mt-2 ${isLight ? "text-slate-500" : "text-slate-400"}`}>
+                <div className={`text-xs mt-2 ${isLight ? "text-slate-500" : isLiquid ? "font-medium text-white/80 drop-shadow" : "text-slate-400"}`}>
                   {n.created_at
                     ? new Date(n.created_at).toLocaleString()
                     : ""}
