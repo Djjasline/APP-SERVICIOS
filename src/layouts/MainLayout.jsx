@@ -84,6 +84,7 @@ export default function MainLayout() {
   const chatAlertTimer = useRef(null);
   const unreadRef = useRef(0);
   const unreadPollingReadyRef = useRef(false);
+  const userMenuRef = useRef(null);
   const {
     permiso: pushPermiso,
     suscrito: pushSuscrito,
@@ -99,6 +100,19 @@ export default function MainLayout() {
   useEffect(() => {
     unreadRef.current = unread;
   }, [unread]);
+
+  useEffect(() => {
+    if (!openMenu) return;
+
+    const handlePointerDown = (event) => {
+      if (!userMenuRef.current?.contains(event.target)) {
+        setOpenMenu(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [openMenu]);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (event) => {
@@ -523,7 +537,7 @@ export default function MainLayout() {
             </Link>
 
             {/* USUARIO */}
-            <div className="relative z-[9999]">
+            <div ref={userMenuRef} className="relative z-[9999]">
               <div
                 onClick={() => setOpenMenu(!openMenu)}
                 className={`w-10 h-10 rounded-full backdrop-blur-md border flex items-center justify-center cursor-pointer transition-all duration-200 ${
