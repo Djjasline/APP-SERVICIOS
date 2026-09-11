@@ -57,6 +57,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
   const [openRepositorios, setOpenRepositorios] = useState(false);
   const [unreadBulletins, setUnreadBulletins] = useState(0);
   const [unreadChat, setUnreadChat] = useState(0);
+  const [hasOnlineChatUsers, setHasOnlineChatUsers] = useState(false);
   const { hasSpecialModuleAccess, superAdminActivo } = useSpecialModuleAccess();
 
   const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
@@ -191,6 +192,29 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
       if (channel) supabase.removeChannel(channel);
     };
   }, [user?.id, puedeVerTodo, location.pathname]);
+
+  useEffect(() => {
+    if (!user?.id || !puedeVerTodo) {
+      setHasOnlineChatUsers(false);
+      return undefined;
+    }
+
+    const channel = supabase.channel("online-users");
+
+    channel
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        const onlineUserIds = Object.keys(state).filter((userId) => userId !== user.id);
+
+        setHasOnlineChatUsers(onlineUserIds.length > 0);
+      })
+      .subscribe();
+
+    return () => {
+      setHasOnlineChatUsers(false);
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, puedeVerTodo]);
 
   const openOnly = (name) => {
     setOpenVehiculos(name === "vehiculos");
@@ -689,11 +713,22 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile }) {
                 <button
                   type="button"
                   onClick={() => go("/chat")}
-                  className={subItemClass("/chat")}
+                  className={`${subItemClass("/chat")} ${
+                    hasOnlineChatUsers && !isActive("/chat")
+                      ? isLight
+                        ? "bg-green-50 text-green-800 ring-1 ring-green-200"
+                        : "bg-green-500/15 text-green-100 ring-1 ring-green-400/30"
+                      : ""
+                  }`}
                 >
                   <span className="inline-flex w-full items-center justify-between gap-2">
                     <span className="inline-flex items-center gap-2">
-                      <MessageCircle size={14} />
+                      <span className="relative inline-flex">
+                        <MessageCircle size={14} />
+                        {hasOnlineChatUsers && (
+                          <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border border-current bg-green-400" />
+                        )}
+                      </span>
                       Chat interno
                     </span>
                     {unreadChat > 0 && (

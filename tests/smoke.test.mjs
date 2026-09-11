@@ -30,6 +30,16 @@ test("menu lateral muestra acceso a informe de capacitacion", () => {
   assert.match(sidebar, /Informe de Capacitación/);
 });
 
+test("menu lateral resalta chat cuando hay usuarios en linea", () => {
+  const sidebar = read("src/layouts/Sidebar.jsx");
+
+  assert.match(sidebar, /hasOnlineChatUsers/);
+  assert.match(sidebar, /presenceState/);
+  assert.match(sidebar, /online-users/);
+  assert.match(sidebar, /bg-green-500\/15/);
+  assert.match(sidebar, /bg-green-400/);
+});
+
 test("menu lateral muestra bodega como seccion independiente", () => {
   const sidebar = read("src/layouts/Sidebar.jsx");
 
