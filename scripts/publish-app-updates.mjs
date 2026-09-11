@@ -124,6 +124,16 @@ function isHiddenInternalProjectCommit(commit) {
 
 const FRIENDLY_UPDATES = [
   {
+    match: ["aislar cliente anonimo de supabase", "60521795"],
+    title: "Control de cambios: sesión de Supabase",
+    message: "Se aisló el cliente público usado por encuestas para que no comparta sesión con la app principal y evitar avisos internos del navegador.",
+  },
+  {
+    match: ["evitar canal duplicado de usuarios online", "a1af2cdb"],
+    title: "Control de cambios: Chat interno estable",
+    message: "Se corrigió la presencia del Chat interno para evitar canales duplicados y mantener la app cargando correctamente.",
+  },
+  {
     match: ["agregar ocr al buscador tecnico", "c93a7495"],
     title: "Control de cambios: OCR en Biblioteca Técnica",
     message: "El buscador técnico ahora puede indexar referencias dentro de PDFs escaneados mediante OCR, además del texto seleccionable, nombres de archivos y carpetas.",
