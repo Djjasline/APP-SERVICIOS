@@ -60,6 +60,7 @@ En PowerShell, si la política local bloquea `npm.ps1`, usa `npm.cmd run dev`.
 - `npm test`: pruebas con `node --test`.
 
 Para OCR controlado en manuales técnicos grandes, usa límites como `--max-ocr-pages=200`, `--ocr-mode=auto` o `--ocr-mode=query --stop-after-query=40029-30`.
+Para corridas largas, usa checkpoint resumible: `npm run manuals:index -- --extract-text --ocr --checkpoint=tmp/technical-manual-index.checkpoint.jsonl --stop-after-ocr-limit` y luego publica el avance con `--publish-checkpoint --checkpoint=tmp/technical-manual-index.checkpoint.jsonl`.
 
 ## Estructura
 

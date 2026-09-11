@@ -1,4 +1,5 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 
 const DEFAULT_OUTPUT = "public/data/technical-manual-index.json";
@@ -29,17 +30,27 @@ const ocrMinTextChars = Number(args.get("ocr-min-text-chars") || 40);
 const ocrScale = Number(args.get("ocr-scale") || 2);
 const maxOcrPages = Number(args.get("max-ocr-pages") || 0);
 const maxOcrPixels = Number(args.get("ocr-max-pixels") || 4_000_000);
+const ocrCachePath = args.get("ocr-cache-path") || process.env.TESSERACT_CACHE_PATH || path.join(os.tmpdir(), "app-servicios-tesseract-cache");
+const checkpointPath = args.get("checkpoint") || (args.has("resume") ? "tmp/technical-manual-index.checkpoint.jsonl" : "");
+const resumeCheckpoint = args.has("resume") || args.get("resume") === "true";
+const publishCheckpoint = args.has("publish-checkpoint") || args.get("publish-checkpoint") === "true";
+const stopAfterOcrLimit = args.has("stop-after-ocr-limit") || args.get("stop-after-ocr-limit") === "true";
 let pdfjsPromise = null;
 let canvasPromise = null;
 let ocrWorkerPromise = null;
 let extractedOcrPages = 0;
 
-if (!sourceUrl) {
+if (!sourceUrl && !publishCheckpoint) {
   console.error("Falta ONEDRIVE_MANUALS_URL o --url=<enlace de carpeta OneDrive/SharePoint>.");
   process.exit(1);
 }
 
 async function main() {
+  if (publishCheckpoint) {
+    await publishCheckpointIndex();
+    return;
+  }
+
   let session = await openSharedFolder(sourceUrl, { browserHeaders: true });
   let driveId = extractDriveId(session.html);
 
@@ -67,12 +78,27 @@ async function main() {
   const selectedFiles = files
     .filter((file) => !pathContains || normalizeSearch(file.path).includes(pathContains))
     .slice(0, maxFiles || undefined)
-  const entries = [];
-  let extractedPdfFiles = 0;
+  const entries = checkpointPath && resumeCheckpoint ? await loadCheckpointEntries(checkpointPath) : [];
+  const completedKeys = new Set(entries.map(entryKey));
+  extractedOcrPages = countOcrPages(entries);
+  let extractedPdfFiles = entries.filter(isPdfEntry).length;
   let foundStopAfterQuery = false;
 
+  if (checkpointPath && !resumeCheckpoint) {
+    await mkdir(path.dirname(checkpointPath), { recursive: true });
+    await writeFile(checkpointPath, "", "utf8");
+  }
+
   for (const file of selectedFiles) {
+    if (stopAfterOcrLimit && maxOcrPages && extractedOcrPages >= maxOcrPages) {
+      console.log(`Límite OCR alcanzado: ${extractedOcrPages} páginas. Reanuda con --resume y un límite mayor.`);
+      break;
+    }
+
     const entry = normalizeFileEntry(file);
+    const key = entryKey(entry);
+
+    if (completedKeys.has(key)) continue;
 
     if (extractText && isPdfEntry(entry) && shouldExtractPdf(entry, extractedPdfFiles)) {
       extractedPdfFiles += 1;
@@ -92,16 +118,23 @@ async function main() {
     }
 
     entries.push(entry);
+    completedKeys.add(key);
+    if (checkpointPath) await appendCheckpointEntry(checkpointPath, entry);
+
     if (foundStopAfterQuery) {
       console.log(`Consulta encontrada: ${args.get("stop-after-query")}`);
       if (args.has("stop-after-query")) break;
     }
   }
 
+  await writeIndex(entries, manualsRoot.name || ROOT_FOLDER_NAME);
+}
+
+async function writeIndex(entries, rootName) {
   const index = {
     generatedAt: new Date().toISOString(),
     source: "onedrive-sharepoint",
-    rootName: manualsRoot.name || ROOT_FOLDER_NAME,
+    rootName,
     totalFiles: entries.length,
     totalPdfFiles: entries.filter((item) => item.mimeType === "application/pdf").length,
     totalPdfTextFiles: entries.filter((item) => item.extractedText).length,
@@ -114,6 +147,57 @@ async function main() {
   await writeFile(outputPath, `${JSON.stringify(index, null, 2)}\n`, "utf8");
   console.log(`Índice generado: ${outputPath}`);
   console.log(`Archivos: ${index.totalFiles} | PDFs: ${index.totalPdfFiles} | PDFs con texto: ${index.totalPdfTextFiles} | PDFs con OCR: ${index.totalPdfOcrFiles} | Tamaño: ${formatBytes(index.totalBytes)}`);
+}
+
+async function publishCheckpointIndex() {
+  if (!checkpointPath) throw new Error("Falta --checkpoint=<archivo jsonl> para publicar avance.");
+
+  const currentIndex = JSON.parse(await readFile(outputPath, "utf8"));
+  const checkpointEntries = await loadCheckpointEntries(checkpointPath);
+  const checkpointByKey = new Map(checkpointEntries.map((entry) => [entryKey(entry), entry]));
+  const mergedEntries = (currentIndex.entries || []).map((entry) => checkpointByKey.get(entryKey(entry)) || entry);
+  const existingKeys = new Set(mergedEntries.map(entryKey));
+
+  for (const entry of checkpointEntries) {
+    if (!existingKeys.has(entryKey(entry))) mergedEntries.push(entry);
+  }
+
+  await writeIndex(mergedEntries, currentIndex.rootName || ROOT_FOLDER_NAME);
+}
+
+async function loadCheckpointEntries(filePath) {
+  try {
+    const content = await readFile(filePath, "utf8");
+    const entriesByKey = new Map();
+
+    for (const line of content.split("\n")) {
+      const value = line.trim();
+      if (!value) continue;
+      const record = JSON.parse(value);
+      const entry = record.entry || record;
+      entriesByKey.set(entryKey(entry), entry);
+    }
+
+    const entries = [...entriesByKey.values()];
+    console.log(`Checkpoint cargado: ${entries.length} archivos procesados`);
+    return entries;
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    return [];
+  }
+}
+
+async function appendCheckpointEntry(filePath, entry) {
+  await mkdir(path.dirname(filePath), { recursive: true });
+  await appendFile(filePath, `${JSON.stringify({ key: entryKey(entry), entry })}\n`, "utf8");
+}
+
+function entryKey(entry) {
+  return `${entry.id || ""}|${entry.path || ""}`;
+}
+
+function countOcrPages(entries) {
+  return entries.reduce((total, entry) => total + (entry.pages || []).filter((page) => page.ocr).length, 0);
 }
 
 async function openSharedFolder(url, { browserHeaders = true } = {}) {
@@ -298,9 +382,11 @@ async function getOcrWorker() {
     ocrWorkerPromise = (async () => {
       const tesseractModule = await import("tesseract.js");
       const tesseract = tesseractModule.default || tesseractModule;
-      const worker = await tesseract.createWorker(ocrLang, undefined, {
-        logger: args.has("ocr-progress") ? (message) => console.log(`OCR ${message.status}: ${Math.round((message.progress || 0) * 100)}%`) : undefined,
-      });
+      const workerOptions = {
+        cachePath: ocrCachePath,
+        ...(args.has("ocr-progress") ? { logger: (message) => console.log(`OCR ${message.status}: ${Math.round((message.progress || 0) * 100)}%`) } : {}),
+      };
+      const worker = await tesseract.createWorker(ocrLang, undefined, workerOptions);
       await worker.setParameters({
         preserve_interword_spaces: "1",
         tessedit_pageseg_mode: tesseract.PSM?.SPARSE_TEXT || "11",

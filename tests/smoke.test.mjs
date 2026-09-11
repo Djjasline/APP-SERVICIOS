@@ -328,6 +328,11 @@ test("biblioteca tecnica incluye buscador por indice OneDrive", () => {
   assert.match(script, /@napi-rs\/canvas/);
   assert.match(script, /tesseract\.js/);
   assert.match(script, /totalPdfOcrFiles/);
+  assert.match(script, /checkpointPath/);
+  assert.match(script, /loadCheckpointEntries/);
+  assert.match(script, /appendCheckpointEntry/);
+  assert.match(script, /publishCheckpointIndex/);
+  assert.match(script, /stopAfterOcrLimit/);
   assert.equal(index.source, "onedrive-sharepoint");
   assert.ok(index.totalFiles > 0);
   assert.ok(Array.isArray(index.entries));
