@@ -11,6 +11,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const anonymousSupabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
+    storageKey: "app-servicios-anonymous-auth",
     autoRefreshToken: false,
     detectSessionInUrl: false,
     persistSession: false,
