@@ -433,7 +433,7 @@ export default function RegistroAccessAdmin() {
         <div>
           <h2 className="font-semibold">Áreas especiales</h2>
           <p className={`text-sm ${isLight ? "text-slate-600" : "text-white/70"}`}>
-            Acceso directo a módulos especiales: configurador, cotizador, recorrido de agua, encuestas, bodega y clientes.
+            Acceso directo a módulos especiales: configurador, cotizador, recorrido de agua, encuestas, bodega, clientes y protocolos MAN.
           </p>
         </div>
 

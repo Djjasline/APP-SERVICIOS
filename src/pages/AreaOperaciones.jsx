@@ -10,9 +10,10 @@ import { useNavigate } from "react-router-dom";
 export default function AreaOperaciones() {
   const { isLight } = useTheme();
   const navigate = useNavigate();
-  const { hasSpecialModuleAccess, superAdminActivo } = useSpecialModuleAccess();
+  const { hasSpecialModuleAccess } = useSpecialModuleAccess();
   const puedeUsarBodega = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.bodega);
   const puedeUsarClientes = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.clientes);
+  const puedeUsarProtocoloMan = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.protocoloMan);
 
  const modulos = [
   {
@@ -43,7 +44,7 @@ export default function AreaOperaciones() {
     color: "bg-indigo-600",
     ruta: "/operaciones/protocolos",
   },
-  ...(superAdminActivo
+  ...(puedeUsarProtocoloMan
     ? [
         {
           titulo: OPERACIONES_TEXT.protocoloMan.title,

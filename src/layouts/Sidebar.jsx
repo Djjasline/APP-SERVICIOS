@@ -66,6 +66,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
   const puedeUsarRecorridoAgua = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.recorridoAgua);
   const puedeUsarBodega = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.bodega);
   const puedeUsarClientes = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.clientes);
+  const puedeUsarProtocoloMan = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.protocoloMan);
   const informeGeneralTooltip =
     "Informe técnico de servicio: instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
 
@@ -624,7 +625,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
                   {subLabel(ClipboardList, OPERACIONES_TEXT.protocolos.title)}
                 </button>
 
-                {superAdminActivo && (
+                {puedeUsarProtocoloMan && (
                   <button
                     type="button"
                     onClick={() => go("/operaciones/protocolo-man")}

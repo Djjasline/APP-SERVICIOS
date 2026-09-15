@@ -370,8 +370,8 @@ export default function RoutesApp() {
             <Route path="/operaciones/bodega/nuevo" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.bodega} fallback="/operaciones"><BodegaItemNew /></SpecialModuleRoute>} />
             <Route path="/operaciones/bodega/:source/:id" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.bodega} fallback="/operaciones"><BodegaItemDetail /></SpecialModuleRoute>} />
             <Route path="/operaciones/clientes" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.clientes} fallback="/operaciones"><ClientesHome /></SpecialModuleRoute>} />
-            <Route path="/operaciones/protocolo-man" element={<SuperAdminRoute><ProtocoloManHome /></SuperAdminRoute>} />
-            <Route path="/operaciones/protocolo-man/:protocolId" element={<SuperAdminRoute><ProtocoloManForm /></SuperAdminRoute>} />
+            <Route path="/operaciones/protocolo-man" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.protocoloMan} fallback="/operaciones"><ProtocoloManHome /></SpecialModuleRoute>} />
+            <Route path="/operaciones/protocolo-man/:protocolId" element={<SpecialModuleRoute moduleKey={SPECIAL_MODULE_KEYS.protocoloMan} fallback="/operaciones"><ProtocoloManForm /></SpecialModuleRoute>} />
 
             <Route path="/operaciones/protocolos" element={<TechRoute><ProtocolosHome /></TechRoute>} />
             <Route path="/operaciones/protocolos/vactor/new" element={<TechRoute><ProtocoloVactorForm /></TechRoute>} />

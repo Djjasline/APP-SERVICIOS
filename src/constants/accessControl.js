@@ -9,6 +9,7 @@ export const SPECIAL_MODULE_KEYS = {
   encuestasSatisfaccion: "encuestas_satisfaccion",
   bodega: "bodega",
   clientes: "clientes",
+  protocoloMan: "protocolo_man",
 };
 
 export const SPECIAL_MODULES = [
@@ -53,6 +54,13 @@ export const SPECIAL_MODULES = [
     tipo: "clientes",
     label: "Gestión de clientes",
     description: "Acceso al catálogo interno de clientes.",
+  },
+  {
+    key: SPECIAL_MODULE_KEYS.protocoloMan,
+    area: "operaciones",
+    tipo: "protocolo-man",
+    label: "Protocolos MAN",
+    description: "Acceso a formularios MAN de recepción, entrega, informe semanal y avance de cronograma.",
   },
 ];
 

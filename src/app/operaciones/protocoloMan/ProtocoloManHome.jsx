@@ -62,7 +62,7 @@ export default function ProtocoloManHome() {
     <ServiceMenuFrame className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-blue-200">Solo superadministrador</p>
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-blue-200">Acceso con permiso especial</p>
           <h1 className={`mt-1 text-2xl font-bold ${isLight ? "text-slate-900" : "text-white"}`}>Protocolo MAN</h1>
           <p className={`mt-1 max-w-3xl text-sm ${isLight ? "text-slate-600" : "text-gray-300"}`}>
             Formularios de recepción, entrega, informe semanal y avance basado en cronograma para vehículos y equipos.
