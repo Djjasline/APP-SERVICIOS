@@ -479,6 +479,8 @@ const Styles = () => (
     .ia-btn--ghost    { background: transparent; color: #9ca3af; border: 1px solid rgba(255,255,255,.3); }
     .ia-btn--yellow   { background: #f59e0b; color: #fff; }
     .ia-btn--green    { background: #16a34a; color: #fff; }
+    .ia-btn--add      { background: #fff; color: #1f2937; border: 1px solid #cbd5e1; box-shadow: 0 1px 2px rgba(15,23,42,.08); }
+    .ia-btn--add:hover { background: #f8fafc; }
 
     /* ── contenedor principal ── */
     .ia-container {
@@ -1082,7 +1084,7 @@ navigate("/agua/recorrido/informe");
                 <button
                   type="button"
                   onClick={addActividad}
-                  className="ia-btn ia-btn--secondary"
+                  className="ia-btn ia-btn--add"
                 >
                   + Agregar actividad
                 </button>

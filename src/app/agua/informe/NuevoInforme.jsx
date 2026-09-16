@@ -1554,7 +1554,7 @@ const save = async () => {
           </table>
           <button type="button"
             onClick={() => set("actividades", [...data.actividades, { titulo: "", detalle: "", imagenes: [] }])}
-            className="bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1.5 text-xs rounded"
+            className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
           >+ Agregar actividad</button>
 
           {/* ── CONCLUSIONES Y RECOMENDACIONES ── */}

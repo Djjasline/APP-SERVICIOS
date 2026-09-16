@@ -134,6 +134,20 @@ test("formularios tecnicos conservan hoja blanca en modo oscuro", () => {
   assert.match(protocoloMan, /document-sheet overflow-hidden/);
 });
 
+test("botones agregar actividad mantienen contraste en formatos", () => {
+  const vehiculo = read("src/app/vehiculos/informe/NuevoInforme.jsx");
+  const agua = read("src/app/agua/informe/NuevoInforme.jsx");
+  const recorridoAgua = read("src/app/agua/recorrido/informe/InformeAgua.jsx");
+
+  assert.match(vehiculo, /\+ Agregar actividad/);
+  assert.match(vehiculo, /text-slate-800/);
+  assert.match(agua, />\+ Agregar actividad<\/button>/);
+  assert.match(agua, /text-slate-800/);
+  assert.match(recorridoAgua, /\+ Agregar actividad/);
+  assert.match(recorridoAgua, /ia-btn--add/);
+  assert.match(recorridoAgua, /color: #1f2937/);
+});
+
 test("dashboard de exito mantiene actividad diaria visible", () => {
   const dashboard = read("src/pages/admin/AdminSuccessDashboard.jsx");
 
