@@ -138,6 +138,10 @@ test("botones agregar actividad mantienen contraste en formatos", () => {
   const vehiculo = read("src/app/vehiculos/informe/NuevoInforme.jsx");
   const agua = read("src/app/agua/informe/NuevoInforme.jsx");
   const recorridoAgua = read("src/app/agua/recorrido/informe/InformeAgua.jsx");
+  const inspeccionHidro = read("src/app/vehiculos/inspeccion/HojaInspeccionHidro.jsx");
+  const inspeccionCamara = read("src/app/vehiculos/inspeccion/HojaInspeccionCamara.jsx");
+  const inspeccionBarredora = read("src/app/vehiculos/inspeccion/HojaInspeccionBarredora.jsx");
+  const anexoItems = read("src/components/InspectionPartsAnnex.jsx");
 
   assert.match(vehiculo, /\+ Agregar actividad/);
   assert.match(vehiculo, /text-slate-800/);
@@ -146,6 +150,15 @@ test("botones agregar actividad mantienen contraste en formatos", () => {
   assert.match(recorridoAgua, /\+ Agregar actividad/);
   assert.match(recorridoAgua, /ia-btn--add/);
   assert.match(recorridoAgua, /color: #1f2937/);
+  assert.match(inspeccionHidro, /\+ Agregar fila/);
+  assert.match(inspeccionHidro, /text-slate-800/);
+  assert.match(inspeccionCamara, /\+ Agregar fila/);
+  assert.match(inspeccionCamara, /text-slate-800/);
+  assert.match(inspeccionBarredora, /\+ Agregar fila/);
+  assert.match(inspeccionBarredora, /text-slate-800/);
+  assert.match(anexoItems, /\+ Agregar más ítems/);
+  assert.match(anexoItems, /text-slate-800/);
+  assert.doesNotMatch(`${vehiculo}\n${agua}\n${inspeccionHidro}\n${inspeccionCamara}\n${inspeccionBarredora}\n${anexoItems}`, /bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1\.5 text-xs rounded/);
 });
 
 test("dashboard de exito mantiene actividad diaria visible", () => {
