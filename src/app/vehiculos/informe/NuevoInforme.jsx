@@ -42,15 +42,26 @@ const fieldPlaceholders = {
 const createDefaultContractItemRows = () =>
   Array.from({ length: 5 }, () => ({ rubro: "", descripcion: "", valor: "" }));
 
-const createDefaultContractItemsTable = () => ({
+const createDefaultContractItemsTableBody = () => ({
   title: "ÍTEM DEL CONTRATO UTILIZADO:",
   afterText: "",
   rows: createDefaultContractItemRows(),
 });
 
-const normalizeContractItemsTable = (table) => {
-  if (!table) return null;
+const createDefaultContractItemsTable = () => ({
+  ...createDefaultContractItemsTableBody(),
+  additionalTables: [],
+});
 
+const getContractItemsTables = (table) => {
+  if (!table) return [];
+  return [
+    table,
+    ...(Array.isArray(table.additionalTables) ? table.additionalTables : []),
+  ];
+};
+
+const normalizeContractItemsTableBody = (table = {}) => {
   const rows = Array.isArray(table.rows)
     ? table.rows.map((row) => ({
         rubro: row?.rubro || "",
@@ -66,9 +77,20 @@ const normalizeContractItemsTable = (table) => {
   };
 };
 
+const normalizeContractItemsTable = (table) => {
+  if (!table) return null;
+
+  return {
+    ...normalizeContractItemsTableBody(table),
+    additionalTables: Array.isArray(table.additionalTables)
+      ? table.additionalTables.map((extraTable) => normalizeContractItemsTableBody(extraTable))
+      : [],
+  };
+};
+
 const hasContractItemsTableData = (table) =>
-  Boolean(
-    table?.rows?.some(
+  getContractItemsTables(table).some((contractTable) =>
+    contractTable?.rows?.some(
       (row) => String(row?.rubro || "").trim() || String(row?.descripcion || "").trim() || String(row?.valor || "").trim()
     )
   );
@@ -543,30 +565,61 @@ const updateEstadoEquipoPointObservation = (imageId, pointId, value) => {
     update(["actividades", actividadIndex, "contractItemsTable"], createDefaultContractItemsTable());
   };
 
-  const updateContractItemsTableRow = (actividadIndex, rowIndex, field, value) => {
-    update(["actividades", actividadIndex, "contractItemsTable", "rows", rowIndex, field], value);
+  const getContractItemsTablePath = (actividadIndex, tableIndex = 0) =>
+    tableIndex === 0
+      ? ["actividades", actividadIndex, "contractItemsTable"]
+      : ["actividades", actividadIndex, "contractItemsTable", "additionalTables", tableIndex - 1];
+
+  const getContractItemsTableAt = (actividadIndex, tableIndex = 0) => {
+    const table = data.actividades?.[actividadIndex]?.contractItemsTable;
+    return tableIndex === 0 ? table : table?.additionalTables?.[tableIndex - 1];
   };
 
-  const addContractItemsTableRow = (actividadIndex) => {
-    const currentRows = data.actividades?.[actividadIndex]?.contractItemsTable?.rows || [];
-    update(["actividades", actividadIndex, "contractItemsTable", "rows"], [
+  const updateContractItemsTableField = (actividadIndex, tableIndex, field, value) => {
+    update([...getContractItemsTablePath(actividadIndex, tableIndex), field], value);
+  };
+
+  const updateContractItemsTableRow = (actividadIndex, tableIndex, rowIndex, field, value) => {
+    update([...getContractItemsTablePath(actividadIndex, tableIndex), "rows", rowIndex, field], value);
+  };
+
+  const addContractItemsTableRow = (actividadIndex, tableIndex = 0) => {
+    const currentRows = getContractItemsTableAt(actividadIndex, tableIndex)?.rows || [];
+    update([...getContractItemsTablePath(actividadIndex, tableIndex), "rows"], [
       ...currentRows,
       { rubro: "", descripcion: "", valor: "" },
     ]);
   };
 
-  const removeContractItemsTableRow = (actividadIndex, rowIndex) => {
-    const currentRows = data.actividades?.[actividadIndex]?.contractItemsTable?.rows || [];
+  const removeContractItemsTableRow = (actividadIndex, tableIndex, rowIndex) => {
+    const currentRows = getContractItemsTableAt(actividadIndex, tableIndex)?.rows || [];
     update(
-      ["actividades", actividadIndex, "contractItemsTable", "rows"],
+      [...getContractItemsTablePath(actividadIndex, tableIndex), "rows"],
       currentRows.length > 1
         ? currentRows.filter((_, index) => index !== rowIndex)
         : [{ rubro: "", descripcion: "", valor: "" }]
     );
   };
 
-  const removeContractItemsTable = (actividadIndex) => {
-    update(["actividades", actividadIndex, "contractItemsTable"], null);
+  const addAdditionalContractItemsTable = (actividadIndex) => {
+    const currentTables = data.actividades?.[actividadIndex]?.contractItemsTable?.additionalTables || [];
+    update(["actividades", actividadIndex, "contractItemsTable", "additionalTables"], [
+      ...currentTables,
+      createDefaultContractItemsTableBody(),
+    ]);
+  };
+
+  const removeContractItemsTable = (actividadIndex, tableIndex = 0) => {
+    if (tableIndex === 0) {
+      update(["actividades", actividadIndex, "contractItemsTable"], null);
+      return;
+    }
+
+    const currentTables = data.actividades?.[actividadIndex]?.contractItemsTable?.additionalTables || [];
+    update(
+      ["actividades", actividadIndex, "contractItemsTable", "additionalTables"],
+      currentTables.filter((_, index) => index !== tableIndex - 1)
+    );
   };
 
   const removeActividad = (index) =>
@@ -707,6 +760,106 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
   /* ===========================
      RENDER
   =========================== */
+  const renderContractItemsTableEditor = (actividadIndex, table, tableIndex, isLastTable) => (
+    <div key={tableIndex} className="mt-3 rounded-md border border-slate-300 bg-white p-2 text-slate-900 shadow-sm">
+      <div className="mb-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <input
+          value={table.title || ""}
+          onChange={(event) => updateContractItemsTableField(actividadIndex, tableIndex, "title", event.target.value)}
+          className="w-full rounded border border-slate-300 px-2 py-1 text-center text-[11px] font-bold uppercase text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 md:flex-1"
+          placeholder="ÍTEM DEL CONTRATO UTILIZADO:"
+        />
+        <button
+          type="button"
+          onClick={() => removeContractItemsTable(actividadIndex, tableIndex)}
+          className="text-xs font-semibold text-red-600 hover:underline"
+        >
+          {tableIndex === 0 ? "Quitar tabla" : "Quitar cuadro"}
+        </button>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-[11px]">
+          <thead>
+            <tr>
+              <th className="border border-slate-900 bg-white px-2 py-1 text-center font-bold">Rubro</th>
+              <th className="border border-slate-900 bg-white px-2 py-1 text-center font-bold">Descripción</th>
+              <th className="border border-slate-900 bg-white px-2 py-1 text-center font-bold" colSpan={2}>Valor</th>
+              <th className="w-8"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {(table.rows || []).map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                <td className="border border-slate-900 p-0 align-middle">
+                  <input
+                    value={row.rubro || ""}
+                    onChange={(event) => updateContractItemsTableRow(actividadIndex, tableIndex, rowIndex, "rubro", event.target.value)}
+                    className="w-full px-2 py-1 text-center text-[11px] outline-none"
+                    placeholder="11"
+                  />
+                </td>
+                <td className="border border-slate-900 p-0 align-middle">
+                  <input
+                    value={row.descripcion || ""}
+                    onChange={(event) => updateContractItemsTableRow(actividadIndex, tableIndex, rowIndex, "descripcion", event.target.value)}
+                    className="w-full px-2 py-1 text-[11px] uppercase outline-none"
+                    placeholder="FILTRO DE AIRE PRIMARIO"
+                  />
+                </td>
+                <td className="w-6 border border-slate-900 px-2 py-1 text-center">$</td>
+                <td className="w-20 border border-slate-900 p-0 align-middle">
+                  <input
+                    value={row.valor || ""}
+                    onChange={(event) => updateContractItemsTableRow(actividadIndex, tableIndex, rowIndex, "valor", event.target.value)}
+                    className="w-full px-2 py-1 text-right text-[11px] outline-none"
+                    placeholder="97,97"
+                  />
+                </td>
+                <td className="pl-1 align-middle">
+                  <button
+                    type="button"
+                    onClick={() => removeContractItemsTableRow(actividadIndex, tableIndex, rowIndex)}
+                    className="text-xs font-semibold text-red-600 hover:underline"
+                    title="Eliminar fila"
+                  >
+                    x
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => addContractItemsTableRow(actividadIndex, tableIndex)}
+        className="mt-2 inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-1 text-[11px] font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100"
+      >
+        + Agregar fila
+      </button>
+
+      <AutoResizeInput
+        className="mt-2 w-full rounded border border-slate-300 px-2 py-1 text-[11px] text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
+        value={table.afterText || ""}
+        rows={2}
+        placeholder="Texto posterior a la tabla, observaciones o referencia complementaria..."
+        onChange={(event) => updateContractItemsTableField(actividadIndex, tableIndex, "afterText", event.target.value)}
+      />
+
+      {isLastTable && (
+        <button
+          type="button"
+          onClick={() => addAdditionalContractItemsTable(actividadIndex)}
+          className="mt-2 inline-flex items-center justify-center rounded-md border border-blue-300 bg-blue-50 px-3 py-1.5 text-[11px] font-semibold text-blue-800 shadow-sm transition hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+        >
+          + Agregar otro cuadro de celdas
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <div className="p-3 md:p-6 bg-gray-100 min-h-screen">
       <div className="document-sheet bg-white p-4 md:p-6 rounded shadow w-full max-w-screen-xl mx-auto space-y-6">
@@ -1090,93 +1243,9 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                   />
 
                   {a.contractItemsTable ? (
-                    <div className="mt-3 rounded-md border border-slate-300 bg-white p-2 text-slate-900 shadow-sm">
-                      <div className="mb-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                        <input
-                          value={a.contractItemsTable.title || ""}
-                          onChange={(event) => update(["actividades", i, "contractItemsTable", "title"], event.target.value)}
-                          className="w-full rounded border border-slate-300 px-2 py-1 text-center text-[11px] font-bold uppercase text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 md:flex-1"
-                          placeholder="ÍTEM DEL CONTRATO UTILIZADO:"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeContractItemsTable(i)}
-                          className="text-xs font-semibold text-red-600 hover:underline"
-                        >
-                          Quitar tabla
-                        </button>
-                      </div>
-
-                      <div className="overflow-x-auto">
-                        <table className="w-full border-collapse text-[11px]">
-                          <thead>
-                            <tr>
-                              <th className="border border-slate-900 bg-white px-2 py-1 text-center font-bold">Rubro</th>
-                              <th className="border border-slate-900 bg-white px-2 py-1 text-center font-bold">Descripción</th>
-                              <th className="border border-slate-900 bg-white px-2 py-1 text-center font-bold" colSpan={2}>Valor</th>
-                              <th className="w-8"></th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(a.contractItemsTable.rows || []).map((row, rowIndex) => (
-                              <tr key={rowIndex}>
-                                <td className="border border-slate-900 p-0 align-middle">
-                                  <input
-                                    value={row.rubro || ""}
-                                    onChange={(event) => updateContractItemsTableRow(i, rowIndex, "rubro", event.target.value)}
-                                    className="w-full px-2 py-1 text-center text-[11px] outline-none"
-                                    placeholder="11"
-                                  />
-                                </td>
-                                <td className="border border-slate-900 p-0 align-middle">
-                                  <input
-                                    value={row.descripcion || ""}
-                                    onChange={(event) => updateContractItemsTableRow(i, rowIndex, "descripcion", event.target.value)}
-                                    className="w-full px-2 py-1 text-[11px] uppercase outline-none"
-                                    placeholder="FILTRO DE AIRE PRIMARIO"
-                                  />
-                                </td>
-                                <td className="w-6 border border-slate-900 px-2 py-1 text-center">$</td>
-                                <td className="w-20 border border-slate-900 p-0 align-middle">
-                                  <input
-                                    value={row.valor || ""}
-                                    onChange={(event) => updateContractItemsTableRow(i, rowIndex, "valor", event.target.value)}
-                                    className="w-full px-2 py-1 text-right text-[11px] outline-none"
-                                    placeholder="97,97"
-                                  />
-                                </td>
-                                <td className="pl-1 align-middle">
-                                  <button
-                                    type="button"
-                                    onClick={() => removeContractItemsTableRow(i, rowIndex)}
-                                    className="text-xs font-semibold text-red-600 hover:underline"
-                                    title="Eliminar fila"
-                                  >
-                                    x
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => addContractItemsTableRow(i)}
-                        className="mt-2 inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-1 text-[11px] font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100"
-                      >
-                        + Agregar fila
-                      </button>
-
-                      <AutoResizeInput
-                        className="mt-2 w-full rounded border border-slate-300 px-2 py-1 text-[11px] text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
-                        value={a.contractItemsTable.afterText || ""}
-                        rows={2}
-                        placeholder="Texto posterior a la tabla, observaciones o referencia complementaria..."
-                        onChange={(event) => update(["actividades", i, "contractItemsTable", "afterText"], event.target.value)}
-                      />
-                    </div>
+                    getContractItemsTables(a.contractItemsTable).map((contractTable, tableIndex, contractTables) =>
+                      renderContractItemsTableEditor(i, contractTable, tableIndex, tableIndex === contractTables.length - 1)
+                    )
                   ) : (
                     <button
                       type="button"

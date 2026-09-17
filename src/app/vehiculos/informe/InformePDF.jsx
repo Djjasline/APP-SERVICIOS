@@ -8,7 +8,7 @@ import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 import { formatPersonName } from "@/utils/nameFormat";
 import { getVehicleReportConfig } from "./reportModeConfig";
 
-function hasContractItemsTableData(table) {
+function hasContractItemsSingleTableData(table) {
   return Boolean(
     table?.rows?.some(
       (row) => String(row?.rubro || "").trim() || String(row?.descripcion || "").trim() || String(row?.valor || "").trim()
@@ -16,8 +16,16 @@ function hasContractItemsTableData(table) {
   );
 }
 
-function ActivityContractItemsTablePdf({ table }) {
-  if (!hasContractItemsTableData(table)) return null;
+function getContractItemsTables(table) {
+  if (!table) return [];
+  return [
+    table,
+    ...(Array.isArray(table.additionalTables) ? table.additionalTables : []),
+  ];
+}
+
+function ActivityContractItemsSingleTablePdf({ table, tableIndex }) {
+  if (!hasContractItemsSingleTableData(table)) return null;
 
   const rows = table.rows.filter(
     (row) => String(row?.rubro || "").trim() || String(row?.descripcion || "").trim() || String(row?.valor || "").trim()
@@ -34,7 +42,7 @@ function ActivityContractItemsTablePdf({ table }) {
 
   return (
     <>
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 8 }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: tableIndex === 0 ? 8 : 10 }}>
         <thead>
           <tr>
             <th colSpan={4} style={{ ...cell, textAlign: "center", fontWeight: 800, fontSize: 10 }}>
@@ -63,6 +71,19 @@ function ActivityContractItemsTablePdf({ table }) {
           {table.afterText}
         </div>
       )}
+    </>
+  );
+}
+
+function ActivityContractItemsTablePdf({ table }) {
+  const tables = getContractItemsTables(table);
+  if (!tables.some((contractTable) => hasContractItemsSingleTableData(contractTable))) return null;
+
+  return (
+    <>
+      {tables.map((contractTable, tableIndex) => (
+        <ActivityContractItemsSingleTablePdf key={tableIndex} table={contractTable} tableIndex={tableIndex} />
+      ))}
     </>
   );
 }
