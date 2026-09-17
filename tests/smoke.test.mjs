@@ -161,6 +161,21 @@ test("botones agregar actividad mantienen contraste en formatos", () => {
   assert.doesNotMatch(`${vehiculo}\n${agua}\n${inspeccionHidro}\n${inspeccionCamara}\n${inspeccionBarredora}\n${anexoItems}`, /bg-gray-100 border border-gray-300 hover:bg-gray-200 px-4 py-1\.5 text-xs rounded/);
 });
 
+test("informe tecnico permite insertar tabla tipo excel en actividades", () => {
+  const form = read("src/app/vehiculos/informe/NuevoInforme.jsx");
+  const pdf = read("src/app/vehiculos/informe/InformePDF.jsx");
+
+  assert.match(form, /Insertar tabla tipo Excel/);
+  assert.match(form, /contractItemsTable/);
+  assert.match(form, /ÍTEM DEL CONTRATO UTILIZADO:/);
+  assert.match(form, /Rubro/);
+  assert.match(form, /Descripción/);
+  assert.match(form, /Valor/);
+  assert.match(pdf, /ActivityContractItemsTablePdf/);
+  assert.match(pdf, /contractItemsTable/);
+  assert.match(pdf, /ÍTEM DEL CONTRATO UTILIZADO:/);
+});
+
 test("dashboard de exito mantiene actividad diaria visible", () => {
   const dashboard = read("src/pages/admin/AdminSuccessDashboard.jsx");
 

@@ -8,6 +8,58 @@ import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 import { formatPersonName } from "@/utils/nameFormat";
 import { getVehicleReportConfig } from "./reportModeConfig";
 
+function hasContractItemsTableData(table) {
+  return Boolean(
+    table?.rows?.some(
+      (row) => String(row?.rubro || "").trim() || String(row?.descripcion || "").trim() || String(row?.valor || "").trim()
+    )
+  );
+}
+
+function ActivityContractItemsTablePdf({ table }) {
+  if (!hasContractItemsTableData(table)) return null;
+
+  const rows = table.rows.filter(
+    (row) => String(row?.rubro || "").trim() || String(row?.descripcion || "").trim() || String(row?.valor || "").trim()
+  );
+
+  const cell = {
+    border: "1px solid #111827",
+    padding: "3px 5px",
+    fontSize: 9,
+    color: "#111827",
+    backgroundColor: "#fff",
+    lineHeight: 1.15,
+  };
+
+  return (
+    <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 8 }}>
+      <thead>
+        <tr>
+          <th colSpan={4} style={{ ...cell, textAlign: "center", fontWeight: 800, fontSize: 10 }}>
+            {table.title || "ÍTEM DEL CONTRATO UTILIZADO:"}
+          </th>
+        </tr>
+        <tr>
+          <th style={{ ...cell, width: 52, textAlign: "center", fontWeight: 800 }}>Rubro</th>
+          <th style={{ ...cell, textAlign: "center", fontWeight: 800 }}>Descripción</th>
+          <th colSpan={2} style={{ ...cell, width: 88, textAlign: "center", fontWeight: 800 }}>Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            <td style={{ ...cell, textAlign: "center" }}>{row.rubro || ""}</td>
+            <td style={{ ...cell, textTransform: "uppercase" }}>{row.descripcion || ""}</td>
+            <td style={{ ...cell, width: 18, textAlign: "center" }}>$</td>
+            <td style={{ ...cell, width: 70, textAlign: "right" }}>{row.valor || ""}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
 export default function InformePDF({ allowDownload = true, backPath = null, reportType = "informe" }) {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -384,6 +436,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                 <td style={{ ...S.cell, verticalAlign: "top" }}>
                   <strong>{a.titulo || "—"}</strong>
                   <div style={{ whiteSpace: "pre-wrap", marginTop: 5, fontSize: 11 }}>{a.detalle || "—"}</div>
+                  <ActivityContractItemsTablePdf table={a.contractItemsTable} />
                 </td>
                 <td style={{ ...S.cell, verticalAlign: "top" }}>
                   {a.imagenes?.length > 0 ? (
