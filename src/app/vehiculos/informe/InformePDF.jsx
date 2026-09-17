@@ -33,30 +33,37 @@ function ActivityContractItemsTablePdf({ table }) {
   };
 
   return (
-    <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 8 }}>
-      <thead>
-        <tr>
-          <th colSpan={4} style={{ ...cell, textAlign: "center", fontWeight: 800, fontSize: 10 }}>
-            {table.title || "ÍTEM DEL CONTRATO UTILIZADO:"}
-          </th>
-        </tr>
-        <tr>
-          <th style={{ ...cell, width: 52, textAlign: "center", fontWeight: 800 }}>Rubro</th>
-          <th style={{ ...cell, textAlign: "center", fontWeight: 800 }}>Descripción</th>
-          <th colSpan={2} style={{ ...cell, width: 88, textAlign: "center", fontWeight: 800 }}>Valor</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            <td style={{ ...cell, textAlign: "center" }}>{row.rubro || ""}</td>
-            <td style={{ ...cell, textTransform: "uppercase" }}>{row.descripcion || ""}</td>
-            <td style={{ ...cell, width: 18, textAlign: "center" }}>$</td>
-            <td style={{ ...cell, width: 70, textAlign: "right" }}>{row.valor || ""}</td>
+    <>
+      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 8 }}>
+        <thead>
+          <tr>
+            <th colSpan={4} style={{ ...cell, textAlign: "center", fontWeight: 800, fontSize: 10 }}>
+              {table.title || "ÍTEM DEL CONTRATO UTILIZADO:"}
+            </th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+          <tr>
+            <th style={{ ...cell, width: 52, textAlign: "center", fontWeight: 800 }}>Rubro</th>
+            <th style={{ ...cell, textAlign: "center", fontWeight: 800 }}>Descripción</th>
+            <th colSpan={2} style={{ ...cell, width: 88, textAlign: "center", fontWeight: 800 }}>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              <td style={{ ...cell, textAlign: "center" }}>{row.rubro || ""}</td>
+              <td style={{ ...cell, textTransform: "uppercase" }}>{row.descripcion || ""}</td>
+              <td style={{ ...cell, width: 18, textAlign: "center" }}>$</td>
+              <td style={{ ...cell, width: 70, textAlign: "right" }}>{row.valor || ""}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {String(table.afterText || "").trim() && (
+        <div style={{ marginTop: 6, whiteSpace: "pre-wrap", fontSize: 10, lineHeight: 1.25 }}>
+          {table.afterText}
+        </div>
+      )}
+    </>
   );
 }
 

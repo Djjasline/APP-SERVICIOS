@@ -167,12 +167,15 @@ test("informe tecnico permite insertar tabla tipo excel en actividades", () => {
 
   assert.match(form, /Insertar tabla tipo Excel/);
   assert.match(form, /contractItemsTable/);
+  assert.match(form, /afterText/);
+  assert.match(form, /Texto posterior a la tabla/);
   assert.match(form, /ÍTEM DEL CONTRATO UTILIZADO:/);
   assert.match(form, /Rubro/);
   assert.match(form, /Descripción/);
   assert.match(form, /Valor/);
   assert.match(pdf, /ActivityContractItemsTablePdf/);
   assert.match(pdf, /contractItemsTable/);
+  assert.match(pdf, /afterText/);
   assert.match(pdf, /ÍTEM DEL CONTRATO UTILIZADO:/);
 });
 

@@ -44,6 +44,7 @@ const createDefaultContractItemRows = () =>
 
 const createDefaultContractItemsTable = () => ({
   title: "ÍTEM DEL CONTRATO UTILIZADO:",
+  afterText: "",
   rows: createDefaultContractItemRows(),
 });
 
@@ -60,6 +61,7 @@ const normalizeContractItemsTable = (table) => {
 
   return {
     title: table.title || "ÍTEM DEL CONTRATO UTILIZADO:",
+    afterText: table.afterText || "",
     rows: rows.length > 0 ? rows : createDefaultContractItemRows(),
   };
 };
@@ -1090,9 +1092,12 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                   {a.contractItemsTable ? (
                     <div className="mt-3 rounded-md border border-slate-300 bg-white p-2 text-slate-900 shadow-sm">
                       <div className="mb-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                        <div className="text-center text-[11px] font-bold uppercase text-slate-900 md:flex-1">
-                          {a.contractItemsTable.title || "ÍTEM DEL CONTRATO UTILIZADO:"}
-                        </div>
+                        <input
+                          value={a.contractItemsTable.title || ""}
+                          onChange={(event) => update(["actividades", i, "contractItemsTable", "title"], event.target.value)}
+                          className="w-full rounded border border-slate-300 px-2 py-1 text-center text-[11px] font-bold uppercase text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 md:flex-1"
+                          placeholder="ÍTEM DEL CONTRATO UTILIZADO:"
+                        />
                         <button
                           type="button"
                           onClick={() => removeContractItemsTable(i)}
@@ -1163,6 +1168,14 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                       >
                         + Agregar fila
                       </button>
+
+                      <AutoResizeInput
+                        className="mt-2 w-full rounded border border-slate-300 px-2 py-1 text-[11px] text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
+                        value={a.contractItemsTable.afterText || ""}
+                        rows={2}
+                        placeholder="Texto posterior a la tabla, observaciones o referencia complementaria..."
+                        onChange={(event) => update(["actividades", i, "contractItemsTable", "afterText"], event.target.value)}
+                      />
                     </div>
                   ) : (
                     <button
