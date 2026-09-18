@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { FileText, MessageCircle, Paperclip, Search, Send, Smile, UserCircle2, Volume2, X } from "lucide-react";
+import { Check, CheckCheck, FileText, MessageCircle, Paperclip, Search, Send, Smile, UserCircle2, Volume2, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -9,6 +9,7 @@ import { getRecordAttachmentSearchText } from "@/utils/chatAttachments.mjs";
 import {
   getCompletedRecordPdfAttachmentsForChat,
   getChatUsers,
+  getConversationRecipientLastReadAt,
   getMessages,
   getOrCreateDirectConversation,
   getUnreadMessageCounts,
@@ -63,6 +64,7 @@ export default function ChatInterno() {
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
   const [noLeidos, setNoLeidos] = useState({});
+  const [recipientLastReadAt, setRecipientLastReadAt] = useState(null);
   const [soundTestResult, setSoundTestResult] = useState("");
   const [adjuntosDisponibles, setAdjuntosDisponibles] = useState([]);
   const [adjuntoSeleccionado, setAdjuntoSeleccionado] = useState(null);
@@ -132,6 +134,17 @@ export default function ChatInterno() {
     [user?.id]
   );
 
+  const cargarLecturaReceptor = useCallback(async () => {
+    if (!conversationId || !user?.id) return;
+
+    try {
+      const lastReadAt = await getConversationRecipientLastReadAt(conversationId, user.id);
+      setRecipientLastReadAt(lastReadAt);
+    } catch (err) {
+      console.error("[Chat] Error cargando visto del receptor:", err);
+    }
+  }, [conversationId, user?.id]);
+
   useEffect(() => {
     cargarNoLeidos();
     const timer = setInterval(cargarNoLeidos, 15000);
@@ -148,9 +161,12 @@ export default function ChatInterno() {
       try {
         const convId = await getOrCreateDirectConversation(otroUsuario.id);
         setConversationId(convId);
+        setRecipientLastReadAt(null);
         const data = await getMessages(convId);
         setMensajes(data);
         await markConversationRead(convId, user.id);
+        const lastReadAt = await getConversationRecipientLastReadAt(convId, user.id);
+        setRecipientLastReadAt(lastReadAt);
         setNoLeidos((prev) => ({ ...prev, [otroUsuario.id]: 0 }));
       } catch (err) {
         console.error("[Chat] Error abriendo conversación:", err);
@@ -231,6 +247,36 @@ export default function ChatInterno() {
 }, [conversationId, playIncomingMessageSound, user?.id, usuarioActivo?.id]);
 
   useEffect(() => {
+    if (!conversationId || !user?.id) return;
+
+    cargarLecturaReceptor();
+    const timer = setInterval(cargarLecturaReceptor, 10000);
+
+    const channel = supabase
+      .channel(`chat-read-receipts-${conversationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "chat_participants",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          if (payload.new?.user_id !== user.id) {
+            setRecipientLastReadAt(payload.new?.last_read_at || null);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      clearInterval(timer);
+      supabase.removeChannel(channel);
+    };
+  }, [cargarLecturaReceptor, conversationId, user?.id]);
+
+  useEffect(() => {
     if (!user?.id) return;
 
     const channel = supabase
@@ -299,6 +345,21 @@ export default function ChatInterno() {
   const usuarioActivoOnline = usuarioActivo
   ? !!usuariosOnline[usuarioActivo.id]
   : false;
+
+  const isMessageReadByRecipient = (message) => {
+    if (!recipientLastReadAt || message.sender_id !== user?.id) return false;
+    return new Date(message.created_at) <= new Date(recipientLastReadAt);
+  };
+
+  const ReadReceiptIcon = ({ read }) => (
+    <span
+      className={`inline-flex items-center ${read ? "text-sky-200" : "text-blue-100"}`}
+      title={read ? "Leído por el receptor" : "Enviado, pendiente de lectura"}
+      aria-label={read ? "Leído por el receptor" : "Enviado, pendiente de lectura"}
+    >
+      {read ? <CheckCheck size={14} strokeWidth={2.4} /> : <Check size={14} strokeWidth={2.4} />}
+    </span>
+  );
 
 
   return (
@@ -466,6 +527,7 @@ export default function ChatInterno() {
                 ) : (
                   mensajes.map((m) => {
                     const mine = m.sender_id === user?.id;
+                    const readByRecipient = isMessageReadByRecipient(m);
                     return (
                       <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                         <div className={`max-w-[78%] rounded-2xl px-4 py-2 shadow-sm ${
@@ -505,8 +567,9 @@ export default function ChatInterno() {
                               ))}
                             </div>
                           )}
-                          <div className={`text-[10px] mt-1 text-right ${mine ? "text-blue-100" : "opacity-60"}`}>
-                            {formatTime(m.created_at)}
+                          <div className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${mine ? "text-blue-100" : "opacity-60"}`}>
+                            <span>{formatTime(m.created_at)}</span>
+                            {mine && <ReadReceiptIcon read={readByRecipient} />}
                           </div>
                         </div>
                       </div>

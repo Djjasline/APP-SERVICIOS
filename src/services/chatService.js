@@ -43,6 +43,29 @@ export async function getMessages(conversationId) {
   return data || [];
 }
 
+export async function getConversationRecipientLastReadAt(conversationId, currentUserId) {
+  if (!conversationId || !currentUserId) return null;
+
+  const { data, error } = await supabase
+    .from("chat_participants")
+    .select("user_id, last_read_at")
+    .eq("conversation_id", conversationId)
+    .neq("user_id", currentUserId);
+
+  if (error) throw error;
+
+  const recipientReads = data || [];
+  if (recipientReads.length === 0) return null;
+
+  if (recipientReads.some((participant) => !participant.last_read_at)) return null;
+  return recipientReads.reduce((oldestReadAt, participant) => {
+    if (!oldestReadAt) return participant.last_read_at;
+    return new Date(participant.last_read_at) < new Date(oldestReadAt)
+      ? participant.last_read_at
+      : oldestReadAt;
+  }, null);
+}
+
 export async function getUnreadMessageCounts(currentUserId) {
   if (!currentUserId) return {};
 

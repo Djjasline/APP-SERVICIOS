@@ -361,9 +361,13 @@ test("chat soporta adjuntos estructurados en mensajes", () => {
   assert.match(chatSql, /attachments jsonb not null default '\[\]'::jsonb/);
   assert.match(chatSql, /add column if not exists attachments jsonb/);
   assert.match(chatService, /CHAT_MESSAGE_COLUMNS = "id, conversation_id, sender_id, body, attachments, created_at"/);
+  assert.match(chatService, /getConversationRecipientLastReadAt/);
   assert.match(chatService, /getCompletedRecordPdfAttachmentsForChat/);
   assert.match(chatPage, /Adjuntar PDF completado/);
   assert.match(chatPage, /adjuntoSeleccionado/);
+  assert.match(chatPage, /ReadReceiptIcon/);
+  assert.match(chatPage, /CheckCheck/);
+  assert.match(chatPage, /Leído por el receptor/);
   assert.match(chatPage, /EMOJI_OPTIONS/);
   assert.doesNotMatch(chatPage, /VITE_TENOR_API_KEY/);
   assert.doesNotMatch(chatPage, />GIF</);
