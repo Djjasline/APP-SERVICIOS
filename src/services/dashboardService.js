@@ -266,13 +266,13 @@ export async function getGeneralDashboard({ email, technicianKeys = [] } = {}) {
             ),
           []
         ),
-    userEmail
+    userEmail && !hasTechnicianFilter
       ? safeQuery(
           () => countRows("notifications", (query) => query.ilike("recipient_email", userEmail).eq("read", false)),
           0
         )
       : 0,
-    userEmail
+    userEmail && !hasTechnicianFilter
       ? safeQuery(
           () =>
             listRows("notifications", "id, title, message, read, created_at", (query) =>
@@ -281,34 +281,42 @@ export async function getGeneralDashboard({ email, technicianKeys = [] } = {}) {
           []
         )
       : [],
-    safeQuery(() => countRows("vehicle_service_quotes", (query) => query.gte("created_at", week)), 0),
-    safeQuery(() => countRows("vehicle_service_quotes", (query) => query.eq("status", "pdf_pendiente")), 0),
-    safeQuery(
-      () =>
-        listRows("vehicle_service_quotes", "id, quote_number, client, reference, status, created_at, updated_at", (query) =>
-          query.order("updated_at", { ascending: false }).limit(5)
+    hasTechnicianFilter ? 0 : safeQuery(() => countRows("vehicle_service_quotes", (query) => query.gte("created_at", week)), 0),
+    hasTechnicianFilter ? 0 : safeQuery(() => countRows("vehicle_service_quotes", (query) => query.eq("status", "pdf_pendiente")), 0),
+    hasTechnicianFilter
+      ? []
+      : safeQuery(
+          () =>
+            listRows("vehicle_service_quotes", "id, quote_number, client, reference, status, created_at, updated_at", (query) =>
+              query.order("updated_at", { ascending: false }).limit(5)
+            ),
+          []
         ),
-      []
-    ),
-    safeQuery(() => countRows("warehouse_inventory"), 0),
-    safeQuery(
-      () =>
-        listRows("warehouse_inventory", "id, product_code, description, physical_stock, stock_minimum, updated_at", (query) =>
-          query.not("stock_minimum", "is", null).order("updated_at", { ascending: false }).limit(200)
+    hasTechnicianFilter ? 0 : safeQuery(() => countRows("warehouse_inventory"), 0),
+    hasTechnicianFilter
+      ? []
+      : safeQuery(
+          () =>
+            listRows("warehouse_inventory", "id, product_code, description, physical_stock, stock_minimum, updated_at", (query) =>
+              query.not("stock_minimum", "is", null).order("updated_at", { ascending: false }).limit(200)
+            ),
+          []
         ),
-      []
-    ),
-    safeQuery(
-      () =>
-        listRows("warehouse_item_movements", "id, movement_type, related_party, service_ref, document_ref, notes, created_at", (query) =>
-          query.order("created_at", { ascending: false }).limit(6)
+    hasTechnicianFilter
+      ? []
+      : safeQuery(
+          () =>
+            listRows("warehouse_item_movements", "id, movement_type, related_party, service_ref, document_ref, notes, created_at", (query) =>
+              query.order("created_at", { ascending: false }).limit(6)
+            ),
+          []
         ),
-      []
-    ),
-    safeQuery(
-      () => countRows("customer_satisfaction_surveys", (query) => query.in("status", ["pendiente", "enviada", "requiere_seguimiento"])),
-      0
-    ),
+    hasTechnicianFilter
+      ? 0
+      : safeQuery(
+          () => countRows("customer_satisfaction_surveys", (query) => query.in("status", ["pendiente", "enviada", "requiere_seguimiento"])),
+          0
+        ),
   ]);
 
   const lowStockRows = lowStockSourceRows

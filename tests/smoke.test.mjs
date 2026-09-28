@@ -195,6 +195,8 @@ test("dashboard de exito mantiene actividad diaria visible", () => {
   assert.match(dashboard, /Todos los técnicos/);
   assert.match(dashboard, /matchesTechnician/);
   assert.match(dashboard, /getRecordTechnicianKeys/);
+  assert.match(dashboard, /technicianFilterLabel/);
+  assert.match(dashboard, /Mostrando únicamente informes y actividad vinculada/);
   assert.match(dashboard, /dailyActivity: buildDailyActivity/);
   assert.match(dashboard, /getGeneralDashboard/);
   assert.match(dashboard, /Vista operativa diaria/);
@@ -213,6 +215,8 @@ test("dashboard de exito mantiene actividad diaria visible", () => {
   assert.match(dashboardService, /technicianKeys = \[\]/);
   assert.match(dashboardService, /matchesTechnicianFilter/);
   assert.match(dashboardService, /filteredRecentReports/);
+  assert.match(dashboardService, /hasTechnicianFilter \? 0 : safeQuery\(\(\) => countRows\("vehicle_service_quotes"/);
+  assert.match(dashboardService, /hasTechnicianFilter\s*\? \[\]\s*: safeQuery/s);
 });
 
 test("boletines recientes muestran contexto por update_key", () => {

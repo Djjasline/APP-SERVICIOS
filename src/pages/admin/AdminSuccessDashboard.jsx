@@ -476,6 +476,7 @@ export default function AdminSuccessDashboard() {
         loading={operationalLoading}
         onNavigate={navigate}
         onRefresh={() => setOperationalRefreshKey((value) => value + 1)}
+        technicianFilterLabel={selectedTechnicianOption?.label || ""}
       />
 
       <div className="grid gap-4 xl:grid-cols-[1.15fr_1.15fr_0.85fr]">
@@ -553,8 +554,9 @@ function MetricCard({ icon: Icon, label, value, detail, color }) {
   );
 }
 
-function OperationalSnapshot({ dashboard, error, loading, onNavigate, onRefresh }) {
+function OperationalSnapshot({ dashboard, error, loading, onNavigate, onRefresh, technicianFilterLabel = "" }) {
   const metrics = dashboard?.metrics || {};
+  const hasTechnicianFilter = Boolean(technicianFilterLabel);
   const actions = [
     { label: "Notificaciones", url: "/notifications", color: "bg-blue-600" },
     { label: "Bodega", url: "/operaciones/bodega", color: "bg-emerald-700" },
@@ -567,7 +569,11 @@ function OperationalSnapshot({ dashboard, error, loading, onNavigate, onRefresh 
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
             <p className="text-sm font-bold text-slate-900">Resumen rápido sin cambiar el menú principal</p>
-            <p className="text-xs text-slate-500">Muestra pendientes, actividad reciente y alertas usando los permisos actuales.</p>
+            <p className="text-xs text-slate-500">
+              {hasTechnicianFilter
+                ? `Mostrando únicamente informes y actividad vinculada a ${technicianFilterLabel}.`
+                : "Muestra pendientes, actividad reciente y alertas usando los permisos actuales."}
+            </p>
           </div>
           <button
             type="button"
@@ -600,18 +606,20 @@ function OperationalSnapshot({ dashboard, error, loading, onNavigate, onRefresh 
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h4 className="text-xs font-black uppercase text-blue-900">Actividad reciente</h4>
-              <div className="flex gap-2">
-                {actions.map((action) => (
-                  <button
-                    key={action.url}
-                    type="button"
-                    onClick={() => onNavigate(action.url)}
-                    className={`${action.color} rounded-full px-3 py-1 text-[10px] font-bold uppercase text-white transition hover:opacity-90`}
-                  >
-                    {action.label}
-                  </button>
-                ))}
-              </div>
+              {!hasTechnicianFilter && (
+                <div className="flex gap-2">
+                  {actions.map((action) => (
+                    <button
+                      key={action.url}
+                      type="button"
+                      onClick={() => onNavigate(action.url)}
+                      className={`${action.color} rounded-full px-3 py-1 text-[10px] font-bold uppercase text-white transition hover:opacity-90`}
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             {loading ? <LoadingLine text="Cargando actividad..." /> : <OperationalActivity items={dashboard?.activity || []} onNavigate={onNavigate} />}
           </div>
