@@ -47,6 +47,7 @@ const PERIODS = [
 ];
 
 const emptyCounts = () => ({ completado: 0, borrador: 0, salida: 0, total: 0 });
+const ALL_TECHNICIANS = "all";
 
 function getRecordDate(record) {
   return record.updated_at || record.created_at || null;
@@ -93,6 +94,37 @@ function formatActivityDate(value) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function normalizeIdentity(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function getTechnicianName(record, profile) {
+  const data = record?.data || {};
+  return data.tecnicoNombre || data.tecnico || data.nombreTecnico || profile?.full_name || profile?.email || "Sin técnico";
+}
+
+function getTechnicianEmail(record, profile) {
+  const data = record?.data || {};
+  return data.tecnicoCorreo || data.tecnicoEmail || data.correoTecnico || profile?.email || "";
+}
+
+function getRecordTechnicianKeys(record, profilesById = new Map()) {
+  const profile = record?.user_id ? profilesById.get(record.user_id) : null;
+  const name = normalizeIdentity(getTechnicianName(record, profile));
+  const email = normalizeIdentity(getTechnicianEmail(record, profile));
+  return [
+    record?.user_id ? `user:${record.user_id}` : "",
+    email ? `email:${email}` : "",
+    name && name !== "sin técnico" ? `name:${name}` : "",
+  ].filter(Boolean);
+}
+
+function matchesTechnician(record, selectedKeys, profilesById) {
+  if (!selectedKeys?.length) return true;
+  const recordKeys = getRecordTechnicianKeys(record, profilesById);
+  return recordKeys.some((key) => selectedKeys.includes(key));
 }
 
 function getPeriodStart(period) {
@@ -152,7 +184,9 @@ export default function AdminSuccessDashboard() {
   const { email, user } = useAuth();
   const { isLight, isLiquid } = useTheme();
   const [records, setRecords] = useState([]);
+  const [profiles, setProfiles] = useState([]);
   const [period, setPeriod] = useState("all");
+  const [selectedTechnician, setSelectedTechnician] = useState(ALL_TECHNICIANS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [operationalDashboard, setOperationalDashboard] = useState(null);
@@ -184,13 +218,77 @@ export default function AdminSuccessDashboard() {
   }, []);
 
   useEffect(() => {
+    const loadProfiles = async () => {
+      try {
+        const { data, error: profilesError } = await supabase
+          .from("profiles")
+          .select("id, email, full_name")
+          .order("full_name", { ascending: true });
+
+        if (profilesError) throw profilesError;
+        setProfiles(data || []);
+      } catch (err) {
+        console.warn("No se pudieron cargar perfiles para el filtro de técnico:", err?.message || err);
+      }
+    };
+
+    loadProfiles();
+  }, []);
+
+  const profilesById = useMemo(
+    () => new Map(profiles.map((profile) => [profile.id, profile])),
+    [profiles]
+  );
+
+  const technicianOptions = useMemo(() => {
+    const optionsByKey = new Map();
+
+    records.forEach((record) => {
+      const keys = getRecordTechnicianKeys(record, profilesById);
+      if (keys.length === 0) return;
+
+      const profile = record.user_id ? profilesById.get(record.user_id) : null;
+      const label = getTechnicianName(record, profile);
+      const emailValue = getTechnicianEmail(record, profile);
+      const mainKey = keys.find((key) => key.startsWith("email:")) || keys.find((key) => key.startsWith("user:")) || keys[0];
+
+      if (!optionsByKey.has(mainKey)) {
+        optionsByKey.set(mainKey, {
+          value: mainKey,
+          label,
+          email: emailValue,
+          keys,
+        });
+        return;
+      }
+
+      const option = optionsByKey.get(mainKey);
+      option.keys = [...new Set([...option.keys, ...keys])];
+      if (!option.email && emailValue) option.email = emailValue;
+      if ((!option.label || option.label === "Sin técnico") && label) option.label = label;
+    });
+
+    return [...optionsByKey.values()].sort((a, b) => a.label.localeCompare(b.label, "es"));
+  }, [profilesById, records]);
+
+  const selectedTechnicianOption = useMemo(
+    () => technicianOptions.find((option) => option.value === selectedTechnician) || null,
+    [selectedTechnician, technicianOptions]
+  );
+
+  const selectedTechnicianKeys = useMemo(
+    () => selectedTechnicianOption?.keys || [],
+    [selectedTechnicianOption]
+  );
+
+  useEffect(() => {
     let mounted = true;
 
     async function loadOperationalDashboard() {
       try {
         setOperationalLoading(true);
         setOperationalError("");
-        const data = await getGeneralDashboard({ email: email || user?.email });
+        const data = await getGeneralDashboard({ email: email || user?.email, technicianKeys: selectedTechnicianKeys });
         if (mounted) setOperationalDashboard(data);
       } catch (err) {
         console.error("Error cargando vista operativa del dashboard:", err);
@@ -205,15 +303,15 @@ export default function AdminSuccessDashboard() {
     return () => {
       mounted = false;
     };
-  }, [email, operationalRefreshKey, user?.email]);
+  }, [email, operationalRefreshKey, selectedTechnicianKeys, user?.email]);
 
   const dashboard = useMemo(() => {
     const start = getPeriodStart(period);
     const filtered = records.filter((record) => {
       const value = getRecordDate(record);
       if (!value) return false;
-      if (!start) return true;
-      return new Date(value) >= start;
+      if (start && new Date(value) < start) return false;
+      return matchesTechnician(record, selectedTechnicianKeys, profilesById);
     });
 
     const formRecords = filtered.filter((record) => record.area !== RESOURCE_AREA && record.tipo !== "uso_recurso");
@@ -278,12 +376,13 @@ export default function AdminSuccessDashboard() {
       activeAreas: Object.values(areaCounts).filter((counts) => counts.total > 0).length,
       averageDaily: periodDays ? totals.total / periodDays : 0,
     };
-  }, [records, period]);
+  }, [period, profilesById, records, selectedTechnicianKeys]);
 
   const exportReport = () => {
     const rows = [
       ["Caso de éxito APP SERVICIOS ASTAP"],
       ["Periodo", `${fullDate(dashboard.firstDate)} - ${fullDate(dashboard.lastDate)}`],
+      ["Técnico", selectedTechnicianOption ? `${selectedTechnicianOption.label}${selectedTechnicianOption.email ? ` (${selectedTechnicianOption.email})` : ""}` : "Todos los técnicos"],
       ["Informes totales", dashboard.totals.total],
       ["Completados", dashboard.totals.completado],
       ["Borradores", dashboard.totals.borrador],
@@ -335,6 +434,21 @@ export default function AdminSuccessDashboard() {
               className="w-full rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm text-slate-900 shadow-sm"
             >
               {PERIODS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+            </select>
+          </label>
+          <label className={`text-sm font-semibold ${isLight ? "text-slate-700" : "text-white/80"}`}>
+            <span className="mb-1 flex items-center gap-2"><Users size={16} /> Técnico</span>
+            <select
+              value={selectedTechnician}
+              onChange={(event) => setSelectedTechnician(event.target.value)}
+              className="w-full rounded-xl border border-blue-100 bg-white px-4 py-2 text-sm text-slate-900 shadow-sm"
+            >
+              <option value={ALL_TECHNICIANS}>Todos los técnicos</option>
+              {technicianOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}{option.email ? ` - ${option.email}` : ""}
+                </option>
+              ))}
             </select>
           </label>
           <button

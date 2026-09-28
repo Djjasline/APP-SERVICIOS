@@ -190,6 +190,11 @@ test("dashboard de exito mantiene actividad diaria visible", () => {
   const dashboard = read("src/pages/admin/AdminSuccessDashboard.jsx");
 
   assert.match(dashboard, /function buildDailyActivity/);
+  assert.match(dashboard, /ALL_TECHNICIANS/);
+  assert.match(dashboard, /selectedTechnician/);
+  assert.match(dashboard, /Todos los técnicos/);
+  assert.match(dashboard, /matchesTechnician/);
+  assert.match(dashboard, /getRecordTechnicianKeys/);
   assert.match(dashboard, /dailyActivity: buildDailyActivity/);
   assert.match(dashboard, /getGeneralDashboard/);
   assert.match(dashboard, /Vista operativa diaria/);
@@ -203,6 +208,11 @@ test("dashboard de exito mantiene actividad diaria visible", () => {
   assert.match(dashboard, /<ResourceUsageTable usage=\{dashboard\.resourceUsage\} isLight=\{isLight\} \/>/);
   assert.match(dashboard, /border border-white\/10 bg-white\/10 text-white/);
   assert.match(dashboard, /bg-purple-500\/25 text-purple-100/);
+
+  const dashboardService = read("src/services/dashboardService.js");
+  assert.match(dashboardService, /technicianKeys = \[\]/);
+  assert.match(dashboardService, /matchesTechnicianFilter/);
+  assert.match(dashboardService, /filteredRecentReports/);
 });
 
 test("boletines recientes muestran contexto por update_key", () => {

@@ -1,5 +1,7 @@
 import { supabase } from "@/lib/supabase";
 
+const RESOURCE_AREA = "repositorios";
+
 const ZERO_METRICS = {
   reportsToday: 0,
   reportsThisWeek: 0,
@@ -78,6 +80,27 @@ function getRecordSummary(record) {
 function normalizeDate(value) {
   const date = value ? new Date(value) : null;
   return date && !Number.isNaN(date.getTime()) ? date.toISOString() : null;
+}
+
+function normalizeIdentity(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function getRecordTechnicianKeys(record) {
+  const data = record?.data || {};
+  const name = normalizeIdentity(data.tecnicoNombre || data.tecnico || data.nombreTecnico);
+  const email = normalizeIdentity(data.tecnicoCorreo || data.tecnicoEmail || data.correoTecnico);
+  return [
+    record?.user_id ? `user:${record.user_id}` : "",
+    email ? `email:${email}` : "",
+    name ? `name:${name}` : "",
+  ].filter(Boolean);
+}
+
+function matchesTechnicianFilter(record, technicianKeys = []) {
+  if (!technicianKeys.length) return true;
+  const recordKeys = getRecordTechnicianKeys(record);
+  return recordKeys.some((key) => technicianKeys.includes(key));
 }
 
 function buildActivity({ reports, quotes, movements, notifications }) {
@@ -180,10 +203,41 @@ function buildAlerts(metrics, lowStockRows) {
   return alerts.slice(0, 5);
 }
 
-export async function getGeneralDashboard({ email } = {}) {
+export async function getGeneralDashboard({ email, technicianKeys = [] } = {}) {
   const today = startOfToday();
   const week = startOfWeek();
   const userEmail = String(email || "").trim();
+  const activeTechnicianKeys = Array.isArray(technicianKeys) ? technicianKeys.filter(Boolean) : [];
+  const hasTechnicianFilter = activeTechnicianKeys.length > 0;
+
+  const reportsForTechnician = hasTechnicianFilter
+    ? await safeQuery(
+        () =>
+          listRows("registros", "id, user_id, area, tipo, subtipo, estado, data, created_at, updated_at", (query) =>
+            query.order("updated_at", { ascending: false }).limit(1000)
+          ),
+        []
+      ).then((rows) =>
+        rows
+          .filter((record) => record.area !== RESOURCE_AREA && record.tipo !== "uso_recurso")
+          .filter((record) => matchesTechnicianFilter(record, activeTechnicianKeys))
+      )
+    : [];
+
+  const filteredReportsToday = hasTechnicianFilter
+    ? reportsForTechnician.filter((record) => new Date(record.created_at) >= new Date(today)).length
+    : 0;
+  const filteredReportsThisWeek = hasTechnicianFilter
+    ? reportsForTechnician.filter((record) => new Date(record.created_at) >= new Date(week)).length
+    : 0;
+  const filteredDraftReports = hasTechnicianFilter
+    ? reportsForTechnician.filter((record) => record.estado === "borrador").length
+    : 0;
+  const filteredRecentReports = hasTechnicianFilter
+    ? reportsForTechnician
+        .sort((a, b) => new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at))
+        .slice(0, 8)
+    : [];
 
   const [
     reportsToday,
@@ -200,16 +254,18 @@ export async function getGeneralDashboard({ email } = {}) {
     recentMovements,
     pendingSurveys,
   ] = await Promise.all([
-    safeQuery(() => countRows("registros", (query) => query.gte("created_at", today)), 0),
-    safeQuery(() => countRows("registros", (query) => query.gte("created_at", week)), 0),
-    safeQuery(() => countRows("registros", (query) => query.eq("estado", "borrador")), 0),
-    safeQuery(
-      () =>
-        listRows("registros", "id, area, tipo, subtipo, estado, data, created_at, updated_at", (query) =>
-          query.order("updated_at", { ascending: false }).limit(8)
+    hasTechnicianFilter ? filteredReportsToday : safeQuery(() => countRows("registros", (query) => query.gte("created_at", today)), 0),
+    hasTechnicianFilter ? filteredReportsThisWeek : safeQuery(() => countRows("registros", (query) => query.gte("created_at", week)), 0),
+    hasTechnicianFilter ? filteredDraftReports : safeQuery(() => countRows("registros", (query) => query.eq("estado", "borrador")), 0),
+    hasTechnicianFilter
+      ? filteredRecentReports
+      : safeQuery(
+          () =>
+            listRows("registros", "id, user_id, area, tipo, subtipo, estado, data, created_at, updated_at", (query) =>
+              query.order("updated_at", { ascending: false }).limit(8)
+            ),
+          []
         ),
-      []
-    ),
     userEmail
       ? safeQuery(
           () => countRows("notifications", (query) => query.ilike("recipient_email", userEmail).eq("read", false)),
