@@ -853,6 +853,59 @@ html[data-theme="blue"] .app-page-shell :where(.document-sheet) :where(.text-red
   color: #111827 !important;
 }
 
+/* Technical document forms keep PDF-like contrast even while fields are focused. */
+.document-sheet :where(.pdf-table, table) :where(td, th, .pdf-label, .pdf-title, label, strong, small, p, div),
+.pdf-container :where(.pdf-table, table) :where(td, th, .pdf-label, .pdf-title, label, strong, small, p, div),
+.print-area :where(.pdf-table, table) :where(td, th, .pdf-label, .pdf-title, label, strong, small, p, div) {
+  color: #111827 !important;
+  opacity: 1 !important;
+}
+
+.document-sheet :where(.pdf-label, .pdf-title, label, strong, small, p, h1, h2, h3, h4, h5, h6),
+.pdf-container :where(.pdf-label, .pdf-title, label, strong, small, p, h1, h2, h3, h4, h5, h6),
+.print-area :where(.pdf-label, .pdf-title, label, strong, small, p, h1, h2, h3, h4, h5, h6) {
+  -webkit-text-fill-color: #111827 !important;
+}
+
+.document-sheet :where(.pdf-table tr:focus-within, table tr:focus-within),
+.pdf-container :where(.pdf-table tr:focus-within, table tr:focus-within),
+.print-area :where(.pdf-table tr:focus-within, table tr:focus-within) {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  opacity: 1 !important;
+}
+
+.document-sheet :where(input, textarea, select, .pdf-input, .pdf-textarea, .auto-resize-input),
+.document-sheet :where(input, textarea, select, .pdf-input, .pdf-textarea, .auto-resize-input):focus,
+.document-sheet :where(input, textarea, select, .pdf-input, .pdf-textarea, .auto-resize-input):focus-visible,
+.pdf-container :where(input, textarea, select, .pdf-input, .pdf-textarea, .auto-resize-input),
+.pdf-container :where(input, textarea, select, .pdf-input, .pdf-textarea, .auto-resize-input):focus,
+.pdf-container :where(input, textarea, select, .pdf-input, .pdf-textarea, .auto-resize-input):focus-visible,
+.print-area :where(input, textarea, select, .pdf-input, .pdf-textarea, .auto-resize-input),
+.print-area :where(input, textarea, select, .pdf-input, .pdf-textarea, .auto-resize-input):focus,
+.print-area :where(input, textarea, select, .pdf-input, .pdf-textarea, .auto-resize-input):focus-visible {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  border-color: #9ca3af !important;
+  caret-color: #111827;
+  opacity: 1 !important;
+}
+
+.document-sheet :where(input, textarea, .pdf-input, .pdf-textarea, .auto-resize-input)::placeholder,
+.document-sheet :where(input, textarea, .pdf-input, .pdf-textarea, .auto-resize-input):focus::placeholder,
+.document-sheet :where(input, textarea, .pdf-input, .pdf-textarea, .auto-resize-input):focus-visible::placeholder,
+.pdf-container :where(input, textarea, .pdf-input, .pdf-textarea, .auto-resize-input)::placeholder,
+.pdf-container :where(input, textarea, .pdf-input, .pdf-textarea, .auto-resize-input):focus::placeholder,
+.pdf-container :where(input, textarea, .pdf-input, .pdf-textarea, .auto-resize-input):focus-visible::placeholder,
+.print-area :where(input, textarea, .pdf-input, .pdf-textarea, .auto-resize-input)::placeholder,
+.print-area :where(input, textarea, .pdf-input, .pdf-textarea, .auto-resize-input):focus::placeholder,
+.print-area :where(input, textarea, .pdf-input, .pdf-textarea, .auto-resize-input):focus-visible::placeholder {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+  opacity: 1 !important;
+}
+
 /* Login: mobile avoids the heavy background image; desktop loads it via CSS media query. */
 .login-bg {
   background:

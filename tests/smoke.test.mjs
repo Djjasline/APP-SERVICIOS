@@ -113,6 +113,10 @@ test("temas oscuros mantienen variantes dark y azul", () => {
   assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell :where\(\.pdf-container, \.print-area, \.pdf-page, \.pdf-table\).*\.text-red-700/s);
   assert.match(styles, /html\[data-theme="dark"\] \.app-page-shell :where\(\.document-sheet\)/);
   assert.match(styles, /document-sheet.*input, textarea, select/s);
+  assert.match(styles, /Technical document forms keep PDF-like contrast/);
+  assert.match(styles, /document-sheet.*tr:focus-within/s);
+  assert.match(styles, /focus-visible::placeholder/s);
+  assert.match(styles, /-webkit-text-fill-color: #111827/);
   assert.match(styles, /document-sheet.*\.bg-blue-50/s);
   assert.match(styles, /document-sheet.*\.bg-green-100/s);
   assert.match(styles, /document-sheet.*\.text-red-700/s);

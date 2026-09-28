@@ -43,7 +43,7 @@ export default function ReportHeader({ data, onChange, reportConfig }) {
               verticalAlign: "middle",
             }}
           >
-            <div style={{ fontSize: "16px" }}>
+            <div className="pdf-title" style={{ fontSize: "16px" }}>
               {reportConfig?.pdfTitle || "INFORME TÉCNICO DE SERVICIO"}
             </div>
             <div
