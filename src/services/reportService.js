@@ -14,6 +14,17 @@ import {
 
 const normalize = (value) => String(value || "").trim().toLowerCase();
 
+function getTextValue(value) {
+  if (!value) return "";
+  if (typeof value === "string" || typeof value === "number") return String(value).trim();
+  if (typeof value !== "object") return "";
+
+  return [value.placa, value.marca, value.modelo, value.serie, value.vin, value.horometro, value.kilometraje]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+}
+
 export const saveOrUpdateReport = async ({
   id = null,
   area = "vehiculos",
@@ -171,7 +182,7 @@ async function notifyConfiguredRecipients(result, user) {
 
     const formName = getNombreFormularioPorArea(result);
     const statusLabel = result.estado === "completado" ? "completado" : "borrador";
-    const clientName = result.data?.cliente || result.data?.conductor || result.data?.equipo || "Sin cliente";
+    const clientName = [result.data?.cliente, result.data?.conductor, result.data?.equipo].map(getTextValue).find(Boolean) || "Sin cliente";
     const code = result.data?.codInf || result.data?.codigo || result.data?.pedidoDemanda || result.id;
     const technician = formatPersonName(result.data?.tecnicoNombre) || user.email || "Sin técnico";
 

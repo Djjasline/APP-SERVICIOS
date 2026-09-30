@@ -72,9 +72,22 @@ function getRecordUrl(record) {
   return `/vehiculos/informe/${record.id}`;
 }
 
+function getTextValue(value) {
+  if (!value) return "";
+  if (typeof value === "string" || typeof value === "number") return String(value).trim();
+  if (typeof value !== "object") return "";
+
+  return [value.placa, value.marca, value.modelo, value.serie, value.vin, value.horometro, value.kilometraje]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+}
+
 function getRecordSummary(record) {
   const data = record.data || {};
-  return data.cliente || data.empresa || data.equipo || data.conductor || data.codInf || data.codigo || record.estado || "Sin referencia";
+  return [data.cliente, data.empresa, data.equipo, data.conductor, data.codInf, data.codigo, record.estado]
+    .map(getTextValue)
+    .find(Boolean) || "Sin referencia";
 }
 
 function normalizeDate(value) {

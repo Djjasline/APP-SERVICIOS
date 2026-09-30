@@ -260,8 +260,15 @@ test("dashboard de exito mantiene actividad diaria visible", () => {
   assert.match(dashboardService, /technicianKeys = \[\]/);
   assert.match(dashboardService, /matchesTechnicianFilter/);
   assert.match(dashboardService, /filteredRecentReports/);
+  assert.match(dashboardService, /function getTextValue/);
+  assert.match(dashboardService, /value\.placa, value\.marca, value\.modelo, value\.serie/);
+  assert.doesNotMatch(dashboardService, /data\.cliente \|\| data\.empresa \|\| data\.equipo/);
   assert.match(dashboardService, /hasTechnicianFilter \? 0 : safeQuery\(\(\) => countRows\("vehicle_service_quotes"/);
   assert.match(dashboardService, /hasTechnicianFilter\s*\? \[\]\s*: safeQuery/s);
+
+  const reportService = read("src/services/reportService.js");
+  assert.match(reportService, /function getTextValue/);
+  assert.doesNotMatch(reportService, /result\.data\?\.cliente \|\| result\.data\?\.conductor \|\| result\.data\?\.equipo/);
 });
 
 test("boletines recientes muestran contexto por update_key", () => {
