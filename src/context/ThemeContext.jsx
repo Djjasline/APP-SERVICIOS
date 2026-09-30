@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeContext = createContext(null);
 const STORAGE_KEY = "astap_theme";
-const THEMES = ["dark", "blue", "light", "liquid"];
+const THEMES = ["dark", "blue", "light", "liquid", "liquid-dark"];
 
 function normalizeTheme(value) {
   return THEMES.includes(value) ? value : "dark";
@@ -39,7 +39,8 @@ export function ThemeProvider({ children }) {
         theme,
         isLight: theme === "light",
         isBlueDark: theme === "blue",
-        isLiquid: theme === "liquid",
+        isLiquid: theme === "liquid" || theme === "liquid-dark",
+        isLiquidDark: theme === "liquid-dark",
         nextTheme: getNextTheme(theme),
         setTheme,
         toggleTheme,

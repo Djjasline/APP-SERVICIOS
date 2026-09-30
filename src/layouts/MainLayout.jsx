@@ -75,7 +75,7 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, logout, role, roleLabel, email } = useAuth();
-  const { theme, isLight, isBlueDark, isLiquid, nextTheme, toggleTheme } = useTheme();
+  const { isLight, isBlueDark, isLiquid, nextTheme, toggleTheme } = useTheme();
   const [unread, setUnread] = useState(0);
   const [chatAlert, setChatAlert] = useState(null);
   const [installPrompt, setInstallPrompt] = useState(null);
@@ -94,7 +94,16 @@ export default function MainLayout() {
     solicitarPermiso: activarPush,
     cancelarSuscripcion: desactivarPush,
   } = useNotificaciones();
-  const nextThemeLabel = nextTheme === "blue" ? "oscuro azul" : nextTheme === "light" ? "modo claro" : nextTheme === "liquid" ? "Liquid Glass" : "modo dark";
+  const nextThemeLabel =
+    nextTheme === "blue"
+      ? "oscuro azul"
+      : nextTheme === "light"
+      ? "modo claro"
+      : nextTheme === "liquid"
+      ? "Liquid Glass"
+      : nextTheme === "liquid-dark"
+      ? "Dark Liquid Glass"
+      : "modo dark";
   const isWidePage = location.pathname.startsWith("/operaciones/bodega");
   const hasOnlineChatUsers = Object.keys(usuariosOnline).some((userId) => userId !== user?.id);
 
@@ -634,7 +643,7 @@ export default function MainLayout() {
                         isLight ? "hover:bg-slate-100" : "hover:bg-white/10"
                       }`}
                     >
-                      {nextTheme === "liquid" ? <Sparkles size={15} /> : nextTheme === "light" ? <Sun size={15} /> : <Moon size={15} />}
+                      {nextTheme === "liquid" || nextTheme === "liquid-dark" ? <Sparkles size={15} /> : nextTheme === "light" ? <Sun size={15} /> : <Moon size={15} />}
                       Usar {nextThemeLabel}
                     </button>
                   </div>

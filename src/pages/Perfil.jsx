@@ -375,6 +375,17 @@ export default function Perfil() {
             >
               Liquid Glass
             </button>
+            <button
+              type="button"
+              onClick={() => setTheme("liquid-dark")}
+              className={`rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                theme === "liquid-dark"
+                  ? "border-cyan-300 bg-slate-950 text-white shadow"
+                  : "border-transparent bg-white/60 text-gray-600 hover:bg-white"
+              }`}
+            >
+              Dark Liquid
+            </button>
           </div>
           <p className="text-xs text-gray-500">
             El modo claro usa fondo blanco/azul suave, tarjetas claras y texto oscuro.

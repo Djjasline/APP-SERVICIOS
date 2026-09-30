@@ -168,6 +168,47 @@
   }
 }
 
+html[data-theme="liquid-dark"] .liquid-glass-background {
+  background:
+    radial-gradient(circle at 18% 10%, rgba(14, 165, 233, 0.28), transparent 30%),
+    radial-gradient(circle at 82% 16%, rgba(124, 58, 237, 0.22), transparent 32%),
+    radial-gradient(circle at 48% 86%, rgba(20, 184, 166, 0.18), transparent 36%),
+    linear-gradient(135deg, #020617 0%, #071225 48%, #031018 100%);
+}
+
+html[data-theme="liquid-dark"] .liquid-orb {
+  opacity: 0.58;
+}
+
+html[data-theme="liquid-dark"] .liquid-orb-one {
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.32), rgba(59, 130, 246, 0.06) 64%, transparent 72%);
+}
+
+html[data-theme="liquid-dark"] .liquid-orb-two {
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.28), rgba(14, 165, 233, 0.06) 62%, transparent 72%);
+}
+
+html[data-theme="liquid-dark"] .liquid-orb-three {
+  background: radial-gradient(circle, rgba(45, 212, 191, 0.2), rgba(99, 102, 241, 0.08) 58%, transparent 72%);
+}
+
+html[data-theme="liquid-dark"] .liquid-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+}
+
+html[data-theme="liquid-dark"] .liquid-glass-panel,
+html[data-theme="liquid-dark"] .liquid-glass-shell,
+html[data-theme="liquid-dark"] .liquid-glass-sidebar {
+  background:
+    linear-gradient(135deg, rgba(15, 23, 42, 0.74), rgba(8, 13, 24, 0.52)),
+    radial-gradient(circle at 0% 0%, rgba(125, 211, 252, 0.18), transparent 36%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 22px 70px rgba(0, 0, 0, 0.42);
+}
+
 /* =============================
    GRAPHITE DARK THEME
 ============================= */
@@ -635,6 +676,66 @@ html[data-theme="blue"] .app-page-shell :where(.hover\:text-indigo-900:hover, .h
   color: #ddd6fe !important;
 }
 
+html[data-theme="liquid-dark"] .app-page-shell :where(.bg-white, .bg-white\/95, .bg-white\/90, .bg-white\/85, .bg-white\/80, .bg-white\/70, .bg-white\/60, .bg-gray-50, .bg-gray-100, .bg-gray-200, .bg-slate-50, .bg-slate-100, .bg-slate-200, .bg-blue-50, .bg-blue-100, .bg-blue-200, .bg-red-50, .bg-red-100, .bg-red-200, .bg-orange-50, .bg-orange-100, .bg-orange-200, .bg-amber-50, .bg-amber-100, .bg-amber-200, .bg-yellow-50, .bg-yellow-100, .bg-yellow-200, .bg-green-50, .bg-green-100, .bg-green-200, .bg-emerald-50, .bg-emerald-100, .bg-emerald-200, .bg-teal-50, .bg-teal-100, .bg-teal-200, .bg-cyan-50, .bg-cyan-100, .bg-cyan-200, .bg-sky-50, .bg-sky-100, .bg-sky-200, .bg-indigo-50, .bg-indigo-100, .bg-indigo-200, .bg-violet-50, .bg-violet-100, .bg-violet-200, .bg-purple-50, .bg-purple-100, .bg-purple-200, .bg-pink-50, .bg-pink-100, .bg-pink-200) {
+  background-color: rgba(8, 19, 42, 0.78) !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.bg-blue-50\/40, .bg-blue-50\/60, .bg-blue-50\/90, .bg-blue-100\/60) {
+  background-color: rgba(125, 211, 252, 0.1) !important;
+  color: #f8fafc !important;
+  border-color: rgba(125, 211, 252, 0.2) !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.hover\:bg-white:hover, .hover\:bg-gray-50:hover, .hover\:bg-gray-100:hover, .hover\:bg-gray-200:hover, .hover\:bg-slate-50:hover, .hover\:bg-slate-100:hover, .hover\:bg-slate-200:hover, .hover\:bg-blue-50:hover, .hover\:bg-blue-100:hover, .hover\:bg-blue-200:hover, .hover\:bg-red-50:hover, .hover\:bg-red-100:hover, .hover\:bg-red-200:hover, .hover\:bg-orange-50:hover, .hover\:bg-orange-100:hover, .hover\:bg-orange-200:hover, .hover\:bg-amber-50:hover, .hover\:bg-amber-100:hover, .hover\:bg-amber-200:hover, .hover\:bg-yellow-50:hover, .hover\:bg-yellow-100:hover, .hover\:bg-yellow-200:hover, .hover\:bg-green-50:hover, .hover\:bg-green-100:hover, .hover\:bg-green-200:hover, .hover\:bg-emerald-50:hover, .hover\:bg-emerald-100:hover, .hover\:bg-emerald-200:hover, .hover\:bg-teal-50:hover, .hover\:bg-teal-100:hover, .hover\:bg-teal-200:hover, .hover\:bg-cyan-50:hover, .hover\:bg-cyan-100:hover, .hover\:bg-cyan-200:hover, .hover\:bg-sky-50:hover, .hover\:bg-sky-100:hover, .hover\:bg-sky-200:hover, .hover\:bg-indigo-50:hover, .hover\:bg-indigo-100:hover, .hover\:bg-indigo-200:hover, .hover\:bg-violet-50:hover, .hover\:bg-violet-100:hover, .hover\:bg-violet-200:hover, .hover\:bg-purple-50:hover, .hover\:bg-purple-100:hover, .hover\:bg-purple-200:hover, .hover\:bg-pink-50:hover, .hover\:bg-pink-100:hover, .hover\:bg-pink-200:hover, .hover\:bg-blue-100\/60:hover) {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.odd\:bg-gray-50:nth-child(odd), .odd\:bg-gray-100:nth-child(odd), .odd\:bg-slate-50:nth-child(odd), .odd\:bg-slate-100:nth-child(odd), .odd\:bg-blue-50\/40:nth-child(odd)) {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.text-black, .text-gray-900, .text-slate-900, .text-neutral-900, .text-zinc-900, .text-stone-900, .text-gray-800, .text-slate-800, .text-neutral-800, .text-zinc-800, .text-stone-800, .text-gray-700, .text-slate-700, .text-neutral-700, .text-zinc-700, .text-stone-700, .text-blue-950, .text-blue-900, .text-blue-800, .text-blue-700) {
+  color: #f8fafc !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.text-gray-600, .text-slate-600, .text-neutral-600, .text-zinc-600, .text-stone-600, .text-gray-500, .text-slate-500, .text-neutral-500, .text-zinc-500, .text-stone-500, .text-blue-600, .text-blue-500) {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.text-red-900, .text-red-800, .text-red-700, .text-red-600, .text-red-500) {
+  color: #fecaca !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.text-orange-900, .text-orange-800, .text-orange-700, .text-orange-600, .text-orange-500, .text-amber-900, .text-amber-800, .text-amber-700, .text-amber-600, .text-amber-500, .text-yellow-900, .text-yellow-800, .text-yellow-700, .text-yellow-600, .text-yellow-500) {
+  color: #fde68a !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.text-green-900, .text-green-800, .text-green-700, .text-green-600, .text-green-500, .text-emerald-900, .text-emerald-800, .text-emerald-700, .text-emerald-600, .text-emerald-500, .text-teal-900, .text-teal-800, .text-teal-700, .text-teal-600, .text-teal-500) {
+  color: #bbf7d0 !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.text-cyan-900, .text-cyan-800, .text-cyan-700, .text-cyan-600, .text-cyan-500, .text-sky-900, .text-sky-800, .text-sky-700, .text-sky-600, .text-sky-500) {
+  color: #bae6fd !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.text-indigo-900, .text-indigo-800, .text-indigo-700, .text-indigo-600, .text-indigo-500, .text-violet-900, .text-violet-800, .text-violet-700, .text-violet-600, .text-violet-500, .text-purple-900, .text-purple-800, .text-purple-700, .text-purple-600, .text-purple-500, .text-pink-900, .text-pink-800, .text-pink-700, .text-pink-600, .text-pink-500) {
+  color: #ddd6fe !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(input, textarea, select) {
+  background-color: rgba(8, 13, 24, 0.82);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #f8fafc;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(input, textarea)::placeholder {
+  color: #94a3b8;
+}
+
 html[data-theme="dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table),
 html[data-theme="blue"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) {
   background-color: #ffffff !important;
@@ -851,6 +952,57 @@ html[data-theme="blue"] .app-page-shell :where(.document-sheet) :where(.text-bla
 html[data-theme="dark"] .app-page-shell :where(.document-sheet) :where(.text-red-900, .text-red-800, .text-red-700, .text-red-600, .text-red-500, .text-orange-900, .text-orange-800, .text-orange-700, .text-orange-600, .text-orange-500, .text-amber-900, .text-amber-800, .text-amber-700, .text-amber-600, .text-amber-500, .text-yellow-900, .text-yellow-800, .text-yellow-700, .text-yellow-600, .text-yellow-500, .text-green-900, .text-green-800, .text-green-700, .text-green-600, .text-green-500, .text-emerald-900, .text-emerald-800, .text-emerald-700, .text-emerald-600, .text-emerald-500, .text-teal-900, .text-teal-800, .text-teal-700, .text-teal-600, .text-teal-500, .text-cyan-900, .text-cyan-800, .text-cyan-700, .text-cyan-600, .text-cyan-500, .text-sky-900, .text-sky-800, .text-sky-700, .text-sky-600, .text-sky-500, .text-indigo-900, .text-indigo-800, .text-indigo-700, .text-indigo-600, .text-indigo-500, .text-violet-900, .text-violet-800, .text-violet-700, .text-violet-600, .text-violet-500, .text-purple-900, .text-purple-800, .text-purple-700, .text-purple-600, .text-purple-500, .text-pink-900, .text-pink-800, .text-pink-700, .text-pink-600, .text-pink-500),
 html[data-theme="blue"] .app-page-shell :where(.document-sheet) :where(.text-red-900, .text-red-800, .text-red-700, .text-red-600, .text-red-500, .text-orange-900, .text-orange-800, .text-orange-700, .text-orange-600, .text-orange-500, .text-amber-900, .text-amber-800, .text-amber-700, .text-amber-600, .text-amber-500, .text-yellow-900, .text-yellow-800, .text-yellow-700, .text-yellow-600, .text-yellow-500, .text-green-900, .text-green-800, .text-green-700, .text-green-600, .text-green-500, .text-emerald-900, .text-emerald-800, .text-emerald-700, .text-emerald-600, .text-emerald-500, .text-teal-900, .text-teal-800, .text-teal-700, .text-teal-600, .text-teal-500, .text-cyan-900, .text-cyan-800, .text-cyan-700, .text-cyan-600, .text-cyan-500, .text-sky-900, .text-sky-800, .text-sky-700, .text-sky-600, .text-sky-500, .text-indigo-900, .text-indigo-800, .text-indigo-700, .text-indigo-600, .text-indigo-500, .text-violet-900, .text-violet-800, .text-violet-700, .text-violet-600, .text-violet-500, .text-purple-900, .text-purple-800, .text-purple-700, .text-purple-600, .text-purple-500, .text-pink-900, .text-pink-800, .text-pink-700, .text-pink-600, .text-pink-500) {
   color: #111827 !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table, .document-sheet),
+html[data-theme="liquid-dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table, .document-sheet) :where(.bg-white, .bg-white\/95, .bg-white\/90, .bg-white\/85, .bg-white\/80, .bg-white\/70, .bg-white\/60) {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border-color: #d1d5db !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table, .document-sheet) :where(.bg-gray-50, .bg-slate-50) {
+  background-color: #f9fafb !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table, .document-sheet) :where(.bg-gray-100, .bg-slate-100) {
+  background-color: #f3f4f6 !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table, .document-sheet) :where(.bg-blue-50, .bg-blue-100, .bg-blue-200) {
+  background-color: #eff6ff !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table, .document-sheet) :where(.bg-red-50, .bg-red-100, .bg-red-200) {
+  background-color: #fee2e2 !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table, .document-sheet) :where(.bg-orange-50, .bg-orange-100, .bg-orange-200, .bg-amber-50, .bg-amber-100, .bg-amber-200, .bg-yellow-50, .bg-yellow-100, .bg-yellow-200) {
+  background-color: #fef3c7 !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table, .document-sheet) :where(.bg-green-50, .bg-green-100, .bg-green-200, .bg-emerald-50, .bg-emerald-100, .bg-emerald-200, .bg-teal-50, .bg-teal-100, .bg-teal-200) {
+  background-color: #d1fae5 !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table, .document-sheet) :where(.bg-cyan-50, .bg-cyan-100, .bg-cyan-200, .bg-sky-50, .bg-sky-100, .bg-sky-200) {
+  background-color: #cffafe !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table, .document-sheet) :where(.bg-indigo-50, .bg-indigo-100, .bg-indigo-200, .bg-violet-50, .bg-violet-100, .bg-violet-200, .bg-purple-50, .bg-purple-100, .bg-purple-200, .bg-pink-50, .bg-pink-100, .bg-pink-200) {
+  background-color: #f3e8ff !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table, .document-sheet) :where(.text-black, .text-gray-900, .text-slate-900, .text-neutral-900, .text-zinc-900, .text-stone-900, .text-gray-800, .text-slate-800, .text-neutral-800, .text-zinc-800, .text-stone-800, .text-gray-700, .text-slate-700, .text-neutral-700, .text-zinc-700, .text-stone-700, .text-gray-600, .text-slate-600, .text-neutral-600, .text-zinc-600, .text-stone-600, .text-gray-500, .text-slate-500, .text-neutral-500, .text-zinc-500, .text-stone-500, .text-blue-950, .text-blue-900, .text-blue-800, .text-blue-700, .text-blue-600, .text-blue-500, .text-red-900, .text-red-800, .text-red-700, .text-red-600, .text-red-500, .text-orange-900, .text-orange-800, .text-orange-700, .text-orange-600, .text-orange-500, .text-amber-900, .text-amber-800, .text-amber-700, .text-amber-600, .text-amber-500, .text-yellow-900, .text-yellow-800, .text-yellow-700, .text-yellow-600, .text-yellow-500, .text-green-900, .text-green-800, .text-green-700, .text-green-600, .text-green-500, .text-emerald-900, .text-emerald-800, .text-emerald-700, .text-emerald-600, .text-emerald-500, .text-teal-900, .text-teal-800, .text-teal-700, .text-teal-600, .text-teal-500, .text-cyan-900, .text-cyan-800, .text-cyan-700, .text-cyan-600, .text-cyan-500, .text-sky-900, .text-sky-800, .text-sky-700, .text-sky-600, .text-sky-500, .text-indigo-900, .text-indigo-800, .text-indigo-700, .text-indigo-600, .text-indigo-500, .text-violet-900, .text-violet-800, .text-violet-700, .text-violet-600, .text-violet-500, .text-purple-900, .text-purple-800, .text-purple-700, .text-purple-600, .text-purple-500, .text-pink-900, .text-pink-800, .text-pink-700, .text-pink-600, .text-pink-500) {
+  color: #111827 !important;
+}
+
+html[data-theme="liquid-dark"] .app-page-shell :where(.document-sheet) :where(input, textarea, select, .pdf-input, .pdf-textarea, .auto-resize-input),
+html[data-theme="liquid-dark"] .app-page-shell :where(.pdf-container, .print-area, .pdf-page, .pdf-table) :where(input, textarea, select, .pdf-input, .pdf-textarea, .auto-resize-input) {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  border-color: #9ca3af !important;
 }
 
 /* Technical document forms keep PDF-like contrast even while fields are focused. */

@@ -5,12 +5,47 @@ import { pickNewestDraft, toDraftPayload } from "@/utils/draftSelection.mjs";
 
 let activeScope = "anon";
 const remoteProtectedKeys = new Set();
+const DEVICE_ID_KEY = "astap_autoguardado_device_id";
 
 const getScope = (scope) => scope || activeScope || "anon";
 const getScopedKey = (clave, scope) => `autoguardado_v2_${getScope(scope)}_${clave}`;
 const getLegacyKey = (clave) => `autoguardado_${clave}`;
 const getRemoteProtectionKey = (clave, scope) => `${getScope(scope)}_${clave}`;
 const canSyncRemote = (scope) => Boolean(scope && scope !== "anon");
+
+function createFallbackId() {
+  return `device_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function getDeviceInfo() {
+  const fallback = {
+    deviceId: "unknown-device",
+    deviceLabel: "Dispositivo sin identificar",
+    userAgent: "",
+  };
+
+  if (typeof window === "undefined") return fallback;
+
+  try {
+    let deviceId = localStorage.getItem(DEVICE_ID_KEY);
+    if (!deviceId) {
+      deviceId = window.crypto?.randomUUID?.() || createFallbackId();
+      localStorage.setItem(DEVICE_ID_KEY, deviceId);
+    }
+
+    const userAgent = window.navigator?.userAgent || "";
+    const platform = window.navigator?.platform || "";
+    const deviceLabel = [platform, userAgent.includes("Mobile") ? "Mobile" : "Desktop"].filter(Boolean).join(" - ") || "Dispositivo";
+
+    return { deviceId, deviceLabel, userAgent };
+  } catch {
+    return fallback;
+  }
+}
+
+function getSnapshotKey(guardadoEn) {
+  return String(guardadoEn || new Date().toISOString()).slice(0, 16);
+}
 
 function logRemoteDraftError(message, error) {
   if (import.meta.env.DEV) {
@@ -34,12 +69,16 @@ async function guardarBorradorRemoto(clave, datos, scope, guardadoEn) {
     remoteProtectedKeys.delete(protectionKey);
   }
 
+  const device = getDeviceInfo();
   const { error } = await supabase
     .from("form_drafts")
     .upsert(
       {
         user_id: scope,
         draft_key: clave,
+        device_id: device.deviceId,
+        device_label: device.deviceLabel,
+        user_agent: device.userAgent,
         data: datos ?? {},
         saved_at: guardadoEn,
         updated_at: guardadoEn,
@@ -49,6 +88,32 @@ async function guardarBorradorRemoto(clave, datos, scope, guardadoEn) {
 
   if (error) {
     logRemoteDraftError("[autoguardado] Error al sincronizar borrador remoto:", error);
+  }
+}
+
+async function guardarHistorialBorradorRemoto(clave, datos, scope, guardadoEn) {
+  if (!clave || !canSyncRemote(scope)) return;
+
+  const device = getDeviceInfo();
+  const { error } = await supabase
+    .from("form_draft_snapshots")
+    .upsert(
+      {
+        user_id: scope,
+        draft_key: clave,
+        device_id: device.deviceId,
+        device_label: device.deviceLabel,
+        user_agent: device.userAgent,
+        snapshot_key: getSnapshotKey(guardadoEn),
+        data: datos ?? {},
+        saved_at: guardadoEn,
+        updated_at: guardadoEn,
+      },
+      { onConflict: "user_id,draft_key,device_id,snapshot_key" }
+    );
+
+  if (error) {
+    logRemoteDraftError("[autoguardado] Error al sincronizar historial remoto:", error);
   }
 }
 
@@ -114,12 +179,14 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
 
   const guardar = useCallback(() => {
     if (!activo || !clave) return;
-    if (remoteProtectedKeys.has(getRemoteProtectionKey(clave, scope))) return;
 
     try {
       const payload = toDraftPayload(datosRef.current);
       localStorage.setItem(getScopedKey(clave, scope), JSON.stringify(payload));
-      void guardarBorradorRemoto(clave, payload.datos, scope, payload.guardadoEn);
+      void guardarHistorialBorradorRemoto(clave, payload.datos, scope, payload.guardadoEn);
+      if (!remoteProtectedKeys.has(getRemoteProtectionKey(clave, scope))) {
+        void guardarBorradorRemoto(clave, payload.datos, scope, payload.guardadoEn);
+      }
 
       // Dev-only log para verificar que el autoguardado se ejecuta
       if (import.meta.env.DEV) {

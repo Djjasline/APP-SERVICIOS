@@ -85,22 +85,50 @@ test("modulos especiales conservan llaves esperadas", () => {
   assert.match(accessControl, /CONFIGURADOR_OWNER_EMAIL = PRIVILEGED_EMAILS\.superAdmin\[0\]/);
 });
 
+test("autoguardado local no se bloquea por borrador remoto protegido", () => {
+  const autosave = read("src/hooks/useAutoguardado.js");
+
+  assert.match(autosave, /DEVICE_ID_KEY = "astap_autoguardado_device_id"/);
+  assert.match(autosave, /from\("form_draft_snapshots"\)/);
+  assert.match(autosave, /onConflict: "user_id,draft_key,device_id,snapshot_key"/);
+  assert.match(autosave, /void guardarHistorialBorradorRemoto\(clave, payload\.datos, scope, payload\.guardadoEn\);\n\s+if \(!remoteProtectedKeys\.has/);
+  assert.match(autosave, /localStorage\.setItem\(getScopedKey\(clave, scope\), JSON\.stringify\(payload\)\);\n\s+void guardarHistorialBorradorRemoto/);
+  assert.doesNotMatch(autosave, /if \(remoteProtectedKeys\.has\(getRemoteProtectionKey\(clave, scope\)\)\) return;\n\s+try/);
+});
+
+test("sql crea historial de borradores por dispositivo", () => {
+  const sql = read("supabase/sql/form_drafts_setup.sql");
+
+  assert.match(sql, /create table if not exists public\.form_draft_snapshots/);
+  assert.match(sql, /device_id text not null/);
+  assert.match(sql, /unique \(user_id, draft_key, device_id, snapshot_key\)/);
+  assert.match(sql, /form_draft_snapshots_user_draft_saved_idx/);
+  assert.match(sql, /Usuario gestiona historial de borradores/);
+});
+
 test("temas oscuros mantienen variantes dark y azul", () => {
   const themeContext = read("src/context/ThemeContext.jsx");
   const mainLayout = read("src/layouts/MainLayout.jsx");
   const sidebar = read("src/layouts/Sidebar.jsx");
   const styles = read("src/styles/tailwind.css");
 
-  assert.match(themeContext, /const THEMES = \["dark", "blue", "light", "liquid"\]/);
+  assert.match(themeContext, /const THEMES = \["dark", "blue", "light", "liquid", "liquid-dark"\]/);
   assert.match(themeContext, /isBlueDark: theme === "blue"/);
   assert.match(mainLayout, /oscuro azul/);
   assert.match(sidebar, /from-\[#003366\] to-\[#001f3f\]/);
   assert.match(styles, /GRAPHITE DARK THEME/);
-  assert.match(themeContext, /isLiquid: theme === "liquid"/);
+  assert.match(themeContext, /isLiquid: theme === "liquid" \|\| theme === "liquid-dark"/);
+  assert.match(themeContext, /isLiquidDark: theme === "liquid-dark"/);
+  assert.match(mainLayout, /Dark Liquid Glass/);
+  assert.match(read("src/pages/Perfil.jsx"), /setTheme\("liquid-dark"\)/);
   assert.match(mainLayout, /liquid-glass-background/);
   assert.match(mainLayout, /liquid-glass-shell/);
   assert.match(sidebar, /liquid-glass-sidebar/);
   assert.match(styles, /LIQUID GLASS THEME/);
+  assert.match(styles, /html\[data-theme="liquid-dark"\] \.liquid-glass-background/);
+  assert.match(styles, /html\[data-theme="liquid-dark"\] \.app-page-shell.*\.bg-white.*\.bg-blue-50.*\.bg-green-100/s);
+  assert.match(styles, /html\[data-theme="liquid-dark"\] \.app-page-shell :where\(\.pdf-container, \.print-area, \.pdf-page, \.pdf-table, \.document-sheet\)/);
+  assert.match(styles, /html\[data-theme="liquid-dark"\] \.app-page-shell.*document-sheet.*input, textarea, select/s);
   assert.match(styles, /prefers-reduced-motion/);
   assert.match(styles, /\.text-blue-900,\nhtml\[data-theme="dark"\].*\.text-blue-800,\nhtml\[data-theme="dark"\].*\.text-blue-700/s);
   assert.match(styles, /\.text-blue-900,\nhtml\[data-theme="blue"\].*\.text-blue-800,\nhtml\[data-theme="blue"\].*\.text-blue-700/s);
