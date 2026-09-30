@@ -6,7 +6,8 @@ import { saveOrUpdateReport } from "@/services/reportService";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
-import { leerBorrador, useAutoguardado } from "@/hooks/useAutoguardado";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
+import { useAutoguardado } from "@/hooks/useAutoguardado";
 import { ensureCompletionReady } from "@/utils/completionValidation";
 import {
   buildInitialBooleanMap,
@@ -158,14 +159,8 @@ export default function ProtocoloVCamForm() {
 
   useEffect(() => {
     if (isEditing || !user?.email) return;
-    const draft = leerBorrador(draftKey, user?.id || "anon");
-    if (draft?.datos) {
-      setData(mergeData(draft.datos));
-      return;
-    }
-
     setData((prev) => ({ ...prev, tecnicoCorreo: user.email }));
-  }, [draftKey, isEditing, user?.email, user?.id]);
+  }, [isEditing, user?.email]);
 
   const set = (field, value) => setData((prev) => ({ ...prev, [field]: value }));
   const setNested = (group, field, value) => setData((prev) => ({ ...prev, [group]: { ...prev[group], [field]: value } }));
@@ -220,6 +215,8 @@ export default function ProtocoloVCamForm() {
         </div>
         <button className="btn-volver-orange" onClick={() => navigate(PROTOCOL_BASE_PATH)}>Volver</button>
       </div>
+
+      <BannerAutoguardado clave={draftKey} onRestaurar={(datosGuardados) => setData(mergeData(datosGuardados))} isEditing={isEditing} />
 
       <div className="bg-white rounded-xl border shadow-sm p-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Camera, CheckCircle2, ClipboardCheck, Save } from "lucide-react";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
+import { useAutoguardado } from "@/hooks/useAutoguardado";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { GENERAL_FIELDS, PROTOCOLO_MAN_BASE_PATH, PROTOCOLO_MAN_BY_ID, PROTOCOLO_MAN_TIPO } from "./protocolosManConfig";
 
@@ -317,6 +319,8 @@ export default function ProtocoloManForm() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const draftKey = protocol ? `protocolo_man_${protocol.id}_new` : "";
+  const { limpiar } = useAutoguardado(draftKey, values, !saving);
 
   if (!protocol) {
     return (
@@ -348,6 +352,7 @@ export default function ProtocoloManForm() {
         },
         estado,
       });
+      limpiar();
       setMessage(estado === "completado" ? "Formulario completado y guardado." : "Borrador guardado correctamente.");
     } catch (err) {
       console.error("Error guardando protocolo MAN:", err);
@@ -375,6 +380,12 @@ export default function ProtocoloManForm() {
 
       {message && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">{message}</div>}
       {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</div>}
+
+      <BannerAutoguardado
+        clave={draftKey}
+        onRestaurar={(datosGuardados) => setValues({ fechaDocumento: today(), fechaPrincipal: today(), ...datosGuardados })}
+        isEditing={false}
+      />
 
       <div className="document-sheet space-y-4 rounded-2xl bg-slate-100 p-3 shadow-inner">
         <ProtocolHeader protocol={protocol} values={values} onChange={updateValue} />

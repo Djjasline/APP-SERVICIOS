@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import imageCompression from "browser-image-compression";
 import SignatureCanvas from "@/components/SignatureCanvasField";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
+import { useAutoguardado } from "@/hooks/useAutoguardado";
 import { uploadRegistroImage } from "@/utils/storage";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { ensureCompletionReady } from "@/utils/completionValidation";
@@ -456,6 +458,9 @@ export default function VisitaCampoForm() {
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
   const [uploadingRepuesto, setUploadingRepuesto] = useState(null);
+  const claveAutoguardado = `visita_campo_petroleo_${id ?? "new"}`;
+
+  const { limpiar } = useAutoguardado(claveAutoguardado, data, !saving && !loading);
 
   useEffect(() => {
     if (!id) return;
@@ -558,6 +563,7 @@ export default function VisitaCampoForm() {
         data,
       });
 
+      limpiar();
       setSaving(false);
       navigate(`/petroleo/visita-campo/${saved.id}`);
     } catch (error) {
@@ -578,6 +584,12 @@ export default function VisitaCampoForm() {
         </div>
         <button onClick={() => navigate("/petroleo/visita-campo")} className="btn-volver-orange py-1">Volver</button>
       </div>
+
+      <BannerAutoguardado
+        clave={claveAutoguardado}
+        onRestaurar={(datosGuardados) => setData({ ...createEmptyVisitaCampoData(), ...datosGuardados })}
+        isEditing={isEditing}
+      />
 
       <section className="grid gap-3 md:grid-cols-3">
         <label className={labelClass}>Código documento<input className={inputClass} value={data.codigoDocumento} onChange={(e) => set("codigoDocumento", e.target.value)} /></label>

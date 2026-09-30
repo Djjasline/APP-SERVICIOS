@@ -106,6 +106,23 @@ test("sql crea historial de borradores por dispositivo", () => {
   assert.match(sql, /Usuario gestiona historial de borradores/);
 });
 
+test("formularios criticos usan autoguardado restaurable", () => {
+  const protocoloMan = read("src/app/operaciones/protocoloMan/ProtocoloManForm.jsx");
+  const visitaCampo = read("src/app/petroleo/visitaCampo/VisitaCampoForm.jsx");
+  const vactor = read("src/app/vehiculos/protocolos/ProtocoloVactorForm.jsx");
+  const vcam = read("src/app/vehiculos/protocolos/ProtocoloVCamForm.jsx");
+
+  for (const source of [protocoloMan, visitaCampo, vactor, vcam]) {
+    assert.match(source, /useAutoguardado/);
+    assert.match(source, /BannerAutoguardado/);
+  }
+
+  assert.match(protocoloMan, /protocolo_man_\$\{protocol\.id\}_new/);
+  assert.match(visitaCampo, /visita_campo_petroleo_\$\{id \?\? "new"\}/);
+  assert.match(vactor, /onRestaurar=\{\(datosGuardados\) => setData\(mergeData\(datosGuardados\)\)\}/);
+  assert.match(vcam, /onRestaurar=\{\(datosGuardados\) => setData\(mergeData\(datosGuardados\)\)\}/);
+});
+
 test("temas oscuros mantienen variantes dark y azul", () => {
   const themeContext = read("src/context/ThemeContext.jsx");
   const mainLayout = read("src/layouts/MainLayout.jsx");
