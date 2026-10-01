@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { SPECIAL_MODULES, SPECIAL_MODULE_BY_KEY, SPECIAL_MODULE_BY_TIPO } from "@/constants/accessControl";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useTheme } from "@/context/ThemeContext";
+import { useAutoguardado } from "@/hooks/useAutoguardado";
 import {
   deleteRecordAccessPermission,
   getAccessProfiles,
@@ -146,6 +148,11 @@ export default function RegistroAccessAdmin() {
   const managementPermissions = useMemo(() => {
     return permissions.filter((permission) => !SPECIAL_MODULE_BY_TIPO[permission.tipo]);
   }, [permissions]);
+  const accessAutosave = useAutoguardado("admin_registro_access_permission", form, activeOption === "permisos" && !saving);
+  const specialModuleAutosave = useAutoguardado("admin_special_module_access", specialModuleForm, activeOption === "permisos" && !saving);
+  const notificationAutosave = useAutoguardado("admin_notification_recipient", notificationForm, activeOption === "notificaciones" && !saving);
+  const sequenceAutosave = useAutoguardado("admin_report_sequence", sequenceForm, activeOption === "codigos" && !sequenceSaving);
+  const codeCorrectionAutosave = useAutoguardado("admin_code_correction", codeCorrectionForm, activeOption === "codigos" && !codeCorrectionSaving);
 
   useEffect(() => {
     loadData();
@@ -244,6 +251,7 @@ export default function RegistroAccessAdmin() {
     try {
       setSaving(true);
       await saveRecordAccessPermission(form);
+      accessAutosave.limpiar();
       setMessage("Permiso de gestión guardado correctamente.");
       await loadData();
     } catch (err) {
@@ -277,6 +285,7 @@ export default function RegistroAccessAdmin() {
         can_edit: false,
         can_download: false,
       });
+      specialModuleAutosave.limpiar();
       setMessage("Permiso de área especial guardado correctamente.");
       await loadData();
     } catch (err) {
@@ -300,6 +309,7 @@ export default function RegistroAccessAdmin() {
     try {
       setSaving(true);
       await saveNotificationRecipientRule(notificationForm);
+      notificationAutosave.limpiar();
       setMessage("Destinatario de notificaciones guardado correctamente.");
       setNotificationForm(emptyNotificationForm);
       await loadData();
@@ -319,6 +329,7 @@ export default function RegistroAccessAdmin() {
     try {
       setSequenceSaving(true);
       await updateReportCodeSequence(sequenceForm.prefix, sequenceForm.last_number);
+      sequenceAutosave.limpiar();
       setMessage("Secuencia actualizada correctamente.");
       setSequenceForm(emptySequenceForm);
       await loadData();
@@ -343,6 +354,7 @@ export default function RegistroAccessAdmin() {
         codeCorrectionForm.current_code,
         codeCorrectionForm.new_code
       );
+      codeCorrectionAutosave.limpiar();
       setMessage(`Código corregido: ${result?.old_code || codeCorrectionForm.current_code} → ${result?.new_code || codeCorrectionForm.new_code}.`);
       setCodeCorrectionForm(emptyCodeCorrectionForm);
       await loadData();
@@ -429,6 +441,7 @@ export default function RegistroAccessAdmin() {
 
       {activeOption === "permisos" && (
         <>
+      <BannerAutoguardado clave="admin_special_module_access" onRestaurar={(datosGuardados) => setSpecialModuleForm({ ...emptySpecialModuleForm, ...(datosGuardados || {}) })} isEditing={false} />
       <form onSubmit={handleSpecialModuleSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
         <div>
           <h2 className="font-semibold">Áreas especiales</h2>
@@ -479,6 +492,7 @@ export default function RegistroAccessAdmin() {
         </div>
       </form>
 
+      <BannerAutoguardado clave="admin_registro_access_permission" onRestaurar={(datosGuardados) => setForm({ ...emptyForm, ...(datosGuardados || {}) })} isEditing={false} />
       <form onSubmit={handleSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
         <div>
           <h2 className="font-semibold">Gestión de registros</h2>
@@ -705,6 +719,9 @@ export default function RegistroAccessAdmin() {
       )}
 
       {activeOption === "codigos" && (
+        <>
+      <BannerAutoguardado clave="admin_code_correction" onRestaurar={(datosGuardados) => setCodeCorrectionForm({ ...emptyCodeCorrectionForm, ...(datosGuardados || {}) })} isEditing={false} />
+      <BannerAutoguardado clave="admin_report_sequence" onRestaurar={(datosGuardados) => setSequenceForm({ ...emptySequenceForm, ...(datosGuardados || {}) })} isEditing={false} />
       <form onSubmit={handleSequenceSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
         <div>
           <h2 className="font-semibold">Control de secuencias de informes</h2>
@@ -833,10 +850,12 @@ export default function RegistroAccessAdmin() {
           </div>
         )}
       </form>
+        </>
       )}
 
       {activeOption === "notificaciones" && (
         <>
+      <BannerAutoguardado clave="admin_notification_recipient" onRestaurar={(datosGuardados) => setNotificationForm({ ...emptyNotificationForm, ...(datosGuardados || {}) })} isEditing={false} />
       <form onSubmit={handleNotificationSubmit} className={`${cardClass} rounded-2xl p-5 shadow space-y-4`}>
         <div>
           <h2 className="font-semibold">Destinatarios de notificaciones</h2>

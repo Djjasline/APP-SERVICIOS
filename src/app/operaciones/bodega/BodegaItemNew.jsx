@@ -2,9 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertTriangle, PackagePlus, Save } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
+import { useAutoguardado } from "@/hooks/useAutoguardado";
 import { createWarehouseItem, WAREHOUSE_ITEM_SOURCES } from "@/services/warehouseInventoryService";
 
 const AREA_OPTIONS = ["Vehículos", "Agua", "Petróleo", "Industria", "Operaciones"];
+const DRAFT_KEY = "bodega_item_new";
 
 const EMPTY_FORM = {
   source: WAREHOUSE_ITEM_SOURCES.stock,
@@ -39,6 +42,7 @@ export default function BodegaItemNew() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const { limpiar } = useAutoguardado(DRAFT_KEY, form, isSuperAdmin && !saving);
 
   const isReference = form.source === WAREHOUSE_ITEM_SOURCES.vehicleReference;
 
@@ -55,6 +59,7 @@ export default function BodegaItemNew() {
 
     try {
       const created = await createWarehouseItem({ source: form.source, payload: form, userId: user?.id });
+      limpiar();
       navigate(`/operaciones/bodega/${form.source}/${created.id}`);
     } catch (err) {
       console.error("Error creando artículo de bodega:", err);
@@ -82,8 +87,10 @@ export default function BodegaItemNew() {
       {!isSuperAdmin ? (
         <ErrorBox message="Solo el superadministrador puede crear nuevos artículos de bodega." />
       ) : (
-        <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <>
+          <BannerAutoguardado clave={DRAFT_KEY} onRestaurar={(datosGuardados) => setForm({ ...EMPTY_FORM, ...(datosGuardados || {}) })} isEditing={false} />
+          <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="font-semibold text-slate-900">Datos principales</h3>
               <p className="text-sm text-slate-500">Define si el artículo entra al stock físico o solo a la referencia histórica.</p>
@@ -91,7 +98,7 @@ export default function BodegaItemNew() {
             <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60">
               <Save size={16} /> {saving ? "Creando..." : "Crear artículo"}
             </button>
-          </div>
+            </div>
 
           {error && <div className="mt-4"><ErrorBox message={error} /></div>}
 
@@ -149,7 +156,8 @@ export default function BodegaItemNew() {
               <Field multiline label="Notas internas" value={form.internal_notes} onChange={(value) => updateField("internal_notes", value)} />
             </div>
           </div>
-        </form>
+          </form>
+        </>
       )}
     </div>
   );

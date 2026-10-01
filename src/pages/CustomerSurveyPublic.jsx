@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
+import { useAutoguardado } from "@/hooks/useAutoguardado";
 import { getPublicSurveyByToken, submitPublicSurvey } from "@/services/customerSurveyService";
 
 const ratingFields = [
@@ -27,6 +29,9 @@ export default function CustomerSurveyPublic() {
   const [ratings, setRatings] = useState({});
   const [answers, setAnswers] = useState({});
   const [comments, setComments] = useState("");
+  const draftKey = token ? `encuesta_cliente_${token}` : "";
+  const draftPayload = useMemo(() => ({ respondent, ratings, answers, comments }), [answers, comments, ratings, respondent]);
+  const { limpiar } = useAutoguardado(draftKey, draftPayload, !submitted && !submitting);
 
   useEffect(() => {
     const load = async () => {
@@ -70,12 +75,21 @@ export default function CustomerSurveyPublic() {
       setSubmitting(true);
       setError("");
       await submitPublicSurvey(token, { respondent, ratings, answers, comments });
+      limpiar();
       setSubmitted(true);
     } catch (err) {
       setError(err.message || "No se pudo enviar la encuesta.");
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const restoreDraft = (datosGuardados) => {
+    setRespondent({ name: "", role: "", company: "", email: "", phone: "", ...(datosGuardados?.respondent || {}) });
+    setRatings(datosGuardados?.ratings || {});
+    setAnswers(datosGuardados?.answers || {});
+    setComments(datosGuardados?.comments || "");
+    setError("");
   };
 
   if (loading) {
@@ -107,6 +121,8 @@ export default function CustomerSurveyPublic() {
             <p className="mt-2 text-sm">La encuesta quedó registrada y asociada al servicio realizado.</p>
           </section>
         ) : (
+          <>
+          <BannerAutoguardado clave={draftKey} onRestaurar={restoreDraft} isEditing={false} />
           <form onSubmit={handleSubmit} className="mt-5 space-y-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <section>
               <h2 className="font-semibold">Datos de quien responde</h2>
@@ -197,6 +213,7 @@ export default function CustomerSurveyPublic() {
               {submitting ? "Enviando..." : "Enviar encuesta"}
             </button>
           </form>
+          </>
         )}
       </div>
     </main>

@@ -3,8 +3,10 @@ import { Calculator, CheckCircle2, Download, Eye, EyeOff, FileText, History, Ref
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
+import { useAutoguardado } from "@/hooks/useAutoguardado";
 import { downloadConfiguratorPdf } from "./configuratorPdf";
 import { getConfiguratorQuoteById, getConfiguratorQuoteHistory, regenerateConfiguratorQuotePdf, saveConfiguratorQuote, updateConfiguratorQuote } from "@/services/configuratorQuoteService";
 
@@ -12,6 +14,7 @@ const VACTOR_LINE_IMAGE = "/vactor-linea.png.png";
 const SPRITE_COLUMNS = 4;
 const SPRITE_ROWS = 2;
 const DRAFT_STORAGE_KEY = "astap-configurador-draft";
+const AUTOSAVE_DRAFT_KEY = "configurador_vactor";
 const PRIMARY_MODEL_IDS = ["2100i", "impact", "2100i-cb"];
 
 const MODELS = [
@@ -415,6 +418,7 @@ export default function ConfiguradorHome() {
     () => ({ quote, selectedModelId, selectedModel, config, toggles, priceSummary, items: configuredItems, hideValues, showMoreModels, usageProfileId, usageProfile }),
     [config, configuredItems, hideValues, priceSummary, quote, selectedModel, selectedModelId, showMoreModels, toggles, usageProfile, usageProfileId]
   );
+  const { forzarGuardar } = useAutoguardado(AUTOSAVE_DRAFT_KEY, quotePayload, !saving);
 
   const loadHistory = useCallback(async () => {
     setLoadingHistory(true);
@@ -638,8 +642,16 @@ export default function ConfiguradorHome() {
   const saveLocalDraft = () => {
     const payload = { ...quotePayload, savedAt: new Date().toISOString() };
     localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(payload));
+    forzarGuardar();
     setHasLocalDraft(true);
     setSavedMessage("Configuración guardada localmente para revisión.");
+  };
+
+  const restoreAutosaveDraft = (datosGuardados) => {
+    applyLocalDraft(datosGuardados);
+    setSavedMessage("Borrador del configurador restaurado correctamente.");
+    setErrorMessage("");
+    setPdfUrl("");
   };
 
   return (
@@ -691,6 +703,8 @@ export default function ConfiguradorHome() {
           </span>
         </div>
       </div>
+
+      <BannerAutoguardado clave={AUTOSAVE_DRAFT_KEY} onRestaurar={restoreAutosaveDraft} isEditing={false} />
 
       <section className={`rounded-2xl border p-4 shadow-sm ${isLight ? "border-slate-200 bg-white" : "border-white/10 bg-white/5"}`}>
         <div className="flex flex-col gap-3 border-b border-slate-200 pb-3 sm:flex-row sm:items-center sm:justify-between">

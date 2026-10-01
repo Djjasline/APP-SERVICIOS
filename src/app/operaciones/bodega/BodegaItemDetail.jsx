@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle, ClipboardList, ImageIcon, Package, QrCode, Save } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
+import { useAutoguardado } from "@/hooks/useAutoguardado";
 import { createWarehouseItemMovement, getWarehouseItemAuditLogs, getWarehouseItemDetail, getWarehouseItemMovements, updateWarehouseItemMetadata, WAREHOUSE_ITEM_SOURCES, WAREHOUSE_MOVEMENT_TYPES } from "@/services/warehouseInventoryService";
 
 const SOURCE_LABELS = {
@@ -96,6 +98,10 @@ export default function BodegaItemDetail() {
   const canEdit = isSuperAdmin;
   const itemUrl = typeof window === "undefined" ? "" : `${window.location.origin}/operaciones/bodega/${source}/${id}`;
   const qrUrl = itemUrl ? `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(itemUrl)}` : "";
+  const detailDraftKey = source && id ? `bodega_item_${source}_${id}` : "";
+  const movementDraftKey = source && id ? `bodega_movimiento_${source}_${id}` : "";
+  const detailAutosave = useAutoguardado(detailDraftKey, form, canEdit && Boolean(item) && !loading && !saving);
+  const movementAutosave = useAutoguardado(movementDraftKey, movementForm, canEdit && Boolean(item) && !loading && !savingMovement);
 
   useEffect(() => {
     let cancelled = false;
@@ -165,6 +171,7 @@ export default function BodegaItemDetail() {
       const updated = await updateWarehouseItemMetadata({ source, id, payload: form, userId: user?.id });
       setItem(updated);
       setForm(toForm(updated));
+      detailAutosave.limpiar();
       setMessage("Ficha actualizada correctamente.");
       if (!auditUnavailable) {
         try {
@@ -200,6 +207,7 @@ export default function BodegaItemDetail() {
         setItem((current) => current ? { ...current, physical_stock: movement.stock_after } : current);
       }
       setMovementForm(EMPTY_MOVEMENT);
+      movementAutosave.limpiar();
     } catch (err) {
       console.error("Error registrando movimiento de bodega:", err);
       setMovementError(["42P01", "42883", "42703"].includes(err?.code) ? "Falta ejecutar el SQL actualizado de movimientos de bodega en Supabase." : err?.message || "No se pudo registrar el movimiento.");
@@ -229,6 +237,7 @@ export default function BodegaItemDetail() {
         <ErrorBox message={error} />
       ) : item ? (
         <>
+          <BannerAutoguardado clave={detailDraftKey} onRestaurar={(datosGuardados) => setForm({ ...EMPTY_FORM, ...(datosGuardados || {}) })} isEditing={false} />
           <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex flex-col gap-4 md:flex-row">
@@ -380,6 +389,8 @@ export default function BodegaItemDetail() {
             </div>
 
             {canEdit && (
+              <>
+              <BannerAutoguardado clave={movementDraftKey} onRestaurar={(datosGuardados) => setMovementForm({ ...EMPTY_MOVEMENT, ...(datosGuardados || {}) })} isEditing={false} />
               <form onSubmit={handleMovementSubmit} className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
                 {movementError && <div className="mb-4"><ErrorBox message={movementError} /></div>}
                 <div className="grid gap-4 md:grid-cols-3">
@@ -411,6 +422,7 @@ export default function BodegaItemDetail() {
                   {getMovementStockHint(movementForm.movement_type, isReference)}
                 </p>
               </form>
+              </>
             )}
 
             <div className="mt-4 overflow-x-auto">

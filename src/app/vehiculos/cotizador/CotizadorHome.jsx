@@ -2,8 +2,10 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, Calculator, FileText, History, Package, Plus, Printer, RefreshCw, Save, Search, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import SignatureCanvas from "@/components/SignatureCanvasField";
+import { useAutoguardado } from "@/hooks/useAutoguardado";
 import { getVehicleReferenceCatalog, getWarehouseInventory, WAREHOUSE_ITEM_SOURCES } from "@/services/warehouseInventoryService";
 import { getVehicleServiceQuoteById, getVehicleServiceQuoteHistory, regenerateVehicleServiceQuotePdf, saveVehicleServiceQuote, updateVehicleServiceQuote } from "@/services/vehicleServiceQuoteService";
 
@@ -15,6 +17,7 @@ const EMPTY_SERVICE = {
 
 const DEFAULT_CPC_CODE = "871410018";
 const DEFAULT_CPC_DESCRIPTION = "SERVICIOS DE MANTENIMIENTO CORRECTIVO Y REPARACION DE VEHICULOS DE MOTOR";
+const DRAFT_KEY = "cotizador_vehiculos";
 
 const EMPTY_OFFER = {
   proformaNo: "",
@@ -113,6 +116,8 @@ export default function CotizadorHome() {
   const iva = subtotal * 0.12;
   const total = subtotal + iva;
   const approvalCount = useMemo(() => lines.filter((line) => line.approvalRequired).length, [lines]);
+  const draftPayload = useMemo(() => ({ offer, lines, serviceForm, editingQuoteId }), [editingQuoteId, lines, offer, serviceForm]);
+  const { limpiar } = useAutoguardado(DRAFT_KEY, draftPayload, !savingQuote);
 
   const loadItems = async () => {
     setLoading(true);
@@ -249,10 +254,20 @@ export default function CotizadorHome() {
   };
 
   const resetQuote = () => {
+    limpiar();
     setOffer(EMPTY_OFFER);
     setLines([]);
+    setServiceForm(EMPTY_SERVICE);
     setEditingQuoteId("");
     setMessage("Cotización reiniciada.");
+  };
+
+  const restoreDraft = (datosGuardados) => {
+    setOffer({ ...EMPTY_OFFER, ...(datosGuardados?.offer || {}), signatures: { ...EMPTY_OFFER.signatures, ...(datosGuardados?.offer?.signatures || {}) } });
+    setLines(Array.isArray(datosGuardados?.lines) ? datosGuardados.lines : []);
+    setServiceForm({ ...EMPTY_SERVICE, ...(datosGuardados?.serviceForm || {}) });
+    setEditingQuoteId(datosGuardados?.editingQuoteId || "");
+    setMessage("Borrador de cotización restaurado.");
   };
 
   const retryPdf = async (id) => {
@@ -292,6 +307,8 @@ export default function CotizadorHome() {
         <p className="font-semibold">Cotizador independiente del configurador de equipos nuevos.</p>
         <p className="mt-1">Los repuestos se cruzan con Bodega. Cualquier salida, reserva o uso de stock deberá pasar por aprobación antes de afectar inventario.</p>
       </section>
+
+      <BannerAutoguardado clave={DRAFT_KEY} onRestaurar={restoreDraft} isEditing={false} />
 
       <section className="no-print rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

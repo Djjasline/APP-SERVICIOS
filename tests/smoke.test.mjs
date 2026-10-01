@@ -111,8 +111,15 @@ test("formularios criticos usan autoguardado restaurable", () => {
   const visitaCampo = read("src/app/petroleo/visitaCampo/VisitaCampoForm.jsx");
   const vactor = read("src/app/vehiculos/protocolos/ProtocoloVactorForm.jsx");
   const vcam = read("src/app/vehiculos/protocolos/ProtocoloVCamForm.jsx");
+  const bodegaNew = read("src/app/operaciones/bodega/BodegaItemNew.jsx");
+  const bodegaDetail = read("src/app/operaciones/bodega/BodegaItemDetail.jsx");
+  const clientes = read("src/app/operaciones/clientes/ClientesHome.jsx");
+  const cotizador = read("src/app/vehiculos/cotizador/CotizadorHome.jsx");
+  const configurador = read("src/app/vehiculos/configurador/ConfiguradorHome.jsx");
+  const encuesta = read("src/pages/CustomerSurveyPublic.jsx");
+  const admin = read("src/pages/admin/RegistroAccessAdmin.jsx");
 
-  for (const source of [protocoloMan, visitaCampo, vactor, vcam]) {
+  for (const source of [protocoloMan, visitaCampo, vactor, vcam, bodegaNew, bodegaDetail, clientes, cotizador, configurador, encuesta, admin]) {
     assert.match(source, /useAutoguardado/);
     assert.match(source, /BannerAutoguardado/);
   }
@@ -121,6 +128,14 @@ test("formularios criticos usan autoguardado restaurable", () => {
   assert.match(visitaCampo, /visita_campo_petroleo_\$\{id \?\? "new"\}/);
   assert.match(vactor, /onRestaurar=\{\(datosGuardados\) => setData\(mergeData\(datosGuardados\)\)\}/);
   assert.match(vcam, /onRestaurar=\{\(datosGuardados\) => setData\(mergeData\(datosGuardados\)\)\}/);
+  assert.match(bodegaNew, /DRAFT_KEY = "bodega_item_new"/);
+  assert.match(bodegaDetail, /bodega_movimiento_\$\{source\}_\$\{id\}/);
+  assert.match(clientes, /clientes_new/);
+  assert.match(cotizador, /DRAFT_KEY = "cotizador_vehiculos"/);
+  assert.match(configurador, /AUTOSAVE_DRAFT_KEY = "configurador_vactor"/);
+  assert.match(encuesta, /encuesta_cliente_\$\{token\}/);
+  assert.match(admin, /admin_registro_access_permission/);
+  assert.match(admin, /admin_notification_recipient/);
 });
 
 test("temas oscuros mantienen variantes dark y azul", () => {

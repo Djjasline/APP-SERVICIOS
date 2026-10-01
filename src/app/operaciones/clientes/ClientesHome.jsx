@@ -2,6 +2,8 @@ import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Building2, CheckCircle2, Edit3, Plus, RefreshCw, Search, Trash2, XCircle } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
+import BannerAutoguardado from "@/components/BannerAutoguardado";
+import { useAutoguardado } from "@/hooks/useAutoguardado";
 import {
   createClientReference,
   deleteClientReference,
@@ -37,6 +39,8 @@ export default function ClientesHome() {
   const [form, setForm] = useState(EMPTY_FORM);
 
   const editing = Boolean(form.id);
+  const draftKey = editing ? `clientes_${form.id}` : "clientes_new";
+  const { limpiar } = useAutoguardado(draftKey, form, !saving);
   const activeCount = useMemo(() => clients.filter((client) => client.active !== false).length, [clients]);
 
   const loadClients = async () => {
@@ -63,6 +67,7 @@ export default function ClientesHome() {
   };
 
   const resetForm = () => {
+    limpiar();
     setForm(EMPTY_FORM);
     setMessage("");
   };
@@ -93,6 +98,7 @@ export default function ClientesHome() {
         await createClientReference(form);
         setMessage("Cliente creado correctamente.");
       }
+      limpiar();
       setForm(EMPTY_FORM);
       await loadClients();
     } catch (err) {
@@ -222,6 +228,8 @@ export default function ClientesHome() {
               <Plus size={13} /> Nuevo
             </button>
           </div>
+
+          <BannerAutoguardado clave={draftKey} onRestaurar={(datosGuardados) => setForm({ ...EMPTY_FORM, ...(datosGuardados || {}) })} isEditing={false} />
 
           <form onSubmit={saveClient} className="space-y-3">
             <Field label="Nombre del cliente" value={form.name} onChange={(value) => updateField("name", value)} required />
