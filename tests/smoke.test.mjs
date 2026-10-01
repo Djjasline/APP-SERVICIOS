@@ -261,6 +261,10 @@ test("dashboard de exito mantiene actividad diaria visible", () => {
   assert.match(dashboard, /getGeneralDashboard/);
   assert.match(dashboard, /Vista operativa diaria/);
   assert.match(dashboard, /OperationalSnapshot/);
+  assert.match(dashboard, /function scrollToDashboardSection/);
+  assert.match(dashboard, /onClick=\{\(\) => scrollToDashboardSection\("dashboard-status"\)\}/);
+  assert.match(dashboard, /onClick=\{\(\) => onNavigate\("\/notifications"\)\}/);
+  assert.match(dashboard, /title=\{onClick \? `Ver detalle: \$\{label\}` : undefined\}/);
   assert.match(dashboard, /Alertas importantes/);
   assert.match(dashboard, /Actividad reciente/);
   assert.match(dashboard, /<BarChart data=\{dashboard\.dailyActivity\}/);

@@ -179,6 +179,10 @@ function downloadCsv(filename, rows) {
   URL.revokeObjectURL(url);
 }
 
+function scrollToDashboardSection(sectionId) {
+  document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 export default function AdminSuccessDashboard() {
   const navigate = useNavigate();
   const { email, user } = useAuth();
@@ -462,12 +466,12 @@ export default function AdminSuccessDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-        <MetricCard icon={FileText} label="Informes totales" value={dashboard.totals.total} detail="100% del total" color="bg-blue-600" />
-        <MetricCard icon={CheckSquare} label="Completados" value={dashboard.totals.completado} detail={`${percent(dashboard.totals.completado, dashboard.totals.total)} del total`} color="bg-green-600" />
-        <MetricCard icon={FileText} label="Borradores" value={dashboard.totals.borrador} detail={`${percent(dashboard.totals.borrador, dashboard.totals.total)} del total`} color="bg-amber-500" />
-        <MetricCard icon={ArrowRightFromLine} label="Salidas" value={dashboard.totals.salida} detail={`${percent(dashboard.totals.salida, dashboard.totals.total)} del total`} color="bg-violet-600" />
-        <MetricCard icon={Users} label="Áreas activas" value={dashboard.activeAreas} detail="En uso de la plataforma" color="bg-blue-700" />
-        <MetricCard icon={Users} label="Usuarios Recursos" value={dashboard.resourceUsage.users} detail={`${formatNumber(dashboard.resourceUsage.total)} accesos`} color="bg-purple-700" />
+        <MetricCard icon={FileText} label="Informes totales" value={dashboard.totals.total} detail="100% del total" color="bg-blue-600" onClick={() => scrollToDashboardSection("dashboard-area-status")} />
+        <MetricCard icon={CheckSquare} label="Completados" value={dashboard.totals.completado} detail={`${percent(dashboard.totals.completado, dashboard.totals.total)} del total`} color="bg-green-600" onClick={() => scrollToDashboardSection("dashboard-status")} />
+        <MetricCard icon={FileText} label="Borradores" value={dashboard.totals.borrador} detail={`${percent(dashboard.totals.borrador, dashboard.totals.total)} del total`} color="bg-amber-500" onClick={() => scrollToDashboardSection("dashboard-status")} />
+        <MetricCard icon={ArrowRightFromLine} label="Salidas" value={dashboard.totals.salida} detail={`${percent(dashboard.totals.salida, dashboard.totals.total)} del total`} color="bg-violet-600" onClick={() => scrollToDashboardSection("dashboard-status")} />
+        <MetricCard icon={Users} label="Áreas activas" value={dashboard.activeAreas} detail="En uso de la plataforma" color="bg-blue-700" onClick={() => scrollToDashboardSection("dashboard-area-summary")} />
+        <MetricCard icon={Users} label="Usuarios Recursos" value={dashboard.resourceUsage.users} detail={`${formatNumber(dashboard.resourceUsage.total)} accesos`} color="bg-purple-700" onClick={() => scrollToDashboardSection("dashboard-resources")} />
       </div>
 
       <OperationalSnapshot
@@ -480,13 +484,13 @@ export default function AdminSuccessDashboard() {
       />
 
       <div className="grid gap-4 xl:grid-cols-[1.15fr_1.15fr_0.85fr]">
-        <Panel title="1. Distribución por área y estado">
+        <Panel id="dashboard-area-status" title="1. Distribución por área y estado">
           <AreaTable rows={dashboard.areaRows} total={dashboard.totals.total} />
         </Panel>
-        <Panel title="2. Evolución de informes en el tiempo">
+        <Panel id="dashboard-timeline" title="2. Evolución de informes en el tiempo">
           <LineChart data={dashboard.daily} />
         </Panel>
-        <Panel title="3. Distribución por estado">
+        <Panel id="dashboard-status" title="3. Distribución por estado">
           <DonutChart
             items={[
               { label: STATUS_META.completado.label, value: dashboard.totals.completado, color: STATUS_META.completado.color },
@@ -499,13 +503,13 @@ export default function AdminSuccessDashboard() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-[0.9fr_0.9fr_1fr]">
-        <Panel title="4. Uso de Recursos">
+        <Panel id="dashboard-resources" title="4. Uso de Recursos">
           <ResourceUsageTable usage={dashboard.resourceUsage} isLight={isLight} />
         </Panel>
-        <Panel title="5. Informes por área">
+        <Panel id="dashboard-area-summary" title="5. Informes por área">
           <DonutChart items={dashboard.areaRows.map((row) => ({ label: row.label, value: row.total, color: row.color }))} total={dashboard.totals.total} />
         </Panel>
-        <Panel title="6. Actividad diaria de informes">
+        <Panel id="dashboard-daily-activity" title="6. Actividad diaria de informes">
           <BarChart data={dashboard.dailyActivity} />
         </Panel>
       </div>
@@ -537,9 +541,16 @@ export default function AdminSuccessDashboard() {
   );
 }
 
-function MetricCard({ icon: Icon, label, value, detail, color }) {
+function MetricCard({ icon: Icon, label, value, detail, color, onClick }) {
+  const Component = onClick ? "button" : "div";
+
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <Component
+      type={onClick ? "button" : undefined}
+      onClick={onClick}
+      className="group w-full rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+      title={onClick ? `Ver detalle: ${label}` : undefined}
+    >
       <div className="flex items-center gap-4">
         <div className={`flex h-14 w-14 items-center justify-center rounded-full ${color} text-white`}>
           <Icon size={30} />
@@ -548,9 +559,10 @@ function MetricCard({ icon: Icon, label, value, detail, color }) {
           <p className="text-xs font-black uppercase text-blue-700">{label}</p>
           <p className="text-3xl font-black text-slate-900">{formatNumber(value)}</p>
           <p className="text-xs text-slate-600">{detail}</p>
+          {onClick && <p className="mt-1 text-[10px] font-bold uppercase text-blue-500 opacity-0 transition group-hover:opacity-100 group-focus:opacity-100">Ver detalle</p>}
         </div>
       </div>
-    </div>
+    </Component>
   );
 }
 
@@ -588,14 +600,14 @@ function OperationalSnapshot({ dashboard, error, loading, onNavigate, onRefresh,
         {error && <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">{error}</div>}
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <OperationalMetric icon={FileText} label="Informes hoy" value={metrics.reportsToday} detail="Creados durante la jornada" color="text-blue-600" />
-          <OperationalMetric icon={ClipboardList} label="Borradores" value={metrics.draftReports} detail="Pendientes visibles" color="text-amber-600" />
-          <OperationalMetric icon={Bell} label="Notificaciones" value={metrics.unreadNotifications} detail="Avisos sin leer" color="text-purple-600" />
-          <OperationalMetric icon={Package} label="Stock bajo" value={metrics.lowStockItems} detail={`${formatNumber(metrics.warehouseItems)} artículos visibles`} color="text-red-600" />
+          <OperationalMetric icon={FileText} label="Informes hoy" value={metrics.reportsToday} detail="Creados durante la jornada" color="text-blue-600" onClick={() => scrollToDashboardSection("dashboard-recent-activity")} />
+          <OperationalMetric icon={ClipboardList} label="Borradores" value={metrics.draftReports} detail="Pendientes visibles" color="text-amber-600" onClick={() => scrollToDashboardSection("dashboard-operational-alerts")} />
+          <OperationalMetric icon={Bell} label="Notificaciones" value={metrics.unreadNotifications} detail="Avisos sin leer" color="text-purple-600" onClick={() => onNavigate("/notifications")} />
+          <OperationalMetric icon={Package} label="Stock bajo" value={metrics.lowStockItems} detail={`${formatNumber(metrics.warehouseItems)} artículos visibles`} color="text-red-600" onClick={() => onNavigate("/operaciones/bodega")} />
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div id="dashboard-operational-alerts" className="scroll-mt-24 rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h4 className="text-xs font-black uppercase text-blue-900">Alertas importantes</h4>
               <span className="text-[10px] font-bold uppercase text-slate-400">Hoy</span>
@@ -603,7 +615,7 @@ function OperationalSnapshot({ dashboard, error, loading, onNavigate, onRefresh,
             {loading ? <LoadingLine text="Cargando alertas..." /> : <OperationalAlerts alerts={dashboard?.alerts || []} onNavigate={onNavigate} />}
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div id="dashboard-recent-activity" className="scroll-mt-24 rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h4 className="text-xs font-black uppercase text-blue-900">Actividad reciente</h4>
               {!hasTechnicianFilter && (
@@ -629,18 +641,26 @@ function OperationalSnapshot({ dashboard, error, loading, onNavigate, onRefresh,
   );
 }
 
-function OperationalMetric({ icon: Icon, label, value, detail, color }) {
+function OperationalMetric({ icon: Icon, label, value, detail, color, onClick }) {
+  const Component = onClick ? "button" : "div";
+
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+    <Component
+      type={onClick ? "button" : undefined}
+      onClick={onClick}
+      className="group w-full rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+      title={onClick ? `Ver detalle: ${label}` : undefined}
+    >
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[10px] font-black uppercase text-slate-500">{label}</p>
           <p className="mt-1 text-2xl font-black text-slate-900">{formatNumber(value)}</p>
           <p className="text-xs text-slate-500">{detail}</p>
+          {onClick && <p className="mt-1 text-[10px] font-bold uppercase text-blue-500 opacity-0 transition group-hover:opacity-100 group-focus:opacity-100">Abrir</p>}
         </div>
         <Icon size={24} className={color} />
       </div>
-    </div>
+    </Component>
   );
 }
 
@@ -707,9 +727,9 @@ function OperationalActivity({ items, onNavigate }) {
   );
 }
 
-function Panel({ title, children }) {
+function Panel({ id, title, children }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div id={id} className="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <h3 className="mb-4 text-sm font-black uppercase text-blue-900">{title}</h3>
       {children}
     </div>
