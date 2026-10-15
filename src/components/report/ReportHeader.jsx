@@ -7,7 +7,7 @@ export default function ReportHeader({ data, onChange, reportConfig }) {
     "Instalación y cambio de repuestos, montaje de elementos y reparación de sistemas. No aplica para inspección ni mantenimiento de equipos.";
   const referenciaPlaceholder = "Ej: información dada por el asesor comercial, gestor interno del área de operaciones o dentro de la base de datos";
   const pedidoDemandaPlaceholder = "Ej: P-23-046 o D-45821";
-  const descripcionPlaceholder = "Ej: Servicio asignado en ticket de servicio";
+  const descripcionPlaceholder = "Ej: Inspección visual y prueba funcional. No incluye desmontaje interno.";
   const codInfPlaceholder = "Ej: P23-046- número de equipo - 001 (secuencia del servicio)";
 
   return (
@@ -99,9 +99,9 @@ export default function ReportHeader({ data, onChange, reportConfig }) {
           </td>
         </tr>
 
-        {/* DESCRIPCIÓN */}
+        {/* ALCANCE */}
         <tr>
-          <td className="pdf-label">DESCRIPCIÓN</td>
+          <td className="pdf-label">ALCANCE DEL TRABAJO</td>
           <td colSpan={2}>
             <AutoResizeInput
               className="pdf-input w-full"

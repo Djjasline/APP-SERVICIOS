@@ -164,7 +164,12 @@ export function PdfEquipmentImageFrame({ src, alt, points = [] }) {
   );
 }
 
-export function PdfConclusionRecommendationTable({ conclusiones = [], recomendaciones = [], styles }) {
+export function PdfConclusionRecommendationTable({
+  conclusiones = [],
+  recomendaciones = [],
+  recommendationDetails = [],
+  styles,
+}) {
   const rowCount = Math.max(conclusiones.length, recomendaciones.length);
   const rows = Array.from({ length: rowCount }, (_, index) => index);
 
@@ -188,7 +193,16 @@ export function PdfConclusionRecommendationTable({ conclusiones = [], recomendac
             <td style={{ ...styles.cell, width: "50%", whiteSpace: "pre-wrap", verticalAlign: "middle" }}>
               <div style={{ display: "flex", alignItems: "center", minHeight: 80 }}>
                 <span style={{ width: 28, flexShrink: 0, textAlign: "center", fontWeight: 700 }}>{index + 1}</span>
-                <span>{recomendaciones[index] || "—"}</span>
+                <div>
+                  <div>{recomendaciones[index] || "—"}</div>
+                  {(recommendationDetails[index]?.responsable || recommendationDetails[index]?.finalidad || recommendationDetails[index]?.prioridad) && (
+                    <div style={{ marginTop: 6, fontSize: 9, lineHeight: 1.35, color: "#374151" }}>
+                      {recommendationDetails[index]?.responsable && <div><strong>Responsable:</strong> {recommendationDetails[index].responsable}</div>}
+                      {recommendationDetails[index]?.finalidad && <div><strong>Finalidad:</strong> {recommendationDetails[index].finalidad}</div>}
+                      {recommendationDetails[index]?.prioridad && <div><strong>Prioridad:</strong> {recommendationDetails[index].prioridad}</div>}
+                    </div>
+                  )}
+                </div>
               </div>
             </td>
           </tr>

@@ -88,6 +88,17 @@ function ActivityContractItemsTablePdf({ table }) {
   );
 }
 
+function hasTestData(test) {
+  return [test?.tipo, test?.procedimiento, test?.resultado, test?.cierre]
+    .some((value) => String(value || "").trim());
+}
+
+const operationalStatusLabels = {
+  operativo: "OPERATIVO",
+  restringido: "RESTRINGIDO",
+  "no-operativo": "NO OPERATIVO",
+};
+
 export default function InformePDF({ allowDownload = true, backPath = null, reportType = "informe" }) {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -322,7 +333,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                 <td colSpan={2} style={S.cell}>{data.referenciaContrato || "—"}</td>
               </tr>
               <tr>
-                <td style={S.label}>DESCRIPCIÓN</td>
+                <td style={S.label}>ALCANCE DEL TRABAJO</td>
                 <td colSpan={2} style={S.cell}>{data.descripcion || "—"}</td>
               </tr>
               {/* PEDIDO / DEMANDA */}
@@ -399,12 +410,12 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         <div>
           {estadoEquipoImagenes.length === 0 ? (
             <div className="no-break" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
-            <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>
+            <p style={S.sectionTitle}>3. ESTADO INICIAL DEL EQUIPO</p>
             <table style={S.tbl}>
               <tbody>
                 <tr>
-                  <td style={{ ...S.cell, textAlign: "center", color: "#6b7280", padding: "6px 8px" }}>
-                    Sin registros de estado del equipo
+                  <td style={{ ...S.cell, whiteSpace: "pre-wrap", padding: "6px 8px" }}>
+                    {data.estadoInicial || "Sin descripción del estado inicial"}
                   </td>
                 </tr>
               </tbody>
@@ -417,7 +428,12 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                 className="no-break"
                 style={{ marginTop: 4, breakInside: "avoid", pageBreakInside: "avoid" }}
               >
-                {imageIndex === 0 && <p style={S.sectionTitle}>ESTADO DEL EQUIPO</p>}
+                {imageIndex === 0 && <p style={S.sectionTitle}>3. ESTADO INICIAL DEL EQUIPO</p>}
+                {imageIndex === 0 && data.estadoInicial && (
+                  <div style={{ ...S.cell, whiteSpace: "pre-wrap", marginBottom: 8 }}>
+                    {data.estadoInicial}
+                  </div>
+                )}
                 <div style={{ fontSize: 10, fontWeight: 700, color: "#111827", marginBottom: 2 }}>
                   Imagen {imageIndex + 1}
                 </div>
@@ -447,13 +463,13 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
         ════════════════════ */}
         {/* <div className="page-break" /> */}
 
-        <p style={{ ...S.sectionTitle, marginTop: 0 }}>ACTIVIDADES REALIZADAS Y HALLAZGOS</p>
+        <p style={{ ...S.sectionTitle, marginTop: 0 }}>4. TRABAJO REALIZADO Y 5. HALLAZGOS TÉCNICOS</p>
 
         <table className="activities-table" style={S.tbl}>
           <thead>
             <tr>
               <th style={{ ...S.th, width: 40 }}>ÍTEM</th>
-              <th style={{ ...S.th, width: "32%" }}>ACTIVIDAD / HALLAZGO</th>
+              <th style={{ ...S.th, width: "32%" }}>TRABAJO / HALLAZGO</th>
               <th style={S.th}>IMÁGENES</th>
             </tr>
           </thead>
@@ -462,20 +478,28 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
               <tr key={i}>
                 <td style={{ ...S.cell, textAlign: "center", verticalAlign: "top" }}>{i + 1}</td>
                 <td style={{ ...S.cell, verticalAlign: "top" }}>
-                  <strong>{a.titulo || "—"}</strong>
-                  <div style={{ whiteSpace: "pre-wrap", marginTop: 5, fontSize: 11 }}>{a.detalle || "—"}</div>
+                  <strong>Trabajo realizado: {a.titulo || "—"}</strong>
+                  <div style={{ whiteSpace: "pre-wrap", marginTop: 5, fontSize: 11 }}>
+                    <strong>Hallazgo técnico: </strong>{a.detalle || "—"}
+                  </div>
                   <ActivityContractItemsTablePdf table={a.contractItemsTable} />
                 </td>
                 <td style={{ ...S.cell, verticalAlign: "top" }}>
                   {a.imagenes?.length > 0 ? (
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8 }}>
                       {a.imagenes.map((imgSrc, imgIndex) => (
-                        <img
-                          key={imgIndex}
-                          src={imgSrc}
-                          alt={`act-${i + 1}-${imgIndex + 1}`}
-                          style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", border: "1px solid #d1d5db", borderRadius: 4, display: "block" }}
-                        />
+                        <div key={imgIndex}>
+                          <img
+                            src={imgSrc}
+                            alt={`act-${i + 1}-${imgIndex + 1}`}
+                            style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", border: "1px solid #d1d5db", borderRadius: 4, display: "block" }}
+                          />
+                          {a.descripcionesImagenes?.[imgIndex] && (
+                            <div style={{ marginTop: 3, fontSize: 9, lineHeight: 1.2, color: "#374151" }}>
+                              {a.descripcionesImagenes[imgIndex]}
+                            </div>
+                          )}
+                        </div>
                       ))}
                     </div>
                   ) : (
@@ -487,13 +511,57 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
           </tbody>
         </table>
 
+        <p style={S.sectionTitle}>6. PRUEBAS REALIZADAS Y RESULTADOS</p>
+        <table style={S.tbl}>
+          <thead>
+            <tr>
+              <th style={S.th}>QUÉ</th>
+              <th style={S.th}>CÓMO</th>
+              <th style={S.th}>RESULTADO</th>
+              <th style={S.th}>CIERRE</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(data.pruebas || []).filter(hasTestData).length > 0 ? (
+              (data.pruebas || []).filter(hasTestData).map((prueba, index) => (
+                <tr key={index}>
+                  <td style={{ ...S.cell, whiteSpace: "pre-wrap" }}>{prueba.tipo || "—"}</td>
+                  <td style={{ ...S.cell, whiteSpace: "pre-wrap" }}>{prueba.procedimiento || "—"}</td>
+                  <td style={{ ...S.cell, whiteSpace: "pre-wrap" }}>{prueba.resultado || "—"}</td>
+                  <td style={{ ...S.cell, whiteSpace: "pre-wrap" }}>{prueba.cierre || "—"}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={4} style={{ ...S.cell, textAlign: "center", color: "#6b7280" }}>
+                  Sin pruebas registradas
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+
         <InspectionPartsAnnexPdf rows={data.anexoItems} styles={S} enabled={data.incluirAnexoItems !== false} />
 
         {/* ════════════════════
             CONCLUSIONES / RECOMENDACIONES
         ════════════════════ */}
         <div className="no-break">
-          <PdfConclusionRecommendationTable conclusiones={data.conclusiones} recomendaciones={data.recomendaciones} styles={S} />
+          <p style={S.sectionTitle}>7. CONCLUSIÓN TÉCNICA Y 8. RECOMENDACIONES</p>
+          <table style={S.tbl}>
+            <tbody>
+              <tr>
+                <td style={S.label}>ESTADO OPERATIVO</td>
+                <td style={S.cell}>{operationalStatusLabels[data.estadoOperativo] || "No definido"}</td>
+              </tr>
+            </tbody>
+          </table>
+          <PdfConclusionRecommendationTable
+            conclusiones={data.conclusiones}
+            recomendaciones={data.recomendaciones}
+            recommendationDetails={data.recommendationDetails}
+            styles={S}
+          />
         </div>
 
        {/* ════════════════════

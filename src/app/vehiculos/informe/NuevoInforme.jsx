@@ -53,6 +53,19 @@ const createDefaultContractItemsTable = () => ({
   additionalTables: [],
 });
 
+const createDefaultTest = () => ({
+  tipo: "",
+  procedimiento: "",
+  resultado: "",
+  cierre: "",
+});
+
+const createDefaultRecommendationDetail = () => ({
+  responsable: "",
+  finalidad: "",
+  prioridad: "",
+});
+
 const getContractItemsTables = (table) => {
   if (!table) return [];
   return [
@@ -143,19 +156,23 @@ export default function NuevoInforme({ reportType = "informe" }) {
     tecnicoTelefono: "",
     tecnicoCorreo: "",
 
-    // Estado del equipo
+    // Estado inicial del equipo
+    estadoInicial: "",
     estadoEquipo: {
       imagenes: [],
     },
 
     // Actividades
-    actividades: [{ titulo: "", detalle: "", imagenes: [] }],
+    actividades: [{ titulo: "", detalle: "", imagenes: [], descripcionesImagenes: [] }],
+    pruebas: [createDefaultTest()],
     incluirAnexoItems: true,
     anexoItems: createDefaultPartsAnnexRows(),
 
     // Cierre
     conclusiones: [""],
     recomendaciones: [""],
+    recommendationDetails: [createDefaultRecommendationDetail()],
+    estadoOperativo: "",
 
     // Equipo
     equipo: {
@@ -308,9 +325,25 @@ useEffect(() => {
               titulo: a?.titulo || "",
               detalle: a?.detalle || "",
               imagenes: Array.isArray(a?.imagenes) ? a.imagenes : [],
+              descripcionesImagenes: Array.isArray(a?.descripcionesImagenes)
+                ? a.descripcionesImagenes
+                : [],
               contractItemsTable: normalizeContractItemsTable(a?.contractItemsTable),
             }))
-          : [{ titulo: "", detalle: "", imagenes: [], contractItemsTable: null }],
+          : [{ titulo: "", detalle: "", imagenes: [], descripcionesImagenes: [], contractItemsTable: null }],
+        pruebas: Array.isArray(report.data?.pruebas) && report.data.pruebas.length > 0
+          ? report.data.pruebas.map((prueba) => ({
+              tipo: prueba?.tipo || "",
+              procedimiento: prueba?.procedimiento || "",
+              resultado: prueba?.resultado || "",
+              cierre: prueba?.cierre || "",
+            }))
+          : [createDefaultTest()],
+        recommendationDetails: (report.data?.recomendaciones || [""]).map((_, index) => ({
+          responsable: report.data?.recommendationDetails?.[index]?.responsable || "",
+          finalidad: report.data?.recommendationDetails?.[index]?.finalidad || "",
+          prioridad: report.data?.recommendationDetails?.[index]?.prioridad || "",
+        })),
         firmas: {
           tecnico: report.data?.firmas?.tecnico || "",
           cliente: report.data?.firmas?.cliente || "",
@@ -404,9 +437,13 @@ useEffect(() => {
           : [];
 
         if (imagenes.length >= 4) return prev;
-if (imagenes.includes(url)) return prev;
+        if (imagenes.includes(url)) return prev;
         imagenes.push(url);
         actividad.imagenes = imagenes;
+        actividad.descripcionesImagenes = [
+          ...(Array.isArray(actividad.descripcionesImagenes) ? actividad.descripcionesImagenes : []),
+          "",
+        ];
         copy.actividades[actividadIndex] = actividad;
 
         return copy;
@@ -565,7 +602,7 @@ const updateEstadoEquipoPointObservation = (imageId, pointId, value) => {
       ...prev,
       actividades: [
         ...prev.actividades,
-        { titulo: "", detalle: "", imagenes: [], contractItemsTable: null },
+        { titulo: "", detalle: "", imagenes: [], descripcionesImagenes: [], contractItemsTable: null },
       ],
     }));
 
@@ -636,6 +673,20 @@ const updateEstadoEquipoPointObservation = (imageId, pointId, value) => {
       actividades: prev.actividades.filter((_, i) => i !== index),
     }));
 
+  const addTest = () =>
+    setData((prev) => ({
+      ...prev,
+      pruebas: [...(prev.pruebas || []), createDefaultTest()],
+    }));
+
+  const removeTest = (index) =>
+    setData((prev) => ({
+      ...prev,
+      pruebas: (prev.pruebas || []).length > 1
+        ? prev.pruebas.filter((_, i) => i !== index)
+        : [createDefaultTest()],
+    }));
+
   /* ===========================
      CONCLUSIONES / RECOMENDACIONES
   =========================== */
@@ -644,6 +695,10 @@ const updateEstadoEquipoPointObservation = (imageId, pointId, value) => {
       ...prev,
       conclusiones: [...prev.conclusiones, ""],
       recomendaciones: [...prev.recomendaciones, ""],
+      recommendationDetails: [
+        ...(prev.recommendationDetails || []),
+        createDefaultRecommendationDetail(),
+      ],
     }));
 
   const removeConclusionRow = (index) =>
@@ -651,6 +706,7 @@ const updateEstadoEquipoPointObservation = (imageId, pointId, value) => {
       ...prev,
       conclusiones: prev.conclusiones.filter((_, i) => i !== index),
       recomendaciones: prev.recomendaciones.filter((_, i) => i !== index),
+      recommendationDetails: (prev.recommendationDetails || []).filter((_, i) => i !== index),
     }));
 const validateReport = () => {
   if (!data.cliente) return "Cliente es obligatorio";
@@ -883,10 +939,10 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
 
         {/* ── DATOS DEL CLIENTE Y TÉCNICO ── */}
         <h3 className="font-bold text-sm border-b pb-1">
-          DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE
+          1. DATOS GENERALES DEL SERVICIO
         </h3>
         <SectionGuidance>
-          Identifique a quien solicitó, recibió y ejecutó el servicio para conservar la trazabilidad del informe.
+          Identifique cliente, fecha, pedido, equipo, técnico responsable y personas presentes para conservar la trazabilidad.
         </SectionGuidance>
 
         <table className="pdf-table w-full">
@@ -1011,9 +1067,6 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
         <h3 className="font-bold text-sm border-b pb-1">
           {reportConfig.equipmentSectionTitle}
         </h3>
-        <SectionGuidance>
-          Registre los datos de placa y operación que permitan identificar esta unidad sin ambigüedades.
-        </SectionGuidance>
 
         <table className="pdf-table w-full">
           <thead>
@@ -1076,13 +1129,20 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
           </tbody>
         </table>
 
-        {/* ── ESTADO DEL EQUIPO ── */}
-        <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
+        {/* ── ESTADO INICIAL DEL EQUIPO ── */}
+        <h3 className="font-bold text-sm border-b pb-1">3. ESTADO INICIAL DEL EQUIPO</h3>
         <SectionGuidance>
-          Adjunte evidencia visual y marque las novedades. Describa cada punto con una condición observable y verificable.
+          Registre las condiciones observadas antes de intervenir: daños, fugas, ruidos, vibraciones y condiciones de operación.
         </SectionGuidance>
 
         <div className="border rounded bg-white p-3 md:p-4 space-y-4">
+          <AutoResizeInput
+            className="pdf-textarea w-full resize-none overflow-hidden"
+            placeholder="Descripción del estado inicial: condición observable, ubicación, sistema involucrado y comportamiento antes de iniciar"
+            value={data.estadoInicial || ""}
+            rows={3}
+            onChange={(e) => update(["estadoInicial"], e.target.value)}
+          />
           <div className="flex flex-col sm:flex-row gap-2">
             <label className="bg-gray-600 text-white text-xs px-3 py-2 rounded cursor-pointer text-center hover:bg-gray-700 transition">
               📁 Subir fotografías
@@ -1218,19 +1278,19 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
           )}
         </div>
 
-        {/* ── ACTIVIDADES Y HALLAZGOS ── */}
+        {/* ── TRABAJO Y HALLAZGOS ── */}
         <h3 className="font-bold text-sm border-b pb-1">
-          ACTIVIDADES REALIZADAS Y HALLAZGOS
+          4. TRABAJO REALIZADO Y 5. HALLAZGOS TÉCNICOS
         </h3>
         <SectionGuidance>
-          Distinga lo ejecutado de lo encontrado: indique componente, verificación realizada, condición y efecto operativo.
+          Separe lo ejecutado de lo encontrado. El hallazgo debe indicar ubicación, condición, momento y evidencia.
         </SectionGuidance>
 
         <table className="pdf-table w-full">
           <thead>
             <tr>
               <th style={{ width: 50 }}>ÍTEM</th>
-              <th style={{ width: "35%" }}>ACTIVIDAD / HALLAZGO</th>
+              <th style={{ width: "35%" }}>TRABAJO / HALLAZGO</th>
               <th style={{ width: "55%" }}>IMÁGENES</th>
             </tr>
           </thead>
@@ -1240,9 +1300,12 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                 <td className="text-center align-top">{i + 1}</td>
 
                 <td className="align-top">
+                  <label className="mb-1 block text-[10px] font-bold text-slate-700">
+                    4. TRABAJO REALIZADO O INSPECCIÓN EFECTUADA
+                  </label>
                   <AutoResizeInput
                     className="pdf-textarea w-full resize-none overflow-hidden"
-                    placeholder="Trabajo realizado: qué se hizo, sobre qué componente y con qué objetivo"
+                    placeholder="Qué se hizo, sobre qué componente y con qué objetivo"
                     value={a.titulo}
                     rows={2}
                     style={{ minHeight: "48px" }}
@@ -1251,9 +1314,12 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                     }
                   />
 
+                  <label className="mb-1 mt-2 block text-[10px] font-bold text-slate-700">
+                    5. HALLAZGO TÉCNICO Y EVIDENCIA
+                  </label>
                   <AutoResizeInput
                     className="pdf-textarea w-full resize-none overflow-hidden mt-2"
-                    placeholder="Hallazgo técnico: qué se encontró, cómo se verificó, medición/condición observada, evidencia y efecto operativo"
+                    placeholder="Ubicación, condición, momento, cómo se verificó y evidencia disponible"
                     value={a.detalle}
                     rows={6}
                     style={{ minHeight: "150px" }}
@@ -1364,6 +1430,18 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                           className="w-full h-48 object-contain bg-gray-100 border rounded"
                         />
 
+                        <AutoResizeInput
+                          className="mt-2 w-full rounded border border-slate-300 px-2 py-1 text-[11px] text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
+                          placeholder={`Pie de foto ${imgIndex + 1}: qué se observa y en qué condición`}
+                          value={a.descripcionesImagenes?.[imgIndex] || ""}
+                          rows={2}
+                          onChange={(event) => {
+                            const descriptions = [...(a.descripcionesImagenes || [])];
+                            descriptions[imgIndex] = event.target.value;
+                            update(["actividades", i, "descripcionesImagenes"], descriptions);
+                          }}
+                        />
+
                         <button
                           type="button"
                           onClick={() => {
@@ -1377,6 +1455,10 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                               };
 
                               actividad.imagenes.splice(imgIndex, 1);
+                              actividad.descripcionesImagenes = [
+                                ...(actividad.descripcionesImagenes || []),
+                              ];
+                              actividad.descripcionesImagenes.splice(imgIndex, 1);
                               copy.actividades[i] = actividad;
 
                               return copy;
@@ -1409,6 +1491,84 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
           + Agregar actividad
         </button>
 
+        <h3 className="font-bold text-sm border-b pb-1">6. PRUEBAS REALIZADAS Y RESULTADOS</h3>
+        <SectionGuidance>
+          Registre qué prueba se realizó, cómo se ejecutó, el resultado observado y la condición de cierre. No invente datos.
+        </SectionGuidance>
+
+        <div className="overflow-x-auto">
+          <table className="pdf-table min-w-[760px] w-full">
+            <thead>
+              <tr>
+                <th>QUÉ</th>
+                <th>CÓMO</th>
+                <th>RESULTADO</th>
+                <th>CIERRE</th>
+                <th style={{ width: 70 }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {(data.pruebas || [createDefaultTest()]).map((prueba, i) => (
+                <tr key={i}>
+                  <td>
+                    <AutoResizeInput
+                      className="pdf-textarea w-full resize-none overflow-hidden"
+                      placeholder="Tipo de prueba y equipo evaluado"
+                      value={prueba.tipo || ""}
+                      rows={3}
+                      onChange={(e) => update(["pruebas", i, "tipo"], e.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <AutoResizeInput
+                      className="pdf-textarea w-full resize-none overflow-hidden"
+                      placeholder="Condiciones, duración e instrumento"
+                      value={prueba.procedimiento || ""}
+                      rows={3}
+                      onChange={(e) => update(["pruebas", i, "procedimiento"], e.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <AutoResizeInput
+                      className="pdf-textarea w-full resize-none overflow-hidden"
+                      placeholder="Valor medido o comportamiento observado"
+                      value={prueba.resultado || ""}
+                      rows={3}
+                      onChange={(e) => update(["pruebas", i, "resultado"], e.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <AutoResizeInput
+                      className="pdf-textarea w-full resize-none overflow-hidden"
+                      placeholder="Condición final y criterio aplicado"
+                      value={prueba.cierre || ""}
+                      rows={3}
+                      onChange={(e) => update(["pruebas", i, "cierre"], e.target.value)}
+                    />
+                  </td>
+                  <td className="text-center align-top">
+                    <button
+                      type="button"
+                      onClick={() => removeTest(i)}
+                      className="text-xs text-red-600 hover:underline"
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <button
+          type="button"
+          onClick={addTest}
+          className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+        >
+          + Agregar prueba
+        </button>
+
         <InspectionPartsAnnex
           rows={data.anexoItems}
           enabled={data.incluirAnexoItems !== false}
@@ -1418,11 +1578,28 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
 
         {/* ── CONCLUSIONES Y RECOMENDACIONES ── */}
         <h3 className="font-bold text-sm border-b pb-1">
-          CONCLUSIÓN TÉCNICA Y RECOMENDACIÓN ACCIONABLE
+          7. CONCLUSIÓN TÉCNICA Y 8. RECOMENDACIONES
         </h3>
         <SectionGuidance>
-          Convierta cada hallazgo en una decisión clara: condición actual, riesgo, acción requerida, prioridad y plazo.
+          La conclusión define el estado de salida. La recomendación debe incluir acción, responsable, finalidad y prioridad.
         </SectionGuidance>
+
+        <div className="mb-3 rounded border border-slate-300 bg-slate-50 p-3">
+          <label className="block text-xs font-bold text-slate-800" htmlFor="estado-operativo">
+            ESTADO OPERATIVO DEL EQUIPO
+          </label>
+          <select
+            id="estado-operativo"
+            className="mt-1 w-full rounded border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
+            value={data.estadoOperativo || ""}
+            onChange={(e) => update(["estadoOperativo"], e.target.value)}
+          >
+            <option value="">Seleccionar estado operativo</option>
+            <option value="operativo">Operativo: cumple criterio y puede retornar al servicio</option>
+            <option value="restringido">Restringido: opera con limitaciones o riesgo declarado</option>
+            <option value="no-operativo">No operativo: no debe retornar hasta corregir y verificar</option>
+          </select>
+        </div>
 
         <table className="pdf-table w-full">
           <thead>
@@ -1457,7 +1634,7 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                 <td>
                   <AutoResizeInput
                     className="pdf-textarea w-full resize-none overflow-hidden"
-                    placeholder="Recomendación: acción concreta, prioridad, plazo y repuesto/servicio a cotizar si aplica"
+                    placeholder="Acción concreta a realizar"
                     value={data.recomendaciones[i]}
                     rows={3}
                     style={{ minHeight: "70px" }}
@@ -1465,6 +1642,30 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                       update(["recomendaciones", i], e.target.value)
                     }
                   />
+                  <div className="mt-2 grid gap-2 md:grid-cols-3">
+                    <AutoResizeInput
+                      className="pdf-input w-full"
+                      placeholder="Responsable"
+                      value={data.recommendationDetails?.[i]?.responsable || ""}
+                      onChange={(e) => update(["recommendationDetails", i, "responsable"], e.target.value)}
+                    />
+                    <AutoResizeInput
+                      className="pdf-input w-full"
+                      placeholder="Finalidad"
+                      value={data.recommendationDetails?.[i]?.finalidad || ""}
+                      onChange={(e) => update(["recommendationDetails", i, "finalidad"], e.target.value)}
+                    />
+                    <select
+                      className="pdf-input w-full"
+                      value={data.recommendationDetails?.[i]?.prioridad || ""}
+                      onChange={(e) => update(["recommendationDetails", i, "prioridad"], e.target.value)}
+                    >
+                      <option value="">Prioridad</option>
+                      <option value="inmediata">Inmediata</option>
+                      <option value="corto-plazo">Corto plazo</option>
+                      <option value="comercial-servicio">Comercial / servicio</option>
+                    </select>
+                  </div>
                 </td>
 
                 {data.conclusiones.length > 1 && (
