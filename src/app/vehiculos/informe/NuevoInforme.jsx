@@ -95,6 +95,14 @@ const hasContractItemsTableData = (table) =>
     )
   );
 
+function SectionGuidance({ children }) {
+  return (
+    <p className="-mt-3 mb-3 rounded border-l-4 border-blue-300 bg-blue-50 px-3 py-2 text-xs leading-relaxed text-slate-700">
+      <span className="font-semibold text-blue-900">Orientación:</span> {children}
+    </p>
+  );
+}
+
 export default function NuevoInforme({ reportType = "informe" }) {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -877,6 +885,9 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
         <h3 className="font-bold text-sm border-b pb-1">
           DATOS DEL CLIENTE Y TÉCNICO RESPONSABLE
         </h3>
+        <SectionGuidance>
+          Identifique a quien solicitó, recibió y ejecutó el servicio para conservar la trazabilidad del informe.
+        </SectionGuidance>
 
         <table className="pdf-table w-full">
           <tbody>
@@ -1000,6 +1011,9 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
         <h3 className="font-bold text-sm border-b pb-1">
           {reportConfig.equipmentSectionTitle}
         </h3>
+        <SectionGuidance>
+          Registre los datos de placa y operación que permitan identificar esta unidad sin ambigüedades.
+        </SectionGuidance>
 
         <table className="pdf-table w-full">
           <thead>
@@ -1064,6 +1078,9 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
 
         {/* ── ESTADO DEL EQUIPO ── */}
         <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
+        <SectionGuidance>
+          Adjunte evidencia visual y marque las novedades. Describa cada punto con una condición observable y verificable.
+        </SectionGuidance>
 
         <div className="border rounded bg-white p-3 md:p-4 space-y-4">
           <div className="flex flex-col sm:flex-row gap-2">
@@ -1205,6 +1222,9 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
         <h3 className="font-bold text-sm border-b pb-1">
           ACTIVIDADES REALIZADAS Y HALLAZGOS
         </h3>
+        <SectionGuidance>
+          Distinga lo ejecutado de lo encontrado: indique componente, verificación realizada, condición y efecto operativo.
+        </SectionGuidance>
 
         <table className="pdf-table w-full">
           <thead>
@@ -1400,6 +1420,9 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
         <h3 className="font-bold text-sm border-b pb-1">
           CONCLUSIÓN TÉCNICA Y RECOMENDACIÓN ACCIONABLE
         </h3>
+        <SectionGuidance>
+          Convierta cada hallazgo en una decisión clara: condición actual, riesgo, acción requerida, prioridad y plazo.
+        </SectionGuidance>
 
         <table className="pdf-table w-full">
           <thead>
@@ -1468,8 +1491,12 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
           + Agregar conclusión técnica / recomendación accionable
         </button>
 
-       {/* ── FIRMAS ── */}
-<div className="mb-3 rounded border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-slate-800">
+        {/* ── FIRMAS ── */}
+        <h3 className="font-bold text-sm border-b pb-1">FIRMAS Y VALIDACIÓN</h3>
+        <SectionGuidance>
+          Confirme que el técnico y el cliente revisaron el contenido y que las firmas corresponden al servicio registrado.
+        </SectionGuidance>
+        <div className="mb-3 rounded border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-slate-800">
   <label className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
     <span className="flex items-center gap-2 font-semibold">
       <input
