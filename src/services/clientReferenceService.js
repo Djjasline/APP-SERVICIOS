@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { correctWritingData } from "@/utils/writingCorrection.mjs";
 
 const CLIENT_REFERENCE_COLUMNS = "id, name, tax_id, address, source_file, updated_at";
 const CLIENT_REFERENCE_DETAIL_COLUMNS = `${CLIENT_REFERENCE_COLUMNS}, active`;
@@ -54,12 +55,13 @@ export async function getClientReferenceAdminList({ search = "", includeInactive
 }
 
 function normalizeClientPayload(payload = {}) {
+  const correctedPayload = correctWritingData(payload).value;
   const row = {
-    name: String(payload.name || "").trim(),
-    tax_id: String(payload.tax_id || "").trim() || null,
-    address: String(payload.address || "").trim() || null,
-    source_file: String(payload.source_file || "Manual").trim() || "Manual",
-    active: payload.active !== false,
+    name: String(correctedPayload.name || "").trim(),
+    tax_id: String(correctedPayload.tax_id || "").trim() || null,
+    address: String(correctedPayload.address || "").trim() || null,
+    source_file: String(correctedPayload.source_file || "Manual").trim() || "Manual",
+    active: correctedPayload.active !== false,
     updated_at: new Date().toISOString(),
   };
 

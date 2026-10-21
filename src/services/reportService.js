@@ -4,6 +4,7 @@ import { createNotification } from "./notificationService";
 import { getNotificationRecipientsForRecord } from "./notificationRecipientService";
 import { hasReportCodeSequence, normalizeReportCodeValue, reserveNextReportCode } from "./reportCodeService";
 import { formatPersonName } from "@/utils/nameFormat";
+import { correctWritingData } from "@/utils/writingCorrection.mjs";
 import {
   ROLES,
   isSuperAdminEmail,
@@ -45,7 +46,8 @@ export const saveOrUpdateReport = async ({
     }
 
     const existingRecord = id ? await getEditableRecord({ id, user, area, tipo, subtipo }) : null;
-    const reportData = await resolveReportData({ id, data });
+    const { value: correctedData } = correctWritingData(data);
+    const reportData = await resolveReportData({ id, data: correctedData });
 
     const payload = {
       area: existingRecord?.area || area,

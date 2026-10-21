@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { generateConfiguratorPdfBlob, getConfiguratorPdfFilename } from "@/app/vehiculos/configurador/configuratorPdf";
+import { correctWritingData } from "@/utils/writingCorrection.mjs";
 
 const BUCKET = "informe";
 const STATUS_SAVED = "guardada";
@@ -131,15 +132,16 @@ export async function saveConfiguratorQuote(payload) {
     throw new Error("Debes iniciar sesión para guardar la cotización.");
   }
 
+  const correctedPayload = correctWritingData(payload).value;
   const { data: record, error } = await supabase
     .from("vactor_configurator_quotes")
-    .insert(buildDbPayload(payload, user.id))
+    .insert(buildDbPayload(correctedPayload, user.id))
     .select("*")
     .maybeSingle();
 
   if (error) throw error;
 
-  return attachPdfOrMarkPending(record, payload);
+  return attachPdfOrMarkPending(record, correctedPayload);
 }
 
 export async function updateConfiguratorQuote(id, payload) {
@@ -152,9 +154,10 @@ export async function updateConfiguratorQuote(id, payload) {
     throw new Error("Debes iniciar sesión para actualizar la cotización.");
   }
 
+  const correctedPayload = correctWritingData(payload).value;
   const { data: record, error } = await supabase
     .from("vactor_configurator_quotes")
-    .update({ ...buildDbPayload(payload), updated_at: new Date().toISOString() })
+    .update({ ...buildDbPayload(correctedPayload), updated_at: new Date().toISOString() })
     .eq("id", id)
     .select("*")
     .maybeSingle();
@@ -162,7 +165,7 @@ export async function updateConfiguratorQuote(id, payload) {
   if (error) throw error;
   if (!record) throw new Error("No se encontró la cotización para actualizar.");
 
-  return attachPdfOrMarkPending(record, payload);
+  return attachPdfOrMarkPending(record, correctedPayload);
 }
 
 export async function regenerateConfiguratorQuotePdf(id, { hideValues = false } = {}) {

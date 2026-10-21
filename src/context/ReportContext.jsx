@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { correctWritingData } from "@/utils/writingCorrection.mjs";
 
 const ReportContext = createContext(null);
 
@@ -40,7 +41,7 @@ export const ReportProvider = ({ children }) => {
       .upsert([
         {
           id: currentReport?.id,
-          data,
+          data: correctWritingData(data).value,
           estado: "borrador",
         },
       ])
@@ -63,7 +64,7 @@ export const ReportProvider = ({ children }) => {
       .upsert([
         {
           id: currentReport?.id,
-          data,
+          data: correctWritingData(data).value,
           estado: "completado",
         },
       ])

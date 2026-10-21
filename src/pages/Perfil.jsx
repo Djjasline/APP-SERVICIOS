@@ -6,6 +6,7 @@ import { useTheme } from "@/context/ThemeContext";
 import imageCompression from "browser-image-compression";
 import { BotonNotificaciones } from "@/components/BotonNotificaciones";
 import { loadUserSignatureDataUrl, uploadUserSignature } from "@/services/userSignatureService";
+import { correctWritingData } from "@/utils/writingCorrection.mjs";
 
 const DEPARTMENTS = [
   "Vehículos Especiales",
@@ -75,16 +76,19 @@ export default function Perfil() {
   const handleGuardar = async () => {
     setGuardando(true);
     setMensaje(null);
+    const correctedProfile = correctWritingData(perfil).value;
 
     const { error } = await supabase
       .from("profiles")
       .update({
-        full_name:  perfil.full_name,
-        phone:      perfil.phone,
-        department: perfil.department,
+        full_name:  correctedProfile.full_name,
+        phone:      correctedProfile.phone,
+        department: correctedProfile.department,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id);
+
+    if (!error) setPerfil((current) => ({ ...current, ...correctedProfile }));
 
     setMensaje(
       error

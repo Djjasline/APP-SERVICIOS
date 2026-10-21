@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { generateVehicleServiceQuotePdfBlob, getVehicleServiceQuotePdfFilename } from "@/app/vehiculos/cotizador/vehicleServiceQuotePdf";
+import { correctWritingData } from "@/utils/writingCorrection.mjs";
 
 const BUCKET = "informe";
 const STATUS_DRAFT = "borrador";
@@ -97,14 +98,15 @@ export async function saveVehicleServiceQuote(payload) {
 
   if (userError || !user) throw new Error("Debes iniciar sesión para guardar la cotización.");
 
+  const correctedPayload = correctWritingData(payload).value;
   const { data, error } = await supabase
     .from("vehicle_service_quotes")
-    .insert(buildPayload(payload, user.id))
+    .insert(buildPayload(correctedPayload, user.id))
     .select("*")
     .maybeSingle();
 
   if (error) throw error;
-  return attachPdfOrMarkPending(data, payload);
+  return attachPdfOrMarkPending(data, correctedPayload);
 }
 
 export async function updateVehicleServiceQuote(id, payload) {
@@ -115,16 +117,17 @@ export async function updateVehicleServiceQuote(id, payload) {
 
   if (userError || !user) throw new Error("Debes iniciar sesión para actualizar la cotización.");
 
+  const correctedPayload = correctWritingData(payload).value;
   const { data, error } = await supabase
     .from("vehicle_service_quotes")
-    .update(buildPayload(payload))
+    .update(buildPayload(correctedPayload))
     .eq("id", id)
     .select("*")
     .maybeSingle();
 
   if (error) throw error;
   if (!data) throw new Error("No se encontró la cotización para actualizar.");
-  return attachPdfOrMarkPending(data, payload);
+  return attachPdfOrMarkPending(data, correctedPayload);
 }
 
 export async function regenerateVehicleServiceQuotePdf(id) {

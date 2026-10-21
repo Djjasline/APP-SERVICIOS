@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { correctWritingData } from "@/utils/writingCorrection.mjs";
 
 const LIST_METADATA_COLUMNS = "image_url, unit, weight_kg, stock_minimum, brand, model, category, system, compatible_equipment";
 const SELECT_COLUMNS = `id, product_code, description, physical_stock, physical_location, cutoff_date, source_file, notes, area, last_supplier, updated_at, ${LIST_METADATA_COLUMNS}`;
@@ -248,13 +249,14 @@ function getSourceConfig(source) {
 }
 
 function normalizeMetadataPayload(source, payload) {
+  const correctedPayload = correctWritingData(payload).value;
   const fields = [
     ...ITEM_IDENTITY_FIELDS,
     ...(source === WAREHOUSE_ITEM_SOURCES.vehicleReference ? VEHICLE_REFERENCE_METADATA_FIELDS : EDITABLE_METADATA_FIELDS),
   ];
   const metadata = fields.reduce((acc, field) => {
-    if (!Object.prototype.hasOwnProperty.call(payload, field)) return acc;
-    const value = payload[field];
+    if (!Object.prototype.hasOwnProperty.call(correctedPayload, field)) return acc;
+    const value = correctedPayload[field];
 
     if (field === "product_code") {
       acc[field] = normalizeWarehouseProductCode(value);
@@ -281,15 +283,16 @@ function normalizeMetadataPayload(source, payload) {
 
   return {
     ...metadata,
-    ...getWarehouseClassificationFields({ ...payload, ...metadata }, { includeSupplier: source === WAREHOUSE_ITEM_SOURCES.vehicleReference }),
+    ...getWarehouseClassificationFields({ ...correctedPayload, ...metadata }, { includeSupplier: source === WAREHOUSE_ITEM_SOURCES.vehicleReference }),
   };
 }
 
 function normalizeCreatePayload(source, payload, userId) {
+  const correctedPayload = correctWritingData(payload).value;
   const fields = source === WAREHOUSE_ITEM_SOURCES.stock ? STOCK_CREATE_FIELDS : VEHICLE_REFERENCE_CREATE_FIELDS;
   const normalized = fields.reduce((acc, field) => {
-    if (!Object.prototype.hasOwnProperty.call(payload, field)) return acc;
-    const value = payload[field];
+    if (!Object.prototype.hasOwnProperty.call(correctedPayload, field)) return acc;
+    const value = correctedPayload[field];
 
     if (NUMERIC_FIELDS.has(field)) {
       acc[field] = value === "" || value === null || value === undefined ? null : Number(value);
@@ -330,10 +333,11 @@ function normalizeCreatePayload(source, payload, userId) {
 
 function normalizeMovementPayload({ source, itemId, payload, userId }) {
   if (!source || !itemId) throw new Error("Artículo de bodega no válido.");
-  if (!WAREHOUSE_MOVEMENT_TYPES.includes(payload.movement_type)) throw new Error("Tipo de movimiento no válido.");
+  const correctedPayload = correctWritingData(payload).value;
+  if (!WAREHOUSE_MOVEMENT_TYPES.includes(correctedPayload.movement_type)) throw new Error("Tipo de movimiento no válido.");
 
   const row = ["movement_type", "quantity", "unit_cost", "area", "related_party", "responsible", "service_ref", "equipment", "client", "document_ref", "evidence_url", "notes"].reduce((acc, field) => {
-    const value = payload[field];
+    const value = correctedPayload[field];
 
     if (MOVEMENT_NUMERIC_FIELDS.has(field)) {
       acc[field] = value === "" || value === null || value === undefined ? null : Number(value);

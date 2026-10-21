@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { correctWritingData } from "@/utils/writingCorrection.mjs";
 
 function cloneData(data) {
   return JSON.parse(JSON.stringify(data || {}));
@@ -34,7 +35,7 @@ function stripMediaFields(value, key = "") {
 }
 
 function prepareDuplicatedData(record, user) {
-  const data = stripMediaFields(cloneData(record?.data));
+  const data = correctWritingData(stripMediaFields(cloneData(record?.data))).value;
 
   return {
     ...data,

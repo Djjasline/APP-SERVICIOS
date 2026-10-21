@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { correctWritingData } from "@/utils/writingCorrection.mjs";
 
 export const syncReports = async () => {
   const stored = JSON.parse(localStorage.getItem("serviceReports")) || [];
@@ -14,7 +15,7 @@ export const syncReports = async () => {
         .upsert({
           id: report.id,
           estado: report.estado || "borrador",
-          data: report.data,
+          data: correctWritingData(report.data).value,
           updated_at: new Date().toISOString()
         });
 

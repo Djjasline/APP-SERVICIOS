@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { correctWritingText } from "@/utils/writingCorrection.mjs";
 
 const DEFAULT_UPDATE_MESSAGE = "Se publicó una mejora en la aplicación.";
 
@@ -494,8 +495,8 @@ export async function getAllAppUpdatesForAdmin() {
 }
 
 export async function createAppUpdate({ title, message, userId }) {
-  const cleanTitle = String(title || "").trim();
-  const cleanMessage = String(message || "").trim();
+  const cleanTitle = correctWritingText(String(title || "")).trim();
+  const cleanMessage = correctWritingText(String(message || "")).trim();
 
   if (!cleanTitle || !cleanMessage) {
     throw new Error("Título y mensaje son obligatorios.");

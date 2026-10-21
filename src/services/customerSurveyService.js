@@ -1,5 +1,6 @@
 import { anonymousSupabase, supabase } from "@/lib/supabase";
 import { formatPersonName } from "@/utils/nameFormat";
+import { correctWritingData } from "@/utils/writingCorrection.mjs";
 
 export const SURVEY_STATUS_LABELS = {
   pendiente: "Pendiente",
@@ -91,12 +92,13 @@ export async function getPublicSurveyByToken(token) {
 }
 
 export async function submitPublicSurvey(token, payload) {
+  const correctedPayload = correctWritingData(payload).value;
   const { data, error } = await anonymousSupabase.rpc("submit_customer_satisfaction_survey", {
     p_token: token,
-    p_respondent: payload.respondent || {},
-    p_ratings: payload.ratings || {},
-    p_answers: payload.answers || {},
-    p_comments: payload.comments || "",
+    p_respondent: correctedPayload.respondent || {},
+    p_ratings: correctedPayload.ratings || {},
+    p_answers: correctedPayload.answers || {},
+    p_comments: correctedPayload.comments || "",
   });
 
   if (error) throw error;

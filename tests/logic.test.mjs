@@ -4,6 +4,7 @@ import test from "node:test";
 import { getDraftTime, pickNewestDraft, toDraftPayload } from "../src/utils/draftSelection.mjs";
 import { ROLES, getEmailRoles, resolveAuthAccess } from "../src/constants/privilegedAccess.mjs";
 import { buildCompletedRecordPdfAttachment, normalizeChatAttachments } from "../src/utils/chatAttachments.mjs";
+import { correctWritingData, correctWritingText } from "../src/utils/writingCorrection.mjs";
 
 test("resolveAuthAccess normaliza roles y aplica privilegios por correo", () => {
   const access = resolveAuthAccess({
@@ -83,4 +84,26 @@ test("buildCompletedRecordPdfAttachment crea enlace interno de PDF", () => {
   assert.equal(attachment.title, "Informe vehículos - General");
   assert.equal(attachment.description, "Cliente ASTAP · INF-001");
   assert.equal(attachment.url, "/vehiculos/informe/pdf/abc");
+});
+
+test("corrector local corrige ortografia segura y conserva datos tecnicos", () => {
+  assert.equal(
+    correctWritingText(" se realizo revision de la valvula hidraulica , sin novedad "),
+    "se realizó revisión de la válvula hidráulica, sin novedad"
+  );
+
+  const result = correctWritingData({
+    descripcion: "se realizo inspeccion de la camara",
+    codInf: "INF-001",
+    tecnicoCorreo: "tecnico@astap.com",
+    firmaTecnico: "data:image/png;base64,ABC",
+    descripcionesImagenes: ["imagen de la valvula mecanica"],
+  });
+
+  assert.equal(result.value.descripcion, "se realizó inspección de la cámara");
+  assert.equal(result.value.codInf, "INF-001");
+  assert.equal(result.value.tecnicoCorreo, "tecnico@astap.com");
+  assert.equal(result.value.firmaTecnico, "data:image/png;base64,ABC");
+  assert.deepEqual(result.value.descripcionesImagenes, ["imagen de la válvula mecánica"]);
+  assert.equal(result.corrections, 2);
 });

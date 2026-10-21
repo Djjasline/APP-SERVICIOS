@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { getAccessibleRecordsForUser } from "@/services/accessControlService";
 import { createUserNotifications } from "@/services/notificationService";
 import { formatUserDisplayName } from "@/utils/nameFormat";
+import { correctWritingText } from "@/utils/writingCorrection.mjs";
 import {
   COMPLETED_RECORD_PDF_CONFIGS,
   buildCompletedRecordPdfAttachment,
@@ -123,7 +124,7 @@ export async function getUnreadMessageCounts(currentUserId) {
 }
 
 export async function sendMessage(conversationId, senderId, body, { attachments = [] } = {}) {
-  const text = String(body || "").trim();
+  const text = correctWritingText(String(body || "")).trim();
   const normalizedAttachments = normalizeChatAttachments(attachments);
   if (!text && normalizedAttachments.length === 0) return null;
   const bodyText = text || `Adjunto: ${normalizedAttachments[0]?.title || "archivo"}`;
