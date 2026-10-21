@@ -769,3 +769,11 @@ test("PWA permite instalacion y accesos directos", () => {
   assert.match(manifest, /"url": "\/operaciones\/bodega"/);
   assert.match(sw, /app-servicios-v14/);
 });
+
+test("correccion historica conserva las fechas originales", () => {
+  const historicalCorrection = read("src/services/historicalWritingCorrectionService.js");
+
+  assert.match(historicalCorrection, /\.update\(\{ data: value \}\)/);
+  assert.match(historicalCorrection, /\.eq\("updated_at", record\.updated_at\)/);
+  assert.doesNotMatch(historicalCorrection, /updated_at: new Date\(\)\.toISOString\(\)/);
+});

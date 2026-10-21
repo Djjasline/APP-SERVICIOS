@@ -22,10 +22,10 @@ export async function correctHistoricalRecordWriting() {
       const { value, corrections } = correctWritingData(record.data);
       if (corrections === 0) continue;
 
-      // Preserve concurrent edits by only changing the version that was inspected.
+      // Use the saved timestamp only to avoid concurrent edits; retain both original dates.
       let update = supabase
         .from("registros")
-        .update({ data: value, updated_at: new Date().toISOString() })
+        .update({ data: value })
         .eq("id", record.id);
 
       update = record.updated_at ? update.eq("updated_at", record.updated_at) : update.is("updated_at", null);
