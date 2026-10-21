@@ -37,7 +37,7 @@ export async function getAllInspections() {
     .select(RECORD_LIST_COLUMNS)
     .eq("area", "vehiculos")
     .eq("tipo", "inspeccion")
-    .order("updated_at", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(HISTORY_QUERY_LIMIT)
 
   query = await applyUserFilter(query)
@@ -58,7 +58,7 @@ export async function getInspections(type) {
     .eq("area", "vehiculos")
     .eq("tipo", "inspeccion")
     .eq("subtipo", type)
-    .order("updated_at", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(HISTORY_QUERY_LIMIT)
 
   query = await applyUserFilter(query)

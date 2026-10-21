@@ -72,7 +72,7 @@ export default function ProtocolosHome() {
           .in("area", PROTOCOL_AREAS)
           .eq("tipo", "protocolo")
           .in("subtipo", PROTOCOLS.map((item) => item.subtipo))
-          .order("updated_at", { ascending: false })
+          .order("created_at", { ascending: false })
           .limit(HISTORY_QUERY_LIMIT);
 
       let data = [];
@@ -219,7 +219,7 @@ export default function ProtocolosHome() {
                   <p className="font-semibold text-gray-900">{item.data?.cliente || "Sin cliente"}</p>
                   <p className="text-xs text-gray-600">Equipo: <strong>{item.data?.equipoNo || "-"}</strong> | Código: <strong>{item.data?.codInf || "-"}</strong></p>
                   <p className="text-xs text-gray-500">Pedido: <strong>{item.data?.pedidoDemanda || "-"}</strong> | Técnico: <strong>{formatPersonName(item.data?.tecnicoNombre) || "-"}</strong></p>
-                  <p className="text-xs text-gray-400">{new Date(item.updated_at || item.created_at).toLocaleString()}</p>
+                  <p className="text-xs text-gray-400">{new Date(item.created_at || item.updated_at).toLocaleString()}</p>
                   <span className={`mt-1 inline-block px-2 py-0.5 rounded text-white text-[10px] ${item.estado === "completado" ? "bg-green-600" : "bg-yellow-500"}`}>{item.estado === "completado" ? "Completado" : "Borrador"}</span>
                 </div>
                 <div className="flex gap-3 text-xs shrink-0">

@@ -82,7 +82,7 @@ export default function InformeHome({ reportType = "informe" }) {
             .from("registros")
             .select(RECORD_LIST_COLUMNS)
             .eq("tipo", reportConfig.tipo)
-            .order("updated_at", { ascending: false })
+            .order("created_at", { ascending: false })
             .limit(HISTORY_QUERY_LIMIT);
 
         let data = [];
@@ -182,7 +182,7 @@ export default function InformeHome({ reportType = "informe" }) {
       .join(" ")
       .toLowerCase();
 
-    const fecha = r.updated_at || r.created_at;
+    const fecha = r.created_at || r.updated_at;
 
     return (
       (filter === "todos" ||
@@ -410,7 +410,7 @@ export default function InformeHome({ reportType = "informe" }) {
 
               <div className="flex flex-wrap justify-between items-center text-xs pt-1 gap-3">
                 <span className="text-gray-500">
-                  {new Date(r.updated_at || r.created_at).toLocaleString()}
+                  {new Date(r.created_at || r.updated_at).toLocaleString()}
                 </span>
 
                 {puedeVerTodoVehiculos && (

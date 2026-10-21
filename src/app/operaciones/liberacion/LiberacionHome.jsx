@@ -63,7 +63,7 @@ export default function LiberacionHome() {
   const filtered = registros.filter((r) => {
     const equipo = r.data?.equipo?.toLowerCase() || "";
     const codigo = r.data?.codigo?.toLowerCase() || "";
-    const fecha = r.updated_at || r.created_at;
+    const fecha = r.created_at || r.updated_at;
 
     return (
       (filter === "todos" ||
@@ -242,7 +242,7 @@ export default function LiberacionHome() {
 
                 <td className="px-4 py-2 text-gray-500">
                   {new Date(
-                    r.updated_at || r.created_at
+                    r.created_at || r.updated_at
                   ).toLocaleDateString()}
                 </td>
 

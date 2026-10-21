@@ -112,7 +112,7 @@ export default function IndexMantenimiento() {
           .select(RECORD_LIST_COLUMNS)
           .eq("area", "vehiculos")
           .eq("tipo", "mantenimiento")
-          .order("updated_at", { ascending: false })
+          .order("created_at", { ascending: false })
           .limit(HISTORY_QUERY_LIMIT);
 
       let data = [];
@@ -448,7 +448,7 @@ export default function IndexMantenimiento() {
                     )}
 
                     <p className="text-[11px] text-gray-400">
-                      {new Date(item.updated_at || item.created_at).toLocaleString()}
+                      {new Date(item.created_at || item.updated_at).toLocaleString()}
                     </p>
                   </div>
 

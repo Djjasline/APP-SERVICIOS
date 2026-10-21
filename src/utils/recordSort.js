@@ -1,5 +1,5 @@
 export const getRecordTimestamp = (record) => {
-  const value = record?.updated_at || record?.created_at || record?.updatedAt || record?.createdAt;
+  const value = record?.created_at || record?.createdAt || record?.updated_at || record?.updatedAt;
   const timestamp = value ? new Date(value).getTime() : 0;
 
   return Number.isNaN(timestamp) ? 0 : timestamp;

@@ -50,7 +50,7 @@ const emptyCounts = () => ({ completado: 0, borrador: 0, salida: 0, total: 0 });
 const ALL_TECHNICIANS = "all";
 
 function getRecordDate(record) {
-  return record.updated_at || record.created_at || null;
+  return record.created_at || record.updated_at || null;
 }
 
 function getStatus(record) {

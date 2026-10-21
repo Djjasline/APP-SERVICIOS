@@ -157,7 +157,7 @@ export default function InformeHome({
       .filter(Boolean)
       .join(" ")
       .toLowerCase();
-    const fecha = r.updated_at || r.created_at;
+    const fecha = r.created_at || r.updated_at;
 
     return (
       (filter === "todos" ||
@@ -345,7 +345,7 @@ export default function InformeHome({
 
               <div className="flex flex-wrap justify-between items-center text-xs pt-1 gap-3">
                 <span className="text-gray-500">
-                  {new Date(r.updated_at || r.created_at).toLocaleString()}
+                  {new Date(r.created_at || r.updated_at).toLocaleString()}
                 </span>
                 {superAdminActivo && (
                   <span className="text-[11px] text-gray-500">

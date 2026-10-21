@@ -38,7 +38,7 @@ export default function ProtocoloManHome() {
           .select("id, subtipo, estado, data, created_at, updated_at")
           .eq("area", "operaciones")
           .eq("tipo", PROTOCOLO_MAN_TIPO)
-          .order("updated_at", { ascending: false })
+          .order("created_at", { ascending: false })
           .limit(20);
 
         if (error) throw error;
@@ -128,7 +128,7 @@ export default function ProtocoloManHome() {
                           {record.estado === "completado" ? "Completado" : "Borrador"}
                         </span>
                       </td>
-                      <td className="px-3 py-2">{formatDate(record.updated_at || record.created_at)}</td>
+                      <td className="px-3 py-2">{formatDate(record.created_at || record.updated_at)}</td>
                     </tr>
                   );
                 })}

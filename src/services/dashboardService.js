@@ -122,7 +122,7 @@ function buildActivity({ reports, quotes, movements, notifications }) {
     type: "registro",
     title: getRecordLabel(record),
     detail: getRecordSummary(record),
-    date: normalizeDate(record.updated_at || record.created_at),
+    date: normalizeDate(record.created_at || record.updated_at),
     url: getRecordUrl(record),
   }));
 
@@ -227,7 +227,7 @@ export async function getGeneralDashboard({ email, technicianKeys = [] } = {}) {
     ? await safeQuery(
         () =>
           listRows("registros", "id, user_id, area, tipo, subtipo, estado, data, created_at, updated_at", (query) =>
-            query.order("updated_at", { ascending: false }).limit(1000)
+            query.order("created_at", { ascending: false }).limit(1000)
           ),
         []
       ).then((rows) =>
@@ -247,8 +247,8 @@ export async function getGeneralDashboard({ email, technicianKeys = [] } = {}) {
     ? reportsForTechnician.filter((record) => record.estado === "borrador").length
     : 0;
   const filteredRecentReports = hasTechnicianFilter
-    ? reportsForTechnician
-        .sort((a, b) => new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at))
+      ? reportsForTechnician
+          .sort((a, b) => new Date(b.created_at || b.updated_at) - new Date(a.created_at || a.updated_at))
         .slice(0, 8)
     : [];
 
@@ -275,7 +275,7 @@ export async function getGeneralDashboard({ email, technicianKeys = [] } = {}) {
       : safeQuery(
           () =>
             listRows("registros", "id, user_id, area, tipo, subtipo, estado, data, created_at, updated_at", (query) =>
-              query.order("updated_at", { ascending: false }).limit(8)
+              query.order("created_at", { ascending: false }).limit(8)
             ),
           []
         ),

@@ -201,7 +201,7 @@ export default function InformeAguaHome() {
             {!loading &&
               filtered.map((r) => {
                 const d = r.data || {};
-                const fecha = r.updated_at || r.created_at;
+                const fecha = r.created_at || r.updated_at;
                 const numActividades = Array.isArray(d.actividades)
                   ? d.actividades.length
                   : 0;

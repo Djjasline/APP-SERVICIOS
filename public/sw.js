@@ -1,4 +1,4 @@
-const CACHE_NAME = "app-servicios-v14";
+const CACHE_NAME = "app-servicios-v15";
 const VAPID_CACHE_NAME = "app-servicios-vapid";
 const VAPID_PUBLIC_KEY_REQUEST = "/__vapid_public_key__";
 

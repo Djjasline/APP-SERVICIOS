@@ -503,7 +503,7 @@ test("biblioteca tecnica incluye buscador por indice OneDrive", () => {
 test("service worker no bloquea indice tecnico con cache vieja", () => {
   const sw = read("public/sw.js");
 
-  assert.match(sw, /app-servicios-v14/);
+  assert.match(sw, /app-servicios-v15/);
   assert.match(sw, /data\/technical-manual-index\.json/);
   assert.match(sw, /fetch\(event\.request, \{ cache: "reload" \}\)/);
 });
@@ -767,7 +767,7 @@ test("PWA permite instalacion y accesos directos", () => {
   assert.match(layout, /Instalar app/);
   assert.match(manifest, /"shortcuts"/);
   assert.match(manifest, /"url": "\/operaciones\/bodega"/);
-  assert.match(sw, /app-servicios-v14/);
+  assert.match(sw, /app-servicios-v15/);
 });
 
 test("correccion historica conserva las fechas originales", () => {
@@ -776,4 +776,5 @@ test("correccion historica conserva las fechas originales", () => {
   assert.match(historicalCorrection, /\.update\(\{ data: value \}\)/);
   assert.match(historicalCorrection, /\.eq\("updated_at", record\.updated_at\)/);
   assert.doesNotMatch(historicalCorrection, /updated_at: new Date\(\)\.toISOString\(\)/);
+  assert.doesNotMatch(historicalCorrection, /\.update\(\{ updated_at:/);
 });

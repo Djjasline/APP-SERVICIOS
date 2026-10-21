@@ -69,7 +69,7 @@ export default function RecepcionHome() {
 
   const filtered = registros.filter((r) => {
     const d = r.data || {};
-    const fecha = d.fecha || r.updated_at || r.created_at || "";
+    const fecha = d.fecha || r.created_at || r.updated_at || "";
 
     return (
       (filter === "todos" ||
@@ -238,7 +238,7 @@ export default function RecepcionHome() {
             {!loading &&
               filtered.map((r) => {
                 const d = r.data || {};
-                const fecha = d.fecha || r.updated_at || r.created_at;
+                const fecha = d.fecha || r.created_at || r.updated_at;
 
                 return (
                   <tr key={r.id} className="border-t hover:bg-gray-50">

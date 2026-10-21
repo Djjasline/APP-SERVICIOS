@@ -274,7 +274,7 @@ export default function RegistroPDF({ allowDownload = true, backPath = "/operaci
                 <div>Area: Operaciones</div>
                 <div>Tipo: Registro</div>
                 <div>Estado: {statusLabel}</div>
-                <div>Fecha: {new Date(registro.updated_at || registro.created_at).toLocaleString()}</div>
+                <div>Fecha: {new Date(registro.created_at || registro.updated_at).toLocaleString()}</div>
               </td>
             </tr>
           </tbody>

@@ -84,7 +84,7 @@ export default function IndexInspeccion() {
           .select(RECORD_LIST_COLUMNS)
           .eq("tipo", "inspeccion")
           .or("area.eq.vehiculos,area.is.null")
-          .order("updated_at", { ascending: false })
+          .order("created_at", { ascending: false })
           .limit(HISTORY_QUERY_LIMIT);
 
       let data = [];
@@ -191,7 +191,7 @@ export default function IndexInspeccion() {
     const matchTecnico = recordMatchesUser(item, selectedUser);
 
     const matchFecha = fecha
-      ? new Date(item.updated_at || item.created_at)
+      ? new Date(item.created_at || item.updated_at)
           .toISOString()
           .slice(0, 10) === fecha
       : true;
@@ -499,7 +499,7 @@ export default function IndexInspeccion() {
                 </p>
 
                 <p className="text-xs text-gray-400">
-                  {new Date(item.updated_at || item.created_at).toLocaleString()}
+                  {new Date(item.created_at || item.updated_at).toLocaleString()}
                 </p>
 
                 {puedeVerTodoVehiculos && (

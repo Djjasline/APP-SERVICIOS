@@ -27,7 +27,7 @@ function buildSurveyPayload(record, userId) {
     report_code: data.codInf || data.codigo || data.pedidoDemanda || record.id,
     client_name: data.cliente || data.contacto || data.empresa || "Sin cliente",
     technician_name: formatPersonName(data.tecnicoNombre || data.tecnicoResponsable || data.responsable) || null,
-    service_date: safeDate(data.fecha || data.fechaServicio || data.fechaMantenimiento || record.updated_at || record.created_at),
+    service_date: safeDate(data.fecha || data.fechaServicio || data.fechaMantenimiento || record.created_at || record.updated_at),
     created_by: userId || null,
     status: "pendiente",
   };
