@@ -17,8 +17,10 @@ import AutoResizeInput from "@/components/AutoResizeInput";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import { ensureCompletionReady } from "@/utils/completionValidation";
-import { isSuperAdminEmail } from "@/constants/privilegedAccess.mjs";
+import { hasUnlimitedActivityImages, isSuperAdminEmail } from "@/constants/privilegedAccess.mjs";
 import { getVehicleReportConfig } from "./reportModeConfig";
+
+const MAX_ACTIVITY_IMAGES = 4;
 
 const fieldPlaceholders = {
   cliente: "Nombre del cliente",
@@ -122,6 +124,7 @@ export default function NuevoInforme({ reportType = "informe" }) {
   const reportConfig = getVehicleReportConfig(reportType);
 
   const esSantiago = isSuperAdminEmail(user?.email);
+  const canUploadUnlimitedActivityImages = hasUnlimitedActivityImages(user?.email);
 
   const {
     technicians,
@@ -414,8 +417,8 @@ useEffect(() => {
     if (!file) return;
 
     const currentImages = data.actividades?.[actividadIndex]?.imagenes || [];
-    if (currentImages.length >= 4) {
-      alert("Máximo 4 imágenes por actividad");
+    if (!canUploadUnlimitedActivityImages && currentImages.length >= MAX_ACTIVITY_IMAGES) {
+      alert(`Máximo ${MAX_ACTIVITY_IMAGES} imágenes por actividad`);
       return;
     }
 
@@ -436,7 +439,7 @@ useEffect(() => {
           ? [...actividad.imagenes]
           : [];
 
-        if (imagenes.length >= 4) return prev;
+        if (!canUploadUnlimitedActivityImages && imagenes.length >= MAX_ACTIVITY_IMAGES) return prev;
         if (imagenes.includes(url)) return prev;
         imagenes.push(url);
         actividad.imagenes = imagenes;
@@ -452,6 +455,29 @@ useEffect(() => {
       console.error("Error subiendo imagen:", error);
     } finally {
       setUploadingCount((prev) => prev - 1);
+    }
+  };
+
+  const handleActivityImagesInput = (event, actividadIndex) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = null;
+    if (!files.length) return;
+
+    const currentImages = data.actividades?.[actividadIndex]?.imagenes?.length || 0;
+    const available = MAX_ACTIVITY_IMAGES - currentImages;
+
+    if (!canUploadUnlimitedActivityImages && available <= 0) {
+      alert(`Máximo ${MAX_ACTIVITY_IMAGES} imágenes por actividad`);
+      return;
+    }
+
+    const filesToUpload = canUploadUnlimitedActivityImages ? files : files.slice(0, available);
+    filesToUpload.forEach((file) => {
+      handleImageUpload(file, actividadIndex);
+    });
+
+    if (!canUploadUnlimitedActivityImages && files.length > available) {
+      alert(`Máximo ${MAX_ACTIVITY_IMAGES} imágenes por actividad`);
     }
   };
 
@@ -1362,28 +1388,7 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                         accept="image/*"
                         multiple
                         style={{ display: "none" }}
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files || []);
-                          const actuales =
-                            data.actividades?.[i]?.imagenes?.length || 0;
-                          const disponibles = Math.max(0, 4 - actuales);
-
-                          if (disponibles <= 0) {
-                            alert("Máximo 4 imágenes por actividad");
-                            e.target.value = null;
-                            return;
-                          }
-
-                          files.slice(0, disponibles).forEach((file) => {
-                            handleImageUpload(file, i);
-                          });
-
-                          if (files.length > disponibles) {
-                            alert("Máximo 4 imágenes por actividad");
-                          }
-
-                          e.target.value = null;
-                        }}
+                        onChange={(event) => handleActivityImagesInput(event, i)}
                       />
                     </label>
 
@@ -1395,28 +1400,7 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                         capture="environment"
                         multiple
                         style={{ display: "none" }}
-                        onChange={(e) => {
-                          const files = Array.from(e.target.files || []);
-                          const actuales =
-                            data.actividades?.[i]?.imagenes?.length || 0;
-                          const disponibles = Math.max(0, 4 - actuales);
-
-                          if (disponibles <= 0) {
-                            alert("Máximo 4 imágenes por actividad");
-                            e.target.value = null;
-                            return;
-                          }
-
-                          files.slice(0, disponibles).forEach((file) => {
-                            handleImageUpload(file, i);
-                          });
-
-                          if (files.length > disponibles) {
-                            alert("Máximo 4 imágenes por actividad");
-                          }
-
-                          e.target.value = null;
-                        }}
+                        onChange={(event) => handleActivityImagesInput(event, i)}
                       />
                     </label>
                   </div>

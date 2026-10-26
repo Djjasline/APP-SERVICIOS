@@ -14,6 +14,7 @@ import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
 import { ensureCompletionReady } from "@/utils/completionValidation";
+import { hasUnlimitedActivityImages } from "@/constants/privilegedAccess.mjs";
 
 /* ─────────────────────────────────────────
    HELPERS
@@ -75,6 +76,7 @@ const Input = ({ value, onChange, field = "", placeholder, readOnly = false, cla
 );
 
 const validInformeTipos = ["bomba", "valvula"];
+const MAX_ACTIVITY_IMAGES = 4;
 
 export default function NuevoInformeBombaValvula({
   tipo = null,
@@ -86,6 +88,7 @@ export default function NuevoInformeBombaValvula({
   const routeTipo = validInformeTipos.includes(tipo) ? tipo : null;
   const supportsMultipleEquipment = ["agua", "industria", "petroleo"].includes(area);
    const { user, isSuperAdmin } = useAuth();
+   const canUploadUnlimitedActivityImages = hasUnlimitedActivityImages(user?.email);
 const superAdminActivo =
   typeof isSuperAdmin === "function"
     ? isSuperAdmin()
@@ -468,10 +471,14 @@ useEffect(() => {
 );
     e.target.value = null;
     const actuales = data.actividades[idx]?.imagenes?.length || 0;
-    const disponibles = 4 - actuales;
-    if (disponibles <= 0) { alert("Máximo 4 imágenes por actividad"); return; }
+    const disponibles = MAX_ACTIVITY_IMAGES - actuales;
+    if (!canUploadUnlimitedActivityImages && disponibles <= 0) {
+      alert(`Máximo ${MAX_ACTIVITY_IMAGES} imágenes por actividad`);
+      return;
+    }
 
-    for (const file of files.slice(0, disponibles)) {
+    const filesToUpload = canUploadUnlimitedActivityImages ? files : files.slice(0, disponibles);
+    for (const file of filesToUpload) {
       const url = await uploadSingle(file, "actividad");
       if (url) {
         setData((p) => {

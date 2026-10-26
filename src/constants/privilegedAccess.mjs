@@ -14,6 +14,7 @@ export const PRIVILEGED_EMAILS = {
   supervisorOperaciones: ["kamhez@astap.com"],
   supervisorProyecto: ["abriones@astap.com"],
   technicalUsers: ["abriones@astap.com"],
+  unlimitedActivityImages: ["mguevara@astap.com"],
 };
 
 export const COMMERCIAL_ROLES = ["ing. comercial", "ingeniero comercial", ROLES.comercial];
@@ -34,6 +35,8 @@ export const isSupervisorOperacionesEmail = (email) =>
   PRIVILEGED_EMAILS.supervisorOperaciones.includes(normalizeEmail(email));
 export const isSupervisorProyectoEmail = (email) =>
   PRIVILEGED_EMAILS.supervisorProyecto.includes(normalizeEmail(email));
+export const hasUnlimitedActivityImages = (email) =>
+  PRIVILEGED_EMAILS.unlimitedActivityImages.includes(normalizeEmail(email));
 
 export function getEmailRoles(emailValue) {
   const email = normalizeEmail(emailValue);

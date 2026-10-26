@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { getDraftTime, pickNewestDraft, toDraftPayload } from "../src/utils/draftSelection.mjs";
-import { ROLES, getEmailRoles, resolveAuthAccess } from "../src/constants/privilegedAccess.mjs";
+import { ROLES, getEmailRoles, hasUnlimitedActivityImages, resolveAuthAccess } from "../src/constants/privilegedAccess.mjs";
 import { buildCompletedRecordPdfAttachment, normalizeChatAttachments } from "../src/utils/chatAttachments.mjs";
 import { correctWritingData, correctWritingText } from "../src/utils/writingCorrection.mjs";
 
@@ -32,6 +32,11 @@ test("resolveAuthAccess conserva acceso comercial sin convertirlo en tecnico", (
 
 test("getEmailRoles conserva privilegios multiples de un correo", () => {
   assert.deepEqual(getEmailRoles("abriones@astap.com"), [ROLES.supervisorProyecto, ROLES.tecnico]);
+});
+
+test("Marlon puede cargar imagenes ilimitadas por actividad", () => {
+  assert.equal(hasUnlimitedActivityImages(" MGUEVARA@ASTAP.COM "), true);
+  assert.equal(hasUnlimitedActivityImages("otro@astap.com"), false);
 });
 
 test("pickNewestDraft elige el borrador con fecha mas reciente", () => {
