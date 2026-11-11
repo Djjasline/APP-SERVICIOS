@@ -1405,13 +1405,13 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                     </label>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(Math.max(a.imagenes?.length || 0, 1), 2)}, minmax(0, 1fr))` }}>
                     {(a.imagenes || []).map((img, imgIndex) => (
                       <div key={imgIndex} className="relative">
                         <img
                           src={img}
                           alt="actividad"
-                          className="w-full h-48 object-contain bg-gray-100 border rounded"
+                          className="block w-auto h-auto max-w-full max-h-48 rounded"
                         />
 
                         <AutoResizeInput

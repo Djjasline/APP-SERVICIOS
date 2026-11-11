@@ -326,7 +326,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                    gridTemplateColumns: `repeat(${Math.min(fotosValidas.length, 2)}, minmax(0, 1fr))`,
                     gap: 10,
                   }}
                 >
@@ -443,7 +443,7 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
                     <div
                       style={{
                         display: "grid",
-                        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                        gridTemplateColumns: `repeat(${Math.min(a.imagenes.length, 2)}, minmax(0, 1fr))`,
                         gap: 10,
                       }}
                     >
@@ -453,11 +453,10 @@ const estadoEquipoImagenes = Array.isArray(data?.estadoEquipo?.imagenes)
                           src={img}
                           alt={`actividad-${imgIndex}`}
                           style={{
-                            width: "100%",
-                            aspectRatio: "4 / 3",
-                            objectFit: "cover",
-                            border: "1px solid #ccc",
-                            borderRadius: 6,
+                            width: "auto",
+                            height: "auto",
+                            maxWidth: "100%",
+                            maxHeight: "5cm",
                             display: "block",
                           }}
                         />

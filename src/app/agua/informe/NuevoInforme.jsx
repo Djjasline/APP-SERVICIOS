@@ -1538,10 +1538,10 @@ const save = async () => {
                         <input type="file" accept="image/*" capture="environment" multiple className="hidden" onChange={(e) => handleActividadImageUpload(e, i)} />
                       </label>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(Math.max(act.imagenes?.length || 0, 1), 2)}, minmax(0, 1fr))` }}>
                       {(act.imagenes || []).map((url, j) => (
                         <div key={j} className="relative">
-                          <img src={url} className="w-full h-36 object-cover rounded border" />
+                          <img src={url} alt={`Actividad ${i + 1}, imagen ${j + 1}`} className="block w-auto h-auto max-w-full max-h-48 rounded" />
                           <button type="button"
                             onClick={() => removeActividadImage(i, j)}
                             className="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow"

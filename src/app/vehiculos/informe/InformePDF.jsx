@@ -486,13 +486,13 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                 </td>
                 <td style={{ ...S.cell, verticalAlign: "top" }}>
                   {a.imagenes?.length > 0 ? (
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(a.imagenes.length, 2)}, minmax(0, 1fr))`, gap: 8 }}>
                       {a.imagenes.map((imgSrc, imgIndex) => (
                         <div key={imgIndex}>
                           <img
                             src={imgSrc}
                             alt={`act-${i + 1}-${imgIndex + 1}`}
-                            style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", border: "1px solid #d1d5db", borderRadius: 4, display: "block" }}
+                            style={{ width: "auto", height: "auto", maxWidth: "100%", maxHeight: "5cm", display: "block" }}
                           />
                           {a.descripcionesImagenes?.[imgIndex] && (
                             <div style={{ marginTop: 3, fontSize: 9, lineHeight: 1.2, color: "#374151" }}>

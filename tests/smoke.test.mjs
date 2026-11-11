@@ -593,6 +593,16 @@ test("imagenes de observacion usan el espacio disponible sin recuadros fijos", (
   assert.match(form, /max-h-48 max-w-full w-auto h-auto/);
 });
 
+test("fotos de actividades se adaptan sin recorte automatico en informes", () => {
+  for (const area of ["agua", "vehiculos"]) {
+    const pdf = read(`src/app/${area}/informe/InformePDF.jsx`);
+    const form = read(`src/app/${area}/informe/NuevoInforme.jsx`);
+    assert.match(pdf, /Math\.min\(a\.imagenes\.length, 2\)/, area);
+    assert.match(pdf, /maxHeight: "5cm"/, area);
+    assert.match(form, /max-w-full max-h-48 rounded/, area);
+  }
+});
+
 test("aviso de autoguardado confirma solo la escritura local y muestra errores", () => {
   const hook = read("src/hooks/useAutoguardado.js");
   const status = read("src/components/AutosaveStatus.jsx");
