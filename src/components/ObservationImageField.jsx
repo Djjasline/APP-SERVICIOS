@@ -6,7 +6,7 @@ function sanitizeFolder(value) {
   return String(value || "observacion").replace(/[^a-z0-9-_]/gi, "-").toLowerCase();
 }
 
-export default function ObservationImageField({ value = [], onChange, recordId, folder, disabled = false }) {
+export default function ObservationImageField({ value = [], onChange, recordId, folder, disabled = false, allowRotation = false }) {
   const galleryRef = useRef(null);
   const cameraRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -38,7 +38,8 @@ export default function ObservationImageField({ value = [], onChange, recordId, 
         const url = await uploadRegistroImage(
           fileToUpload,
           recordId || "temp-observacion",
-          sanitizeFolder(folder)
+          sanitizeFolder(folder),
+          { allowRotation }
         );
 
         if (url) uploaded.push(url);

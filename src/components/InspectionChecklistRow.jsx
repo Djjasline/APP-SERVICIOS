@@ -9,6 +9,7 @@ export default function InspectionChecklistRow({
   onItemChange,
   recordId,
   newCriteria = false,
+  allowObservationRotation = false,
 }) {
   const current = item || {};
   const groupName = `inspection-status-${recordId || "draft"}-${codigo}`;
@@ -58,6 +59,7 @@ export default function InspectionChecklistRow({
           onChange={(imagenes) => onItemChange(codigo, "imagenes", imagenes)}
           recordId={recordId}
           folder={`observacion-${codigo}`}
+          allowRotation={allowObservationRotation}
         />
       </td>
     </tr>

@@ -1083,7 +1083,7 @@ setTimeout(() => {
               <th className="text-left">OBSERVACIÓN</th>
             </tr></thead>
             <tbody>{pruebasPrevias.map(([c,d]) => (
-              <InspectionChecklistRow newCriteria={newCriteria} key={c} codigo={c} descripcion={d} item={data.items?.[c]} onItemChange={handleItem} recordId={id || `temp-insp-${variantConfig.routeSegment}`} />
+              <InspectionChecklistRow newCriteria={newCriteria} allowObservationRotation={variant === "pelican"} key={c} codigo={c} descripcion={d} item={data.items?.[c]} onItemChange={handleItem} recordId={id || `temp-insp-${variantConfig.routeSegment}`} />
             ))}</tbody>
           </table>
 
@@ -1142,6 +1142,7 @@ setTimeout(() => {
         {sec.items.map(([c, d]) => (
           <InspectionChecklistRow
             newCriteria={newCriteria}
+            allowObservationRotation={variant === "pelican"}
             key={c}
             codigo={c}
             descripcion={d}
