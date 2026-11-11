@@ -570,6 +570,21 @@ test("carga de fotografias permite recortar o conservar la imagen antes de subir
   assert.match(crop, /queue\.then/);
 });
 
+test("puntos de inspeccion y PDF se posicionan sobre la foto y no sobre el marco", () => {
+  for (const path of [
+    "src/app/vehiculos/inspeccion/HojaInspeccionBarredora.jsx",
+    "src/app/vehiculos/inspeccion/HojaInspeccionHidro.jsx",
+    "src/app/vehiculos/inspeccion/HojaInspeccionCamara.jsx",
+  ]) {
+    const source = read(path);
+    assert.match(source, /className="relative inline-block max-w-full"\s*>\s*<img/s, path);
+    assert.match(source, /onClick=\{\(e\) => handleEstadoClick\(e, img\.id\)\}/, path);
+  }
+  const pdf = read("src/components/pdf/PdfReportLayout.jsx");
+  assert.match(pdf, /position: "relative", maxWidth: "100%", maxHeight: "100%", lineHeight: 0/);
+  assert.match(pdf, /maxHeight: "58mm"/);
+});
+
 test("bodega separa stock real de referencia historica vehiculos", () => {
   const service = read("src/services/warehouseInventoryService.js");
   const home = read("src/app/operaciones/bodega/BodegaHome.jsx");

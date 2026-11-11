@@ -110,7 +110,6 @@ export function PdfEquipmentImageFrame({ src, alt, points = [] }) {
     >
       <div
         style={{
-          position: "relative",
           width: "95mm",
           height: "58mm",
           maxWidth: "100%",
@@ -119,18 +118,22 @@ export function PdfEquipmentImageFrame({ src, alt, points = [] }) {
           borderRadius: 4,
           overflow: "hidden",
           background: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           breakInside: "avoid",
           pageBreakInside: "avoid",
         }}
       >
+        <div style={{ position: "relative", maxWidth: "100%", maxHeight: "100%", lineHeight: 0 }}>
         <img
           src={src}
           alt={alt}
           style={{
-            width: "100%",
-            height: "100%",
-            maxHeight: "70mm",
-            objectFit: "contain",
+            width: "auto",
+            height: "auto",
+            maxWidth: "100%",
+            maxHeight: "58mm",
             display: "block",
           }}
         />
@@ -159,6 +162,7 @@ export function PdfEquipmentImageFrame({ src, alt, points = [] }) {
             {index + 1}
           </div>
         ))}
+        </div>
       </div>
     </div>
   );

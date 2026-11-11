@@ -705,9 +705,10 @@ const firmaCliente =
                         Eliminar foto
                       </button>
                     </div>
-                    <div className="relative border rounded overflow-hidden bg-white flex items-center justify-center">
+                    <div className="border rounded overflow-hidden bg-white flex items-center justify-center">
+                      <div className="relative inline-block max-w-full">
                       <img src={img.url} alt={`estado-${idx+1}`}
-                        className="w-auto max-w-full max-h-[320px] object-contain cursor-crosshair mx-auto"
+                        className="block w-auto max-w-full max-h-[320px] object-contain cursor-crosshair"
                         onClick={(e) => handleEstadoClick(e, img.id)} />
                       {(img.puntos||[]).map((p, pi) => (
                         <button
@@ -724,6 +725,7 @@ const firmaCliente =
   {pi + 1}
 </button>
                       ))}
+                      </div>
                     </div>
                     <p className="text-[11px] text-gray-500">Toque la fotografía para marcar puntos rojos.</p>
                     {(img.puntos||[]).map((p, pi) => (
