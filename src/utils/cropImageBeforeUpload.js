@@ -1,25 +1,25 @@
 // Queue dialogs so multiple selected photos can be reviewed one at a time.
 let queue = Promise.resolve();
 
-export function cropImageBeforeUpload(file) {
-  const task = queue.then(() => showCropDialog(file));
+export function cropImageBeforeUpload(file, { allowRotation = false } = {}) {
+  const task = queue.then(() => showCropDialog(file, allowRotation));
   queue = task.catch(() => {});
   return task;
 }
 
-function showCropDialog(file) {
+function showCropDialog(file, allowRotation) {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const dialog = document.createElement("dialog");
     dialog.setAttribute("aria-label", "Editar fotografía antes de subirla");
     dialog.style.cssText = "position:fixed;z-index:2147483647;inset:0;margin:auto;width:min(94vw,620px);max-height:92vh;overflow:auto;padding:20px;border:1px solid #94a3b8;border-radius:12px;background:white;color:#111827;box-shadow:0 16px 48px #0006";
     dialog.innerHTML = `<h2 style="font-size:18px;font-weight:700;margin:0 0 8px">Preparar fotografía</h2>
-      <p style="font-size:13px;margin:0 0 12px">Opcional: gira la imagen y ajusta los bordes antes de agregar puntos u observaciones.</p>
+      <p style="font-size:13px;margin:0 0 12px">${allowRotation ? "Opcional: gira la imagen y ajusta los bordes" : "Opcional: ajusta los bordes"} antes de agregar puntos u observaciones.</p>
       <div style="position:relative;width:fit-content;max-width:100%;margin:auto;line-height:0;overflow:hidden">
         <img alt="Vista previa de la fotografía" style="display:block;max-width:100%;max-height:42vh;width:auto;height:auto">
         <div data-selection style="position:absolute;box-shadow:0 0 0 2000px #0009;border:2px solid white;pointer-events:none;box-sizing:border-box"></div>
       </div>
-      <div style="display:flex;justify-content:center;gap:8px;margin-top:12px">
+      <div style="display:${allowRotation ? "flex" : "none"};justify-content:center;gap:8px;margin-top:12px">
         <button type="button" data-rotate-left style="padding:8px 12px;border:1px solid #94a3b8;border-radius:6px;background:white;color:#111827">↶ Girar izquierda</button>
         <button type="button" data-rotate-right style="padding:8px 12px;border:1px solid #94a3b8;border-radius:6px;background:white;color:#111827">↷ Girar derecha</button>
       </div>

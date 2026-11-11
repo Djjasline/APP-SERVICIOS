@@ -576,7 +576,8 @@ test("vistas PDF mantienen texto oscuro en hojas blancas sin alterar encabezados
 test("carga de fotografias permite recortar o conservar la imagen antes de subirla", () => {
   const storage = read("src/utils/storage.js");
   const crop = read("src/utils/cropImageBeforeUpload.js");
-  assert.match(storage, /await cropImageBeforeUpload\(file\)/);
+  assert.match(storage, /await cropImageBeforeUpload\(file, \{ allowRotation \}\)/);
+  assert.match(storage, /tipo === "actividad" \|\| tipo === "estado-equipo"/);
   assert.match(crop, /Usar foto original/);
   assert.match(crop, /Girar izquierda/);
   assert.match(crop, /Girar derecha/);

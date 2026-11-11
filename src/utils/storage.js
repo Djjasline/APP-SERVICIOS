@@ -13,11 +13,12 @@ function sanitizeStoragePart(value, fallback) {
   return safeValue || fallback;
 }
 
-export async function uploadRegistroImage(file, id, tipo) {
+export async function uploadRegistroImage(file, id, tipo, options = {}) {
   try {
     if (!file) return null;
 
-    file = await cropImageBeforeUpload(file);
+    const allowRotation = options.allowRotation ?? (tipo === "actividad" || tipo === "estado-equipo");
+    file = await cropImageBeforeUpload(file, { allowRotation });
     if (!file) return null;
 
     const folder = sanitizeStoragePart(id, "temp");
