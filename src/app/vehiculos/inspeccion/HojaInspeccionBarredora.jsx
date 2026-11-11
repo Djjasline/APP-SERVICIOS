@@ -35,7 +35,7 @@ const secciones = [
     id: "A",
     titulo: "A) SISTEMA HIDRÁULICO (ACEITES)",
     items: [
-      ["A.1", "¿Se detectan fugas de aceite en mangueras, acoples, bancos, cilindros, bancos, válvulas o solenoides?"],
+      ["A.1", "¿Se detectan fugas de aceite en mangueras, acoples, bancos, cilindros, válvulas o solenoides?"],
       ["A.2", "¿El nivel de aceite AW68 del tanque es correcto y se visualiza la mirilla?"],
       ["A.3", "¿Se presentan fugas de aceite en los motores de los cepillos?"],
       ["A.4", "¿Se detectan fugas de aceite en el motor de la banda?"],
