@@ -148,6 +148,7 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
   const scope = user?.id || "anon";
   const datosRef = useRef(datos);
   const debounceRef = useRef(null);
+  const lastNoticeRef = useRef(0);
 
   useEffect(() => {
     activeScope = scope;
@@ -180,12 +181,20 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
   const guardar = useCallback(() => {
     if (!activo || !clave) return;
 
+    const showNotice = Date.now() - lastNoticeRef.current >= 15000;
+    const notify = (status) => window.dispatchEvent(new CustomEvent("astap:autosave", { detail: { status, clave } }));
+    if (showNotice) notify("saving");
+
     try {
       const payload = toDraftPayload(datosRef.current);
       localStorage.setItem(getScopedKey(clave, scope), JSON.stringify(payload));
       void guardarHistorialBorradorRemoto(clave, payload.datos, scope, payload.guardadoEn);
       if (!remoteProtectedKeys.has(getRemoteProtectionKey(clave, scope))) {
         void guardarBorradorRemoto(clave, payload.datos, scope, payload.guardadoEn);
+      }
+      if (showNotice) {
+        lastNoticeRef.current = Date.now();
+        notify("saved");
       }
 
       // Dev-only log para verificar que el autoguardado se ejecuta
@@ -194,6 +203,8 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
         console.debug(`[autoguardado] guardado ${clave} @ ${payload.guardadoEn}`);
       }
     } catch (e) {
+      lastNoticeRef.current = 0;
+      notify("error");
       console.warn("[autoguardado] Error al guardar:", e);
     }
   }, [clave, activo, scope]);

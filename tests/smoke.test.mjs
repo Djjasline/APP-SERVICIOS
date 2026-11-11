@@ -593,6 +593,19 @@ test("imagenes de observacion usan el espacio disponible sin recuadros fijos", (
   assert.match(form, /max-h-48 max-w-full w-auto h-auto/);
 });
 
+test("aviso de autoguardado confirma solo la escritura local y muestra errores", () => {
+  const hook = read("src/hooks/useAutoguardado.js");
+  const status = read("src/components/AutosaveStatus.jsx");
+  const app = read("src/App.jsx");
+  assert.match(hook, /localStorage\.setItem\(getScopedKey\(clave, scope\), JSON\.stringify\(payload\)\);[\s\S]*?notify\("saved"\)/);
+  assert.match(hook, /notify\("error"\)/);
+  assert.match(hook, /15000/);
+  assert.match(status, /Borrador autoguardado en este dispositivo/);
+  assert.match(status, /No se pudo autoguardar en este dispositivo/);
+  assert.match(status, /role=\{status === "error" \? "alert" : "status"\}/);
+  assert.match(app, /<AutosaveStatus\s*\/>/);
+});
+
 test("puntos de inspeccion y PDF se posicionan sobre la foto y no sobre el marco", () => {
   for (const path of [
     "src/app/vehiculos/inspeccion/HojaInspeccionBarredora.jsx",
