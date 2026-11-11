@@ -1,5 +1,6 @@
 import ObservationImageField from "@/components/ObservationImageField";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import { inspectionDescription } from "@/app/vehiculos/inspeccion/inspectionCriteria.mjs";
 
 export default function InspectionChecklistRow({
   codigo,
@@ -7,6 +8,7 @@ export default function InspectionChecklistRow({
   item,
   onItemChange,
   recordId,
+  newCriteria = false,
 }) {
   const current = item || {};
   const groupName = `inspection-status-${recordId || "draft"}-${codigo}`;
@@ -15,12 +17,12 @@ export default function InspectionChecklistRow({
     <tr className="hover:bg-gray-50">
       <td className="pdf-label text-xs">{codigo}</td>
       <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>
-        {descripcion}
+        {inspectionDescription(descripcion, newCriteria)}
       </td>
       {["SI", "NO", "NA"].map((opt) => (
         <td
           key={opt}
-          className={`p-0 text-center ${current.estado === opt ? "bg-blue-50" : ""}`}
+          className={`p-0 text-center ${current.estado === opt ? (newCriteria ? ({ SI: "bg-green-100", NO: "bg-red-100", NA: "" }[opt]) : "bg-blue-50") : ""}`}
           style={{ border: "1px solid #d1d5db", width: 40 }}
         >
           <label
@@ -36,7 +38,7 @@ export default function InspectionChecklistRow({
               onChange={(event) => {
                 if (event.target.checked) onItemChange(codigo, "estado", event.target.value);
               }}
-              className="h-5 w-5 cursor-pointer accent-blue-600"
+              className={`h-5 w-5 cursor-pointer ${newCriteria ? ({ SI: "accent-green-700", NO: "accent-red-700", NA: "accent-gray-600" }[opt]) : "accent-blue-600"}`}
               aria-label={`Marcar ${opt === "NA" ? "N/A" : opt} para el ítem ${codigo}`}
             />
             <span className="sr-only">Marcar {opt === "NA" ? "N/A" : opt}</span>

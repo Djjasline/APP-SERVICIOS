@@ -16,6 +16,8 @@ import AutoResizeInput from "@/components/AutoResizeInput";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import InspectionChecklistRow from "@/components/InspectionChecklistRow";
+import { usesNewInspectionCriteria } from "./inspectionCriteria.mjs";
+import InspectionCriteriaLegend from "./InspectionCriteriaLegend";
 
 
 /* =============================
@@ -316,6 +318,8 @@ const [successMsg, setSuccessMsg]         = useState("");
    const [firmaTecnicoEditada, setFirmaTecnicoEditada] = useState(false);
 const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
 const [data, setData] = useState(emptyForm);
+const [createdAt, setCreatedAt] = useState(id ? null : new Date().toISOString());
+const newCriteria = usesNewInspectionCriteria(createdAt);
 const activeSections = variantConfig.sections || secciones;
 const activeItemCodes = [
   ...pruebasPrevias.map(([c]) => c),
@@ -383,6 +387,7 @@ useEffect(() => {
   .eq("subtipo", variantConfig.subtipo)
   .single();
     if (error || !reg) return;
+    setCreatedAt(reg.created_at);
 
     const d = {
       ...emptyForm,
@@ -1068,7 +1073,7 @@ setTimeout(() => {
             1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
           </h3>
           <p className="text-[11px] text-gray-500 -mt-1 mb-1">
-            SI = Funciona correctamente | NO = Presenta falla | N/A = No aplica al equipo
+            {newCriteria ? <InspectionCriteriaLegend /> : "SI = Funciona correctamente | NO = Presenta falla | N/A = No aplica al equipo"}
           </p>
           <table className="pdf-table w-full">
             <thead><tr>
@@ -1078,7 +1083,7 @@ setTimeout(() => {
               <th className="text-left">OBSERVACIÓN</th>
             </tr></thead>
             <tbody>{pruebasPrevias.map(([c,d]) => (
-              <InspectionChecklistRow key={c} codigo={c} descripcion={d} item={data.items?.[c]} onItemChange={handleItem} recordId={id || `temp-insp-${variantConfig.routeSegment}`} />
+              <InspectionChecklistRow newCriteria={newCriteria} key={c} codigo={c} descripcion={d} item={data.items?.[c]} onItemChange={handleItem} recordId={id || `temp-insp-${variantConfig.routeSegment}`} />
             ))}</tbody>
           </table>
 
@@ -1087,7 +1092,7 @@ setTimeout(() => {
             2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O SISTEMAS
           </h2>
           <p className="text-[11px] text-gray-500 px-1 -mt-1">
-            SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo
+            {newCriteria ? <InspectionCriteriaLegend /> : "SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo"}
           </p>
 
           {activeSections.map((sec) => (
@@ -1097,7 +1102,7 @@ setTimeout(() => {
       {sec.titulo}
     </h3>
     <p className="text-[11px] text-gray-500 -mt-1 mb-1">
-      SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo
+      {newCriteria ? <InspectionCriteriaLegend /> : "SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo"}
     </p>
 
     <table className="pdf-table w-full">
@@ -1136,6 +1141,7 @@ setTimeout(() => {
       <tbody>
         {sec.items.map(([c, d]) => (
           <InspectionChecklistRow
+            newCriteria={newCriteria}
             key={c}
             codigo={c}
             descripcion={d}

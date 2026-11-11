@@ -16,6 +16,8 @@ import AutoResizeInput from "@/components/AutoResizeInput";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import InspectionChecklistRow from "@/components/InspectionChecklistRow";
+import { usesNewInspectionCriteria } from "./inspectionCriteria.mjs";
+import InspectionCriteriaLegend from "./InspectionCriteriaLegend";
 
 const inspectionDescription =
   "Inspección técnica del módulo hidrosuccionador y sus sistemas, no incluye servicios de chasis.";
@@ -190,6 +192,8 @@ const superAdminActivo =
   const sigCliente = useRef(null);
 
   const [data, setData]                     = useState(emptyForm);
+  const [createdAt, setCreatedAt] = useState(id ? null : new Date().toISOString());
+  const newCriteria = usesNewInspectionCriteria(createdAt);
 
   // Autoguardado automático cada 15 segundos
   useAutoguardado(claveAutoguardado, data, true);
@@ -233,6 +237,7 @@ const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
       const { data: reg, error } = await supabase
         .from("registros").select("*").eq("id", id).single();
       if (error || !reg) return;
+      setCreatedAt(reg.created_at);
 
       const d = { ...emptyForm, ...(reg.data || {}) };
       d.estadoEquipo = {
@@ -746,7 +751,7 @@ const firmaCliente =
             1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
           </h3>
           <p className="text-[11px] text-gray-500 -mt-1 mb-1">
-            SI = Funciona correctamente | NO = Presenta falla | N/A = No aplica al equipo
+            {newCriteria ? <InspectionCriteriaLegend /> : "SI = Funciona correctamente | NO = Presenta falla | N/A = No aplica al equipo"}
           </p>
           <table className="pdf-table w-full">
             <thead><tr>
@@ -755,19 +760,19 @@ const firmaCliente =
               <th style={{ width:40 }}>SI</th><th style={{ width:40 }}>NO</th><th style={{ width:40 }}>N/A</th>
               <th className="text-left">OBSERVACIÓN</th>
             </tr></thead>
-            <tbody>{pruebasPrevias.map(([c,d]) => <InspectionChecklistRow key={c} codigo={c} descripcion={d} item={data.items?.[c]} onItemChange={handleItem} recordId={id || "temp-insp-hidro"} />)}</tbody>
+            <tbody>{pruebasPrevias.map(([c,d]) => <InspectionChecklistRow newCriteria={newCriteria} key={c} codigo={c} descripcion={d} item={data.items?.[c]} onItemChange={handleItem} recordId={id || "temp-insp-hidro"} />)}</tbody>
           </table>
 
           {/* ══ 6. SECCIONES A–D ══ */}
           <h3 className="font-bold text-xs border-b pb-1">2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O SISTEMAS</h3>
           <p className="text-[11px] text-gray-500 px-1 -mt-1">
-            SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo
+            {newCriteria ? <InspectionCriteriaLegend /> : "SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo"}
           </p>
           {secciones.map((sec) => (
             <section key={sec.id}>
               <h3 className="font-bold text-xs border-b pb-1 mb-2">{sec.titulo}</h3>
               <p className="text-[11px] text-gray-500 -mt-1 mb-1">
-                SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo
+                {newCriteria ? <InspectionCriteriaLegend /> : "SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo"}
               </p>
               <table className="pdf-table w-full">
                 <thead><tr>
@@ -776,7 +781,7 @@ const firmaCliente =
                   <th style={{ width:40 }}>SI</th><th style={{ width:40 }}>NO</th><th style={{ width:40 }}>N/A</th>
                   <th className="text-left">OBSERVACIÓN</th>
                 </tr></thead>
-                <tbody>{sec.items.map(([c,d]) => <InspectionChecklistRow key={c} codigo={c} descripcion={d} item={data.items?.[c]} onItemChange={handleItem} recordId={id || "temp-insp-hidro"} />)}</tbody>
+                <tbody>{sec.items.map(([c,d]) => <InspectionChecklistRow newCriteria={newCriteria} key={c} codigo={c} descripcion={d} item={data.items?.[c]} onItemChange={handleItem} recordId={id || "temp-insp-hidro"} />)}</tbody>
               </table>
             </section>
           ))}

@@ -16,6 +16,8 @@ import AutoResizeInput from "@/components/AutoResizeInput";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import InspectionChecklistRow from "@/components/InspectionChecklistRow";
+import { usesNewInspectionCriteria } from "./inspectionCriteria.mjs";
+import InspectionCriteriaLegend from "./InspectionCriteriaLegend";
 
 /* ══════════════════════════════
    PRUEBAS PREVIAS AL SERVICIO
@@ -157,6 +159,8 @@ const superAdminActivo =
   const sigCliente = useRef(null);
 
 const [data, setData] = useState(emptyForm);
+const [createdAt, setCreatedAt] = useState(id ? null : new Date().toISOString());
+const newCriteria = usesNewInspectionCriteria(createdAt);
 
   // Autoguardado automático cada 15 segundos
   useAutoguardado(claveAutoguardado, data, true);
@@ -212,6 +216,7 @@ const inspeccionLista =
       const { data: reg, error } = await supabase
         .from("registros").select("*").eq("id", id).single();
       if (error || !reg) return;
+      setCreatedAt(reg.created_at);
 
       const d = { ...emptyForm, ...(reg.data || {}) };
       d.equipo = { ...emptyForm.equipo, ...(reg.data?.equipo || {}) };
@@ -876,7 +881,7 @@ const result = await saveOrUpdateReport({
             1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
           </h3>
           <p className="text-[11px] text-gray-500 -mt-1 mb-1">
-            SI = Funciona correctamente | NO = Presenta falla | N/A = No aplica al equipo
+            {newCriteria ? <InspectionCriteriaLegend /> : "SI = Funciona correctamente | NO = Presenta falla | N/A = No aplica al equipo"}
           </p>
           <table className="pdf-table w-full">
             <thead>
@@ -891,7 +896,7 @@ const result = await saveOrUpdateReport({
             </thead>
             <tbody>
               {pruebasPrevias.map(([c, d]) => (
-                <InspectionChecklistRow key={c} codigo={c} descripcion={d} item={data.items?.[c]} onItemChange={handleItem} recordId={id || "temp-insp-camara"} />
+                <InspectionChecklistRow newCriteria={newCriteria} key={c} codigo={c} descripcion={d} item={data.items?.[c]} onItemChange={handleItem} recordId={id || "temp-insp-camara"} />
               ))}
             </tbody>
           </table>
@@ -901,13 +906,13 @@ const result = await saveOrUpdateReport({
             2. EVALUACIÓN DEL ESTADO DE LOS COMPONENTES O SISTEMAS
           </h3>
           <p className="text-[11px] text-gray-500 px-1 -mt-1">
-            SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo
+            {newCriteria ? <InspectionCriteriaLegend /> : "SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo"}
           </p>
           {secciones.map((sec) => (
             <section key={sec.id}>
               <h3 className="font-bold text-xs border-b pb-1 mb-2">{sec.titulo}</h3>
               <p className="text-[11px] text-gray-500 -mt-1 mb-1">
-                SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo
+                {newCriteria ? <InspectionCriteriaLegend /> : "SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo"}
               </p>
               <table className="pdf-table w-full">
                 <thead>
@@ -922,7 +927,7 @@ const result = await saveOrUpdateReport({
                 </thead>
                 <tbody>
                   {sec.items.map(([c, d]) => (
-                    <InspectionChecklistRow key={c} codigo={c} descripcion={d} item={data.items?.[c]} onItemChange={handleItem} recordId={id || "temp-insp-camara"} />
+                    <InspectionChecklistRow newCriteria={newCriteria} key={c} codigo={c} descripcion={d} item={data.items?.[c]} onItemChange={handleItem} recordId={id || "temp-insp-camara"} />
                   ))}
                 </tbody>
               </table>

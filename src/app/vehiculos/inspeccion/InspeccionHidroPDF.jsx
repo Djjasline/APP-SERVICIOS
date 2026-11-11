@@ -1,4 +1,6 @@
 import { supabase } from "@/lib/supabase";
+import { usesNewInspectionCriteria, inspectionDescription as checklistDescription } from "./inspectionCriteria.mjs";
+import InspectionCriteriaLegend from "./InspectionCriteriaLegend";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
@@ -73,7 +75,7 @@ const S = {
 
 const estadoColor = { SI: "#dcfce7", NO: "#fee2e2", NA: "#f3f4f6" };
 
-function ChecklistTable({ items, data }) {
+function ChecklistTable({ items, data, newCriteria }) {
   return (
     <table style={S.tbl}>
       <thead>
@@ -94,9 +96,9 @@ function ChecklistTable({ items, data }) {
           return (
             <tr key={codigo}>
               <td style={{ ...S.cell, textAlign: "center", fontWeight: 700 }}>{codigo}</td>
-              <td style={S.cell}>{desc}</td>
+              <td style={S.cell}>{checklistDescription(desc, newCriteria)}</td>
               {["SI", "NO", "NA"].map((opt) => (
-                <td key={opt} style={{ ...S.cell, textAlign: "center", backgroundColor: estado === opt ? estadoColor[opt] : "#fff", fontWeight: estado === opt ? 700 : 400 }}>
+                <td key={opt} style={{ ...S.cell, textAlign: "center", backgroundColor: estado === opt ? (newCriteria && opt === "NA" ? "#fff" : estadoColor[opt]) : "#fff", fontWeight: estado === opt ? 700 : 400 }}>
                   {estado === opt ? "✓" : ""}
                 </td>
               ))}
@@ -129,6 +131,7 @@ export default function InspeccionHidroPDF({ allowDownload = true }) {
   const navigate = useNavigate();
   const { id } = useParams();
   const [report, setReport] = useState(null);
+  const newCriteria = usesNewInspectionCriteria(report?.createdAt);
 
   useEffect(() => {
     const load = async () => {
@@ -376,10 +379,10 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
             1. PRUEBAS DE ENCENDIDO DEL EQUIPO Y FUNCIONAMIENTO DE SUS SISTEMAS
           </p>
           <p style={{ fontSize: 8.5, color: "#6b7280", margin: "2px 0 4px", fontStyle: "italic" }}>
-            SI = Funciona correctamente | NO = Presenta falla | N/A = No aplica al equipo
+            {newCriteria ? <InspectionCriteriaLegend /> : "SI = Funciona correctamente | NO = Presenta falla | N/A = No aplica al equipo"}
           </p>
 
-          <ChecklistTable items={pruebasPrevias} data={d} />
+          <ChecklistTable items={pruebasPrevias} data={d} newCriteria={newCriteria} />
         </div>
 
         {/* SECCIONES */}
@@ -387,9 +390,9 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
           <div key={i}>
             <p style={S.sectionTitle}>{sec.titulo}</p>
             <p style={{ fontSize: 8.5, color: "#6b7280", margin: "2px 0 4px", fontStyle: "italic" }}>
-              SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo
+              {newCriteria ? <InspectionCriteriaLegend /> : "SI = Sin anomalías | NO = Presenta anomalía (describa en observación) | N/A = No aplica al equipo"}
             </p>
-            <ChecklistTable items={sec.items} data={d} />
+            <ChecklistTable items={sec.items} data={d} newCriteria={newCriteria} />
           </div>
         ))}
 
