@@ -111,7 +111,7 @@ export default function PanelServicios() {
           {menuPrincipal.map((item) => (
             <div
               key={item.id}
-              className={`p-6 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 space-y-4 ${
+              className={`service-dashboard-card p-6 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 space-y-4 ${
                 isGraphiteDark
                   ? "border border-white/15 bg-[#2a2c2f]/90 text-white backdrop-blur-md shadow-black/40"
                   : "bg-white"

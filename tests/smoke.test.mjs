@@ -30,6 +30,15 @@ test("menu lateral muestra acceso a informe de capacitacion", () => {
   assert.match(sidebar, /Informe de Capacitación/);
 });
 
+test("liquid glass usa superficies calidas sin cambiar dark liquid", () => {
+  const styles = read("src/styles/tailwind.css");
+  const panel = read("src/pages/PanelServicios.jsx");
+  assert.match(styles, /html\[data-theme="liquid"\] \.service-dashboard-card/);
+  assert.match(styles, /html\[data-theme="liquid"\] \.liquid-glass-background/);
+  assert.match(styles, /html\[data-theme="liquid-dark"\] \.liquid-glass-background/);
+  assert.match(panel, /service-dashboard-card/);
+});
+
 test("menu lateral resalta chat cuando hay usuarios en linea", () => {
   const sidebar = read("src/layouts/Sidebar.jsx");
   const layout = read("src/layouts/MainLayout.jsx");
