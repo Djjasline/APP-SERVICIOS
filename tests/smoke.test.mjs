@@ -560,6 +560,16 @@ test("vistas PDF mantienen texto oscuro en hojas blancas sin alterar encabezados
   assert.match(inspection, /sectionTitle:\s*\{[^}]*color:\s*"#fff"/s);
 });
 
+test("carga de fotografias permite recortar o conservar la imagen antes de subirla", () => {
+  const storage = read("src/utils/storage.js");
+  const crop = read("src/utils/cropImageBeforeUpload.js");
+  assert.match(storage, /await cropImageBeforeUpload\(file\)/);
+  assert.match(crop, /Usar foto completa/);
+  assert.match(crop, /Cancelar carga/);
+  assert.match(crop, /drawImage\(image/);
+  assert.match(crop, /queue\.then/);
+});
+
 test("bodega separa stock real de referencia historica vehiculos", () => {
   const service = read("src/services/warehouseInventoryService.js");
   const home = read("src/app/operaciones/bodega/BodegaHome.jsx");

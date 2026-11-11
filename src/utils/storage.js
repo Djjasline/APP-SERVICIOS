@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { cropImageBeforeUpload } from "@/utils/cropImageBeforeUpload";
 
 function sanitizeStoragePart(value, fallback) {
   const safeValue = String(value || fallback)
@@ -14,6 +15,9 @@ function sanitizeStoragePart(value, fallback) {
 
 export async function uploadRegistroImage(file, id, tipo) {
   try {
+    if (!file) return null;
+
+    file = await cropImageBeforeUpload(file);
     if (!file) return null;
 
     const folder = sanitizeStoragePart(id, "temp");
