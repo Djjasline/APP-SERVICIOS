@@ -92,7 +92,7 @@ function ChecklistTable({ items, data, newCriteria }) {
               <td style={{ ...S.cell, textAlign: "center", fontWeight: 700 }}>{codigo}</td>
               <td style={S.cell}>{inspectionDescription(desc, newCriteria)}</td>
               {["SI","NO","NA"].map((opt) => (
-                <td key={opt} style={{ ...S.cell, textAlign: "center", backgroundColor: estado === opt ? (newCriteria && opt === "NA" ? "#fff" : estadoColor[opt]) : "#fff", fontWeight: estado === opt ? 700 : 400 }}>{estado === opt ? "✓" : ""}</td>
+                <td key={opt} style={{ ...S.cell, textAlign: "center", backgroundColor: estado === opt ? (newCriteria ? ({ SI: "#fee2e2", NO: "#dcfce7", NA: "#fff" }[opt]) : estadoColor[opt]) : "#fff", fontWeight: estado === opt ? 700 : 400 }}>{estado === opt ? "✓" : ""}</td>
               ))}
               <td style={S.cell}>
                 <div>{item.observacion || "—"}</div>

@@ -103,7 +103,7 @@ function ChecklistTable({ items, data, newCriteria }) {
                   style={{
                     ...S.cell,
                     textAlign: "center",
-                    backgroundColor: estado === opt ? (newCriteria && opt === "NA" ? "#fff" : estadoColor[opt]) : "#fff",
+                    backgroundColor: estado === opt ? (newCriteria ? ({ SI: "#fee2e2", NO: "#dcfce7", NA: "#fff" }[opt]) : estadoColor[opt]) : "#fff",
                     fontWeight: estado === opt ? 700 : 400,
                   }}
                 >

@@ -22,7 +22,7 @@ export default function InspectionChecklistRow({
       {["SI", "NO", "NA"].map((opt) => (
         <td
           key={opt}
-          className={`p-0 text-center ${current.estado === opt ? (newCriteria ? ({ SI: "bg-green-100", NO: "bg-red-100", NA: "" }[opt]) : "bg-blue-50") : ""}`}
+          className={`p-0 text-center ${current.estado === opt ? (newCriteria ? ({ SI: "bg-red-100", NO: "bg-green-100", NA: "" }[opt]) : "bg-blue-50") : ""}`}
           style={{ border: "1px solid #d1d5db", width: 40 }}
         >
           <label
@@ -38,7 +38,7 @@ export default function InspectionChecklistRow({
               onChange={(event) => {
                 if (event.target.checked) onItemChange(codigo, "estado", event.target.value);
               }}
-              className={`h-5 w-5 cursor-pointer ${newCriteria ? ({ SI: "accent-green-700", NO: "accent-red-700", NA: "accent-gray-600" }[opt]) : "accent-blue-600"}`}
+              className={`h-5 w-5 cursor-pointer ${newCriteria ? ({ SI: "accent-red-700", NO: "accent-green-700", NA: "accent-gray-600" }[opt]) : "accent-blue-600"}`}
               aria-label={`Marcar ${opt === "NA" ? "N/A" : opt} para el ítem ${codigo}`}
             />
             <span className="sr-only">Marcar {opt === "NA" ? "N/A" : opt}</span>
