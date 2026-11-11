@@ -3,20 +3,15 @@ export default function ObservationImagesPdf({ images = [] }) {
   if (!validImages.length) return null;
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, marginTop: 4 }}>
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(validImages.length, 3)}, minmax(0, 1fr))`, gap: 6, marginTop: 4 }}>
       {validImages.map((url, index) => (
         <div
           key={`${url}-${index}`}
           style={{
             width: "100%",
-            height: "5cm",
             display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            overflow: "hidden",
-            border: "1px solid #d1d5db",
-            borderRadius: 4,
-            background: "#f8fafc",
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
             pageBreakInside: "avoid",
           }}
         >
@@ -25,9 +20,10 @@ export default function ObservationImagesPdf({ images = [] }) {
             alt={`Evidencia observación ${index + 1}`}
             style={{
               display: "block",
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
+              width: "auto",
+              height: "auto",
+              maxWidth: "100%",
+              maxHeight: "5cm",
             }}
           />
         </div>

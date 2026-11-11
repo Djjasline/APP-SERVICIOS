@@ -583,6 +583,16 @@ test("carga de fotografias permite recortar o conservar la imagen antes de subir
   assert.match(crop, /queue\.then/);
 });
 
+test("imagenes de observacion usan el espacio disponible sin recuadros fijos", () => {
+  const pdf = read("src/components/ObservationImagesPdf.jsx");
+  const form = read("src/components/ObservationImageField.jsx");
+  assert.match(pdf, /Math\.min\(validImages\.length, 3\)/);
+  assert.match(pdf, /maxHeight: "5cm"/);
+  assert.doesNotMatch(pdf, /height: "5cm"|border: "1px solid/);
+  assert.match(form, /Math\.min\(images\.length, 3\)/);
+  assert.match(form, /max-h-48 max-w-full w-auto h-auto/);
+});
+
 test("puntos de inspeccion y PDF se posicionan sobre la foto y no sobre el marco", () => {
   for (const path of [
     "src/app/vehiculos/inspeccion/HojaInspeccionBarredora.jsx",

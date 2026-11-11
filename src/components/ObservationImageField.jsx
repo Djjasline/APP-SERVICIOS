@@ -99,10 +99,10 @@ export default function ObservationImageField({ value = [], onChange, recordId, 
       </div>
 
       {images.length > 0 && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(images.length, 3)}, minmax(0, 1fr))` }}>
           {images.map((url, index) => (
-            <div key={`${url}-${index}`} className="relative flex h-20 items-center justify-center overflow-hidden rounded border bg-slate-50 p-1">
-              <img src={url} alt={`Evidencia observación ${index + 1}`} className="h-full w-full rounded object-contain" />
+            <div key={`${url}-${index}`} className="relative w-fit max-w-full">
+              <img src={url} alt={`Evidencia observación ${index + 1}`} className="block max-h-48 max-w-full w-auto h-auto rounded" />
               <button
                 type="button"
                 onClick={() => removeImage(index)}
