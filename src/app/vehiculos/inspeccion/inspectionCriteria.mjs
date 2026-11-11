@@ -17,5 +17,7 @@ const positiveQuestions = {
 };
 
 export function inspectionDescription(description, enabled) {
-  return enabled ? (positiveQuestions[description] || description) : description;
+  if (!enabled) return description;
+  const review = (positiveQuestions[description] || description).replace(/^[¿\s]+|[?\s]+$/g, "");
+  return `¿Existe alguna novedad al revisar lo siguiente: ${review}?`;
 }

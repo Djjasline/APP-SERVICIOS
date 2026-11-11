@@ -10,9 +10,9 @@ test("criterio de inspección depende de fecha de creación y conserva el anteri
   assert.equal(usesNewInspectionCriteria("inválida"), false);
 });
 
-test("preguntas negativas se reformulan solo para el nuevo criterio", () => {
+test("cada revisión pregunta por novedades solo para el nuevo criterio", () => {
   const original = "¿Se detectan fugas de aceite en el motor de la banda?";
   assert.equal(inspectionDescription(original, false), original);
-  assert.equal(inspectionDescription(original, true), "¿El motor de la banda se encuentra sin fugas de aceite?");
-  assert.equal(inspectionDescription("Nivel de aceite", true), "Nivel de aceite");
+  assert.equal(inspectionDescription(original, true), "¿Existe alguna novedad al revisar lo siguiente: El motor de la banda se encuentra sin fugas de aceite?");
+  assert.equal(inspectionDescription("Nivel de aceite", true), "¿Existe alguna novedad al revisar lo siguiente: Nivel de aceite?");
 });
