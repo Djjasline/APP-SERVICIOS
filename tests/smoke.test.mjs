@@ -503,9 +503,22 @@ test("biblioteca tecnica incluye buscador por indice OneDrive", () => {
 test("service worker no bloquea indice tecnico con cache vieja", () => {
   const sw = read("public/sw.js");
 
-  assert.match(sw, /app-servicios-v15/);
+  assert.match(sw, /app-servicios-v16/);
   assert.match(sw, /data\/technical-manual-index\.json/);
   assert.match(sw, /fetch\(event\.request, \{ cache: "reload" \}\)/);
+});
+
+test("actualizaciones no guardan HTML como JavaScript ni recargan formularios automaticamente", () => {
+  const sw = read("public/sw.js");
+  const html = read("index.html");
+  const redirects = read("public/_redirects");
+  assert.match(sw, /isScriptAsset && isHtml\(networkResponse\)/);
+  assert.match(sw, /isScriptAsset && isHtml\(cachedResponse\)/);
+  assert.match(sw, /networkResponse\.ok/);
+  assert.match(redirects, /^\/assets\/\* \/asset-not-found\.txt 404/m);
+  assert.match(html, /vite:preloadError/);
+  assert.match(html, /button\.onclick = function \(\) \{ location\.reload\(\); \}/);
+  assert.doesNotMatch(html, /localStorage\.clear\(|caches\.delete\(/);
 });
 
 test("historiales limitan consultas pesadas", () => {
@@ -815,7 +828,7 @@ test("PWA permite instalacion y accesos directos", () => {
   assert.match(layout, /Instalar app/);
   assert.match(manifest, /"shortcuts"/);
   assert.match(manifest, /"url": "\/operaciones\/bodega"/);
-  assert.match(sw, /app-servicios-v15/);
+  assert.match(sw, /app-servicios-v16/);
 });
 
 test("correccion historica conserva las fechas originales", () => {

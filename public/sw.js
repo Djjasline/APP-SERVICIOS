@@ -1,4 +1,4 @@
-const CACHE_NAME = "app-servicios-v15";
+const CACHE_NAME = "app-servicios-v16";
 const VAPID_CACHE_NAME = "app-servicios-vapid";
 const VAPID_PUBLIC_KEY_REQUEST = "/__vapid_public_key__";
 
@@ -87,7 +87,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((cacheNames) =>
       Promise.all(
         cacheNames.map((cache) => {
-          if (![CACHE_NAME, VAPID_CACHE_NAME].includes(cache)) return caches.delete(cache);
+          if (cache.startsWith("app-servicios-v") && ![CACHE_NAME, VAPID_CACHE_NAME].includes(cache)) return caches.delete(cache);
         })
       )
     )
@@ -115,11 +115,11 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       (async () => {
         try {
-          const networkResponse = await fetch(event.request);
-          const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put("/index.html", responseClone);
-          });
+          const networkResponse = await fetch(event.request, { cache: "no-cache" });
+          if (networkResponse.ok && (networkResponse.headers.get("content-type") || "").includes("text/html")) {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put("/index.html", networkResponse.clone()).catch(() => {});
+          }
           return networkResponse;
         } catch {
           return getAppShellResponse();
@@ -130,11 +130,18 @@ self.addEventListener("fetch", (event) => {
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const isScriptAsset = url.pathname.startsWith("/assets/") && /\.(?:js|mjs|css)$/.test(url.pathname);
+      const isHtml = (response) => (response.headers.get("content-type") || "").includes("text/html");
+      const cachedResponse = await cache.match(event.request);
+      if (cachedResponse && !(isScriptAsset && isHtml(cachedResponse))) return cachedResponse;
+      if (cachedResponse) await cache.delete(event.request);
 
       return fetch(event.request)
         .then((networkResponse) => {
+          if (isScriptAsset && isHtml(networkResponse)) {
+            return new Response("Recurso no disponible; actualice la aplicación.", { status: 502, statusText: "Invalid asset response" });
+          }
           if (
             !networkResponse ||
             networkResponse.status !== 200 ||
@@ -144,9 +151,7 @@ self.addEventListener("fetch", (event) => {
           }
 
           const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
+          cache.put(event.request, responseClone).catch(() => {});
 
           return networkResponse;
         })

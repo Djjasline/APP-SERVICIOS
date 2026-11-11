@@ -7,6 +7,11 @@
 
 # SPA fallback
 [[redirects]]
+  from = "/assets/*"
+  to = "/asset-not-found.txt"
+  status = 404
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

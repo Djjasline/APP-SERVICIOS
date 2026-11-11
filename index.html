@@ -110,6 +110,33 @@
       </main>
     </div>
   </div>
+  <script>
+    // A new deployment can remove a chunk needed by an already-open page.
+    // Never reload automatically: the user may have unsaved form changes.
+    (function () {
+      function showUpdateNotice() {
+        if (document.getElementById('app-update-error')) return;
+        var notice = document.createElement('div');
+        notice.id = 'app-update-error';
+        notice.setAttribute('role', 'alert');
+        notice.style.cssText = 'position:fixed;z-index:2147483647;inset:auto 1rem 1rem;background:#fff;color:#111827;border:2px solid #b45309;border-radius:12px;padding:16px;box-shadow:0 8px 30px #0006;font:14px system-ui;max-width:520px;margin:auto';
+        var message = document.createElement('p');
+        message.textContent = 'No se pudo cargar una parte de la aplicación. Puede haber una actualización o un problema de conexión. Si tienes cambios sin guardar, verifica tu borrador antes de actualizar.';
+        var button = document.createElement('button');
+        button.textContent = 'Actualizar aplicación';
+        button.style.cssText = 'background:#1d4ed8;color:white;border:0;border-radius:6px;padding:9px 14px;cursor:pointer';
+        button.onclick = function () { location.reload(); };
+        notice.append(message, button);
+        document.body.appendChild(notice);
+      }
+      window.addEventListener('vite:preloadError', showUpdateNotice);
+      window.addEventListener('error', function (event) {
+        var target = event.target;
+        var url = target && (target.src || target.href);
+        if (url && /\/assets\/.*\.(js|mjs|css)(?:\?|$)/.test(url)) showUpdateNotice();
+      }, true);
+    })();
+  </script>
   <script type="module" src="/src/index.jsx"></script>
 </body>
 
