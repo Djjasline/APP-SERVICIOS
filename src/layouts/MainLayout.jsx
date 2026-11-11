@@ -235,11 +235,13 @@ export default function MainLayout() {
 
     const handleFocus = () => load();
     window.addEventListener("focus", handleFocus);
+    window.addEventListener("notifications-read", handleFocus);
 
     return () => {
       mounted = false;
       clearInterval(t);
       window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("notifications-read", handleFocus);
     };
   }, [email, user?.id]);
 

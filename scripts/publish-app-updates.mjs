@@ -12,13 +12,11 @@ const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
 
 async function main() {
   if (!supabaseUrl || !serviceRoleKey) {
-    console.log("SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY no configurado. No se publican boletines.");
-    process.exit(0);
+    throw new Error("SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY no configurado. No se publican boletines.");
   }
 
   if (!eventPath) {
-    console.log("GITHUB_EVENT_PATH no disponible. No se publican boletines.");
-    process.exit(0);
+    throw new Error("GITHUB_EVENT_PATH no disponible. No se publican boletines.");
   }
 
   const event = await readJson(eventPath);
@@ -69,9 +67,7 @@ async function main() {
 
   if (!response.ok) {
     const text = await response.text();
-    console.warn(`No se pudo publicar el boletín (${response.status}): ${text}`);
-    console.warn("Se continúa porque el boletín no es crítico para publicar la app.");
-    return;
+    throw new Error(`No se pudo publicar el boletín (${response.status}): ${text}`);
   }
 
   console.log(`Boletín publicado: ${title}`);
@@ -398,7 +394,8 @@ function friendlyCommit(commit) {
 
 function buildTitle(commits) {
   if (commits.length === 1) {
-    return friendlyCommit(commits[0])?.title || "Control de cambios: actualización publicada";
+    const subject = firstLine(commits[0]?.message);
+    return friendlyCommit(commits[0])?.title || (subject ? `Control de cambios: ${subject}` : "Control de cambios: actualización publicada");
   }
 
   return `Control de cambios: ${commits.length} cambios publicados`;
@@ -406,16 +403,16 @@ function buildTitle(commits) {
 
 function buildMessage(commits) {
   if (commits.length === 1) {
-    return friendlyCommit(commits[0])?.message || DEFAULT_UPDATE_MESSAGE;
+    return friendlyCommit(commits[0])?.message || firstLine(commits[0]?.message) || DEFAULT_UPDATE_MESSAGE;
   }
 
-  const lines = commits.map((commit) => `- ${friendlyCommit(commit)?.message || DEFAULT_UPDATE_MESSAGE}`);
+  const lines = commits.map((commit) => `- ${friendlyCommit(commit)?.message || firstLine(commit?.message) || DEFAULT_UPDATE_MESSAGE}`);
   return `Se publicó una nueva versión de la app con estos cambios:\n${lines.join("\n")}`;
 }
 
 try {
   await main();
 } catch (error) {
-  console.warn("No se pudo publicar el boletín:", error?.message || error);
-  console.warn("Se continúa porque el boletín no es crítico para publicar la app.");
+  console.error("No se pudo publicar el boletín:", error?.message || error);
+  process.exitCode = 1;
 }

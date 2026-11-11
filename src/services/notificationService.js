@@ -220,22 +220,22 @@ export async function getNotifications(recipient_email) {
   if (!recipientEmail) return [];
 
   try {
-    const { data, error } = await supabase
-      .from("notifications")
-      .select("id, recipient_email, title, message, record_type, record_id, read, created_at")
-      .ilike("recipient_email", recipientEmail)
-      .order("created_at", { ascending: false })
-      .limit(100);
-
-    if (error) {
-      console.error("Error fetching notifications:", error);
-      return [];
+    const all = [];
+    const pageSize = 500;
+    for (let offset = 0; ; offset += pageSize) {
+      const { data, error } = await supabase.from("notifications")
+        .select("id, recipient_email, title, message, record_type, record_id, read, created_at")
+        .ilike("recipient_email", recipientEmail)
+        .order("created_at", { ascending: false }).order("id", { ascending: false })
+        .range(offset, offset + pageSize - 1);
+      if (error) throw error;
+      all.push(...(data || []));
+      if (!data || data.length < pageSize) break;
     }
-
-    return data || [];
+    return all;
   } catch (err) {
     console.error("Unexpected error fetching notifications:", err);
-    return [];
+    throw err;
   }
 }
 
@@ -243,17 +243,19 @@ export async function markNotificationRead(id) {
   if (!id) return false;
 
   try {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("notifications")
       .update({ read: true })
-      .eq("id", id);
+      .eq("id", id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
       console.error("Error marking notification read:", error);
       return false;
     }
 
-    return true;
+    return !!data;
   } catch (err) {
     console.error("Unexpected error marking read:", err);
     return false;

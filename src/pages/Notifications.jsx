@@ -57,6 +57,7 @@ export default function NotificationsPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [markingVisible, setMarkingVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
   const { isLight, isLiquid } = useTheme();
 
@@ -69,22 +70,30 @@ export default function NotificationsPage() {
   };
 
   useEffect(() => {
+    let active = true;
     const load = async () => {
-      setLoading(true);
-
-      const data = await getNotifications(email);
-
-      const notifications = Array.isArray(data) ? data : [];
-      const updates = await getAppUpdates(user?.id);
-      const allItems = [...updates, ...notifications].sort(
-        (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
-      );
-
-      setItemsAndBadge(allItems);
-      setLoading(false);
+      try {
+        const [data, updates] = await Promise.all([getNotifications(email), getAppUpdates(user?.id)]);
+        const allItems = [...updates, ...data].sort(
+          (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
+        );
+        if (active) { setItemsAndBadge(allItems); setErrorMessage(""); }
+      } catch (error) {
+        console.error("Error cargando notificaciones:", error);
+        if (active) setErrorMessage("No se pudieron cargar todas las notificaciones. Comprueba tu conexión e inténtalo de nuevo.");
+      } finally {
+        if (active) setLoading(false);
+      }
     };
 
     load();
+    const refreshTimer = window.setInterval(load, 30000);
+    window.addEventListener("focus", load);
+    const channel = supabase.channel(`notifications-updates-${user?.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "app_updates" }, load)
+      .on("postgres_changes", { event: "*", schema: "public", table: "app_update_reads", filter: `user_id=eq.${user?.id}` }, load)
+      .subscribe();
+    return () => { active = false; window.clearInterval(refreshTimer); window.removeEventListener("focus", load); supabase.removeChannel(channel); };
   }, [email, user?.id]);
 
   useEffect(() => {
@@ -152,7 +161,7 @@ export default function NotificationsPage() {
     { key: "unread", label: "No leídas", count: items.filter((item) => !item.read).length },
     { key: "read", label: "Leídas", count: items.filter((item) => item.read).length },
     { key: "chat", label: "Chat", count: items.filter((item) => item.record_type === "chat").length },
-    { key: "updates", label: "Control de cambios", count: items.filter((item) => item.isAppUpdate).length },
+    { key: "updates", label: "Control de cambios (total)", count: items.filter((item) => item.isAppUpdate).length },
     { key: "records", label: "Registros", count: items.filter((item) => !item.isAppUpdate && item.record_type !== "chat").length },
   ];
 
@@ -161,7 +170,8 @@ export default function NotificationsPage() {
 
       if (item?.isAppUpdate) {
       const ok = await markAppUpdateRead(user?.id, item.update_id || item.id);
-      if (ok) updateReadState(id);
+      if (ok) { updateReadState(id); setErrorMessage(""); window.dispatchEvent(new Event("notifications-read")); }
+      else setErrorMessage("No se pudo marcar el boletín como leído. Inténtalo de nuevo.");
       return;
     }
 
@@ -180,6 +190,10 @@ export default function NotificationsPage() {
 
         return next;
       });
+      setErrorMessage("");
+      window.dispatchEvent(new Event("notifications-read"));
+    } else {
+      setErrorMessage("No se pudo marcar la notificación como leída. Inténtalo de nuevo.");
     }
   };
 
@@ -205,7 +219,9 @@ export default function NotificationsPage() {
 
     if (readIds.size > 0) {
       setItemsAndBadge((prev) => prev.map((item) => (readIds.has(item.id) ? { ...item, read: true } : item)));
+      window.dispatchEvent(new Event("notifications-read"));
     }
+    setErrorMessage(readIds.size < unreadVisible.length ? "No se pudieron marcar todas las notificaciones. Inténtalo de nuevo." : "");
 
     setMarkingVisible(false);
   };
@@ -243,6 +259,7 @@ export default function NotificationsPage() {
       <h1 className={`text-2xl font-semibold mb-4 ${isLight ? "text-slate-900" : "text-white"}`}>
         Notificaciones
       </h1>
+      {errorMessage && <p role="alert" className="mb-3 rounded border border-red-400 bg-red-50 p-3 text-sm text-red-800">{errorMessage}</p>}
 
       <div className={`mb-4 rounded-xl border p-3 ${isLight ? "border-slate-200 bg-white" : "border-white/10 bg-white/5"}`}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -344,7 +361,7 @@ export default function NotificationsPage() {
                   </div>
                 )}
 
-                <div className={`text-sm ${isLight ? "text-slate-600" : isLiquid ? "text-white/90 drop-shadow" : "text-slate-300"}`}>
+                <div className={`whitespace-pre-line text-sm ${isLight ? "text-slate-600" : isLiquid ? "text-white/90 drop-shadow" : "text-slate-300"}`}>
                   {n.message}
                 </div>
 

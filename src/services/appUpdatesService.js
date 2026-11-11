@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { correctWritingText } from "@/utils/writingCorrection.mjs";
+import { getRecentUpdateDetails } from "@/utils/recentUpdateDetails.mjs";
 
 const DEFAULT_UPDATE_MESSAGE = "Se publicó una mejora en la aplicación.";
 
@@ -338,8 +339,8 @@ function stripTechnicalReferences(value) {
     .replace(/https?:\/\/\S+/g, "")
     .replace(/\([0-9a-f]{7,40}\)/gi, "")
     .replace(/\b[0-9a-f]{7,40}\b/gi, "")
-    .replace(/\s+/g, " ")
-    .replace(/\s+([.,;:])/g, "$1")
+    .replace(/[\t ]+/g, " ")
+    .replace(/[\t ]+([.,;:])/g, "$1")
     .trim();
 }
 
@@ -371,16 +372,22 @@ function genericFriendlyUpdate(update) {
   const subject = getSubjectFromTitle(update?.title).toLowerCase();
   const known = FRIENDLY_UPDATES.find((item) => matchesFriendlyUpdate(item, subject));
   if (known) return known;
+  const originalSubject = getSubjectFromTitle(update?.title);
+  if (originalSubject) return { title: `Control de cambios: ${originalSubject}`, message: originalSubject };
 
   return {
     title: "Control de cambios: actualización publicada",
-    message: DEFAULT_UPDATE_MESSAGE,
+    message: "No se guardó una descripción detallada para esta actualización.",
   };
 }
 
 function friendlyUpdate(update) {
   const rawTitle = stripTechnicalReferences(update?.title);
   const rawMessage = stripTechnicalReferences(update?.message);
+  if (/^Control de cambios:\s*actualizaci[oó]n publicada/i.test(rawTitle) && rawMessage === DEFAULT_UPDATE_MESSAGE) {
+    const recovered = getRecentUpdateDetails(update?.update_key);
+    if (recovered) return recovered;
+  }
   const searchable = `${update?.update_key || ""} ${rawTitle} ${rawMessage}`.toLowerCase();
   const known = FRIENDLY_UPDATES.find((item) => matchesFriendlyUpdate(item, searchable));
 
@@ -426,44 +433,54 @@ function mapUpdate(update, readIds = new Set()) {
 export async function getAppUpdates(userId) {
   if (!userId) return [];
 
-  const { data: updates, error } = await supabase
-    .from("app_updates")
-    .select("id, update_key, title, message, active, created_at")
-    .eq("active", true)
-    .order("created_at", { ascending: false })
-    .limit(50);
-
-  if (error) {
-    console.error("Error cargando boletines:", error);
-    return [];
+  const updates = [];
+  const pageSize = 500;
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await supabase.from("app_updates")
+      .select("id, update_key, title, message, active, created_at")
+      .eq("active", true).order("created_at", { ascending: false }).order("id", { ascending: false })
+      .range(offset, offset + pageSize - 1);
+    if (error) {
+      console.error("Error cargando boletines:", error);
+      throw error;
+    }
+    updates.push(...(data || []));
+    if (!data || data.length < pageSize) break;
   }
 
   const updateIds = (updates || []).map((update) => update.id);
   if (updateIds.length === 0) return [];
 
-  const { data: reads, error: readsError } = await supabase
-    .from("app_update_reads")
-    .select("update_id")
-    .eq("user_id", userId)
-    .in("update_id", updateIds);
-
-  if (readsError) {
-    console.error("Error cargando lecturas de boletines:", readsError);
+  const readIds = new Set();
+  for (let offset = 0; offset < updateIds.length; offset += 200) {
+    const { data: reads, error: readsError } = await supabase.from("app_update_reads")
+      .select("update_id").eq("user_id", userId).in("update_id", updateIds.slice(offset, offset + 200));
+    if (readsError) {
+      console.error("Error cargando lecturas de boletines:", readsError);
+      throw readsError;
+    }
+    (reads || []).forEach((read) => readIds.add(read.update_id));
   }
-
-  const readIds = new Set((reads || []).map((read) => read.update_id));
   return (updates || []).map((update) => mapUpdate(update, readIds));
 }
 
 export async function getUnreadAppUpdatesCount(userId) {
-  const updates = await getAppUpdates(userId);
-  return updates.filter((update) => !update.read).length;
+  if (!userId) return 0;
+  const [updates, reads] = await Promise.all([
+    supabase.from("app_updates").select("id", { count: "exact", head: true }).eq("active", true),
+    supabase.from("app_update_reads").select("update_id, app_updates!inner(active)", { count: "exact", head: true })
+      .eq("user_id", userId).eq("app_updates.active", true),
+  ]);
+  if (updates.error) throw updates.error;
+  if (reads.error) throw reads.error;
+  return Math.max(0, (updates.count || 0) - (reads.count || 0));
 }
 
 export async function markAppUpdateRead(userId, updateId) {
   const cleanId = cleanUpdateId(updateId);
   if (!userId || !cleanId) return false;
 
+  try {
   const { error } = await supabase
     .from("app_update_reads")
     .upsert(
@@ -481,6 +498,10 @@ export async function markAppUpdateRead(userId, updateId) {
   }
 
   return true;
+  } catch (error) {
+    console.error("Error marcando boletín como leído:", error);
+    return false;
+  }
 }
 
 export async function getAllAppUpdatesForAdmin() {

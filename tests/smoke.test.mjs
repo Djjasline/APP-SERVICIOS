@@ -546,8 +546,8 @@ test("historiales limitan consultas pesadas", () => {
   const notifications = read("src/services/notificationService.js");
   const appUpdates = read("src/services/appUpdatesService.js");
 
-  assert.match(notifications, /\.limit\(100\)/);
-  assert.match(appUpdates, /\.limit\(50\)/);
+  assert.match(notifications, /\.range\(offset, offset \+ pageSize - 1\)/);
+  assert.match(appUpdates, /\.range\(offset, offset \+ pageSize - 1\)/);
 });
 
 test("checks de inspeccion permiten seleccionar toda la celda", () => {
