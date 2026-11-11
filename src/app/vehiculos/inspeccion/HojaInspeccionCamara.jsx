@@ -18,6 +18,7 @@ import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/
 import InspectionChecklistRow from "@/components/InspectionChecklistRow";
 import { usesNewInspectionCriteria } from "./inspectionCriteria.mjs";
 import InspectionCriteriaLegend from "./InspectionCriteriaLegend";
+import AdditionalInspectionItems from "./AdditionalInspectionItems.jsx";
 
 /* ══════════════════════════════
    PRUEBAS PREVIAS AL SERVICIO
@@ -934,6 +935,7 @@ const result = await saveOrUpdateReport({
             </section>
           ))}
 
+          <AdditionalInspectionItems data={data} setData={setData} recordId={id || "temp-insp-camara"} newCriteria={newCriteria} />
           <InspectionPartsAnnex
             rows={data.anexoItems}
             enabled={data.incluirAnexoItems !== false}

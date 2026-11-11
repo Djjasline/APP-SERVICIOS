@@ -10,15 +10,18 @@ export default function InspectionChecklistRow({
   recordId,
   newCriteria = false,
   allowObservationRotation = false,
+  displayCode,
+  onDescriptionChange,
+  action,
 }) {
   const current = item || {};
   const groupName = `inspection-status-${recordId || "draft"}-${codigo}`;
 
   return (
     <tr className="hover:bg-gray-50">
-      <td className="pdf-label text-xs">{codigo}</td>
+      <td className="pdf-label text-xs">{displayCode || codigo}</td>
       <td style={{ border: "1px solid #d1d5db", padding: "4px 8px", fontSize: 12 }}>
-        {inspectionDescription(descripcion, newCriteria)}
+        {onDescriptionChange ? <AutoResizeInput value={descripcion || ""} onChange={(event) => onDescriptionChange(event.target.value)} placeholder="Describa el elemento o condición a revisar" aria-label={`Descripción del elemento ${displayCode || codigo}`} className="pdf-textarea w-full resize-none text-xs" /> : inspectionDescription(descripcion, newCriteria)}
       </td>
       {["SI", "NO", "NA"].map((opt) => (
         <td
@@ -62,6 +65,7 @@ export default function InspectionChecklistRow({
           allowRotation={allowObservationRotation}
         />
       </td>
+      {action && <td style={{ border: "1px solid #d1d5db", textAlign: "center" }}>{action}</td>}
     </tr>
   );
 }

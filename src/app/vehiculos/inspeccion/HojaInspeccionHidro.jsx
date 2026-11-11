@@ -18,6 +18,7 @@ import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/
 import InspectionChecklistRow from "@/components/InspectionChecklistRow";
 import { usesNewInspectionCriteria } from "./inspectionCriteria.mjs";
 import InspectionCriteriaLegend from "./InspectionCriteriaLegend";
+import AdditionalInspectionItems from "./AdditionalInspectionItems.jsx";
 
 const inspectionDescription =
   "Inspección técnica del módulo hidrosuccionador y sus sistemas, no incluye servicios de chasis.";
@@ -786,6 +787,7 @@ const firmaCliente =
             </section>
           ))}
 
+          <AdditionalInspectionItems data={data} setData={setData} recordId={id || "temp-insp-hidro"} newCriteria={newCriteria} />
           <InspectionPartsAnnex
             rows={data.anexoItems}
             enabled={data.incluirAnexoItems !== false}

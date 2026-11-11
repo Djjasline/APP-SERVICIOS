@@ -15,7 +15,7 @@ test("giro de observaciones se habilita solo en inspección Pelican", () => {
   const form = readFileSync(new URL("../src/app/vehiculos/inspeccion/HojaInspeccionBarredora.jsx", import.meta.url), "utf8");
   const row = readFileSync(new URL("../src/components/InspectionChecklistRow.jsx", import.meta.url), "utf8");
   const field = readFileSync(new URL("../src/components/ObservationImageField.jsx", import.meta.url), "utf8");
-  assert.equal((form.match(/allowObservationRotation=\{variant === "pelican"\}/g) || []).length, 2);
+  assert.equal((form.match(/allowObservationRotation=\{variant === "pelican"\}/g) || []).length, 3);
   assert.match(row, /allowRotation=\{allowObservationRotation\}/);
   assert.match(field, /allowRotation = false/);
   assert.match(field, /sanitizeFolder\(folder\),\s*\{ allowRotation \}/);

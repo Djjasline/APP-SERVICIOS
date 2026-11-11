@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { usesNewInspectionCriteria, inspectionDescription as checklistDescription } from "./inspectionCriteria.mjs";
 import InspectionCriteriaLegend from "./InspectionCriteriaLegend";
+import AdditionalInspectionItemsPdf from "./AdditionalInspectionItemsPdf";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf";
@@ -396,6 +397,7 @@ const puntosBase = d?.estadoEquipo?.puntosBase || [];
           </div>
         ))}
 
+        <AdditionalInspectionItemsPdf rows={d.elementosAdicionales} styles={S} Table={ChecklistTable} newCriteria={newCriteria} />
         <InspectionPartsAnnexPdf rows={d.anexoItems} styles={S} enabled={d.incluirAnexoItems !== false} />
 
         {/* CONCLUSION Y RECOMENDACION */}
