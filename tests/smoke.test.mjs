@@ -537,6 +537,21 @@ test("historiales limitan consultas pesadas", () => {
   assert.match(appUpdates, /\.limit\(50\)/);
 });
 
+test("checks de inspeccion permiten seleccionar toda la celda", () => {
+  const checklistRow = read("src/components/InspectionChecklistRow.jsx");
+
+  assert.match(checklistRow, /const groupName = `inspection-status-\$\{recordId \|\| "draft"\}-\$\{codigo\}`/);
+  assert.match(checklistRow, /htmlFor=\{`\$\{groupName\}-\$\{opt\}`\}/);
+  assert.match(checklistRow, /name=\{groupName\}/);
+  assert.match(checklistRow, /min-h-\[36px\]/);
+  assert.match(checklistRow, /event\.target\.checked/);
+});
+
+test("selecciones marcadas conservan contraste en todos los formularios", () => {
+  const styles = read("src/styles/tailwind.css");
+  assert.match(styles, /html\[data-theme\] \.app-page-shell input\[type="radio"\]:checked,\s*html\[data-theme\] \.app-page-shell input\[type="checkbox"\]:checked\s*\{[^}]*background-color:\s*#2563eb\s*!important/s);
+});
+
 test("bodega separa stock real de referencia historica vehiculos", () => {
   const service = read("src/services/warehouseInventoryService.js");
   const home = read("src/app/operaciones/bodega/BodegaHome.jsx");
