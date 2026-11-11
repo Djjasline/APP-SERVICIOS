@@ -20,9 +20,9 @@ export function normalizePartsAnnexRows(rows) {
   if (!Array.isArray(rows) || rows.length === 0) return createDefaultPartsAnnexRows();
 
   return rows.map((row) => ({
-    descripcion: row?.descripcion || "",
-    numeroParte: row?.numeroParte || row?.nParte || "",
-    cantidad: row?.cantidad || "",
+    descripcion: row?.descripcion ?? "",
+    numeroParte: row?.numeroParte === "" ? (row?.nParte ?? "") : (row?.numeroParte ?? row?.nParte ?? ""),
+    cantidad: row?.cantidad ?? "",
   }));
 }
 
@@ -34,6 +34,21 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
   const [matches, setMatches] = useState([]);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [searchError, setSearchError] = useState("");
+  const [exportError, setExportError] = useState("");
+  const [exporting, setExporting] = useState(false);
+
+  const downloadExcel = async () => {
+    setExportError("");
+    setExporting(true);
+    try {
+      const { downloadPartsAnnexWorkbook } = await import("@/utils/partsAnnexExcel.mjs");
+      downloadPartsAnnexWorkbook(items);
+    } catch (error) {
+      setExportError(error?.message || "No se pudo descargar el archivo Excel. Inténtalo de nuevo.");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   useEffect(() => {
     const query = deferredSearchText.trim();
@@ -194,7 +209,11 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
             >
               Eliminar último
             </button>
+            <button type="button" onClick={downloadExcel} disabled={exporting} className="rounded-md border border-emerald-700 bg-emerald-700 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800 disabled:opacity-50 print:hidden">
+              {exporting ? "Preparando Excel..." : "Descargar anexo en Excel"}
+            </button>
           </div>
+          {exportError && <p role="alert" className="text-xs text-red-700">{exportError}</p>}
         </>
       )}
     </section>
