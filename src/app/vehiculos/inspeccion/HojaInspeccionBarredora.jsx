@@ -23,7 +23,7 @@ import InspectionChecklistRow from "@/components/InspectionChecklistRow";
 ============================= */
 const pruebasPrevias = [
   ["1.1", "¿El equipo enciende y arranca sin dificultad?"],
-  ["1.2", "¿Los controles principales (mando de barrido, aspiración, luces) responden correctamente?"],
+  ["1.2", "¿Los controles principales (mando de barrido, giro de cepillos, banda, tolva, luces y demás controles) responden correctamente?"],
   ["1.3", "¿Se encuentran alarmas activas o mensajes de error en el panel?"],
 ];
 
