@@ -1053,6 +1053,11 @@ html[data-theme] .app-page-shell input[type="checkbox"]:checked {
   border-color: #2563eb !important;
 }
 
+/* PDF previews have a white sheet even when the surrounding theme is dark. */
+#pdf-content {
+  color: #111827;
+}
+
 .document-sheet :where(input, textarea, .pdf-input, .pdf-textarea, .auto-resize-input)::placeholder,
 .document-sheet :where(input, textarea, .pdf-input, .pdf-textarea, .auto-resize-input):focus::placeholder,
 .document-sheet :where(input, textarea, .pdf-input, .pdf-textarea, .auto-resize-input):focus-visible::placeholder,

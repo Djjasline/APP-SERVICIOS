@@ -552,6 +552,14 @@ test("selecciones marcadas conservan contraste en todos los formularios", () => 
   assert.match(styles, /html\[data-theme\] \.app-page-shell input\[type="radio"\]:checked,\s*html\[data-theme\] \.app-page-shell input\[type="checkbox"\]:checked\s*\{[^}]*background-color:\s*#2563eb\s*!important/s);
 });
 
+test("vistas PDF mantienen texto oscuro en hojas blancas sin alterar encabezados", () => {
+  const styles = read("src/styles/tailwind.css");
+  assert.match(styles, /#pdf-content\s*\{\s*color:\s*#111827\s*;/);
+  const inspection = read("src/app/vehiculos/inspeccion/InspeccionBarredoraPDF.jsx");
+  assert.match(inspection, /id="pdf-content"/);
+  assert.match(inspection, /sectionTitle:\s*\{[^}]*color:\s*"#fff"/s);
+});
+
 test("bodega separa stock real de referencia historica vehiculos", () => {
   const service = read("src/services/warehouseInventoryService.js");
   const home = read("src/app/operaciones/bodega/BodegaHome.jsx");
