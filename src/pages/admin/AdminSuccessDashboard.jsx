@@ -712,8 +712,10 @@ function OperationalActivity({ items, onNavigate }) {
         <button
           key={item.id}
           type="button"
-          onClick={() => onNavigate(item.url)}
-          className="flex w-full items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-blue-200 hover:bg-blue-50"
+          disabled={!item.url}
+          title={!item.url ? "Vista previa no disponible para este tipo de registro" : item.type === "registro" ? "Abrir vista previa" : undefined}
+          onClick={() => item.url && onNavigate(item.url)}
+          className="flex w-full items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-blue-200 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <span className="mt-1.5 h-2.5 w-2.5 rounded-full bg-blue-600" />
           <span className="min-w-0 flex-1">

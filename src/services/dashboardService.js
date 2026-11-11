@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { getDashboardRecordPreviewUrl } from "@/utils/dashboardRecordPreview.mjs";
 
 const RESOURCE_AREA = "repositorios";
 
@@ -61,17 +62,6 @@ function getRecordLabel(record) {
   return "Informe técnico";
 }
 
-function getRecordUrl(record) {
-  if (record.area === "operaciones" && record.tipo === "recepcion") return `/operaciones/recepcion/${record.id}`;
-  if (record.area === "operaciones" && record.tipo === "registro") return `/operaciones/registro/${record.id}`;
-  if (record.area === "operaciones" && record.tipo === "liberacion") return `/operaciones/liberacion/${record.id}`;
-  if (record.area === "agua") return `/agua/informe/${record.id}`;
-  if (record.area === "industria") return `/industria/informe/${record.id}`;
-  if (record.area === "petroleo") return `/petroleo/informe/${record.id}`;
-  if (record.tipo === "capacitacion") return `/vehiculos/capacitacion/${record.id}`;
-  return `/vehiculos/informe/${record.id}`;
-}
-
 function getTextValue(value) {
   if (!value) return "";
   if (typeof value === "string" || typeof value === "number") return String(value).trim();
@@ -123,7 +113,7 @@ function buildActivity({ reports, quotes, movements, notifications }) {
     title: getRecordLabel(record),
     detail: getRecordSummary(record),
     date: normalizeDate(record.created_at || record.updated_at),
-    url: getRecordUrl(record),
+    url: getDashboardRecordPreviewUrl(record),
   }));
 
   const quoteItems = quotes.map((quote) => ({
