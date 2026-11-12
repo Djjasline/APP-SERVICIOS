@@ -1,6 +1,7 @@
 import { useDeferredValue, useEffect, useState } from "react";
 import AutoResizeInput from "@/components/AutoResizeInput";
 import { getVehicleReferenceCatalog } from "@/services/warehouseInventoryService";
+import { toSentenceCase } from "@/utils/sentenceCase.mjs";
 
 const MIN_SEARCH_LENGTH = 3;
 
@@ -92,7 +93,7 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
   const selectReferenceItem = (index, item) => {
     onChange(items.map((row, i) => (
       i === index
-        ? { ...row, descripcion: item.description || "", numeroParte: item.product_code || "" }
+        ? { ...row, descripcion: toSentenceCase(item.description), numeroParte: item.product_code || "" }
         : row
     )));
     setMatches([]);
@@ -247,7 +248,7 @@ function PartsReferenceDropdown({ query, matches, loading, error, onSelect, onCl
           className="block w-full border-b border-slate-100 px-3 py-2 text-left last:border-b-0 hover:bg-blue-50"
         >
           <span className="block font-bold text-slate-900">{item.product_code}</span>
-          <span className="block text-slate-700">{item.description}</span>
+          <span className="block text-slate-700">{toSentenceCase(item.description)}</span>
           {(item.last_supplier || item.source_file) && (
             <span className="block text-[11px] text-slate-400">{item.last_supplier || item.source_file}</span>
           )}
