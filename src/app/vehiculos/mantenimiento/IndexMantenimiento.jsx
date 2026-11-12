@@ -17,6 +17,7 @@ import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
 import { formatPersonName } from "@/utils/nameFormat";
 import { sortRecordsByRecent } from "@/utils/recordSort";
+import RecordHistoryDates from "@/components/RecordHistoryDates";
 
 const tipos = [
   {
@@ -447,9 +448,7 @@ export default function IndexMantenimiento() {
                       </p>
                     )}
 
-                    <p className="text-[11px] text-gray-400">
-                      {new Date(item.created_at || item.updated_at).toLocaleString()}
-                    </p>
+                    <RecordHistoryDates record={item} />
                   </div>
 
                   <div className="flex gap-3 text-sm">

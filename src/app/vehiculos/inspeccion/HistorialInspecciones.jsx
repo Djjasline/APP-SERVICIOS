@@ -17,6 +17,7 @@ import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
 import { formatPersonName } from "@/utils/nameFormat";
 import { sortRecordsByRecent } from "@/utils/recordSort";
+import RecordHistoryDates from "@/components/RecordHistoryDates";
 
 export default function IndexInspeccion() {
   const navigate = useNavigate();
@@ -498,9 +499,7 @@ export default function IndexInspeccion() {
                   </strong>
                 </p>
 
-                <p className="text-xs text-gray-400">
-                  {new Date(item.created_at || item.updated_at).toLocaleString()}
-                </p>
+                <RecordHistoryDates record={item} />
 
                 {puedeVerTodoVehiculos && (
                   <p className="text-[10px] text-gray-400">

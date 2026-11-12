@@ -11,6 +11,7 @@ import {
 } from "@/services/accessControlService";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import RecordHistoryDates from "@/components/RecordHistoryDates";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import { getUserOptionLabel, recordMatchesUser, useUserOptions } from "@/hooks/useUserOptions";
 import CustomerSurveyLink from "@/components/CustomerSurveyLink";
@@ -409,9 +410,7 @@ export default function InformeHome({ reportType = "informe" }) {
               </p>
 
               <div className="flex flex-wrap justify-between items-center text-xs pt-1 gap-3">
-                <span className="text-gray-500">
-                  {new Date(r.created_at || r.updated_at).toLocaleString()}
-                </span>
+                <RecordHistoryDates record={r} />
 
                 {puedeVerTodoVehiculos && (
                   <span className="text-[11px] text-gray-500">

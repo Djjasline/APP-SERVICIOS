@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import RecordHistoryDates from "@/components/RecordHistoryDates";
 import CardModulo from "@/components/CardModulo";
 import ServiceMenuFrame from "@/components/ServiceMenuFrame";
 import { useTheme } from "@/context/ThemeContext";
@@ -13,13 +14,6 @@ const ICONS = {
   "semanal-proveedor": Layers3,
   "avance-cronograma": Gauge,
 };
-
-function formatDate(value) {
-  if (!value) return "Sin fecha";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Sin fecha";
-  return date.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" });
-}
 
 export default function ProtocoloManHome() {
   const navigate = useNavigate();
@@ -111,7 +105,7 @@ export default function ProtocoloManHome() {
                   <th className="px-3 py-2">Proyecto</th>
                   <th className="px-3 py-2">Cliente</th>
                   <th className="px-3 py-2">Estado</th>
-                  <th className="px-3 py-2">Fecha</th>
+                  <th className="px-3 py-2">Fechas</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -128,7 +122,7 @@ export default function ProtocoloManHome() {
                           {record.estado === "completado" ? "Completado" : "Borrador"}
                         </span>
                       </td>
-                      <td className="px-3 py-2">{formatDate(record.created_at || record.updated_at)}</td>
+                      <td className="px-3 py-2"><RecordHistoryDates record={record} /></td>
                     </tr>
                   );
                 })}

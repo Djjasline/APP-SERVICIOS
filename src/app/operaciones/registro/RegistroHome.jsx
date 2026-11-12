@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import RecordHistoryDates from "@/components/RecordHistoryDates";
 import { useAuth } from "@/context/AuthContext";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import {
@@ -220,9 +221,7 @@ export default function RegistroHome() {
                       </p>
                     )}
 
-                    <p className="text-xs text-gray-400">
-                      {new Date(item.created_at || item.createdAt).toLocaleString()}
-                    </p>
+                    <RecordHistoryDates record={item} />
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3 md:ml-4 flex-shrink-0">

@@ -1,6 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, Calculator, FileText, History, Package, Plus, Printer, RefreshCw, Save, Search, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import RecordHistoryDates from "@/components/RecordHistoryDates";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
@@ -569,7 +570,7 @@ function HistoryPanel({ history, loading, loadingQuoteId, regeneratingPdfId, err
                 <th className="px-3 py-2 font-semibold">Cliente</th>
                 <th className="px-3 py-2 font-semibold">Referencia</th>
                 <th className="px-3 py-2 text-right font-semibold">Total</th>
-                <th className="px-3 py-2 font-semibold">Fecha</th>
+                <th className="px-3 py-2 font-semibold">Fechas</th>
                 <th className="px-3 py-2 font-semibold">PDF</th>
                 <th className="px-3 py-2 font-semibold">Acciones</th>
               </tr>
@@ -581,7 +582,7 @@ function HistoryPanel({ history, loading, loadingQuoteId, regeneratingPdfId, err
                   <td className="px-3 py-2 text-slate-700">{quote.client || "-"}</td>
                   <td className="px-3 py-2 text-slate-700">{quote.reference || "-"}</td>
                   <td className="px-3 py-2 text-right font-semibold text-slate-900">{money(quote.totals?.total)}</td>
-                  <td className="px-3 py-2 text-slate-600">{formatDate(String(quote.created_at || "").slice(0, 10))}</td>
+                  <td className="px-3 py-2 text-slate-600"><RecordHistoryDates record={quote} updateLabel="Última actualización" /></td>
                   <td className="px-3 py-2">
                     {quote.pdf_url ? (
                       <a href={quote.pdf_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-blue-700 hover:underline">

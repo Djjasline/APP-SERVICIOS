@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import RecordHistoryDates from "@/components/RecordHistoryDates";
 import { useAuth } from "@/context/AuthContext";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
@@ -213,7 +214,7 @@ export default function RecepcionHome() {
               <th className="text-left px-4 py-2">Placa</th>
               <th className="text-left px-4 py-2">Pedido/Demanda</th>
               <th className="text-left px-4 py-2">Estado</th>
-              <th className="text-left px-4 py-2">Fecha</th>
+              <th className="text-left px-4 py-2">Fechas</th>
               <th className="text-right px-4 py-2">Acciones</th>
             </tr>
           </thead>
@@ -238,8 +239,6 @@ export default function RecepcionHome() {
             {!loading &&
               filtered.map((r) => {
                 const d = r.data || {};
-                const fecha = d.fecha || r.created_at || r.updated_at;
-
                 return (
                   <tr key={r.id} className="border-t hover:bg-gray-50">
                     <td className="px-4 py-2 font-medium text-gray-900">
@@ -267,7 +266,8 @@ export default function RecepcionHome() {
                     </td>
 
                     <td className="px-4 py-2 text-gray-500">
-                      {fecha ? new Date(fecha).toLocaleDateString() : "-"}
+                      {d.fecha && <div className="text-xs">Fecha del formulario: {new Date(d.fecha).toLocaleDateString()}</div>}
+                      <RecordHistoryDates record={r} />
                     </td>
 
                     <td className="px-4 py-2 text-right space-x-2 whitespace-nowrap">

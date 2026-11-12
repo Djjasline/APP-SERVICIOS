@@ -5,6 +5,7 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import RecordHistoryDates from "@/components/RecordHistoryDates";
 import { useAuth } from "@/context/AuthContext";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
 import {
@@ -176,7 +177,7 @@ export default function InformeAguaHome() {
               <th className="text-left px-4 py-3 font-semibold">Pedido N°</th>
               <th className="text-left px-4 py-3 font-semibold">Actividades</th>
               <th className="text-left px-4 py-3 font-semibold">Estado</th>
-              <th className="text-left px-4 py-3 font-semibold">Fecha</th>
+              <th className="text-left px-4 py-3 font-semibold">Fechas</th>
               <th className="text-right px-4 py-3 font-semibold">Acciones</th>
             </tr>
           </thead>
@@ -201,7 +202,6 @@ export default function InformeAguaHome() {
             {!loading &&
               filtered.map((r) => {
                 const d = r.data || {};
-                const fecha = r.created_at || r.updated_at;
                 const numActividades = Array.isArray(d.actividades)
                   ? d.actividades.length
                   : 0;
@@ -242,7 +242,7 @@ export default function InformeAguaHome() {
                     </td>
 
                     <td className="px-4 py-3 text-gray-400 text-xs">
-                      {fecha ? new Date(fecha).toLocaleDateString("es-EC") : "—"}
+                      <RecordHistoryDates record={r} />
                     </td>
 
                     <td className="px-4 py-3 text-right space-x-3 whitespace-nowrap">

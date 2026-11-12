@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Calculator, CheckCircle2, Download, Eye, EyeOff, FileText, History, RefreshCw, Save, ShieldCheck, Truck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import RecordHistoryDates from "@/components/RecordHistoryDates";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
@@ -287,11 +288,6 @@ function money(value) {
 
 function formatImpact(value) {
   return typeof value === "number" ? money(value) : "Por definir";
-}
-
-function formatDate(value) {
-  if (!value) return "-";
-  return new Intl.DateTimeFormat("es-EC", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
 function getUsageProfile(profileId) {
@@ -1162,7 +1158,7 @@ function HistoryPanel({ history, loading, loadingQuoteId, retryingPdfId, error, 
                 <th className="px-3 py-2 font-semibold">Cliente</th>
                 <th className="px-3 py-2 font-semibold">Modelo</th>
                 {!hideValues && <th className="px-3 py-2 text-right font-semibold">Total</th>}
-                <th className="px-3 py-2 font-semibold">Fecha</th>
+                <th className="px-3 py-2 font-semibold">Fechas</th>
                 <th className="px-3 py-2 font-semibold">Acciones</th>
               </tr>
             </thead>
@@ -1179,7 +1175,7 @@ function HistoryPanel({ history, loading, loadingQuoteId, retryingPdfId, error, 
                   </td>
                   <td className="px-3 py-2 text-slate-700">{quote.model_name || "Vactor"}</td>
                   {!hideValues && <td className="px-3 py-2 text-right font-semibold text-slate-900">{money(quote.price_summary?.total)}</td>}
-                  <td className="px-3 py-2 text-slate-600">{formatDate(quote.created_at)}</td>
+                  <td className="px-3 py-2 text-slate-600"><RecordHistoryDates record={quote} updateLabel="Última actualización" /></td>
                   <td className="px-3 py-2">
                     <div className="flex flex-wrap gap-3">
                       <button type="button" onClick={() => onView(quote.id)} className="font-semibold text-slate-700 hover:underline">

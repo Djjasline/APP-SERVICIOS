@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import RecordHistoryDates from "@/components/RecordHistoryDates";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
@@ -158,7 +159,7 @@ export default function VisitaCampoHome() {
                 <p className="text-xs text-gray-600">
                   Ubicación: <strong>{record.data?.ubicacion || "-"}</strong> | Marca: <strong>{record.data?.marca || "-"}</strong>
                 </p>
-                <p className="text-xs text-gray-500">{new Date(record.created_at || record.updated_at).toLocaleString()}</p>
+                <RecordHistoryDates record={record} />
                 <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${record.estado === "completado" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-700"}`}>
                   {record.estado === "completado" ? "Completado" : "Borrador"}
                 </span>

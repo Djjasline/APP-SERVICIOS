@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import RecordHistoryDates from "@/components/RecordHistoryDates";
 import { useAuth } from "@/context/AuthContext";
 import { OPERACIONES_TEXT } from "@/constants/operacionesText";
 import { duplicateRecordAsDraft } from "@/services/duplicateRecordService";
@@ -199,7 +200,7 @@ export default function LiberacionHome() {
               <th className="text-left px-4 py-2">Equipo</th>
               <th className="text-left px-4 py-2">Código</th>
               <th className="text-left px-4 py-2">Estado</th>
-              <th className="text-left px-4 py-2">Fecha</th>
+              <th className="text-left px-4 py-2">Fechas</th>
               <th className="text-right px-4 py-2">Acciones</th>
             </tr>
           </thead>
@@ -241,9 +242,7 @@ export default function LiberacionHome() {
                 </td>
 
                 <td className="px-4 py-2 text-gray-500">
-                  {new Date(
-                    r.created_at || r.updated_at
-                  ).toLocaleDateString()}
+                  <RecordHistoryDates record={r} />
                 </td>
 
                 <td className="px-4 py-2 text-right space-x-2">
