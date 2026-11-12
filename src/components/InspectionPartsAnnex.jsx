@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useState } from "react";
 import AutoResizeInput from "@/components/AutoResizeInput";
 import { getVehicleReferenceCatalog } from "@/services/warehouseInventoryService";
-import { toSentenceCase } from "@/utils/sentenceCase.mjs";
+import { formatPartsDescription, toSentenceCase } from "@/utils/sentenceCase.mjs";
 
 const MIN_SEARCH_LENGTH = 3;
 
@@ -155,7 +155,7 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
                     <div className="relative">
                       <AutoResizeInput
                         className="pdf-input w-full"
-                        value={row.descripcion}
+                        value={formatPartsDescription(row.descripcion)}
                         placeholder="Descripción de la pieza o ítem requerido"
                         onFocus={() => focusRow(index)}
                         onChange={(event) => updateRow(index, "descripcion", event.target.value)}
@@ -285,7 +285,7 @@ export function InspectionPartsAnnexPdf({ rows, styles, enabled = true }) {
           {items.map((row, index) => (
             <tr key={index}>
               <td style={{ ...S.cell, textAlign: "center", fontWeight: 700 }}>{index + 1}</td>
-              <td style={{ ...S.cell, whiteSpace: "pre-wrap" }}>{row.descripcion || "—"}</td>
+              <td style={{ ...S.cell, whiteSpace: "pre-wrap" }}>{formatPartsDescription(row.descripcion) || "—"}</td>
               <td style={S.cell}>{row.numeroParte || "—"}</td>
               <td style={{ ...S.cell, textAlign: "center" }}>{row.cantidad || "—"}</td>
             </tr>

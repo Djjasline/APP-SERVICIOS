@@ -1,4 +1,5 @@
 import { zipSync, strToU8 } from "fflate";
+import { formatPartsDescription } from "./sentenceCase.mjs";
 
 const HEADER = ["ÍTEM", "DESCRIPCIÓN", "N° PARTE", "CANTIDAD"];
 
@@ -15,7 +16,7 @@ function xmlText(value) {
 
 export function getPartsAnnexExportRows(rows) {
   return (Array.isArray(rows) ? rows : []).map((row) => ({
-    descripcion: text(row?.descripcion),
+    descripcion: formatPartsDescription(row?.descripcion),
     numeroParte: text(row?.numeroParte ?? row?.nParte),
     cantidad: text(row?.cantidad),
   })).filter((row) => [row.descripcion, row.numeroParte, row.cantidad].some((value) => value.trim()));

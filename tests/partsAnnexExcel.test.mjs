@@ -25,3 +25,12 @@ test("evita descargar un anexo vacío o con caracteres inválidos", () => {
   assert.throws(() => createPartsAnnexWorkbook([{ descripcion: " " }]), /al menos un ítem/);
   assert.throws(() => createPartsAnnexWorkbook([{ descripcion: "abc\u0000" }]), /caracteres/);
 });
+
+test("exporta descripciones históricas en tipo oración sin modificar el origen ni el número de parte", () => {
+  const rows = [{ descripcion: "SELLO DE GRASA (GREASE SEAL)", numeroParte: "AB-001", cantidad: "1" }];
+  const files = unzipSync(createPartsAnnexWorkbook(rows));
+  const sheet = strFromU8(files["xl/worksheets/sheet1.xml"]);
+  assert.match(sheet, /Sello de grasa \(grease seal\)/);
+  assert.match(sheet, /AB-001/);
+  assert.equal(rows[0].descripcion, "SELLO DE GRASA (GREASE SEAL)");
+});
