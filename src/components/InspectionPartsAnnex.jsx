@@ -1,7 +1,8 @@
-import { useDeferredValue, useEffect, useState } from "react";
+import { useDeferredValue, useEffect, useRef, useState } from "react";
 import AutoResizeInput from "@/components/AutoResizeInput";
 import { getVehicleReferenceCatalog } from "@/services/warehouseInventoryService";
 import { formatPartsDescription, toSentenceCase } from "@/utils/sentenceCase.mjs";
+import { isReferenceInteraction, showReferenceDropdown } from "@/utils/partsReferenceDropdown.mjs";
 
 const MIN_SEARCH_LENGTH = 3;
 
@@ -37,6 +38,19 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
   const [searchError, setSearchError] = useState("");
   const [exportError, setExportError] = useState("");
   const [exporting, setExporting] = useState(false);
+  const descriptionRef = useRef(null);
+  const partNumberRef = useRef(null);
+
+  useEffect(() => {
+    if (activeRow === null) return;
+    const handleOutsidePointer = (event) => {
+      if (!isReferenceInteraction(event.target, descriptionRef.current, partNumberRef.current)) {
+        setActiveRow(null);
+      }
+    };
+    document.addEventListener("pointerdown", handleOutsidePointer);
+    return () => document.removeEventListener("pointerdown", handleOutsidePointer);
+  }, [activeRow]);
 
   const downloadExcel = async () => {
     setExportError("");
@@ -61,6 +75,7 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
     }
 
     let ignore = false;
+    setMatches([]);
     setLoadingMatches(true);
     setSearchError("");
 
@@ -152,7 +167,7 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
                 <tr key={index}>
                   <td className="text-center font-semibold">{index + 1}</td>
                   <td>
-                    <div className="relative">
+                    <div className="relative" ref={activeRow === index ? descriptionRef : null}>
                       <AutoResizeInput
                         className="pdf-input w-full"
                         value={formatPartsDescription(row.descripcion)}
@@ -172,7 +187,7 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
                       )}
                     </div>
                   </td>
-                  <td>
+                  <td ref={activeRow === index ? partNumberRef : null}>
                     <AutoResizeInput
                       className="pdf-input w-full"
                       value={row.numeroParte}
@@ -223,9 +238,8 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
 
 function PartsReferenceDropdown({ query, matches, loading, error, onSelect, onClose }) {
   const showHint = query.trim().length > 0 && query.trim().length < MIN_SEARCH_LENGTH;
-  const showEmpty = query.trim().length >= MIN_SEARCH_LENGTH && !loading && !error && matches.length === 0;
 
-  if (!showHint && !loading && !error && !showEmpty && matches.length === 0) return null;
+  if (!showReferenceDropdown({ showHint, loading, error, matches })) return null;
 
   return (
     <div className="absolute left-0 right-0 top-full z-30 mt-1 max-h-64 overflow-auto rounded-lg border border-slate-200 bg-white text-xs shadow-xl print:hidden">
@@ -237,8 +251,6 @@ function PartsReferenceDropdown({ query, matches, loading, error, onSelect, onCl
       {showHint && <p className="px-3 py-2 text-slate-500">Escribe al menos 3 caracteres para buscar por código o descripción.</p>}
       {loading && <p className="px-3 py-2 text-slate-500">Buscando coincidencias...</p>}
       {error && <p className="px-3 py-2 text-red-600">{error}</p>}
-      {showEmpty && <p className="px-3 py-2 text-slate-500">Sin coincidencias en la referencia.</p>}
-
       {matches.map((item) => (
         <button
           key={item.id}
