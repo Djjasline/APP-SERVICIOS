@@ -160,11 +160,13 @@ const superAdminActivo =
   const sigCliente = useRef(null);
 
 const [data, setData] = useState(emptyForm);
+const [loadedRecordId, setLoadedRecordId] = useState(id ? null : "new");
+const recordLoaded = loadedRecordId === (id || "new");
 const [createdAt, setCreatedAt] = useState(id ? null : new Date().toISOString());
 const newCriteria = usesNewInspectionCriteria(createdAt);
 
   // Autoguardado automático cada 15 segundos
-  useAutoguardado(claveAutoguardado, data, true);
+  useAutoguardado(claveAutoguardado, data, recordLoaded, 15000, { protectExisting: true });
 const [guardando, setGuardando] = useState(false);
 const [uploadingCount, setUploadingCount] = useState(0);
 const [successMsg, setSuccessMsg] = useState("");
@@ -212,11 +214,11 @@ const inspeccionLista =
 
   /* ── CARGAR DESDE SUPABASE ── */
   useEffect(() => {
-    if (!id) return;
+    if (!id) { setLoadedRecordId("new"); return; }
     const load = async () => {
       const { data: reg, error } = await supabase
         .from("registros").select("*").eq("id", id).single();
-      if (error || !reg) return;
+      if (error || !reg) { setLoadedRecordId(id); return; }
       setCreatedAt(reg.created_at);
 
       const d = { ...emptyForm, ...(reg.data || {}) };
@@ -253,6 +255,7 @@ const inspeccionLista =
            sigCliente.current?.fromDataURL(reg.data.firmas.cliente);
          setFirmaTecnicoEditada(false);
 setFirmaClienteEditada(false);
+         setLoadedRecordId(id);
       }, 300);
     };
     load();
@@ -601,8 +604,18 @@ const result = await saveOrUpdateReport({
           {/* ══ 2. DATOS CLIENTE / TÉCNICO ══ */}
           <BannerAutoguardado
           clave={claveAutoguardado}
-          onRestaurar={(datosGuardados) => setData(datosGuardados)}
+          onRestaurar={(datosGuardados) => {
+            setData({ ...emptyForm, ...datosGuardados });
+            sigTecnico.current?.clear();
+            sigCliente.current?.clear();
+            if (datosGuardados?.firmas?.tecnico) sigTecnico.current?.fromDataURL(datosGuardados.firmas.tecnico);
+            if (datosGuardados?.firmas?.cliente) sigCliente.current?.fromDataURL(datosGuardados.firmas.cliente);
+            setFirmaTecnicoEditada(false);
+            setFirmaClienteEditada(false);
+          }}
           isEditing={isEditing}
+          protectExisting
+          ready={recordLoaded}
         />
 
         <h3 className="font-bold text-sm border-b pb-1">

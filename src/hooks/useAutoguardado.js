@@ -1,10 +1,13 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { pickNewestDraft, toDraftPayload } from "@/utils/draftSelection.mjs";
+import { pendingDraftForFlush } from "@/utils/draftLifecycle.mjs";
 
 let activeScope = "anon";
 const remoteProtectedKeys = new Set();
+const pendingRecoveryKeys = new Set();
+const draftClearVersions = new Map();
 const DEVICE_ID_KEY = "astap_autoguardado_device_id";
 
 const getScope = (scope) => scope || activeScope || "anon";
@@ -62,7 +65,13 @@ async function guardarBorradorRemoto(clave, datos, scope, guardadoEn) {
   const hadLocalDraftBeforeSave = Boolean(leerBorrador(clave, scope));
   if (!hadLocalDraftBeforeSave) {
     remoteProtectedKeys.add(protectionKey);
-    const remoteDraft = await leerBorradorRemoto(clave, scope);
+    let remoteDraft;
+    try {
+      remoteDraft = await leerBorradorRemoto(clave, scope);
+    } catch (error) {
+      logRemoteDraftError("[autoguardado] No se pudo comprobar el borrador remoto:", error);
+      return;
+    }
     if (remoteDraft) {
       return;
     }
@@ -143,12 +152,20 @@ async function eliminarBorradorRemoto(clave, scope) {
  *
  * Retorna: { forzarGuardar, limpiar } - funciones para forzar guardado y limpiar borrador
  */
-export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) {
+export function useAutoguardado(clave, datos, activo = true, intervalo = 15000, { protectExisting = false } = {}) {
   const { user } = useAuth();
   const scope = user?.id || "anon";
   const datosRef = useRef(datos);
   const debounceRef = useRef(null);
   const lastNoticeRef = useRef(0);
+  const pendingSaveRef = useRef(null);
+  const lastChangeRef = useRef(null);
+  const protectionInitRef = useRef(null);
+  const protectionKey = getRemoteProtectionKey(clave, scope);
+  if (protectExisting && clave && protectionInitRef.current !== protectionKey) {
+    protectionInitRef.current = protectionKey;
+    pendingRecoveryKeys.add(protectionKey);
+  }
 
   useEffect(() => {
     activeScope = scope;
@@ -166,6 +183,8 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
       if (!remoteDraft) {
         remoteProtectedKeys.delete(protectionKey);
       }
+    }).catch((error) => {
+      logRemoteDraftError("[autoguardado] No se pudo comprobar el borrador remoto:", error);
     });
 
     return () => {
@@ -174,19 +193,24 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
   }, [clave, scope, activo]);
 
   // Mantener ref actualizada sin re-disparar efectos
-  useEffect(() => {
+  useLayoutEffect(() => {
     datosRef.current = datos;
-  }, [datos]);
+    const key = getRemoteProtectionKey(clave, scope);
+    lastChangeRef.current = { key, version: draftClearVersions.get(key) || 0 };
+  }, [datos, clave, scope]);
 
-  const guardar = useCallback(() => {
+  const guardar = useCallback((snapshot = datosRef.current) => {
     if (!activo || !clave) return;
+    if (protectExisting && pendingRecoveryKeys.has(getRemoteProtectionKey(clave, scope))) return;
+    const key = getRemoteProtectionKey(clave, scope);
+    if (lastChangeRef.current?.key === key && lastChangeRef.current.version !== (draftClearVersions.get(key) || 0)) return;
 
     const showNotice = Date.now() - lastNoticeRef.current >= 15000;
     const notify = (status) => window.dispatchEvent(new CustomEvent("astap:autosave", { detail: { status, clave } }));
     if (showNotice) notify("saving");
 
     try {
-      const payload = toDraftPayload(datosRef.current);
+      const payload = toDraftPayload(snapshot);
       localStorage.setItem(getScopedKey(clave, scope), JSON.stringify(payload));
       void guardarHistorialBorradorRemoto(clave, payload.datos, scope, payload.guardadoEn);
       if (!remoteProtectedKeys.has(getRemoteProtectionKey(clave, scope))) {
@@ -207,7 +231,7 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
       notify("error");
       console.warn("[autoguardado] Error al guardar:", e);
     }
-  }, [clave, activo, scope]);
+  }, [clave, activo, scope, protectExisting]);
 
   // Guardar cada N segundos
   useEffect(() => {
@@ -219,17 +243,43 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
   // Guardar al cerrar/recargar la pestaña
   useEffect(() => {
     if (!activo || !clave) return;
-    window.addEventListener("beforeunload", guardar);
-    return () => window.removeEventListener("beforeunload", guardar);
+    const flush = () => guardar();
+    const onVisibilityChange = () => { if (document.visibilityState === "hidden") flush(); };
+    window.addEventListener("beforeunload", flush);
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener("beforeunload", flush);
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
   }, [guardar, activo, clave]);
+
+  // Al navegar dentro de la aplicación no se dispara beforeunload.
+  useEffect(() => {
+    if (!activo || !clave) return;
+    const key = getRemoteProtectionKey(clave, scope);
+    return () => {
+      const pending = pendingSaveRef.current;
+      const snapshot = pendingDraftForFlush(pending, key, draftClearVersions.get(key) || 0);
+      if (snapshot !== undefined) {
+        guardar(snapshot);
+      }
+      if (pending?.key === key) pendingSaveRef.current = null;
+    };
+  }, [guardar, activo, clave, scope]);
 
   // Guardado debounced al cambiar los datos (guardado inmediato tras 1s de inactividad)
   useEffect(() => {
     if (!activo || !clave) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    const key = getRemoteProtectionKey(clave, scope);
+    const pending = { key, version: draftClearVersions.get(key) || 0, datos };
+    pendingSaveRef.current = pending;
     debounceRef.current = setTimeout(() => {
       try {
-        guardar();
+        if (pending.version === (draftClearVersions.get(key) || 0)) guardar(pending.datos);
+        if (pendingSaveRef.current === pending) pendingSaveRef.current = null;
       } catch (e) {
         /* silencioso */
       }
@@ -241,7 +291,7 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000) 
         debounceRef.current = null;
       }
     };
-  }, [datos, guardar, activo, clave]);
+  }, [datos, guardar, activo, clave, scope]);
 
   // Exponer utilidades sencillas para que el componente pueda forzar guardado / limpiar
   const forzarGuardar = useCallback(() => guardar(), [guardar]);
@@ -283,7 +333,7 @@ export async function leerBorradorRemoto(clave, scope) {
 
   if (error) {
     logRemoteDraftError("[autoguardado] Error al leer borrador remoto:", error);
-    return null;
+    throw error;
   }
 
   if (!data) return null;
@@ -306,6 +356,11 @@ export async function leerMejorBorrador(clave, scope) {
 
 export function permitirSincronizarBorrador(clave, scope) {
   remoteProtectedKeys.delete(getRemoteProtectionKey(clave, scope));
+  pendingRecoveryKeys.delete(getRemoteProtectionKey(clave, scope));
+}
+
+export function permitirAutoguardadoLocal(clave, scope) {
+  pendingRecoveryKeys.delete(getRemoteProtectionKey(clave, scope));
 }
 
 /**
@@ -315,6 +370,8 @@ export function permitirSincronizarBorrador(clave, scope) {
  */
 export function limpiarBorrador(clave, scope) {
   const resolvedScope = getScope(scope);
+  const key = getRemoteProtectionKey(clave, resolvedScope);
+  draftClearVersions.set(key, (draftClearVersions.get(key) || 0) + 1);
   permitirSincronizarBorrador(clave, resolvedScope);
   try {
     localStorage.removeItem(getScopedKey(clave, resolvedScope));
