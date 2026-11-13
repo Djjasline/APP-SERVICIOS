@@ -7,7 +7,7 @@ import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame, PdfSignatures
 import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 import { formatPersonName } from "@/utils/nameFormat";
 import { getVehicleReportConfig } from "./reportModeConfig";
-import { pairActivityImages, useMarlonActivityLayout } from "./activityPdfLayout.mjs";
+import { layoutActivityImages, useMarlonActivityLayout } from "./activityPdfLayout.mjs";
 
 function hasContractItemsSingleTableData(table) {
   return Boolean(
@@ -94,16 +94,18 @@ function hasTestData(test) {
     .some((value) => String(value || "").trim());
 }
 
-function MarlonActivityImagePair({ pair, activityIndex }) {
+function MarlonActivityImages({ activity, activityIndex }) {
   const [ratios, setRatios] = useState({});
-  const imageRatios = pair.map((image) => ratios[image.src] || 1);
-  const rowWidthCm = imageRatios.reduce((sum, ratio) => sum + ratio * 6, 0);
-  const rowGap = pair.length > 1 ? 8 : 0;
+  const rows = layoutActivityImages(activity.imagenes, activity.descripcionesImagenes, ratios);
 
   return (
-    <div style={{ display: "flex", width: "100%", maxWidth: `calc(${rowWidthCm}cm + ${rowGap}px)`, gap: rowGap, alignItems: "start" }}>
-      {pair.map((image, index) => (
-        <div key={image.index} style={{ flex: `${imageRatios[index]} 1 0%`, minWidth: 0, breakInside: "avoid", pageBreakInside: "avoid" }}>
+    <>
+    {rows.map((row, rowIndex) => {
+      const rowWidthCm = row.reduce((sum, image) => sum + image.ratio * 4.5, 0);
+      const totalGap = Math.max(0, row.length - 1) * 8;
+      return <div key={row[0].index} style={{ display: "flex", width: "100%", maxWidth: `calc(${rowWidthCm}cm + ${totalGap}px)`, gap: 8, alignItems: "start", marginTop: rowIndex ? 8 : 0, breakInside: "avoid", pageBreakInside: "avoid" }}>
+      {row.map((image) => (
+        <div key={image.index} style={{ flex: `${image.ratio} 1 0%`, minWidth: 0, breakInside: "avoid", pageBreakInside: "avoid" }}>
           <img
             src={image.src}
             alt={`act-${activityIndex + 1}-${image.index + 1}`}
@@ -118,7 +120,9 @@ function MarlonActivityImagePair({ pair, activityIndex }) {
           {image.description && <div style={{ marginTop: 3, fontSize: 9, lineHeight: 1.2, color: "#374151", whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{image.description}</div>}
         </div>
       ))}
-    </div>
+    </div>;
+    })}
+    </>
   );
 }
 
@@ -149,11 +153,7 @@ export function MarlonActivitiesPdf({ activities, styles: S }) {
               <tr>
                 <td colSpan={2} style={{ ...S.cell, verticalAlign: "top" }}>
                   <div style={{ fontWeight: 700, marginBottom: 5 }}>IMÁGENES</div>
-                  {pairActivityImages(activity.imagenes, activity.descripcionesImagenes).map((pair, pairIndex) => (
-                    <div key={pairIndex} style={{ marginTop: pairIndex ? 8 : 0, breakInside: "avoid", pageBreakInside: "avoid" }}>
-                      <MarlonActivityImagePair pair={pair} activityIndex={activityIndex} />
-                    </div>
-                  ))}
+                  <MarlonActivityImages activity={activity} activityIndex={activityIndex} />
                 </td>
               </tr>
             )}
