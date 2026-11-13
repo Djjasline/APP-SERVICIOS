@@ -1,12 +1,13 @@
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/context/ThemeContext";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { printPdf } from "@/utils/printPdf"; // ← ajusta la ruta a tu proyecto
 import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame, PdfSignaturesTable } from "@/components/pdf/PdfReportLayout";
 import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 import { formatPersonName } from "@/utils/nameFormat";
 import { getVehicleReportConfig } from "./reportModeConfig";
+import { pairActivityImages, useMarlonActivityLayout } from "./activityPdfLayout.mjs";
 
 function hasContractItemsSingleTableData(table) {
   return Boolean(
@@ -91,6 +92,51 @@ function ActivityContractItemsTablePdf({ table }) {
 function hasTestData(test) {
   return [test?.tipo, test?.procedimiento, test?.resultado, test?.cierre]
     .some((value) => String(value || "").trim());
+}
+
+export function MarlonActivitiesPdf({ activities, styles: S }) {
+  return (
+    <table className="activities-table" style={{ ...S.tbl, tableLayout: "fixed" }}>
+      <colgroup><col style={{ width: 40 }} /><col /></colgroup>
+      <thead>
+        <tr>
+          <th style={S.th}>ÍTEM</th>
+          <th style={S.th}>TRABAJO / HALLAZGO</th>
+        </tr>
+      </thead>
+      <tbody>
+        {(activities || []).map((activity, activityIndex) => (
+          <Fragment key={activityIndex}>
+            <tr>
+              <td style={{ ...S.cell, textAlign: "center", verticalAlign: "top" }}>{activityIndex + 1}</td>
+              <td style={{ ...S.cell, verticalAlign: "top", overflowWrap: "anywhere" }}>
+                <strong>Trabajo realizado: {activity.titulo || "—"}</strong>
+                <div style={{ whiteSpace: "pre-wrap", marginTop: 5, fontSize: 11 }}>
+                  <strong>Hallazgo técnico: </strong>{activity.detalle || "—"}
+                </div>
+                <ActivityContractItemsTablePdf table={activity.contractItemsTable} />
+              </td>
+            </tr>
+            {pairActivityImages(activity.imagenes, activity.descripcionesImagenes).map((pair, pairIndex) => (
+              <tr key={pairIndex}>
+                <td colSpan={2} style={{ ...S.cell, verticalAlign: "top" }}>
+                  {pairIndex === 0 && <div style={{ fontWeight: 700, marginBottom: 5 }}>IMÁGENES</div>}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, alignItems: "start" }}>
+                    {pair.map((image) => (
+                      <div key={image.index} style={{ minWidth: 0, breakInside: "avoid", pageBreakInside: "avoid" }}>
+                        <img src={image.src} alt={`act-${activityIndex + 1}-${image.index + 1}`} style={{ width: "100%", height: "auto", maxWidth: "8cm", maxHeight: "8cm", objectFit: "contain", objectPosition: "left top", display: "block" }} />
+                        {image.description && <div style={{ marginTop: 3, fontSize: 9, lineHeight: 1.2, color: "#374151", whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{image.description}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </Fragment>
+        ))}
+      </tbody>
+    </table>
+  );
 }
 
 const operationalStatusLabels = {
@@ -465,6 +511,9 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
 
         <p style={{ ...S.sectionTitle, marginTop: 0 }}>4. TRABAJO REALIZADO Y 5. HALLAZGOS TÉCNICOS</p>
 
+        {useMarlonActivityLayout(reportType, data.tecnicoNombre) ? (
+        <MarlonActivitiesPdf activities={data.actividades} styles={S} />
+        ) : (
         <table className="activities-table" style={{ ...S.tbl, tableLayout: "fixed" }}>
           <thead>
             <tr>
@@ -510,6 +559,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             ))}
           </tbody>
         </table>
+        )}
 
         <p style={S.sectionTitle}>6. PRUEBAS REALIZADAS Y RESULTADOS</p>
         <table style={S.tbl}>
