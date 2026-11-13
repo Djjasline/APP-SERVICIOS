@@ -1,8 +1,10 @@
 import { useDeferredValue, useEffect, useRef, useState } from "react";
+import { Trash2 } from "lucide-react";
 import AutoResizeInput from "@/components/AutoResizeInput";
 import { getVehicleReferenceCatalog } from "@/services/warehouseInventoryService";
 import { formatPartsDescription, toSentenceCase } from "@/utils/sentenceCase.mjs";
 import { isReferenceInteraction, showReferenceDropdown } from "@/utils/partsReferenceDropdown.mjs";
+import { hasPartsAnnexRowContent, removePartsAnnexRow } from "@/utils/partsAnnexRows.mjs";
 
 const MIN_SEARCH_LENGTH = 3;
 
@@ -125,9 +127,12 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
     onChange([...items, { descripcion: "", numeroParte: "", cantidad: "" }]);
   };
 
-  const removeLastRow = () => {
-    if (items.length <= 1) return;
-    onChange(items.slice(0, -1));
+  const removeRow = (index) => {
+    if (hasPartsAnnexRowContent(items[index]) && !window.confirm(`¿Eliminar el ítem ${index + 1} del anexo?`)) return;
+    setActiveRow(null);
+    setSearchText("");
+    setMatches([]);
+    onChange(removePartsAnnexRow(items, index));
   };
 
   return (
@@ -160,6 +165,7 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
                 <th>DESCRIPCIÓN</th>
                 <th style={{ width: 170 }}>N° PARTE</th>
                 <th style={{ width: 110 }}>CANTIDAD</th>
+                <th className="print:hidden" style={{ width: 48 }} aria-label="Acciones"></th>
               </tr>
             </thead>
             <tbody>
@@ -204,6 +210,17 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
                       onChange={(event) => updateRow(index, "cantidad", event.target.value)}
                     />
                   </td>
+                  <td className="print:hidden text-center align-middle">
+                    <button
+                      type="button"
+                      onClick={() => removeRow(index)}
+                      className="inline-flex items-center justify-center rounded p-2 text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400"
+                      aria-label={`Eliminar ítem ${index + 1}`}
+                      title={`Eliminar ítem ${index + 1}`}
+                    >
+                      <Trash2 size={16} aria-hidden="true" />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -216,14 +233,6 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
               className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
             >
               + Agregar más ítems
-            </button>
-            <button
-              type="button"
-              onClick={removeLastRow}
-              disabled={items.length <= 1}
-              className="border border-red-200 px-4 py-1.5 text-xs rounded text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Eliminar último
             </button>
             <button type="button" onClick={downloadExcel} disabled={exporting} className="rounded-md border border-emerald-700 bg-emerald-700 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800 disabled:opacity-50 print:hidden">
               {exporting ? "Preparando Excel..." : "Descargar anexo en Excel"}
