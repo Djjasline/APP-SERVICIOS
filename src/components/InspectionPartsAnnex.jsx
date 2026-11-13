@@ -4,30 +4,14 @@ import AutoResizeInput from "@/components/AutoResizeInput";
 import { getVehicleReferenceCatalog } from "@/services/warehouseInventoryService";
 import { formatPartsDescription, toSentenceCase } from "@/utils/sentenceCase.mjs";
 import { isReferenceInteraction, showReferenceDropdown } from "@/utils/partsReferenceDropdown.mjs";
-import { hasPartsAnnexRowContent, removePartsAnnexRow } from "@/utils/partsAnnexRows.mjs";
+import { createDefaultPartsAnnexRows, hasPartsAnnexRowContent, normalizePartsAnnexRows, removePartsAnnexRow } from "@/utils/partsAnnexRows.mjs";
+
+export { createDefaultPartsAnnexRows, normalizePartsAnnexRows } from "@/utils/partsAnnexRows.mjs";
 
 const MIN_SEARCH_LENGTH = 3;
 
 function getRowSearchText(row) {
   return `${row?.numeroParte || ""} ${row?.descripcion || ""}`.trim();
-}
-
-export function createDefaultPartsAnnexRows(count = 5) {
-  return Array.from({ length: count }, () => ({
-    descripcion: "",
-    numeroParte: "",
-    cantidad: "",
-  }));
-}
-
-export function normalizePartsAnnexRows(rows) {
-  if (!Array.isArray(rows) || rows.length === 0) return createDefaultPartsAnnexRows();
-
-  return rows.map((row) => ({
-    descripcion: row?.descripcion ?? "",
-    numeroParte: row?.numeroParte === "" ? (row?.nParte ?? "") : (row?.numeroParte ?? row?.nParte ?? ""),
-    cantidad: row?.cantidad ?? "",
-  }));
 }
 
 export default function InspectionPartsAnnex({ rows, onChange, enabled = true, onEnabledChange }) {
@@ -102,15 +86,22 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
   }, [activeRow, deferredSearchText]);
 
   const updateRow = (index, field, value) => {
-    onChange(items.map((row, i) => (i === index ? { ...row, [field]: value } : row)));
-    setActiveRow(index);
-    setSearchText(getRowSearchText({ ...items[index], [field]: value }));
+    onChange(items.map((row, i) => (i === index ? {
+      ...row,
+      [field]: value,
+      ...(field === "numeroParte" && Object.hasOwn(row, "nParte") ? { nParte: value } : {}),
+      ...(field === "observaciones" && Object.hasOwn(row, "observacion") ? { observacion: value } : {}),
+    } : row)));
+    if (field === "descripcion" || field === "numeroParte") {
+      setActiveRow(index);
+      setSearchText(getRowSearchText({ ...items[index], [field]: value }));
+    }
   };
 
   const selectReferenceItem = (index, item) => {
     onChange(items.map((row, i) => (
       i === index
-        ? { ...row, descripcion: toSentenceCase(item.description), numeroParte: item.product_code || "" }
+        ? { ...row, descripcion: toSentenceCase(item.description), numeroParte: item.product_code || "", ...(Object.hasOwn(row, "nParte") ? { nParte: item.product_code || "" } : {}) }
         : row
     )));
     setMatches([]);
@@ -124,7 +115,7 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
   };
 
   const addRow = () => {
-    onChange([...items, { descripcion: "", numeroParte: "", cantidad: "" }]);
+    onChange([...items, ...createDefaultPartsAnnexRows(1)]);
   };
 
   const removeRow = (index) => {
@@ -162,9 +153,10 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
             <thead>
               <tr>
                 <th style={{ width: 45 }}>ÍTEM</th>
-                <th>DESCRIPCIÓN</th>
-                <th style={{ width: 170 }}>N° PARTE</th>
-                <th style={{ width: 110 }}>CANTIDAD</th>
+                <th style={{ width: 80 }}>CANTIDAD</th>
+                <th style={{ width: 135 }}>N° PARTE</th>
+                <th>DESCRIPCIÓN / NOMBRE</th>
+                <th>OBSERVACIONES</th>
                 <th className="print:hidden" style={{ width: 48 }} aria-label="Acciones"></th>
               </tr>
             </thead>
@@ -172,6 +164,23 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
               {items.map((row, index) => (
                 <tr key={index}>
                   <td className="text-center font-semibold">{index + 1}</td>
+                  <td>
+                    <AutoResizeInput
+                      className="pdf-input w-full"
+                      value={row.cantidad}
+                      placeholder="Cant."
+                      onChange={(event) => updateRow(index, "cantidad", event.target.value)}
+                    />
+                  </td>
+                  <td ref={activeRow === index ? partNumberRef : null}>
+                    <AutoResizeInput
+                      className="pdf-input w-full"
+                      value={row.numeroParte}
+                      placeholder="N° parte"
+                      onFocus={() => focusRow(index)}
+                      onChange={(event) => updateRow(index, "numeroParte", event.target.value)}
+                    />
+                  </td>
                   <td>
                     <div className="relative" ref={activeRow === index ? descriptionRef : null}>
                       <AutoResizeInput
@@ -193,21 +202,12 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
                       )}
                     </div>
                   </td>
-                  <td ref={activeRow === index ? partNumberRef : null}>
-                    <AutoResizeInput
-                      className="pdf-input w-full"
-                      value={row.numeroParte}
-                      placeholder="N° parte"
-                      onFocus={() => focusRow(index)}
-                      onChange={(event) => updateRow(index, "numeroParte", event.target.value)}
-                    />
-                  </td>
                   <td>
                     <AutoResizeInput
                       className="pdf-input w-full"
-                      value={row.cantidad}
-                      placeholder="Cant."
-                      onChange={(event) => updateRow(index, "cantidad", event.target.value)}
+                      value={row.observaciones}
+                      placeholder="Observaciones"
+                      onChange={(event) => updateRow(index, "observaciones", event.target.value)}
                     />
                   </td>
                   <td className="print:hidden text-center align-middle">
@@ -282,9 +282,7 @@ function PartsReferenceDropdown({ query, matches, loading, error, onSelect, onCl
 export function InspectionPartsAnnexPdf({ rows, styles, enabled = true }) {
   if (enabled === false) return null;
 
-  const items = normalizePartsAnnexRows(rows).filter(
-    (row) => row.descripcion || row.numeroParte || row.cantidad
-  );
+  const items = normalizePartsAnnexRows(rows).filter(hasPartsAnnexRowContent);
 
   if (items.length === 0) return null;
 
@@ -297,18 +295,20 @@ export function InspectionPartsAnnexPdf({ rows, styles, enabled = true }) {
         <thead>
           <tr>
             <th style={{ ...S.th, width: 45 }}>ÍTEM</th>
-            <th style={{ ...S.th, textAlign: "left" }}>DESCRIPCIÓN</th>
-            <th style={{ ...S.th, width: 130 }}>N° PARTE</th>
-            <th style={{ ...S.th, width: 90 }}>CANTIDAD</th>
+            <th style={{ ...S.th, width: 70 }}>CANTIDAD</th>
+            <th style={{ ...S.th, width: 110 }}>N° PARTE</th>
+            <th style={{ ...S.th, textAlign: "left" }}>DESCRIPCIÓN / NOMBRE</th>
+            <th style={{ ...S.th, textAlign: "left" }}>OBSERVACIONES</th>
           </tr>
         </thead>
         <tbody>
           {items.map((row, index) => (
             <tr key={index}>
               <td style={{ ...S.cell, textAlign: "center", fontWeight: 700 }}>{index + 1}</td>
-              <td style={{ ...S.cell, whiteSpace: "pre-wrap" }}>{formatPartsDescription(row.descripcion) || "—"}</td>
-              <td style={S.cell}>{row.numeroParte || "—"}</td>
-              <td style={{ ...S.cell, textAlign: "center" }}>{row.cantidad || "—"}</td>
+              <td style={{ ...S.cell, textAlign: "center", whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{row.cantidad === "" ? "—" : row.cantidad}</td>
+              <td style={{ ...S.cell, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{row.numeroParte === "" ? "—" : row.numeroParte}</td>
+              <td style={{ ...S.cell, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{formatPartsDescription(row.descripcion) || "—"}</td>
+              <td style={{ ...S.cell, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{row.observaciones || "—"}</td>
             </tr>
           ))}
         </tbody>
