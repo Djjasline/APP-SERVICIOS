@@ -14,12 +14,19 @@ test("exporta un xlsx con texto literal, ceros iniciales y sin filas vacías", (
   assert.ok(files["xl/workbook.xml"]);
   const sheet = strFromU8(files["xl/worksheets/sheet1.xml"]);
   assert.match(sheet, /Bomba &amp; válvula/);
-  assert.match(sheet, /<c r="C2" t="inlineStr"><is><t xml:space="preserve">001234<\/t>/);
-  assert.match(sheet, /<c r="B2" t="inlineStr"><is><t xml:space="preserve">2<\/t>/);
-  assert.match(sheet, /<c r="D3" t="inlineStr"><is><t xml:space="preserve">=1\+1<\/t>/);
-  assert.match(sheet, /<c r="B3" t="inlineStr"><is><t xml:space="preserve">0<\/t>/);
-  assert.match(sheet, /<c r="E2" t="inlineStr"><is><t xml:space="preserve">Urgente &amp; revisar<\/t>/);
-  assert.match(sheet, /<c r="A1"[^>]*>.*?ÍTEM.*?<c r="B1"[^>]*>.*?CANTIDAD.*?<c r="C1"[^>]*>.*?N° PARTE.*?<c r="D1"[^>]*>.*?DESCRIPCIÓN \/ NOMBRE.*?<c r="E1"[^>]*>.*?OBSERVACIONES/);
+  assert.match(sheet, /<c r="B2" t="inlineStr"><is><t xml:space="preserve">001234<\/t>/);
+  assert.match(sheet, /<c r="A2" t="inlineStr"><is><t xml:space="preserve">2<\/t>/);
+  assert.match(sheet, /<c r="C3" t="inlineStr"><is><t xml:space="preserve">=1\+1<\/t>/);
+  assert.match(sheet, /<c r="A3" t="inlineStr"><is><t xml:space="preserve">0<\/t>/);
+  assert.match(sheet, /<c r="G2" t="inlineStr"><is><t xml:space="preserve">Urgente &amp; revisar<\/t>/);
+  const headers = ["Quantity Ordered", "Part Number", "Description", "List Price", "Dlr Net Price", "Is Kit", "Service Note", "Unit Of Measure", "Qty Available", "Dlr Net Ext Price", "Stock Type", "Unit Weight", "Wt Unit Of Measure", "Extended Weight", "Leadtime Estimate", "Item Type"];
+  const headerRow = sheet.match(/<row r="1">(.*?)<\/row>/)[1];
+  for (const [index, header] of headers.entries()) {
+    assert.ok(headerRow.includes(`<c r="${"ABCDEFGHIJKLMNOP"[index]}1" s="1" t="inlineStr"><is><t xml:space="preserve">${header}</t>`));
+  }
+  assert.match(strFromU8(files["xl/workbook.xml"]), /name="Sheet1"/);
+  assert.ok(files["xl/styles.xml"]);
+  assert.match(sheet, /<c r="D2" t="inlineStr"><is><t xml:space="preserve"><\/t>/);
   assert.doesNotMatch(sheet, /<f>/);
   assert.equal(getPartsAnnexExportRows(rows).length, 2);
 });
@@ -27,9 +34,9 @@ test("exporta un xlsx con texto literal, ceros iniciales y sin filas vacías", (
 test("exporta filas solo con observaciones y números de parte históricos", () => {
   const rows = [{ observaciones: "Revisar" }, { numeroParte: "", nParte: "0005", observacion: "Anterior" }];
   const sheet = strFromU8(unzipSync(createPartsAnnexWorkbook(rows))["xl/worksheets/sheet1.xml"]);
-  assert.match(sheet, /<c r="E2"[^>]*>.*?Revisar/);
-  assert.match(sheet, /<c r="C3"[^>]*>.*?0005/);
-  assert.match(sheet, /<c r="E3"[^>]*>.*?Anterior/);
+  assert.match(sheet, /<c r="G2"[^>]*>.*?Revisar/);
+  assert.match(sheet, /<c r="B3"[^>]*>.*?0005/);
+  assert.match(sheet, /<c r="G3"[^>]*>.*?Anterior/);
 });
 
 test("evita descargar un anexo vacío o con caracteres inválidos", () => {

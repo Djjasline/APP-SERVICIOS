@@ -2,7 +2,12 @@ import { zipSync, strToU8 } from "fflate";
 import { formatPartsDescription } from "./sentenceCase.mjs";
 import { normalizePartsAnnexRows } from "./partsAnnexRows.mjs";
 
-const HEADER = ["ÍTEM", "CANTIDAD", "N° PARTE", "DESCRIPCIÓN / NOMBRE", "OBSERVACIONES"];
+const HEADER = [
+  "Quantity Ordered", "Part Number", "Description", "List Price",
+  "Dlr Net Price", "Is Kit", "Service Note", "Unit Of Measure",
+  "Qty Available", "Dlr Net Ext Price", "Stock Type", "Unit Weight",
+  "Wt Unit Of Measure", "Extended Weight", "Leadtime Estimate", "Item Type",
+];
 
 function text(value) {
   return String(value ?? "");
@@ -28,18 +33,22 @@ export function getPartsAnnexExportRows(rows) {
 export function createPartsAnnexWorkbook(rows) {
   const items = getPartsAnnexExportRows(rows);
   if (!items.length) throw new Error("Agrega al menos un ítem al anexo antes de descargarlo.");
-  const table = [HEADER, ...items.map((row, index) => [String(index + 1), row.cantidad, row.numeroParte, row.descripcion, row.observaciones])];
+  const table = [HEADER, ...items.map((row) => [
+    row.cantidad, row.numeroParte, row.descripcion, "", "", "", row.observaciones,
+    "", "", "", "", "", "", "", "", "",
+  ])];
   const sheetRows = table.map((values, index) => {
-    const cells = values.map((value, column) => `<c r="${"ABCDE"[column]}${index + 1}" t="inlineStr"><is><t xml:space="preserve">${xmlText(value)}</t></is></c>`).join("");
+    const cells = values.map((value, column) => `<c r="${"ABCDEFGHIJKLMNOP"[column]}${index + 1}"${index === 0 ? ' s="1"' : ""} t="inlineStr"><is><t xml:space="preserve">${xmlText(value)}</t></is></c>`).join("");
     return `<row r="${index + 1}">${cells}</row>`;
   }).join("");
   const xml = (content) => strToU8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>${content}`);
   return zipSync({
-    "[Content_Types].xml": xml('<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>'),
+    "[Content_Types].xml": xml('<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'),
     "_rels/.rels": xml('<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'),
-    "xl/workbook.xml": xml('<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Anexo de ítems" sheetId="1" r:id="rId1"/></sheets></workbook>'),
-    "xl/_rels/workbook.xml.rels": xml('<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'),
-    "xl/worksheets/sheet1.xml": xml(`<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols><col min="1" max="1" width="10" customWidth="1"/><col min="2" max="2" width="15" customWidth="1"/><col min="3" max="3" width="24" customWidth="1"/><col min="4" max="4" width="55" customWidth="1"/><col min="5" max="5" width="45" customWidth="1"/></cols><sheetData>${sheetRows}</sheetData></worksheet>`),
+    "xl/workbook.xml": xml('<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Sheet1" sheetId="1" r:id="rId1"/></sheets></workbook>'),
+    "xl/_rels/workbook.xml.rels": xml('<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'),
+    "xl/styles.xml": xml('<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs></styleSheet>'),
+    "xl/worksheets/sheet1.xml": xml(`<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${sheetRows}</sheetData></worksheet>`),
   });
 }
 
