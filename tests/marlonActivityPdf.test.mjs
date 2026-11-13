@@ -28,6 +28,9 @@ test("el PDF conserva texto, tablas e imágenes debajo del trabajo correspondien
   assert.match(section, /<th style=\{S\.th\}>TRABAJO \/ HALLAZGO<\/th>/);
   assert.match(section, /activity\.titulo[\s\S]*activity\.detalle[\s\S]*ActivityContractItemsTablePdf[\s\S]*pairActivityImages/);
   assert.match(section, /colSpan=\{2\}/);
-  assert.match(section, /repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(section, /MarlonActivityImagePair pair=\{pair\}/);
+  assert.match(source, /naturalWidth \/ naturalHeight/);
+  assert.match(source, /flex: `\$\{imageRatios\[index\]\} 1 0%`/);
+  assert.match(source, /width: "100%", height: "auto", display: "block"/);
   assert.match(source, /useMarlonActivityLayout\(reportType, data\.tecnicoNombre\)/);
 });

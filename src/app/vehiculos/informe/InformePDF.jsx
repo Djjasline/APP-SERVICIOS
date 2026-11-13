@@ -94,6 +94,34 @@ function hasTestData(test) {
     .some((value) => String(value || "").trim());
 }
 
+function MarlonActivityImagePair({ pair, activityIndex }) {
+  const [ratios, setRatios] = useState({});
+  const imageRatios = pair.map((image) => ratios[image.src] || 1);
+  const rowWidthCm = imageRatios.reduce((sum, ratio) => sum + ratio * 6, 0);
+  const rowGap = pair.length > 1 ? 8 : 0;
+
+  return (
+    <div style={{ display: "flex", width: "100%", maxWidth: `calc(${rowWidthCm}cm + ${rowGap}px)`, gap: rowGap, alignItems: "start" }}>
+      {pair.map((image, index) => (
+        <div key={image.index} style={{ flex: `${imageRatios[index]} 1 0%`, minWidth: 0, breakInside: "avoid", pageBreakInside: "avoid" }}>
+          <img
+            src={image.src}
+            alt={`act-${activityIndex + 1}-${image.index + 1}`}
+            onLoad={(event) => {
+              const { naturalWidth, naturalHeight } = event.currentTarget;
+              if (!naturalWidth || !naturalHeight) return;
+              const ratio = naturalWidth / naturalHeight;
+              setRatios((previous) => previous[image.src] === ratio ? previous : { ...previous, [image.src]: ratio });
+            }}
+            style={{ width: "100%", height: "auto", display: "block" }}
+          />
+          {image.description && <div style={{ marginTop: 3, fontSize: 9, lineHeight: 1.2, color: "#374151", whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{image.description}</div>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function MarlonActivitiesPdf({ activities, styles: S }) {
   return (
     <table className="activities-table" style={{ ...S.tbl, tableLayout: "fixed" }}>
@@ -121,14 +149,7 @@ export function MarlonActivitiesPdf({ activities, styles: S }) {
               <tr key={pairIndex}>
                 <td colSpan={2} style={{ ...S.cell, verticalAlign: "top" }}>
                   {pairIndex === 0 && <div style={{ fontWeight: 700, marginBottom: 5 }}>IMÁGENES</div>}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8, alignItems: "start" }}>
-                    {pair.map((image) => (
-                      <div key={image.index} style={{ minWidth: 0, breakInside: "avoid", pageBreakInside: "avoid" }}>
-                        <img src={image.src} alt={`act-${activityIndex + 1}-${image.index + 1}`} style={{ width: "100%", height: "auto", maxWidth: "8cm", maxHeight: "8cm", objectFit: "contain", objectPosition: "left top", display: "block" }} />
-                        {image.description && <div style={{ marginTop: 3, fontSize: 9, lineHeight: 1.2, color: "#374151", whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{image.description}</div>}
-                      </div>
-                    ))}
-                  </div>
+                  <MarlonActivityImagePair pair={pair} activityIndex={activityIndex} />
                 </td>
               </tr>
             ))}
@@ -219,7 +240,13 @@ export default function InformePDF({ allowDownload = true, backPath = null, repo
   const logoSrc = typeof window !== "undefined" ? `${window.location.origin}/astap-logo.jpg` : "/astap-logo.jpg";
   const reportDescription = reportConfig.description;
   /* ── Handler de impresión via iframe ── */
-  const handlePrint = () => {
+  const handlePrint = async () => {
+  if (useMarlonActivityLayout(reportType, data.tecnicoNombre)) {
+    const images = Array.from(document.querySelectorAll("#pdf-content .activities-table img"));
+    await Promise.all(images.map((image) => typeof image.decode === "function" ? image.decode().catch(() => {}) : Promise.resolve()));
+    // Permite que la vista aplique las proporciones conocidas antes de clonar el PDF.
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+  }
   const cliente = (data.cliente || "cliente").replace(/\s+/g, "-");
   const pedido = (data.pedidoDemanda || "pedido").replace(/\s+/g, "");
   const codigo = (data.codInf || "000").replace(/\s+/g, "");
