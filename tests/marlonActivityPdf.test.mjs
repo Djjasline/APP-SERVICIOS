@@ -10,17 +10,16 @@ test("el formato horizontal se limita a informes de servicio de Marlon", () => {
   assert.equal(useMarlonActivityLayout("informe", ""), false);
 });
 
-test("agrupa imágenes según su proporción sin perder orden ni descripciones", () => {
-  const images = ["uno", "dos", "tres", "cuatro", "cinco"];
-  const captions = ["pie 1", "pie 2", "pie 3", "pie 4", "pie 5"];
-  const rows = layoutActivityImages(images, captions, { uno: 0.5, dos: 0.5, tres: 0.5, cuatro: 2, cinco: 2 });
-  assert.deepEqual(rows.map((row) => row.length), [4, 1]);
+test("agrupa tres imágenes por fila sin perder orden ni descripciones", () => {
+  const images = ["uno", "dos", "tres", "cuatro", "cinco", "seis", "siete"];
+  const captions = ["pie 1", "pie 2", "pie 3", "pie 4", "pie 5", "pie 6", "pie 7"];
+  const rows = layoutActivityImages(images, captions);
+  assert.deepEqual(rows.map((row) => row.length), [3, 3, 1]);
   assert.deepEqual(rows.flat().map(({ src }) => src), images);
   assert.deepEqual(rows.flat().map(({ description }) => description), captions);
   assert.deepEqual(layoutActivityImages(undefined, captions), []);
-  assert.equal(layoutActivityImages(["foto"], [], { foto: 0 })[0][0].ratio, 1);
   assert.equal(layoutActivityImages(["foto"], [])[0][0].description, "");
-  assert.deepEqual(layoutActivityImages(Array(7).fill("vertical"), [], { vertical: 0.4 }).map((row) => row.length), [6, 1]);
+  assert.deepEqual(layoutActivityImages(Array(6).fill("vertical"), []).map((row) => row.length), [3, 3]);
 });
 
 test("el PDF conserva texto, tablas e imágenes debajo del trabajo correspondiente", () => {
@@ -31,8 +30,7 @@ test("el PDF conserva texto, tablas e imágenes debajo del trabajo correspondien
   assert.match(section, /activity\.titulo[\s\S]*activity\.detalle[\s\S]*ActivityContractItemsTablePdf[\s\S]*MarlonActivityImages/);
   assert.match(section, /colSpan=\{2\}/);
   assert.match(section, /<td colSpan=\{2\}[\s\S]*<MarlonActivityImages activity=\{activity\}[\s\S]*<\/td>/);
-  assert.match(source, /naturalWidth \/ naturalHeight/);
-  assert.match(source, /flex: `\$\{image\.ratio\} 1 0%`/);
-  assert.match(source, /width: "100%", height: "auto", display: "block"/);
+  assert.match(source, /gridTemplateColumns: "repeat\(3, minmax\(0, 1fr\)\)"/);
+  assert.match(source, /width: "auto", height: "auto", maxWidth: "100%", maxHeight: "5\.5cm"/);
   assert.match(source, /useMarlonActivityLayout\(reportType, data\.tecnicoNombre\)/);
 });

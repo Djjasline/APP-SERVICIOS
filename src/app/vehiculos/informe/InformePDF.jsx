@@ -95,33 +95,24 @@ function hasTestData(test) {
 }
 
 function MarlonActivityImages({ activity, activityIndex }) {
-  const [ratios, setRatios] = useState({});
-  const rows = layoutActivityImages(activity.imagenes, activity.descripcionesImagenes, ratios);
+  const rows = layoutActivityImages(activity.imagenes, activity.descripcionesImagenes);
 
   return (
     <>
-    {rows.map((row, rowIndex) => {
-      const rowWidthCm = row.reduce((sum, image) => sum + image.ratio * 4.5, 0);
-      const totalGap = Math.max(0, row.length - 1) * 8;
-      return <div key={row[0].index} style={{ display: "flex", width: "100%", maxWidth: `calc(${rowWidthCm}cm + ${totalGap}px)`, gap: 8, alignItems: "start", marginTop: rowIndex ? 8 : 0, breakInside: "avoid", pageBreakInside: "avoid" }}>
-      {row.map((image) => (
-        <div key={image.index} style={{ flex: `${image.ratio} 1 0%`, minWidth: 0, breakInside: "avoid", pageBreakInside: "avoid" }}>
-          <img
-            src={image.src}
-            alt={`act-${activityIndex + 1}-${image.index + 1}`}
-            onLoad={(event) => {
-              const { naturalWidth, naturalHeight } = event.currentTarget;
-              if (!naturalWidth || !naturalHeight) return;
-              const ratio = naturalWidth / naturalHeight;
-              setRatios((previous) => previous[image.src] === ratio ? previous : { ...previous, [image.src]: ratio });
-            }}
-            style={{ width: "100%", height: "auto", display: "block" }}
-          />
-          {image.description && <div style={{ marginTop: 3, fontSize: 9, lineHeight: 1.2, color: "#374151", whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{image.description}</div>}
+      {rows.map((row, rowIndex) => (
+        <div key={row[0].index} style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, alignItems: "start", marginTop: rowIndex ? 8 : 0, breakInside: "avoid", pageBreakInside: "avoid" }}>
+          {row.map((image) => (
+            <div key={image.index} style={{ minWidth: 0, breakInside: "avoid", pageBreakInside: "avoid" }}>
+              <img
+                src={image.src}
+                alt={`act-${activityIndex + 1}-${image.index + 1}`}
+                style={{ width: "auto", height: "auto", maxWidth: "100%", maxHeight: "5.5cm", display: "block", margin: "0 auto" }}
+              />
+              {image.description && <div style={{ marginTop: 3, fontSize: 9, lineHeight: 1.2, color: "#374151", whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{image.description}</div>}
+            </div>
+          ))}
         </div>
       ))}
-    </div>;
-    })}
     </>
   );
 }
@@ -248,7 +239,7 @@ export default function InformePDF({ allowDownload = true, backPath = null, repo
   if (useMarlonActivityLayout(reportType, data.tecnicoNombre)) {
     const images = Array.from(document.querySelectorAll("#pdf-content .activities-table img"));
     await Promise.all(images.map((image) => typeof image.decode === "function" ? image.decode().catch(() => {}) : Promise.resolve()));
-    // Permite que la vista aplique las proporciones conocidas antes de clonar el PDF.
+    // Permite que la vista termine de presentar las imágenes antes de clonar el PDF.
     await new Promise((resolve) => requestAnimationFrame(resolve));
   }
   const cliente = (data.cliente || "cliente").replace(/\s+/g, "-");
