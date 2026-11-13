@@ -16,6 +16,9 @@ import ObservationImageField from "@/components/ObservationImageField";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
+import PartsRowDeleteButton from "@/components/PartsRowDeleteButton";
+import RemovedPartsControls from "@/components/RemovedPartsControls";
+import { setPartRemoved, visibleParts, isRemovedPart } from "@/utils/predefinedParts.mjs";
 
 /* ═══════════════════════════════════════
    HELPERS
@@ -146,7 +149,7 @@ const emptyForm = {
 /* ═══════════════════════════════════════
    TABLA DE ÍTEMS
 ═══════════════════════════════════════ */
-function TablaItems({ seccion, data, handleItem, recordId, updateExtra, eliminarExtra }) {
+function TablaItems({ seccion, data, handleItem, recordId, updateExtra, eliminarExtra, retirarRepuesto }) {
   return (
     <table className="pdf-table w-full">
       <thead>
@@ -158,7 +161,7 @@ function TablaItems({ seccion, data, handleItem, recordId, updateExtra, eliminar
           <th style={{ width: 40 }}>NO</th>
           <th style={{ width: 40 }}>N/A</th>
           <th className="text-left">OBSERVACIÓN</th>
-          {seccion.tipo === "otros" && <th style={{ width: 40 }}>ELIM.</th>}
+          {(seccion.tipo === "otros" || seccion.tipo === "cantidad") && <th style={{ width: 40 }}>ELIM.</th>}
         </tr>
       </thead>
       <tbody>
@@ -200,7 +203,7 @@ function TablaItems({ seccion, data, handleItem, recordId, updateExtra, eliminar
               <button type="button" onClick={() => eliminarExtra(index)} className="font-bold text-red-600">×</button>
             </td>
           </tr>
-        )) : seccion.items.map(([codigo, texto, codigoAnterior]) => {
+        )) : (seccion.tipo === "cantidad" ? visibleParts(seccion.items, data.repuestosOcultos) : seccion.items).map(([codigo, texto, codigoAnterior]) => {
           const itemData = data.items?.[codigo] || data.items?.[codigoAnterior] || {};
           return (
           <tr key={codigo} className="hover:bg-gray-50">
@@ -241,6 +244,7 @@ function TablaItems({ seccion, data, handleItem, recordId, updateExtra, eliminar
                 folder={`observacion-${codigo}`}
               />
             </td>
+            {seccion.tipo === "cantidad" && <td className="border text-center"><PartsRowDeleteButton label={`Retirar repuesto ${codigo}`} onClick={() => retirarRepuesto(codigo, texto)} /></td>}
           </tr>
         );
         })}
@@ -281,8 +285,9 @@ const [firmaClienteEditada, setFirmaClienteEditada] = useState(false);
   const uploading = uploadingCount > 0;
 
   /* ── PROGRESO ── */
-  const itemsMarcados    = todosLosItems.filter((c) => data.items?.[c]?.estado).length;
-  const totalItems       = todosLosItems.length;
+  const itemsVisibles    = todosLosItems.filter((c) => !isRemovedPart(c, data.repuestosOcultos));
+  const itemsMarcados    = itemsVisibles.filter((c) => data.items?.[c]?.estado).length;
+  const totalItems       = itemsVisibles.length;
   const progresoPct      = totalItems > 0 ? Math.round((itemsMarcados / totalItems) * 100) : 0;
   const mantenimientoListo =
   !!(
@@ -914,7 +919,9 @@ const result = await saveOrUpdateReport({
                 recordId={id || "temp-mant-vcam"}
                 updateExtra={updateExtra}
                 eliminarExtra={eliminarExtra}
+                retirarRepuesto={(codigo, texto) => { if (window.confirm(`¿Retirar ${texto} de este documento? Podrás recuperarlo después.`)) setData((prev) => setPartRemoved(prev, codigo, true)); }}
               />
+              {sec.tipo === "cantidad" && <RemovedPartsControls items={sec.items} removed={data.repuestosOcultos} onRestore={(codigo) => setData((prev) => setPartRemoved(prev, codigo, false))} />}
               {sec.tipo === "otros" && (
                 <div className="mt-2">
                   <button type="button" onClick={agregarExtra} className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">

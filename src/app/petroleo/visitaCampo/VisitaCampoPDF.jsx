@@ -5,6 +5,7 @@ import { printPdf } from "@/utils/printPdf";
 import { useAuth } from "@/context/AuthContext";
 import { createEmptyVisitaCampoData } from "./visitaCampoData";
 import { parseTableText } from "./tableUtils";
+import { parseRepuestoRows, repuestoColumns } from "./repuestoRows.mjs";
 import { isSuperAdminEmail } from "@/constants/privilegedAccess.mjs";
 import { PdfSignaturesTable } from "@/components/pdf/PdfReportLayout";
 
@@ -198,8 +199,9 @@ function PartsIntroBox({ text }) {
 }
 
 function RepuestoTable({ text }) {
-  const rows = parseTableText(text);
-  if (rows.length === 0) return null;
+  const body = parseRepuestoRows(text).filter((row) => row.some((cell) => cell.trim()));
+  if (!body.length) return null;
+  const rows = [repuestoColumns, ...body];
 
   const widths = ["7%", "35%", "11%", "19%", "20%", "8%"];
 

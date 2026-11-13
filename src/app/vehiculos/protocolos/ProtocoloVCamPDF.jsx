@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { printPdf } from "@/utils/printPdf";
 import { formatPersonName } from "@/utils/nameFormat";
+import { visibleParts } from "@/utils/predefinedParts.mjs";
 import {
   CHECKLIST_SECCIONES,
   EPP_ITEMS,
@@ -144,7 +145,7 @@ export default function ProtocoloVCamPDF({ allowDownload = true, backPath = "/op
         </div>
 
         <div className="no-break"><p style={S.sectionTitle}>Pruebas de encendido previas al servicio</p><StatusTable items={PRUEBAS_PREVIAS} values={d.pruebasPrevias} /></div>
-        <div className="no-break"><p style={S.sectionTitle}>Repuestos usados</p><StatusTable items={REPUESTOS_USADOS} values={d.repuestos} includeCantidad /></div>
+        <div className="no-break"><p style={S.sectionTitle}>Repuestos usados</p><StatusTable items={visibleParts(REPUESTOS_USADOS, d.repuestosOcultos)} values={d.repuestos} includeCantidad /></div>
 
         <div className="no-break">
           <p style={S.sectionTitle}>Herramientas e instrucciones operativas</p>

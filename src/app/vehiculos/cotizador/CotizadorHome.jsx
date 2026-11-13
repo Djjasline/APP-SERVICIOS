@@ -1,7 +1,8 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, Calculator, FileText, History, Package, Plus, Printer, RefreshCw, Save, Search, Trash2 } from "lucide-react";
+import { AlertTriangle, Calculator, FileText, History, Package, Plus, Printer, RefreshCw, Save, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import RecordHistoryDates from "@/components/RecordHistoryDates";
+import PartsRowDeleteButton from "@/components/PartsRowDeleteButton";
 import { VEHICULOS_TEXT } from "@/constants/vehiculosText";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
@@ -190,6 +191,8 @@ export default function CotizadorHome() {
   };
 
   const removeLine = (id) => {
+    const line = lines.find((item) => item.id === id);
+    if (!line || !window.confirm(`¿Eliminar ${line.description || "esta línea"} de la cotización?`)) return;
     setLines((current) => current.filter((line) => line.id !== id));
   };
 
@@ -448,7 +451,7 @@ export default function CotizadorHome() {
                     <td className="px-3 py-2 text-right"><input type="number" value={line.quantity} onChange={(event) => updateLine(line.id, "quantity", event.target.value)} className="w-24 rounded-lg border border-slate-200 px-2 py-1 text-right" /></td>
                     <td className="px-3 py-2 text-right"><input type="number" value={line.unitPrice} onChange={(event) => updateLine(line.id, "unitPrice", event.target.value)} className="w-28 rounded-lg border border-slate-200 px-2 py-1 text-right" /></td>
                     <td className="px-3 py-2 text-right font-semibold text-slate-900">{money(lineTotal(line))}</td>
-                    <td className="px-3 py-2"><button type="button" onClick={() => removeLine(line.id)} className="inline-flex items-center gap-1 text-sm font-semibold text-red-700 hover:underline"><Trash2 size={14} /> Quitar</button></td>
+                    <td className="px-3 py-2"><PartsRowDeleteButton label={`Eliminar ${line.description || "línea"}`} onClick={() => removeLine(line.id)} /></td>
                   </tr>
                 ))}
               </tbody>

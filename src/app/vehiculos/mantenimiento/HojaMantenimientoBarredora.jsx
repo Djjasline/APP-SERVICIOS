@@ -15,6 +15,9 @@ import ObservationImageField from "@/components/ObservationImageField";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
+import PartsRowDeleteButton from "@/components/PartsRowDeleteButton";
+import RemovedPartsControls from "@/components/RemovedPartsControls";
+import { isBarredoraPartsSection, setPartRemoved, visibleParts } from "@/utils/predefinedParts.mjs";
 
 /* ═══════════════════════════════════════
    SECCIONES – BARREDORA
@@ -343,9 +346,6 @@ const superAdminActivo =
   const isEditing = !!id;
   const claveAutoguardado = `${variantConfig.draftKey}_${id ?? "new"}`;
   const activeSections = variantConfig.sections;
-  const todosLosItemsFijos = activeSections
-    .filter((s) => s.tipo !== "otros")
-    .flatMap((s) => s.items.map(([c]) => c));
 
   const { technicians, loading: loadingTecnicos } = useTechnicians();
 
@@ -364,6 +364,9 @@ const superAdminActivo =
   const uploading = uploadingCount > 0;
 
   /* ── PROGRESO ── */
+  const todosLosItemsFijos = activeSections
+    .filter((s) => s.tipo !== "otros")
+    .flatMap((s) => (isBarredoraPartsSection(s) ? visibleParts(s.items, data.repuestosOcultos) : s.items).map(([c]) => c));
   const itemsMarcados    = todosLosItemsFijos.filter((c) => data.items[c]?.estado).length;
   const totalItems       = todosLosItemsFijos.length;
   const progresoPct      = Math.round((itemsMarcados / totalItems) * 100);
@@ -1174,7 +1177,7 @@ const result = await saveOrUpdateReport({
                     <th style={{ width: 40 }}>SI</th>
                     <th style={{ width: 40 }}>NO</th>
                     <th className="text-left">OBSERVACIÓN</th>
-                    {sec.tipo === "otros" && <th style={{ width: 40 }}>ELIM.</th>}
+                    {(sec.tipo === "otros" || isBarredoraPartsSection(sec)) && <th style={{ width: 40 }}>ELIM.</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -1213,7 +1216,7 @@ const result = await saveOrUpdateReport({
                         <button type="button" onClick={() => eliminarExtra(index)} className="font-bold text-red-600">×</button>
                       </td>
                     </tr>
-                  )) : sec.items.map(([codigo, texto, codigoAnterior]) => {
+                  )) : (isBarredoraPartsSection(sec) ? visibleParts(sec.items, data.repuestosOcultos) : sec.items).map(([codigo, texto, codigoAnterior]) => {
                     const itemData = data.items?.[codigo] || data.items?.[codigoAnterior] || {};
                     return (
                     <tr key={codigo} className="hover:bg-gray-50">
@@ -1262,11 +1265,13 @@ const result = await saveOrUpdateReport({
                           folder={`observacion-${codigo}`}
                         />
                       </td>
+                      {isBarredoraPartsSection(sec) && <td className="border text-center"><PartsRowDeleteButton label={`Retirar repuesto ${codigo}`} onClick={() => { if (window.confirm(`¿Retirar ${texto} de este documento? Podrás recuperarlo después.`)) setData((prev) => setPartRemoved(prev, codigo, true)); }} /></td>}
                     </tr>
                   );
                   })}
                 </tbody>
               </table>
+              {isBarredoraPartsSection(sec) && <RemovedPartsControls items={sec.items} removed={data.repuestosOcultos} onRestore={(codigo) => setData((prev) => setPartRemoved(prev, codigo, false))} />}
               {sec.tipo === "otros" && (
                 <div className="mt-2">
                   <button type="button" onClick={agregarExtra} className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">

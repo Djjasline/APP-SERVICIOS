@@ -11,11 +11,12 @@ import { saveOrUpdateReport } from "@/services/reportService";
 import { ensureCompletionReady } from "@/utils/completionValidation";
 import { createEmptyVisitaCampoData } from "./visitaCampoData";
 import { listToText, parseTableText, textToList } from "./tableUtils";
+import PartsRowDeleteButton from "@/components/PartsRowDeleteButton";
+import { normalizeRepuestoRow, parseRepuestoRows, repuestoColumns, repuestoRowsToText } from "./repuestoRows.mjs";
 
 const inputClass = "w-full rounded border border-gray-300 px-3 py-2 text-sm";
 const labelClass = "space-y-1 text-xs font-semibold uppercase tracking-wide text-gray-500";
 const equipmentColumns = ["ESTACIÓN", "GRUPO DE BOMBA", "MODELO DE BOMBA", "SERIE", "TOTAL"];
-const repuestoColumns = ["Ítem", "Descripción", "Ref.", "N/P", "Código EPP", "Cant."];
 const intervaloColumns = ["Parte", "API 610", "ANSI B73.1"];
 
 const AutoTextarea = ({ value, onChange, className = "", rows = 3, ...props }) => {
@@ -153,19 +154,7 @@ const EquipmentEditableTable = ({ tableText, onChange }) => {
   );
 };
 
-const normalizeRepuestoRow = (row = []) => repuestoColumns.map((_, index) => row[index] || "");
-
-const parseRepuestoRows = (tableText) => {
-  const rows = parseTableText(tableText);
-  const body = rows[0]?.[0]?.toLowerCase() === repuestoColumns[0].toLowerCase() ? rows.slice(1) : rows;
-  const normalizedRows = body.map(normalizeRepuestoRow).filter((row) => row.some((cell) => cell.trim()));
-
-  return normalizedRows.length > 0 ? normalizedRows : [normalizeRepuestoRow()];
-};
-
-const repuestoRowsToText = (rows) => [repuestoColumns, ...rows.map(normalizeRepuestoRow)].map((row) => row.join("\t")).join("\n");
-
-const RepuestoEditableTable = ({ tableText, onChange }) => {
+const RepuestoEditableTable = ({ tableText, removedRows = [], onChange }) => {
   const rows = parseRepuestoRows(tableText);
 
   const updateCell = (rowIndex, cellIndex, value) => {
@@ -178,8 +167,17 @@ const RepuestoEditableTable = ({ tableText, onChange }) => {
   };
 
   const removeRow = (rowIndex) => {
+    if (rows[rowIndex]?.some((cell) => cell.trim()) && !window.confirm(`¿Eliminar el repuesto de la fila ${rowIndex + 1}?`)) return;
     const nextRows = rows.filter((_, index) => index !== rowIndex);
-    onChange(repuestoRowsToText(nextRows.length > 0 ? nextRows : [normalizeRepuestoRow()]));
+    const removed = rows[rowIndex]?.some((cell) => cell.trim()) ? [...removedRows, { row: rows[rowIndex], index: rowIndex }] : removedRows;
+    onChange(repuestoRowsToText(nextRows.length > 0 ? nextRows : [normalizeRepuestoRow()]), removed);
+  };
+
+  const restoreRow = (removedIndex) => {
+    const entry = removedRows[removedIndex];
+    const nextRows = rows.filter((row) => row.some((cell) => cell.trim()));
+    nextRows.splice(Math.min(entry.index, nextRows.length), 0, normalizeRepuestoRow(entry.row));
+    onChange(repuestoRowsToText(nextRows), removedRows.filter((_, index) => index !== removedIndex));
   };
 
   return (
@@ -218,9 +216,7 @@ const RepuestoEditableTable = ({ tableText, onChange }) => {
                   <input className="w-full rounded border border-slate-200 px-2 py-1 text-center" value={row[5]} onChange={(e) => updateCell(rowIndex, 5, e.target.value)} />
                 </td>
                 <td className="border border-slate-300 p-1 text-center">
-                  <button type="button" onClick={() => removeRow(rowIndex)} className="rounded bg-red-600 px-2 py-1 text-[11px] font-semibold text-white hover:bg-red-700">
-                    Eliminar
-                  </button>
+                  <PartsRowDeleteButton label={`Eliminar repuesto de la fila ${rowIndex + 1}`} onClick={() => removeRow(rowIndex)} />
                 </td>
               </tr>
             ))}
@@ -230,6 +226,7 @@ const RepuestoEditableTable = ({ tableText, onChange }) => {
       <button type="button" onClick={addRow} className="rounded bg-slate-700 px-3 py-1 text-sm font-semibold text-white hover:bg-slate-800">
         Agregar fila
       </button>
+      {removedRows.length > 0 && <details className="rounded border border-amber-200 bg-amber-50 p-2 text-xs"><summary className="cursor-pointer font-semibold">Recuperar repuestos retirados ({removedRows.length})</summary><div className="mt-2 flex flex-col items-start gap-2">{removedRows.map((entry, index) => <button key={index} type="button" onClick={() => restoreRow(index)} className="text-left text-blue-700 underline">Recuperar {entry.row[0]} — {entry.row[1]}</button>)}</div></details>}
     </div>
   );
 };
@@ -656,7 +653,7 @@ export default function VisitaCampoForm() {
               <button type="button" onClick={() => removeRepuesto(index)} className="rounded bg-red-600 px-3 text-sm text-white">Eliminar</button>
             </div>
             <input className={inputClass} value={grupo.caption} onChange={(e) => updateRepuesto(index, "caption", e.target.value)} />
-            <RepuestoEditableTable tableText={grupo.rows} onChange={(value) => updateRepuesto(index, "rows", value)} />
+            <RepuestoEditableTable tableText={grupo.rows} removedRows={grupo.filasRetiradas || []} onChange={(rows, filasRetiradas) => setData((prev) => ({ ...prev, repuestos: prev.repuestos.map((item, itemIndex) => itemIndex === index ? { ...item, rows, ...(filasRetiradas ? { filasRetiradas } : {}) } : item) }))} />
             <div className="rounded border border-slate-300 bg-white p-3">
               <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Esquema / imagen de referencia</div>
               <div className="flex flex-wrap items-center gap-2">

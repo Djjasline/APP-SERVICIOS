@@ -5,6 +5,7 @@ import { printPdf } from "@/utils/printPdf";
 import ObservationImagesPdf from "@/components/ObservationImagesPdf";
 import { PdfEquipmentImageFrame, PdfSignaturesTable } from "@/components/pdf/PdfReportLayout";
 import { formatPersonName } from "@/utils/nameFormat";
+import { visibleParts } from "@/utils/predefinedParts.mjs";
 
 /* ══════════════════════════════
    ESTILOS — IDÉNTICOS A HYDRO
@@ -89,10 +90,10 @@ const secciones = [
 ];
 
 /* ── TABLA SECCIÓN ── */
-function SeccionTable({ sec, items, extras = [] }) {
+function SeccionTable({ sec, items, extras = [], removed }) {
   const rows = sec.tipo === "otros"
     ? extras.map((extra) => ({ codigo: extra.item, texto: extra.detalle || "—", item: extra }))
-    : sec.items.map(([codigo, texto, codigoAnterior]) => ({
+    : (sec.tipo === "cantidad" ? visibleParts(sec.items, removed) : sec.items).map(([codigo, texto, codigoAnterior]) => ({
         codigo,
         texto,
         item: items?.[codigo] || items?.[codigoAnterior] || {},
@@ -318,7 +319,7 @@ export default function MantenimientoVCamPDF({ allowDownload = true }) {
             <p style={{ fontSize: 8.5, color: "#6b7280", margin: "2px 0 4px", fontStyle: "italic" }}>
               SI = Funciona correctamente | NO = Presenta falla | N/A = No aplica al equipo
             </p>
-            <SeccionTable sec={sec} items={d.items} extras={d.extras || []} />
+            <SeccionTable sec={sec} items={d.items} extras={d.extras || []} removed={d.repuestosOcultos} />
           </div>
         ))}
 

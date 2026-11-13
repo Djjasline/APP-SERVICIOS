@@ -1,4 +1,5 @@
 import React from "react";
+import PartsRowDeleteButton from "@/components/PartsRowDeleteButton";
 
 export default function RepuestosTable({ data, onChange }) {
   const textProps = {
@@ -21,6 +22,8 @@ export default function RepuestosTable({ data, onChange }) {
   };
 
   const removeRow = (i) => {
+    const row = data[i];
+    if ([row?.descripcion, row?.cantidad, row?.observacion].some((value) => String(value ?? "").trim()) && !window.confirm(`¿Eliminar el repuesto ${i + 1}?`)) return;
     const updated = data.filter((_, idx) => idx !== i);
     onChange(updated);
   };
@@ -82,13 +85,7 @@ export default function RepuestosTable({ data, onChange }) {
                 </td>
 
                 <td className="border px-2 py-1 text-center">
-                  <button
-                    type="button"
-                    onClick={() => removeRow(i)}
-                    className="text-red-600 text-xs"
-                  >
-                    ✕
-                  </button>
+                  <PartsRowDeleteButton label={`Eliminar repuesto ${i + 1}`} onClick={() => removeRow(i)} />
                 </td>
               </tr>
             ))}

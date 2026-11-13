@@ -9,6 +9,9 @@ import ClientReferenceInput from "@/components/ClientReferenceInput";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useAutoguardado } from "@/hooks/useAutoguardado";
 import { ensureCompletionReady } from "@/utils/completionValidation";
+import PartsRowDeleteButton from "@/components/PartsRowDeleteButton";
+import RemovedPartsControls from "@/components/RemovedPartsControls";
+import { setPartRemoved, visibleParts } from "@/utils/predefinedParts.mjs";
 import {
   buildInitialBooleanMap,
   buildInitialChecklist,
@@ -95,13 +98,13 @@ function BooleanGroup({ title, items, values, onChange }) {
   );
 }
 
-function StatusTable({ title, items, values, onChange, includeCantidad = false }) {
+function StatusTable({ title, items, values, onChange, includeCantidad = false, onRemove }) {
   return (
     <section className="bg-white rounded-xl border shadow-sm p-4 space-y-4">
       <h2 className="font-semibold text-slate-900">{title}</h2>
       <div className="overflow-x-auto">
         <table className="w-full text-xs border-collapse border">
-          <thead><tr className="bg-slate-100"><th className="border p-2">Ítem</th><th className="border p-2">Detalle</th>{includeCantidad && <th className="border p-2">Cantidad</th>}<th className="border p-2">Cumple</th><th className="border p-2">No cumple</th><th className="border p-2">N/A</th><th className="border p-2">Observación</th></tr></thead>
+          <thead><tr className="bg-slate-100"><th className="border p-2">Ítem</th><th className="border p-2">Detalle</th>{includeCantidad && <th className="border p-2">Cantidad</th>}<th className="border p-2">Cumple</th><th className="border p-2">No cumple</th><th className="border p-2">N/A</th><th className="border p-2">Observación</th>{onRemove && <th className="border p-2">Eliminar</th>}</tr></thead>
           <tbody>
             {items.map(([codigo, detalle]) => (
               <tr key={codigo}>
@@ -112,6 +115,7 @@ function StatusTable({ title, items, values, onChange, includeCantidad = false }
                   <td key={estado} className="border p-2 text-center"><input type="radio" name={`${title}-${codigo}`} checked={values?.[codigo]?.estado === estado} onChange={() => onChange(codigo, "estado", estado)} /></td>
                 ))}
                 <td className="border p-2"><AutoResizeInput className="w-full border rounded px-2 py-1 text-sm" value={values?.[codigo]?.observacion || ""} onChange={(e) => onChange(codigo, "observacion", e.target.value)} /></td>
+                {onRemove && <td className="border text-center"><PartsRowDeleteButton label={`Retirar repuesto ${codigo}`} onClick={() => onRemove(codigo, detalle)} /></td>}
               </tr>
             ))}
           </tbody>
@@ -251,7 +255,8 @@ export default function ProtocoloVCamForm() {
       </section>
 
       <StatusTable title="Pruebas de encendido previas al servicio" items={PRUEBAS_PREVIAS} values={data.pruebasPrevias} onChange={(codigo, field, value) => setStatusItem("pruebasPrevias", codigo, field, value)} />
-      <StatusTable title="Repuestos usados" items={REPUESTOS_USADOS} values={data.repuestos} includeCantidad onChange={(codigo, field, value) => setStatusItem("repuestos", codigo, field, value)} />
+      <StatusTable title="Repuestos usados" items={visibleParts(REPUESTOS_USADOS, data.repuestosOcultos)} values={data.repuestos} includeCantidad onChange={(codigo, field, value) => setStatusItem("repuestos", codigo, field, value)} onRemove={(codigo, detalle) => { if (window.confirm(`¿Retirar ${detalle} de este documento? Podrás recuperarlo después.`)) setData((prev) => setPartRemoved(prev, codigo, true)); }} />
+      <RemovedPartsControls items={REPUESTOS_USADOS} removed={data.repuestosOcultos} onRestore={(codigo) => setData((prev) => setPartRemoved(prev, codigo, false))} />
 
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-white rounded-xl border shadow-sm p-4"><h2 className="font-semibold text-slate-900 mb-2">Herramientas requeridas</h2><ul className="list-disc pl-5 text-sm text-slate-700 space-y-1">{HERRAMIENTAS.map((item) => <li key={item}>{item}</li>)}</ul></div>
