@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { eligibleSpellField, setSpellFieldValue } from "@/utils/spellReviewFields";
 import { findSpellingIssues, groupSpellingIssues, replaceSpellingIssue } from "@/utils/spanishSpellReview.mjs";
+import { forgetSpelling, readPersonalSpelling, rememberSpelling } from "@/utils/personalSpelling.mjs";
+import { useAuth } from "@/context/AuthContext";
 
 function collectIssues(scope, dictionary) {
   const results = [];
@@ -20,8 +22,10 @@ function collectIssues(scope, dictionary) {
 }
 
 export default function WritingReviewButton() {
+  const scope = useAuth()?.user?.id || "public";
   const buttonRef = useRef(null);
   const dictionaryRef = useRef(null);
+  const getDictionaryRef = useRef(null);
   const scopeRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -31,19 +35,30 @@ export default function WritingReviewButton() {
   const [selected, setSelected] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [custom, setCustom] = useState("");
+  const [rememberCustom, setRememberCustom] = useState(true);
+  const [personalWords, setPersonalWords] = useState([]);
+  const [notice, setNotice] = useState("");
+
+  const refresh = () => {
+    dictionaryRef.current = getDictionaryRef.current(scope);
+    setPersonalWords(readPersonalSpelling(scope).words);
+    const { results, fields } = collectIssues(scopeRef.current, dictionaryRef.current);
+    setIssues(results);
+    setFieldCount(fields);
+    setSelected(null);
+  };
 
   const review = async () => {
     scopeRef.current = buttonRef.current?.closest("form") || buttonRef.current?.closest("main") || document;
     setOpen(true);
     setLoading(true);
     setError("");
+    setNotice("");
     setSelected(null);
     try {
       const { getSpanishDictionary } = await import("@/utils/spanishDictionary");
-      dictionaryRef.current = getSpanishDictionary();
-      const { results, fields } = collectIssues(scopeRef.current, dictionaryRef.current);
-      setIssues(results);
-      setFieldCount(fields);
+      getDictionaryRef.current = getSpanishDictionary;
+      refresh();
     } catch {
       setError("No se pudo cargar el diccionario. Comprueba la conexión e inténtalo de nuevo; tus datos no han cambiado.");
     } finally {
@@ -57,7 +72,7 @@ export default function WritingReviewButton() {
     setSuggestions(dictionaryRef.current.suggest(issue.word).slice(0, 6));
   };
 
-  const apply = (issue, replacement) => {
+  const apply = (issue, replacement, remember = false) => {
     if (!issue.element.isConnected || !eligibleSpellField(issue.element, true) || issue.element.value !== issue.value) {
       setError("El texto cambió desde la revisión. Vuelve a revisar antes de aplicar sugerencias.");
       return;
@@ -72,11 +87,37 @@ export default function WritingReviewButton() {
     setSpellFieldValue(issue.element, next);
     setSelected(null);
     setError("");
+    setNotice("");
+    if (remember) {
+      if (rememberSpelling(scope, clean, issue.word)) {
+        setNotice(`Se recordó «${clean}» en este dispositivo.`);
+      } else {
+        setNotice("El texto se corrigió, pero no se pudo recordar. Solo se guardan palabras individuales y debe estar disponible el almacenamiento del dispositivo.");
+      }
+    }
     window.setTimeout(() => {
-      const { results, fields } = collectIssues(scopeRef.current, dictionaryRef.current);
-      setIssues(results);
-      setFieldCount(fields);
+      refresh();
     });
+  };
+
+  const rememberWord = (word) => {
+    setError("");
+    if (!rememberSpelling(scope, word)) {
+      setError("No se pudo guardar la palabra en este dispositivo.");
+      return;
+    }
+    setNotice(`«${word}» se agregó al diccionario personal; las apariciones conocidas dejan de marcarse.`);
+    refresh();
+  };
+
+  const forgetWord = (word) => {
+    setError("");
+    if (!forgetSpelling(scope, word)) {
+      setError("No se pudo retirar la palabra del diccionario personal.");
+      return;
+    }
+    setNotice(`«${word}» se retiró del diccionario personal y se olvidaron las correcciones asociadas.`);
+    refresh();
   };
 
   return <>
@@ -86,8 +127,37 @@ export default function WritingReviewButton() {
         <div className="flex items-start justify-between gap-3"><div><h2 id="writing-review-title" className="text-lg font-bold">Revisión ortográfica en español</h2><p className="mt-1 text-xs text-slate-600">Revisa los campos de texto visibles y editables. Se intenta omitir nombres, identificadores y códigos técnicos, pero pueden aparecer en las sugerencias: compruébalas antes de elegirlas. No se cambia nada automáticamente.</p></div><button type="button" aria-label="Cerrar revisión" onClick={() => setOpen(false)} className="rounded px-2 py-1 text-xl">×</button></div>
         {loading && <p role="status" className="mt-4">Revisando texto…</p>}
         {error && <p role="alert" className="mt-4 text-sm text-red-700">{error}</p>}
+        {notice && <p role="status" className="mt-4 text-sm text-blue-800">{notice}</p>}
+        {!loading && <details className="mt-3 rounded border border-slate-200 p-2 text-sm">
+          <summary className="cursor-pointer font-semibold">Diccionario personal ({personalWords.length})</summary>
+          <p className="mt-1 text-xs text-slate-600">Las palabras y correcciones aprendidas se guardan solo en este navegador y dispositivo, separadas por cuenta (o uso público). No se sincronizan. Puedes retirar las palabras agregadas.</p>
+          {personalWords.length > 0 ? <ul className="mt-2 max-h-36 space-y-1 overflow-auto">{personalWords.map((word) => <li key={word} className="flex items-center justify-between gap-3"><span className="break-all">{word}</span><button type="button" onClick={() => forgetWord(word)} className="text-xs font-semibold text-red-700 underline">Olvidar</button></li>)}</ul> : <p className="mt-2 text-xs text-slate-500">Aún no hay palabras personales guardadas.</p>}
+        </details>}
         {!loading && !error && issues.length === 0 && <p className="mt-4 text-sm">{fieldCount ? "No se encontraron posibles errores en los campos revisados. El diccionario no detecta todos los errores ni revisa la gramática." : "No hay campos de texto visibles y editables para revisar. Los campos de identificación y técnicos se excluyen."}</p>}
-        {!loading && issues.length > 0 && <><p className="mt-4 text-sm font-semibold">Posibles errores: {issues.length}{issues.length >= 200 ? " (se muestran hasta 200)" : ""}. Las palabras repetidas se agrupan; cada aparición se corrige por separado.</p><div className="mt-2 space-y-3">{groupSpellingIssues(issues).map((group) => <section key={group.key} className="rounded border border-slate-200 p-3 text-sm"><h3 className="font-bold text-red-700">{group.word} <span className="font-normal text-slate-500">({group.issues.length})</span></h3>{group.issues.map((issue, index) => <div key={`${index}-${issue.start}`} className="mt-2 border-t border-slate-100 pt-2"><p className="text-xs text-slate-500">{issue.label}</p><p className="break-words">…{issue.value.slice(Math.max(0, issue.start - 35), issue.start)}<strong className="text-red-700">{issue.word}</strong>{issue.value.slice(issue.end, issue.end + 35)}…</p><button type="button" onClick={() => chooseIssue(issue)} className="mt-1 text-xs font-semibold text-blue-700 underline">Corregir esta aparición</button>{selected === issue && <div className="mt-2 space-y-2"><div className="flex flex-wrap gap-2">{suggestions.length ? suggestions.map((suggestion) => <button key={suggestion} type="button" onClick={() => apply(issue, suggestion)} className="rounded border border-blue-300 bg-blue-50 px-2 py-1 text-xs text-blue-800">{suggestion}</button>) : <span className="text-xs text-slate-500">No hay sugerencias automáticas.</span>}</div><label className="block text-xs font-semibold">Escribir corrección<input type="text" data-no-autocapitalize="true" data-no-writing-assist="true" value={custom} onChange={(event) => setCustom(event.target.value)} className="mt-1 block w-full rounded border border-slate-300 px-2 py-1 text-sm" /></label><button type="button" onClick={() => apply(issue, custom)} className="rounded bg-blue-700 px-2 py-1 text-xs font-semibold text-white">Aplicar corrección escrita</button></div>}</div>)}</section>)}</div></>}
+        {!loading && issues.length > 0 && <>
+          <p className="mt-4 text-sm font-semibold">Posibles errores: {issues.length}{issues.length >= 200 ? " (se muestran hasta 200)" : ""}. Las palabras repetidas se agrupan; cada aparición se corrige por separado.</p>
+          <div className="mt-2 space-y-3">{groupSpellingIssues(issues).map((group) => (
+            <section key={group.key} className="rounded border border-slate-200 p-3 text-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-bold text-red-700">{group.word} <span className="font-normal text-slate-500">({group.issues.length})</span></h3>
+                <button type="button" onClick={() => rememberWord(group.word)} className="text-xs font-semibold text-blue-700 underline">Agregar al diccionario personal</button>
+              </div>
+              {group.issues.map((issue, index) => (
+                <div key={`${index}-${issue.start}`} className="mt-2 border-t border-slate-100 pt-2">
+                  <p className="text-xs text-slate-500">{issue.label}</p>
+                  <p className="break-words">…{issue.value.slice(Math.max(0, issue.start - 35), issue.start)}<strong className="text-red-700">{issue.word}</strong>{issue.value.slice(issue.end, issue.end + 35)}…</p>
+                  <button type="button" onClick={() => chooseIssue(issue)} className="mt-1 text-xs font-semibold text-blue-700 underline">Corregir esta aparición</button>
+                  {selected === issue && <div className="mt-2 space-y-2">
+                    <div className="flex flex-wrap gap-2">{suggestions.length ? suggestions.map((suggestion) => <button key={suggestion} type="button" onClick={() => apply(issue, suggestion)} className="rounded border border-blue-300 bg-blue-50 px-2 py-1 text-xs text-blue-800">{suggestion}</button>) : <span className="text-xs text-slate-500">No hay sugerencias automáticas.</span>}</div>
+                    <label className="block text-xs font-semibold">Escribir corrección<input type="text" data-no-autocapitalize="true" data-no-writing-assist="true" value={custom} onChange={(event) => setCustom(event.target.value)} className="mt-1 block w-full rounded border border-slate-300 px-2 py-1 text-sm" /></label>
+                    <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={rememberCustom} onChange={(event) => setRememberCustom(event.target.checked)} /> Recordar esta palabra y corrección en este dispositivo</label>
+                    <button type="button" onClick={() => apply(issue, custom, rememberCustom)} className="rounded bg-blue-700 px-2 py-1 text-xs font-semibold text-white">Aplicar corrección escrita</button>
+                  </div>}
+                </div>
+              ))}
+            </section>
+          ))}</div>
+        </>}
         <div className="mt-4 flex justify-end gap-2"><button type="button" onClick={review} disabled={loading} className="rounded border px-3 py-2 text-sm disabled:opacity-50">Volver a revisar</button><button type="button" onClick={() => setOpen(false)} className="rounded bg-slate-800 px-3 py-2 text-sm font-semibold text-white">Cerrar</button></div>
       </div>
     </div>, document.body)}

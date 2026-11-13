@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { eligibleSpellField, setSpellFieldValue } from "@/utils/spellReviewFields";
 import { findCompletedIssueAtCursor, replaceSpellingIssue } from "@/utils/spanishSpellReview.mjs";
+import { rememberSpelling } from "@/utils/personalSpelling.mjs";
+import { useAuth } from "@/context/AuthContext";
 
 function positionFor(element) {
   const rect = element.getBoundingClientRect();
@@ -11,12 +13,14 @@ function positionFor(element) {
 }
 
 export default function InlineSpellAssistant() {
+  const scope = useAuth()?.user?.id || "public";
   const [result, setResult] = useState(null);
+  const [saveError, setSaveError] = useState("");
   const timer = useRef(null);
   const generation = useRef(0);
 
   useEffect(() => {
-    const clear = () => { clearTimeout(timer.current); generation.current += 1; setResult(null); };
+    const clear = () => { clearTimeout(timer.current); generation.current += 1; setResult(null); setSaveError(""); };
     const onInput = (event) => {
       const field = event.target;
       clear();
@@ -29,7 +33,7 @@ export default function InlineSpellAssistant() {
         try {
           const { getSpanishDictionary } = await import("@/utils/spanishDictionary");
           if (generation.current !== current || document.activeElement !== field || field.value !== value || field.selectionStart !== cursor || !eligibleSpellField(field, true)) return;
-          const dictionary = getSpanishDictionary();
+          const dictionary = getSpanishDictionary(scope);
           const issue = findCompletedIssueAtCursor(value, cursor, dictionary);
           if (!issue) return;
           setResult({ field, value, cursor, issue, suggestions: dictionary.suggest(issue.word).slice(0, 4), position: positionFor(field) });
@@ -55,7 +59,7 @@ export default function InlineSpellAssistant() {
       window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", onScroll);
     };
-  }, []);
+  }, [scope]);
 
   if (!result) return null;
   const apply = (replacement) => {
@@ -69,9 +73,21 @@ export default function InlineSpellAssistant() {
     field.setSelectionRange(position, position);
     setResult(null);
   };
+  const remember = () => {
+    if (rememberSpelling(scope, result.issue.word)) {
+      setResult({ ...result, saved: true });
+      window.setTimeout(() => setResult((current) => current?.saved ? null : current), 2500);
+    } else {
+      setSaveError("No se pudo guardar la palabra en este dispositivo.");
+    }
+  };
 
   return createPortal(<div data-inline-spell-ui data-spell-review-ui role="status" className="fixed z-[9998] rounded-lg border border-blue-200 bg-white p-2 text-xs text-slate-900 shadow-lg print:hidden" style={result.position}>
+    {result.saved ? <span>«{result.issue.word}» se guardó en el diccionario de este dispositivo.</span> : <>
     <div className="flex items-center justify-between gap-2"><span>Posible error: <strong>{result.issue.word}</strong></span><button type="button" onClick={() => setResult(null)} aria-label="Cerrar sugerencias" className="text-lg leading-none">×</button></div>
     <div className="mt-1 flex flex-wrap gap-1">{result.suggestions.length ? result.suggestions.map((suggestion) => <button key={suggestion} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => apply(suggestion)} className="rounded border border-blue-200 bg-blue-50 px-2 py-1 font-semibold text-blue-800">{suggestion}</button>) : <span className="text-slate-600">Sin sugerencias. Puedes editar la palabra directamente.</span>}</div>
+    <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={remember} className="mt-2 font-semibold text-blue-700 underline">Agregar al diccionario personal</button>
+    {saveError && <div role="alert" className="mt-1 text-red-700">{saveError}</div>}
+    </>}
   </div>, document.body);
 }
