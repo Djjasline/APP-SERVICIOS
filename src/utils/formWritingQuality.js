@@ -105,12 +105,13 @@ export function applyWritingQualityToField(element) {
   if (!(element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement)) return;
 
   const enabled = shouldEnableWritingAssistance(element);
-  element.setAttribute("spellcheck", enabled ? "true" : "false");
-  element.setAttribute("autocorrect", enabled ? "on" : "off");
+  element.setAttribute("spellcheck", enabled && element.dataset?.bilingualNativeSpellcheck !== "mixed" ? "true" : "false");
+  element.setAttribute("autocorrect", enabled && element.dataset?.bilingualNativeSpellcheck !== "mixed" ? "on" : "off");
   element.setAttribute("autocapitalize", enabled ? "sentences" : "none");
 
   if (enabled && !element.getAttribute("lang")) {
     element.setAttribute("lang", "es-EC");
+    element.dataset.writingLangManaged = "true";
   }
 }
 

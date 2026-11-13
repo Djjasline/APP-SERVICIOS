@@ -69,7 +69,8 @@ export default function WritingReviewButton() {
   const chooseIssue = (issue) => {
     setSelected(issue);
     setCustom(issue.word);
-    setSuggestions(dictionaryRef.current.suggest(issue.word).slice(0, 6));
+    const context = issue.value.slice(Math.max(0, issue.start - 150), issue.end + 150);
+    setSuggestions(dictionaryRef.current.suggest(issue.word, context).slice(0, 6));
   };
 
   const apply = (issue, replacement, remember = false) => {
@@ -124,7 +125,7 @@ export default function WritingReviewButton() {
     <button ref={buttonRef} type="button" onClick={review} className="rounded bg-violet-700 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-800 print:hidden">Revisar ortografía</button>
     {open && createPortal(<div data-spell-review-ui className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 p-4 print:hidden" role="presentation">
       <div role="dialog" aria-modal="true" aria-labelledby="writing-review-title" className="max-h-[85vh] w-full max-w-2xl overflow-auto rounded-xl bg-white p-5 text-slate-900 shadow-xl">
-        <div className="flex items-start justify-between gap-3"><div><h2 id="writing-review-title" className="text-lg font-bold">Revisión ortográfica en español</h2><p className="mt-1 text-xs text-slate-600">Revisa los campos de texto visibles y editables. Se intenta omitir nombres, identificadores y códigos técnicos, pero pueden aparecer en las sugerencias: compruébalas antes de elegirlas. No se cambia nada automáticamente.</p></div><button type="button" aria-label="Cerrar revisión" onClick={() => setOpen(false)} className="rounded px-2 py-1 text-xl">×</button></div>
+        <div className="flex items-start justify-between gap-3"><div><h2 id="writing-review-title" className="text-lg font-bold">Revisión ortográfica en español e inglés</h2><p className="mt-1 text-xs text-slate-600">Se reconocen palabras en ambos idiomas y se priorizan sugerencias según el contexto. La detección no es perfecta: revisa los cambios, especialmente en nombres y códigos. No se modifica nada automáticamente.</p></div><button type="button" aria-label="Cerrar revisión" onClick={() => setOpen(false)} className="rounded px-2 py-1 text-xl">×</button></div>
         {loading && <p role="status" className="mt-4">Revisando texto…</p>}
         {error && <p role="alert" className="mt-4 text-sm text-red-700">{error}</p>}
         {notice && <p role="status" className="mt-4 text-sm text-blue-800">{notice}</p>}

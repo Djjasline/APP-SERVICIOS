@@ -34,9 +34,15 @@ export default function InlineSpellAssistant() {
           const { getSpanishDictionary } = await import("@/utils/spanishDictionary");
           if (generation.current !== current || document.activeElement !== field || field.value !== value || field.selectionStart !== cursor || !eligibleSpellField(field, true)) return;
           const dictionary = getSpanishDictionary(scope);
+          const nativeLanguage = dictionary.nativeLanguage(value);
+          field.dataset.bilingualNativeSpellcheck = nativeLanguage;
+          if (field.dataset.writingLangManaged === "true") field.setAttribute("lang", nativeLanguage === "en" ? "en-US" : "es-EC");
+          field.setAttribute("spellcheck", nativeLanguage === "mixed" ? "false" : "true");
+          field.setAttribute("autocorrect", nativeLanguage === "mixed" ? "off" : "on");
           const issue = findCompletedIssueAtCursor(value, cursor, dictionary);
           if (!issue) return;
-          setResult({ field, value, cursor, issue, suggestions: dictionary.suggest(issue.word).slice(0, 4), position: positionFor(field) });
+          const context = value.slice(Math.max(0, issue.start - 150), issue.end + 150);
+          setResult({ field, value, cursor, issue, suggestions: dictionary.suggest(issue.word, context).slice(0, 4), position: positionFor(field) });
         } catch {
           // La escritura y el guardado siguen funcionando si el diccionario no carga.
         }

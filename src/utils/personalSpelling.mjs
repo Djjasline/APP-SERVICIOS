@@ -69,11 +69,14 @@ export function withPersonalSpelling(dictionary, scope, storage = defaultStorage
   words.add("hidrosuccionador");
   return {
     correct: (word) => words.has(spellingKey(word)) || dictionary.correct(word),
-    suggest: (word) => {
+    detectLanguage: (text) => dictionary.detectLanguage?.(text) || "unknown",
+    nativeLanguage: (text) => dictionary.nativeLanguage?.(text) || "unknown",
+    isEnglishWord: (word) => dictionary.isEnglishWord?.(word) || false,
+    suggest: (word, context = "") => {
       const key = spellingKey(word);
       const remembered = Object.hasOwn(data.corrections, key) ? data.corrections[key] : "";
       const adapted = remembered && /^\p{Lu}/u.test(word) ? remembered[0].toLocaleUpperCase("es") + remembered.slice(1) : remembered;
-      const suggestions = dictionary.suggest(word);
+      const suggestions = dictionary.suggest(word, context);
       return adapted ? [adapted, ...suggestions.filter((item) => spellingKey(item) !== spellingKey(adapted))] : suggestions;
     },
   };

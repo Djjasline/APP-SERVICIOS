@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { shouldEnableWritingAssistance } from "@/utils/formWritingQuality";
+import { allowTechnicalSpanishSuggestion } from "@/utils/bilingualSpellReview.mjs";
 
 const replacements = [
   ["esta ok", "está operativo"],
@@ -78,11 +79,11 @@ function keepCapitalization(original, replacement) {
   return replacement;
 }
 
-function findSuggestions(text) {
-  if (!text || text.trim().length < 3) return [];
+function findSuggestions(text, dictionary) {
+  if (!text || text.trim().length < 3 || !dictionary) return [];
 
   return replacements
-    .filter(([source]) => wordPattern(source).test(text))
+    .filter(([source]) => wordPattern(source).test(text) && allowTechnicalSpanishSuggestion(source, text, dictionary))
     .slice(0, 8)
     .map(([source, replacement]) => ({ source, replacement }));
 }
@@ -119,6 +120,16 @@ export default function TechnicalWritingAssistant() {
   const [activeElement, setActiveElement] = useState(null);
   const [text, setText] = useState("");
   const [dismissedValue, setDismissedValue] = useState("");
+  const [dictionary, setDictionary] = useState(null);
+
+  useEffect(() => {
+    if (!activeElement || dictionary) return;
+    let active = true;
+    import("@/utils/spanishDictionary")
+      .then(({ getSpanishDictionary }) => { if (active) setDictionary(getSpanishDictionary("public")); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [activeElement, dictionary]);
 
   useEffect(() => {
     const updateFromElement = (element) => {
@@ -152,7 +163,7 @@ export default function TechnicalWritingAssistant() {
     };
   }, []);
 
-  const suggestions = useMemo(() => findSuggestions(text), [text]);
+  const suggestions = useMemo(() => findSuggestions(text, dictionary), [text, dictionary]);
   const visible = activeElement && suggestions.length > 0 && dismissedValue !== text;
   const targetElement = activeFieldRef.current || activeElement;
 

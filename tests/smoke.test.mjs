@@ -441,7 +441,7 @@ test("formularios activan revision ortografica sin afectar campos tecnicos", () 
   assert.match(hook, /applyWritingQuality\(\)/);
   assert.match(hook, /MutationObserver/);
   assert.match(hook, /addEventListener\("input"/);
-  assert.match(quality, /setAttribute\("spellcheck", enabled \? "true" : "false"\)/);
+  assert.match(quality, /setAttribute\("spellcheck", enabled && element\.dataset\?\.bilingualNativeSpellcheck !== "mixed" \? "true" : "false"\)/);
   assert.match(quality, /setAttribute\("lang", "es-EC"\)/);
   assert.match(quality, /TECHNICAL_FIELD_KEYWORDS/);
   assert.match(quality, /"correo"/);
