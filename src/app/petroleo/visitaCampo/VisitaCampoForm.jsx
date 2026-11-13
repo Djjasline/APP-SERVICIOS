@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import { useNavigate, useParams } from "react-router-dom";
 import imageCompression from "browser-image-compression";
 import SignatureCanvas from "@/components/SignatureCanvasField";
@@ -765,6 +766,7 @@ export default function VisitaCampoForm() {
         <button type="button" onClick={() => navigate("/petroleo/visita-campo")} className="btn-volver-orange px-6">Volver</button>
         <div className="flex flex-col gap-3 sm:flex-row">
           {isEditing && <button type="button" onClick={() => navigate(`/petroleo/visita-campo/${id}/pdf`)} className="rounded bg-green-600 px-6 py-2 text-white hover:bg-green-700">Ver PDF</button>}
+          <WritingReviewButton />
           <button type="button" disabled={saving} onClick={() => save("borrador")} className="rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:bg-gray-400">Guardar borrador</button>
           <button type="button" disabled={saving} onClick={() => save("completado")} className="rounded bg-slate-900 px-6 py-2 text-white hover:bg-slate-800 disabled:bg-gray-400">Completar</button>
         </div>

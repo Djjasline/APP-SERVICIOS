@@ -14,6 +14,7 @@ import { formatPersonName } from "@/utils/nameFormat";
 import ObservationImageField from "@/components/ObservationImageField";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import PartsRowDeleteButton from "@/components/PartsRowDeleteButton";
 import RemovedPartsControls from "@/components/RemovedPartsControls";
@@ -1403,7 +1404,7 @@ const result = await saveOrUpdateReport({
               className="btn-volver-orange px-6">
               ← Volver
             </button>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               {isEditing && mantenimientoListo && (
                 <button type="button"
                   onClick={() => navigate(`/vehiculos/mantenimiento/${variantConfig.routeSegment}/${id}/pdf`)}
@@ -1411,6 +1412,7 @@ const result = await saveOrUpdateReport({
                   Ver PDF
                 </button>
               )}
+              <WritingReviewButton />
               <button type="button" onClick={handleGuardar}
                 disabled={guardando || uploading}
                 className={`px-6 py-2 rounded text-white transition ${

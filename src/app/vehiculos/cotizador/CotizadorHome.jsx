@@ -1,4 +1,5 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import { AlertTriangle, Calculator, FileText, History, Package, Plus, Printer, RefreshCw, Save, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import RecordHistoryDates from "@/components/RecordHistoryDates";
@@ -406,6 +407,7 @@ export default function CotizadorHome() {
             <p className="text-sm text-slate-500">Guarda el borrador en historial, edítalo cuando sea necesario o úsalo como base para una nueva oferta.</p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <WritingReviewButton />
             <button type="button" onClick={saveQuote} disabled={savingQuote} className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60">
               <Save size={16} /> {savingQuote ? "Guardando..." : editingQuoteId ? "Actualizar historial" : "Guardar historial"}
             </button>

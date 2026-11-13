@@ -13,6 +13,7 @@ import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import { ensureCompletionReady } from "@/utils/completionValidation";
 import { hasUnlimitedActivityImages } from "@/constants/privilegedAccess.mjs";
 
@@ -1751,6 +1752,7 @@ const save = async () => {
                 </button>
               )}
 
+              <WritingReviewButton />
               <button
                 type="button"
                 onClick={save}

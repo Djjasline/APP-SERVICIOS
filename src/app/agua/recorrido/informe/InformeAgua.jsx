@@ -4,6 +4,7 @@
 //  Filosofía: igual que HojaInspeccionHidro / HojaRecepcion
 // ──────────────────────────────────────────────────────
 import React, { useEffect, useRef, useState } from "react";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useNavigate, useParams } from "react-router-dom";
@@ -975,6 +976,7 @@ navigate("/agua/recorrido/informe");
   Ver / Descargar PDF
 </button>
 
+          {!isLocked && <WritingReviewButton />}
           {isLocked ? (
             <>
               <span className="ia-badge-completado">✓ Completado</span>

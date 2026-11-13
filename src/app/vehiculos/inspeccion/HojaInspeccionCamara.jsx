@@ -13,6 +13,7 @@ import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import InspectionChecklistRow from "@/components/InspectionChecklistRow";
@@ -1203,7 +1204,7 @@ const result = await saveOrUpdateReport({
             >
               ← Volver
             </button>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               {isEditing && inspeccionLista && (
                 <button
                   type="button"
@@ -1213,6 +1214,7 @@ const result = await saveOrUpdateReport({
                   Ver PDF
                 </button>
               )}
+              <WritingReviewButton />
               <button
                 type="button"
                 onClick={handleGuardar}

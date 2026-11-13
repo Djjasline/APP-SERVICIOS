@@ -13,6 +13,7 @@ import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import InspectionChecklistRow from "@/components/InspectionChecklistRow";
@@ -986,7 +987,7 @@ const firmaCliente =
               className="btn-volver-orange px-6">
               ← Volver
             </button>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               {isEditing && inspeccionLista && (
                 <button type="button"
                   onClick={() => navigate(`/vehiculos/inspeccion/hidro/${id}/pdf`)}
@@ -994,6 +995,7 @@ const firmaCliente =
                   Ver PDF
                 </button>
               )}
+              <WritingReviewButton />
               <button type="button" onClick={handleGuardar} disabled={guardando || uploading}
                 className={`px-6 py-2 rounded text-white transition ${
                   guardando || uploading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"

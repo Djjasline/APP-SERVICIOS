@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useParams, useNavigate } from "react-router-dom";
@@ -65,6 +66,7 @@ function SignatureField({
           {label}
         </div>
 
+        {!isLocked && <WritingReviewButton />}
         {!isLocked && (
           <button
             type="button"

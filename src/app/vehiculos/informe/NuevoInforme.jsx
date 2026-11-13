@@ -14,6 +14,7 @@ import { formatPersonName } from "@/utils/nameFormat";
 import ReportHeader from "@/components/report/ReportHeader";
 import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import { ensureCompletionReady } from "@/utils/completionValidation";
@@ -1871,6 +1872,7 @@ onEnd={() => {
               </button>
             )}
 
+            <WritingReviewButton />
             <button
               type="button"
               onClick={saveReport}

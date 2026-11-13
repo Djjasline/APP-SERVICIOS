@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import { Calculator, CheckCircle2, Download, Eye, EyeOff, FileText, History, RefreshCw, Save, ShieldCheck, Truck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import RecordHistoryDates from "@/components/RecordHistoryDates";
@@ -818,6 +819,7 @@ export default function ConfiguradorHome() {
             <button type="button" onClick={() => setActiveTab("review")} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
               Revisar
             </button>
+            <WritingReviewButton />
             <button type="button" onClick={saveQuote} disabled={saving} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60">
               <Save size={16} /> {saving ? (editingQuoteId ? "Actualizando..." : "Guardando...") : editingQuoteId ? "Actualizar cotización" : "Guardar en Supabase"}
             </button>

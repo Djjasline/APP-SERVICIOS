@@ -1,4 +1,5 @@
 import { useState } from "react";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import { useNavigate, useParams } from "react-router-dom";
 import { Camera, CheckCircle2, ClipboardCheck, Save } from "lucide-react";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
@@ -369,6 +370,7 @@ export default function ProtocoloManForm() {
           Volver
         </button>
         <div className="flex flex-wrap gap-2">
+          <WritingReviewButton />
           <button type="button" disabled={saving} onClick={() => save("borrador")} className="inline-flex items-center gap-2 rounded-xl bg-slate-700 px-4 py-2 text-sm font-bold text-white transition hover:bg-slate-800 disabled:opacity-60">
             <Save size={16} /> Guardar borrador
           </button>

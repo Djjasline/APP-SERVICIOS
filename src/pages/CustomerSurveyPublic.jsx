@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import { useParams } from "react-router-dom";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useAutoguardado } from "@/hooks/useAutoguardado";
@@ -209,6 +210,7 @@ export default function CustomerSurveyPublic() {
 
             {error && <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
 
+            <WritingReviewButton />
             <button disabled={submitting} className="w-full rounded-2xl bg-orange-600 px-4 py-3 font-semibold text-white hover:bg-orange-700 disabled:opacity-60">
               {submitting ? "Enviando..." : "Enviar encuesta"}
             </button>

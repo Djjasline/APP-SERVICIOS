@@ -13,6 +13,7 @@ import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import InspectionChecklistRow from "@/components/InspectionChecklistRow";
@@ -1358,7 +1359,7 @@ setTimeout(() => {
               className="btn-volver-orange px-6">
               ← Volver
             </button>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               {isEditing && inspeccionLista && (
                 <button type="button"
                   onClick={() => navigate(`/vehiculos/inspeccion/${variantConfig.routeSegment}/${id}/pdf`)}
@@ -1366,6 +1367,7 @@ setTimeout(() => {
                   Ver PDF
                 </button>
               )}
+              <WritingReviewButton />
               <button
   type="button"
   onClick={handleSubmit}

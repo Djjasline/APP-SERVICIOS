@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
@@ -310,6 +311,7 @@ export default function ProtocoloVCamForm() {
       </section>
 
       <div className="flex flex-col sm:flex-row justify-end gap-3 no-print">
+        <WritingReviewButton />
         <button disabled={saving} onClick={() => save("borrador")} className="rounded border px-5 py-2 text-sm">Guardar borrador</button>
         <button disabled={saving} onClick={() => save("completado")} className="rounded bg-blue-600 px-5 py-2 text-sm font-semibold text-white">Guardar completado</button>
       </div>

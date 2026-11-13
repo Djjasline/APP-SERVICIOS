@@ -1,5 +1,6 @@
 import { saveOrUpdateReport } from "@/services/reportService"
 import { useState, useRef, useEffect } from "react";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useNavigate } from "react-router-dom";
@@ -372,6 +373,7 @@ pendientes.push({
             Volver
           </button>
 
+          <WritingReviewButton />
           <button onClick={handleSubmit} className="bg-blue-600 text-white px-6 py-2">
             Guardar informe
           </button>

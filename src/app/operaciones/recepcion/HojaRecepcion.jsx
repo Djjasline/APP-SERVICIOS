@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import WritingReviewButton from "@/components/WritingReviewButton";
 import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import AutoResizeInput from "@/components/AutoResizeInput";
@@ -1486,6 +1487,7 @@ useAutoguardado(claveAutoguardado, data, !isLocked);
   </button>
 )}
 
+              <WritingReviewButton />
               <button
                 type="button"
                 onClick={handleGuardar}
