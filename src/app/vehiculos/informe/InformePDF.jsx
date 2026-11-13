@@ -110,7 +110,7 @@ export function MarlonActivitiesPdf({ activities, styles: S }) {
             <tr>
               <td style={{ ...S.cell, textAlign: "center", verticalAlign: "top" }}>{activityIndex + 1}</td>
               <td style={{ ...S.cell, verticalAlign: "top", overflowWrap: "anywhere" }}>
-                <strong>Trabajo realizado: {activity.titulo || "—"}</strong>
+                <strong style={{ whiteSpace: "pre-wrap" }}>Trabajo realizado: {activity.titulo || "—"}</strong>
                 <div style={{ whiteSpace: "pre-wrap", marginTop: 5, fontSize: 11 }}>
                   <strong>Hallazgo técnico: </strong>{activity.detalle || "—"}
                 </div>
