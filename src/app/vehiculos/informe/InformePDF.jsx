@@ -145,14 +145,18 @@ export function MarlonActivitiesPdf({ activities, styles: S }) {
                 <ActivityContractItemsTablePdf table={activity.contractItemsTable} />
               </td>
             </tr>
-            {pairActivityImages(activity.imagenes, activity.descripcionesImagenes).map((pair, pairIndex) => (
-              <tr key={pairIndex}>
+            {activity.imagenes?.length > 0 && (
+              <tr>
                 <td colSpan={2} style={{ ...S.cell, verticalAlign: "top" }}>
-                  {pairIndex === 0 && <div style={{ fontWeight: 700, marginBottom: 5 }}>IMÁGENES</div>}
-                  <MarlonActivityImagePair pair={pair} activityIndex={activityIndex} />
+                  <div style={{ fontWeight: 700, marginBottom: 5 }}>IMÁGENES</div>
+                  {pairActivityImages(activity.imagenes, activity.descripcionesImagenes).map((pair, pairIndex) => (
+                    <div key={pairIndex} style={{ marginTop: pairIndex ? 8 : 0, breakInside: "avoid", pageBreakInside: "avoid" }}>
+                      <MarlonActivityImagePair pair={pair} activityIndex={activityIndex} />
+                    </div>
+                  ))}
                 </td>
               </tr>
-            ))}
+            )}
           </Fragment>
         ))}
       </tbody>
