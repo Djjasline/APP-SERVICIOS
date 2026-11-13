@@ -611,9 +611,18 @@ test("fotos de actividades se adaptan sin recorte automatico en informes", () =>
     const pdf = read(`src/app/${area}/informe/InformePDF.jsx`);
     const form = read(`src/app/${area}/informe/NuevoInforme.jsx`);
     assert.match(pdf, /Math\.min\(a\.imagenes\.length, 2\)/, area);
-    assert.match(pdf, /maxHeight: "5cm"/, area);
+    assert.match(pdf, area === "vehiculos" ? /maxHeight: "8cm"/ : /maxHeight: "5cm"/, area);
     assert.match(form, /max-w-full max-h-48 rounded/, area);
   }
+});
+
+test("informe de servicio amplia las fotos sin deformarlas ni dejar que el texto ensanche la tabla", () => {
+  const pdf = read("src/app/vehiculos/informe/InformePDF.jsx");
+  assert.match(pdf, /activities-table" style=\{\{ \.\.\.S\.tbl, tableLayout: "fixed" \}\}/);
+  assert.match(pdf, /width: "100%", height: "auto", maxWidth: "8cm", maxHeight: "8cm", objectFit: "contain"/);
+  assert.match(pdf, /alignContent: "start"/);
+  assert.match(pdf, /breakInside: "avoid", pageBreakInside: "avoid"/);
+  assert.match(pdf, /overflowWrap: "anywhere"/);
 });
 
 test("aviso de autoguardado confirma solo la escritura local y muestra errores", () => {

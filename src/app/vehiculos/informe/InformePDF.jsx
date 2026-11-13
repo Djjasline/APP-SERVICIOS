@@ -42,7 +42,7 @@ function ActivityContractItemsSingleTablePdf({ table, tableIndex }) {
 
   return (
     <>
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: tableIndex === 0 ? 8 : 10 }}>
+      <table style={{ width: "100%", tableLayout: "fixed", overflowWrap: "anywhere", borderCollapse: "collapse", marginTop: tableIndex === 0 ? 8 : 10 }}>
         <thead>
           <tr>
             <th colSpan={4} style={{ ...cell, textAlign: "center", fontWeight: 800, fontSize: 10 }}>
@@ -465,7 +465,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
 
         <p style={{ ...S.sectionTitle, marginTop: 0 }}>4. TRABAJO REALIZADO Y 5. HALLAZGOS TÉCNICOS</p>
 
-        <table className="activities-table" style={S.tbl}>
+        <table className="activities-table" style={{ ...S.tbl, tableLayout: "fixed" }}>
           <thead>
             <tr>
               <th style={{ ...S.th, width: 40 }}>ÍTEM</th>
@@ -477,7 +477,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
             {(data.actividades || []).map((a, i) => (
               <tr key={i}>
                 <td style={{ ...S.cell, textAlign: "center", verticalAlign: "top" }}>{i + 1}</td>
-                <td style={{ ...S.cell, verticalAlign: "top" }}>
+                <td style={{ ...S.cell, verticalAlign: "top", overflowWrap: "anywhere" }}>
                   <strong>Trabajo realizado: {a.titulo || "—"}</strong>
                   <div style={{ whiteSpace: "pre-wrap", marginTop: 5, fontSize: 11 }}>
                     <strong>Hallazgo técnico: </strong>{a.detalle || "—"}
@@ -486,13 +486,13 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                 </td>
                 <td style={{ ...S.cell, verticalAlign: "top" }}>
                   {a.imagenes?.length > 0 ? (
-                    <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(a.imagenes.length, 2)}, minmax(0, 1fr))`, gap: 8 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(a.imagenes.length, 2)}, minmax(0, 1fr))`, alignContent: "start", gap: 8 }}>
                       {a.imagenes.map((imgSrc, imgIndex) => (
-                        <div key={imgIndex}>
+                        <div key={imgIndex} style={{ minWidth: 0, breakInside: "avoid", pageBreakInside: "avoid" }}>
                           <img
                             src={imgSrc}
                             alt={`act-${i + 1}-${imgIndex + 1}`}
-                            style={{ width: "auto", height: "auto", maxWidth: "100%", maxHeight: "5cm", display: "block" }}
+                            style={{ width: "100%", height: "auto", maxWidth: "8cm", maxHeight: "8cm", objectFit: "contain", objectPosition: "left top", display: "block" }}
                           />
                           {a.descripcionesImagenes?.[imgIndex] && (
                             <div style={{ marginTop: 3, fontSize: 9, lineHeight: 1.2, color: "#374151" }}>
