@@ -5,6 +5,7 @@ import { getVehicleReferenceCatalog } from "@/services/warehouseInventoryService
 import { formatPartsDescription, toSentenceCase } from "@/utils/sentenceCase.mjs";
 import { isReferenceInteraction, showReferenceDropdown } from "@/utils/partsReferenceDropdown.mjs";
 import { createDefaultPartsAnnexRows, hasPartsAnnexRowContent, normalizePartsAnnexRows, removePartsAnnexRow } from "@/utils/partsAnnexRows.mjs";
+import { appendImportedParts, readPartsAnnexFile } from "@/utils/partsAnnexImport.mjs";
 
 export { createDefaultPartsAnnexRows, normalizePartsAnnexRows } from "@/utils/partsAnnexRows.mjs";
 
@@ -24,6 +25,12 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
   const [searchError, setSearchError] = useState("");
   const [exportError, setExportError] = useState("");
   const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState("");
+  const [importPreview, setImportPreview] = useState(null);
+  const [importMessage, setImportMessage] = useState("");
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
   const descriptionRef = useRef(null);
   const partNumberRef = useRef(null);
 
@@ -49,6 +56,33 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
     } finally {
       setExporting(false);
     }
+  };
+
+  const previewExcel = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setImportError("");
+    setImportMessage("");
+    setImportPreview(null);
+    setImporting(true);
+    try {
+      const imported = await readPartsAnnexFile(file);
+      setImportPreview({ name: file.name, rows: imported });
+    } catch (error) {
+      setImportError(error?.message || "No se pudo leer el archivo Excel. Verifica el formato e inténtalo de nuevo.");
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const addImportedRows = () => {
+    if (!importPreview) return;
+    onChange(appendImportedParts(itemsRef.current, importPreview.rows));
+    setImportMessage(`Se agregaron ${importPreview.rows.length} ítem(s) al formulario. Guarda el registro para conservar los cambios.`);
+    setImportPreview(null);
+    setActiveRow(null);
+    setMatches([]);
   };
 
   useEffect(() => {
@@ -237,8 +271,29 @@ export default function InspectionPartsAnnex({ rows, onChange, enabled = true, o
             <button type="button" onClick={downloadExcel} disabled={exporting} className="rounded-md border border-emerald-700 bg-emerald-700 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800 disabled:opacity-50 print:hidden">
               {exporting ? "Preparando Excel..." : "Descargar anexo en Excel"}
             </button>
+            <label className={`inline-flex cursor-pointer items-center justify-center rounded-md border border-blue-700 bg-blue-700 px-4 py-1.5 text-xs font-semibold text-white hover:bg-blue-800 print:hidden ${importing ? "opacity-50" : ""}`}>
+              {importing ? "Leyendo Excel..." : "Cargar anexo desde Excel"}
+              <input type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" disabled={importing} className="sr-only" onChange={previewExcel} />
+            </label>
           </div>
           {exportError && <p role="alert" className="text-xs text-red-700">{exportError}</p>}
+          {importError && <p role="alert" className="text-xs text-red-700">{importError}</p>}
+          {importMessage && <p role="status" className="text-xs text-emerald-700">{importMessage}</p>}
+          {importPreview && (
+            <div className="space-y-2 rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs print:hidden">
+              <p className="font-semibold text-blue-900">{importPreview.name}: {importPreview.rows.length} ítem(s) encontrados en la primera hoja.</p>
+              <p>Se agregarán a las filas existentes, sin reemplazarlas ni eliminar duplicados. Solo se importan cantidad, número de parte, descripción y observaciones (Service Note).</p>
+              <p>Para conservar ceros iniciales, guarda los números de parte como texto en Excel.</p>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse bg-white text-left">
+                  <thead><tr><th className="border p-1">Cantidad</th><th className="border p-1">N° parte</th><th className="border p-1">Descripción</th><th className="border p-1">Observaciones</th></tr></thead>
+                  <tbody>{importPreview.rows.slice(0, 5).map((row, index) => <tr key={index}><td className="border p-1">{row.cantidad}</td><td className="border p-1">{row.numeroParte}</td><td className="border p-1">{row.descripcion}</td><td className="border p-1">{row.observaciones}</td></tr>)}</tbody>
+                </table>
+              </div>
+              {importPreview.rows.length > 5 && <p>Se muestran las primeras 5 filas.</p>}
+              <div className="flex flex-wrap gap-2"><button type="button" onClick={addImportedRows} className="rounded bg-blue-700 px-3 py-1.5 font-semibold text-white hover:bg-blue-800">Agregar {importPreview.rows.length} ítem(s)</button><button type="button" onClick={() => setImportPreview(null)} className="rounded border border-slate-400 bg-white px-3 py-1.5 font-semibold">Cancelar</button></div>
+            </div>
+          )}
         </>
       )}
     </section>
