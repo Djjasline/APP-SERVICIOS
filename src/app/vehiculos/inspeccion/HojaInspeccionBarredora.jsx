@@ -1,4 +1,6 @@
 import { useTechnicians } from "@/hooks/useTechnicians";
+import ServiceDateRange from "@/components/ServiceDateRange";
+import { isServiceDateRangeValid } from "@/utils/serviceDateRange.mjs";
 import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { saveOrUpdateReport } from "@/services/reportService";
@@ -252,6 +254,7 @@ const emptyForm = {
   telefono: "",
   correo: "",
   fechaServicio: "",
+  fechaServicioFinal: "",
 
   tecnicoNombre: "",
   tecnicoTelefono: "",
@@ -742,6 +745,10 @@ const handleSubmit = async (e) => {
     alert("Ingresa la fecha de servicio antes de guardar.");
     return;
   }
+  if (!isServiceDateRangeValid(data.fechaServicio, data.fechaServicioFinal)) {
+    alert("La fecha final de servicio no puede ser anterior a la inicial.");
+    return;
+  }
 
   if (!(data.conclusiones || []).some((txt) => (txt || "").trim().length >= 15)) {
     alert("Debe incluir una conclusión técnica concreta");
@@ -975,7 +982,7 @@ setTimeout(() => {
               </tr>
               <tr>
                 <td className="pdf-label">FECHA DE SERVICIO</td>
-                <td colSpan={3}><input type="date" className="pdf-input w-full" value={data.fechaServicio} onChange={(e) => update(["fechaServicio"], e.target.value)} /></td>
+                <td colSpan={3}><ServiceDateRange start={data.fechaServicio} end={data.fechaServicioFinal} onChange={update} /></td>
               </tr>
             </tbody>
           </table>

@@ -1,4 +1,6 @@
 import { useTechnicians } from "@/hooks/useTechnicians";
+import ServiceDateRange from "@/components/ServiceDateRange";
+import { isServiceDateRangeValid } from "@/utils/serviceDateRange.mjs";
 import { useAutoguardado, limpiarBorrador } from "@/hooks/useAutoguardado";
 import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { saveOrUpdateReport } from "@/services/reportService";
@@ -157,7 +159,7 @@ const fieldPlaceholders = {
 const emptyForm = {
   referenciaContrato: "", pedidoDemanda: "", descripcion: "", codInf: "",
   cliente: "", cedulaCliente: "", direccion: "", contacto: "",
-  telefono: "", correo: "", fechaServicio: "",
+  telefono: "", correo: "", fechaServicio: "", fechaServicioFinal: "",
   tecnicoNombre: "", tecnicoTelefono: "", tecnicoCorreo: "",
   equipo: {
     nota: "", marca: "", modelo: "", serie: "", anio: "",
@@ -459,6 +461,7 @@ const updatePointObs = (imgId, ptId, value) =>
     if (!data.cliente)       { alert("Cliente es obligatorio"); return; }
     if (!data.tecnicoNombre) { alert("Técnico es obligatorio"); return; }
     if (!data.fechaServicio) { alert("Fecha de servicio es obligatoria"); return; }
+    if (!isServiceDateRangeValid(data.fechaServicio, data.fechaServicioFinal)) { alert("La fecha final de servicio no puede ser anterior a la inicial."); return; }
     if (!(data.conclusiones || []).some((txt) => (txt || "").trim().length >= 15)) { alert("Debe incluir una conclusión técnica concreta"); return; }
     if (!(data.recomendaciones || []).some((txt) => (txt || "").trim().length >= 15)) { alert("Debe incluir una recomendación accionable"); return; }
 
@@ -655,7 +658,7 @@ const firmaCliente =
               </tr>
               <tr>
                 <td className="pdf-label">FECHA DE SERVICIO</td>
-                <td colSpan={3}><input type="date" className="pdf-input w-full" value={data.fechaServicio} onChange={(e) => update(["fechaServicio"], e.target.value)} /></td>
+                <td colSpan={3}><ServiceDateRange start={data.fechaServicio} end={data.fechaServicioFinal} onChange={update} /></td>
               </tr>
             </tbody>
           </table>

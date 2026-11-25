@@ -4,6 +4,8 @@ import BannerAutoguardado from "@/components/BannerAutoguardado";
 import { useParams, useNavigate } from "react-router-dom";
 import SignatureCanvas from "@/components/SignatureCanvasField";
 import { useTechnicians } from "@/hooks/useTechnicians";
+import ServiceDateRange from "@/components/ServiceDateRange";
+import { isServiceDateRangeValid } from "@/utils/serviceDateRange.mjs";
 import { saveOrUpdateReport } from "@/services/reportService";
 import { uploadRegistroImage } from "@/utils/storage";
 import { supabase } from "@/lib/supabase";
@@ -318,6 +320,7 @@ const emptyForm = {
   referenciaContrato: "", pedidoDemanda: "", descripcion: "", codInf: "",
   cliente: "", direccion: "", contacto: "", telefono: "", correo: "",
   fechaServicio: "",
+  fechaServicioFinal: "",
   tecnicoNombre: "", tecnicoTelefono: "", tecnicoCorreo: "",
   equipo: {
     nota: "", marca: "", modelo: "", serie: "",
@@ -742,6 +745,7 @@ const updatePointObs = (imgId, ptId, value) =>
     if (!data.cliente)       { alert("Cliente es obligatorio"); return; }
     if (!data.tecnicoNombre) { alert("Técnico es obligatorio"); return; }
     if (!data.fechaServicio) { alert("Fecha de servicio es obligatoria"); return; }
+    if (!isServiceDateRangeValid(data.fechaServicio, data.fechaServicioFinal)) { alert("La fecha final de servicio no puede ser anterior a la inicial."); return; }
     if ((data.notaFinal || "").trim().length < 20) { alert("Debe incluir una nota final técnica con cierre del mantenimiento"); return; }
 
     setGuardando(true);
@@ -980,8 +984,7 @@ const result = await saveOrUpdateReport({
               <tr>
                 <td className="pdf-label">FECHA DE SERVICIO</td>
                 <td colSpan={3}>
-                  <input type="date" className="pdf-input w-full" value={data.fechaServicio}
-                    onChange={(e) => update(["fechaServicio"], e.target.value)} />
+                  <ServiceDateRange start={data.fechaServicio} end={data.fechaServicioFinal} onChange={update} />
                 </td>
               </tr>
             </tbody>

@@ -9,6 +9,7 @@ import ObservationImagesPdf from "@/components/ObservationImagesPdf";
 import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame, PdfSignaturesTable } from "@/components/pdf/PdfReportLayout";
 import { formatPersonName } from "@/utils/nameFormat";
+import { ServiceDateRangeDisplay } from "@/components/ServiceDateRange";
 
 /* ══════════════════════════════
    ESTILOS — COMPACTOS PDF
@@ -445,7 +446,7 @@ const estadoEquipoImagenes = d?.estadoEquipo?.imagenes || [];
                 ["TÉCNICO RESPONSABLE",  formatPersonName(d.tecnicoNombre)],
                 ["TELÉFONO TÉCNICO",     d.tecnicoTelefono],
                 ["CORREO TÉCNICO",       d.tecnicoCorreo],
-                ["FECHA DE SERVICIO",    d.fechaServicio],
+                ["FECHA DE SERVICIO",    <ServiceDateRangeDisplay start={d.fechaServicio} end={d.fechaServicioFinal} />],
               ].map(([l, v], i) => (
                 <tr key={i}>
                   <td style={S.label}>{l}</td>

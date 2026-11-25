@@ -7,6 +7,7 @@ import { PdfConclusionRecommendationTable, PdfEquipmentImageFrame, PdfSignatures
 import { InspectionPartsAnnexPdf } from "@/components/InspectionPartsAnnex";
 import { formatPersonName } from "@/utils/nameFormat";
 import { getVehicleReportConfig } from "./reportModeConfig";
+import { ServiceDateRangeDisplay } from "@/components/ServiceDateRange";
 import { layoutActivityImages, useMarlonActivityLayout } from "./activityPdfLayout.mjs";
 
 function hasContractItemsSingleTableData(table) {
@@ -433,7 +434,7 @@ cell:  { border: "1px solid #374151", padding: "4px 6px", verticalAlign: "middle
                 ["TÉCNICO RESPONSABLE", formatPersonName(data.tecnicoNombre)],
                 ["TELÉFONO TÉCNICO",    data.tecnicoTelefono],
                 ["CORREO TÉCNICO",      data.tecnicoCorreo],
-                ["FECHA DE SERVICIO",   data.fechaServicio],
+                ["FECHA DE SERVICIO",   <ServiceDateRangeDisplay start={data.fechaServicio} end={data.fechaServicioFinal} />],
               ].map(([label, value], i) => (
                 <tr key={i}>
                   <td style={S.label}>{label}</td>

@@ -5,6 +5,7 @@ import { printPdf } from "@/utils/printPdf";
 import ObservationImagesPdf from "@/components/ObservationImagesPdf";
 import { PdfEquipmentImageFrame, PdfSignaturesTable } from "@/components/pdf/PdfReportLayout";
 import { formatPersonName } from "@/utils/nameFormat";
+import { ServiceDateRangeDisplay } from "@/components/ServiceDateRange";
 import { isBarredoraPartsSection, visibleParts } from "@/utils/predefinedParts.mjs";
 
 /* ══════════════════════════════
@@ -463,7 +464,7 @@ export default function MantenimientoBarredoraPDF({ variant = "pelican", allowDo
                 ["TÉCNICO RESPONSABLE", formatPersonName(d.tecnicoNombre)],
                 ["TELÉFONO TÉCNICO",    d.tecnicoTelefono],
                 ["CORREO TÉCNICO",      d.tecnicoCorreo],
-                ["FECHA DE SERVICIO",   d.fechaServicio],
+                ["FECHA DE SERVICIO",   <ServiceDateRangeDisplay start={d.fechaServicio} end={d.fechaServicioFinal} />],
               ].map(([l, v], i) => (
                 <tr key={i}>
                   <td style={S.label}>{l}</td>

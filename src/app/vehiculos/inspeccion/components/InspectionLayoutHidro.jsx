@@ -1,6 +1,7 @@
 import SignatureCanvas from "@/components/SignatureCanvasField";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import ServiceDateRange from "@/components/ServiceDateRange";
 
 export default function InspectionLayoutHidro({
   data,
@@ -86,12 +87,7 @@ export default function InspectionLayoutHidro({
               <td className="pdf-label">{label}</td>
               <td>
                 {key === "fechaServicio" ? (
-                  <input
-                    className="pdf-input"
-                    value={data[key] || ""}
-                    disabled={readOnly}
-                    onChange={(e) => onChange([key], e.target.value)}
-                  />
+                  <ServiceDateRange start={data.fechaServicio} end={data.fechaServicioFinal} onChange={onChange} disabled={readOnly} />
                 ) : (
                   <AutoResizeInput
                     className="pdf-input"

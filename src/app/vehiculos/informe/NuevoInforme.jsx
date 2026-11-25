@@ -20,6 +20,8 @@ import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/
 import { ensureCompletionReady } from "@/utils/completionValidation";
 import { hasUnlimitedActivityImages, isSuperAdminEmail } from "@/constants/privilegedAccess.mjs";
 import { getVehicleReportConfig } from "./reportModeConfig";
+import ServiceDateRange from "@/components/ServiceDateRange";
+import { isServiceDateRangeValid } from "@/utils/serviceDateRange.mjs";
 
 const MAX_ACTIVITY_IMAGES = 4;
 
@@ -154,6 +156,7 @@ export default function NuevoInforme({ reportType = "informe" }) {
     telefono: "",
     correo: "",
     fechaServicio: "",
+    fechaServicioFinal: "",
 
     // Datos técnico
     tecnicoNombre: "",
@@ -775,6 +778,10 @@ const validateReport = () => {
      GUARDAR INFORME
   =========================== */
   const saveReport = async () => {
+    if (!isServiceDateRangeValid(data.fechaServicio, data.fechaServicioFinal)) {
+      alert("La fecha final de servicio no puede ser anterior a la inicial.");
+      return;
+    }
     if (uploading) {
       alert("Espera que terminen de subir las imágenes");
       return;
@@ -1079,12 +1086,7 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
             <tr>
               <td className="pdf-label">FECHA DE SERVICIO</td>
               <td colSpan={3}>
-                <input
-                  type="date"
-                  className="pdf-input w-full"
-                  value={data.fechaServicio}
-                  onChange={(e) => update(["fechaServicio"], e.target.value)}
-                />
+                <ServiceDateRange start={data.fechaServicio} end={data.fechaServicioFinal} onChange={update} />
               </td>
             </tr>
           </tbody>
