@@ -9,6 +9,7 @@ import { getUnreadAppUpdatesCount } from "@/services/appUpdatesService";
 import { getUnreadMessageCounts } from "@/services/chatService";
 import { openExternalResource } from "@/services/resourceUsageService";
 import { supabase } from "@/lib/supabase";
+import "./sidebar.css";
 import {
   LayoutDashboard,
   Truck,
@@ -47,7 +48,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isProveedorVehiculos, isProveedorVehiculosOnly } = useAuth();
-  const { isLight, isBlueDark, isLiquid } = useTheme();
+  const { theme, isLight, isBlueDark, isLiquid } = useTheme();
 
   const [openVehiculos, setOpenVehiculos] = useState(false);
   const [openOperaciones, setOpenOperaciones] = useState(false);
@@ -203,7 +204,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
   };
 
   const itemBase = `
-    group relative flex items-center w-full py-2 rounded-xl
+    astap-sidebar-item group relative flex items-center w-full py-2 rounded-xl
     transition-all duration-300 ease-smooth
     cursor-pointer
   `;
@@ -211,28 +212,10 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
   const itemClass = (active) => `
     ${itemBase}
     ${openSidebar ? "gap-3 px-3" : "justify-center px-2"}
-    ${
-      active
-        ? isLiquid
-          ? "bg-white/20 text-white shadow-lg shadow-cyan-950/20 ring-1 ring-white/20"
-          : isBlueDark
-          ? "bg-emerald-400/20 text-emerald-50"
-          : isLight
-          ? "bg-emerald-50 text-emerald-900"
-          : "bg-slate-500/35 text-white ring-1 ring-white/10"
-        : isLiquid
-        ? "text-white/80 hover:bg-white/10 hover:text-white"
-        : isBlueDark
-        ? "text-white/80 hover:bg-emerald-400/10 hover:text-emerald-50"
-        : isLight
-        ? "text-slate-600 hover:bg-emerald-50 hover:text-emerald-900"
-        : "text-slate-300 hover:bg-white/10 hover:text-white"
-    }
+    ${active ? "is-active" : ""}
   `;
 
-  const iconClass = `
-    ${isLiquid ? "text-cyan-100 group-hover:text-white drop-shadow" : isBlueDark ? "text-white/80 group-hover:text-emerald-50" : isLight ? "text-slate-500 group-hover:text-emerald-900" : "text-slate-300 group-hover:text-white"} transition-all duration-300
-  `;
+  const iconClass = "astap-sidebar-icon transition-all duration-300";
 
   const tooltip = (label) =>
     !openSidebar && (
@@ -285,8 +268,9 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
 
   return (
     <aside
+      data-sidebar-theme={theme}
       className={`
-        fixed top-0 left-0 h-screen z-50 flex flex-col
+        astap-sidebar ${openSidebar ? "is-open" : ""} fixed top-0 left-0 h-screen z-50 flex flex-col
         ${isLiquid ? "liquid-glass-sidebar border-r border-white/20" : isBlueDark ? "bg-gradient-to-b from-[#003366] to-[#001f3f] border-r border-white/10" : isLight ? "bg-white/95 border-r border-slate-200" : "bg-[#1e2023]/95 border-r border-white/10 shadow-2xl shadow-black/40"}
         backdrop-blur-xl
         transition-all duration-300
@@ -295,24 +279,33 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
       `}
     >
       {/* LOGO */}
-      <div className={`p-4 flex items-center gap-3 border-b cursor-pointer ${isLiquid ? "border-white/20 hover:bg-white/10" : isBlueDark ? "border-white/10 hover:bg-emerald-400/10" : isLight ? "border-slate-200 hover:bg-emerald-50" : "border-white/10 hover:bg-white/10"}`}>
+      <div className={`astap-sidebar-brand p-4 flex items-center gap-3 border-b ${isLiquid ? "border-white/20" : isBlueDark ? "border-white/10" : isLight ? "border-slate-200" : "border-white/10"}`}>
         <button
           type="button"
           onClick={() => setOpenSidebar(!openSidebar)}
-          className="flex items-center gap-3"
+          className="flex w-full items-center gap-3 text-left"
           aria-label={openSidebar ? "Cerrar barra lateral" : "Abrir barra lateral"}
         >
           <img
             src="/astap-logo.jpg"
             alt="ASTAP logo"
-            className="w-10 h-10 object-contain"
+            className="astap-sidebar-logo w-10 h-10 object-contain"
           />
-          {openSidebar && <span className={isLight ? "text-slate-900 font-bold" : "text-white font-bold"}>ASTAP</span>}
+          {openSidebar && (
+            <>
+              <span className="astap-sidebar-brand-text">
+                <span>ASTAP</span>
+                <small>APP Servicios</small>
+              </span>
+              <ChevronRight size={16} className="astap-sidebar-close" aria-hidden="true" />
+            </>
+          )}
         </button>
       </div>
 
       {/* CONTENIDO */}
-      <div className="flex-1 p-3 space-y-2 text-sm overflow-y-auto">
+      <div className="astap-sidebar-content flex-1 p-3 space-y-2 text-sm overflow-y-auto">
+        {openSidebar && <p className="astap-sidebar-section">ESPACIO DE TRABAJO</p>}
         {puedeVerTodo && (
           <button
             type="button"
@@ -577,7 +570,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
                 openOnly("operaciones");
                 go("/operaciones");
               }}
-              className={itemClass(isActive("/operaciones"))}
+              className={itemClass(isActive("/operaciones") && !isActive("/operaciones/bodega"))}
               aria-expanded={openOperaciones}
               aria-controls="panel-operaciones"
             >
@@ -866,7 +859,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
       </div>
 
       {/* FOOTER */}
-      <div className={`p-3 border-t text-xs text-center ${isLight ? "border-slate-200 text-slate-500" : "border-white/10 text-white/50"}`}>
+      <div className={`astap-sidebar-footer p-3 border-t text-xs text-center ${isLight ? "border-slate-200 text-slate-500" : "border-white/10 text-white/50"}`}>
         {openSidebar ? (
           <>
             <p className={isLight ? "font-semibold text-slate-700" : "font-semibold text-white/80"}>ASTAP</p>

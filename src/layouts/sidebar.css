@@ -1,0 +1,186 @@
+/* Sidebar styles are isolated so report and PDF themes remain unchanged. */
+.astap-sidebar {
+  --sidebar-surface: linear-gradient(160deg, #344658, #172330 55%, #111923);
+  --sidebar-text: #e9f2f7;
+  --sidebar-muted: #b8ccd8;
+  --sidebar-hover: rgba(255, 255, 255, .1);
+  --sidebar-rail: #eef4f5;
+  --sidebar-selected: #eef4f5;
+  --sidebar-selected-text: #173848;
+  --sidebar-outline: rgba(255, 255, 255, .16);
+}
+
+html .astap-sidebar.is-open {
+  top: 8px;
+  left: 8px;
+  width: calc(16rem - 16px);
+  height: calc(100vh - 16px);
+  height: calc(100dvh - 16px);
+  border: 1px solid var(--sidebar-outline);
+  border-radius: 22px;
+  box-shadow: 0 18px 45px rgba(8, 25, 40, .28), inset 0 1px 0 rgba(255, 255, 255, .16);
+  color: var(--sidebar-text);
+}
+
+html[data-theme] .astap-sidebar[data-sidebar-theme] {
+  background: var(--sidebar-surface);
+}
+
+.astap-sidebar[data-sidebar-theme="blue"] {
+  --sidebar-surface: radial-gradient(circle at 20% 0, #467fa9, transparent 34%), linear-gradient(160deg, #174467, #0c2943 58%, #0a192b);
+  --sidebar-rail: #f3f8fa;
+  --sidebar-selected: #f3f8fa;
+}
+
+.astap-sidebar[data-sidebar-theme="light"] {
+  --sidebar-surface: radial-gradient(circle at 10% 0, #ffffff, transparent 43%), linear-gradient(150deg, #eaf5f8, #dcecf1 62%, #d2e3e9);
+  --sidebar-text: #294759;
+  --sidebar-muted: #527182;
+  --sidebar-hover: rgba(28, 90, 120, .09);
+  --sidebar-rail: #275b75;
+  --sidebar-selected: #275b75;
+  --sidebar-selected-text: #ffffff;
+  --sidebar-outline: rgba(75, 128, 150, .25);
+}
+
+.astap-sidebar[data-sidebar-theme="liquid"] {
+  --sidebar-surface: radial-gradient(circle at 20% 0, rgba(193, 154, 106, .58), transparent 34%), linear-gradient(155deg, rgba(80, 64, 49, .94), rgba(46, 37, 31, .96));
+  --sidebar-rail: #f8efe0;
+  --sidebar-selected: #f8efe0;
+  --sidebar-selected-text: #4c3624;
+  --sidebar-outline: rgba(255, 241, 216, .28);
+}
+
+.astap-sidebar[data-sidebar-theme="liquid-dark"] {
+  --sidebar-surface: radial-gradient(circle at 20% 0, rgba(77, 117, 164, .6), transparent 36%), linear-gradient(155deg, rgba(25, 43, 65, .96), rgba(11, 18, 32, .98));
+  --sidebar-rail: #dfeafa;
+  --sidebar-selected: #dfeafa;
+  --sidebar-selected-text: #1b3755;
+}
+
+.astap-sidebar.is-open::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 7px;
+  right: 6px;
+  bottom: 7px;
+  width: 12px;
+  border-radius: 10px;
+  background: var(--sidebar-rail);
+  pointer-events: none;
+}
+
+.astap-sidebar-brand,
+.astap-sidebar-content,
+.astap-sidebar-footer {
+  position: relative;
+  z-index: 1;
+  margin-right: 18px;
+}
+
+.astap-sidebar-brand {
+  min-height: 72px;
+  border-color: var(--sidebar-outline);
+}
+
+.astap-sidebar-logo {
+  flex: none;
+  padding: 4px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(6, 22, 36, .18);
+}
+
+.astap-sidebar-brand-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  color: var(--sidebar-text);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  line-height: 1.2;
+}
+
+.astap-sidebar-brand-text small {
+  margin-top: 4px;
+  color: var(--sidebar-muted);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+
+.astap-sidebar-close {
+  color: var(--sidebar-muted);
+  transform: rotate(180deg);
+}
+
+.astap-sidebar-content {
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sidebar-muted) transparent;
+}
+
+.astap-sidebar-section {
+  padding: 2px 12px 4px;
+  color: var(--sidebar-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+
+.astap-sidebar-item {
+  min-height: 40px;
+  color: var(--sidebar-text);
+  font-weight: 600;
+  text-align: left;
+}
+
+.astap-sidebar-item:hover {
+  background: var(--sidebar-hover);
+}
+
+.astap-sidebar-item.is-active,
+.astap-sidebar-item.is-active:hover {
+  color: var(--sidebar-selected-text);
+  background: var(--sidebar-selected);
+  box-shadow: 0 5px 16px rgba(7, 22, 33, .16);
+}
+
+.astap-sidebar-item.is-active::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -19px;
+  bottom: 0;
+  width: 20px;
+  background: var(--sidebar-selected);
+  pointer-events: none;
+}
+
+.astap-sidebar-icon {
+  flex: none;
+  color: currentColor;
+}
+
+.astap-sidebar-item > svg:not(:first-child) {
+  flex: none;
+  margin-left: auto;
+}
+
+.astap-sidebar :where(button, a):focus-visible {
+  outline: 2px solid #edaa5f;
+  outline-offset: 2px;
+}
+
+.astap-sidebar-footer {
+  border-color: var(--sidebar-outline);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .astap-sidebar,
+  .astap-sidebar-item {
+    transition: none;
+  }
+}

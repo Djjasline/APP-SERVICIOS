@@ -457,6 +457,7 @@ export default function MainLayout() {
         <Sidebar
           openSidebar={openSidebar}
           setOpenSidebar={setOpenSidebar}
+          isMobile={isMobile}
           hasOnlineChatUsers={hasOnlineChatUsers}
         />
       </div>
