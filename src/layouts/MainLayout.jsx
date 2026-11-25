@@ -451,7 +451,7 @@ export default function MainLayout() {
           app-sidebar
           fixed top-0 left-0 h-full z-50
           transition-all duration-300 ease-smooth
-          ${openSidebar ? "translate-x-0" : "-translate-x-full"}
+          ${isMobile && !openSidebar ? "-translate-x-full" : "translate-x-0"}
         `}
       >
         <Sidebar
@@ -480,7 +480,7 @@ export default function MainLayout() {
         ? "ml-0"
         : openSidebar
         ? "ml-64"
-        : "ml-0"
+        : "ml-16"
     }
   `}
       >

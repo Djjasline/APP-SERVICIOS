@@ -62,6 +62,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
 
   const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
   const puedeVerTodo = !proveedorSoloVehiculos;
+  const isCompact = !openSidebar && !isMobile;
   const puedeUsarConfigurador = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.configurador);
   const puedeUsarCotizador = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.cotizador);
   const puedeUsarRecorridoAgua = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.recorridoAgua);
@@ -195,6 +196,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
   }, [user?.id, puedeVerTodo, location.pathname]);
 
   const openOnly = (name) => {
+    if (name && isCompact) setOpenSidebar(true);
     setOpenVehiculos(name === "vehiculos");
     setOpenAgua(puedeVerTodo && name === "agua");
     setOpenIndustria(puedeVerTodo && name === "industria");
@@ -269,12 +271,14 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
   return (
     <aside
       data-sidebar-theme={theme}
+      aria-hidden={isMobile && !openSidebar ? true : undefined}
+      inert={isMobile && !openSidebar ? true : undefined}
       className={`
-        astap-sidebar ${openSidebar ? "is-open" : ""} fixed top-0 left-0 h-screen z-50 flex flex-col
+        astap-sidebar ${openSidebar ? "is-open" : isCompact ? "is-compact" : ""} fixed top-0 left-0 h-screen z-50 flex flex-col
         ${isLiquid ? "liquid-glass-sidebar border-r border-white/20" : isBlueDark ? "bg-gradient-to-b from-[#003366] to-[#001f3f] border-r border-white/10" : isLight ? "bg-white/95 border-r border-slate-200" : "bg-[#1e2023]/95 border-r border-white/10 shadow-2xl shadow-black/40"}
         backdrop-blur-xl
         transition-all duration-300
-        ${openSidebar ? "w-64" : "w-0"}
+        ${openSidebar ? "w-64" : isCompact ? "w-16" : "w-0"}
         overflow-hidden
       `}
     >
@@ -284,7 +288,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
           type="button"
           onClick={() => setOpenSidebar(!openSidebar)}
           className="flex w-full items-center gap-3 text-left"
-          aria-label={openSidebar ? "Cerrar barra lateral" : "Abrir barra lateral"}
+          aria-label={openSidebar ? "Contraer barra lateral" : "Expandir barra lateral"}
+          title={openSidebar ? "Contraer barra lateral" : "Expandir barra lateral"}
         >
           <img
             src="/astap-logo.jpg"
@@ -311,6 +316,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
             type="button"
             onClick={() => go("/")}
             className={itemClass(isActive("/"))}
+            aria-label="Menú principal"
+            title="Menú principal"
             aria-current={isActive("/") ? "page" : undefined}
           >
             <LayoutDashboard size={20} className={iconClass} />
@@ -328,8 +335,10 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
               go("/area/vehiculos");
             }}
             className={itemClass(isActive(["/vehiculos", "/area/vehiculos", "/informe", "/inspeccion", "/mantenimiento", "/configurador"]))}
-            aria-expanded={openVehiculos}
-            aria-controls="panel-vehiculos"
+            aria-label="Vehículos Especiales"
+            title="Vehículos Especiales"
+            aria-expanded={openSidebar && openVehiculos}
+            aria-controls={openSidebar && openVehiculos ? "panel-vehiculos" : undefined}
           >
             <Truck size={20} className={iconClass} />
             {openSidebar && "Vehículos Especiales"}
@@ -417,8 +426,10 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
                 go("/area/agua");
               }}
               className={itemClass(isActive("/agua"))}
-              aria-expanded={openAgua}
-              aria-controls="panel-agua"
+              aria-label="Agua y Saneamiento"
+              title="Agua y Saneamiento"
+              aria-expanded={openSidebar && openAgua}
+              aria-controls={openSidebar && openAgua ? "panel-agua" : undefined}
             >
               <Droplet size={20} className={iconClass} />
               {openSidebar && "Agua y Saneamiento"}
@@ -475,8 +486,10 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
                 go("/area/industria");
               }}
               className={itemClass(isActive("/industria"))}
-              aria-expanded={openIndustria}
-              aria-controls="panel-industria"
+              aria-label="Industria"
+              title="Industria"
+              aria-expanded={openSidebar && openIndustria}
+              aria-controls={openSidebar && openIndustria ? "panel-industria" : undefined}
             >
               <Factory size={20} className={iconClass} />
               {openSidebar && "Industria"}
@@ -519,8 +532,10 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
                 go("/area/petroleo");
               }}
               className={itemClass(isActive("/petroleo"))}
-              aria-expanded={openPetroleo}
-              aria-controls="panel-petroleo"
+              aria-label="Petróleo y Energía"
+              title="Petróleo y Energía"
+              aria-expanded={openSidebar && openPetroleo}
+              aria-controls={openSidebar && openPetroleo ? "panel-petroleo" : undefined}
             >
               <Fuel size={20} className={iconClass} />
               {openSidebar && "Petróleo y Energía"}
@@ -571,8 +586,10 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
                 go("/operaciones");
               }}
               className={itemClass(isActive("/operaciones") && !isActive("/operaciones/bodega"))}
-              aria-expanded={openOperaciones}
-              aria-controls="panel-operaciones"
+              aria-label="Operaciones"
+              title="Operaciones"
+              aria-expanded={openSidebar && openOperaciones}
+              aria-controls={openSidebar && openOperaciones ? "panel-operaciones" : undefined}
             >
               <Settings size={20} className={iconClass} />
               {openSidebar && "Operaciones"}
@@ -650,6 +667,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
               go("/operaciones/bodega");
             }}
             className={itemClass(isActive("/operaciones/bodega"))}
+            aria-label={OPERACIONES_TEXT.bodega.title}
+            title={OPERACIONES_TEXT.bodega.title}
             aria-current={isActive("/operaciones/bodega") ? "page" : undefined}
           >
             <Package size={20} className={iconClass} />
@@ -668,8 +687,10 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
                 go("/repositorios");
               }}
               className={itemClass(isActive("/repositorios"))}
-              aria-expanded={openRepositorios}
-              aria-controls="panel-repos"
+              aria-label="Recursos"
+              title="Recursos"
+              aria-expanded={openSidebar && openRepositorios}
+              aria-controls={openSidebar && openRepositorios ? "panel-repos" : undefined}
             >
               <FolderOpen size={20} className={iconClass} />
               {openSidebar && "Recursos"}
@@ -806,6 +827,24 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
               </>
             )}
           </div>
+        )}
+
+        {isCompact && puedeVerTodo && (
+          <>
+            <button type="button" onClick={() => go("/chat")} className={itemClass(isActive("/chat"))} aria-label="Chat interno" title="Chat interno">
+              <MessageCircle size={20} className={iconClass} />
+              {(unreadChat > 0 || hasOnlineChatUsers) && <span className={`astap-sidebar-indicator ${unreadChat > 0 ? "has-unread" : ""}`} aria-hidden="true" />}
+            </button>
+            <button type="button" onClick={() => go("/notifications")} className={itemClass(isActive("/notifications"))} aria-label="Control de cambios" title="Control de cambios">
+              <Megaphone size={20} className={iconClass} />
+              {unreadBulletins > 0 && <span className="astap-sidebar-indicator has-unread" aria-hidden="true" />}
+            </button>
+            {superAdminActivo && (
+              <button type="button" onClick={() => go("/admin/permisos-registros")} className={itemClass(isActive("/admin/permisos-registros"))} aria-label="Opciones del administrador" title="Opciones del administrador">
+                <Lock size={20} className={iconClass} />
+              </button>
+            )}
+          </>
         )}
 
         {openSidebar && (

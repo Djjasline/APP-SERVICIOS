@@ -10,7 +10,8 @@
   --sidebar-outline: rgba(255, 255, 255, .16);
 }
 
-html .astap-sidebar.is-open {
+html .astap-sidebar.is-open,
+html .astap-sidebar.is-compact {
   top: 8px;
   left: 8px;
   width: calc(16rem - 16px);
@@ -20,6 +21,10 @@ html .astap-sidebar.is-open {
   border-radius: 22px;
   box-shadow: 0 18px 45px rgba(8, 25, 40, .28), inset 0 1px 0 rgba(255, 255, 255, .16);
   color: var(--sidebar-text);
+}
+
+html .astap-sidebar.is-compact {
+  width: 56px;
 }
 
 html[data-theme] .astap-sidebar[data-sidebar-theme] {
@@ -178,9 +183,55 @@ html[data-theme] .astap-sidebar[data-sidebar-theme] {
   border-color: var(--sidebar-outline);
 }
 
+.astap-sidebar.is-compact .astap-sidebar-brand,
+.astap-sidebar.is-compact .astap-sidebar-content,
+.astap-sidebar.is-compact .astap-sidebar-footer {
+  margin-right: 0;
+}
+
+.astap-sidebar.is-compact .astap-sidebar-brand {
+  min-height: 62px;
+  padding: 7px;
+}
+
+.astap-sidebar.is-compact .astap-sidebar-content {
+  padding: 6px;
+  scrollbar-width: none;
+}
+
+.astap-sidebar.is-compact .astap-sidebar-content::-webkit-scrollbar {
+  display: none;
+}
+
+.astap-sidebar.is-compact .astap-sidebar-item {
+  min-height: 42px;
+  border-radius: 50%;
+}
+
+.astap-sidebar.is-compact .astap-sidebar-item.is-active::after {
+  display: none;
+}
+
+.astap-sidebar-indicator {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--sidebar-text);
+  border-radius: 50%;
+  background: #4ade80;
+}
+
+.astap-sidebar-indicator.has-unread {
+  background: #ef4444;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .astap-sidebar,
-  .astap-sidebar-item {
+  .astap-sidebar-item,
+  .app-sidebar,
+  .app-content {
     transition: none;
   }
 }
