@@ -7,6 +7,8 @@ import { useTheme } from "@/context/ThemeContext";
 import { supabase } from "@/lib/supabase";
 import { ClipboardCheck, ClipboardList, FileCheck2, Gauge, Layers3 } from "lucide-react";
 import { PROTOCOLO_MAN_BASE_PATH, PROTOCOLO_MAN_BY_ID, PROTOCOLO_MAN_TIPO, PROTOCOLOS_MAN } from "./protocolosManConfig";
+import { PROTOCOLO_MAN_EXAMPLES } from "./protocolosManExamples.mjs";
+import ProtocoloManExample from "./ProtocoloManExample";
 
 const ICONS = {
   recepcion: ClipboardList,
@@ -20,6 +22,7 @@ export default function ProtocoloManHome() {
   const { isLight } = useTheme();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [example, setExample] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -79,10 +82,34 @@ export default function ProtocoloManHome() {
               color="bg-blue-700"
               icono={<Icon size={20} />}
               badge={protocol.code}
-            />
+            >
+              <button
+                type="button"
+                className="man-example-trigger"
+                onClick={() => setExample(protocol)}
+                aria-label={`Ver ejemplo de ${protocol.title}`}
+              >
+                <img
+                  src={PROTOCOLO_MAN_EXAMPLES[protocol.id]}
+                  alt=""
+                  width="1024"
+                  height="1536"
+                  loading="lazy"
+                />
+                <span>Ver ejemplo ampliado</span>
+              </button>
+            </CardModulo>
           );
         })}
       </div>
+
+      {example && (
+        <ProtocoloManExample
+          protocol={example}
+          src={PROTOCOLO_MAN_EXAMPLES[example.id]}
+          onClose={() => setExample(null)}
+        />
+      )}
 
       <section className="rounded-2xl border border-white/20 bg-white/95 p-5 shadow-xl">
         <div className="mb-4 flex items-center justify-between gap-3">

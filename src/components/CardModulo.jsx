@@ -11,6 +11,7 @@ export default function CardModulo({
   disabled = false,
   disabledLabel = "Acceso restringido",
   onOpen,
+  children,
 }) {
   const navigate = useNavigate();
 
@@ -59,6 +60,7 @@ export default function CardModulo({
         <p className="text-sm text-gray-500">
           {descripcion}
         </p>
+        {children}
       </div>
 
       {/* BOTÓN */}

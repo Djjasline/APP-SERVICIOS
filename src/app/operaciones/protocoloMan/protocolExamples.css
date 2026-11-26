@@ -1,0 +1,134 @@
+.man-example-trigger {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #d5e1eb;
+  border-radius: .65rem;
+  background: #edf3f8;
+  color: #174c7f;
+  text-align: center;
+}
+
+.man-example-trigger img {
+  display: block;
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  object-position: top;
+  background: #fff;
+}
+
+.man-example-trigger span {
+  display: block;
+  padding: .45rem .6rem;
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+.man-example-trigger:hover {
+  border-color: #2563eb;
+}
+
+.man-example-trigger:focus-visible,
+.man-example-dialog :is(button, a):focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+.man-example-dialog {
+  width: min(96vw, 1056px);
+  max-width: none;
+  max-height: 92vh;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 1rem;
+  background: #fff;
+  color: #172a3b;
+  box-shadow: 0 24px 75px rgba(2, 12, 27, .4);
+}
+
+.man-example-dialog::backdrop {
+  background: rgba(2, 12, 27, .72);
+}
+
+.man-example-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #dce5ed;
+}
+
+.man-example-header h2 {
+  margin: .2rem 0;
+  color: #153551;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.man-example-header p {
+  margin: 0;
+  color: #526b7d;
+  font-size: .75rem;
+}
+
+.man-example-header .man-example-code {
+  color: #1d4ed8;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.man-example-close {
+  flex: none;
+  padding: .45rem;
+  border: 0;
+  border-radius: .5rem;
+  background: #edf3f7;
+  color: #173a56;
+}
+
+.man-example-body {
+  max-height: calc(92vh - 10rem);
+  overflow: auto;
+  padding: .75rem;
+  background: #e9eff4;
+}
+
+.man-example-body img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: auto;
+  background: #fff;
+}
+
+.man-example-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .75rem 1.25rem;
+}
+
+.man-example-actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  color: #1d4ed8;
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+.man-example-actions button {
+  padding: .5rem 1rem;
+  border: 0;
+  border-radius: .5rem;
+  background: #1d4ed8;
+  color: #fff;
+  font-size: .8rem;
+  font-weight: 700;
+}
