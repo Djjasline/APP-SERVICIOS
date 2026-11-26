@@ -15,7 +15,7 @@ export function getDashboardRecordPreviewUrl(record) {
   if (area === "petroleo" && type === "visita_campo") return `/petroleo/visita-campo/ver/${id}`;
   if (area === "agua" && type === "informe" && subtype === "avance_epmaps") return `/agua/recorrido/informe/ver/${id}`;
   if (["agua", "industria", "petroleo"].includes(area) && type === "informe") return `/${area}/informe/ver/${id}`;
-  if (area === "vehiculos" || !area) {
+  if (area === "vehiculos") {
     if (type === "inspeccion" && inspectionTypes.has(subtype)) return `/vehiculos/inspeccion/${subtype}/ver/${id}`;
     if (type === "mantenimiento" && maintenanceTypes.has(subtype)) return `/vehiculos/mantenimiento/${subtype}/ver/${id}`;
     if (type === "protocolo" && subtype === "hidrosuccionador-vactor") return `/vehiculos/protocolos/vactor/ver/${id}`;

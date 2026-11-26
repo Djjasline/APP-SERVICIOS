@@ -1,19 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { getDashboardRecordPreviewUrl } from "@/utils/dashboardRecordPreview.mjs";
-
-const RESOURCE_AREA = "repositorios";
-
-const ZERO_METRICS = {
-  reportsToday: 0,
-  reportsThisWeek: 0,
-  draftReports: 0,
-  unreadNotifications: 0,
-  quotesThisWeek: 0,
-  quotesPdfPending: 0,
-  warehouseItems: 0,
-  lowStockItems: 0,
-  pendingSurveys: 0,
-};
+import { captureDashboardQuery, fetchAllById } from "@/utils/dashboardData.mjs";
 
 function startOfToday() {
   const date = new Date();
@@ -29,27 +16,31 @@ function startOfWeek() {
   return date.toISOString();
 }
 
-async function safeQuery(fn, fallback) {
-  try {
-    return await fn();
-  } catch (error) {
-    console.warn("No se pudo cargar una sección del dashboard:", error?.message || error);
-    return fallback;
-  }
-}
-
 async function countRows(table, applyFilters = (query) => query) {
   const query = applyFilters(supabase.from(table).select("id", { count: "exact", head: true }));
   const { count, error } = await query;
   if (error) throw error;
-  return count || 0;
+  if (count == null) throw new Error("No se recibió el total de la consulta.");
+  return count;
+}
+
+async function listAllRows(table, columns, applyFilters = (query) => query) {
+  return fetchAllById(async (cursor) => {
+    let query = applyFilters(supabase.from(table).select(columns)).order("id", { ascending: true }).limit(200);
+    if (cursor !== null) query = query.gt("id", cursor);
+    const { data, error } = await query;
+    if (error) throw error;
+    if (!Array.isArray(data)) throw new Error("No se recibió la página solicitada.");
+    return data;
+  });
 }
 
 async function listRows(table, columns, applyFilters = (query) => query) {
   const query = applyFilters(supabase.from(table).select(columns));
   const { data, error } = await query;
   if (error) throw error;
-  return data || [];
+  if (!Array.isArray(data)) throw new Error("No se recibió la lista solicitada.");
+  return data;
 }
 
 function getRecordLabel(record) {
@@ -83,27 +74,6 @@ function getRecordSummary(record) {
 function normalizeDate(value) {
   const date = value ? new Date(value) : null;
   return date && !Number.isNaN(date.getTime()) ? date.toISOString() : null;
-}
-
-function normalizeIdentity(value) {
-  return String(value || "").trim().toLowerCase();
-}
-
-function getRecordTechnicianKeys(record) {
-  const data = record?.data || {};
-  const name = normalizeIdentity(data.tecnicoNombre || data.tecnico || data.nombreTecnico);
-  const email = normalizeIdentity(data.tecnicoCorreo || data.tecnicoEmail || data.correoTecnico);
-  return [
-    record?.user_id ? `user:${record.user_id}` : "",
-    email ? `email:${email}` : "",
-    name ? `name:${name}` : "",
-  ].filter(Boolean);
-}
-
-function matchesTechnicianFilter(record, technicianKeys = []) {
-  if (!technicianKeys.length) return true;
-  const recordKeys = getRecordTechnicianKeys(record);
-  return recordKeys.some((key) => technicianKeys.includes(key));
 }
 
 function buildActivity({ reports, quotes, movements, notifications }) {
@@ -167,7 +137,7 @@ function buildAlerts(metrics, lowStockRows) {
       id: "drafts",
       title: "Informes en borrador",
       detail: `${metrics.draftReports} registro(s) visibles siguen pendientes de completar.`,
-      url: "/vehiculos/informe",
+      section: "dashboard-area-status",
       tone: "amber",
     });
   }
@@ -206,47 +176,21 @@ function buildAlerts(metrics, lowStockRows) {
   return alerts.slice(0, 5);
 }
 
-export async function getGeneralDashboard({ email, technicianKeys = [] } = {}) {
+export async function getGeneralDashboard({ email, technicianKeys = [], reportRecords = [], draftReports = 0 } = {}) {
   const today = startOfToday();
   const week = startOfWeek();
   const userEmail = String(email || "").trim();
   const activeTechnicianKeys = Array.isArray(technicianKeys) ? technicianKeys.filter(Boolean) : [];
   const hasTechnicianFilter = activeTechnicianKeys.length > 0;
 
-  const reportsForTechnician = hasTechnicianFilter
-    ? await safeQuery(
-        () =>
-          listRows("registros", "id, user_id, area, tipo, subtipo, estado, data, created_at, updated_at", (query) =>
-            query.order("created_at", { ascending: false }).limit(1000)
-          ),
-        []
-      ).then((rows) =>
-        rows
-          .filter((record) => record.area !== RESOURCE_AREA && record.tipo !== "uso_recurso")
-          .filter((record) => matchesTechnicianFilter(record, activeTechnicianKeys))
-      )
-    : [];
-
-  const filteredReportsToday = hasTechnicianFilter
-    ? reportsForTechnician.filter((record) => new Date(record.created_at) >= new Date(today)).length
-    : 0;
-  const filteredReportsThisWeek = hasTechnicianFilter
-    ? reportsForTechnician.filter((record) => new Date(record.created_at) >= new Date(week)).length
-    : 0;
-  const filteredDraftReports = hasTechnicianFilter
-    ? reportsForTechnician.filter((record) => record.estado === "borrador").length
-    : 0;
-  const filteredRecentReports = hasTechnicianFilter
-      ? reportsForTechnician
-          .sort((a, b) => new Date(b.created_at || b.updated_at) - new Date(a.created_at || a.updated_at))
-        .slice(0, 8)
-    : [];
+  const errors = [];
+  const reportsToday = reportRecords.filter((record) => record.created_at && new Date(record.created_at) >= new Date(today)).length;
+  const reportsThisWeek = reportRecords.filter((record) => record.created_at && new Date(record.created_at) >= new Date(week)).length;
+  const recentReports = [...reportRecords]
+    .sort((a, b) => new Date(b.created_at || b.updated_at || 0) - new Date(a.created_at || a.updated_at || 0))
+    .slice(0, 8);
 
   const [
-    reportsToday,
-    reportsThisWeek,
-    draftReports,
-    recentReports,
     unreadNotifications,
     recentNotifications,
     quotesThisWeek,
@@ -257,77 +201,63 @@ export async function getGeneralDashboard({ email, technicianKeys = [] } = {}) {
     recentMovements,
     pendingSurveys,
   ] = await Promise.all([
-    hasTechnicianFilter ? filteredReportsToday : safeQuery(() => countRows("registros", (query) => query.gte("created_at", today)), 0),
-    hasTechnicianFilter ? filteredReportsThisWeek : safeQuery(() => countRows("registros", (query) => query.gte("created_at", week)), 0),
-    hasTechnicianFilter ? filteredDraftReports : safeQuery(() => countRows("registros", (query) => query.eq("estado", "borrador")), 0),
-    hasTechnicianFilter
-      ? filteredRecentReports
-      : safeQuery(
-          () =>
-            listRows("registros", "id, user_id, area, tipo, subtipo, estado, data, created_at, updated_at", (query) =>
-              query.order("created_at", { ascending: false }).limit(8)
-            ),
-          []
-        ),
     userEmail && !hasTechnicianFilter
-      ? safeQuery(
+      ? captureDashboardQuery(
           () => countRows("notifications", (query) => query.ilike("recipient_email", userEmail).eq("read", false)),
-          0
+          null, errors, "notificaciones"
         )
-      : 0,
+      : null,
     userEmail && !hasTechnicianFilter
-      ? safeQuery(
+      ? captureDashboardQuery(
           () =>
             listRows("notifications", "id, title, message, read, created_at", (query) =>
               query.ilike("recipient_email", userEmail).order("created_at", { ascending: false }).limit(5)
             ),
-          []
+          [], errors, "actividad de notificaciones"
         )
       : [],
-    hasTechnicianFilter ? 0 : safeQuery(() => countRows("vehicle_service_quotes", (query) => query.gte("created_at", week)), 0),
-    hasTechnicianFilter ? 0 : safeQuery(() => countRows("vehicle_service_quotes", (query) => query.eq("status", "pdf_pendiente")), 0),
+    hasTechnicianFilter ? null : captureDashboardQuery(() => countRows("vehicle_service_quotes", (query) => query.gte("created_at", week)), null, errors, "cotizaciones de la semana"),
+    hasTechnicianFilter ? null : captureDashboardQuery(() => countRows("vehicle_service_quotes", (query) => query.eq("status", "pdf_pendiente")), null, errors, "PDF de cotizaciones"),
     hasTechnicianFilter
       ? []
-      : safeQuery(
+      : captureDashboardQuery(
           () =>
             listRows("vehicle_service_quotes", "id, quote_number, client, reference, status, created_at, updated_at", (query) =>
               query.order("updated_at", { ascending: false }).limit(5)
             ),
-          []
+          [], errors, "actividad de cotizaciones"
         ),
-    hasTechnicianFilter ? 0 : safeQuery(() => countRows("warehouse_inventory"), 0),
+    hasTechnicianFilter ? null : captureDashboardQuery(() => countRows("warehouse_inventory"), null, errors, "inventario de bodega"),
     hasTechnicianFilter
-      ? []
-      : safeQuery(
+      ? null
+      : captureDashboardQuery(
           () =>
-            listRows("warehouse_inventory", "id, product_code, description, physical_stock, stock_minimum, updated_at", (query) =>
-              query.not("stock_minimum", "is", null).order("updated_at", { ascending: false }).limit(200)
+            listAllRows("warehouse_inventory", "id, product_code, description, physical_stock, stock_minimum, updated_at", (query) =>
+              query.not("stock_minimum", "is", null)
             ),
-          []
+          null, errors, "stock mínimo"
         ),
     hasTechnicianFilter
       ? []
-      : safeQuery(
+      : captureDashboardQuery(
           () =>
             listRows("warehouse_item_movements", "id, movement_type, related_party, service_ref, document_ref, notes, created_at", (query) =>
               query.order("created_at", { ascending: false }).limit(6)
             ),
-          []
+          [], errors, "movimientos de bodega"
         ),
     hasTechnicianFilter
-      ? 0
-      : safeQuery(
+      ? null
+      : captureDashboardQuery(
           () => countRows("customer_satisfaction_surveys", (query) => query.in("status", ["pendiente", "enviada", "requiere_seguimiento"])),
-          0
+          null, errors, "encuestas"
         ),
   ]);
 
-  const lowStockRows = lowStockSourceRows
-    .filter((row) => Number(row.physical_stock) <= Number(row.stock_minimum))
-    .slice(0, 6);
+  const allLowStockRows = lowStockSourceRows?.filter((row) => Number(row.physical_stock) <= Number(row.stock_minimum));
+  const lowStockRows = allLowStockRows?.slice(0, 6) || [];
 
   const metrics = {
-    ...ZERO_METRICS,
     reportsToday,
     reportsThisWeek,
     draftReports,
@@ -335,7 +265,7 @@ export async function getGeneralDashboard({ email, technicianKeys = [] } = {}) {
     quotesThisWeek,
     quotesPdfPending,
     warehouseItems,
-    lowStockItems: lowStockRows.length,
+    lowStockItems: allLowStockRows?.length ?? null,
     pendingSurveys,
   };
 
@@ -349,6 +279,7 @@ export async function getGeneralDashboard({ email, technicianKeys = [] } = {}) {
     }),
     alerts: buildAlerts(metrics, lowStockRows),
     lowStockItems: lowStockRows,
+    errors,
     loadedAt: new Date().toISOString(),
   };
 }

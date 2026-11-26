@@ -24,4 +24,5 @@ test("tipos desconocidos no abren formularios equivocados", () => {
   assert.equal(preview({ id: "1", area: "vehiculos", tipo: "inspeccion", subtipo: "desconocido" }), null);
   assert.equal(preview({ id: "1", area: "agua", tipo: "desconocido" }), null);
   assert.equal(preview({ area: "agua", tipo: "informe" }), null);
+  assert.equal(preview({ id: "1", area: null, tipo: "informe" }), null);
 });

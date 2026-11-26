@@ -22,21 +22,13 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { getGeneralDashboard } from "@/services/dashboardService";
-
-const FORM_AREA_META = {
-  vehiculos: { label: "Vehículos Especiales", color: "#0f55ff" },
-  agua: { label: "Agua y Saneamiento", color: "#1e88e5" },
-  industria: { label: "Industria", color: "#64748b" },
-  operaciones: { label: "Operaciones", color: "#16a34a" },
-  petroleo: { label: "Petróleo y Energía", color: "#f97316" },
-};
-
-const RESOURCE_AREA = "repositorios";
+import { fetchAllById, isResourceRecord, summarizeDashboardForms } from "@/utils/dashboardData.mjs";
 
 const STATUS_META = {
   completado: { label: "Completados", color: "#16a34a" },
   borrador: { label: "Borradores", color: "#f59e0b" },
   salida: { label: "Salidas", color: "#7c3aed" },
+  otro: { label: "Sin estado reconocido", color: "#64748b" },
 };
 
 const PERIODS = [
@@ -46,17 +38,10 @@ const PERIODS = [
   { value: "180", label: "Últimos 180 días" },
 ];
 
-const emptyCounts = () => ({ completado: 0, borrador: 0, salida: 0, total: 0 });
 const ALL_TECHNICIANS = "all";
 
 function getRecordDate(record) {
   return record.created_at || record.updated_at || null;
-}
-
-function getStatus(record) {
-  if (record.estado === "completado") return "completado";
-  if (record.estado === "salida") return "salida";
-  return "borrador";
 }
 
 function dateKey(value) {
@@ -81,7 +66,7 @@ function percent(value, total) {
 }
 
 function formatNumber(value) {
-  return new Intl.NumberFormat("es-EC").format(value || 0);
+  return value == null ? "—" : new Intl.NumberFormat("es-EC").format(value);
 }
 
 function formatActivityDate(value) {
@@ -193,51 +178,64 @@ export default function AdminSuccessDashboard() {
   const [selectedTechnician, setSelectedTechnician] = useState(ALL_TECHNICIANS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [profilesError, setProfilesError] = useState("");
   const [operationalDashboard, setOperationalDashboard] = useState(null);
   const [operationalLoading, setOperationalLoading] = useState(true);
   const [operationalError, setOperationalError] = useState("");
   const [operationalRefreshKey, setOperationalRefreshKey] = useState(0);
 
   useEffect(() => {
+    let mounted = true;
     const load = async () => {
       try {
         setLoading(true);
         setError("");
-        const { data, error: loadError } = await supabase
-          .from("registros")
-          .select("id, user_id, area, tipo, subtipo, estado, data, created_at, updated_at")
-          .order("created_at", { ascending: true });
-
-        if (loadError) throw loadError;
-        setRecords(data || []);
+        const data = await fetchAllById(async (cursor) => {
+          let query = supabase.from("registros")
+            .select("id, user_id, area, tipo, subtipo, estado, data, created_at, updated_at")
+            .order("id", { ascending: true }).limit(200);
+          if (cursor !== null) query = query.gt("id", cursor);
+          const { data: page, error: loadError } = await query;
+          if (loadError) throw loadError;
+          if (!Array.isArray(page)) throw new Error("No se recibió la página de registros.");
+          return page;
+        });
+        if (mounted) setRecords(data);
       } catch (err) {
         console.error("Error cargando dashboard administrativo:", err);
-        setError("No se pudo cargar el dashboard administrativo.");
+        if (mounted) setError("No se pudo cargar el dashboard administrativo.");
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
     load();
-  }, []);
+    return () => { mounted = false; };
+  }, [operationalRefreshKey]);
 
   useEffect(() => {
+    let mounted = true;
     const loadProfiles = async () => {
       try {
-        const { data, error: profilesError } = await supabase
-          .from("profiles")
-          .select("id, email, full_name")
-          .order("full_name", { ascending: true });
-
-        if (profilesError) throw profilesError;
-        setProfiles(data || []);
+        setProfilesError("");
+        const data = await fetchAllById(async (cursor) => {
+          let query = supabase.from("profiles").select("id, email, full_name").order("id", { ascending: true }).limit(200);
+          if (cursor !== null) query = query.gt("id", cursor);
+          const { data: page, error: loadError } = await query;
+          if (loadError) throw loadError;
+          if (!Array.isArray(page)) throw new Error("No se recibió la página de perfiles.");
+          return page;
+        });
+        if (mounted) setProfiles(data);
       } catch (err) {
         console.warn("No se pudieron cargar perfiles para el filtro de técnico:", err?.message || err);
+        if (mounted) setProfilesError("No se pudieron cargar los perfiles; el filtro de técnico puede estar incompleto.");
       }
     };
 
     loadProfiles();
-  }, []);
+    return () => { mounted = false; };
+  }, [operationalRefreshKey]);
 
   const profilesById = useMemo(
     () => new Map(profiles.map((profile) => [profile.id, profile])),
@@ -285,56 +283,27 @@ export default function AdminSuccessDashboard() {
     [selectedTechnicianOption]
   );
 
-  useEffect(() => {
-    let mounted = true;
-
-    async function loadOperationalDashboard() {
-      try {
-        setOperationalLoading(true);
-        setOperationalError("");
-        const data = await getGeneralDashboard({ email: email || user?.email, technicianKeys: selectedTechnicianKeys });
-        if (mounted) setOperationalDashboard(data);
-      } catch (err) {
-        console.error("Error cargando vista operativa del dashboard:", err);
-        if (mounted) setOperationalError("No se pudo cargar la vista operativa diaria.");
-      } finally {
-        if (mounted) setOperationalLoading(false);
-      }
-    }
-
-    loadOperationalDashboard();
-
-    return () => {
-      mounted = false;
-    };
-  }, [email, operationalRefreshKey, selectedTechnicianKeys, user?.email]);
+  const technicianFormRecords = useMemo(
+    () => records.filter((record) => !isResourceRecord(record) && matchesTechnician(record, selectedTechnicianKeys, profilesById)),
+    [records, selectedTechnicianKeys, profilesById]
+  );
 
   const dashboard = useMemo(() => {
     const start = getPeriodStart(period);
     const filtered = records.filter((record) => {
       const value = getRecordDate(record);
-      if (!value) return false;
-      if (start && new Date(value) < start) return false;
+      if (start && (!value || Number.isNaN(new Date(value).getTime()) || new Date(value) < start)) return false;
       return matchesTechnician(record, selectedTechnicianKeys, profilesById);
     });
 
-    const formRecords = filtered.filter((record) => record.area !== RESOURCE_AREA && record.tipo !== "uso_recurso");
-    const resourceRecords = filtered.filter((record) => record.area === RESOURCE_AREA || record.tipo === "uso_recurso");
-
-    const totals = emptyCounts();
-    const areaCounts = Object.fromEntries(Object.keys(FORM_AREA_META).map((area) => [area, emptyCounts()]));
+    const formRecords = filtered.filter((record) => !isResourceRecord(record));
+    const resourceRecords = filtered.filter(isResourceRecord);
+    const summary = summarizeDashboardForms(formRecords);
     const dailyMap = new Map();
 
     formRecords.forEach((record) => {
-      if (!areaCounts[record.area]) return;
-
-      const status = getStatus(record);
-      totals[status] += 1;
-      totals.total += 1;
-      areaCounts[record.area][status] += 1;
-      areaCounts[record.area].total += 1;
-
-      const key = dateKey(getRecordDate(record));
+      const date = getRecordDate(record);
+      const key = date ? dateKey(date) : null;
       if (key) dailyMap.set(key, (dailyMap.get(key) || 0) + 1);
     });
 
@@ -354,7 +323,7 @@ export default function AdminSuccessDashboard() {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, count]) => ({ date, count }));
 
-    const dates = formRecords.map((record) => getRecordDate(record)).filter(Boolean).sort();
+    const dates = formRecords.map((record) => getRecordDate(record)).filter((value) => value && !Number.isNaN(new Date(value).getTime())).sort();
     const firstDate = dates[0] || null;
     const lastDate = dates[dates.length - 1] || null;
     const periodDays = firstDate && lastDate
@@ -364,8 +333,7 @@ export default function AdminSuccessDashboard() {
 
     return {
       records: formRecords,
-      totals,
-      areaRows: Object.entries(areaCounts).map(([area, counts]) => ({ area, ...FORM_AREA_META[area], ...counts })),
+      ...summary,
       resourceUsage: {
         total: resourceRecords.length,
         users: resourceUsers.size,
@@ -377,10 +345,33 @@ export default function AdminSuccessDashboard() {
       lastDate,
       periodDays,
       bestDay,
-      activeAreas: Object.values(areaCounts).filter((counts) => counts.total > 0).length,
-      averageDaily: periodDays ? totals.total / periodDays : 0,
+      averageDaily: periodDays ? summary.totals.total / periodDays : 0,
     };
   }, [period, profilesById, records, selectedTechnicianKeys]);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadOperationalDashboard() {
+      try {
+        setOperationalLoading(true);
+        setOperationalError("");
+        const data = await getGeneralDashboard({
+          email: email || user?.email,
+          technicianKeys: selectedTechnicianKeys,
+          reportRecords: technicianFormRecords,
+          draftReports: dashboard.totals.borrador,
+        });
+        if (mounted) setOperationalDashboard(data);
+      } catch (err) {
+        console.error("Error cargando vista operativa del dashboard:", err);
+        if (mounted) setOperationalError("No se pudo cargar la vista operativa diaria.");
+      } finally {
+        if (mounted) setOperationalLoading(false);
+      }
+    }
+    loadOperationalDashboard();
+    return () => { mounted = false; };
+  }, [email, operationalRefreshKey, selectedTechnicianKeys, technicianFormRecords, dashboard.totals.borrador, user?.email]);
 
   const exportReport = () => {
     const rows = [
@@ -391,15 +382,17 @@ export default function AdminSuccessDashboard() {
       ["Completados", dashboard.totals.completado],
       ["Borradores", dashboard.totals.borrador],
       ["Salidas", dashboard.totals.salida],
+      ["Sin estado reconocido", dashboard.totals.otro],
       ["Accesos a Recursos", dashboard.resourceUsage.total],
       ["Usuarios en Recursos", dashboard.resourceUsage.users],
       [],
-      ["Área", "Completados", "Borradores", "Salidas", "Total", "Participación"],
+      ["Área", "Completados", "Borradores", "Salidas", "Sin estado reconocido", "Total", "Participación"],
       ...dashboard.areaRows.map((row) => [
         row.label,
         row.completado,
         row.borrador,
         row.salida,
+        row.otro,
         row.total,
         percent(row.total, dashboard.totals.total),
       ]),
@@ -414,7 +407,12 @@ export default function AdminSuccessDashboard() {
   }
 
   if (error) {
-    return <div className="rounded-3xl border border-red-200 bg-red-50 p-6 text-red-700 shadow">{error}</div>;
+    return (
+      <div role="alert" className="rounded-3xl border border-red-200 bg-red-50 p-6 text-red-700 shadow">
+        <p>{error} No se muestran totales parciales.</p>
+        <button type="button" onClick={() => setOperationalRefreshKey((value) => value + 1)} className="mt-3 font-bold underline">Reintentar</button>
+      </div>
+    );
   }
 
   return (
@@ -465,6 +463,17 @@ export default function AdminSuccessDashboard() {
         </div>
       </div>
 
+      {profilesError && <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">{profilesError}</div>}
+      {dashboard.unclassified > 0 && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {formatNumber(dashboard.unclassified)} registro(s) están sin área reconocida. Se incluyen como «Sin área / por clasificar» sin modificar sus datos.
+        </div>
+      )}
+      {dashboard.totals.otro > 0 && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {formatNumber(dashboard.totals.otro)} registro(s) tienen un estado no reconocido y no se cuentan como borradores.
+        </div>
+      )}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <MetricCard icon={FileText} label="Informes totales" value={dashboard.totals.total} detail="100% del total" color="bg-blue-600" onClick={() => scrollToDashboardSection("dashboard-area-status")} />
         <MetricCard icon={CheckSquare} label="Completados" value={dashboard.totals.completado} detail={`${percent(dashboard.totals.completado, dashboard.totals.total)} del total`} color="bg-green-600" onClick={() => scrollToDashboardSection("dashboard-status")} />
@@ -481,6 +490,7 @@ export default function AdminSuccessDashboard() {
         onNavigate={navigate}
         onRefresh={() => setOperationalRefreshKey((value) => value + 1)}
         technicianFilterLabel={selectedTechnicianOption?.label || ""}
+        draftReports={dashboard.totals.borrador}
       />
 
       <div className="grid gap-4 xl:grid-cols-[1.15fr_1.15fr_0.85fr]">
@@ -496,6 +506,7 @@ export default function AdminSuccessDashboard() {
               { label: STATUS_META.completado.label, value: dashboard.totals.completado, color: STATUS_META.completado.color },
               { label: STATUS_META.borrador.label, value: dashboard.totals.borrador, color: STATUS_META.borrador.color },
               { label: STATUS_META.salida.label, value: dashboard.totals.salida, color: STATUS_META.salida.color },
+              { label: STATUS_META.otro.label, value: dashboard.totals.otro, color: STATUS_META.otro.color },
             ]}
             total={dashboard.totals.total}
           />
@@ -566,9 +577,11 @@ function MetricCard({ icon: Icon, label, value, detail, color, onClick }) {
   );
 }
 
-function OperationalSnapshot({ dashboard, error, loading, onNavigate, onRefresh, technicianFilterLabel = "" }) {
-  const metrics = dashboard?.metrics || {};
+function OperationalSnapshot({ dashboard, error, loading, onNavigate, onRefresh, technicianFilterLabel = "", draftReports }) {
+  const metrics = loading || error ? {} : dashboard?.metrics || {};
   const hasTechnicianFilter = Boolean(technicianFilterLabel);
+  const sectionErrors = loading || error ? [] : dashboard?.errors || [];
+  const incomplete = Boolean(error || sectionErrors.length);
   const actions = [
     { label: "Notificaciones", url: "/notifications", color: "bg-blue-600" },
     { label: "Bodega", url: "/operaciones/bodega", color: "bg-emerald-700" },
@@ -598,12 +611,17 @@ function OperationalSnapshot({ dashboard, error, loading, onNavigate, onRefresh,
         </div>
 
         {error && <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">{error}</div>}
+        {sectionErrors.length > 0 && (
+          <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            Información incompleta. No se pudo cargar: {sectionErrors.join(", ")}. Actualiza la vista para reintentar.
+          </div>
+        )}
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <OperationalMetric icon={FileText} label="Informes hoy" value={metrics.reportsToday} detail="Creados durante la jornada" color="text-blue-600" onClick={() => scrollToDashboardSection("dashboard-recent-activity")} />
-          <OperationalMetric icon={ClipboardList} label="Borradores" value={metrics.draftReports} detail="Pendientes visibles" color="text-amber-600" onClick={() => scrollToDashboardSection("dashboard-operational-alerts")} />
-          <OperationalMetric icon={Bell} label="Notificaciones" value={metrics.unreadNotifications} detail="Avisos sin leer" color="text-purple-600" onClick={() => onNavigate("/notifications")} />
-          <OperationalMetric icon={Package} label="Stock bajo" value={metrics.lowStockItems} detail={`${formatNumber(metrics.warehouseItems)} artículos visibles`} color="text-red-600" onClick={() => onNavigate("/operaciones/bodega")} />
+          <OperationalMetric icon={ClipboardList} label="Borradores" value={draftReports} detail="Mismo periodo y técnico del resumen" color="text-amber-600" onClick={() => scrollToDashboardSection("dashboard-operational-alerts")} />
+          <OperationalMetric icon={Bell} label="Notificaciones" value={metrics.unreadNotifications} detail={hasTechnicianFilter ? "No aplica con filtro de técnico" : "Avisos sin leer"} color="text-purple-600" onClick={() => onNavigate("/notifications")} />
+          <OperationalMetric icon={Package} label="Stock bajo" value={metrics.lowStockItems} detail={hasTechnicianFilter ? "No aplica con filtro de técnico" : `${formatNumber(metrics.warehouseItems)} artículos visibles`} color="text-red-600" onClick={() => onNavigate("/operaciones/bodega")} />
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
@@ -612,7 +630,7 @@ function OperationalSnapshot({ dashboard, error, loading, onNavigate, onRefresh,
               <h4 className="text-xs font-black uppercase text-blue-900">Alertas importantes</h4>
               <span className="text-[10px] font-bold uppercase text-slate-400">Hoy</span>
             </div>
-            {loading ? <LoadingLine text="Cargando alertas..." /> : <OperationalAlerts alerts={dashboard?.alerts || []} onNavigate={onNavigate} />}
+            {loading ? <LoadingLine text="Cargando alertas..." /> : <OperationalAlerts alerts={error ? [] : dashboard?.alerts || []} incomplete={incomplete} onNavigate={onNavigate} />}
           </div>
 
           <div id="dashboard-recent-activity" className="scroll-mt-24 rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -633,7 +651,7 @@ function OperationalSnapshot({ dashboard, error, loading, onNavigate, onRefresh,
                 </div>
               )}
             </div>
-            {loading ? <LoadingLine text="Cargando actividad..." /> : <OperationalActivity items={dashboard?.activity || []} onNavigate={onNavigate} />}
+            {loading ? <LoadingLine text="Cargando actividad..." /> : <OperationalActivity items={error ? [] : dashboard?.activity || []} incomplete={incomplete} onNavigate={onNavigate} />}
           </div>
         </div>
       </div>
@@ -668,7 +686,7 @@ function LoadingLine({ text }) {
   return <p className="rounded-xl border border-dashed border-slate-200 bg-white p-4 text-xs font-medium text-slate-500">{text}</p>;
 }
 
-function OperationalAlerts({ alerts, onNavigate }) {
+function OperationalAlerts({ alerts, incomplete, onNavigate }) {
   const toneClass = {
     amber: "border-amber-200 bg-amber-50 text-amber-800",
     blue: "border-blue-200 bg-blue-50 text-blue-800",
@@ -678,6 +696,7 @@ function OperationalAlerts({ alerts, onNavigate }) {
   };
 
   if (!alerts.length) {
+    if (incomplete) return <LoadingLine text="No se pudieron comprobar todas las alertas." />;
     return <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-medium text-emerald-800">Sin alertas críticas visibles en este momento.</p>;
   }
 
@@ -687,7 +706,7 @@ function OperationalAlerts({ alerts, onNavigate }) {
         <button
           key={alert.id}
           type="button"
-          onClick={() => onNavigate(alert.url)}
+          onClick={() => alert.section ? scrollToDashboardSection(alert.section) : onNavigate(alert.url)}
           className={`flex w-full gap-3 rounded-xl border p-3 text-left transition hover:-translate-y-0.5 ${toneClass[alert.tone] || toneClass.blue}`}
         >
           <AlertTriangle size={18} className="mt-0.5 shrink-0" />
@@ -701,8 +720,9 @@ function OperationalAlerts({ alerts, onNavigate }) {
   );
 }
 
-function OperationalActivity({ items, onNavigate }) {
+function OperationalActivity({ items, incomplete, onNavigate }) {
   if (!items.length) {
+    if (incomplete) return <LoadingLine text="No se pudo cargar toda la actividad reciente." />;
     return <p className="rounded-xl border border-dashed border-slate-200 bg-white p-4 text-xs font-medium text-slate-500">Todavía no hay actividad reciente visible.</p>;
   }
 
@@ -748,6 +768,7 @@ function AreaTable({ rows, total }) {
             <th className="py-2 pr-3 text-green-600">Completados</th>
             <th className="py-2 pr-3 text-orange-600">Borradores</th>
             <th className="py-2 pr-3 text-violet-600">Salidas</th>
+            <th className="py-2 pr-3">Otro estado</th>
             <th className="py-2 pr-3">Total</th>
           </tr>
         </thead>
@@ -758,6 +779,7 @@ function AreaTable({ rows, total }) {
               <td className="py-2 pr-3 text-green-600">{row.completado}</td>
               <td className="py-2 pr-3 text-orange-600">{row.borrador}</td>
               <td className="py-2 pr-3 text-violet-600">{row.salida}</td>
+              <td className="py-2 pr-3">{row.otro}</td>
               <td className="py-2 pr-3 font-bold">{row.total} <span className="font-normal text-slate-400">{percent(row.total, total)}</span></td>
             </tr>
           ))}

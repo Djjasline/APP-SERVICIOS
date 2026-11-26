@@ -286,13 +286,15 @@ test("dashboard de exito mantiene actividad diaria visible", () => {
 
   const dashboardService = read("src/services/dashboardService.js");
   assert.match(dashboardService, /technicianKeys = \[\]/);
-  assert.match(dashboardService, /matchesTechnicianFilter/);
-  assert.match(dashboardService, /filteredRecentReports/);
+  assert.match(dashboard, /technicianFormRecords/);
+  assert.match(dashboard, /reportRecords: technicianFormRecords/);
+  assert.match(dashboardService, /recentReports/);
+  assert.match(dashboard, /draftReports=\{dashboard\.totals\.borrador\}/);
   assert.match(dashboardService, /function getTextValue/);
   assert.match(dashboardService, /value\.placa, value\.marca, value\.modelo, value\.serie/);
   assert.doesNotMatch(dashboardService, /data\.cliente \|\| data\.empresa \|\| data\.equipo/);
-  assert.match(dashboardService, /hasTechnicianFilter \? 0 : safeQuery\(\(\) => countRows\("vehicle_service_quotes"/);
-  assert.match(dashboardService, /hasTechnicianFilter\s*\? \[\]\s*: safeQuery/s);
+  assert.match(dashboardService, /hasTechnicianFilter \? null : captureDashboardQuery\(\(\) => countRows\("vehicle_service_quotes"/);
+  assert.match(dashboardService, /hasTechnicianFilter\s*\? \[\]\s*: captureDashboardQuery/s);
 
   const reportService = read("src/services/reportService.js");
   assert.match(reportService, /function getTextValue/);
@@ -341,7 +343,7 @@ test("panel principal conserva visual de menu estable", () => {
   assert.match(service, /warehouse_inventory/);
   assert.match(service, /vehicle_service_quotes/);
   assert.match(service, /customer_satisfaction_surveys/);
-  assert.match(service, /safeQuery/);
+  assert.match(service, /captureDashboardQuery/);
 });
 
 test("configurador mantiene dueno, vista previa e imagen proporcional", () => {
