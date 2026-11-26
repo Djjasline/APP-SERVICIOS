@@ -30,6 +30,18 @@ test("resolveAuthAccess conserva acceso comercial sin convertirlo en tecnico", (
   assert.equal(access.roles.includes(ROLES.comercial), true);
 });
 
+test("solo la cuenta autorizada recibe roles administrativos", () => {
+  for (const profileRole of ["super_admin", "admin", " SUPER_ADMIN "]) {
+    const access = resolveAuthAccess({ email: "tecnico@astap.com", profileRole });
+    assert.equal(access.isSuperAdmin, false);
+    assert.equal(access.roles.includes(ROLES.admin), false);
+    assert.equal(access.role, ROLES.usuario);
+  }
+  const admin = resolveAuthAccess({ email: " SMAVILES@ASTAP.COM ", profileRole: "tecnico" });
+  assert.equal(admin.isSuperAdmin, true);
+  assert.equal(admin.isTechnicalUser, true);
+});
+
 test("getEmailRoles conserva privilegios multiples de un correo", () => {
   assert.deepEqual(getEmailRoles("abriones@astap.com"), [ROLES.supervisorProyecto, ROLES.tecnico]);
 });

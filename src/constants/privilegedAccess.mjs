@@ -51,7 +51,11 @@ export function getEmailRoles(emailValue) {
 
 export function resolveAuthAccess({ email, profileRole }) {
   const normalizedEmail = normalizeEmail(email);
-  const normalizedProfileRole = normalizeRole(profileRole);
+  const requestedProfileRole = normalizeRole(profileRole);
+  const normalizedProfileRole =
+    !isSuperAdminEmail(normalizedEmail) && [ROLES.superAdmin, ROLES.admin].includes(requestedProfileRole)
+      ? ROLES.usuario
+      : requestedProfileRole;
   const emailRoles = getEmailRoles(normalizedEmail);
   const role = emailRoles[0] || normalizedProfileRole || ROLES.usuario;
   const hasCommercialAccess = COMMERCIAL_ROLES.includes(normalizedProfileRole);

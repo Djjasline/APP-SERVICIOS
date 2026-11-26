@@ -8,11 +8,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select coalesce(auth.jwt() ->> 'email', '') = 'smaviles@astap.com'
-    or exists (
-      select 1 from public.profiles
-      where id = auth.uid() and role = 'super_admin'
-    );
+  select lower(trim(coalesce(auth.jwt() ->> 'email', ''))) = 'smaviles@astap.com';
 $$;
 
 grant select, update on public.profiles to authenticated;

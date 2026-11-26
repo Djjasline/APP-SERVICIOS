@@ -6,11 +6,9 @@ import { hasReportCodeSequence, normalizeReportCodeValue, reserveNextReportCode 
 import { formatPersonName } from "@/utils/nameFormat";
 import { correctWritingData } from "@/utils/writingCorrection.mjs";
 import {
-  ROLES,
   isSuperAdminEmail,
   isSupervisorOperacionesEmail,
   isSupervisorProyectoEmail,
-  normalizeRole,
 } from "@/constants/privilegedAccess.mjs";
 
 const normalize = (value) => String(value || "").trim().toLowerCase();
@@ -115,7 +113,7 @@ async function getEditableRecord({ id, user, area, tipo, subtipo }) {
 
   const email = normalize(user.email);
   const isOwnRecord = record.user_id === user.id || recordHasTechnicianEmail(record, email);
-  const isSuperAdmin = isSuperAdminEmail(email) || rolesIncludeSuperAdmin(user);
+  const isSuperAdmin = isSuperAdminEmail(email);
   const isAreaSupervisor =
     (record.area === "operaciones" && isSupervisorOperacionesEmail(email)) ||
     (record.area === "vehiculos" && isSupervisorProyectoEmail(email));
@@ -126,10 +124,6 @@ async function getEditableRecord({ id, user, area, tipo, subtipo }) {
   if (canAccessRecord({ record, userId: user.id, permissions, isSuperAdmin, action: "edit" })) return record;
 
   throw new Error("No tienes permiso para editar este registro.");
-}
-
-function rolesIncludeSuperAdmin(user) {
-  return normalizeRole(user?.user_metadata?.role) === ROLES.superAdmin;
 }
 
 async function resolveReportData({ id, data }) {
