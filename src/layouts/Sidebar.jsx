@@ -9,6 +9,7 @@ import { getUnreadAppUpdatesCount } from "@/services/appUpdatesService";
 import { getUnreadMessageCounts } from "@/services/chatService";
 import { openExternalResource } from "@/services/resourceUsageService";
 import { supabase } from "@/lib/supabase";
+import { hasLimitedSidebar } from "@/utils/sidebarMenuAccess.mjs";
 import "./sidebar.css";
 import {
   LayoutDashboard,
@@ -62,6 +63,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
 
   const proveedorSoloVehiculos = isProveedorVehiculosOnly ?? isProveedorVehiculos;
   const puedeVerTodo = !proveedorSoloVehiculos;
+  const menuLimitado = hasLimitedSidebar(user?.email);
   const isCompact = !openSidebar && !isMobile;
   const puedeUsarConfigurador = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.configurador);
   const puedeUsarCotizador = hasSpecialModuleAccess(SPECIAL_MODULE_KEYS.cotizador);
@@ -311,6 +313,35 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
       {/* CONTENIDO */}
       <div className="astap-sidebar-content flex-1 p-3 space-y-2 text-sm overflow-y-auto">
         {openSidebar && <p className="astap-sidebar-section">ESPACIO DE TRABAJO</p>}
+        {menuLimitado ? (
+          <>
+            {puedeUsarBodega && (
+              <button
+                type="button"
+                onClick={() => go("/operaciones/bodega")}
+                className={itemClass(isActive("/operaciones/bodega"))}
+                aria-label={OPERACIONES_TEXT.bodega.title}
+                title={OPERACIONES_TEXT.bodega.title}
+                aria-current={isActive("/operaciones/bodega") ? "page" : undefined}
+              >
+                <Package size={20} className={iconClass} />
+                {openSidebar && OPERACIONES_TEXT.bodega.title}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => go("/repositorios")}
+              className={itemClass(isActive("/repositorios"))}
+              aria-label="Recursos"
+              title="Recursos"
+              aria-current={isActive("/repositorios") ? "page" : undefined}
+            >
+              <FolderOpen size={20} className={iconClass} />
+              {openSidebar && "Recursos"}
+            </button>
+          </>
+        ) : (
+          <>
         {puedeVerTodo && (
           <button
             type="button"
@@ -846,8 +877,10 @@ export default function Sidebar({ openSidebar, setOpenSidebar, isMobile, hasOnli
             )}
           </>
         )}
+          </>
+        )}
 
-        {openSidebar && (
+        {openSidebar && !menuLimitado && (
           <div className="mt-4 rounded-2xl border border-white/20 bg-white p-3 text-slate-800 shadow-lg">
             <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
               <img
