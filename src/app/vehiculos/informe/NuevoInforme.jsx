@@ -16,7 +16,7 @@ import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import AutoResizeInput from "@/components/AutoResizeInput";
 import WritingReviewButton from "@/components/WritingReviewButton";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
-import EquipmentReferenceSearch from "@/components/EquipmentReferenceSearch";
+import EquipmentReferenceSearch, { EquipmentReferenceField } from "@/components/EquipmentReferenceSearch";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import { ensureCompletionReady } from "@/utils/completionValidation";
 import { hasUnlimitedActivityImages, isSuperAdminEmail } from "@/constants/privilegedAccess.mjs";
@@ -1097,7 +1097,7 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
         <h3 className="font-bold text-sm border-b pb-1">
           {reportConfig.equipmentSectionTitle}
         </h3>
-        <EquipmentReferenceSearch current={data.equipo} onApply={(values) => update(["equipo"], values)} />
+        <EquipmentReferenceSearch clientName={data.cliente} current={data.equipo} onApply={(values) => update(["equipo"], values)}>
 
         <table className="pdf-table w-full">
           <thead>
@@ -1126,7 +1126,7 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                   <tr key={field[1]}>
                     <td className="pdf-label">{field[0]}</td>
                     <td>
-                      <AutoResizeInput
+                      <EquipmentReferenceField fieldName={field[1]}
                         className="pdf-input w-full"
                         value={data.equipo[field[1]]}
                         placeholder={fieldPlaceholders[field[1]] || ""}
@@ -1139,7 +1139,7 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
                       <>
                         <td className="pdf-label">{next[0]}</td>
                         <td>
-                          <AutoResizeInput
+                          <EquipmentReferenceField fieldName={next[1]}
                             className="pdf-input w-full"
                             value={data.equipo[next[1]]}
                             placeholder={fieldPlaceholders[next[1]] || ""}
@@ -1159,6 +1159,7 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
             }, [])}
           </tbody>
         </table>
+        </EquipmentReferenceSearch>
 
         {/* ── ESTADO INICIAL DEL EQUIPO ── */}
         <h3 className="font-bold text-sm border-b pb-1">3. ESTADO INICIAL DEL EQUIPO</h3>

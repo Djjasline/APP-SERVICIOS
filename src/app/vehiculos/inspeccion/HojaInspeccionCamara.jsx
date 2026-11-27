@@ -15,7 +15,7 @@ import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
-import EquipmentReferenceSearch from "@/components/EquipmentReferenceSearch";
+import EquipmentReferenceSearch, { EquipmentReferenceField } from "@/components/EquipmentReferenceSearch";
 import WritingReviewButton from "@/components/WritingReviewButton";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
@@ -738,7 +738,7 @@ const result = await saveOrUpdateReport({
 
           {/* ══ 3. DESCRIPCIÓN DEL EQUIPO ══ */}
           <h3 className="font-bold text-sm border-b pb-1">DESCRIPCIÓN DEL EQUIPO</h3>
-          <EquipmentReferenceSearch category="camara" camera current={data.equipo} onApply={(values) => update(["equipo"], values)} />
+          <EquipmentReferenceSearch category="camara" camera clientName={data.cliente} current={data.equipo} onApply={(values) => update(["equipo"], values)}>
           <table className="pdf-table w-full">
             <thead>
               <tr>
@@ -757,7 +757,7 @@ const result = await saveOrUpdateReport({
                 <tr key={idx}>
                   <td className="pdf-label">{l1}</td>
                   <td>
-                    <AutoResizeInput
+                    <EquipmentReferenceField fieldName={f1}
                       className="pdf-input w-full"
                       value={data.equipo[f1] || ""}
                       placeholder={fieldPlaceholders[f1] || ""}
@@ -768,7 +768,7 @@ const result = await saveOrUpdateReport({
                     <>
                       <td className="pdf-label">{l2}</td>
                       <td>
-                        <AutoResizeInput
+                        <EquipmentReferenceField fieldName={f2}
                           className="pdf-input w-full"
                           value={data.equipo[f2] || ""}
                           placeholder={fieldPlaceholders[f2] || ""}
@@ -783,6 +783,7 @@ const result = await saveOrUpdateReport({
               ))}
             </tbody>
           </table>
+          </EquipmentReferenceSearch>
 
           {/* ══ 4. ESTADO DEL EQUIPO ══ */}
           <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>

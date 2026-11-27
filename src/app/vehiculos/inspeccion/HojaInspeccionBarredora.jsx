@@ -15,7 +15,7 @@ import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
-import EquipmentReferenceSearch from "@/components/EquipmentReferenceSearch";
+import EquipmentReferenceSearch, { EquipmentReferenceField } from "@/components/EquipmentReferenceSearch";
 import WritingReviewButton from "@/components/WritingReviewButton";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
@@ -991,7 +991,7 @@ setTimeout(() => {
            
           {/* ══ 3. DESCRIPCIÓN DEL EQUIPO ══ */}
           <h3 className="font-bold text-sm border-b pb-1">DESCRIPCIÓN DEL EQUIPO</h3>
-          <EquipmentReferenceSearch category="barredora" current={data.equipo} onApply={(values) => update(["equipo"], values)} />
+          <EquipmentReferenceSearch category="barredora" clientName={data.cliente} current={data.equipo} onApply={(values) => update(["equipo"], values)}>
           <table className="pdf-table w-full">
             <thead><tr><th colSpan={4} style={{ textAlign:"center" }}>DESCRIPCIÓN DEL EQUIPO</th></tr></thead>
             <tbody>
@@ -1007,8 +1007,8 @@ setTimeout(() => {
                   const next = arr[idx + 1];
                   rows.push(
                     <tr key={idx}>
-                      {field[0] ? <><td className="pdf-label">{field[0]}</td><td><AutoResizeInput className="pdf-input w-full" value={data.equipo[field[1]]||""} placeholder={fieldPlaceholders[field[1]] || ""} onChange={(e) => update(["equipo", field[1]], e.target.value)} /></td></> : <td colSpan={2} />}
-                      {next && next[0] ? <><td className="pdf-label">{next[0]}</td><td><AutoResizeInput className="pdf-input w-full" value={data.equipo[next[1]]||""} placeholder={fieldPlaceholders[next[1]] || ""} onChange={(e) => update(["equipo", next[1]], e.target.value)} /></td></> : <td colSpan={2} />}
+                      {field[0] ? <><td className="pdf-label">{field[0]}</td><td><EquipmentReferenceField fieldName={field[1]} className="pdf-input w-full" value={data.equipo[field[1]]||""} placeholder={fieldPlaceholders[field[1]] || ""} onChange={(e) => update(["equipo", field[1]], e.target.value)} /></td></> : <td colSpan={2} />}
+                      {next && next[0] ? <><td className="pdf-label">{next[0]}</td><td><EquipmentReferenceField fieldName={next[1]} className="pdf-input w-full" value={data.equipo[next[1]]||""} placeholder={fieldPlaceholders[next[1]] || ""} onChange={(e) => update(["equipo", next[1]], e.target.value)} /></td></> : <td colSpan={2} />}
                     </tr>
                   );
                 }
@@ -1016,6 +1016,7 @@ setTimeout(() => {
               }, [])}
             </tbody>
           </table>
+          </EquipmentReferenceSearch>
 
           {/* ══ 4. ESTADO DEL EQUIPO — MÚLTIPLES FOTOS ══ */}
           <h3 className="font-bold text-sm border-b pb-1">ESTADO DEL EQUIPO</h3>
