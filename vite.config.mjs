@@ -60,10 +60,6 @@ export default defineConfig({
             return "vendor-supabase";
           }
 
-          if (id.includes("html2pdf.js") || id.includes("html2canvas") || id.includes("jspdf")) {
-            return "vendor-pdf";
-          }
-
           return undefined;
         },
       },
