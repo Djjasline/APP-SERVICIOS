@@ -17,6 +17,7 @@ import { formatPersonName } from "@/utils/nameFormat";
 import ObservationImageField from "@/components/ObservationImageField";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import EquipmentReferenceSearch from "@/components/EquipmentReferenceSearch";
 import WritingReviewButton from "@/components/WritingReviewButton";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import PartsRowDeleteButton from "@/components/PartsRowDeleteButton";
@@ -779,6 +780,7 @@ const result = await saveOrUpdateReport({
 
           {/* ══ 3. DESCRIPCIÓN DEL EQUIPO ══ */}
           <h3 className="font-bold text-sm border-b pb-1">DESCRIPCIÓN DEL EQUIPO</h3>
+          <EquipmentReferenceSearch category="camara" camera current={data.equipo} onApply={(values) => update(["equipo"], values)} />
           <table className="pdf-table w-full">
             <thead>
               <tr><th colSpan={4} style={{ textAlign: "center" }}>DESCRIPCIÓN DEL EQUIPO — V-CAM6</th></tr>

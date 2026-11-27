@@ -15,6 +15,7 @@ import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import EquipmentReferenceSearch from "@/components/EquipmentReferenceSearch";
 import WritingReviewButton from "@/components/WritingReviewButton";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
@@ -990,6 +991,7 @@ setTimeout(() => {
            
           {/* ══ 3. DESCRIPCIÓN DEL EQUIPO ══ */}
           <h3 className="font-bold text-sm border-b pb-1">DESCRIPCIÓN DEL EQUIPO</h3>
+          <EquipmentReferenceSearch category="barredora" current={data.equipo} onApply={(values) => update(["equipo"], values)} />
           <table className="pdf-table w-full">
             <thead><tr><th colSpan={4} style={{ textAlign:"center" }}>DESCRIPCIÓN DEL EQUIPO</th></tr></thead>
             <tbody>

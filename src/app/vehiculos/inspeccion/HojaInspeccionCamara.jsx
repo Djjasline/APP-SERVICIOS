@@ -15,6 +15,7 @@ import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import { formatPersonName } from "@/utils/nameFormat";
 import ReportCodeInput from "@/components/ReportCodeInput";
 import AutoResizeInput from "@/components/AutoResizeInput";
+import EquipmentReferenceSearch from "@/components/EquipmentReferenceSearch";
 import WritingReviewButton from "@/components/WritingReviewButton";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
@@ -737,6 +738,7 @@ const result = await saveOrUpdateReport({
 
           {/* ══ 3. DESCRIPCIÓN DEL EQUIPO ══ */}
           <h3 className="font-bold text-sm border-b pb-1">DESCRIPCIÓN DEL EQUIPO</h3>
+          <EquipmentReferenceSearch category="camara" camera current={data.equipo} onApply={(values) => update(["equipo"], values)} />
           <table className="pdf-table w-full">
             <thead>
               <tr>

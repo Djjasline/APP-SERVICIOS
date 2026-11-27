@@ -16,6 +16,7 @@ import TechnicalReportGuidance from "@/components/TechnicalReportGuidance";
 import AutoResizeInput from "@/components/AutoResizeInput";
 import WritingReviewButton from "@/components/WritingReviewButton";
 import ClientReferenceInput from "@/components/ClientReferenceInput";
+import EquipmentReferenceSearch from "@/components/EquipmentReferenceSearch";
 import InspectionPartsAnnex, { createDefaultPartsAnnexRows } from "@/components/InspectionPartsAnnex";
 import { ensureCompletionReady } from "@/utils/completionValidation";
 import { hasUnlimitedActivityImages, isSuperAdminEmail } from "@/constants/privilegedAccess.mjs";
@@ -1096,6 +1097,7 @@ const technicalWarning = estadoFinal === "completado" ? validateReport() : null;
         <h3 className="font-bold text-sm border-b pb-1">
           {reportConfig.equipmentSectionTitle}
         </h3>
+        <EquipmentReferenceSearch current={data.equipo} onApply={(values) => update(["equipo"], values)} />
 
         <table className="pdf-table w-full">
           <thead>
