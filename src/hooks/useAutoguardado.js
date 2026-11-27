@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { pickNewestDraft, toDraftPayload } from "@/utils/draftSelection.mjs";
-import { pendingDraftForFlush } from "@/utils/draftLifecycle.mjs";
+import { createDraftStartGate, isDraftStartingInput, pendingDraftForFlush } from "@/utils/draftLifecycle.mjs";
 
 let activeScope = "anon";
 const remoteProtectedKeys = new Set();
@@ -162,6 +162,18 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000, 
   const lastChangeRef = useRef(null);
   const protectionInitRef = useRef(null);
   const protectionKey = getRemoteProtectionKey(clave, scope);
+  const startGateRef = useRef(null);
+  const getStartGate = () => {
+    const version = draftClearVersions.get(protectionKey) || 0;
+    if (startGateRef.current?.key !== protectionKey || startGateRef.current.version !== version) {
+      startGateRef.current = {
+        key: protectionKey,
+        version,
+        gate: createDraftStartGate({ requireInteraction: String(clave || "").endsWith("_new") }),
+      };
+    }
+    return startGateRef.current.gate;
+  };
   if (protectExisting && clave && protectionInitRef.current !== protectionKey) {
     protectionInitRef.current = protectionKey;
     pendingRecoveryKeys.add(protectionKey);
@@ -199,11 +211,37 @@ export function useAutoguardado(clave, datos, activo = true, intervalo = 15000, 
     lastChangeRef.current = { key, version: draftClearVersions.get(key) || 0 };
   }, [datos, clave, scope]);
 
+  // Initial values and automatic technician/date loading are not user edits.
+  // A changed control starts autosave; other interactive actions start it only
+  // if they actually change the form data (e.g. an inspection checklist cell).
+  useEffect(() => {
+    if (!activo || !clave || !String(clave).endsWith("_new")) return;
+    const onInput = (event) => {
+      if (isDraftStartingInput(event.target)) getStartGate().input();
+    };
+    const onAction = (event) => {
+      if (event.target?.closest?.("button, [role='button'], [role='radio'], td, canvas, img")) {
+        getStartGate().action(datosRef.current);
+      }
+    };
+    document.addEventListener("input", onInput, true);
+    document.addEventListener("change", onInput, true);
+    document.addEventListener("click", onAction, true);
+    document.addEventListener("pointerdown", onAction, true);
+    return () => {
+      document.removeEventListener("input", onInput, true);
+      document.removeEventListener("change", onInput, true);
+      document.removeEventListener("click", onAction, true);
+      document.removeEventListener("pointerdown", onAction, true);
+    };
+  }, [activo, clave, scope]);
+
   const guardar = useCallback((snapshot = datosRef.current) => {
     if (!activo || !clave) return;
     if (protectExisting && pendingRecoveryKeys.has(getRemoteProtectionKey(clave, scope))) return;
     const key = getRemoteProtectionKey(clave, scope);
     if (lastChangeRef.current?.key === key && lastChangeRef.current.version !== (draftClearVersions.get(key) || 0)) return;
+    if (!getStartGate().canSave(snapshot)) return;
 
     const showNotice = Date.now() - lastNoticeRef.current >= 15000;
     const notify = (status) => window.dispatchEvent(new CustomEvent("astap:autosave", { detail: { status, clave } }));
